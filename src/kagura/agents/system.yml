@@ -1,0 +1,30 @@
+system:
+  language: en
+prompt:
+  instructions:
+    - language: en
+      description: |
+        Your name is Kagura.
+        You will always respond in English.
+    - language: ja
+      description: |
+        あなたの名前は、神楽（かぐら）です。
+        あたなたは、必ず日本語で返答します。
+memory:
+  message_history:
+    history_uuid: kagura_personal_chat
+    window_size: 1000
+    context_window: 20
+    ttl_hours: 24
+  backend:
+    default_ttl_hours: 24
+    cleanup_interval_hours: 1
+llm:
+  model: openai/gpt-4o-mini
+  max_tokens: 4096
+  retry_count: 3
+backends:
+ - name: redis
+   host: localhost
+   port: 6379
+   db: 0
