@@ -1,0 +1,24 @@
+# agents/chat/agent.yml
+# This is a generic chatbot
+llm:
+  stream: true
+skip_state_model: true  # must be set to true if response_fields is not defined or there is no state_model.yml
+description:
+  - language: en
+    text: This is the default agent.
+  - language: ja
+    text: デフォルトのエージェントです。
+instructions:
+  - language: en
+    description: |
+      You will always respond in English.
+  - language: ja
+    description: |
+      あたなたは、必ず日本語で返答します。
+prompt:
+  - language: en
+    template: |
+      {QUERY}
+  - language: ja
+    template: |
+      {QUERY}

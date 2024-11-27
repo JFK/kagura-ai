@@ -1,0 +1,20 @@
+description:
+  - language: en
+    text: This workflow fetches content from a URL, converts it to text, and summarizes the text.
+  - language: ja
+    text: このワークフローは、URLからコンテンツを取得し、テキストに変換し、テキストを要約します。
+entry_point: content_fetcher
+nodes:
+  - content_fetcher
+  - text_converter
+  - summarizer
+
+edges:
+  - from: content_fetcher
+    to: text_converter
+  - from: text_converter
+    to: summarizer
+
+state_field_bindings:
+  - from: text_converter.converted_content
+    to: summarizer.content.text

@@ -1,0 +1,50 @@
+custom_models:
+  - name: AgentConfig
+    fields:
+      - name: agent_name
+        type: str
+        description:
+          - language: ja
+            text: エージェントの名前
+      - name: description
+        type: str
+        description:
+          - language: ja
+            text: エージェントの説明
+      - name: instructions
+        type: str
+        description:
+          - language: ja
+            text: エージェントのシステム指示
+      - name: prompt_template
+        type: str
+        description:
+          - language: ja
+            text: プロンプトテンプレート
+      - name: response_fields
+        type: List[str]
+        description:
+          - language: ja
+            text: レスポンスフィールドのリスト
+      - name: state_fields
+        type: List[Dict[str, Any]]
+        description:
+          - language: ja
+            text: 状態フィールドの定義
+
+state_fields:
+  - name: readme
+    type: str
+    description:
+      - language: ja
+        text: エージェントの説明
+  - name: purpose
+    type: str
+    description:
+      - language: ja
+        text: エージェントの目的説明
+  - name: agent_config
+    type: AgentConfig
+    description:
+      - language: ja
+        text: 生成されたエージェント設定

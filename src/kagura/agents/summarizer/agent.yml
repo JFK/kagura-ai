@@ -1,0 +1,26 @@
+description:
+  - language: en
+    text: An agent that summarizes content.
+  - language: ja
+    text: コンテンツを要約するエージェントです。
+
+instructions:
+  - language: en
+    description: |
+      You are an expert in summarizing content. Summarize the content in English.
+
+  - language: ja
+    description: |
+      あなたは、コンテンツを要約する専門家です。日本語で要約してください。
+
+prompt:
+  - language: en
+    template: |
+      Please summarize the following content:
+      {content}
+  - language: ja
+    template: |
+      次のコンテンツを要約してください:
+      {content}
+response_fields:
+  - summary

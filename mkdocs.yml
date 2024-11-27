@@ -1,0 +1,86 @@
+site_name: Kagura AI Documentation
+site_url: https://www.kagura-ai.com
+
+docs_dir: 'docs'
+
+theme:
+  name: material
+  language: en
+  palette:
+    primary: green
+    accent: red
+  logo: assets/kagura-icon.svg
+
+  features:
+    - content.code.copy
+  footer:
+    social: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - attr_list
+
+plugins:
+  - search
+#  - i18n:
+#      default_language: en
+#      languages:
+#        en: English
+#        ja: 日本語
+
+nav:
+  - index.md
+  - Concepts & Architecture: en/concepts.md
+  - Getting Started:
+    - en/installation.md
+    - en/configuration.md
+    - en/quickstart.md
+  - AI Agents:
+    - Overiew: en/agents/overview.md
+    - Types: en/agents/types.md
+    - Configuration: en/agents/configuration.md
+  - Tutorials:
+    - Agent Pupblising Guide: en/tutorials/agent-publishing-guide.md
+    - Agent Template: en/tutorials/agent-template.md
+    - Building Your First Agent: en/tutorials/first-agent.md
+#    - Creating a Chat Agent: en/tutorials/chat-agent.md
+#    - Implementing a Search Pipeline: en/tutorials/search-pipeline.md
+#    - Custom Tool Development: en/tutorials/custom-tools.md
+#  - Implementation Guides:
+#    - Content Processing Workflow: en/guides/content-processing.md
+#    - Data Analysis Pipeline: en/guides/data-analysis.md
+#    - Multi-Agent Integration: en/guides/multi-agent.md
+#    - State Management Patterns: en/guides/state-patterns.md
+#  - Best Practices:
+#    - Error Handling: en/practices/error-handling.md
+#    - Testing Strategies: en/practices/testing.md
+#    - Performance Optimization: en/practices/optimization.md
+  - Documentation:
+    - en/mkdocs.md
+  - Why Kagura AI?: en/kagura.md
+  - GitHub: https://github.com/JFK/kagura-ai
+  - ChatGPTs: https://chatgpt.com/g/g-674c1cfed1a88191bd594e13c2840a44-kagura-ai-agent-builder
+
+extra_css:
+  - assets/custom.css
+
+extra_javascript:
+  - assets/custom.js
+
+extra:
+  favicon: assets/kagura-icon.svg
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/JFK/kagura-ai
+      name: GitHub Repository
+
+# extra:
+#  alternate:
+#    - name: English
+#      link: /
+#      lang: en
+#    - name: 日本語
+#      link: /ja/top/
+#      lang: ja

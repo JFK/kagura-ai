@@ -1,0 +1,3 @@
+custom_tool: kagura.agents.content_fetcher.tools.fetch
+response_fields:
+  - content

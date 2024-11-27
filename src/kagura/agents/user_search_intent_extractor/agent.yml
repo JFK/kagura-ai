@@ -1,0 +1,50 @@
+description:
+  - language: en
+    text: This agent analyzes user messages to extract search intents with confidence scores
+  - language: ja
+    text: このエージェントはユーザーメッセージを分析し、信頼度スコア付きで検索意図を抽出します
+
+instructions:
+  - language: en
+    description: |
+      Analyze the user's message to identify potential search intents. For each intent:
+      1. Express the search intent concisely and clearly
+      2. Assign a confidence score (0.0-1.0) based on:
+         - Clarity and explicitness of the intent
+         - Presence of search-related language
+         - Context certainty
+      List multiple intents if detected, with decreasing confidence scores.
+
+  - language: ja
+    description: |
+      ユーザーのメッセージを分析して検索意図を特定してください。各意図について：
+      1. 検索意図を簡潔かつ明確に表現
+      2. 以下に基づいて信頼度スコア(0.0-1.0)を付与：
+         - 意図の明確さと明示性
+         - 検索関連の言語の有無
+         - 文脈の確実性
+      複数の意図が検出された場合は、信頼度スコアの高い順にリスト化してください。
+
+prompt:
+  - language: en
+    template: |
+      Analyze the search intent in this message:
+      {user_query}
+
+      Return each potential search intent with a confidence score.
+      Higher scores (0.8-1.0) for explicit search intents
+      Medium scores (0.5-0.7) for implicit but clear intents
+      Lower scores (0.1-0.4) for possible but uncertain intents
+
+  - language: ja
+    template: |
+      このメッセージの検索意図を分析してください：
+      {user_query}
+
+      各検索意図に信頼度スコアを付けて返してください。
+      明示的な検索意図には高いスコア(0.8-1.0)
+      暗黙的だが明確な意図には中程度のスコア(0.5-0.7)
+      可能性はあるが不確かな意図には低いスコア(0.1-0.4)
+
+response_fields:
+  - user_search_intents

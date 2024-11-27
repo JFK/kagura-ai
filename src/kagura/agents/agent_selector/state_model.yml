@@ -1,0 +1,65 @@
+custom_models:
+  - name: AgentSelection
+    fields:
+      - name: agent_name
+        type: str
+        description:
+          - language: ja
+            text: 選択されたエージェントの名前
+      - name: reason
+        type: str
+        description:
+          - language: ja
+            text: このエージェントを選択した理由
+
+  - name: AgentGenerationRequest
+    fields:
+      - name: required_agent
+        type: str
+        description:
+          - language: ja
+            text: 生成が必要なエージェントの名前
+      - name: purpose
+        type: str
+        description:
+          - language: ja
+            text: エージェントの目的と必要な機能の説明
+
+state_fields:
+  - name: user_query
+    type: str
+    description:
+      - language: ja
+        text: ユーザークエリ
+
+  - name: selected_agent
+    type: AgentSelection
+    description:
+      - language: ja
+        text: 選択されたエージェントと選択理由
+
+  - name: confidence_score
+    type: float
+    description:
+      - language: ja
+        text: エージェント選択の確信度（0.0-1.0）
+
+  - name: needs_generation
+    type: bool
+    default: false
+    description:
+      - language: ja
+        text: 新しいエージェントの生成が必要かどうか
+
+  - name: requires_search
+    type: bool
+    default: false
+    description:
+      - language: ja
+        text: 検索機能が必要かどうか
+
+  - name: generation_request
+    type: AgentGenerationRequest
+    description:
+      - language: ja
+        text: 生成が必要なエージェントの詳細

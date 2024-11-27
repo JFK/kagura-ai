@@ -1,0 +1,60 @@
+# pyproject.toml
+[tool.poetry]
+name = "kagura-ai"
+version = "0.0.1"
+description = "A flexible AI agent framework with YAML-based configuration"
+authors = ["JFK <fumikazu.kiyota@gmail.com>"]
+readme = "README.md"
+packages = [
+    { include = "kagura", from = "src" }
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic = "^2.10.2"
+click = "^8.1.7"
+PyYAML = "6.0.2"
+rich = "13.9.4"
+litellm = "1.53.1"
+redis = "5.2.0"
+langgraph = "0.2.53"
+langchain = "0.3.9"
+prompt_toolkit = "3.0.48"
+tzlocal = "5.2"
+chardet = "5.2.0"
+python-pptx= "1.0.2"
+python-docx= "1.1.2"
+beautifulsoup4 = "^4.12.3"
+pdfminer-six = "^20240706"
+toml = "^0.10.2"
+
+[tool.poetry.scripts]
+kagura = "kagura.cli.__main__:entry_point"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-cov = "^6.0.0"
+black = "^24.10.0"
+flake8 = "^7.1.1"
+mypy = "^1.13.0"
+isort = "^5.13.2"
+pre-commit = "^4.0.1"
+mkdocs = "^1.6.1"
+mkdocs-material = "^9.5.46"
+mkdocs-i18n = "^0.4.6"
+pymdown-extensions = "^10.12"
+pytest-asyncio = "^0.24.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "setuptools>=42.0.0", "wheel"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

@@ -1,0 +1,39 @@
+custom_models:
+  - name: GoogleSearchResult
+    fields:
+      - name: link
+        type: str
+        description:
+          - language: en
+            text: URL of the content source
+          - language: ja
+            text: コンテンツ取得先のURL
+      - name: snippet
+        type: str
+        description:
+          - language: en
+            text: Snippet of the content
+          - language: ja
+            text: コンテンツのスニペット
+      - name: title
+        type: str
+        description:
+          - language: en
+            text: Title of the searched content
+          - language: ja
+            text: コンテンツのタイトル
+state_fields:
+  - name: query
+    type: str
+    description:
+      - language: en
+        text: Query to search
+      - language: ja
+        text: 検索クエリ
+  - name: google_search_results
+    type: List[GoogleSearchResult]
+    description:
+      - language: en
+        text: Google Search results
+      - language: ja
+        text: Google 検索結果

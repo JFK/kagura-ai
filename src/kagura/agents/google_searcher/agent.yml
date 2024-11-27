@@ -1,0 +1,8 @@
+custom_tool: kagura.agents.google_searcher.tools.search
+description:
+  - language: en
+    text: Search Google for the given query.
+  - language: ja
+    text: 指定されたクエリでGoogleを検索します。
+response_fields:
+  - google_search_results

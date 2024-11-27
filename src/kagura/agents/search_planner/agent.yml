@@ -1,0 +1,44 @@
+description:
+  - language: en
+    text: This agent creates a structured search plan based on identified search intents
+  - language: ja
+    text: このエージェントは特定された検索意図に基づいて構造化された検索プランを作成します
+
+instructions:
+  - language: en
+    description: |
+      Create a detailed search plan from the user's search intents. For each step:
+      1. Craft specific search queries
+      2. Define expected information to find
+      3. List key points to focus on in results
+      Order steps logically to build understanding
+
+  - language: ja
+    description: |
+      ユーザーの検索意図から詳細な検索プランを作成します。各ステップで：
+      1. 具体的な検索クエリを作成
+      2. 見つけるべき情報を定義
+      3. 結果で注目すべきポイントをリスト化
+      理解を深められるよう論理的にステップを順序付けてください
+
+prompt:
+  - language: en
+    template: |
+      Based on these search intents:
+      {user_search_intents}
+
+      Create a structured search plan with specific steps.
+      Break down complex searches into manageable steps.
+      Focus on efficient information gathering.
+
+  - language: ja
+    template: |
+      以下の検索意図に基づいて：
+      {user_search_intents}
+
+      具体的なステップからなる構造化された検索プランを作成してください。
+      複雑な検索を管理可能なステップに分解してください。
+      効率的な情報収集に焦点を当ててください。
+
+response_fields:
+  - search_plan
