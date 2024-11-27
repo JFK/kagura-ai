@@ -1,0 +1,10 @@
+include LICENSE
+include README.md
+include pyproject.toml
+include CONTRIBUTING.md
+include CONTRIBUTING_JA.md
+include CODE_OF_CONDUCT.md
+include README_JA.md
+include RELEASE.md
+
+recursive-include src/kagura *

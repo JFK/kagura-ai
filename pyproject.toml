@@ -1,0 +1,91 @@
+[project]
+name = "kagura-ai"
+version = "0.0.8"
+description = "A flexible AI agent framework with YAML-based configuration"
+authors = [
+    { name = "JFK", email = "fumikazu.kiyota@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "pydantic>=2.10.2",
+    "click>=8.1.7",
+    "PyYAML==6.0.2",
+    "rich==13.9.4",
+    "litellm==1.53.1",
+    "redis==5.2.0",
+    "langgraph==0.2.53",
+    "langchain==0.3.9",
+    "prompt_toolkit==3.0.48",
+    "tzlocal==5.2",
+    "chardet==5.2.0",
+    "python-pptx==1.0.2",
+    "python-docx==1.1.2",
+    "beautifulsoup4>=4.12.3",
+    "pdfminer-six>=20240706",
+    "toml>=0.10.2",
+    "mcp>=1.1.0",
+    "pytest>=8.3.4",
+]
+
+[project.scripts]
+kagura = "kagura.cli.__main__:entry_point"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.3",
+    "pytest-cov>=6.0.0",
+    "black>=24.10.0",
+    "flake8>=7.1.1",
+    "mypy>=1.13.0",
+    "isort>=5.13.2",
+    "pre-commit>=4.0.1",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.5.46",
+    "mkdocs-i18n>=0.4.6",
+    "pymdown-extensions>=10.12",
+    "pyright>=1.1.389",
+    "pyfakefs>=5.7.2",
+    "ruff>=0.6.9",
+    "trio>=0.26.2",
+]
+
+[build-system]
+requires = ["setuptools>=42.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["kagura"]
+
+[tool.uv.sources]
+kagura-ai = { workspace = true }
+
+[tool.pyright]
+include = ["src/kagura", "tests"]
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
+per-file-ignores = { "__init__.py" = ["F401"] }
+
+[dependency-groups]
+dev = [
+    "kagura-ai",
+]
