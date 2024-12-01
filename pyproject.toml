@@ -1,7 +1,7 @@
 # pyproject.toml
 [tool.poetry]
 name = "kagura-ai"
-version = "0.0.1"
+version = "0.0.2"
 description = "A flexible AI agent framework with YAML-based configuration"
 authors = ["JFK <fumikazu.kiyota@gmail.com>"]
 readme = "README.md"
@@ -34,6 +34,8 @@ python-docx= "1.1.2"
 beautifulsoup4 = "^4.12.3"
 pdfminer-six = "^20240706"
 toml = "^0.10.2"
+setuptools = "^75.6.0"
+pytest = "^8.3.4"
 
 [tool.poetry.scripts]
 kagura = "kagura.cli.__main__:entry_point"
