@@ -45,6 +45,7 @@ nav:
     - Agent Pupblising Guide: en/tutorials/agent-publishing-guide.md
     - Agent Template: en/tutorials/agent-template.md
     - Building Your First Agent: en/tutorials/first-agent.md
+    - Coding Examples: en/tutorials/coding-examples.md
 #    - Creating a Chat Agent: en/tutorials/chat-agent.md
 #    - Implementing a Search Pipeline: en/tutorials/search-pipeline.md
 #    - Custom Tool Development: en/tutorials/custom-tools.md
