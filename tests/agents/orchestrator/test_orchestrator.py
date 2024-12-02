@@ -14,7 +14,6 @@ async def test_content_summarizer():
     async def mock_ainvoke(*args, **kwargs):
         return mock_llm_response
 
-    # LLMクラスをパッチ
     with patch("kagura.core.agent.LLM") as MockLLM:
 
         mock_llm_instance = AsyncMock()
