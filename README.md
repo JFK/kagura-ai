@@ -137,7 +137,7 @@ We welcome all contributors! Whether you're a seasoned developer or new to open 
 - Help review Pull Requests.
 
 ### Steps to Contribute
-1. Read the [Contributing Guide (English)](./CONTRIBUTING_EN.md) or [コントリビューションガイド (日本語)](./CONTRIBUTING_JP.md).
+1. Read the [Contributing Guide (English)](./CONTRIBUTING.md) or [コントリビューションガイド (日本語)](./CONTRIBUTING_JA.md).
 2. Fork the repository and clone it locally.
 3. Create a branch, make your changes, and submit a Pull Request.
 

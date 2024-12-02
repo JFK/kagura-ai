@@ -138,7 +138,7 @@ Kagura AI プロジェクトでは、経験豊富な開発者から初心者ま�
 - テストやレビューの支援。
 
 ### コントリビューションのステップ
-1. [コントリビューションガイド (日本語)](./CONTRIBUTING_JP.md) または [Contributing Guide (English)](./CONTRIBUTING_EN.md) を確認。
+1. [コントリビューションガイド (日本語)](./CONTRIBUTING_JA.md) または [Contributing Guide (English)](./CONTRIBUTING.md) を確認。
 2. リポジトリをフォークし、ローカルにクローン。
 3. ブランチを作成して作業を行い、Pull Request を送信。
 
