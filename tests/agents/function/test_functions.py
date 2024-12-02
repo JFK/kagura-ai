@@ -7,6 +7,7 @@ from kagura.core.models import get_custom_model
 
 pytestmark = pytest.mark.asyncio
 
+
 async def test_content_fetcher():
     """Test content_fetcher agent"""
 

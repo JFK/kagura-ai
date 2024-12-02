@@ -19,12 +19,23 @@ class BasePrompt:
         prompt: str,
         response_model: Optional[Type[BaseModel]] = None,
     ) -> None:
-        self.template = prompt
+        self._prompt = prompt
+        self._template = None
         if response_model is not None and issubclass(response_model, BaseModel):
             self._response_model = response_model
             self.output_parser = PydanticOutputParser(pydantic_object=response_model)
         else:
             self.output_parser = None
+
+    @property
+    def template(self) -> str:
+        if self._template is None:
+            self._template = self._prompt
+        return self._template
+
+    @template.setter
+    def template(self, value: str) -> None:
+        self._template = value
 
     def _clean_and_validate_json(self, text: str) -> str:
         extracted_json = self._extract_json_from_text(text)
@@ -54,6 +65,7 @@ class BasePrompt:
 
     def prepare_prompt(self, **kwargs) -> str:
         if self.output_parser is not None:
+            self.template = None
             template_footer = textwrap.dedent(
                 """
                 Response JSON Schema:

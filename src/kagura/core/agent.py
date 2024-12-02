@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from .config import AgentConfigManager
 from .models import AGENT, ModelRegistry
 from .prompts import BasePrompt
+from .utils.llm import LLM
 
 
 class AgentError(Exception):
@@ -25,6 +26,7 @@ class Agent(AgentConfigManager):
         super().__init__(agent_name)
         self.agent_name = agent_name
         self._state = None
+        self._llm = None
         self._validte_agent()
         self._initialize_state(state)
 
@@ -80,6 +82,12 @@ class Agent(AgentConfigManager):
     @property
     def state(self) -> BaseModel:
         return self._state
+
+    @property
+    def llm(self) -> Union[LLM, None]:
+        if self._llm is None:
+            self._llm = LLM(self.llm_model) if not self.skip_llm_invoke else None
+        return self._llm
 
     @property
     def prompt(self) -> BasePrompt:

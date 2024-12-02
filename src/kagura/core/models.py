@@ -1,19 +1,6 @@
 from datetime import datetime
-from typing import (
-    Any,
-    Callable,
-    Deque,
-    Dict,
-    FrozenSet,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-    Union,
-    get_args,
-    get_origin,
-)
+from typing import (Any, Callable, Deque, Dict, FrozenSet, List, Optional, Set,
+                    Tuple, Type, Union, get_args, get_origin)
 
 from pydantic import BaseModel, Field, create_model
 from tzlocal import get_localzone
@@ -93,6 +80,10 @@ class ModelRegistry:
 
 
 StateModel = ModelRegistry.get("StateModel")
+
+
+def get_custom_model(name: str) -> Type[BaseModel]:
+    return ModelRegistry.get(name)
 
 
 def convert_typing_to_builtin(obj):

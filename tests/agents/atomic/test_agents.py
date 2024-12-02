@@ -62,6 +62,7 @@ async def test_user_search_intent_extractor():
         assert "confidence" in user_search_intent
         assert user_search_intent["confidence"] == 0.9
 
+
 async def test_summarizer():
     """Test summarizer agent"""
 

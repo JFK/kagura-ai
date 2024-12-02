@@ -4,10 +4,8 @@ from typing import Optional, Tuple, Union
 import aiohttp
 import chardet
 
-from kagura.core.models import (ModelRegistry, StateModel,
+from kagura.core.models import (StateModel, get_custom_model,
                                 validate_required_state_fields)
-
-ContentItem = ModelRegistry.get("ContentItem")
 
 
 class ContentFetcherError(Exception):
@@ -173,6 +171,8 @@ class ContentFetcher:
 
 
 async def fetch(state: StateModel) -> StateModel:
+
+    ContentItem = get_custom_model("ContentItem")
 
     validate_required_state_fields(state, ["url"])
 

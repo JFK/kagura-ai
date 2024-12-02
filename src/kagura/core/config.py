@@ -11,7 +11,6 @@ from pydantic import BaseModel
 
 from .models import Models, convert_typing_to_builtin, map_type
 from .utils.import_function import import_function
-from .utils.llm import LLM
 from .utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -546,12 +545,6 @@ class AgentConfigManager(ConfigBase):
     @post_custom_tool.setter
     def post_custom_tool(self, value: str):
         self._post_custom_tool = value
-
-    @property
-    def llm(self) -> Union[LLM, None]:
-        if not hasattr(self, "_llm"):
-            self._llm = LLM(self.llm_model) if not self.skip_llm_invoke else None
-        return self._llm
 
     @property
     def is_workflow(self) -> bool:
