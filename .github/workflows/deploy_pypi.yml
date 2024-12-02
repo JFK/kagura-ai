@@ -6,6 +6,39 @@ on:
       - 'v*.*.*'
 
 jobs:
+  test:
+    name: Run tests and collect coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+
+      - name: Sync poetry.lock with pyproject.toml
+        run: poetry lock --no-update
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run tests
+        run: poetry run pytest --cov=kagura --cov-report=xml --cov-report=term
+
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   publish-to-pypi:
     needs: [test]
     runs-on: ubuntu-latest
