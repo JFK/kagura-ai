@@ -1,7 +1,7 @@
 # pyproject.toml
 [tool.poetry]
 name = "kagura-ai"
-version = "0.0.2"
+version = "0.0.3"
 description = "A flexible AI agent framework with YAML-based configuration"
 authors = ["JFK <fumikazu.kiyota@gmail.com>"]
 readme = "README.md"
