@@ -8,7 +8,8 @@ on:
 jobs:
   publish-to-pypi:
     runs-on: ubuntu-latest
-    environment: pypi  # この行を追加
+    needs: test
+    environment: pypi
     steps:
       - uses: actions/checkout@v4
 
