@@ -1,5 +1,13 @@
 ![Kagura AI Logo](https://www.kagura-ai.com/assets/kagura-logo.svg)
 
+![Python versions](https://img.shields.io/pypi/pyversions/kagura-ai.svg)
+![PyPI version](https://img.shields.io/pypi/v/kagura-ai.svg)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/kagura-ai)
+![Codecov](https://img.shields.io/codecov/c/github/JFK/kagura-ai)
+![Tests](https://img.shields.io/github/actions/workflow/status/JFK/kagura-ai/test.yml?label=tests)
+![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)
+![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
+
 # Kagura AI
 
 Kagura AI is a flexible and modular framework designed for building, configuring, and orchestrating AI agents. Its YAML-based configuration system emphasizes simplicity, while its extensible architecture supports advanced workflows and complex integrations.
