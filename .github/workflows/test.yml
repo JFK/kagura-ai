@@ -1,4 +1,4 @@
-name: Run Tests
+name: Run tests and upload coverage
 
 on:
   push:
@@ -10,10 +10,13 @@ on:
 
 jobs:
   test:
+    name: Run tests and collect coverage
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,7 +34,7 @@ jobs:
       - name: Run tests
         run: poetry run pytest --cov=kagura --cov-report=xml --cov-report=term
 
-      - name: Upload coverage reports to Codecov
-          uses: codecov/codecov-action@v5
-          with:
-            token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
