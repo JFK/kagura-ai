@@ -14,7 +14,7 @@ async def test_chatbot():
         for chunk in mock_chunks:
             yield chunk
 
-    with patch("kagura.core.config.LLM") as MockLLM:
+    with patch("kagura.core.agent.LLM") as MockLLM:
 
         mock_instance = MockLLM.return_value
         mock_instance.astream.side_effect = mock_astream
@@ -30,70 +30,167 @@ async def test_chatbot():
         mock_instance.astream.assert_called_once()
 
 
-async def test_content_summarizer():
-    """Test content_summarizer workflow agent"""
+async def test_user_search_intent_extractor():
+    """Test user_search_intent_extractor agent"""
 
-    # モックするLLMのレスポンスを定義（ネストされた辞書構造）
+    mock_llm_response = '{"user_search_intents": [{"user_intent": "Interest in Kagura (神楽)", "confidence": 0.9}]}'
+
+    async def mock_ainvoke(*args, **kwargs):
+        return mock_llm_response
+
+    with patch("kagura.core.agent.LLM") as MockLLM:
+
+        mock_instance = MockLLM.return_value
+        mock_instance.ainvoke.side_effect = mock_ainvoke
+
+        state = {"user_query": "I am interested in Kagura(神楽)"}
+        agent = Agent.assigner("user_search_intent_extractor", state)
+        result = await agent.execute()
+        assert result is not None
+        assert hasattr(result, "user_search_intents")
+
+        model_dumped_result = result.model_dump()
+        assert "user_search_intents" in model_dumped_result
+        assert model_dumped_result["user_search_intents"] is not None
+
+        user_search_intents = model_dumped_result["user_search_intents"]
+        assert len(user_search_intents) == 1
+
+        user_search_intent = user_search_intents[0]
+        assert "user_intent" in user_search_intent
+        assert user_search_intent["user_intent"].startswith("Interest in Kagura")
+        assert "confidence" in user_search_intent
+        assert user_search_intent["confidence"] == 0.9
+
+async def test_summarizer():
+    """Test summarizer agent"""
+
+    mock_llm_response = '{"summary": {"content": "Kagura is an AI agent framework enabling easy building and orchestration of AI agents using YAML, focusing on flexibility and modularity."}}'
+
+    async def mock_ainvoke(*args, **kwargs):
+        return mock_llm_response
+
+    with patch("kagura.core.agent.LLM") as MockLLM:
+
+        mock_instance = MockLLM.return_value
+        mock_instance.ainvoke.side_effect = mock_ainvoke
+
+        text = "Some long text to summarize."
+        state = {
+            "content": {
+                "text": text,
+            }
+        }
+        agent = Agent.assigner("summarizer", state)
+        result = await agent.execute()
+
+        assert result.summary.content.startswith("Kagura is an AI agent framework")
+
+
+async def test_search_planner():
+    """Test sequential execution of user_search_intent_extractor and search_planner"""
+
     mock_llm_responses = {
-        "content_fetcher": '{"content": {"text": "This is a content."}}',
-        "text_converter": '{"converted_content": "This is a content."}',
-        "summarizer": '{"summary": {"content": "This is a summary."}}',
+        "user_search_intent_extractor": '''
+        {
+            "user_search_intents": [
+                {
+                    "user_intent": "Learn how to fine-tune the learning rate of an AI model",
+                    "confidence": 0.9
+                }
+            ]
+        }
+        ''',
+        "search_planner": '''
+        {
+            "search_plan": {
+                "goal": "Learn how to fine-tune the learning rate of an AI model",
+                "steps": [
+                    {
+                        "step_number": 1,
+                        "search_query": "What is learning rate in machine learning?",
+                        "expected_info": "Definition of learning rate and its significance in training AI models.",
+                        "search_focus": [
+                            "Definition of learning rate",
+                            "Role of learning rate in model training",
+                            "Effects of learning rate on convergence"
+                        ]
+                    },
+                    {
+                        "step_number": 2,
+                        "search_query": "How to choose an appropriate learning rate for machine learning models?",
+                        "expected_info": "Methods for selecting a suitable learning rate.",
+                        "search_focus": [
+                            "Common strategies (e.g., grid search, random search)",
+                            "Heuristic methods",
+                            "Impact of learning rate on overfitting and underfitting"
+                        ]
+                    }
+                ]
+            }
+        }
+        '''
     }
 
-    # 各エージェント用のモック関数を定義
-    async def mock_ainvoke_fetcher(*args, **kwargs):
-        return mock_llm_responses["content_fetcher"]
+    async def mock_ainvoke_user_search_intent_extractor(*args, **kwargs):
+        return mock_llm_responses["user_search_intent_extractor"]
 
-    async def mock_ainvoke_converter(*args, **kwargs):
-        return mock_llm_responses["text_converter"]
+    async def mock_ainvoke_search_planner(*args, **kwargs):
+        return mock_llm_responses["search_planner"]
 
-    async def mock_ainvoke_summarizer(*args, **kwargs):
-        return mock_llm_responses["summarizer"]
+    with patch("kagura.core.agent.LLM") as MockLLM:
 
-    # LLMクラスをパッチ
-    with patch("kagura.core.config.LLM") as MockLLM:
+        # user_search_intent_extractor の LLM をモック
+        mock_instance_user_intent = MockLLM.return_value
+        mock_instance_user_intent.ainvoke.side_effect = mock_ainvoke_user_search_intent_extractor
 
-        mock_llm_instance = AsyncMock()
-        mock_llm_instance.ainvoke.side_effect = mock_ainvoke_summarizer
-        MockLLM.return_value = mock_llm_instance
+        user_query = "What is the best way to fine-tune the learning rate of an AI model?"
+        state = {"user_query": user_query}
+        user_intent_agent = Agent.assigner("user_search_intent_extractor", state)
+        result = await user_intent_agent.execute()
 
-        agent = Agent.assigner(
-            "content_summarizer", {"url": "https://www.kagura-ai.com"}
-        )
+        model_dumped_result = result.model_dump()
+        assert "user_search_intents" in model_dumped_result
 
-        assert agent.is_workflow is True
+        user_search_intents = model_dumped_result["user_search_intents"]
+        assert len(user_search_intents) == 1
 
-        collected_updates = []
-        async for update in await agent.execute():
-            collected_updates.append(update)
+        user_search_intent = user_search_intents[0]
+        assert "user_intent" in user_search_intent
+        assert user_search_intent["user_intent"].startswith("Learn how to fine-tune the learning rate")
+        assert "confidence" in user_search_intent
+        assert user_search_intent["confidence"] == 0.9
 
-        assert len(collected_updates) > 0
+        mock_instance_planner = MockLLM.return_value
+        mock_instance_planner.ainvoke.side_effect = mock_ainvoke_search_planner
 
-        states = {}
-        for update in collected_updates:
-            print(update)
-            states.update(update)
+        state = {"user_search_intents": user_search_intents}
+        planner_agent = Agent.assigner("search_planner", state)
+        search_plan_result = await planner_agent.execute()
 
-        required_keys = {"content_fetcher", "text_converter", "summarizer", "END"}
-        assert required_keys <= set(states.keys())
+        search_plan_dump = search_plan_result.model_dump()
+        assert "search_plan" in search_plan_dump
 
-        content_fetcher_state = states.get("content_fetcher", {})
-        assert "content" in content_fetcher_state
-        assert content_fetcher_state["content"] is not None
-        assert "text" in content_fetcher_state["content"]
-        assert content_fetcher_state["content"]["text"] is not None
+        search_plan = search_plan_dump["search_plan"]
+        assert "goal" in search_plan
+        assert search_plan["goal"] == "Learn how to fine-tune the learning rate of an AI model"
 
-        text_converter_state = states.get("text_converter", {})
-        assert "converted_content" in text_converter_state
-        assert text_converter_state["converted_content"] is not None
+        assert "steps" in search_plan
+        assert isinstance(search_plan["steps"], list)
+        assert len(search_plan["steps"]) >= 2
 
-        summarizer_state = states.get("summarizer", {})
-        assert "summary" in summarizer_state
-        assert summarizer_state["summary"] is not None
-        assert "content" in summarizer_state["summary"]
-        assert summarizer_state["summary"]["content"] is not None
+        first_step = search_plan["steps"][0]
+        assert first_step["step_number"] == 1
+        assert first_step["search_query"] == "What is learning rate in machine learning?"
+        assert first_step["expected_info"] == "Definition of learning rate and its significance in training AI models."
+        assert "search_focus" in first_step
+        assert isinstance(first_step["search_focus"], list)
+        assert "Definition of learning rate" in first_step["search_focus"]
 
-        final_state = collected_updates[-1]
-        assert "END" in final_state
-        completed = final_state.get("END", {}).get("COMPLETED", False)
-        assert completed is True
+        second_step = search_plan["steps"][1]
+        assert second_step["step_number"] == 2
+        assert second_step["search_query"] == "How to choose an appropriate learning rate for machine learning models?"
+        assert second_step["expected_info"] == "Methods for selecting a suitable learning rate."
+        assert "search_focus" in second_step
+        assert isinstance(second_step["search_focus"], list)
+        assert "Common strategies (e.g., grid search, random search)" in second_step["search_focus"]
