@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from kagura.core.agent import Agent
 from kagura.core.utils.console import KaguraConsole
@@ -21,7 +21,5 @@ if __name__ == "__main__":
     import asyncio
 
     agent_name = "content_summarizer"
-    state = {
-        "url": "https://github.com"
-    }
+    state = {"url": "https://github.com"}
     asyncio.run(arun(agent_name, state))

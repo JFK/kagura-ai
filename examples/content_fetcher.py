@@ -1,8 +1,7 @@
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from kagura.core.agent import Agent
 from kagura.core.utils.console import KaguraConsole
-from kagura.core.models import StateModel
 
 
 async def arun(agent_name: str, state: Dict[str, Any]):
@@ -18,7 +17,5 @@ if __name__ == "__main__":
     import asyncio
 
     agent_name = "content_fetcher"
-    state = {
-        "url": "https://github.com/"
-    }
+    state = {"url": "https://github.com/"}
     asyncio.run(arun(agent_name, state))

@@ -1,5 +1,6 @@
 from kagura.core.agent import Agent
 
+
 async def arun():
 
     agent_name = "user_search_intent_extractor"
@@ -16,6 +17,7 @@ async def arun():
     search_plan = await planner_agent.execute()
 
     print(search_plan)
+
 
 if __name__ == "__main__":
     import asyncio

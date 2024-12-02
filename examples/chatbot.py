@@ -1,5 +1,6 @@
 from kagura.core.agent import Agent
 
+
 async def chat():
     # Assign pre-defined agent
     agent = Agent.assigner("chat")
@@ -9,6 +10,7 @@ async def chat():
         print(response, end="")
 
     print()
+
 
 if __name__ == "__main__":
     import asyncio
