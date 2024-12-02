@@ -28,6 +28,9 @@ jobs:
         with:
           version: latest
 
+      - name: Sync poetry.lock with pyproject.toml
+        run: poetry lock --no-update
+
       - name: Install dependencies
         run: poetry install --no-interaction
 
