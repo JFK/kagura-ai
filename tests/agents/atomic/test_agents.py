@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from kagura.core.agent import Agent
 
@@ -92,7 +93,7 @@ async def test_search_planner():
     """Test sequential execution of user_search_intent_extractor and search_planner"""
 
     mock_llm_responses = {
-        "user_search_intent_extractor": '''
+        "user_search_intent_extractor": """
         {
             "user_search_intents": [
                 {
@@ -101,8 +102,8 @@ async def test_search_planner():
                 }
             ]
         }
-        ''',
-        "search_planner": '''
+        """,
+        "search_planner": """
         {
             "search_plan": {
                 "goal": "Learn how to fine-tune the learning rate of an AI model",
@@ -130,7 +131,7 @@ async def test_search_planner():
                 ]
             }
         }
-        '''
+        """,
     }
 
     async def mock_ainvoke_user_search_intent_extractor(*args, **kwargs):
@@ -143,9 +144,13 @@ async def test_search_planner():
 
         # user_search_intent_extractor の LLM をモック
         mock_instance_user_intent = MockLLM.return_value
-        mock_instance_user_intent.ainvoke.side_effect = mock_ainvoke_user_search_intent_extractor
+        mock_instance_user_intent.ainvoke.side_effect = (
+            mock_ainvoke_user_search_intent_extractor
+        )
 
-        user_query = "What is the best way to fine-tune the learning rate of an AI model?"
+        user_query = (
+            "What is the best way to fine-tune the learning rate of an AI model?"
+        )
         state = {"user_query": user_query}
         user_intent_agent = Agent.assigner("user_search_intent_extractor", state)
         result = await user_intent_agent.execute()
@@ -158,7 +163,9 @@ async def test_search_planner():
 
         user_search_intent = user_search_intents[0]
         assert "user_intent" in user_search_intent
-        assert user_search_intent["user_intent"].startswith("Learn how to fine-tune the learning rate")
+        assert user_search_intent["user_intent"].startswith(
+            "Learn how to fine-tune the learning rate"
+        )
         assert "confidence" in user_search_intent
         assert user_search_intent["confidence"] == 0.9
 
@@ -174,7 +181,10 @@ async def test_search_planner():
 
         search_plan = search_plan_dump["search_plan"]
         assert "goal" in search_plan
-        assert search_plan["goal"] == "Learn how to fine-tune the learning rate of an AI model"
+        assert (
+            search_plan["goal"]
+            == "Learn how to fine-tune the learning rate of an AI model"
+        )
 
         assert "steps" in search_plan
         assert isinstance(search_plan["steps"], list)
@@ -182,16 +192,30 @@ async def test_search_planner():
 
         first_step = search_plan["steps"][0]
         assert first_step["step_number"] == 1
-        assert first_step["search_query"] == "What is learning rate in machine learning?"
-        assert first_step["expected_info"] == "Definition of learning rate and its significance in training AI models."
+        assert (
+            first_step["search_query"] == "What is learning rate in machine learning?"
+        )
+        assert (
+            first_step["expected_info"]
+            == "Definition of learning rate and its significance in training AI models."
+        )
         assert "search_focus" in first_step
         assert isinstance(first_step["search_focus"], list)
         assert "Definition of learning rate" in first_step["search_focus"]
 
         second_step = search_plan["steps"][1]
         assert second_step["step_number"] == 2
-        assert second_step["search_query"] == "How to choose an appropriate learning rate for machine learning models?"
-        assert second_step["expected_info"] == "Methods for selecting a suitable learning rate."
+        assert (
+            second_step["search_query"]
+            == "How to choose an appropriate learning rate for machine learning models?"
+        )
+        assert (
+            second_step["expected_info"]
+            == "Methods for selecting a suitable learning rate."
+        )
         assert "search_focus" in second_step
         assert isinstance(second_step["search_focus"], list)
-        assert "Common strategies (e.g., grid search, random search)" in second_step["search_focus"]
+        assert (
+            "Common strategies (e.g., grid search, random search)"
+            in second_step["search_focus"]
+        )

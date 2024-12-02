@@ -4,8 +4,11 @@ from typing import Optional, Tuple, Union
 import aiohttp
 import chardet
 
-from kagura.core.models import (StateModel, get_custom_model,
-                                validate_required_state_fields)
+from kagura.core.models import (
+    StateModel,
+    get_custom_model,
+    validate_required_state_fields,
+)
 
 
 class ContentFetcherError(Exception):

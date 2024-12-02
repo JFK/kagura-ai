@@ -1,6 +1,19 @@
 from datetime import datetime
-from typing import (Any, Callable, Deque, Dict, FrozenSet, List, Optional, Set,
-                    Tuple, Type, Union, get_args, get_origin)
+from typing import (
+    Any,
+    Callable,
+    Deque,
+    Dict,
+    FrozenSet,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    Union,
+    get_args,
+    get_origin,
+)
 
 from pydantic import BaseModel, Field, create_model
 from tzlocal import get_localzone

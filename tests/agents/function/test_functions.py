@@ -1,6 +1,7 @@
+from unittest.mock import AsyncMock, patch
+
 import pytest
 from pydantic import BaseModel
-from unittest.mock import AsyncMock, patch
 
 from kagura.core.agent import Agent
 from kagura.core.models import get_custom_model
@@ -18,9 +19,7 @@ async def test_content_fetcher():
 
     with patch("kagura.agents.content_fetcher.tools.fetch", new=mock_fetch_content):
 
-        state = {
-            "url": "https://github.com/"
-        }
+        state = {"url": "https://github.com/"}
         agent = Agent.assigner("content_fetcher", state)
         result = await agent.execute()
 

@@ -1,11 +1,17 @@
-import pytest
-from pydantic import BaseModel, Field
 from typing import List, Optional
 
+import pytest
+from pydantic import BaseModel, Field
+
 from kagura.core.models import (
-    Models, ModelRegistry, TypeMappingError, 
-    CheckStateError, map_type, validate_required_state_fields
+    CheckStateError,
+    ModelRegistry,
+    Models,
+    TypeMappingError,
+    map_type,
+    validate_required_state_fields,
 )
+
 
 class TestModels:
     def setup_method(self):
@@ -26,32 +32,26 @@ class TestModels:
                     {
                         "name": "name",
                         "type": "str",
-                        "description": [
-                            {"language": "en", "text": "Name field"}
-                        ]
+                        "description": [{"language": "en", "text": "Name field"}],
                     },
                     {
                         "name": "value",
                         "type": "int",
                         "default": 0,
-                        "description": [
-                            {"language": "en", "text": "Value field"}
-                        ]
+                        "description": [{"language": "en", "text": "Value field"}],
                     },
                     {
                         "name": "tags",
                         "type": "List[str]",
-                        "description": [
-                            {"language": "en", "text": "Tags list"}
-                        ]
-                    }
-                ]
+                        "description": [{"language": "en", "text": "Tags list"}],
+                    },
+                ],
             }
         ]
 
         registered_models = self.models.create_custom_models(custom_models)
         assert "TestCustomModel" in registered_models
-        
+
         TestCustomModel = registered_models["TestCustomModel"]
         model_instance = TestCustomModel(name="test", value=42, tags=["tag1", "tag2"])
         assert model_instance.name == "test"
@@ -73,7 +73,7 @@ class TestModels:
         # カスタムモデルのテスト
         class CustomType(BaseModel):
             field: str
-        
+
         registered_models = {"CustomType": CustomType}
         mapped_type = map_type("CustomType", registered_models)
         assert mapped_type == CustomType
@@ -84,15 +84,16 @@ class TestModels:
 
     def test_validate_required_state_fields(self):
         """必須フィールドの検証テスト"""
+
         class TestState(BaseModel):
             field1: str
             field2: Optional[str] = None
 
         state = TestState(field1="test")
-        
+
         # 存在するフィールドの検証
         validate_required_state_fields(state, ["field1"])
-        
+
         # 存在しないフィールドの検証
         with pytest.raises(CheckStateError):
             validate_required_state_fields(state, ["field3"])
@@ -103,18 +104,14 @@ class TestModels:
             {
                 "name": "input_text",
                 "type": "str",
-                "description": [
-                    {"language": "en", "text": "Input text"}
-                ]
+                "description": [{"language": "en", "text": "Input text"}],
             },
             {
                 "name": "output_text",
                 "type": "str",
                 "default": "",
-                "description": [
-                    {"language": "en", "text": "Output text"}
-                ]
-            }
+                "description": [{"language": "en", "text": "Output text"}],
+            },
         ]
 
         state_model = self.models.generate_state_model(state_fields)
@@ -129,6 +126,7 @@ class TestModels:
 
     def test_check_state_error(self):
         """エラー状態のチェックテスト"""
+
         class TestState(BaseModel):
             ERROR_MESSAGE: Optional[str] = None
             SUCCESS: bool = True
@@ -147,46 +145,43 @@ class TestModels:
 
     def test_convert_model_data(self):
         """モデルデータの変換テスト"""
+
         class ItemModel(BaseModel):
             name: str
             value: int
 
         ModelRegistry.register("ItemModel", ItemModel)
 
-        data = {
-            "items": [
-                {"name": "item1", "value": 1},
-                {"name": "item2", "value": 2}
-            ]
-        }
+        data = {"items": [{"name": "item1", "value": 1}, {"name": "item2", "value": 2}]}
 
         converted = self.models.convert_model_data(data, ModelRegistry)
         assert all(isinstance(item, ItemModel) for item in converted["items"])
         assert converted["items"][0].name == "item1"
         assert converted["items"][1].value == 2
-        
+
     def test_model_registry_operations(self):
         """ModelRegistryの操作テスト"""
+
         # モデルの登録テスト
         class TestModel(BaseModel):
             field1: str
             field2: int
 
         ModelRegistry.register("TestModel", TestModel)
-        
+
         # モデルの取得テスト
         retrieved_model = ModelRegistry.get("TestModel")
         assert retrieved_model == TestModel
-        
+
         # フィールドの取得テスト
         fields = ModelRegistry.get_fields("TestModel")
         assert "field1" in fields
         assert "field2" in fields
-        
+
         # カスタムモデルフィールドのチェック
         assert ModelRegistry.is_custom_model_field("field1") == "TestModel"
         assert ModelRegistry.is_custom_model_field("non_existent") is None
-        
+
         # クリア操作のテスト
         ModelRegistry.clear()
         assert ModelRegistry.get("TestModel") is None

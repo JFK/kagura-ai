@@ -31,8 +31,7 @@ class CommandRegistry:
         self._register_default_handlers()
 
     def _register_default_handlers(self):
-        from . import (ClearCommandHandler, HelpCommandHandler,
-                       HistoryCommandHandler)
+        from . import ClearCommandHandler, HelpCommandHandler, HistoryCommandHandler
 
         self.register_handler("/help", HelpCommandHandler(self._console_manager))
         self.register_handler(
