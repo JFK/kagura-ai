@@ -56,7 +56,7 @@ class Agent(AgentConfigManager):
             class StateModel(BaseModel):
                 QUERY: str = ""
 
-            self._state = StateModel.parse_obj({"QUERY": state})
+            self._state = StateModel.model_validate({"QUERY": state})
 
         elif state is not None and isinstance(state, dict):
             self._state = self.state_model(**state)
@@ -64,7 +64,7 @@ class Agent(AgentConfigManager):
         elif state is not None and isinstance(state, BaseModel):
             update_state_fields = {}
             state_fields_names = {field["name"] for field in self.state_fields}
-            for key, value in state.dict().items():
+            for key, value in state.model_dump().items():
                 if key in state_fields_names:
                     update_state_fields[key] = value
             self._state = self.state_model(**update_state_fields)
@@ -155,6 +155,7 @@ class Agent(AgentConfigManager):
             state = self._state
 
         for attempt in range(self.llm_retry_count):
+
             try:
                 response_text = await self.llm.ainvoke(
                     self.prompt_text, self.instructions
@@ -233,23 +234,23 @@ class Agent(AgentConfigManager):
                     update_state = await self._apply_state_bindings(
                         agent_state, self.state_field_bindings, node_name
                     )
-                    return {**update_state.dict(), AGENT: agent}
+                    return {**update_state.model_dump(), AGENT: agent}
                 except Exception as e:
                     raise AgentError(f"Error executing node {node_name}: {str(e)}")
 
             graph.add_node(node_name, node_function)
 
         async def final_node_function(state: BaseModel) -> Dict[str, Any]:
-            return {**state.dict(), "COMPLETED": True}
+            return {**state.model_dump(), "COMPLETED": True}
 
-        graph.add_node("completed", final_node_function)
+        graph.add_node("END", final_node_function)
 
         # Add regular edges
         for edge in self.edges:
             graph.add_edge(edge["from"], edge["to"])
 
         # last self.edges is the final edge
-        graph.add_edge(self.edges[-1]["to"], "completed")
+        graph.add_edge(self.edges[-1]["to"], "END")
 
         # Add conditional edges
         for node_name, condition_function, conditions in self.get_conditional_edges():
@@ -274,14 +275,14 @@ class Agent(AgentConfigManager):
             state = self.workflow_state_model(**state)
 
         elif state is not None and isinstance(state, BaseModel):
-            state = self.workflow_state_model(**state.dict())
+            state = self.workflow_state_model(**state.model_dump())
 
         elif state is None:
             state = self.workflow_state_model()
 
         workflow = self._construct_workflow(state)
 
-        async for state_update in workflow.astream(state.dict()):
+        async for state_update in workflow.astream(state.model_dump()):
             yield state_update
 
     async def execute(

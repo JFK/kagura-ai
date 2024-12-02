@@ -1,3 +1,4 @@
+import importlib.resources as pkg_resources
 import os
 import shutil
 import sys
@@ -5,7 +6,6 @@ from pathlib import Path
 from string import Template
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
-import importlib.resources as pkg_resources
 import yaml
 from pydantic import BaseModel
 

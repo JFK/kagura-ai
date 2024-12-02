@@ -49,6 +49,7 @@ cli.add_command(create)
 # Add the install command
 cli.add_command(install)
 
+
 def entry_point():
     """Entry point for the CLI application"""
     return cli()

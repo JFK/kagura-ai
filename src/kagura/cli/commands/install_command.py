@@ -1,8 +1,10 @@
 # src/kagura/cli/commands/install_command.py
 import asyncio
+
 import click
-from pathlib import Path
+
 from ...core.utils.install import KaguraAgentInstaller
+
 
 @click.command()
 @click.argument("repo_url")

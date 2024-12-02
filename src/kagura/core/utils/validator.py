@@ -1,26 +1,28 @@
-import os
-import yaml
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+import yaml
+
 
 class AgentValidationError(Exception):
     pass
 
+
 class KaguraAgentValidator:
     REQUIRED_FILES = ["agent.yml", "README.md"]
     REQUIRED_AGENT_FIELDS = ["description", "instructions", "prompt"]
-    
+
     @classmethod
     def validate_repository(cls, repo_path: Path) -> None:
         """リポジトリ全体の構造を検証"""
         agents_dir = repo_path / "agents"
         if not agents_dir.is_dir():
             raise AgentValidationError("agents directory not found")
-            
+
         tests_dir = repo_path / "tests"
         if not tests_dir.is_dir():
             raise AgentValidationError("tests directory not found")
-            
+
         # エージェントごとの検証
         for agent_dir in agents_dir.iterdir():
             if agent_dir.is_dir():
@@ -50,7 +52,7 @@ class KaguraAgentValidator:
         """エージェントのテストを検証"""
         if not test_dir.exists():
             raise AgentValidationError(f"Test directory not found for {test_dir.name}")
-            
+
         test_files = list(test_dir.glob("test_*.py"))
         if not test_files:
             raise AgentValidationError(f"No test files found in {test_dir}")
@@ -70,7 +72,7 @@ class KaguraAgentValidator:
                 raise AgentValidationError(
                     f"Missing required field '{field}' in {agent_name}/agent.yml"
                 )
-            
+
         # 言語サポートの検証
         for field in ["description", "instructions", "prompt"]:
             if not cls._has_language_support(config[field]):

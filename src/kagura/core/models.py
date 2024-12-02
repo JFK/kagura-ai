@@ -1,6 +1,19 @@
 from datetime import datetime
-from typing import (Any, Callable, Deque, Dict, FrozenSet, List, Optional, Set,
-                    Tuple, Type, Union, get_args, get_origin)
+from typing import (
+    Any,
+    Callable,
+    Deque,
+    Dict,
+    FrozenSet,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    Union,
+    get_args,
+    get_origin,
+)
 
 from pydantic import BaseModel, Field, create_model
 from tzlocal import get_localzone
@@ -194,9 +207,6 @@ def map_type(
 
         if type_str in type_mapping:
             return type_mapping[type_str]
-
-        if ignore_errors:
-            return type_str
 
         raise TypeMappingError(f"Unknown type: {type_str}")
 
