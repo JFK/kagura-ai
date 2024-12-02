@@ -12,9 +12,14 @@
 
 Kagura AI is a flexible and modular framework designed for building, configuring, and orchestrating AI agents. Its YAML-based configuration system emphasizes simplicity, while its extensible architecture supports advanced workflows and complex integrations.
 
-You can find the full documentation on our [kagura-ai.com](https://www.kagura-ai.com).
+**You can find the full documentation on our:**
+[kagura-ai.com](https://www.kagura-ai.com)
 
-You can also use ChatGPTs to build own Kagura AI agents. [Kagura AI Agent Builder](https://chatgpt.com/g/g-674c1cfed1a88191bd594e13c2840a44-kagura-ai-agent-builder)
+**You can also find Kagura AI on PyPI:**
+[kagura-ai](https://pypi.org/project/kagura-ai/)
+
+**ChatGPTs may help you to build own Kagura AI agents:**
+[Kagura AI Agent Builder](https://chatgpt.com/g/g-674c1cfed1a88191bd594e13c2840a44-kagura-ai-agent-builder)
 
 ---
 
@@ -58,10 +63,17 @@ Whether you're building a simple chatbot, data processor, or a sophisticated mul
 ## Installation
 
 ### Using Git
+
 ```bash
 git clone https://github.com/JFK/kagura-ai.git
 cd kagura-ai
 poetry install
+```
+
+### Using PyPI
+```bash
+pip update -U pip
+pip install kagura-ai
 ```
 
 ---
@@ -128,22 +140,10 @@ llm:
 
 ---
 
-## Planned Enhancements
+## Roadmap
 
 🚧 **Roadmap**:
+- Web API interface
+- Memory-based agent state management
 - RAG-based knowledge integration
 - Docker deployment
-- Web API interface
-
-
----
-
-## Documentation
-
-- [Full Documentation](https://www.kagura-ai.com)
-
----
-
-## License
-
-This project is licensed under the [Aapache 2.0 License](LICENSE).
