@@ -1,5 +1,5 @@
 import json
-from typing import Any, AsyncGenerator, Dict, List, Union
+from typing import Any, AsyncGenerator, Callable, Dict, List, Tuple, Union
 
 from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledStateGraph
@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from .config import AgentConfigManager
 from .models import AGENT, ModelRegistry
 from .prompts import BasePrompt
+from .utils.import_function import import_function
 from .utils.llm import LLM
 
 
@@ -70,6 +71,32 @@ class Agent(AgentConfigManager):
                 if key in state_fields_names:
                     update_state_fields[key] = value
             self._state = self.state_model(**update_state_fields)
+
+    def _import_pre_custom_tool(self) -> Union[Callable, None]:
+        return (
+            import_function(self.pre_custom_tool, self.agent_name)
+            if self.pre_custom_tool
+            else None
+        )
+
+    def _import_post_custom_tool(self) -> Union[Callable, None]:
+        if self.custom_tool:
+            self.post_custom_tool = self._custom_tool
+        return (
+            import_function(self.post_custom_tool, self.agent_name)
+            if self.post_custom_tool
+            else self.post_custom_tool
+        )
+
+    def _get_conditional_edges(self) -> Tuple[str, Callable, Dict[str, Any]]:
+        if conditional_edges := self.conditional_edges:
+            for node_name, cond_info in conditional_edges.items():
+                condition_function_path = cond_info["condition_function"]
+                condition_function = import_function(
+                    condition_function_path, self.agent_name
+                )
+                conditions = cond_info["conditions"]
+                yield node_name, condition_function, conditions
 
     @classmethod
     def assigner(
@@ -261,7 +288,7 @@ class Agent(AgentConfigManager):
         graph.add_edge(self.edges[-1]["to"], "END")
 
         # Add conditional edges
-        for node_name, condition_function, conditions in self.get_conditional_edges():
+        for node_name, condition_function, conditions in self._get_conditional_edges():
             update_conditions = {}
             for cond_key, cond_val in conditions.items():
                 update_conditions[cond_key] = cond_val
@@ -308,7 +335,7 @@ class Agent(AgentConfigManager):
         stream = True if self.llm_stream else stream
 
         try:
-            if pre_custom_tool := self.import_pre_custom_tool():
+            if pre_custom_tool := self._import_pre_custom_tool():
                 self._state = await pre_custom_tool(self._state)
 
             if not self.skip_llm_invoke:
@@ -332,7 +359,7 @@ class Agent(AgentConfigManager):
                     response = await llm_response()
                     return response
 
-            if post_custom_tool := self.import_post_custom_tool():
+            if post_custom_tool := self._import_post_custom_tool():
                 self._state = await post_custom_tool(self._state)
 
             self._state = self.models.check_state_error(self._state)

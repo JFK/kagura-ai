@@ -1,8 +1,8 @@
 import asyncio
 import sys
+from importlib.metadata import version
 
 import click
-import toml
 
 from kagura.core.config import ConfigInitializer
 
@@ -10,11 +10,11 @@ from .assistant import KaguraAIAssistant
 from .commands import create, install
 
 
-# Function to read the version from pyproject.toml
 def get_version():
-    with open("pyproject.toml", "r") as f:
-        pyproject = toml.load(f)
-    return pyproject["tool"]["poetry"]["version"]
+    try:
+        return version("kagura-ai")
+    except Exception:
+        return "unknown"
 
 
 @click.group(invoke_without_command=True)

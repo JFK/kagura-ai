@@ -4,13 +4,12 @@ import shutil
 import sys
 from pathlib import Path
 from string import Template
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 import yaml
 from pydantic import BaseModel
 
 from .models import Models, convert_typing_to_builtin, map_type
-from .utils.import_function import import_function
 from .utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -681,28 +680,6 @@ class AgentConfigManager(ConfigBase):
 
         return self._workflow_state_model
 
-    def get_conditional_edges(self) -> Tuple[str, Callable, Dict[str, Any]]:
-        if conditional_edges := self.agent_config.get("conditional_edges", {}):
-            for node_name, cond_info in conditional_edges.items():
-                condition_function_path = cond_info["condition_function"]
-                condition_function = import_function(
-                    condition_function_path, self.agent_name
-                )
-                conditions = cond_info["conditions"]
-                yield node_name, condition_function, conditions
-
-    def import_pre_custom_tool(self) -> Union[Callable, None]:
-        return (
-            import_function(self.pre_custom_tool, self.agent_name)
-            if self.pre_custom_tool
-            else None
-        )
-
-    def import_post_custom_tool(self) -> Union[Callable, None]:
-        if self.custom_tool:
-            self.post_custom_tool = self._custom_tool
-        return (
-            import_function(self.post_custom_tool, self.agent_name)
-            if self.post_custom_tool
-            else self.post_custom_tool
-        )
+    @property
+    def conditional_edges(self) -> List[Dict[str, Any]]:
+        return self.agent_config.get("conditional_edges", [])
