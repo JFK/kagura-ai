@@ -5,7 +5,7 @@ from pathlib import Path
 from string import Template
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
-import pkg_resources
+import importlib.resources as pkg_resources
 import yaml
 from pydantic import BaseModel
 
@@ -31,16 +31,16 @@ class ConfigInitializer:
 
     def _find_package_config_dir(self) -> Path:
         """Find the package config directory using multiple methods"""
-        # Method 1: Try pkg_resources
+        # Method 1: Try importlib.resources
         try:
-            package_root = pkg_resources.resource_filename(self.package_name, "agents")
-            if Path(package_root).exists():
-                logger.debug(
-                    f"Found package config using pkg_resources: {package_root}"
-                )
-                return Path(package_root)
+            with pkg_resources.path(self.package_name, "agents") as package_root:
+                if package_root.exists():
+                    logger.debug(
+                        f"Found package config using importlib.resources: {package_root}"
+                    )
+                    return package_root
         except Exception as e:
-            logger.debug(f"pkg_resources method failed: {e}")
+            logger.debug(f"importlib.resources method failed: {e}")
 
         # Method 2: Try relative to __file__
         try:
