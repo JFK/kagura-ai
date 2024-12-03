@@ -20,12 +20,25 @@ class ConfigError(Exception):
 
 
 class ConfigInitializer:
-    def __init__(self, package_name: str = "kagura"):
+    def __init__(
+        self,
+        package_name: str = "kagura",
+        package_config_dir: Optional[Path] = None,
+        user_config_dir: Optional[Path] = None,
+    ) -> None:
         self.package_name = package_name
-        self.user_config_dir = Path(os.path.expanduser("~")) / ".config" / package_name
+        if user_config_dir:
+            self.user_config_dir = user_config_dir
+        else:
+            self.user_config_dir = (
+                Path(os.path.expanduser("~")) / ".config" / package_name
+            )
 
         # Try multiple methods to find the package data
-        self.package_config_dir = self._find_package_config_dir()
+        if package_config_dir:
+            self.package_config_dir = package_config_dir
+        else:
+            self.package_config_dir = self._find_package_config_dir()
 
     def _find_package_config_dir(self) -> Path:
         """Find the package config directory using multiple methods"""
@@ -117,7 +130,7 @@ class ConfigInitializer:
         system_yml_source = self.package_config_dir / "system.yml"
         if not system_yml_source.exists():
             raise FileNotFoundError(
-                f"system.yml not found in package configuration directory: {system_yml_source}"
+                f"system.yml not found in package configuration directory: {self.package_config_dir}"
             )
 
         destination_agents_dir = self.user_config_dir / "agents"
