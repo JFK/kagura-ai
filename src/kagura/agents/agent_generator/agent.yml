@@ -1,0 +1,183 @@
+# agents/agent_generator/agent.yml
+llm:
+  model: openai/o1-preview
+  max_tokens: 5000
+
+description:
+  - language: en
+    text: An agent that generates complete Kagura agent configurations, including agent.yml, state_model.yml, and custom tools
+
+instructions:
+  - language: en
+    description: |
+      You are an expert in creating Kagura AI agents. Your role is to generate complete agent configurations
+      based on user requirements. Follow these guidelines:
+
+      1. Agent Types:
+         - Atomic Agent: Uses LLM for processing with state management
+         - Function Agent: Focuses on data processing without LLM
+         - Orchestrator Agent: Coordinates multiple agents in a workflow
+
+      2. Configuration Structure:
+         - agent.yml: Core configuration and behavior
+         - state_model.yml: State and custom model definitions
+         - Custom tools: Python code for function agents
+
+      3. Best Practices:
+         - Keep agents focused on a single responsibility
+         - Use clear, descriptive names
+         - Include thorough documentation
+         - Follow type safety principles
+         - Consider error handling
+         - Create reusable components
+
+      4. Field Naming Conventions:
+         - Use snake_case for field names
+         - Make names descriptive but concise
+         - Follow Python naming conventions
+         - Avoid reserved keywords
+
+      5. Type Definitions:
+         - Use appropriate types (str, int, float, bool, etc.)
+         - Define custom models for complex structures
+         - Consider optional vs required fields
+         - Include proper type descriptions
+
+prompt:
+  - language: en
+    template: |
+      Based on this purpose and requirements:
+      {purpose}
+
+      Generate a complete {agent_type} agent configuration. Include all necessary components.
+
+      Here are some examples of good agents:
+
+      # Example 1: Atomic Agent (Content Summarizer)
+      ```yaml
+      # agent.yml
+      description:
+        - language: en
+          text: Summarizes content with customizable length and focus
+      instructions:
+        - language: en
+          text: Generate concise summaries while maintaining key information
+      prompt:
+        - language: en
+          template: |
+            Summarize the following content:
+            {{content}}
+
+            Focus on: {{focus_points}}
+            Maximum length: {{max_length}} words
+      llm:
+        model: openai/gpt-4-turbo
+        max_tokens: 4096
+      response_fields:
+        - summary
+
+      # state_model.yml
+      custom_models:
+        - name: Summary
+          fields:
+            - name: text
+              type: str
+              description:
+                - language: en
+                  text: Summarized content
+            - name: length
+              type: int
+              description:
+                - language: en
+                  text: Length of the summary in words
+      state_fields:
+        - name: content
+          type: str
+          description:
+            - language: en
+              text: Original content to summarize
+        - name: summary
+          type: Summary
+          description:
+            - language: en
+              text: Generated summary
+        ```
+
+      # Example 2: Function Agent (Data Processor)
+      ```yaml
+      # agent.yml
+      description:
+        - language: en
+          text: Processes structured data with custom transformations
+      custom_tool: data_processor.tools.process
+      skip_llm_invoke: true
+      response_fields:
+        - processed_data
+
+      # state_model.yml
+      custom_models:
+        - name: ProcessedData
+          fields:
+            - name: result
+              type: Dict[str, Any]
+              description:
+                - language: en
+                  text: Processed data results
+      state_fields:
+        - name: input_data
+          type: Dict[str, Any]
+          description:
+            - language: en
+              text: Input data to process
+        - name: processed_data
+          type: ProcessedData
+          description:
+            - language: en
+              text: Processed data output
+
+      # tools/process.py
+      async def process(state: StateModel) -> StateModel:
+        # Process input data
+        result = transform_data(state.input_data)
+        state.processed_data = ProcessedData(result=result)
+        return state
+
+      ```
+
+      # Example 3: Orchestrator Agent (Data Pipeline)
+      ```yaml
+      # agent.yml
+      description:
+        - language: en
+          text: Coordinates data collection, processing, and analysis
+      entry_point: collector
+      nodes:
+        - collector
+        - processor
+        - analyzer
+      edges:
+        - from: collector
+          to: processor
+        - from: processor
+          to: analyzer
+      state_field_bindings:
+        - from: collector.data
+          to: processor.input_data
+        - from: processor.output
+          to: analyzer.data
+      conditional_edges:
+        processor:
+          condition_function: check_processing
+          conditions:
+            success: analyzer
+            retry: processor
+            failure: error_handler
+      ```
+
+      Based on these examples and the provided purpose, generate a complete agent configuration
+      including all necessary files and code.
+
+response_fields:
+  - agent_config  # Main agent configuration
+  - state_model_config  # State model configuration
+  - custom_tool_code  # Python code for custom tools (if needed)

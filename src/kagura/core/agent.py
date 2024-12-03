@@ -118,11 +118,10 @@ class Agent(AgentConfigManager):
 
     @property
     def prompt(self) -> BasePrompt:
-        if not hasattr(self, "_prompt"):
-            self._prompt = BasePrompt(
-                prompt=self.prompt_template,
-                response_model=self.response_model,
-            )
+        self._prompt = BasePrompt(
+            prompt=self.prompt_template,
+            response_model=self.response_model,
+        )
         return self._prompt
 
     @property

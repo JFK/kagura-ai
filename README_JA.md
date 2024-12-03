@@ -104,7 +104,7 @@ response_fields:
 ## 使用方法
 
 ### CLI コマンド
-- [WIP] `kagura chat`: 対話的なエージェントのテスト
+- `kagura chat`: チャットボット
 - [WIP] `kagura create`: AI エージェントのテンプレートを対話的に生成
 - `kagura --help`: 利用可能なコマンドを表示
 

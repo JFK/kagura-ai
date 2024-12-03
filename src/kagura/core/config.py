@@ -443,6 +443,10 @@ class AgentConfigManager(ConfigBase):
         return self._custom_models
 
     @property
+    def agent_type(self) -> str:
+        return self.agent_config.get("agent_type", "not specified")
+
+    @property
     def agent_llm_config(self) -> Dict[str, Any]:
         if not hasattr(self, "_agent_llm_config"):
             self._agent_llm_config = self.agent_config.get("llm", {})

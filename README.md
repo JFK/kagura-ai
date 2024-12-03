@@ -104,16 +104,10 @@ response_fields:
 
 ### CLI Commands
 
-- `kagura chat`: Start an interactive chat session with an agent
-- `kagura create`: Interactively generate AI agent templates
+- `kagura chat`: Start an interactive chatbot
+- `kagura create`: [WIP] Interactively generate AI agent templates
 - `kagura --help`: Display available commands
 
-```bash
-# Example of generating an agent template
-kagura create
-> What is the purpose of this agent? Document summarization
-# Agent configuration will be generated in ~/.config/kagura/agents/
-```
 
 ---
 
