@@ -9,6 +9,7 @@ Kagura AI is a lightweight open-source framework specialized in building and orc
 ## Design Philosophy
 
 Kagura AI is built on a modular, state-driven architecture that prioritizes:
+
 - **Simplicity**: Simple YAML configurations for complex AI systems
 - **Flexibility**: Modular components that can be easily combined
 - **Type Safety**: Strong typing and state validation throughout
@@ -19,6 +20,7 @@ Kagura AI is built on a modular, state-driven architecture that prioritizes:
 ### AI Multi Agents
 
 #### Agent Types
+
 - **Atomic Agent**: LLM-powered agents with state management and processing hooks
 - **Function Agent**: Task-specific data processors for independent operations
 - **Orchestrator Agent**: Multi-agent workflow controller for complex task coordination
@@ -35,12 +37,14 @@ agents/
 ```
 
 ### State Architecture
+
 - **Type-Safe Definitions**: Pydantic models ensure data consistency
 - **Inter-Agent Communication**: Seamless state sharing between components
 - **State Bindings**: Defined pathways for data flow between agents
 - **YAML Serialization**: Clear and maintainable state definitions
 
 ### Tool Integration
+
 - **Custom Tools**: Extend agent capabilities with custom implementations
 - **Processing Hooks**: Pre/post hooks for flexible data handling
 - **External Connectors**: Seamless integration with external services

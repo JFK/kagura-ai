@@ -32,7 +32,6 @@ plugins:
 
 nav:
   - Home: index.md
-  - GitHub: https://github.com/JFK/kagura-ai
   - Getting Started:
     - en/installation.md
     - en/configuration.md
@@ -66,6 +65,7 @@ nav:
     - License: ../LICENSE
     - Documentation: en/mkdocs.md
   - Why Kagura AI?: en/kagura.md
+  - GitHub: https://github.com/JFK/kagura-ai
   - Try ChatGPTs: https://chatgpt.com/g/g-674c1cfed1a88191bd594e13c2840a44-kagura-ai-agent-builder
 
 extra_css:
