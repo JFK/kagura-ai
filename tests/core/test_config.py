@@ -1,10 +1,10 @@
-import pytest
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
-from kagura.core.agent import Agent
+import pytest
 
-from kagura.core.config import ConfigInitializer, AgentConfigManager
+from kagura.core.agent import Agent
+from kagura.core.config import AgentConfigManager, ConfigInitializer
 from kagura.core.models import BaseModel
 
 pytestmark = pytest.mark.asyncio

@@ -1,11 +1,12 @@
 # tests/core/test_agent.py
 
-import pytest
 from unittest.mock import patch
 
+import pytest
+
 from kagura.core.agent import Agent
-from kagura.core.models import BaseResponseModel
 from kagura.core.config import AgentConfigManager
+from kagura.core.models import BaseResponseModel
 from kagura.core.prompts import BasePrompt
 from kagura.core.utils.llm import LLM
 

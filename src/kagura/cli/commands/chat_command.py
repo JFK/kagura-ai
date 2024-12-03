@@ -1,7 +1,8 @@
 # cli/commands/chat_command.py
 import asyncio
-import click
 import sys
+
+import click
 
 from kagura.core.agent import Agent
 from kagura.core.memory import MessageHistory

@@ -1,10 +1,10 @@
 # tests/core/test_memory.py
 import asyncio
-
-import pytest
 from unittest.mock import AsyncMock, patch
 
-from kagura.core.memory import MemoryBackend, MessageHistory, Memory
+import pytest
+
+from kagura.core.memory import Memory, MemoryBackend, MessageHistory
 
 pytestmark = pytest.mark.asyncio
 

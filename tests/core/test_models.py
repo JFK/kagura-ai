@@ -2,7 +2,8 @@
 
 import pytest
 from pydantic import BaseModel
-from kagura.core.models import Models, map_type, TypeMappingError
+
+from kagura.core.models import Models, TypeMappingError, map_type
 
 
 class TestModels:

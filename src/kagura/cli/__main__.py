@@ -1,12 +1,12 @@
 import sys
-from typing import List
 from importlib.metadata import version
+from typing import List
 
 import click
 
 from kagura.core.config import ConfigInitializer
 
-from .commands import create, install, chat
+from .commands import chat, create, install
 
 
 def get_version():

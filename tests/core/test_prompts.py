@@ -2,6 +2,7 @@
 
 import pytest
 from pydantic import BaseModel
+
 from kagura.core.prompts import BasePrompt, BasePromptException
 
 

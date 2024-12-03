@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from pydantic import BaseModel
 
-from kagura.core.models import ModelRegistry
 from kagura.core.memory import MemoryBackend, MessageHistory
+from kagura.core.models import ModelRegistry
 
 # =========================
 # Fixtures
