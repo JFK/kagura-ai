@@ -1,7 +1,7 @@
 # pyproject.toml
 [tool.poetry]
 name = "kagura-ai"
-version = "0.0.4"
+version = "0.0.5"
 description = "A flexible AI agent framework with YAML-based configuration"
 authors = ["JFK <fumikazu.kiyota@gmail.com>"]
 readme = "README.md"
@@ -53,6 +53,7 @@ mkdocs-material = "^9.5.46"
 mkdocs-i18n = "^0.4.6"
 pymdown-extensions = "^10.12"
 pytest-asyncio = "^0.24.0"
+pyfakefs = "^5.7.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "setuptools>=42.0.0", "wheel"]

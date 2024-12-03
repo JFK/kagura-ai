@@ -2774,6 +2774,17 @@ files = [
 typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
+name = "pyfakefs"
+version = "5.7.2"
+description = "pyfakefs implements a fake file system that mocks the Python file system modules."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pyfakefs-5.7.2-py3-none-any.whl", hash = "sha256:e1527b0e8e4b33be52f0b024ca1deb269c73eecd68457c6b0bf608d6dab12ebd"},
+    {file = "pyfakefs-5.7.2.tar.gz", hash = "sha256:40da84175c5af8d9c4f3b31800b8edc4af1e74a212671dd658b21cc881c60000"},
+]
+
+[[package]]
 name = "pyflakes"
 version = "3.2.0"
 description = "passive checker of Python programs"
@@ -3828,4 +3839,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "9f95df672b08bad95795c85d895214ffe7bd44d42a460907e02ce18a76bb47fb"
+content-hash = "f0dc14742a7d23e4d367feac4adb31401142f821571b9e358dfd0e9fdda3838e"
