@@ -1,3 +1,5 @@
+# Kagura AI
+
 ![Kagura AI Logo](https://www.kagura-ai.com/assets/kagura-logo.svg)
 
 ![Python versions](https://img.shields.io/pypi/pyversions/kagura-ai.svg)
@@ -8,9 +10,7 @@
 ![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)
 ![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
 
-# Kagura AI
-
-Kagura AI is an open-source framework inspired by the Japanese traditional art form **Kagura (神楽)**, symbolizing harmony, connection, and respect. This framework enables developers to build, configure, and orchestrate intelligent agents efficiently, combining modularity with cutting-edge AI technologies.
+Kagura AI is a lightweight open-source framework specialized in building and orchestrating AI Multi Agents. Named after the traditional Japanese performance art "Kagura (神楽)", it enables sophisticated AI agent systems through simple YAML-based configurations while embodying the principles of harmony, connection, and respect.
 
 ---
 
@@ -18,21 +18,43 @@ Kagura AI is an open-source framework inspired by the Japanese traditional art f
 
 The name **Kagura AI** reflects the principles of Kagura: harmony, connection, and balance. By adopting these values, Kagura AI seeks to create responsible AI systems that prioritize collaboration, innovation, and ethical design.
 
-- **Harmony**: Integrates diverse technologies into cohesive workflows.
-- **Connection**: Facilitates seamless inter-agent communication.
-- **Creativity**: Combines innovative AI solutions with timeless principles.
+- **Harmony**: Integrates diverse technologies into cohesive workflows, just as Kagura weaves music, dance, and ritual into a unified performance.
+- **Connection**: Facilitates seamless inter-agent communication, mirroring Kagura's role in linking humanity, nature, and the divine.
+- **Creativity**: Combines innovative AI solutions with timeless principles, embodying Kagura's balance between tradition and artistic expression.
+
+These principles form the foundation of Kagura AI's **Core Concepts**, ensuring a flexible, reliable, and ethical framework for building and orchestrating intelligent agents.
+
+---
+
+## Core Concepts
+
+### Atomic Agent
+- **Task-Specific Operations**: Atomic Agents are designed to handle high-granularity, specialized tasks efficiently and independently.
+- **Modular and Decoupled**: Operates as standalone units or integrates with other agents via loose coupling, akin to microservices.
+- **Flexibility**: Can interact with functions, tools, or external APIs, enabling seamless integration in larger workflows.
+
+### Orchestration Framework
+- **Multi-Agent Coordination**: Combines multiple Atomic Agents to execute complex, multi-step workflows.
+- **Dynamic Routing**: Supports conditional branching and flow control for advanced task orchestration.
+- **Collaborative Functionality**: Acts as a unified system while maintaining individual agent autonomy.
+
+### State and Response Management
+- **Type-Safe State Handling**: Uses Pydantic models to ensure data integrity and consistency across workflows.
+- **Response Customization**: Modular responses allow rapid adaptation to changing requirements.
+- **Debugging and Transparency**: Centralized state management simplifies error tracking and improves overall system reliability.
 
 ---
 
 ## Key Features
 
-- **YAML-based Configuration**: Define agents, workflows, and state models in a human-readable format.
-- **Multi-LLM Support**: Connect with OpenAI, Anthropic, Ollama, Google, and more via [LiteLLM](https://github.com/BerriAI/litellm).
-- **State Management**: Pydantic-based type-safe state definitions.
-- **Workflow Orchestration**: Build complex workflows using multi-agent systems.
-- **Extensibility**: Add custom tools, hooks, and plugins for enhanced functionality.
-- **Multilingual Support**: Native support for multiple languages.
-- **Redis Integration**: Optional persistent memory for agents.
+- **Atomic Agent Design**: High-granularity, task-specific agents that execute independently or as part of workflows
+- **Workflow Orchestration**: Coordinate complex, multi-step processes with dynamic routing
+- **State and Response Management**: Ensure data safety and modularity with type-safe states and customizable responses
+- **YAML-Based Configuration**: Define agents and workflows in a human-readable format
+- **Multi-LLM Support**: Seamlessly connect with OpenAI, Anthropic, Ollama, Google, and more via [LiteLLM](https://github.com/BerriAI/litellm)
+- **Extensibility**: Add custom tools, hooks, and plugins for domain-specific tasks
+- **Multilingual Support**: Native support for multiple languages
+- **Redis Integration**: Optional persistent memory for agents
 
 ---
 
@@ -60,7 +82,7 @@ Kagura AI simplifies agent creation using YAML files. Below is an example of con
 ```yaml
 # ~/.config/kagura/agents/my_agent/agent.yml
 llm:
-  model: openai/gpt-4
+  model: openai/gpt-4o-mini # e.g. ollama/qwen2.5:14b (LiteLLM provider/model)
   max_tokens: 4096
 description:
   - language: en
@@ -80,30 +102,39 @@ response_fields:
 
 ## Usage
 
-### Run Kagura AI
-```bash
-kagura
-```
-
 ### CLI Commands
-- `kagura`: Start the interactive agent interface.
-- `kagura create`: Create a new agent configuration.
-- `kagura --help`: Display available commands.
+- `kagura create`: Interactively generate AI agent templates
+- `kagura --help`: Display available commands
+
+```bash
+# Example of generating an agent template
+kagura create
+> What is the purpose of this agent? Document summarization
+# Agent configuration will be generated in ~/.config/kagura/agents/
+```
 
 ---
 
 ## Advanced Usage
 
+### Atomic Agent and Function Integration
+Leverage loose coupling to connect agents with functions or external tools for efficient task execution:
+
+```python
+async def process_data(state: StateModel) -> StateModel:
+    # Custom data processing logic
+    return processed_state
+```
+
 ### Multi-Agent Workflows
 Design complex workflows with dynamic routing and inter-agent state sharing:
 ```yaml
-workflow:
-  agents:
-    - name: text_fetcher
-    - name: text_summarizer
-  edges:
-    - from: text_fetcher
-      to: text_summarizer
+nodes:
+  - name: text_fetcher
+  - name: text_summarizer
+edges:
+  - from: text_fetcher
+    to: text_summarizer
 ```
 
 ### Redis Integration
@@ -119,10 +150,10 @@ redis:
 
 ## Roadmap
 
-- 🌐 **Web API Interface**: Serve agents via RESTful APIs.
-- 🧠 **Memory Management**: Persistent memory using Redis or similar backends.
-- 📚 **Knowledge Integration**: Add RAG (Retrieval-Augmented Generation) support.
-- 🐳 **Docker Deployment**: Simplify setup with Docker containers.
+- 🌐 **Web API Interface**: Serve agents via RESTful APIs
+- 🧠 **Agent Memory**: Enhanced state and context management per agent
+- 📚 **Agent Knowledge Base**: Knowledge base and RAG integration accessible per agent
+- 🐳 **Docker Deployment**: Simplify setup with Docker containers
 
 ---
 
@@ -131,15 +162,15 @@ redis:
 We welcome all contributors! Whether you're a seasoned developer or new to open source, your input matters. Join us to shape the future of Kagura AI.
 
 ### Ways to Contribute
-- Report issues or bugs.
-- Propose new features or improvements.
-- Submit code, documentation, or tests.
-- Help review Pull Requests.
+- Report issues or bugs
+- Propose new features or improvements
+- Submit code, documentation, or tests
+- Help review Pull Requests
 
 ### Steps to Contribute
-1. Read the [Contributing Guide (English)](./CONTRIBUTING.md) or [コントリビューションガイド (日本語)](./CONTRIBUTING_JA.md).
-2. Fork the repository and clone it locally.
-3. Create a branch, make your changes, and submit a Pull Request.
+1. Read the [Contributing Guide](./CONTRIBUTING.md)
+2. Fork the repository and clone it locally
+3. Create a branch, make your changes, and submit a Pull Request
 
 ---
 
@@ -151,4 +182,4 @@ We welcome all contributors! Whether you're a seasoned developer or new to open 
 
 ---
 
-Thank you for exploring Kagura AI! Let’s build harmonious, innovative, and responsible AI solutions together.
+Thank you for exploring Kagura AI! Let's build harmonious, innovative, and responsible AI solutions together.

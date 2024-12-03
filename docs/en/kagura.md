@@ -1,45 +1,46 @@
-![Kagura AI Logo](../assets/kagura-logo.svg)
-
 # Why Kagura AI?
 
-## What is Kagura (神楽)?
+The name "Kagura" draws inspiration from traditional Japanese performance art, reflecting key principles that guide our approach to AI Multi Agent development.
 
-**Kagura (神楽)** is a traditional Japanese performance art that combines dance and music, deeply rooted in Shinto rituals. The name "Kagura" translates to "entertaining the gods," symbolizing a sacred act of reverence and celebration. Known for its rhythmic movements, harmonious choreography, and spiritual significance, Kagura reflects the deep connection between humanity, nature, and the divine.
+## Core Values in Architecture
 
-The essence of Kagura lies in its ability to embody the respect for nature and humanity’s role within it. Through its dynamic performances, Kagura celebrates the cycles of nature, the interconnectedness of life, and the sanctity of human and natural harmony.
+### Harmony in Design
+Kagura AI's architecture reflects the harmonious nature of its namesake:
+- **Modular Components**: Like individual performers in Kagura, each agent has a specific role
+- **Coordinated Workflows**: Agents work together in orchestrated sequences, similar to synchronized dance movements
+- **Balanced Integration**: Technologies and tools are integrated thoughtfully, maintaining system coherence
 
----
+### Flow of Execution
+The framework embodies the flowing movements of Kagura:
+- **Smooth State Transitions**: Data flows naturally between agents
+- **Dynamic Routing**: Flexible pathways adapt to different scenarios
+- **Efficient Coordination**: Streamlined communication between components
 
-## Why the Name Kagura AI?
+### Simplicity and Power
+Like Kagura's combination of simple movements into complex performances:
+- **Simple Configuration**: YAML-based setup for sophisticated behaviors
+- **Composable Elements**: Basic components combine for complex operations
+- **Clear Structure**: Intuitive organization of agents and workflows
 
-The name **Kagura AI** draws inspiration from the philosophy and spirit of Kagura, embodying its themes of harmony, connection, and respect for the natural world. Just as Kagura integrates dance, music, and ritual into a unified performance, Kagura AI integrates technology, data, and agents into a seamless system.
+## Technical Foundation
 
-Here are the key reasons behind the name:
+### Agent Architecture
+The spiritual aspects of Kagura inspire practical technical decisions:
+- **Independent Agents**: Self-contained units with clear responsibilities
+- **Collaborative Systems**: Agents working together toward common goals
+- **Adaptive Workflows**: Flexible response to changing requirements
 
-**Harmony**
+### State Management
+Maintaining balance through careful state handling:
+- **Type Safety**: Ensuring data integrity across the system
+- **Clear Communication**: Well-defined paths for information flow
+- **Consistent Behavior**: Predictable and reliable agent interactions
 
-Kagura AI reflects the harmony found in Kagura, bringing together diverse technologies, data, and agents to create a cohesive and efficient system.
+## Framework Vision
 
-**Connection**
+Kagura AI aims to embody both technical excellence and thoughtful design:
+- **Practical Efficiency**: Streamlined development of AI Multi Agent systems
+- **Sustainable Growth**: Easily extensible architecture for future needs
+- **Community Focus**: Open source collaboration fostering innovation
 
-Like Kagura’s connection between the divine, nature, and humanity, Kagura AI connects multiple agents and LLMs, enabling collaborative problem-solving across complex workflows.
-
-**Respect for Nature and Humanity**
-
-Inspired by Kagura's reverence for the cycles of nature and the sanctity of life, Kagura AI aims to use technology responsibly, fostering solutions that respect both human and environmental values.
-
-**Creativity and Tradition**
-
-While Kagura is deeply rooted in Japanese tradition, it is also a creative expression. Similarly, Kagura AI blends innovative AI technology with timeless principles of balance and respect.
-
-**Flow**
-
-Kagura's dance movements symbolize natural flows and rhythms. Kagura AI emulates this by facilitating smooth coordination and efficient task execution among systems and workflows.
-
----
-
-## The Vision of Kagura AI
-
-By adopting the name Kagura, this project seeks to honor the spirit of collaboration, respect, and harmony that Kagura represents. Kagura AI aspires to bridge the gap between cutting-edge AI technology and the values of humanity and nature, creating systems that are not only powerful but also meaningful and responsible.
-
-This open-source project is a modern reflection of Kagura's timeless values, aiming to inspire solutions that align with both technological advancement and the preservation of human and natural integrity.
+By combining these elements, Kagura AI creates a framework that is both powerful and accessible, enabling developers to build sophisticated AI Multi Agent systems while maintaining clarity and purpose in their design.

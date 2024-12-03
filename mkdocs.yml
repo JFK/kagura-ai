@@ -31,8 +31,8 @@ plugins:
 #        ja: 日本語
 
 nav:
-  - index.md
-  - Concepts & Architecture: en/concepts.md
+  - Home: index.md
+  - GitHub: https://github.com/JFK/kagura-ai
   - Getting Started:
     - en/installation.md
     - en/configuration.md
@@ -58,11 +58,15 @@ nav:
 #    - Error Handling: en/practices/error-handling.md
 #    - Testing Strategies: en/practices/testing.md
 #    - Performance Optimization: en/practices/optimization.md
-  - Documentation:
-    - en/mkdocs.md
+
+  - For Developers:
+    - How to Contribute: ../CONTRIBUTING.md
+    - Contributing (日本語): ../CONTRIBUTING_JA.md
+    - Code of Conduct: ../CODE_OF_CONDUCT.md
+    - License: ../LICENSE
+    - Documentation: en/mkdocs.md
   - Why Kagura AI?: en/kagura.md
-  - GitHub: https://github.com/JFK/kagura-ai
-  - ChatGPTs: https://chatgpt.com/g/g-674c1cfed1a88191bd594e13c2840a44-kagura-ai-agent-builder
+  - Try ChatGPTs: https://chatgpt.com/g/g-674c1cfed1a88191bd594e13c2840a44-kagura-ai-agent-builder
 
 extra_css:
   - assets/custom.css

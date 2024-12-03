@@ -1,44 +1,62 @@
-![Kagura AI Logo](assets/kagura-logo.svg)
-
 # Introduction to Kagura AI
 
-Kagura is a powerful yet simple AI agent framework designed for building, configuring, and orchestrating AI systems through YAML files. Combining flexibility and modularity with ease of use, Kagura empowers developers to create sophisticated AI workflows effortlessly.
+![Kagura AI Logo](assets/kagura-logo.svg)
+
+Kagura AI is a lightweight open-source framework specialized in building and orchestrating AI Multi Agents. Through simple YAML-based configurations, it enables developers to create sophisticated agent-based systems that work together to accomplish complex tasks with higher accuracy and efficiency.
 
 ---
 
-## Key Features
+## Design Philosophy
 
-- **YAML-based Configuration**: Define agents, workflows, and state models in a human-readable format.
-- **Multiple LLM Support**: Seamlessly integrate with OpenAI, Anthropic, Ollama, Google, and more via [LiteLLM](https://github.com/BerriAI/litellm).
-- **State Management**: Type-safe state handling with Pydantic models.
-- **Workflow Orchestration**: Build and control complex AI workflows through multi-agent composition.
-- **Extensibility**: Customize tools, hooks, and plugins to extend functionality.
-- **Multilingual**: Native support for multiple languages.
-- **Assistant Interface**: Console-based interactions with optional Redis-backed memory for persistence.
+Kagura AI is built on a modular, state-driven architecture that prioritizes:
+- **Simplicity**: Simple YAML configurations for complex AI systems
+- **Flexibility**: Modular components that can be easily combined
+- **Type Safety**: Strong typing and state validation throughout
+- **Maintainability**: Clear separation of concerns and state management
 
 ## Core Components
 
-### Agent Types
-- **Atomic Agent**: Fundamental, stateful LLM agents with pre/post-processing hooks.
-- **Function Agent**: Task-specific, independent data processors.
-- **Orchestrator Agent**: Multi-agent workflow controller built on [LangGraph](https://www.langchain.com/langgraph).
+### AI Multi Agents
 
-### State Management
-- Pydantic model validation for type-safe state handling.
-- Inter-agent state sharing for seamless data transfer.
-- YAML-based serialization for persistence and portability.
+#### Agent Types
+- **Atomic Agent**: LLM-powered agents with state management and processing hooks
+- **Function Agent**: Task-specific data processors for independent operations
+- **Orchestrator Agent**: Multi-agent workflow controller for complex task coordination
+
+#### Implementation Structure
+```
+agents/
+└── agent_name/
+    ├── agent.yml         # Core configuration
+    ├── state_model.yml   # State definition
+    └── tools/            # Custom tools
+        ├── __init__.py
+        └── tool.py
+```
+
+### State Architecture
+- **Type-Safe Definitions**: Pydantic models ensure data consistency
+- **Inter-Agent Communication**: Seamless state sharing between components
+- **State Bindings**: Defined pathways for data flow between agents
+- **YAML Serialization**: Clear and maintainable state definitions
 
 ### Tool Integration
-- Custom tool and hook support for extending agent capabilities.
-- Pre/post-processing hooks for flexible data handling.
-- Connectors for external services to enhance workflow integration.
+- **Custom Tools**: Extend agent capabilities with custom implementations
+- **Processing Hooks**: Pre/post hooks for flexible data handling
+- **External Connectors**: Seamless integration with external services
+- **LLM Support**: Connect with OpenAI, Anthropic, Ollama, Google via [LiteLLM](https://github.com/BerriAI/litellm)
 
-### Assistant Interface
-- Console-based interaction with a user-friendly interface.
-- Optional persistent memory using Redis.
-- [WIP] Ability to call Kagura agent functions directly from the console.
+## Key Features
 
-## Resources
+- **Modular Design**: Each agent operates as a self-contained unit
+- **Workflow Orchestration**: Complex task coordination through multi-agent composition
+- **Type Safety**: Strong typing and validation throughout the system
+- **Extensibility**: Easy addition of custom tools and hooks
+- **Multilingual**: Native support for multiple languages
+
+## Get Started
+
+Explore our guides to start building with Kagura AI:
 
 - [Installation Guide](en/installation.md)
 - [Configuration Guide](en/configuration.md)
