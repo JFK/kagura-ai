@@ -13,7 +13,7 @@ from kagura.core.models import (
 )
 
 
-class TestModels:
+class TestModelData:
     def setup_method(self):
         """各テストの前に実行"""
         ModelRegistry.clear()

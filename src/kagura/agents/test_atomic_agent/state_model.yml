@@ -1,0 +1,169 @@
+custom_models:
+  - name: NestedModel
+    fields:
+      - name: field1
+        type: str
+        description:
+          - language: en
+            text: Nested string field
+      - name: field2
+        type: int
+        description:
+          - language: en
+            text: Nested integer field
+
+  - name: ComplexModel
+    fields:
+      - name: dict_field
+        type: Dict[str, Any]
+        description:
+          - language: en
+            text: Dictionary field with string keys and any values
+      - name: nested_model
+        type: NestedModel
+        description:
+          - language: en
+            text: Nested model field
+      - name: optional_field
+        type: Optional[str]
+        description:
+          - language: en
+            text: Optional string field
+
+  - name: TestAgentCustomModel
+    fields:
+      - name: string
+        type: str
+        description:
+          - language: en
+            text: Basic string field
+          - language: ja
+            text: 基本的な文字列フィールド
+      - name: integer
+        type: int
+        description:
+          - language: en
+            text: Basic integer field
+          - language: ja
+            text: 基本的な整数フィールド
+      - name: float
+        type: float
+        description:
+          - language: en
+            text: Basic float field
+          - language: ja
+            text: 基本的な浮動小数点フィールド
+      - name: boolean
+        type: bool
+        description:
+          - language: en
+            text: Boolean field
+          - language: ja
+            text: ブール値フィールド
+      - name: list_string
+        type: List[str]
+        description:
+          - language: en
+            text: List of strings
+          - language: ja
+            text: 文字列のリスト
+      - name: list_integer
+        type: List[int]
+        description:
+          - language: en
+            text: List of integers
+          - language: ja
+            text: 整数のリスト
+      - name: list_float
+        type: List[float]
+        description:
+          - language: en
+            text: List of floats
+          - language: ja
+            text: 浮動小数点数のリスト
+      - name: set_string
+        type: Set[str]
+        description:
+          - language: en
+            text: Set of unique strings
+          - language: ja
+            text: ユニークな文字列のセット
+      - name: frozen_set_int
+        type: FrozenSet[int]
+        description:
+          - language: en
+            text: Immutable set of integers
+          - language: ja
+            text: 不変な整数のセット
+      - name: dict_str_int
+        type: Dict[str, int]
+        description:
+          - language: en
+            text: Dictionary with string keys and integer values
+          - language: ja
+            text: 文字列キーと整数値を持つ辞書
+      - name: dict_str_any
+        type: Dict[str, Any]
+        description:
+          - language: en
+            text: Dictionary with string keys and any values
+          - language: ja
+            text: 文字列キーと任意の値を持つ辞書
+      - name: optional_string
+        type: Optional[str]
+        description:
+          - language: en
+            text: Optional string field that can be null
+          - language: ja
+            text: null許容の文字列フィールド
+      - name: tuple_int_str
+        type: Tuple[int, str]
+        description:
+          - language: en
+            text: Tuple of integer and string
+          - language: ja
+            text: 整数と文字列のタプル
+      - name: complex_field
+        type: ComplexModel
+        description:
+          - language: en
+            text: Complex nested model field
+          - language: ja
+            text: 複雑なネストされたモデルフィールド
+      - name: list_nested
+        type: List[NestedModel]
+        description:
+          - language: en
+            text: List of nested models
+          - language: ja
+            text: ネストされたモデルのリスト
+
+state_fields:
+  - name: test_agent_response_fields
+    type: TestAgentCustomModel
+    description:
+      - language: en
+        text: Comprehensive test agent response fields
+      - language: ja
+        text: 包括的なテストエージェントのレスポンスフィールド
+  - name: test_agent_user_input
+    type: str
+    description:
+      - language: en
+        text: Test agent user input string
+      - language: ja
+        text: テストエージェントのユーザー入力文字列
+  - name: optional_complex_input
+    type: Optional[ComplexModel]
+    description:
+      - language: en
+        text: Optional complex input model
+      - language: ja
+        text: オプションの複雑な入力モデル
+  - name: nested_list_input
+    type: List[NestedModel]
+    description:
+      - language: en
+        text: List of nested input models
+      - language: ja
+        text: ネストされた入力モデルのリスト

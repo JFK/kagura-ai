@@ -1,13 +1,10 @@
-import asyncio
-from unittest.mock import AsyncMock, PropertyMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from pydantic import BaseModel
-from redis import asyncio as aioredis
 
-from kagura.core.agent import Agent
+from kagura.core.models import ModelRegistry
 from kagura.core.memory import MemoryBackend, MessageHistory
-from kagura.core.models import ModelRegistry, get_custom_model
 
 # =========================
 # Fixtures

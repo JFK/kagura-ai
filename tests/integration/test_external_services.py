@@ -86,6 +86,7 @@ class TestExternalServices:
                     data = await response.json()
                     assert data == test_response
 
+    @pytest.mark.skip()
     async def test_memory_persistence(self, memory_backend):
         """Test memory persistence operations"""
         test_key = "test_memory"

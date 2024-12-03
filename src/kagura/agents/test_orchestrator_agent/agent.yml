@@ -1,0 +1,32 @@
+# kagura/agents/test_orchestrator_agent/agent.yml
+description:
+  - language: en
+    text: An orchestrator agent that coordinates content fetching, text conversion, and summarization workflow.
+  - language: ja
+    text: コンテンツの取得、テキスト変換、要約を調整するオーケストレーターエージェント。
+
+entry_point: content_fetcher
+nodes:
+  - content_fetcher
+  - text_converter
+  - summarizer
+
+edges:
+  - from: content_fetcher
+    to: text_converter
+  - from: text_converter
+    to: summarizer
+
+state_field_bindings:
+  - from: content_fetcher.content
+    to: text_converter.content
+  - from: text_converter.converted_content
+    to: summarizer.content.text
+
+conditional_edges:
+  text_converter:
+    condition_function: kagura.agent.test_orchestrator_agent.conditions.check_conversion
+    conditions:
+      success: summarizer
+      retry: text_converter
+      failure: error_handler
