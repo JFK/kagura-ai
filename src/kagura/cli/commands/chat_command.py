@@ -1,11 +1,42 @@
-# cli/assistant.py
-from .chat import ChatManager
-from .commands import CommandRegistry
-from .ui import ConsoleManager
+# cli/commands/chat_command.py
+import asyncio
+import click
+import sys
+
+from kagura.core.agent import Agent
+from kagura.core.memory import MessageHistory
+
+from ..ui import ConsoleManager
+from . import CommandRegistry
 
 
-# cli/assistant.py
-class KaguraAIAssistant:
+class ChatManager:
+    def __init__(self, console_manager: ConsoleManager):
+        self.message_history = None
+        self.chat_agent = Agent.assigner("chat")
+        self.console = console_manager.console
+
+    async def initialize(self):
+        self.message_history = await MessageHistory.factory(
+            system_prompt=self.chat_agent.instructions
+        )
+
+    async def process_message(self, message: str, skip_history: bool = False) -> str:
+        if not skip_history:
+            await self.message_history.add_message("user", message)
+
+        messages = await self.message_history.get_messages()
+
+        response_text = await self.console.astream_display_typing(
+            self.chat_agent.llm.achat_stream, messages=messages
+        )
+
+        if not skip_history:
+            await self.message_history.add_message("assistant", response_text)
+        return response_text
+
+
+class KaguraChat:
     def __init__(self, window_size: int = 20):
         self.console_manager = ConsoleManager()
         self.chat_manager = ChatManager(self.console_manager)
@@ -55,3 +86,17 @@ class KaguraAIAssistant:
         return f"/{command_parts[0]}", (
             command_parts[1] if len(command_parts) > 1 else ""
         )
+
+
+@click.command()
+def chat():
+    """Start interactive chat with Kagura AI"""
+    try:
+        chat = KaguraChat()
+        asyncio.run(chat.arun())
+    except KeyboardInterrupt:
+        print("\nShutting down Kagura AI...")
+        sys.exit(0)
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        sys.exit(1)

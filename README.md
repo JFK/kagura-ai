@@ -103,6 +103,8 @@ response_fields:
 ## Usage
 
 ### CLI Commands
+
+- `kagura chat`: Start an interactive chat session with an agent
 - `kagura create`: Interactively generate AI agent templates
 - `kagura --help`: Display available commands
 
