@@ -1,0 +1,68 @@
+/* 全体のリンクスタイル */
+a {
+  color: #059669; /* 緑色 */
+  text-decoration: none;
+}
+
+a:hover {
+  color: #DC2626; /* 赤色 */
+  text-decoration: underline;
+}
+
+/* ボタンのスタイル */
+.md-button--primary {
+  background-color: #059669; /* 緑色 */
+  color: #ffffff; /* 白文字 */
+  border: none;
+}
+
+.md-button--primary:hover {
+  background-color: #DC2626; /* 赤色 */
+  color: #ffffff;
+}
+
+/* ナビゲーションメニュー */
+.md-nav__link {
+  color: #059669; /* 緑色 */
+}
+
+.md-nav__link:hover {
+  color: #DC2626; /* 赤色 */
+}
+
+/* ヘッダーの背景色 */
+.md-header {
+  background-color: #059669; /* 緑色 */
+}
+
+.md-header__title, .md-nav__title {
+  color: #ffffff; /* 白文字 */
+}
+
+/* フッターの背景色 */
+.md-footer {
+  background-color: #DC2626; /* 赤色 */
+  color: #ffffff; /* 白文字 */
+}
+
+/* コードブロックのハイライト */
+code, pre {
+  background-color: #fdf2f2; /* 薄い赤 */
+  color: #DC2626; /* 赤色 */
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* 表のハイライト */
+table tr:hover {
+  background-color: #f0fdf4; /* 薄い緑 */
+}
+
+/* 見出しのスタイル */
+h1, h2, h3, h4, h5, h6 {
+  color: #059669; /* 緑色 */
+}
+
+/* 強調テキスト */
+strong {
+  color: #DC2626; /* 赤色 */
+}
