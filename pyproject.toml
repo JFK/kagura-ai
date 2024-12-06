@@ -61,7 +61,7 @@ requires = ["setuptools>=42.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["kagura"]
+packages = ["kagura", "kagura.core", "kagura.cli"]
 package-dir = {"" = "src"}
 
 [tool.uv.sources]
