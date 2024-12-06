@@ -1,4 +1,5 @@
 # agents/agent_generator/agent.yml
+type: atomic
 llm:
   model: openai/o1-preview
   max_tokens: 5000
@@ -181,3 +182,7 @@ response_fields:
   - agent_config  # Main agent configuration
   - state_model_config  # State model configuration
   - custom_tool_code  # Python code for custom tools (if needed)
+
+input_fields:
+  - purpose  # Purpose and requirements for the agent
+  - agent_type  # Type of agent to generate (Atomic, Function, Orchestrator)

@@ -1,8 +1,9 @@
 # agents/chat/agent.yml
 # This is a generic chatbot
+type: atomic
+skip_state_model: true  # must be set to true if response_fields is not defined or there is no state_model.yml
 llm:
   stream: true
-skip_state_model: true  # must be set to true if response_fields is not defined or there is no state_model.yml
 description:
   - language: en
     text: This is the default agent.

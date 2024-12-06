@@ -1,4 +1,4 @@
-# kagura/agents/test_orchestrator_agent/agent.yml
+type: workflow
 description:
   - language: en
     text: An orchestrator agent that coordinates content fetching, text conversion, and summarization workflow.
