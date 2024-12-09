@@ -1,9 +1,15 @@
 from typing import List, Optional
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from kagura.core.models import ModelRegistry, validate_required_state_fields
+from kagura.core.agent import Agent
+from kagura.core.models import (
+    BaseResponseModel,
+    ModelRegistry,
+    validate_required_state_fields,
+)
 
 pytestmark = pytest.mark.asyncio
 
@@ -87,3 +93,42 @@ class TestStateManagement:
         """Clean up after each test"""
         ModelRegistry._models.clear()
         ModelRegistry._model_fields.clear()
+
+    @pytest.mark.asyncio
+    async def test_input_query_storage(self):
+        input_query = {"text_input": "Sample text", "parameters": {"key": "value"}}
+        mock_return_value = BaseResponseModel(INPUT_QUERY=input_query)
+
+        with patch(
+            "kagura.core.agent.Agent.execute", new_callable=AsyncMock
+        ) as mock_execute:
+            mock_execute.return_value = mock_return_value
+
+            agent = Agent.assigner("test_atomic_agent")
+            result = await agent.execute(
+                {"text_input": "Test input", "parameters": {"type": "test"}}
+            )
+
+            assert isinstance(result.INPUT_QUERY, dict)
+            assert result.INPUT_QUERY["text_input"] == "Sample text"
+            assert result.INPUT_QUERY == input_query
+            mock_execute.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_text_output_conversion(self):
+
+        mock_return_value = BaseResponseModel(TEXT_OUTPUT="Mocked output text")
+
+        with patch(
+            "kagura.core.agent.Agent.execute", new_callable=AsyncMock
+        ) as mock_execute:
+            mock_execute.return_value = mock_return_value
+
+            agent = Agent.assigner("test_atomic_agent")
+            result = await agent.execute(
+                {"text_input": "Test input", "parameters": {"type": "test"}}
+            )
+
+            assert result.TEXT_OUTPUT is not None
+            assert result.TEXT_OUTPUT == "Mocked output text"
+            mock_execute.assert_awaited_once()
