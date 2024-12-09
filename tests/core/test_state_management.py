@@ -116,7 +116,6 @@ class TestStateManagement:
 
     @pytest.mark.asyncio
     async def test_text_output_conversion(self):
-
         mock_return_value = BaseResponseModel(TEXT_OUTPUT="Mocked output text")
 
         with patch(
