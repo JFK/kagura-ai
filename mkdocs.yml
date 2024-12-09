@@ -46,18 +46,6 @@ nav:
     - Coding Examples: en/tutorials/coding-examples.md
     - Building Your First Agent: en/tutorials/first-agent.md
     - Agent Pupblising Guide: en/tutorials/agent-publishing-guide.md
-#    - Creating a Chat Agent: en/tutorials/chat-agent.md
-#    - Implementing a Search Pipeline: en/tutorials/search-pipeline.md
-#    - Custom Tool Development: en/tutorials/custom-tools.md
-#  - Implementation Guides:
-#    - Content Processing Workflow: en/guides/content-processing.md
-#    - Data Analysis Pipeline: en/guides/data-analysis.md
-#    - Multi-Agent Integration: en/guides/multi-agent.md
-#    - State Management Patterns: en/guides/state-patterns.md
-#  - Best Practices:
-#    - Error Handling: en/practices/error-handling.md
-#    - Testing Strategies: en/practices/testing.md
-#    - Performance Optimization: en/practices/optimization.md
 
   - For Developers:
     - How to Contribute: https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md
@@ -79,12 +67,3 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/JFK/kagura-ai
       name: GitHub Repository
-
-# extra:
-#  alternate:
-#    - name: English
-#      link: /
-#      lang: en
-#    - name: 日本語
-#      link: /ja/top/
-#      lang: ja
