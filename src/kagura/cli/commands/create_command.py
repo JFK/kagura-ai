@@ -87,11 +87,11 @@ class AgentCreator:
    - LLM-powered with state management
    - Best for: NLP tasks, content generation, analysis
 
-2. [blue]Function Agent[/blue]
+2. [blue]Tool Agent[/blue]
    - Custom tool integration without LLM
    - Best for: Data processing, API integration, transformations
 
-3. [magenta]Orchestrator Agent[/magenta]
+3. [magenta]Workflow Agent[/magenta]
    - Multi-agent workflow coordination
    - Best for: Complex pipelines, multi-step processes
 
@@ -173,7 +173,7 @@ Has Custom Tool: {'Yes' if config.get("custom_tool_code") else 'No'}
         try:
             # Get agent type
             self.console.print(self.get_agent_type_prompt())
-            agent_type_map = {"1": "atomic", "2": "function", "3": "orchestrator"}
+            agent_type_map = {"1": "atomic", "2": "function", "3": "workflow"}
             while True:
                 choice = (await self.console_manager.console.input_async("")).strip()
                 agent_type = agent_type_map.get(choice)

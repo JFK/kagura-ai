@@ -133,4 +133,4 @@ export LOG_LEVEL=DEBUG  # Options: DEBUG, INFO, WARNING, ERROR
 
 ---
 
-[Configuration →](configuration.md){: .md-button .md-button--primary }
+[System Configuration →](system-configuration.md){: .md-button .md-button--primary }

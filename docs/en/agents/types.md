@@ -22,7 +22,7 @@ The Atomic Agent is the foundational building block for stateful AI tasks. It in
 ### Example Configuration
 ```yaml
 # agent.yml
-type: atomic  # atomic, function, or workflow
+type: atomic  # atomic, tool, or workflow
 llm: # Custom LLM configuration for the agent (optional)
   model: openai/gpt-4o-mini
   max_tokens: 2048
@@ -42,10 +42,10 @@ input_fields:
 
 ---
 
-## **Function Agent**
+## **Tool Agent**
 
 ### Overview
-The Function Agent is designed for tasks that do not involve LLMs. It excels at fast data transformations and external API integrations.
+The Tool Agent is designed for tasks that do not involve LLMs. It excels at fast data transformations and external API integrations.
 
 ### Key Features
 - **No LLM Dependency**: Focuses on computational tasks.
@@ -76,11 +76,11 @@ input_fields:  # State fields required for the tool
 The Workflow Agent coordinates workflows involving multiple agents. It manages state sharing, conditional routing, and error handling across agents.
 
 ### Key Features
-- **Multi-Agent Workflows**: Integrates and coordinates multiple agents (Atomic Agent and Function Agent) in a single workflow.
+- **Multi-Agent Workflows**: Integrates and coordinates multiple agents (Atomic Agent and Tool Agent) in a single workflow.
 - **State Binding**: Shares and transfers state between agents seamlessly.
 - **Conditional Routing**: Supports dynamic transitions between workflow nodes based on runtime conditions.
 - **Error Recovery**: Handles errors gracefully with retry mechanisms and fallback options.
-- **No State Model Requirement**: Relies on predefined configurations of Atomic Agent and Function Agent, eliminating the need for its own `state_model.yml`.
+- **No State Model Requirement**: Relies on predefined configurations of Atomic Agent and Tool Agent, eliminating the need for its own `state_model.yml`.
 
 ### Use Cases
 - Coordinating a pipeline for document analysis and summarization.
@@ -116,5 +116,5 @@ state_field_bindings:
 | Agent Type     | Use When You Need                         |
 |----------------|------------------------------------------|
 | Atomic Agent    | Context-aware LLM interactions.          |
-| Function Agent | Fast data transformations and API calls. |
+| Tool Agent | Fast data transformations and API calls. |
 | Worfklow Agent   | Complex, multi-step workflows.           |

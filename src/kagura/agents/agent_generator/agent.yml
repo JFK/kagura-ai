@@ -16,13 +16,13 @@ instructions:
 
       1. Agent Types:
          - Atomic Agent: Uses LLM for processing with state management
-         - Function Agent: Focuses on data processing without LLM
-         - Orchestrator Agent: Coordinates multiple agents in a workflow
+         - Tool Agent: Focuses on data processing without LLM
+         - workflow Agent: Coordinates multiple agents in a workflow
 
       2. Configuration Structure:
          - agent.yml: Core configuration and behavior
          - state_model.yml: State and custom model definitions
-         - Custom tools: Python code for function agents
+         - Custom tools: Python code for tool agents
 
       3. Best Practices:
          - Keep agents focused on a single responsibility
@@ -104,7 +104,7 @@ prompt:
               text: Generated summary
         ```
 
-      # Example 2: Function Agent (Data Processor)
+      # Example 2: Tool Agent (Data Processor)
       ```yaml
       # agent.yml
       description:
@@ -145,7 +145,7 @@ prompt:
 
       ```
 
-      # Example 3: Orchestrator Agent (Data Pipeline)
+      # Example 3: workflow Agent (Data Pipeline)
       ```yaml
       # agent.yml
       description:
@@ -185,4 +185,4 @@ response_fields:
 
 input_fields:
   - purpose  # Purpose and requirements for the agent
-  - agent_type  # Type of agent to generate (Atomic, Function, Orchestrator)
+  - agent_type  # Type of agent to generate (Atomic, Tool, workflow)

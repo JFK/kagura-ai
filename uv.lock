@@ -832,6 +832,11 @@ dev = [
     { name = "trio" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "kagura-ai" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.12.3" },

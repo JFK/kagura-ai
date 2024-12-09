@@ -10,7 +10,7 @@ Each agent requires at least one YAML file:
 
 1. **`agent.yml`**: Defines the agent's behavior, prompts, and tools.
 
-For Atomic Agent and Function Agent, an optional **`state_model.yml`** can be used to specify the state model. Orchestrator Agent dose not require a `state_model.yml` as they rely on predefined Atomic Agent and Function Agent configurations.
+For Atomic Agent and Tool Agent, an optional **`state_model.yml`** can be used to specify the state model. Orchestrator Agent dose not require a `state_model.yml` as they rely on predefined Atomic Agent and Tool Agent configurations.
 
 ### Directory Structure
 ```
@@ -36,14 +36,14 @@ The `agent.yml` file defines the agent's role, behavior, and processing logic.
 - **`post_custom_tool`**: Specifies a custom tool to be executed as a post-processing hook for state data.
 - **`pre_custom_tool`**: Specifies a custom tool to be executed as a pre-processing hook for state data.
 
-#### Function Agent
+#### Tool Agent
 
-- **`custom_tool`**: Defines the path to a custom tool that the agent will use. This is the primary configuration field for Function Agents, allowing them to execute custom logic for specific tasks.
+- **`custom_tool`**: Defines the path to a custom tool that the agent will use. This is the primary configuration field for Tool Agents, allowing them to execute custom logic for specific tasks.
 - **`response_fields`**: Required when specifying the fields that the tool is expected to produce. These fields must align with the `state_model.yml` definitions for consistency.
 
 #### Orchestrator Agent
 
-- **`entry_point`**: Specifies the starting node in a workflow. Orchestrator Agents are built using predefined Atomic Agent and Function Agent configurations and do not require their own `state_model.yml`.
+- **`entry_point`**: Specifies the starting node in a workflow. Orchestrator Agents are built using predefined Atomic Agent and Tool Agent configurations and do not require their own `state_model.yml`.
 - **`nodes`**: Lists the agents involved in the workflow.
 - **`edges`**: Defines the connections between workflow nodes.
 - **`state_field_bindings`**: Maps the state fields between agents in the workflow.
@@ -54,7 +54,7 @@ The `agent.yml` file defines the agent's role, behavior, and processing logic.
 ### Example: Atomic Agent
 
 ```yaml
-type: atomic  # atomic, function, or workflow
+type: atomic  # atomic, tool, or workflow
 llm:
   model: openai/gpt-4o-mini # Cusomize the LLM model to use (optional)
   max_tokens: 2048
@@ -76,10 +76,10 @@ input_fields:
 post_custom_tool: agent_name.tools.postprocess_summary  # Finalize the summary output
 ```
 
-### Example: Function Agent
+### Example: Tool Agent
 
 ```yaml
-type: function
+type: tool
 custom_tool: agents.[agent_name].tools.data_fetcher
 response_fields: # state fields that the tool produces or updates
   - data
@@ -123,7 +123,7 @@ conditional_edges:
 
 ## state_model.yml
 
-The `state_model.yml` file defines the input, output, and intermediate state fields for the agent. This file is optional for Atomic Agent and Function Agent and not used by Orchestrator Agent agents.
+The `state_model.yml` file defines the input, output, and intermediate state fields for the agent. This file is optional for Atomic Agent and Tool Agent and not used by Orchestrator Agent agents.
 
 ### Example: Atomic Agent State Model
 

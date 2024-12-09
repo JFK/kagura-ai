@@ -35,7 +35,7 @@ Kagura offers three primary agent types, each designed for specific use cases:
  - Supports pre- and post-processing hooks for flexibility.
  - Generates structured outputs with type-safe validation.
 
-**Function Agent**:
+**Tool Agent**:
 
  - Focuses on non-LLM data processing.
  - Ideal for data transformations, API integrations, and fast execution.
@@ -44,7 +44,7 @@ Kagura offers three primary agent types, each designed for specific use cases:
 
   - Manages workflows involving multiple agents.
   - Enables conditional routing, error recovery, and progress monitoring.
-  - Uses predefined Atomic Agent and Function Agent to orchestrate tasks.
+  - Uses predefined Atomic Agent and Tool Agent to orchestrate tasks.
 
 
 For a detailed description of each agent type, see the [Agent Types](types.md) document.

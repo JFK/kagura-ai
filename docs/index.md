@@ -22,7 +22,7 @@ Kagura AI is built on a modular, state-driven architecture that prioritizes:
 #### Agent Types
 
 - **Atomic Agent**: LLM-powered agents with state management and processing hooks
-- **Function Agent**: Task-specific data processors for independent operations
+- **Tool Agent**: Task-specific data processors for independent operations
 - **Workflow Agent**: Multi-agent workflow controller for complex task coordination
 
 #### Implementation Structure

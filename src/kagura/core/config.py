@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 class AgentType(Enum):
     ATOMIC = "atomic"
     WORKFLOW = "workflow"
-    FUNCTION = "function"
+    TOOL = "tool"
 
     @classmethod
     def from_str(cls, value: str) -> "AgentType":
@@ -488,7 +488,7 @@ class AgentConfigManager(ConfigBase):
             return AgentType.WORKFLOW
 
         elif self.skip_llm_invoke:
-            return AgentType.FUNCTION
+            return AgentType.TOOL
 
         else:
             return AgentType.ATOMIC

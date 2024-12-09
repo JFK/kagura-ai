@@ -54,9 +54,9 @@ custom_models:
         type: str
         description:
           - language: en
-            text: Type of agent (atomic/function/orchestrator)
+            text: Type of agent (atomic/tool/workflow)
           - language: ja
-            text: エージェントの種類（atomic/function/orchestrator）
+            text: エージェントの種類（atomic/tool/workflow）
       - name: description
         type: Dict[str, str]
         description:
@@ -82,9 +82,9 @@ custom_models:
         type: str
         description:
           - language: en
-            text: Path to custom tool (for function agents)
+            text: Path to custom tool (for tool agents)
           - language: ja
-            text: カスタムツールへのパス（function エージェント用）
+            text: カスタムツールへのパス（Tool エージェント用）
       - name: custom_models
         type: List[CustomModel]
         description:
@@ -106,44 +106,44 @@ custom_models:
             text: Fields to be returned in response
           - language: ja
             text: レスポンスで返すフィールド
-      # Orchestrator specific fields
+      # workflow specific fields
       - name: nodes
         type: List[str]
         description:
           - language: en
-            text: List of nodes in the workflow (for orchestrator agents)
+            text: List of nodes in the workflow (for workflow agents)
           - language: ja
-            text: ワークフローのノードリスト（orchestrator エージェント用）
+            text: ワークフローのノードリスト（workflow エージェント用）
       - name: edges
         type: List[Dict[str, str]]
         description:
           - language: en
-            text: Edge definitions between nodes (for orchestrator agents)
+            text: Edge definitions between nodes (for workflow agents)
           - language: ja
-            text: ノード間のエッジ定義（orchestrator エージェント用）
+            text: ノード間のエッジ定義（workflow エージェント用）
       - name: state_field_bindings
         type: List[Dict[str, str]]
         description:
           - language: en
-            text: State field bindings between nodes (for orchestrator agents)
+            text: State field bindings between nodes (for workflow agents)
           - language: ja
-            text: ノード間の状態フィールドバインディング（orchestrator エージェント用）
+            text: ノード間の状態フィールドバインディング（workflow エージェント用）
       - name: conditional_edges
         type: Dict[str, Dict[str, Any]]
         description:
           - language: en
-            text: Conditional edge definitions (for orchestrator agents)
+            text: Conditional edge definitions (for workflow agents)
           - language: ja
-            text: 条件付きエッジの定義（orchestrator エージェント用）
+            text: 条件付きエッジの定義（workflow エージェント用）
 
 state_fields:
   - name: agent_type
     type: str
     description:
       - language: en
-        text: Type of agent to be generated (atomic/function/orchestrator)
+        text: Type of agent to be generated (atomic/tool/workflow)
       - language: ja
-        text: 生成するエージェントの種類（atomic/function/orchestrator）
+        text: 生成するエージェントの種類（atomic/tool/workflow）
   - name: purpose
     type: str
     description:

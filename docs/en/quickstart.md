@@ -42,7 +42,7 @@ Create an `agent.yml` file in the newly created directory:
 ```yaml
 # ~/.config/kagura/agents/my_agent/agent.yml
 cat > ~/.config/kagura/agents/my_agent/agent.yml <<EOF
-type: atomic  # atomic, function or workflow
+type: atomic  # atomic, tool, or composite
 llm:
   stream: true
 skip_state_model: true  # must be set to true if response_fields is not defined or there is no state_model.yml
