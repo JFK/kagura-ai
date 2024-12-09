@@ -1,3 +1,4 @@
+type: atomic
 description:
   - language: en
     text: This agent analyzes user messages to extract search intents with confidence scores

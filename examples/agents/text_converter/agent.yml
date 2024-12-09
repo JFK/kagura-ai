@@ -1,3 +1,4 @@
+type: tool
 custom_tool: tools.convert_to_text
 description:
   - language: en

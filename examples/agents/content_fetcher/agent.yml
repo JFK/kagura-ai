@@ -1,3 +1,4 @@
+type: tool
 custom_tool: tools.fetch
 description:
   - language: en

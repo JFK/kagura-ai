@@ -1,3 +1,4 @@
+type: atomic
 description:
   - language: en
     text: This agent creates a structured search plan based on identified search intents
