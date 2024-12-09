@@ -2,7 +2,6 @@ PROJECT_NAME = kagura-ai
 PYTHON = python3
 VENV_DIR = .venv
 BUILD_DIR = dist
-LOCK_FILE = uv.lock
 
 .PHONY: all
 all: help
@@ -24,18 +23,10 @@ venv:
 	$(VENV_DIR)/bin/pip install --upgrade pip uv
 	@echo "Done."
 
-.PHONY: lock
-lock: venv
-	@echo "Regenerating $(LOCK_FILE)..."
-	rm -f $(LOCK_FILE)
-	$(VENV_DIR)/bin/uv lock
-	@echo "$(LOCK_FILE) regenerated."
-
 .PHONY: sync
-sync: lock
+sync: venv
 	@echo "Syncing dependencies with uv..."
-	$(VENV_DIR)/bin/uv sync --frozen --dev
-	$(VENV_DIR)/bin/pip install build
+	$(VENV_DIR)/bin/uv sync --frozen --all-extras --dev
 	@echo "Done. You can now activate the virtual environment with 'source $(VENV_DIR)/bin/activate'."
 
 .PHONY: test
@@ -45,15 +36,16 @@ test: sync
 	@echo "Done."
 
 .PHONY: build
-build: sync
+build: test
 	@echo "Building the package..."
+	$(VENV_DIR)/bin/pip install --upgrade build
 	$(VENV_DIR)/bin/python -m build
 	@echo "Done. Build artifacts are in $(BUILD_DIR)/"
 
 .PHONY: clean
 clean:
 	@echo "Cleaning up..."
-	rm -rf $(VENV_DIR) $(BUILD_DIR) $(LOCK_FILE) src/*.egg-info
+	rm -rf $(BUILD_DIR) src/*.egg-info
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 	@echo "Done."
