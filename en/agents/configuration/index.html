@@ -6,6 +6,8 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="Kagura agents are configured using YAML files, allowing you to define their roles, behavior, and state models. This document provides an overview of the configuration structure and examples for each agent type.">
+      
       
       
         <link rel="canonical" href="https://www.kagura-ai.com/en/agents/configuration/">
@@ -17,7 +19,7 @@
         <link rel="next" href="../../tutorials/coding-examples/">
       
       
-      <link rel="icon" href="../../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/kagura-icon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.47">
     
     
@@ -55,6 +57,32 @@
       
 
     
+    
+      
+        <meta  property="og:type"  content="website" >
+      
+        <meta  property="og:title"  content="Configuration - Kagura AI Documentation" >
+      
+        <meta  property="og:description"  content="None" >
+      
+        <meta  property="og:image"  content="https://www.kagura-ai.com/assets/images/social/en/agents/configuration.png" >
+      
+        <meta  property="og:image:type"  content="image/png" >
+      
+        <meta  property="og:image:width"  content="1200" >
+      
+        <meta  property="og:image:height"  content="630" >
+      
+        <meta  property="og:url"  content="https://www.kagura-ai.com/en/agents/configuration/" >
+      
+        <meta  name="twitter:card"  content="summary_large_image" >
+      
+        <meta  name="twitter:title"  content="Configuration - Kagura AI Documentation" >
+      
+        <meta  name="twitter:description"  content="None" >
+      
+        <meta  name="twitter:image"  content="https://www.kagura-ai.com/assets/images/social/en/agents/configuration.png" >
+      
     
     
   </head>
@@ -504,9 +532,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#function-agent" class="md-nav__link">
+  <a href="#tool-agent" class="md-nav__link">
     <span class="md-ellipsis">
-      Function Agent
+      Tool Agent
     </span>
   </a>
   
@@ -536,9 +564,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-function-agent" class="md-nav__link">
+  <a href="#example-tool-agent" class="md-nav__link">
     <span class="md-ellipsis">
-      Example: Function Agent
+      Example: Tool Agent
     </span>
   </a>
   
@@ -981,9 +1009,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#function-agent" class="md-nav__link">
+  <a href="#tool-agent" class="md-nav__link">
     <span class="md-ellipsis">
-      Function Agent
+      Tool Agent
     </span>
   </a>
   
@@ -1013,9 +1041,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-function-agent" class="md-nav__link">
+  <a href="#example-tool-agent" class="md-nav__link">
     <span class="md-ellipsis">
-      Example: Function Agent
+      Example: Tool Agent
     </span>
   </a>
   
@@ -1115,7 +1143,7 @@
 <ol>
 <li><strong><code>agent.yml</code></strong>: Defines the agent's behavior, prompts, and tools.</li>
 </ol>
-<p>For Atomic Agent and Function Agent, an optional <strong><code>state_model.yml</code></strong> can be used to specify the state model. Orchestrator Agent dose not require a <code>state_model.yml</code> as they rely on predefined Atomic Agent and Function Agent configurations.</p>
+<p>For Atomic Agent and Tool Agent, an optional <strong><code>state_model.yml</code></strong> can be used to specify the state model. Orchestrator Agent dose not require a <code>state_model.yml</code> as they rely on predefined Atomic Agent and Tool Agent configurations.</p>
 <h3 id="directory-structure">Directory Structure</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>agents/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>└── agent_name/
@@ -1134,14 +1162,14 @@
 <li><strong><code>post_custom_tool</code></strong>: Specifies a custom tool to be executed as a post-processing hook for state data.</li>
 <li><strong><code>pre_custom_tool</code></strong>: Specifies a custom tool to be executed as a pre-processing hook for state data.</li>
 </ul>
-<h4 id="function-agent">Function Agent</h4>
+<h4 id="tool-agent">Tool Agent</h4>
 <ul>
-<li><strong><code>custom_tool</code></strong>: Defines the path to a custom tool that the agent will use. This is the primary configuration field for Function Agents, allowing them to execute custom logic for specific tasks.</li>
+<li><strong><code>custom_tool</code></strong>: Defines the path to a custom tool that the agent will use. This is the primary configuration field for Tool Agents, allowing them to execute custom logic for specific tasks.</li>
 <li><strong><code>response_fields</code></strong>: Required when specifying the fields that the tool is expected to produce. These fields must align with the <code>state_model.yml</code> definitions for consistency.</li>
 </ul>
 <h4 id="orchestrator-agent">Orchestrator Agent</h4>
 <ul>
-<li><strong><code>entry_point</code></strong>: Specifies the starting node in a workflow. Orchestrator Agents are built using predefined Atomic Agent and Function Agent configurations and do not require their own <code>state_model.yml</code>.</li>
+<li><strong><code>entry_point</code></strong>: Specifies the starting node in a workflow. Orchestrator Agents are built using predefined Atomic Agent and Tool Agent configurations and do not require their own <code>state_model.yml</code>.</li>
 <li><strong><code>nodes</code></strong>: Lists the agents involved in the workflow.</li>
 <li><strong><code>edges</code></strong>: Defines the connections between workflow nodes.</li>
 <li><strong><code>state_field_bindings</code></strong>: Maps the state fields between agents in the workflow.</li>
@@ -1149,7 +1177,7 @@
 </ul>
 <hr />
 <h3 id="example-atomic-agent">Example: Atomic Agent</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">atomic</span><span class="w">  </span><span class="c1"># atomic, function, or workflow</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">atomic</span><span class="w">  </span><span class="c1"># atomic, tool, or workflow</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nt">llm</span><span class="p">:</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openai/gpt-4o-mini</span><span class="w"> </span><span class="c1"># Cusomize the LLM model to use (optional)</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2048</span>
@@ -1170,8 +1198,8 @@
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">content</span>
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="nt">post_custom_tool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agent_name.tools.postprocess_summary</span><span class="w">  </span><span class="c1"># Finalize the summary output</span>
 </code></pre></div>
-<h3 id="example-function-agent">Example: Function Agent</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">function</span>
+<h3 id="example-tool-agent">Example: Tool Agent</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tool</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">custom_tool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agents.[agent_name].tools.data_fetcher</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nt">response_fields</span><span class="p">:</span><span class="w"> </span><span class="c1"># state fields that the tool produces or updates</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data</span>
@@ -1209,7 +1237,7 @@
 </code></pre></div>
 <hr />
 <h2 id="state_modelyml">state_model.yml</h2>
-<p>The <code>state_model.yml</code> file defines the input, output, and intermediate state fields for the agent. This file is optional for Atomic Agent and Function Agent and not used by Orchestrator Agent agents.</p>
+<p>The <code>state_model.yml</code> file defines the input, output, and intermediate state fields for the agent. This file is optional for Atomic Agent and Tool Agent and not used by Orchestrator Agent agents.</p>
 <h3 id="example-atomic-agent-state-model">Example: Atomic Agent State Model</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">custom_models</span><span class="p">:</span><span class="w"> </span><span class="c1"># You can define own custom models here</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SummaryData</span>
@@ -1268,6 +1296,9 @@ You can change the name of <code>tools.py</code> to any other name, but make sur
 
 
 
+
+  
+  
 
 
 

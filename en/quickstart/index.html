@@ -17,7 +17,7 @@
         <link rel="next" href="../installation/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/kagura-icon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.47">
     
     
@@ -55,6 +55,32 @@
       
 
     
+    
+      
+        <meta  property="og:type"  content="website" >
+      
+        <meta  property="og:title"  content="Quickstart - Kagura AI Documentation" >
+      
+        <meta  property="og:description"  content="None" >
+      
+        <meta  property="og:image"  content="https://www.kagura-ai.com/assets/images/social/en/quickstart.png" >
+      
+        <meta  property="og:image:type"  content="image/png" >
+      
+        <meta  property="og:image:width"  content="1200" >
+      
+        <meta  property="og:image:height"  content="630" >
+      
+        <meta  property="og:url"  content="https://www.kagura-ai.com/en/quickstart/" >
+      
+        <meta  name="twitter:card"  content="summary_large_image" >
+      
+        <meta  name="twitter:title"  content="Quickstart - Kagura AI Documentation" >
+      
+        <meta  name="twitter:description"  content="None" >
+      
+        <meta  name="twitter:image"  content="https://www.kagura-ai.com/assets/images/social/en/quickstart.png" >
+      
     
     
   </head>
@@ -961,7 +987,7 @@
 <p>Create an <code>agent.yml</code> file in the newly created directory:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># ~/.config/kagura/agents/my_agent/agent.yml</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="l l-Scalar l-Scalar-Plain">cat &gt; ~/.config/kagura/agents/my_agent/agent.yml &lt;&lt;EOF</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">atomic</span><span class="w">  </span><span class="c1"># atomic, function or workflow</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">atomic</span><span class="w">  </span><span class="c1"># atomic, tool, or composite</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nt">llm</span><span class="p">:</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">stream</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="nt">skip_state_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># must be set to true if response_fields is not defined or there is no state_model.yml</span>
@@ -1018,6 +1044,9 @@
 
 
 
+
+  
+  
 
 
 
