@@ -14,7 +14,9 @@ def import_function(tool_path: str, agent_name: str = None) -> Callable:
     )
 
     agent_tools_dir = (
-        (Path(__file__).parent.parent / "agents" / agent_name) if agent_name else None
+        (Path(__file__).parent.parent.parent / "agents" / agent_name)
+        if agent_name
+        else None
     )
 
     module_search_paths = [

@@ -44,6 +44,8 @@ class BaseResponseModel(BaseModel):
     CURRENT_DATE: Optional[str] = CURRENT_DATE
     CURRENT_TIME: Optional[str] = CURRENT_TIME
     QUERY: Optional[str] = None
+    INPUT_QUERY: Optional[Dict[str, Any]] = None
+    TEXT_OUTPUT: Optional[str] = None
 
 
 class ModelRegistry:

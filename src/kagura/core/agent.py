@@ -63,6 +63,8 @@ class Agent(AgentConfigManager):
 
             class StateModel(BaseModel):
                 QUERY: str = ""
+                INPUT_QUERY: Dict[str, Any] = {}
+                TEXT_OUTPUT: str = ""
 
             self._state = StateModel.model_validate({"QUERY": state})
 
@@ -369,6 +371,29 @@ class Agent(AgentConfigManager):
 
         return graph.compile()
 
+    def _store_input_fields(self):
+        """Store input_fields values in INPUT_QUERY"""
+        input_data = {}
+        for field in self.input_fields:
+            if hasattr(self._state, field):
+                input_data[field] = getattr(self._state, field)
+        self._state.INPUT_QUERY = input_data
+
+    async def _convert_response_to_text(self) -> str:
+        """Convert response fields to text format"""
+        text_parts = []
+
+        for field in self.response_fields:
+            value = getattr(self._state, field)
+            if isinstance(value, str):
+                text_parts.append(value)
+            elif isinstance(value, (List, Dict)):
+                text_parts.append(json.dumps(value, indent=2, ensure_ascii=False))
+            elif isinstance(value, BaseModel):
+                text_parts.append(value.model_dump_json(indent=2))
+
+        return "\n\n".join(text_parts)
+
     async def execute_workflow(
         self, state: Union[BaseModel, str, Dict[str, Any]] = None
     ) -> AsyncGenerator[Dict[str, Any], None]:
@@ -401,6 +426,9 @@ class Agent(AgentConfigManager):
 
         self._initialize_state(state)
 
+        # Store input_fields data
+        self._store_input_fields()
+
         stream = True if self.llm_stream else stream
 
         try:
@@ -432,6 +460,12 @@ class Agent(AgentConfigManager):
                 self._state = await post_custom_tool(self._state)
 
             self._state = self.models.check_state_error(self._state)
+
+            # Convert response fields to text
+            if self.response_fields:
+                text_output = await self._convert_response_to_text()
+                self._state.TEXT_OUTPUT = text_output
+
             return self._state
 
         except AgentError as e:
