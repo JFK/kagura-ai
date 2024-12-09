@@ -50,6 +50,9 @@ dev = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.5.46",
     "mkdocs-i18n>=0.4.6",
+    "mkdocs-material[imaging]>=9.5.47",
+    "mkdocs-meta-descriptions-plugin>=3.0.0",
+    "mkdocs-social-plugin>=0.1.0",
     "pymdown-extensions>=10.12",
     "pyright>=1.1.389",
     "pyfakefs>=5.7.2",
@@ -84,11 +87,3 @@ target-version = "py311"
 select = ["E", "F", "I"]
 ignore = []
 per-file-ignores = { "__init__.py" = ["F401"] }
-
-[dependency-groups]
-dev = [
-    "kagura-ai",
-    "mkdocs-material[imaging]>=9.5.47",
-    "mkdocs-meta-descriptions-plugin>=3.0.0",
-    "mkdocs-social-plugin>=0.1.0",
-]
