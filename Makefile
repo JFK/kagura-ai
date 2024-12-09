@@ -10,7 +10,6 @@ all: help
 help:
 	@echo "Usage:"
 	@echo "  make venv         Create a virtual environment"
-	@echo "  make lock         Generate or regenerate uv.lock"
 	@echo "  make sync         Sync dependencies using uv"
 	@echo "  make test         Run tests using pytest"
 	@echo "  make build        Build the package"
