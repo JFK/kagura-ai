@@ -1,0 +1,40 @@
+custom_models:
+  - name: ContentItem
+    fields:
+      - name: text
+        type: str
+        description:
+          - language: en
+            text: Text of the content
+          - language: ja
+            text: コンテンツのテキスト
+      - name: content_type
+        type: str
+        description:
+          - language: en
+            text: Type of the content
+          - language: ja
+            text: コンテンツのタイプ
+      - name: url
+        type: str
+        description:
+          - language: en
+            text: URL of the content source
+          - language: ja
+            text: コンテンツ取得先のURL
+
+state_fields:
+  - name: url
+    type: str
+    description:
+      - language: en
+        text: URL of the content source
+      - language: ja
+        text: コンテンツ取得先のURL
+  - name: content
+    type: ContentItem
+    description:
+      - language: en
+        text: Content fetched from the URL
+      - language: ja
+        text: URLから取得したコンテンツ

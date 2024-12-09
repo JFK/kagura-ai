@@ -1,0 +1,10 @@
+state_fields:
+  - agent_name: content_fetcher
+    state_field_name: content
+  - name: converted_content
+    type: str
+    description:
+      - language: en
+        text: Text converted from the content_fetcher
+      - language: ja
+        text: コンテンツ取得元から変換されたテキスト

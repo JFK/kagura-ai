@@ -1,0 +1,32 @@
+custom_models:
+  - name: UserSearchIntent
+    fields:
+      - name: user_intent
+        type: str
+        description:
+          - language: en
+            text: User's search intent
+          - language: ja
+            text: ユーザーの検索の意図
+      - name: confidence
+        type: float
+        description:
+          - language: en
+            text: Confidence score of the user's search intent. Score ranges from 0.0 to 1.0.
+          - language: ja
+            text: ユーザーの検索の意図の信頼度スコア。スコアは 0.0 から 1.0 までの範囲です。
+state_fields:
+  - name: user_query
+    type: str
+    description:
+      - language: en
+        text: User's search query
+      - language: ja
+        text: ユーザーの検索クエリ
+  - name: user_search_intents
+    type: List[UserSearchIntent]
+    description:
+      - language: en
+        text: List of search intents extracted from the user's query
+      - language: ja
+        text: ユーザーのクエリーから抽出された検索意図のリスト
