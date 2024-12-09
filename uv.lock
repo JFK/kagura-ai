@@ -870,7 +870,9 @@ dev = [
     { name = "isort" },
     { name = "mkdocs" },
     { name = "mkdocs-i18n" },
-    { name = "mkdocs-material" },
+    { name = "mkdocs-material", extra = ["imaging"] },
+    { name = "mkdocs-meta-descriptions-plugin" },
+    { name = "mkdocs-social-plugin" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pyfakefs" },
@@ -880,14 +882,6 @@ dev = [
     { name = "pytest-cov" },
     { name = "ruff" },
     { name = "trio" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "kagura-ai" },
-    { name = "mkdocs-material", extra = ["imaging"] },
-    { name = "mkdocs-meta-descriptions-plugin" },
-    { name = "mkdocs-social-plugin" },
 ]
 
 [package.metadata]
@@ -905,6 +899,9 @@ requires-dist = [
     { name = "mkdocs", marker = "extra == 'dev'", specifier = ">=1.6.1" },
     { name = "mkdocs-i18n", marker = "extra == 'dev'", specifier = ">=0.4.6" },
     { name = "mkdocs-material", marker = "extra == 'dev'", specifier = ">=9.5.46" },
+    { name = "mkdocs-material", extras = ["imaging"], marker = "extra == 'dev'", specifier = ">=9.5.47" },
+    { name = "mkdocs-meta-descriptions-plugin", marker = "extra == 'dev'", specifier = ">=3.0.0" },
+    { name = "mkdocs-social-plugin", marker = "extra == 'dev'", specifier = ">=0.1.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.13.0" },
     { name = "pdfminer-six", specifier = ">=20240706" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0.1" },
@@ -925,14 +922,6 @@ requires-dist = [
     { name = "toml", specifier = ">=0.10.2" },
     { name = "trio", marker = "extra == 'dev'", specifier = ">=0.26.2" },
     { name = "tzlocal", specifier = "==5.2" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "kagura-ai", editable = "." },
-    { name = "mkdocs-material", extras = ["imaging"], specifier = ">=9.5.47" },
-    { name = "mkdocs-meta-descriptions-plugin", specifier = ">=3.0.0" },
-    { name = "mkdocs-social-plugin", specifier = ">=0.1.0" },
 ]
 
 [[package]]
