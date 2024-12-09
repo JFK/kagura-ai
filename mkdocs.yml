@@ -10,6 +10,7 @@ theme:
     primary: green
     accent: red
   logo: assets/kagura-icon.svg
+  favicon: assets/kagura-icon.svg
   features:
     - content.code.copy
   footer:
@@ -23,6 +24,8 @@ markdown_extensions:
 
 plugins:
   - search
+  - meta-descriptions
+  - social:
 #  - i18n:
 #      default_language: en
 #      languages:

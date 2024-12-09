@@ -88,4 +88,7 @@ per-file-ignores = { "__init__.py" = ["F401"] }
 [dependency-groups]
 dev = [
     "kagura-ai",
+    "mkdocs-material[imaging]>=9.5.47",
+    "mkdocs-meta-descriptions-plugin>=3.0.0",
+    "mkdocs-social-plugin>=0.1.0",
 ]

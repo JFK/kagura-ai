@@ -1,3 +1,24 @@
+---
+title: Kagura AI - AI Multi Agent Framework
+description: A lightweight open-source framework for building and orchestrating AI Multi Agents with YAML-based configurations.
+keywords:
+  - AI Multi Agents
+  - YAML configuration
+  - Agent orchestration
+  - Machine learning
+  - AI framework
+author: Fumikazu Kiyota
+robots: index, follow
+og_title: Kagura AI - AI Multi Agent Framework
+og_type: website
+og_url: https://www.kagura-ai.com
+og_description: Build sophisticated AI agent systems through simple YAML-based configurations while embodying the principles of harmony, connection, and respect.
+og_image: assets/kagura-logo.svg
+twitter_card: summary_large_image
+twitter_site: "@kagura_ai"
+twitter_creator: "@JFK"
+---
+
 # Introduction to Kagura AI
 
 ![Kagura AI Logo](assets/kagura-logo.svg)
