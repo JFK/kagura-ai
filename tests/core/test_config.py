@@ -9,8 +9,6 @@ from kagura.core.models import BaseModel
 
 pytestmark = pytest.mark.asyncio
 
-# tests/agents/test_orchestrator_agent.py
-
 
 @pytest.fixture
 def project_root():
@@ -277,7 +275,7 @@ async def test_atomic_agent_state_binding():
 @pytest.mark.asyncio
 async def test_orchestrator_configuration():
     """Test the orchestrator agent configuration loading"""
-    agent = Agent.assigner("test_orchestrator_agent")
+    agent = Agent.assigner("test_workflow_agent")
 
     # Test basic configuration
     assert agent.is_workflow == True

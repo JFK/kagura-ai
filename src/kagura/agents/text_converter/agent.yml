@@ -1,0 +1,9 @@
+type: tool
+custom_tool: tools.convert_to_text
+description:
+  - language: en
+    text: Converts the content of a given URL to text.
+response_fields:
+  - converted_content
+input_fields:
+  - content

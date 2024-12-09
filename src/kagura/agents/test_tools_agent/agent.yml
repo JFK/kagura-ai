@@ -1,0 +1,9 @@
+type: tool
+custom_tool: tools.fetch
+description:
+  - language: en
+    text: Fetches the content of a given URL.
+response_fields:
+  - content
+input_fields:
+  - url

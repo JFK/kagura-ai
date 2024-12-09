@@ -1,0 +1,27 @@
+custom_models:
+  - name: Summary
+    fields:
+      - name: content
+        type: str
+        description:
+          - language: en
+            text: Content to be summarized
+          - language: ja
+            text: 要約されるコンテンツ
+      - name: source
+        type: Dict[str, Any]
+        description:
+          - language: en
+            text: Source of the content
+          - language: ja
+            text: コンテンツのソース
+state_fields:
+  - name: summary
+    type: Summary
+    description:
+      - language: en
+        text: Summary of the content
+      - language: ja
+        text: コンテンツの要約
+  - agent_name: content_fetcher
+    state_field_name: content

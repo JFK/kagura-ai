@@ -27,7 +27,6 @@ class AgentsCommandHandler(CommandHandler):
 
             # Add agents to table
             for agent in agents:
-
                 table.add_row(
                     agent["name"],
                     agent["type"],

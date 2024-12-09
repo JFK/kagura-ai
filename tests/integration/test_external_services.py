@@ -3,14 +3,14 @@ from unittest.mock import AsyncMock, patch
 
 import aiohttp
 import pytest
+import pytest_asyncio
 
 from kagura.core.memory import MemoryBackend
-from kagura.core.models import StateModel
 
 pytestmark = pytest.mark.asyncio
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def redis_mock():
     """Mock Redis connection for testing"""
     with patch("redis.asyncio.Redis") as mock_redis:
@@ -22,7 +22,7 @@ async def redis_mock():
         yield mock_instance
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def memory_backend(redis_mock):
     """Mocked memory backend for testing"""
     backend = MemoryBackend()

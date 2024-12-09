@@ -42,11 +42,12 @@ nav:
     - Overiew: en/agents/overview.md
     - Types: en/agents/types.md
     - Configuration: en/agents/configuration.md
+  - Advanced Topics:
+    - State Management: en/advanced/state-management.md
   - Tutorials:
     - Coding Examples: en/tutorials/coding-examples.md
     - Building Your First Agent: en/tutorials/first-agent.md
     - Agent Pupblising Guide: en/tutorials/agent-publishing-guide.md
-
   - For Developers:
     - How to Contribute: https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md
     - Contributing (日本語): https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING_JA.md

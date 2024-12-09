@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+import pytest_asyncio
 from pydantic import BaseModel
 
 from kagura.core.memory import MemoryBackend, MessageHistory
@@ -11,19 +12,18 @@ from kagura.core.models import ModelRegistry
 # =========================
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def redis_mock():
     """Mock Redis connection for testing"""
     with patch("redis.asyncio.Redis") as mock_redis:
         mock_instance = AsyncMock()
-        # モックの戻り値を設定
         mock_instance.get.return_value = "test_value"
         mock_instance.set.return_value = True
         mock_redis.from_url.return_value = mock_instance
         yield mock_instance
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def memory_backend(redis_mock):
     """Mocked memory backend for testing"""
     backend = MemoryBackend()
@@ -31,7 +31,7 @@ async def memory_backend(redis_mock):
     await backend.close()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def message_history():
     """Message history instance for testing"""
     history = await MessageHistory.factory(system_prompt="Test System Prompt")
@@ -39,7 +39,7 @@ async def message_history():
     await history.close()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 def sample_state_model():
     """Sample state model for testing"""
 
@@ -53,7 +53,7 @@ def sample_state_model():
     return TestState
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 def mock_llm_response():
     """Mock LLM response for testing"""
     return {"choices": [{"message": {"content": "Test response from LLM"}}]}

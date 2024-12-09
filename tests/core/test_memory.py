@@ -3,6 +3,7 @@ import asyncio
 from unittest.mock import AsyncMock, patch
 
 import pytest
+import pytest_asyncio
 
 from kagura.core.memory import Memory, MemoryBackend, MessageHistory
 
@@ -10,7 +11,7 @@ pytestmark = pytest.mark.asyncio
 
 
 class TestMemoryBackend:
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def memory_backend(self):
         with patch("redis.asyncio") as mock_redis:
             mock_instance = AsyncMock()
@@ -41,7 +42,7 @@ class TestMemoryBackend:
 
 
 class TestMessageHistory:
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def message_history(self):
         history = await MessageHistory.factory(system_prompt="System prompt")
         yield history
@@ -63,7 +64,7 @@ class TestMessageHistory:
 
 
 class TestMemory:
-    @pytest.fixture
+    @pytest_asyncio.fixture
     def sample_model(self):
         from pydantic import BaseModel
 

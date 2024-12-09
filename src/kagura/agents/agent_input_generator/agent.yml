@@ -1,0 +1,38 @@
+type: atomic
+llm:
+  model: openai/gpt-4o-mini
+description:
+  - language: en
+    text: Generates input data templates for agents based on their schema definitions
+
+instructions:
+  - language: en
+    text: |
+      Generate an input data template for an agent based on its schema.
+      Include:
+      1. All required fields with descriptions
+      2. Optional fields with descriptions
+      3. Type information for each field
+      4. Example values based on field types and descriptions
+
+prompt:
+  - language: en
+    template: |
+      Generate an input data template for agent: {agent_name}
+
+      Schema Information:
+      {schema_info}
+
+      Create a template that includes:
+      1. JSON template with example values
+      2. Comments explaining each field
+      3. Field types and requirements
+      4. Consider the agent type: {agent_type}
+
+response_fields:
+  - generated_input
+
+input_feilds:
+  - agent_name
+  - schema_info
+  - agent_type

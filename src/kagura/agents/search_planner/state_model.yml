@@ -1,0 +1,59 @@
+custom_models:
+  - name: SearchStep
+    fields:
+      - name: step_number
+        type: int
+        description:
+          - language: en
+            text: Sequence number of the search step
+          - language: ja
+            text: 検索ステップの順序番号
+      - name: search_query
+        type: str
+        description:
+          - language: en
+            text: Search query to be used
+          - language: ja
+            text: 使用する検索クエリ
+      - name: expected_info
+        type: str
+        description:
+          - language: en
+            text: Information expected to find from this search
+          - language: ja
+            text: この検索で見つけることが期待される情報
+      - name: search_focus
+        type: List[str]
+        description:
+          - language: en
+            text: Key points to focus on in search results
+          - language: ja
+            text: 検索結果で注目すべきポイント
+
+  - name: SearchPlan
+    fields:
+      - name: goal
+        type: str
+        description:
+          - language: en
+            text: Overall goal of the search plan
+          - language: ja
+            text: 検索プラン全体の目標
+      - name: steps
+        type: List[SearchStep]
+        description:
+          - language: en
+            text: Ordered steps to achieve the search goal
+          - language: ja
+            text: 検索目標を達成するための順序付きステップ
+
+state_fields:
+  - agent_name: user_search_intent_extractor
+    state_field_name: user_search_intents
+  - name: search_plan
+    type: SearchPlan
+    description:
+      - language: en
+        text: Generated search plan
+      - language: ja
+        text: 生成された検索プラン
