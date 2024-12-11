@@ -208,6 +208,11 @@ class ConfigBase:
         except Exception as e:
             raise Exception(f"Error loading configuration: {str(e)}")
 
+    @classmethod
+    def get(cls, key: str, default: Any = None) -> Any:
+        config = cls()
+        return config.system_config.get(key, default)
+
     @property
     def agent_readme(self) -> str:
         # Try language-specific README first
