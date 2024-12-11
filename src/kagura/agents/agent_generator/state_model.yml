@@ -43,7 +43,7 @@ custom_models:
 
   - name: AgentConfig
     fields:
-      - name: name
+      - name: agent_name
         type: str
         description:
           - language: en
@@ -169,6 +169,6 @@ state_fields:
     type: str
     description:
       - language: en
-        text: Python code for custom tools (if needed)
+        text: Python code for custom tools
       - language: ja
-        text: カスタムツールのPythonコード（必要な場合）
+        text: カスタムツールのPythonコード
