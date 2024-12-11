@@ -1,255 +1,527 @@
-import asyncio
-import os
-import sys
-from pathlib import Path
 from typing import Any, Dict, Optional
+from pathlib import Path
+from textwrap import dedent
 
-import click
 import yaml
-from rich.panel import Panel
+import asyncio
+import click
+from pydantic import BaseModel
 
 from kagura.core.agent import Agent
-from kagura.core.memory import MessageHistory
-from kagura.core.utils.logger import get_logger
+from kagura.core.utils.console import KaguraConsole
 
-from ..ui import ConsoleManager
-from . import CommandRegistry
 
-logger = get_logger(__name__)
+class KaguraRepoGenerator:
+    def __init__(self, output_dir: Path):
+        self.output_dir = Path(output_dir)
+
+    def _format_yaml(self, data: Dict[str, Any]) -> str:
+
+        class MyDumper(yaml.Dumper):
+            def increase_indent(self, flow=False, indentless=False):
+                return super(MyDumper, self).increase_indent(flow, indentless=False)
+
+        return yaml.dump(
+            data,
+            Dumper=MyDumper,
+            default_flow_style=False,
+            allow_unicode=True,
+            sort_keys=False,
+            indent=2,
+            width=1000,
+            explicit_start=True,
+        )
+
+    def _format_agent_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Format and structure agent configuration."""
+        # Define the preferred order of fields
+        field_order = [
+            "type",
+            "description",
+            "instructions",
+            "prompt",
+            "llm",
+            "input_fields",
+            "response_fields",
+            "custom_tool",
+            "pre_custom_tool",
+            "post_custom_tool",
+            # Workflow specific fields
+            "entry_point",
+            "nodes",
+            "edges",
+            "state_field_bindings",
+            "conditional_edges",
+        ]
+
+        # Create ordered dictionary based on field_order
+        ordered_config = {}
+        for field in field_order:
+            if field in config:
+                ordered_config[field] = config[field]
+
+        # Add any remaining fields not in the order list
+        for key, value in config.items():
+            if key not in ordered_config:
+                ordered_config[key] = value
+
+        return ordered_config
+
+    def _format_state_model(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Format and structure state model configuration."""
+        if not config:
+            return config
+
+        formatted_config = {}
+
+        # Format custom models if present
+        if "custom_models" in config:
+            formatted_config["custom_models"] = []
+            for model in config["custom_models"]:
+                formatted_model = {
+                    "name": model["name"],
+                    "fields": sorted(model["fields"], key=lambda x: x["name"]),
+                }
+                formatted_config["custom_models"].append(formatted_model)
+
+        # Format state fields if present
+        if "state_fields" in config:
+            formatted_config["state_fields"] = sorted(
+                config["state_fields"], key=lambda x: x["name"]
+            )
+
+        return formatted_config
+
+    async def generate_repo(self, config: BaseModel) -> None:
+        """Generate repository structure with improved organization."""
+        agent_config = config.agent_config
+        repo_dir = self.output_dir / agent_config.agent_name
+
+        # Create directory structure
+        await self._create_directory_structure(repo_dir)
+
+        # Generate configuration files
+        await self._generate_files(repo_dir, config)
+
+        # Generate example and test files
+        await self._generate_examples(repo_dir, config)
+        await self._generate_tests(repo_dir, config)
+
+    async def _create_directory_structure(self, repo_dir: Path) -> None:
+        """Create directory structure with proper organization."""
+        directories = ["src", "tests", "examples", "docs"]
+        for dir_path in directories:
+            (repo_dir / dir_path).mkdir(parents=True, exist_ok=True)
+
+    async def _generate_files(self, repo_dir: Path, config: BaseModel) -> None:
+        """Generate configuration and source files."""
+        agent_dir = repo_dir / "src" / config.agent_config.agent_name
+        agent_dir.mkdir(parents=True, exist_ok=True)
+
+        # Generate agent.yml
+        agent_config = self._format_agent_config(config.agent_config.model_dump())
+        with open(agent_dir / "agent.yml", "w") as f:
+            f.write(self._format_yaml(agent_config))
+
+        # Generate state_model.yml if needed
+        if hasattr(config, "state_model_config") and config.state_model_config:
+            state_model = config.state_model_config
+            if isinstance(state_model, BaseModel):
+                state_model = state_model.model_dump()
+
+            formatted_state_model = self._format_state_model(state_model)
+            with open(agent_dir / "state_model.yml", "w") as f:
+                f.write(self._format_yaml(formatted_state_model))
+
+        # Generate custom tool if needed
+        if hasattr(config, "custom_tool_code") and config.custom_tool_code:
+            with open(agent_dir / "tools.py", "w") as f:
+                f.write(dedent(config.custom_tool_code))
+
+        # Generate README.md
+        readme_content = self._generate_readme(config)
+        with open(repo_dir / "README.md", "w") as f:
+            f.write(readme_content)
+
+        # Generate pyproject.toml
+        pyproject_content = self._generate_pyproject(config)
+        with open(repo_dir / "pyproject.toml", "w") as f:
+            f.write(pyproject_content)
+
+    def _generate_readme(self, config: BaseModel) -> str:
+        """Generate comprehensive README with examples and documentation."""
+        agent_config = config.agent_config
+        description = ""
+        for desc in agent_config.description:
+            if desc.language == "en":
+                description = desc.text
+                break
+            else:
+                description = desc.text
+                break
+
+        return dedent(
+            f"""\
+            # {agent_config.agent_name}
+
+            {description}
+
+            ## Installation
+
+            ```bash
+            kagura install https://github.com/<username>/{agent_config.agent_name}.git
+            ```
+
+            ## Basic Usage
+
+            ```python
+            from kagura.core.agent import Agent
+
+            async def main():
+                agent = Agent.assigner("{agent_config.agent_name}")
+                result = await agent.execute({{
+                    # Add your input here
+                }})
+                print(result)
+
+            if __name__ == "__main__":
+                import asyncio
+                asyncio.run(main())
+            ```
+
+            ## Configuration
+
+            See `src/{agent_config.agent_name}/agent.yml` for detailed configuration options.
+
+            ## Advanced Usage
+
+            For more examples, check the `examples/` directory.
+
+            ## Testing
+
+            Run tests using pytest:
+            ```bash
+            uv run pytest
+            ```
+
+            ## License
+
+            Apache License 2.0
+            """
+        )
+
+    def _generate_pyproject(self, config: BaseModel) -> str:
+        """Generate pyproject.toml configuration."""
+        return dedent(
+            f"""\
+            [project]
+            name = "{config.agent_config.agent_name}"
+            version = "0.1.0"
+            description = "Kagura AI agent"
+
+            [project.dependencies]
+            kagura-ai = ">=0.0.9"
+
+            [build-system]
+            requires = ["setuptools>=42.0.0", "wheel"]
+            build-backend = "setuptools.build_meta"
+
+            [tool.pytest.ini_options]
+            asyncio_mode = "auto"
+            """
+        )
+
+    async def _generate_examples(self, repo_dir: Path, config: BaseModel) -> None:
+        """Generate comprehensive example files."""
+        example_dir = repo_dir / "examples"
+        agent_name = config.agent_config.agent_name.lower()
+
+        example_code = dedent(
+            f"""\
+            from kagura.core.agent import Agent
+            from kagura.core.utils.console import KaguraConsole
+
+            async def run_example():
+                # Initialize agent
+                agent = Agent.assigner("{config.agent_config.agent_name}")
+
+                # Example input based on your agent's configuration
+                input_data = {{
+                    # Add example input here based on your agent's input_fields
+                }}
+
+                # Execute agent
+                result = await agent.execute(input_data)
+
+                # Display results using KaguraConsole for better formatting
+                console = KaguraConsole()
+                console.print_data_table(result.model_dump())
+
+            if __name__ == "__main__":
+                import asyncio
+                asyncio.run(run_example())
+            """
+        )
+
+        with open(example_dir / f"{agent_name}_example.py", "w") as f:
+            f.write(example_code)
+
+    async def _generate_tests(self, repo_dir: Path, config: BaseModel) -> None:
+        """Generate comprehensive test files."""
+        test_dir = repo_dir / "tests"
+        agent_name = config.agent_config.agent_name
+
+        test_code = dedent(
+            f"""\
+            import pytest
+            from kagura.core.agent import Agent
+
+            @pytest.mark.asyncio
+            class Test{agent_name}:
+                async def test_basic_execution(self):
+                    agent = Agent.assigner("{agent_name}")
+                    result = await agent.execute({{
+                        # Add test input here
+                    }})
+                    assert result.SUCCESS
+                    # Add more specific assertions based on your agent's output
+
+                async def test_error_handling(self):
+                    agent = Agent.assigner("{agent_name}")
+                    result = await agent.execute({{
+                        # Add invalid input for error testing
+                    }})
+                    assert not result.SUCCESS
+                    assert result.ERROR_MESSAGE
+
+                async def test_state_validation(self):
+                    agent = Agent.assigner("{agent_name}")
+                    # Add state validation tests here
+                    pass
+
+                async def test_custom_functionality(self):
+                    # Add tests for custom functionality
+                    pass
+            """
+        )
+
+        with open(test_dir / f"test_{agent_name.lower()}.py", "w") as f:
+            f.write(test_code)
 
 
 class AgentCreator:
-    def __init__(self, output_dir: Optional[str] = None):
-        self.console_manager = ConsoleManager()
-        self.console = self.console_manager.console
-        self.message_history = None
-        self.command_registry = None
-        self.default_output_dir = output_dir or os.getcwd()
-        self.generator = Agent.assigner("agent_generator")
+    def __init__(
+        self, output_dir: Optional[str] = None, agent_type: Optional[str] = None
+    ):
+        self.output_dir = Path(output_dir)
+        self.agent_type = agent_type
+        self.console = KaguraConsole()
+        self.generator = None
 
-    async def initialize(self):
-        """Initialize the agent creator with message history"""
-        self.message_history = await MessageHistory.factory(
-            system_prompt=self.generator.instructions
-        )
-        self.command_registry = CommandRegistry(
-            self.console_manager, self.message_history
-        )
+    def _get_generator_name(self, agent_type: str) -> str:
+        """Get appropriate generator name based on agent type"""
+        type_mapping = {
+            "atomic": "atomic_agent_generator",
+            "tool": "tool_agent_generator",
+            "workflow": "workflow_agent_generator",
+        }
+        return type_mapping[agent_type]
 
-    async def create_agent_files(
-        self, config: Dict[str, Any], output_dir: Path
-    ) -> Path:
-        """Create agent files from configuration"""
-        agent_name = config["agent_config"]["name"]
-        agent_dir = output_dir / agent_name
-
-        # Create directory structure
-        agent_dir.mkdir(parents=True, exist_ok=True)
-        (agent_dir / "tools").mkdir(exist_ok=True)
-
-        # Create agent.yml
-        with open(agent_dir / "agent.yml", "w", encoding="utf-8") as f:
-            yaml.safe_dump(
-                config["agent_config"],
-                f,
-                allow_unicode=True,
-                default_flow_style=False,
-                sort_keys=False,
-            )
-
-        # Create state_model.yml
-        with open(agent_dir / "state_model.yml", "w", encoding="utf-8") as f:
-            yaml.safe_dump(
-                config["state_model_config"],
-                f,
-                allow_unicode=True,
-                default_flow_style=False,
-                sort_keys=False,
-            )
-
-        # Create custom tool if provided
-        if custom_tool_code := config.get("custom_tool_code"):
-            tools_init = agent_dir / "tools" / "__init__.py"
-            tools_init.touch()
-
-            tool_path = agent_dir / "tools" / "process.py"
-            with open(tool_path, "w", encoding="utf-8") as f:
-                f.write(custom_tool_code)
-
-        return agent_dir
-
-    def get_agent_type_prompt(self) -> str:
-        """Generate and return the agent type selection prompt"""
-        return """
-[bold cyan]Select the type of agent to create:[/bold cyan]
-
-1. [green]Atomic Agent[/green]
-   - LLM-powered with state management
-   - Best for: NLP tasks, content generation, analysis
-
-2. [blue]Tool Agent[/blue]
-   - Custom tool integration without LLM
-   - Best for: Data processing, API integration, transformations
-
-3. [magenta]Workflow Agent[/magenta]
-   - Multi-agent workflow coordination
-   - Best for: Complex pipelines, multi-step processes
-
-Enter your choice (1-3): """
-
-    async def get_output_location(self) -> Path:
-        """Get and validate the output location"""
-        while True:
-            default_path = self.default_output_dir
-            output_path = await self.console_manager.console.input_async(
-                f"\nOutput directory [{default_path}]: "
-            )
-
-            output_path = output_path.strip() or default_path
-            path = Path(output_path).resolve()
-
-            try:
-                path.mkdir(parents=True, exist_ok=True)
-                return path
-            except Exception as e:
-                self.console.print(f"[red]Error creating directory: {str(e)}[/red]")
-                retry = await self.console_manager.console.input_async(
-                    "Try another location? [y/N]: "
-                )
-                if retry.lower() != "y":
-                    raise click.Abort()
-
-    async def generate_agent(self, agent_type: str, purpose: str) -> Dict[str, Any]:
-        """Generate agent configuration using the agent_generator"""
-        state = {"agent_type": agent_type, "purpose": purpose}
+    async def create_agent(self, agent_name: str):
+        """エージェントを生成"""
         try:
-            result = await self.generator.execute(state)
-            if not result.SUCCESS:
-                raise Exception(f"Agent generation failed: {result.ERROR_MESSAGE}")
+            # 1. エージェントタイプの選択（未指定の場合）
+            agent_type = await self._select_agent_type()
 
-            return result.model_dump()
-        except Exception as e:
-            import traceback
+            # 2. 目的の入力
+            purpose = await self._get_agent_purpose()
 
-            logger.error(traceback.format_exc())
-            logger.error(f"Error generating agent: {e}")
-            raise
+            # 3. 利用可能なエージェントの取得（ワークフロー用）
+            available_agents = Agent.list_agents() if agent_type == "workflow" else []
 
-    async def confirm_creation(self, config: Dict[str, Any]) -> bool:
-        """Display config summary and get user confirmation"""
-        agent_config = config["agent_config"]
-        summary = f"""
-[bold]Agent Configuration Summary:[/bold]
+            # 4. エージェント設定の生成
+            generator_name = self._get_generator_name(agent_type)
+            self.generator = Agent.assigner(generator_name)
 
-Name: {agent_config['name']}
-Type: {agent_config.get('agent_type', 'Not specified')}
-Description: {agent_config.get('description', {}).get('en', 'Not specified')}
+            state = {
+                "agent_name": agent_name,
+                "agent_type": agent_type,
+                "purpose": purpose,
+            }
 
-Custom Models: {len(config.get('state_model_config', {}).get('custom_models', []))}
-State Fields: {len(config.get('state_model_config', {}).get('state_fields', []))}
-Has Custom Tool: {'Yes' if config.get("custom_tool_code") else 'No'}
-        """
+            if available_agents:
+                state["available_agents"] = available_agents
 
-        self.console.print(Panel(summary, title="Configuration Preview"))
+            async def _execute_generator():
+                return await self.generator.execute(state)
 
-        confirm = await self.console_manager.console.input_async(
-            "\nCreate agent with this configuration? [y/N]: "
-        )
-        return confirm.lower() == "y"
-
-    async def arun(self) -> None:
-        """Main execution flow"""
-        await self.initialize()
-
-        # Display welcome message
-        self.console.print(
-            Panel(
-                "[bold green]Welcome to Kagura AI Agent Creator![/bold green]\n"
-                "This tool will help you create a new Kagura agent.",
-                title="[bold blue]Kagura Agent Creator[/bold blue]",
-            )
-        )
-
-        try:
-            # Get agent type
-            self.console.print(self.get_agent_type_prompt())
-            agent_type_map = {"1": "atomic", "2": "function", "3": "workflow"}
-            while True:
-                choice = (await self.console_manager.console.input_async("")).strip()
-                agent_type = agent_type_map.get(choice)
-                if agent_type:
-                    break
-                self.console.print(
-                    "[red]Invalid choice. Please enter 1, 2, or 3.[/red]"
-                )
-
-            # Get purpose
-            purpose = await self.console_manager.console.input_async(
-                "\n[cyan]Describe the purpose of your agent.[/cyan]\n"
-                "Be specific about what you want it to do: "
+            config = await self.console.display_spinner_with_task(
+                _execute_generator, "Generating agent configuration"
             )
 
-            # Generate configuration
-            self.console.print("\n[bold]Generating agent configuration...[/bold]")
-            config = await self.generate_agent(agent_type, purpose)
-
-            # Confirm and create
-            if await self.confirm_creation(config):
-                output_dir = await self.get_output_location()
-                agent_dir = await self.create_agent_files(config, output_dir)
+            # 5. 設定の確認とカスタマイズ
+            if await self._confirm_configuration(config):
+                # 6. リポジトリの生成
+                repo_generator = KaguraRepoGenerator(self.output_dir)
+                await repo_generator.generate_repo(config)
 
                 self.console.print(
-                    f"\n[green]Successfully created agent in: {agent_dir}[/green]"
+                    "\n[bold green]✓ Agent created successfully![/bold green]"
                 )
                 self.console.print(
-                    "\nNext steps:"
-                    "\n1. Review the generated configuration files"
-                    "\n2. Customize the agent as needed"
-                    "\n3. Test your agent using the Kagura CLI"
+                    f"\n[cyan]Next steps:[/cyan]\n"
+                    f"1. Your agent has been created in: [bold]{self.output_dir / agent_name}[/bold]\n"
+                    "2. Review the generated configuration files\n"
+                    "3. Customize the agent as needed\n"
                 )
             else:
                 self.console.print("\n[yellow]Agent creation cancelled[/yellow]")
 
         except Exception as e:
-            logger.error(f"Error in agent creation: {e}")
-            self.console.print(f"[red]Error: {str(e)}[/red]")
-        finally:
-            await self.cleanup()
+            self.console.print(f"\n[bold red]Error creating agent: {str(e)}[/bold red]")
+            raise
 
-    async def cleanup(self):
-        """Cleanup resources"""
-        if self.message_history:
-            await self.message_history.close()
+    async def _select_agent_type(self) -> str:
+        """対話的にエージェントタイプを選択"""
+        # If agent_type is provided via CLI, validate and return it
+        if self.agent_type:
+            return self.agent_type
+
+        choices = {
+            "1": ("Atomic Agent", "atomic", "LLM-powered with state management"),
+            "2": ("Tool Agent", "tool", "Custom tool integration without LLM"),
+            "3": ("Workflow Agent", "workflow", "Multi-agent workflow coordination"),
+        }
+
+        self.console.panel(
+            "\n[bold cyan]Select the type of agent to create:[/bold cyan]\n",
+            title="[bold blue]Agent Type Selection[/bold blue]",
+            border_style="blue",
+        )
+
+        for key, (name, _, desc) in choices.items():
+            self.console.print(f"[bold cyan]{key}.[/bold cyan] [green]{name}[/green]")
+            self.console.print(f"   {desc}")
+
+        while True:
+            choice = await self.console.input_async("\nEnter choice (1-3): ")
+            if choice in choices:
+                self.agent_type = choices[choice][1]
+                return self.agent_type
+            self.console.print("[bold red]Invalid choice. Please try again.[/bold red]")
+
+    async def _get_agent_purpose(self) -> str:
+        """エージェントの目的を入力"""
+        self.console.panel(
+            "\n[bold cyan]Describe your agent's purpose:[/bold cyan]\n\n"
+            "Tips:\n"
+            "- Be specific about what you want it to do\n"
+            "- Include expected inputs and outputs\n"
+            "- Mention any external services or APIs\n",
+            title="[bold blue]Agent Purpose[/bold blue]",
+            border_style="blue",
+        )
+
+        return await self.console.multiline_input()
+
+    async def _confirm_configuration(self, config: BaseModel) -> bool:
+        """生成された設定を表示し、確認を取る"""
+        self.console.panel(
+            "[bold cyan]Generated Configuration Preview:[/bold cyan]\n",
+            title="[bold blue]Configuration Review[/bold blue]",
+            border_style="blue",
+        )
+
+        # エージェントの基本情報を表示
+        self.console.print("\n[bold cyan]Basic Information:[/bold cyan]")
+        if hasattr(config, "agent_config"):
+            agent_config = config.agent_config
+            self.console.print(f"Name: {agent_config.agent_name}")
+            self.console.print(f"Type: {self.agent_type}")
+
+            # Display descriptions
+            if hasattr(agent_config, "description"):
+                self.console.print("\n[bold cyan]Description:[/bold cyan]")
+                for desc in agent_config.description:
+                    self.console.print(f"{desc.language}: {desc.text}")
+
+            # Display input/response fields
+            if hasattr(agent_config, "input_fields"):
+                self.console.print("\n[bold cyan]Input Fields:[/bold cyan]")
+                for field in agent_config.input_fields:
+                    self.console.print(f"- {field}")
+
+            if hasattr(agent_config, "response_fields"):
+                self.console.print("\n[bold cyan]Response Fields:[/bold cyan]")
+                for field in agent_config.response_fields:
+                    self.console.print(f"- {field}")
+
+            # Display custom models if present
+            if hasattr(agent_config, "custom_models") and agent_config.custom_models:
+                self.console.print("\n[bold cyan]Custom Models:[/bold cyan]")
+                for model in agent_config.custom_models:
+                    self.console.print(f"- {model.name}")
+                    for field in model.fields:
+                        desc = next((d for d in field.description if "en" in d), None)
+                        if desc:
+                            self.console.print(
+                                f"  • {field.name} ({field.type}): {desc['text']}"
+                            )
+                        else:
+                            self.console.print(f"  • {field.name} ({field.type})")
+
+        # Display custom tool code if present
+        if hasattr(config, "custom_tool_code") and config.custom_tool_code:
+            self.console.print("\n[bold cyan]Custom Tool:[/bold cyan]")
+            self.console.print("A custom tool will be generated")
+
+        # Provide options for detailed review
+        self.console.print("\n[bold cyan]Options:[/bold cyan]")
+        self.console.print("Enter number to see details, or 'y' to proceed:")
+        self.console.print("1. View full agent.yml")
+        if hasattr(config, "state_model_config"):
+            self.console.print("2. View full state_model.yml")
+        if hasattr(config, "custom_tool_code") and config.custom_tool_code:
+            self.console.print("3. View custom tool code")
+
+        while True:
+            choice = await self.console.input_async("Choice [y/N/1/2/3]: ")
+            if choice.lower() == "y":
+                return True
+            elif choice.lower() == "n" or not choice:
+                return False
+            elif choice == "1":
+                self.console.print("\n[bold cyan]Full agent.yml:[/bold cyan]")
+                self.console.print_data_table({"agent.yml": agent_config.model_dump()})
+            elif choice == "2" and hasattr(config, "state_model_config"):
+                self.console.print("\n[bold cyan]Full state_model.yml:[/bold cyan]")
+                self.console.print_data_table(
+                    {"state_model.yml": config.state_model_config}
+                )
+            elif (
+                choice == "3"
+                and hasattr(config, "custom_tool_code")
+                and config.custom_tool_code
+            ):
+                self.console.print("\n[bold cyan]Custom Tool Code:[/bold cyan]")
+                self.console.print(config.custom_tool_code)
 
 
 @click.command()
+@click.argument("agent_name")
 @click.option(
     "--output-dir",
     "-o",
-    help="Output directory for the agent files",
-    default=None,
-    type=click.Path(),
+    default="./",
+    help="Output directory (defaults to ./<agent_name>)",
 )
-def create(output_dir: Optional[str] = None):
-    """Create a new Kagura agent interactively"""
-    creator = None
-    try:
-        creator = AgentCreator(output_dir)
-        asyncio.run(creator.arun())
-    except KeyboardInterrupt:
-        print("\nAgent creation cancelled")
-        sys.exit(0)
-    except click.Abort:
-        print("\nOperation aborted")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Error in create command: {e}")
-        print(f"Error: {str(e)}")
-        sys.exit(1)
-    finally:
-        if creator and creator.message_history:
-            asyncio.run(creator.cleanup())
-
-
-if __name__ == "__main__":
-    create()
+@click.option(
+    "--type",
+    "-t",
+    type=click.Choice(["atomic", "tool", "workflow"]),
+    help="Agent type (if not specified, will prompt interactively)",
+)
+def create(agent_name: str, output_dir: Optional[str], type: Optional[str]):
+    """Create a new Kagura agent"""
+    creator = AgentCreator(output_dir, agent_type=type)
+    asyncio.run(creator.create_agent(agent_name))

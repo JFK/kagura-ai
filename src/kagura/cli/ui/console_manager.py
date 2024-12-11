@@ -1,7 +1,8 @@
 # cli/ui/console_manager.py
 from textwrap import dedent
 
-from kagura.core.utils.console import KaguraConsole
+from ...core.utils.console import KaguraConsole
+from ...core.config import ConfigBase
 
 
 class ConsoleManager:
@@ -9,12 +10,18 @@ class ConsoleManager:
         self.console = KaguraConsole()
 
     async def display_welcome_message(self):
+        model = ConfigBase.get("llm").get("model")
+        language = ConfigBase.get("system").get("language")
         welcome_text = dedent(
-            """
+            f"""
             [bold green]🤖 Hi, I'm Kagura AI!!! [/bold green]
             [bold cyan]   To execute: Type `Enter` Twice[/bold cyan]
             [bold cyan]   Special commands: Type /help for more information[/bold cyan]
             [bold cyan]   To exit: Ctrl+C[/bold cyan]
+
+            [bold cyan]   System Configuration[/bold cyan]
+            [bold cyan]   Language: {language}[/bold cyan]
+            [bold cyan]   LLM Model: {model}[/bold cyan]
         """
         )
         self.console.panel(
