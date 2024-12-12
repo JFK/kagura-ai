@@ -7,8 +7,9 @@ import asyncio
 import click
 from pydantic import BaseModel
 
-from kagura.core.agent import Agent
-from kagura.core.utils.console import KaguraConsole
+from ...core.agent import Agent
+from ...core.utils.console import KaguraConsole
+from ...core.config import ConfigBase
 
 
 class KaguraRepoGenerator:
@@ -16,7 +17,6 @@ class KaguraRepoGenerator:
         self.output_dir = Path(output_dir)
 
     def _format_yaml(self, data: Dict[str, Any]) -> str:
-
         class MyDumper(yaml.Dumper):
             def increase_indent(self, flow=False, indentless=False):
                 return super(MyDumper, self).increase_indent(flow, indentless=False)
@@ -336,10 +336,8 @@ class AgentCreator:
             # 2. 目的の入力
             purpose = await self._get_agent_purpose()
 
-            # 3. 利用可能なエージェントの取得（ワークフロー用）
             available_agents = Agent.list_agents() if agent_type == "workflow" else []
 
-            # 4. エージェント設定の生成
             generator_name = self._get_generator_name(agent_type)
             self.generator = Agent.assigner(generator_name)
 
@@ -359,9 +357,7 @@ class AgentCreator:
                 _execute_generator, "Generating agent configuration"
             )
 
-            # 5. 設定の確認とカスタマイズ
             if await self._confirm_configuration(config):
-                # 6. リポジトリの生成
                 repo_generator = KaguraRepoGenerator(self.output_dir)
                 await repo_generator.generate_repo(config)
 
@@ -382,8 +378,7 @@ class AgentCreator:
             raise
 
     async def _select_agent_type(self) -> str:
-        """対話的にエージェントタイプを選択"""
-        # If agent_type is provided via CLI, validate and return it
+        """Select the type of agent to create"""
         if self.agent_type:
             return self.agent_type
 
@@ -393,8 +388,17 @@ class AgentCreator:
             "3": ("Workflow Agent", "workflow", "Multi-agent workflow coordination"),
         }
 
+        model_name = ConfigBase.get("llm").get("model")
+        message = dedent(
+            f"""
+            [bold cyan]Select the type of agent to create:[/bold cyan]
+
+            [bold cyan]{model_name}[/bold cyan] will be used for generating the agent.
+            Better models can be used for better performance.
+            """
+        )
         self.console.panel(
-            "\n[bold cyan]Select the type of agent to create:[/bold cyan]\n",
+            message,
             title="[bold blue]Agent Type Selection[/bold blue]",
             border_style="blue",
         )
