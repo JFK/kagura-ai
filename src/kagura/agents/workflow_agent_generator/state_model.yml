@@ -1,0 +1,180 @@
+custom_models:
+  - name: MultiLanguageText
+    fields:
+      - name: language
+        type: str
+        description:
+          - language: en
+            text: Language code (e.g., 'en', 'ja')
+      - name: text
+        type: str
+        description:
+          - language: en
+            text: Text content in the specified language
+
+  - name: Edge
+    fields:
+      - name: from
+        type: str
+        description:
+          - language: en
+            text: Source node agent name
+      - name: to
+        type: str
+        description:
+          - language: en
+            text: Destination node agent name
+
+  - name: StateBinding
+    fields:
+      - name: from
+        type: str
+        description:
+          - language: en
+            text: Source state field (format: agent_name.field_name)
+      - name: to
+        type: str
+        description:
+          - language: en
+            text: Destination state field (format: agent_name.field_name)
+
+  - name: ConditionFunction
+    fields:
+      - name: path
+        type: str
+        description:
+          - language: en
+            text: Path to condition function (e.g., agent_name.conditions.check_state)
+      - name: code
+        type: str
+        description:
+          - language: en
+            text: Python code for the condition function
+
+  - name: ConditionMapping
+    fields:
+      - name: result
+        type: str
+        description:
+          - language: en
+            text: Result from condition function (e.g., 'success', 'retry', 'error')
+      - name: target
+        type: str
+        description:
+          - language: en
+            text: Target node for this condition result
+
+  - name: ConditionalEdge
+    fields:
+      - name: node
+        type: str
+        description:
+          - language: en
+            text: Source node for conditional routing
+      - name: condition_function
+        type: ConditionFunction
+        description:
+          - language: en
+            text: Function to evaluate routing condition
+      - name: mappings
+        type: List[ConditionMapping]
+        description:
+          - language: en
+            text: Mapping of condition results to target nodes
+
+  - name: AgentInfo
+    fields:
+      - name: name
+        type: str
+        description:
+          - language: en
+            text: Name of the agent
+      - name: type
+        type: str
+        description:
+          - language: en
+            text: Type of agent (atomic/tool)
+      - name: description
+        type: str
+        description:
+          - language: en
+            text: Description of agent functionality
+      - name: input_schema
+        type: Dict[str, Any]
+        description:
+          - language: en
+            text: Input field schema for the agent
+      - name: response_schema
+        type: Dict[str, Any]
+        description:
+          - language: en
+            text: Response field schema for the agent
+
+  - name: AgentConfig
+    fields:
+      - name: agent_name
+        type: str
+        description:
+          - language: en
+            text: Name of the workflow agent
+      - name: description
+        type: List[MultiLanguageText]
+        description:
+          - language: en
+            text: Multi-language descriptions of the workflow
+      - name: entry_point
+        type: str
+        description:
+          - language: en
+            text: Starting node agent name
+      - name: nodes
+        type: List[str]
+        description:
+          - language: en
+            text: List of agent names used in the workflow
+      - name: edges
+        type: List[Edge]
+        description:
+          - language: en
+            text: Flow connections between nodes
+      - name: state_field_bindings
+        type: List[StateBinding]
+        description:
+          - language: en
+            text: Field mappings between node states
+      - name: conditional_edges
+        type: List[ConditionalEdge]
+        description:
+          - language: en
+            text: Conditional routing configurations
+
+state_fields:
+  - name: agent_name
+    type: str
+    description:
+      - language: en
+        text: Name of the workflow agent to be generated
+
+  - name: purpose
+    type: str
+    description:
+      - language: en
+        text: Detailed description of workflow's purpose and requirements
+
+  - name: available_agents
+    type: List[AgentInfo]
+    description:
+      - language: en
+        text: List of available agents with their configurations
+
+  - name: agent_config
+    type: AgentConfig
+    description:
+      - language: en
+        text: Complete workflow agent configuration
+
+  - name: condition_functions
+    type: Dict[str, str]
+    description:
+      - language: en
+        text: Python code for condition functions used in conditional edges

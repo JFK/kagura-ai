@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Awaitable, Callable, Dict, List, Union
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
@@ -124,7 +124,7 @@ class KaguraConsole:
             return "/exit"
 
     async def display_spinner_with_task(
-        self, message: str, async_task: Callable
+        self, async_task: Callable[[], Awaitable[Any]], message: str
     ) -> Any:
         """This function will display a spinner with a message and run the async task"""
 
@@ -135,7 +135,7 @@ class KaguraConsole:
         ) as progress:
             task = progress.add_task(message, total=None)
 
-            result = await async_task
+            result = await async_task()
 
             progress.update(task, completed=True)
             progress.remove_task(task)
