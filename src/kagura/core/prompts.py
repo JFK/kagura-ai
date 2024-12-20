@@ -65,7 +65,7 @@ class BasePrompt:
 
     def prepare_prompt(self, **kwargs) -> str:
         if self.output_parser is not None:
-            self.template = None
+            self.template = ""
             template_footer = textwrap.dedent(
                 """
                 Response JSON Schema:
