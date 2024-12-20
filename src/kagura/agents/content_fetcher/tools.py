@@ -1,11 +1,12 @@
 import ssl
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Union, Type, Any
 
 import aiohttp
 import chardet
 
 from kagura.core.models import (
     StateModel,
+    BaseModel,
     get_custom_model,
     validate_required_state_fields,
 )
@@ -32,7 +33,9 @@ class ContentFetcher:
             cls._instance = cls()
         return cls._instance
 
-    async def _fetch_content_with_different_ssl(self, url: str) -> Optional[str]:
+    async def _fetch_content_with_different_ssl(
+        self, url: str
+    ) -> Tuple[Optional[Union[str, bytes]], str]:
         ssl_contexts = []
 
         default_ssl_context = ssl.create_default_context()
@@ -49,10 +52,14 @@ class ContentFetcher:
         ssl_contexts.append(("No Verify SSL", no_verify_ssl_context))
 
         for name, ssl_context in ssl_contexts:
-            content = await self._fetch_with_ssl_context(url, ssl_context)
-            if content is not None:
-                return content
-        return None
+            try:
+                content, content_format = await self._fetch_with_ssl_context(url, ssl_context)
+                if content is not None:
+                    return content, content_format
+            except Exception:
+                continue
+            
+        return None, "webpage"  # デフォルトの戻り値を追加
 
     def _detect_content_format(self, content_type: str) -> str:
         if "pdf" in content_type:
@@ -93,94 +100,98 @@ class ContentFetcher:
                 async with session.get(
                     url, timeout=aiohttp.ClientTimeout(total=timeout)
                 ) as response:
-                    if response.status == 200:
-                        content = await response.read()
+                    content_type = response.headers.get("Content-Type", "").lower()
+                    detected_content_format = self._detect_content_format(content_type)
 
-                        encodings_to_try = []
+                    if response.status != 200:
+                        return None, detected_content_format
 
-                        content_type = response.headers.get("Content-Type", "").lower()
-                        if "charset=" in content_type:
-                            declared_encoding = (
-                                content_type.split("charset=")[-1].split(";")[0].strip()
-                            )
-                            declared_encoding = ENCODING_MAP.get(
-                                declared_encoding, declared_encoding
-                            )
-                            encodings_to_try.append(declared_encoding)
+                    content = await response.read()
+                    encodings_to_try = []
 
-                        encodings_to_try.extend(
-                            ["utf-8", "cp932", "euc-jp", "iso-2022-jp"]
+                    if "charset=" in content_type:
+                        declared_encoding = (
+                            content_type.split("charset=")[-1].split(";")[0].strip()
                         )
-
-                        if content.startswith(b"<"):
-                            try:
-                                detected = chardet.detect(content)
-                                if (
-                                    detected["encoding"]
-                                    and detected["confidence"] > 0.7
-                                ):
-                                    detected_encoding = ENCODING_MAP.get(
-                                        detected["encoding"].lower(),
-                                        detected["encoding"],
-                                    )
-                                    if detected_encoding not in encodings_to_try:
-                                        encodings_to_try.insert(0, detected_encoding)
-                            except ImportError:
-                                pass
-
-                        detected_content_format = self._detect_content_format(
-                            content_type
+                        declared_encoding = ENCODING_MAP.get(
+                            declared_encoding, declared_encoding
                         )
+                        encodings_to_try.append(declared_encoding)
 
-                        last_error = None
-                        for encoding in encodings_to_try:
-                            try:
-                                return (
-                                    content.decode(encoding),
-                                    detected_content_format,
+                    encodings_to_try.extend(
+                        ["utf-8", "cp932", "euc-jp", "iso-2022-jp"]
+                    )
+
+                    if content.startswith(b"<"):
+                        try:
+                            detected = chardet.detect(content)
+                            if (
+                                detected["encoding"]
+                                and detected["confidence"] > 0.7
+                            ):
+                                detected_encoding = ENCODING_MAP.get(
+                                    detected["encoding"].lower(),
+                                    detected["encoding"],
                                 )
-                            except (UnicodeDecodeError, LookupError) as e:
-                                last_error = e
-                                continue
+                                if detected_encoding not in encodings_to_try:
+                                    encodings_to_try.insert(0, detected_encoding)
+                        except ImportError:
+                            pass
 
-                        if last_error:
-                            raise ContentFetcherError(
-                                f"Failed to decode content from {url} with encodings {encodings_to_try}: {last_error}"
-                            )
-
+                    last_error = None
+                    for encoding in encodings_to_try:
                         try:
                             return (
-                                content.decode("utf-8", errors="ignore"),
+                                content.decode(encoding),
                                 detected_content_format,
                             )
-                        except Exception as e:
-                            raise ContentFetcherError(
-                                f"Final fallback decode failed for {url}: {e}"
-                            )
+                        except (UnicodeDecodeError, LookupError) as e:
+                            last_error = e
+                            continue
+
+                    if last_error:
+                        raise ContentFetcherError(
+                            f"Failed to decode content from {url} with encodings {encodings_to_try}: {last_error}"
+                        )
+
+                    try:
+                        return (
+                            content.decode("utf-8", errors="ignore"),
+                            detected_content_format,
+                        )
+                    except Exception as e:
+                        raise ContentFetcherError(
+                            f"Final fallback decode failed for {url}: {e}"
+                        )
 
         except Exception as e:
-            raise ContentFetcherError(f"Failed to fetch {url} with SSL context: {e}")
+            return None, "webpage"  # エラー時のデフォルト戻り値を追加
 
     async def fetch(self, url: str) -> Tuple[str, str]:
         try:
             content, content_format = await self._fetch_content_with_different_ssl(url)
             if content is None:
                 raise ContentFetcherError(f"Failed to fetch content from {url}")
-            return content, content_format
+            return str(content), content_format  # str()を追加してbytesも文字列に変換
         except Exception as e:
             raise ContentFetcherError(f"Failed to fetch from {url}: {e}")
 
 
-async def fetch(state: StateModel) -> StateModel:
-    ContentItem = get_custom_model("ContentItem")
+class ContentFetcherState(StateModel):
+    url: str
+    content: Any = None
 
+
+async def fetch(state: ContentFetcherState) -> ContentFetcherState:
     validate_required_state_fields(state, ["url"])
 
     try:
         content, content_format = await ContentFetcher.get_instance().fetch(state.url)
-        state.content = ContentItem(
-            text=content, content_type=content_format, url=state.url
-        )
+        ContentItem = get_custom_model("ContentItem")
+        if ContentItem:
+            state.content = ContentItem(
+                text=content, content_type=content_format, url=state.url
+            )
         return state
     except Exception as e:
         raise ContentFetcherError(str(e))
