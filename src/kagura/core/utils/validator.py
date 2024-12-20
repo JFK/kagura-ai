@@ -61,7 +61,11 @@ class KaguraAgentValidator:
     def _load_yaml(cls, path: Path) -> Dict[str, Any]:
         try:
             with open(path) as f:
-                return yaml.safe_load(f)
+                yaml_data = yaml.safe_load(f)
+                if isinstance(yaml_data, dict):
+                    return yaml_data
+                else:
+                    raise AgentValidationError(f"Invalid YAML in {path}")
         except yaml.YAMLError as e:
             raise AgentValidationError(f"Invalid YAML in {path}: {e}")
 

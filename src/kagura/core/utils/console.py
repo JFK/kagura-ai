@@ -24,7 +24,7 @@ class KaguraConsole:
 
     def __init__(
         self,
-        console: Console = None,
+        console: Union[Console, None] = None,
         qiuet: bool = False,
         width: int = 80,
     ) -> None:
@@ -215,7 +215,7 @@ class KaguraConsole:
         items: Union[List[BaseModel], List[Dict]],
         title: str,
         max_width: int,
-        key: str = None,
+        key: Union[str, None] = None,
     ):
         table = Table(title=title, box=box.ROUNDED)
 
@@ -337,10 +337,17 @@ class KaguraConsole:
                     table.add_column("Key", style="cyan")
                     table.add_column("Value", style="green")
 
-                    for key, value in item.items():
-                        table.add_row(
-                            str(key), self._truncate_text(str(value), max_width)
-                        )
+                    if isinstance(item, dict):
+                        for key, value in item.items():
+                            table.add_row(
+                                str(key), self._truncate_text(str(value), max_width)
+                            )
+                    else:  # BaseModel
+                        for key in item.__fields__.keys():
+                            table.add_row(
+                                str(key),
+                                self._truncate_text(str(getattr(item, key)), max_width),
+                            )
 
                     self.panel(table)
                     self.print()

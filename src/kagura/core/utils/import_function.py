@@ -2,10 +2,10 @@ import importlib
 import os
 import sys
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Union
 
 
-def import_function(tool_path: str, agent_name: str = None) -> Callable:
+def import_function(tool_path: str, agent_name: Union[str, None] = None) -> Callable:
     module_name, tool_name = tool_path.rsplit(".", 1)
     user_agent_tools_dir = (
         (Path(os.path.expanduser("~")) / ".config" / "kagura" / "agents" / agent_name)
