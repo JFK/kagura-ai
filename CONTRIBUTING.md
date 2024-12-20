@@ -41,7 +41,7 @@ For beginners, check out the [Good First Issues](https://github.com/JFK/kagura-a
      ```bash
      git clone https://github.com/your-username/kagura-ai.git
      cd kagura-ai
-     uv sync --frozen --all-extras --dev
+     make sync
      ```
 
 3. **Create a New Branch**
@@ -53,7 +53,7 @@ For beginners, check out the [Good First Issues](https://github.com/JFK/kagura-a
 4. **Make Changes**
    - Edit the code, and verify your changes by running tests locally:
      ```bash
-     uv run pyttest
+     make test
      ```
 
 5. **Commit and Push**
@@ -87,20 +87,13 @@ Please ensure all tests pass locally before submitting a PR.
 - **Style Guide**:
   - Follow [PEP 8](https://peps.python.org/pep-0008/).
     ```bash
-    uv run ruff check .
-    uv run ruff format .
-    ```
-
-- **Import Order**:
-  - Use `isort` for consistent import order:
-    ```bash
-    uv run isort .
+    make ruff
     ```
 
 - **Type Checking**:
   - Run `pyright` to check for type correctness:
     ```bash
-    uv run pyright
+    make right
     ```
 
 ---
@@ -110,7 +103,7 @@ Please ensure all tests pass locally before submitting a PR.
 - Add unit tests for any new functionality.
 - Run tests and check code coverage:
   ```bash
-  uv run pytest --cov=kagura
+  make test
   ```
 
 ---

@@ -11,7 +11,9 @@ help:
 	@echo "Usage:"
 	@echo "  make venv         Create a virtual environment"
 	@echo "  make sync         Sync dependencies using uv"
+	@echo "  make right        Run static type checking using pyright"
 	@echo "  make test         Run tests using pytest"
+	@echo "  make ruff         Run code formatting using ruff"
 	@echo "  make build        Build the package"
 	@echo "  make clean        Clean build artifacts"
 
@@ -26,16 +28,29 @@ venv:
 sync: venv
 	@echo "Syncing dependencies with uv..."
 	$(VENV_DIR)/bin/uv sync --frozen --all-extras --dev
-	@echo "Done. You can now activate the virtual environment with 'source $(VENV_DIR)/bin/activate'."
+
+.PHONY: right
+right: sync
+	@echo "Running tests with pytest..."
+	$(VENV_DIR)/bin/pyright
+	@echo "Done."
 
 .PHONY: test
-test: sync
+test: right
 	@echo "Running tests with pytest..."
+	$(VENV_DIR)/bin/flake8 app/ tests/
 	$(VENV_DIR)/bin/pytest --maxfail=5 --disable-warnings -q
+	$(VENV_DIR)/bin/pytest --cov=app --cov-report=term-missing
+	@echo "Done."
+
+.PHONY: ruff
+ruff: test
+	@echo "Running tests with pytest..."
+	$(VENV_DIR)/bin/ruff format
 	@echo "Done."
 
 .PHONY: build
-build: test
+build: ruff
 	@echo "Building the package..."
 	$(VENV_DIR)/bin/pip install --upgrade build
 	$(VENV_DIR)/bin/python -m build
@@ -48,3 +63,10 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 	@echo "Done."
+
+.PHONY: docs
+docs:
+	@echo "Building documentation..."
+	$(VENV_DIR)/bin/pip install --upgrade sphinx sphinx-rtd-theme
+	$(VENV_DIR)/bin/sphinx-build -b html docs/ docs/_build
+	@echo "Done. Documentation is in docs/_build/"

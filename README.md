@@ -7,8 +7,6 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/kagura-ai)
 ![Codecov](https://img.shields.io/codecov/c/github/JFK/kagura-ai)
 ![Tests](https://img.shields.io/github/actions/workflow/status/JFK/kagura-ai/test.yml?label=tests)
-![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)
-![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
 
 Kagura AI is a lightweight open-source framework specialized in building and orchestrating AI Multi Agents. Named after the traditional Japanese performance art "Kagura (神楽)", it enables sophisticated AI agent systems through simple YAML-based configurations while embodying the principles of harmony, connection, and respect.
 

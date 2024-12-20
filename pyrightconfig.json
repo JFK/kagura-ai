@@ -1,0 +1,15 @@
+{
+  "venvPath": "./.venv",
+  "venv": ".",
+  "include": ["src"],
+  "reportMissingImports": true,
+  "reportOptionalSubscript": false,
+  "reportGeneralTypeIssues": true,
+  "strict": [],
+  "typeCheckingMode": "basic",
+  "stubPath": "typings",
+  "extraPaths": [".venv/lib/python3.11/site-packages"],
+  "reportUnknownMemberType": false,
+  "reportUnknownVariableType": false,
+  "reportUnknownArgumentType": false
+}

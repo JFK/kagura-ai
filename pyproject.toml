@@ -40,12 +40,6 @@ kagura = "kagura.cli.__main__:entry_point"
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8.3.3",
-    "pytest-cov>=6.0.0",
-    "black>=24.10.0",
-    "flake8>=7.1.1",
-    "mypy>=1.13.0",
-    "isort>=5.13.2",
     "pre-commit>=4.0.1",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.5.46",
@@ -54,11 +48,14 @@ dev = [
     "mkdocs-meta-descriptions-plugin>=3.0.0",
     "mkdocs-social-plugin>=0.1.0",
     "pymdown-extensions>=10.12",
-    "pyright>=1.1.389",
     "pyfakefs>=5.7.2",
-    "pytest-asyncio>=0.24.0",
-    "ruff>=0.6.9",
     "trio>=0.26.2",
+    "flake8>=7.1.1",
+    "pyright>=1.1.390",
+    "pytest-asyncio>=0.25.0",
+    "pytest-cov>=6.0.0",
+    "pytest>=8.3.4",
+    "ruff>=0.8.3",
 ]
 
 [build-system]
