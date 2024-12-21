@@ -49,10 +49,10 @@ class TestMessageHistory:
         await history.close()
 
     async def test_add_and_get_messages(self, message_history):
+        await message_history.clear()
         await message_history.add_message("user", "Hello")
         await message_history.add_message("assistant", "Hi there")
         messages = await message_history.get_messages()
-        print(messages)
         assert len(messages) == 3  # Including system prompt
         assert messages[1]["content"] == "Hello"
         assert messages[2]["content"] == "Hi there"

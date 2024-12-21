@@ -425,7 +425,8 @@ class Agent(AgentConfigManager):
 
             # Convert response fields to text
             if self.response_fields:
-                setattr(self._state, "TEXT_OUTPUT", self._state.model_dump())
+                if isinstance(self._state, BaseModel):
+                    setattr(self._state, "TEXT_OUTPUT", str(self._state))
 
             return self._state
 
