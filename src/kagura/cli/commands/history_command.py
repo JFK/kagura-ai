@@ -7,6 +7,9 @@ from .base import CommandHandler
 
 class HistoryCommandHandler(CommandHandler):
     async def handle(self, args: str) -> None:
+        if self.message_history is None:
+            self.console.print("[yellow]No message history available[/yellow]")
+            return
         messages = await self.message_history.get_messages()
         if not messages:
             self.console.print("[yellow]No message history available[/yellow]")

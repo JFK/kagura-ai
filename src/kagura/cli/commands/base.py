@@ -1,6 +1,6 @@
 # cli/commands/base.py
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Union
 
 from kagura.core.memory import MessageHistory
 
@@ -9,7 +9,9 @@ from ..ui import ConsoleManager
 
 class CommandHandler(ABC):
     def __init__(
-        self, console_manager: ConsoleManager, message_history: MessageHistory = None
+        self,
+        console_manager: ConsoleManager,
+        message_history: Union[MessageHistory, None] = None,
     ):
         self.console = console_manager.console
         self.message_history = message_history
@@ -64,6 +66,7 @@ class CommandRegistry:
         if handler:
             await handler.handle(args)
         else:
+
             self._console.log_error(f"Unknown command: {command}")
-            handler = self._handlers.get("/help")
-            await handler.handle("")
+            if handler := self._handlers.get("/help"):
+                await handler.handle("")

@@ -23,6 +23,9 @@ class ChatManager:
         )
 
     async def process_message(self, message: str, skip_history: bool = False) -> str:
+        if self.message_history is None:
+            raise ValueError("Message history is not initialized")
+
         if not skip_history:
             await self.message_history.add_message("user", message)
 
@@ -46,6 +49,8 @@ class KaguraChat:
 
     async def initialize(self):
         await self.chat_manager.initialize()
+        if self.chat_manager.message_history is None:
+            raise ValueError("Message history is not initialized")
         self.message_history = self.chat_manager.message_history
         self.command_registry = CommandRegistry(
             self.console_manager, self.message_history
@@ -67,6 +72,8 @@ class KaguraChat:
                     command, args = self._extract_command(prompt)
                     if command == "/exit":
                         break
+                    if self.command_registry is None:
+                        raise ValueError("Command registry is not initialized")
                     await self.command_registry.execute_command(command, args)
                 else:
                     await self.chat_manager.process_message(prompt)
