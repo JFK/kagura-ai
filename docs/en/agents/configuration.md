@@ -111,12 +111,12 @@ state_field_bindings:
     to: summarizer.context
 
 conditional_edges:
-  analyzer:
-    condition_function: kagura.conditions.check_analysis
-    conditions:
-      success: summarizer
-      retry: analyzer
-      failure: error_handler
+  - analyzer:
+      condition_function: kagura.conditions.check_analysis
+      conditions:
+        success: summarizer
+        retry: analyzer
+        failure: error_handler
 ```
 
 ---
