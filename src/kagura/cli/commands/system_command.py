@@ -1,5 +1,4 @@
 # cli/commands/system_command.py
-from pathlib import Path
 import yaml
 
 from .base import CommandHandler

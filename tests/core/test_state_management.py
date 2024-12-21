@@ -35,7 +35,7 @@ class TestStateManagement:
         state = sample_state_model(input_text="test", output_text="result")
         assert state.input_text == "test"
         assert state.output_text == "result"
-        assert state.success == True
+        assert True if state.success else False
 
         # Invalid state (missing required field)
         with pytest.raises(ValidationError):
@@ -80,14 +80,14 @@ class TestStateManagement:
         state.success = False
 
         assert state.error_message == "Test error"
-        assert state.success == False
+        assert True if not state.success else False
 
         # Clear error state
         state.error_message = None
         state.success = True
 
         assert state.error_message is None
-        assert state.success == True
+        assert True if state.success else False
 
     def teardown_method(self):
         """Clean up after each test"""

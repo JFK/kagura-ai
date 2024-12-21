@@ -1,5 +1,4 @@
 from pathlib import Path
-from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -205,10 +204,10 @@ async def test_atomic_agent_configs():
     assert config_manager.llm_model == "openai/gpt-4o-mini"
     assert config_manager.llm_max_tokens == 1
     assert config_manager.llm_retry_count == 1
-    assert config_manager.llm_stream == False
+    assert True if not config_manager.llm_stream else False
 
     # ワークフロー関連プロパティのテスト
-    assert config_manager.is_workflow == False
+    assert True if not config_manager.is_workflow else False
     assert len(config_manager.nodes) == 0
     assert len(config_manager.edges) == 0
     assert len(config_manager.state_field_bindings) == 0
@@ -275,12 +274,13 @@ async def test_atomic_agent_state_binding():
 @pytest.mark.asyncio
 async def test_orchestrator_configuration():
     """Test the orchestrator agent configuration loading"""
-    agent = Agent.assigner("test_workflow_agent")
+    state = {"url": "https://www.kagura-ai.com"}
+    agent = Agent.assigner("test_workflow_agent", state=state)
 
     # Test basic configuration
-    assert agent.is_workflow == True
+    assert True if agent.is_workflow else False
     assert agent.entry_point == "content_fetcher"
-    assert agent.skip_state_model == True  # Orchestrator should skip state model
+    assert True if agent.skip_state_model else False
 
     # Test nodes configuration
     assert len(agent.nodes) == 3

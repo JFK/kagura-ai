@@ -152,6 +152,7 @@ async def test_search_planner():
         result = await user_intent_agent.execute()
 
         model_dumped_result = result.model_dump()
+        print(model_dumped_result)
         assert "user_search_intents" in model_dumped_result
 
         user_search_intents = model_dumped_result["user_search_intents"]

@@ -1,7 +1,7 @@
-from typing import List, Optional
+from typing import Optional
 
 import pytest
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from kagura.core.models import (
     CheckStateError,
@@ -122,7 +122,7 @@ class TestModelData:
         instance = state_model(input_text="test")
         assert instance.input_text == "test"
         assert instance.output_text == ""
-        assert instance.SUCCESS == True
+        assert True if instance.SUCCESS else False
 
     def test_check_state_error(self):
         """エラー状態のチェックテスト"""
@@ -134,13 +134,13 @@ class TestModelData:
         # エラーなしの状態
         state = TestState()
         checked_state = self.models.check_state_error(state)
-        assert checked_state.SUCCESS == True
+        assert True if checked_state.SUCCESS else False
         assert checked_state.ERROR_MESSAGE is None
 
         # エラーありの状態
         state = TestState(ERROR_MESSAGE="Test error")
         checked_state = self.models.check_state_error(state)
-        assert checked_state.SUCCESS == False
+        assert True if not checked_state.SUCCESS else False
         assert checked_state.ERROR_MESSAGE == "Test error"
 
     def test_convert_model_data(self):

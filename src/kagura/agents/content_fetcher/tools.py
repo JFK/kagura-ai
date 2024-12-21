@@ -1,12 +1,11 @@
 import ssl
-from typing import Optional, Tuple, Union, Type, Any
+from typing import Optional, Tuple, Union, Any
 
 import aiohttp
 import chardet
 
 from kagura.core.models import (
     StateModel,
-    BaseModel,
     get_custom_model,
     validate_required_state_fields,
 )
@@ -53,12 +52,14 @@ class ContentFetcher:
 
         for name, ssl_context in ssl_contexts:
             try:
-                content, content_format = await self._fetch_with_ssl_context(url, ssl_context)
+                content, content_format = await self._fetch_with_ssl_context(
+                    url, ssl_context
+                )
                 if content is not None:
                     return content, content_format
             except Exception:
                 continue
-            
+
         return None, "webpage"  # デフォルトの戻り値を追加
 
     def _detect_content_format(self, content_type: str) -> str:
@@ -118,17 +119,12 @@ class ContentFetcher:
                         )
                         encodings_to_try.append(declared_encoding)
 
-                    encodings_to_try.extend(
-                        ["utf-8", "cp932", "euc-jp", "iso-2022-jp"]
-                    )
+                    encodings_to_try.extend(["utf-8", "cp932", "euc-jp", "iso-2022-jp"])
 
                     if content.startswith(b"<"):
                         try:
                             detected = chardet.detect(content)
-                            if (
-                                detected["encoding"]
-                                and detected["confidence"] > 0.7
-                            ):
+                            if detected["encoding"] and detected["confidence"] > 0.7:
                                 detected_encoding = ENCODING_MAP.get(
                                     detected["encoding"].lower(),
                                     detected["encoding"],
@@ -164,7 +160,7 @@ class ContentFetcher:
                             f"Final fallback decode failed for {url}: {e}"
                         )
 
-        except Exception as e:
+        except Exception:
             return None, "webpage"  # エラー時のデフォルト戻り値を追加
 
     async def fetch(self, url: str) -> Tuple[str, str]:

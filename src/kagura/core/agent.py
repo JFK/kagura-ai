@@ -365,21 +365,6 @@ class Agent(AgentConfigManager):
                 input_data[field] = getattr(self._state, field)
         setattr(self._state, "INPUT_QUERY", input_data)
 
-    async def _convert_response_to_text(self) -> str:
-        """Convert response fields to text format"""
-        text_parts = []
-
-        for field in self.response_fields:
-            value = getattr(self._state, field)
-            if isinstance(value, str):
-                text_parts.append(value)
-            elif isinstance(value, (List, Dict)):
-                text_parts.append(json.dumps(value, indent=2, ensure_ascii=False))
-            elif isinstance(value, BaseModel):
-                text_parts.append(value.model_dump_json(indent=2))
-
-        return "\n\n".join(text_parts)
-
     async def execute_workflow(
         self, state: BaseModel
     ) -> AsyncGenerator[Dict[str, Any], None]:
@@ -440,8 +425,7 @@ class Agent(AgentConfigManager):
 
             # Convert response fields to text
             if self.response_fields:
-                text_output = await self._convert_response_to_text()
-                setattr(self._state, "TEXT_OUTPUT", text_output)
+                setattr(self._state, "TEXT_OUTPUT", self._state.model_dump())
 
             return self._state
 

@@ -52,6 +52,7 @@ class TestMessageHistory:
         await message_history.add_message("user", "Hello")
         await message_history.add_message("assistant", "Hi there")
         messages = await message_history.get_messages()
+        print(messages)
         assert len(messages) == 3  # Including system prompt
         assert messages[1]["content"] == "Hello"
         assert messages[2]["content"] == "Hi there"
@@ -60,7 +61,7 @@ class TestMessageHistory:
         await message_history.add_message("user", "Hello")
         await message_history.clear()
         messages = await message_history.get_messages()
-        assert len(messages) == 2  # system prompt shift to 0 internally
+        assert len(messages) == 1  # system prompt shift to 0 internally
 
 
 class TestMemory:

@@ -23,7 +23,7 @@ class TestModels:
         assert list_str_type.__args__[0] == str
 
         optional_int_type = map_type("Optional[int]")
-        assert optional_int_type.__origin__ == type(None).__class__
+        assert True if isinstance(optional_int_type.__origin__, None) else False
         assert optional_int_type.__args__[0] == int
 
     def test_map_type_custom(self):
