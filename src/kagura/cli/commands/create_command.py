@@ -1,15 +1,51 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List, Protocol
 from pathlib import Path
 from textwrap import dedent
 
 import yaml
 import asyncio
 import click
-from pydantic import BaseModel
 
 from ...core.agent import Agent
 from ...core.utils.console import KaguraConsole
 from ...core.config import ConfigBase
+
+
+class DescriptionType(Protocol):
+    language: str
+    text: str
+
+
+class FieldType(Protocol):
+    name: str
+    type: str
+    description: List[Dict[str, str]]
+
+
+class CustomModelType(Protocol):
+    name: str
+    fields: List[FieldType]
+
+
+class AgentConfigType(Protocol):
+    agent_name: str
+    description: List[DescriptionType]
+    input_fields: List[str]
+    response_fields: List[str]
+    custom_models: Optional[List[CustomModelType]]
+
+    def model_dump(self) -> Dict[str, Any]: ...
+
+
+class StateModelType(Protocol):
+    agent_config: AgentConfigType
+    state_model_config: Optional[Dict[str, Any]]
+    custom_tool_code: Optional[str]
+
+    def model_dump(self) -> Dict[str, Any]: ...
+
+
+StateModel = StateModelType
 
 
 class KaguraRepoGenerator:
@@ -21,7 +57,7 @@ class KaguraRepoGenerator:
             def increase_indent(self, flow=False, indentless=False):
                 return super(MyDumper, self).increase_indent(flow, indentless=False)
 
-        return yaml.dump(
+        yaml_str = yaml.dump(
             data,
             Dumper=MyDumper,
             default_flow_style=False,
@@ -31,6 +67,9 @@ class KaguraRepoGenerator:
             width=1000,
             explicit_start=True,
         )
+        if isinstance(yaml_str, str):
+            return yaml_str
+        return ""
 
     def _format_agent_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """Format and structure agent configuration."""
@@ -92,7 +131,7 @@ class KaguraRepoGenerator:
 
         return formatted_config
 
-    async def generate_repo(self, config: BaseModel) -> None:
+    async def generate_repo(self, config: StateModel) -> None:
         """Generate repository structure with improved organization."""
         agent_config = config.agent_config
         repo_dir = self.output_dir / agent_config.agent_name
@@ -113,7 +152,7 @@ class KaguraRepoGenerator:
         for dir_path in directories:
             (repo_dir / dir_path).mkdir(parents=True, exist_ok=True)
 
-    async def _generate_files(self, repo_dir: Path, config: BaseModel) -> None:
+    async def _generate_files(self, repo_dir: Path, config: StateModel) -> None:
         """Generate configuration and source files."""
         agent_dir = repo_dir / "src" / config.agent_config.agent_name
         agent_dir.mkdir(parents=True, exist_ok=True)
@@ -126,8 +165,10 @@ class KaguraRepoGenerator:
         # Generate state_model.yml if needed
         if hasattr(config, "state_model_config") and config.state_model_config:
             state_model = config.state_model_config
-            if isinstance(state_model, BaseModel):
+            if not isinstance(state_model, dict):
                 state_model = state_model.model_dump()
+            else:
+                raise RuntimeError("Error generating state model configuration")
 
             formatted_state_model = self._format_state_model(state_model)
             with open(agent_dir / "state_model.yml", "w") as f:
@@ -148,7 +189,7 @@ class KaguraRepoGenerator:
         with open(repo_dir / "pyproject.toml", "w") as f:
             f.write(pyproject_content)
 
-    def _generate_readme(self, config: BaseModel) -> str:
+    def _generate_readme(self, config: StateModel) -> str:
         """Generate comprehensive README with examples and documentation."""
         agent_config = config.agent_config
         description = ""
@@ -210,7 +251,7 @@ class KaguraRepoGenerator:
             """
         )
 
-    def _generate_pyproject(self, config: BaseModel) -> str:
+    def _generate_pyproject(self, config: StateModel) -> str:
         """Generate pyproject.toml configuration."""
         return dedent(
             f"""\
@@ -231,7 +272,7 @@ class KaguraRepoGenerator:
             """
         )
 
-    async def _generate_examples(self, repo_dir: Path, config: BaseModel) -> None:
+    async def _generate_examples(self, repo_dir: Path, config: StateModel) -> None:
         """Generate comprehensive example files."""
         example_dir = repo_dir / "examples"
         agent_name = config.agent_config.agent_name.lower()
@@ -266,7 +307,7 @@ class KaguraRepoGenerator:
         with open(example_dir / f"{agent_name}_example.py", "w") as f:
             f.write(example_code)
 
-    async def _generate_tests(self, repo_dir: Path, config: BaseModel) -> None:
+    async def _generate_tests(self, repo_dir: Path, config: StateModel) -> None:
         """Generate comprehensive test files."""
         test_dir = repo_dir / "tests"
         agent_name = config.agent_config.agent_name
@@ -310,13 +351,10 @@ class KaguraRepoGenerator:
 
 
 class AgentCreator:
-    def __init__(
-        self, output_dir: Optional[str] = None, agent_type: Optional[str] = None
-    ):
+    def __init__(self, output_dir: str = "./", agent_type: str = "atomic"):
         self.output_dir = Path(output_dir)
         self.agent_type = agent_type
         self.console = KaguraConsole()
-        self.generator = None
 
     def _get_generator_name(self, agent_type: str) -> str:
         """Get appropriate generator name based on agent type"""
@@ -345,9 +383,10 @@ class AgentCreator:
                 "agent_name": agent_name,
                 "agent_type": agent_type,
                 "purpose": purpose,
+                "available_agents": [],
             }
 
-            if available_agents:
+            if isinstance(available_agents, List) and len(available_agents) > 0:
                 state["available_agents"] = available_agents
 
             async def _execute_generator():
@@ -428,7 +467,7 @@ class AgentCreator:
 
         return await self.console.multiline_input()
 
-    async def _confirm_configuration(self, config: BaseModel) -> bool:
+    async def _confirm_configuration(self, config: StateModel) -> bool:
         """生成された設定を表示し、確認を取る"""
         self.console.panel(
             "[bold cyan]Generated Configuration Preview:[/bold cyan]\n",
@@ -525,7 +564,7 @@ class AgentCreator:
     type=click.Choice(["atomic", "tool", "workflow"]),
     help="Agent type (if not specified, will prompt interactively)",
 )
-def create(agent_name: str, output_dir: Optional[str], type: Optional[str]):
+def create(agent_name: str, output_dir: str, agent_type: str):
     """Create a new Kagura agent"""
-    creator = AgentCreator(output_dir, agent_type=type)
+    creator = AgentCreator(output_dir, agent_type=agent_type)
     asyncio.run(creator.create_agent(agent_name))

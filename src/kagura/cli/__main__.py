@@ -66,9 +66,7 @@ def zen(return_str: bool = True) -> str:
         return_str: If True, returns a formatted string. If False, returns a list.
     """
     zen_list = get_zen()
-    if return_str:
-        return "\n".join(zen_list)
-    return zen_list
+    return "\n".join(zen_list)
 
 
 @click.group(invoke_without_command=True)
