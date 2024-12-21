@@ -66,7 +66,6 @@ class CommandRegistry:
         if handler:
             await handler.handle(args)
         else:
-
             self._console.log_error(f"Unknown command: {command}")
             if handler := self._handlers.get("/help"):
                 await handler.handle("")

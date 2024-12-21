@@ -27,7 +27,6 @@ class AgentError(Exception):
 
 
 class Agent(AgentConfigManager):
-
     def __init__(
         self,
         agent_name: str,
@@ -239,7 +238,6 @@ class Agent(AgentConfigManager):
         return field_type.__name__ if hasattr(field_type, "__name__") else type_str
 
     async def llm_ainvoke(self, state: Union[BaseModel, None] = None) -> BaseModel:
-
         if state is None:
             return BaseResponseModel(ERROR_MESSAGE="State is None", SUCCESS=False)
 
