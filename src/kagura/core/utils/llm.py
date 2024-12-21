@@ -1,110 +1,90 @@
-from typing import AsyncGenerator, Dict, List, Optional
+from typing import AsyncGenerator, Dict, List
 
 from litellm import acompletion
-from litellm.utils import CustomStreamWrapper, ModelResponse
+from litellm.utils import ModelResponse, Choices
 
 
 class LLM:
-    def __init__(self, model: Optional[str] = None):
+    def __init__(self, model: str):
         self._model = model
-        if not self._model:
-            raise ValueError("llm_model is required. Please set LLM_MODEL env var.")
 
     @property
     def model(self) -> str:
-        if not self._model:
-            raise ValueError("Model is not set.")
         return self._model
 
-    def _build_message(
-        self, prompt: Optional[str], instructions: Optional[str] = None
-    ) -> List[Dict]:
+    @classmethod
+    async def generate(
+        cls, model: str = "", prompt: str = "", instructions: str = ""
+    ) -> str:
+        llm = cls(model)
+        llm_response = await llm.ainvoke(prompt or "", instructions or "")
+        return llm_response or ""
+
+    @classmethod
+    async def generate_stream(
+        cls, model: str = "", prompt: str = "", instructions: str = ""
+    ) -> AsyncGenerator[str, None]:
+        llm = cls(model)
+        async for chunk in llm.astream(prompt or "", instructions or ""):
+            yield chunk
+
+    def _build_message(self, prompt: str, instructions: str = "") -> List[Dict]:
         messages = []
-        if instructions:
+        if instructions is None and instructions == "":
+            messages.append({"role": "system", "content": prompt})
+        else:
             messages.append({"role": "system", "content": instructions})
-        if prompt:
             messages.append({"role": "user", "content": prompt})
         return messages
 
     async def astream(
-        self, prompt: Optional[str], instructions: Optional[str] = None
+        self, prompt: str, instructions: str = ""
     ) -> AsyncGenerator[str, None]:
-        if not self.model:
-            raise ValueError("Model is not set.")
         messages = self._build_message(prompt, instructions)
         try:
-            # Call acompletion
-            resp = await acompletion(model=self.model, messages=messages, stream=True)
-
-            # Handle streaming response
-            if isinstance(resp, CustomStreamWrapper):
+            resp = await acompletion(model=self._model, messages=messages, stream=True)
+            if isinstance(resp, AsyncGenerator):
                 async for chunk in resp:
-                    content = (
+                    c = (
                         chunk.get("choices", [{}])[0]
                         .get("delta", {})
                         .get("content", "")
                     )
-                    if content:
-                        yield content
-            else:
-                raise RuntimeError(
-                    "Expected a streaming response, got a non-streaming object."
-                )
+                    if c is not None:
+                        yield c
         except Exception as e:
-            raise RuntimeError(f"Error in astream: {str(e)}")
+            raise RuntimeError(f"Error in astream: {e}")
 
-    async def ainvoke(
-        self, prompt: Optional[str], instructions: Optional[str] = None
-    ) -> str:
-        if not self.model:
-            raise ValueError("Model is not set.")
+    async def ainvoke(self, prompt: str, instructions: str = "") -> str:
         messages = self._build_message(prompt, instructions)
         try:
-            resp = await acompletion(model=self.model, messages=messages)
-            if isinstance(resp, ModelResponse):
-                return (
-                    resp.get("choices", [{}])[0].get("message", {}).get("content", "")
-                )
-            else:
-                raise RuntimeError(
-                    "Expected a non-streaming response, got a streaming object."
-                )
+            resp = await acompletion(model=self._model, messages=messages)
+            if isinstance(resp, ModelResponse) and isinstance(resp.choices[0], Choices):
+                return resp.choices[0].message.content or ""
         except Exception as e:
             raise RuntimeError(f"Error in ainvoke: {e}")
+        return ""
 
     async def achat_stream(self, messages: List[Dict]) -> AsyncGenerator[str, None]:
-        if not self.model:
-            raise ValueError("Model is not set.")
         try:
-            resp = await acompletion(model=self.model, messages=messages, stream=True)
-            if isinstance(resp, CustomStreamWrapper):
+            resp = await acompletion(model=self._model, messages=messages, stream=True)
+            if isinstance(resp, AsyncGenerator):
                 async for chunk in resp:
-                    content = (
+                    c = (
                         chunk.get("choices", [{}])[0]
                         .get("delta", {})
                         .get("content", "")
                     )
-                    if content:
-                        yield content
-            else:
-                raise RuntimeError(
-                    "Expected a streaming response, got a non-streaming object."
-                )
+                    if c is not None:
+                        yield c
         except Exception as e:
             raise RuntimeError(f"Error in achat_stream: {e}")
 
     async def achat(self, messages: List[Dict]) -> str:
-        if not self.model:
-            raise ValueError("Model is not set.")
         try:
-            resp = await acompletion(model=self.model, messages=messages)
-            if isinstance(resp, ModelResponse):
-                return (
-                    resp.get("choices", [{}])[0].get("message", {}).get("content", "")
-                )
-            else:
-                raise RuntimeError(
-                    "Expected a non-streaming response, got a streaming object."
-                )
+            resp = await acompletion(model=self._model, messages=messages)
+            if isinstance(resp, ModelResponse) and isinstance(resp.choices[0], Choices):
+                return resp.choices[0].message.content or ""
         except Exception as e:
             raise RuntimeError(f"Error in achat: {e}")
+        return ""

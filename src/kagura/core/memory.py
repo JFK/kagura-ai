@@ -6,7 +6,8 @@ from collections import defaultdict, deque
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
+from pathlib import Path
 
 from pydantic import BaseModel
 from redis import asyncio as aioredis
@@ -16,25 +17,25 @@ from .utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-T = TypeVar("T")
+T = TypeVar("T", bound=BaseModel)
 
 
 @dataclass
 class Message:
     role: str  # "user" or "assistant" or "system"
     content: str
-    timestamp: datetime = None
+    timestamp: Optional[datetime] = None
 
     def __post_init__(self):
         if self.timestamp is None:
             self.timestamp = datetime.now()
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Convert message to dict format for LLM API"""
         return {"role": self.role, "content": self.content}
 
     @classmethod
-    def from_dict(cls, data: Dict) -> "Message":
+    def from_dict(cls, data: Dict[str, Any]) -> "Message":
         """Create Message instance from dictionary"""
         return cls(
             role=data["role"],
@@ -48,13 +49,16 @@ class Message:
 
 
 class MemoryBackend(ConfigBase):
-    _redis = None
+    _redis: Optional[aioredis.Redis] = None
     _ram_storage: Dict[str, Dict[str, Any]] = defaultdict(dict)
     _ram_ttl: Dict[str, datetime] = {}
     _cleanup_task: Optional[asyncio.Task] = None
     _running: bool = True
+    _default_ttl: int = 86400
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: Optional[Union[str, Path]] = None):
+        if isinstance(base_dir, str):
+            base_dir = Path(base_dir)
         super().__init__(base_dir)
         if self._redis is None:
             self._initialize_from_config()
@@ -76,14 +80,15 @@ class MemoryBackend(ConfigBase):
                 logger.error(f"Error cancelling cleanup task: {e}")
 
         # Disconnect Redis safely
-        if self._redis:
+        if self._redis is not None:
             try:
                 logger.debug("Closing Redis connection...")
-                await self._redis.close()  # Close the connection
-                await self._redis.connection_pool.disconnect()
-                self._redis = None  # Remove reference to the connection
+                await self._redis.close()
+                # await self._redis.connection_pool.disconnect()
+                self._redis = None
             except Exception as e:
                 logger.error(f"Error closing Redis connection: {e}")
+
         # Clear RAM storage
         self._ram_storage.clear()
         self._ram_ttl.clear()
@@ -92,7 +97,7 @@ class MemoryBackend(ConfigBase):
     def _initialize_from_config(self):
         redis_config = self.get_system_backend("redis")
 
-        self.default_ttl = (
+        self._default_ttl = (
             self.system_memory_backend.get("default_ttl_hours", 24) * 3600
         )
         self.cleanup_interval = (
@@ -137,21 +142,19 @@ class MemoryBackend(ConfigBase):
 
     async def ping(self) -> bool:
         """Check if Redis is available"""
-        if self._redis:
+        if self._redis is not None:
             try:
                 return await self._redis.ping()
             except Exception:
                 return False
         return False
 
-    async def set(self, key: str, value: Any, ttl: int = None) -> bool:
-        """Set value with TTL (default from config)"""
-        if ttl is None:
-            ttl = self.default_ttl
-
+    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
         try:
-            if await self.ping():
-                return await self._redis.setex(key, ttl, value)
+            ttl = self._default_ttl if ttl is None else ttl
+            if await self.ping() and self._redis is not None:
+                await self._redis.setex(key, ttl, value)
+                return True
             else:
                 self._ram_storage[key] = value
                 self._ram_ttl[key] = datetime.now() + timedelta(seconds=ttl)
@@ -163,12 +166,12 @@ class MemoryBackend(ConfigBase):
     async def get(self, key: str) -> Optional[str]:
         """Get value from storage"""
         try:
-            if await self.ping():
+            if await self.ping() and self._redis is not None:
                 return await self._redis.get(key)
             else:
                 if key in self._ram_storage:
                     if datetime.now() <= self._ram_ttl[key]:
-                        return self._ram_storage[key]
+                        return str(self._ram_storage[key])
                     else:
                         self._ram_storage.pop(key, None)
                         self._ram_ttl.pop(key, None)
@@ -180,8 +183,9 @@ class MemoryBackend(ConfigBase):
     async def publish(self, channel: str, message: str) -> bool:
         """Publish message to channel (only works with Redis)"""
         try:
-            if await self.ping():
-                return await self._redis.publish(channel, message)
+            if await self.ping() and self._redis is not None:
+                await self._redis.publish(channel, message)
+                return True
             return False
         except Exception as e:
             logger.error(f"Error publishing message: {e}")
@@ -189,7 +193,7 @@ class MemoryBackend(ConfigBase):
 
     async def subscribe(self, channel: str):
         """Subscribe to channel (only works with Redis)"""
-        if await self.ping():
+        if await self.ping() and self._redis is not None:
             pubsub = self._redis.pubsub()
             await pubsub.subscribe(channel)
             return pubsub
@@ -203,29 +207,26 @@ def asyncclassmethod(method):
     def wrapper(cls, *args, **kwargs):
         return method(cls, *args, **kwargs)
 
-    wrapper.__isabstractmethod__ = getattr(method, "__isabstractmethod__", False)
     return classmethod(wrapper)
 
 
 class MessageHistory(MemoryBackend):
-    def __init__(self, system_prompt: str = None, base_dir: Optional[str] = None):
-        super().__init__(base_dir)
+    def __init__(self, system_prompt: Optional[str] = None):
+        super().__init__()
         self.conversation_id = self.system_memory_history_uuid or str(uuid.uuid4())
         self.window_size = self.system_memory_message_history.get("window_size", 20)
         self.context_window = self.system_memory_message_history.get(
             "context_window", 5
         )
         self.ttl_hours = self.system_memory_message_history.get("ttl_hours", 24)
-        self.messages: deque = deque(maxlen=self.window_size)
+        self.messages: deque[Message] = deque(maxlen=self.window_size)
         self._redis_key_prefix = "kagura:message_history:"
         self._system_prompt = system_prompt  # Not stored in Redis
 
-    @asyncclassmethod
-    async def factory(
-        cls, system_prompt: str = None, base_dir: Optional[str] = None
-    ) -> "MessageHistory":
+    @classmethod
+    async def factory(cls, system_prompt: Optional[str] = None) -> "MessageHistory":
         """Factory method to create and initialize a MessageHistory instance"""
-        instance = cls(system_prompt, base_dir)
+        instance = cls(system_prompt)
         await instance._load_from_redis()
         return instance
 
@@ -263,7 +264,6 @@ class MessageHistory(MemoryBackend):
             stored_data = json.loads(data)
             self.window_size = stored_data["window_size"]
 
-            # 保存されたメッセージを読み込む
             new_messages = deque(maxlen=self.window_size)
             for msg_data in stored_data["messages"]:
                 message = Message.from_dict(msg_data)
@@ -282,13 +282,15 @@ class MessageHistory(MemoryBackend):
         self.messages.append(message)
         await self._save_to_redis()
 
-    async def get_messages(self, use_context_window: bool = True) -> List[Dict]:
+    async def get_messages(
+        self, use_context_window: bool = True
+    ) -> List[Dict[str, Any]]:
         """
         メッセージ履歴を取得。use_context_window=Trueの場合は直近のやり取りのみを返す
         """
         await self._load_from_redis()
 
-        messages_for_llm = []
+        messages_for_llm: List[Dict[str, Any]] = []
         if self._system_prompt:
             messages_for_llm.append({"role": "system", "content": self._system_prompt})
 
@@ -311,7 +313,7 @@ class MessageHistory(MemoryBackend):
             self.messages.clear()
 
             key = f"{self._redis_key_prefix}{self.conversation_id}"
-            if await self.ping():
+            if await self.ping() and self._redis is not None:
                 await self._redis.delete(key)
 
             logger.debug("Message history cleared successfully")
@@ -332,16 +334,16 @@ class Memory(Generic[T]):
         safe_key = str(key).replace(" ", "_")
         return f"{self.namespace}:{safe_key}"
 
-    async def get(self, key: str, model_class: type[T]) -> Optional[T]:
+    async def get(self, key: str, model_class: type[T]) -> Optional[Union[T, List[T]]]:
         try:
             cache_key = self._get_cache_key(key)
-            if cached_data := await self._backend.get(cache_key):
+            cached_data = await self._backend.get(cache_key)
+            if cached_data:
                 data = json.loads(cached_data)
                 if not issubclass(model_class, BaseModel):
                     raise TypeError(
                         f"Model class must be a subclass of BaseModel, got {model_class}"
                     )
-
                 try:
                     if isinstance(data, list):
                         return [model_class(**item) for item in data]
@@ -356,7 +358,7 @@ class Memory(Generic[T]):
             logger.error(f"Memory get error: {e}")
         return None
 
-    async def set(self, key: str, value: T | List[T]) -> bool:
+    async def set(self, key: str, value: Union[T, List[T]]) -> bool:
         try:
             cache_key = self._get_cache_key(key)
             if isinstance(value, list):
@@ -375,6 +377,20 @@ class Memory(Generic[T]):
             logger.error(f"Memory set error for key {key}: {e}")
             return False
 
+    async def delete(self, key: str) -> bool:
+        try:
+            cache_key = self._get_cache_key(key)
+            if await self._backend.ping() and self._backend._redis is not None:
+                await self._backend._redis.delete(cache_key)
+            else:
+                if cache_key in self._backend._ram_storage:
+                    self._backend._ram_storage.pop(cache_key, None)
+                    self._backend._ram_ttl.pop(cache_key, None)
+            return True
+        except Exception as e:
+            logger.error(f"Memory delete error for key {key}: {e}")
+            return False
+
 
 class MemoryStats:
     """Class for tracking memory operation statistics"""
@@ -385,28 +401,22 @@ class MemoryStats:
 
     async def increment_hits(self):
         try:
-            await self._backend.set(
-                f"{self.namespace}:hits",
-                str(int(await self._backend.get(f"{self.namespace}:hits") or 0) + 1),
-            )
+            hits = int(await self._backend.get(f"{self.namespace}:hits") or 0) + 1
+            await self._backend.set(f"{self.namespace}:hits", str(hits))
         except Exception as e:
             logger.error(f"Failed to increment hits: {e}")
 
     async def increment_misses(self):
         try:
-            await self._backend.set(
-                f"{self.namespace}:misses",
-                str(int(await self._backend.get(f"{self.namespace}:misses") or 0) + 1),
-            )
+            misses = int(await self._backend.get(f"{self.namespace}:misses") or 0) + 1
+            await self._backend.set(f"{self.namespace}:misses", str(misses))
         except Exception as e:
             logger.error(f"Failed to increment misses: {e}")
 
     async def increment_errors(self):
         try:
-            await self._backend.set(
-                f"{self.namespace}:errors",
-                str(int(await self._backend.get(f"{self.namespace}:errors") or 0) + 1),
-            )
+            errors = int(await self._backend.get(f"{self.namespace}:errors") or 0) + 1
+            await self._backend.set(f"{self.namespace}:errors", str(errors))
         except Exception as e:
             logger.error(f"Failed to increment errors: {e}")
 
@@ -426,51 +436,34 @@ class MemoryStats:
             return {"hits": 0, "misses": 0, "errors": 0}
 
 
-def with_memory(namespace: str, ttl_hours: int = 24, key_generator: Callable = None):
+def with_memory(
+    namespace: str, ttl_hours: int = 24, key_generator: Optional[Callable] = None
+):
     def _get_cache_key(func: Callable, *args, **kwargs) -> str:
         if key_generator:
             return key_generator(*args, **kwargs)
-        return (
-            str(args[0])
-            if args
-            else str(kwargs.get(inspect.getfullargspec(func).args[0]))
-        )
+        argspec = inspect.getfullargspec(func)
+        first_arg = args[0] if args else kwargs.get(argspec.args[0], "")
+        return str(first_arg)
 
-    def decorator(func):
+    def decorator(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            try:
-                return_type = func.__annotations__.get("return")
-                if not return_type or not issubclass(return_type, BaseModel):
-                    logger.warning(
-                        f"Return type for {func.__name__} must be a subclass of BaseModel"
-                    )
-                    return await func(*args, **kwargs)
+            return_type = func.__annotations__.get("return")
+            if not return_type or not issubclass(return_type, BaseModel):
+                logger.warning(
+                    f"Return type for {func.__name__} must be a subclass of BaseModel"
+                )
+                return await func(*args, **kwargs)
 
-                memory = Memory[return_type](namespace, ttl_hours)
-                stats = MemoryStats(namespace)
+            memory = Memory[return_type](namespace, ttl_hours)
+            stats = MemoryStats(namespace)
 
-                cache_key = _get_cache_key(func, *args, **kwargs)
+            cache_key = _get_cache_key(func, *args, **kwargs)
+            cached_result = await memory.get(cache_key, return_type)
+            if cached_result is not None:
+                await stats.increment_hits()
+                return cached_result
 
-                if cached_result := await memory.get(cache_key, return_type):
-                    await stats.increment_hits()
-                    return cached_result
-
-                await stats.increment_misses()
-                result = await func(*args, **kwargs)
-
-                if result is not None:
-                    await memory.set(cache_key, result)
-                return result
-
-            except Exception as e:
-                logger.error(f"Memory decorator error in {func.__name__}: {e}")
-                try:
-                    await stats.increment_errors()
-                except Exception:
-                    pass
-                raise
-
-        return wrapper
-
-    return decorator
+            await stats.increment_misses()
+            await func(*args, **kwargs)

@@ -1,14 +1,19 @@
 import json
 import traceback
 from pathlib import Path
-from typing import Any, AsyncGenerator, Callable, Dict, List, Tuple, Union
+from typing import Any, AsyncGenerator, Callable, Dict, List, Tuple, Union, Generator
 
 from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel
 
 from .config import AgentConfigManager, ConfigBase
-from .models import AGENT, ModelRegistry, convert_model_to_input_schema
+from .models import (
+    AGENT,
+    ModelRegistry,
+    convert_model_to_input_schema,
+    BaseResponseModel,
+)
 from .prompts import BasePrompt
 from .utils.import_function import import_function
 from .utils.llm import LLM
@@ -22,17 +27,14 @@ class AgentError(Exception):
 
 
 class Agent(AgentConfigManager):
-    _state: BaseModel
 
     def __init__(
         self,
         agent_name: str,
-        state: Union[BaseModel, Dict[str, Any]] = None,
+        state: Union[BaseModel, Dict[str, Any], str, None] = None,
     ):
         super().__init__(agent_name)
         self.agent_name = agent_name
-        self._state = None
-        self._llm = None
         self._validte_agent()
         self._initialize_state(state)
 
@@ -54,23 +56,20 @@ class Agent(AgentConfigManager):
                 all_state_fields
             ), f"Fields {fields - all_state_fields} are not present in state model"
 
-    def _initialize_state(self, state: Union[BaseModel, Dict[str, Any]] = None) -> None:
+    def _initialize_state(self, state: Union[BaseModel, Dict[str, Any], str, None]):
         if self.is_workflow:
-            self._state = state
+            if isinstance(state, Dict):
+                self._state = self.workflow_state_model(**state)
+            elif state is not None and isinstance(state, BaseModel):
+                self._state = self.workflow_state_model(**state.model_dump())
+            elif state is None:
+                raise AgentError("State is required for workflow")
             return
 
         if state is not None and isinstance(state, str):
-
-            class StateModel(BaseModel):
-                QUERY: str = ""
-                INPUT_QUERY: Dict[str, Any] = {}
-                TEXT_OUTPUT: str = ""
-
-            self._state = StateModel.model_validate({"QUERY": state})
-
+            self._state = BaseResponseModel.model_validate({"QUERY": state})
         elif state is not None and isinstance(state, dict):
             self._state = self.state_model(**state)
-
         elif state is not None and isinstance(state, BaseModel):
             update_state_fields = {}
             state_fields_names = {field["name"] for field in self.state_fields}
@@ -95,15 +94,18 @@ class Agent(AgentConfigManager):
             else None
         )
 
-    def _get_conditional_edges(self) -> Tuple[str, Callable, Dict[str, Any]]:
+    def _get_conditional_edges(
+        self,
+    ) -> Generator[Tuple[str, Callable[..., Any], Dict[str, Any]], None, None]:
         if conditional_edges := self.conditional_edges:
-            for node_name, cond_info in conditional_edges.items():
-                condition_function_path = cond_info["condition_function"]
-                condition_function = import_function(
-                    condition_function_path, self.agent_name
-                )
-                conditions = cond_info["conditions"]
-                yield node_name, condition_function, conditions
+            for edges in conditional_edges:
+                for node_name, cond_info in edges.items():
+                    condition_function_path = cond_info["condition_function"]
+                    condition_function = import_function(
+                        condition_function_path, self.agent_name
+                    )
+                    conditions = cond_info["conditions"]
+                    yield node_name, condition_function, conditions
 
     @classmethod
     def list_agents(cls) -> List[Dict[str, Any]]:
@@ -178,18 +180,22 @@ class Agent(AgentConfigManager):
     def assigner(
         cls,
         agent_name: str,
-        state: Union[BaseModel, Dict[str, Any]] = None,
+        state: Union[BaseModel, Dict[str, Any], None] = None,
     ):
         return cls(agent_name, state)
 
     @property
-    def state(self) -> BaseModel:
+    def state(self) -> BaseResponseModel:
+        if not isinstance(self._state, BaseResponseModel):
+            self._state = BaseResponseModel(**self._state.model_dump())
         return self._state
 
     @property
-    def llm(self) -> Union[LLM, None]:
-        if self._llm is None:
-            self._llm = LLM(self.llm_model) if not self.skip_llm_invoke else None
+    def llm(self) -> LLM:
+        if self.llm_model and not self.skip_llm_invoke:
+            self._llm = LLM(self.llm_model)
+        else:
+            self._llm = LLM(self.system_llm_model)
         return self._llm
 
     @property
@@ -204,9 +210,9 @@ class Agent(AgentConfigManager):
     def prompt_text(self) -> str:
         return self.prompt.prepare_prompt(**self.state.model_dump())
 
-    def prepare_query(self, query: str, instructions: str = None) -> Dict[str, Any]:
+    def prepare_query(self, query: str, instructions: str = "") -> Dict[str, Any]:
         return {
-            "instructions": self.instructions if instructions is None else instructions,
+            "instructions": self.instructions if instructions != "" else instructions,
             "prompt": query,
         }
 
@@ -232,36 +238,10 @@ class Agent(AgentConfigManager):
 
         return field_type.__name__ if hasattr(field_type, "__name__") else type_str
 
-    def _convert_value(self, value: any, field_type: type) -> any:
-        """Convert the value of a field to the appropriate type"""
+    async def llm_ainvoke(self, state: Union[BaseModel, None] = None) -> BaseModel:
 
-        # when the field type is a list of custom types
-        if hasattr(field_type, "__origin__") and field_type.__origin__ == list:
-            if isinstance(value, list):
-                elem_type = field_type.__args__[0]
-                type_name = self._get_type_name(elem_type)
-
-                if type_name in self.custom_types:
-                    model_class = self.custom_types[type_name]
-                    return [
-                        (
-                            self._convert_to_model(item, model_class)
-                            if isinstance(item, dict)
-                            else item
-                        )
-                        for item in value
-                    ]
-            return value
-
-        type_name = self._get_type_name(field_type)  # get the name of the custom type
-        if type_name in self.custom_types and isinstance(value, dict):
-            return self._convert_to_model(value, self.custom_types[type_name])
-
-        return value
-
-    async def llm_ainvoke(self, state: BaseModel = None) -> BaseModel:
         if state is None:
-            state = self._state
+            return BaseResponseModel(ERROR_MESSAGE="State is None", SUCCESS=False)
 
         for attempt in range(self.llm_retry_count):
             try:
@@ -270,19 +250,20 @@ class Agent(AgentConfigManager):
                 )
                 response_model = self.prompt.parse_response(response_text)
                 response_data = response_model.model_dump()
+                model_registry = ModelRegistry()
                 converted_data = self.models.convert_model_data(
-                    response_data, ModelRegistry
+                    response_data, model_registry
                 )
                 return state.model_copy(update=converted_data)
 
             except Exception as e:
                 if attempt == self.llm_retry_count - 1:
-                    state.ERROR_MESSAGE = str(e)
-                    state.SUCCESS = False
-                    raise AgentError(
-                        f"Error after {self.llm_retry_count} attempts: {str(e)}"
-                    )
+                    base_state = BaseResponseModel(**state.model_dump())
+                    base_state.ERROR_MESSAGE = str(e)
+                    base_state.SUCCESS = False
+                    return base_state
                 continue
+        return BaseResponseModel(ERROR_MESSAGE="No attempts succeeded", SUCCESS=False)
 
     async def _apply_state_bindings(
         self, state: BaseModel, bindings: List[Dict[str, str]], node_name: str
@@ -338,10 +319,15 @@ class Agent(AgentConfigManager):
                 try:
                     agent = Agent.assigner(node_name, current_state)
                     agent_state = await agent.execute()
-                    update_state = await self._apply_state_bindings(
-                        agent_state, self.state_field_bindings, node_name
-                    )
-                    return {**update_state.model_dump(), AGENT: agent}
+                    if isinstance(agent_state, BaseModel):
+                        update_state = await self._apply_state_bindings(
+                            agent_state, self.state_field_bindings, node_name
+                        )
+                        return {**update_state.model_dump(), AGENT: agent}
+                    else:
+                        raise AgentError(
+                            f"Error executing node {node_name}: {agent_state}"
+                        )
                 except Exception as e:
                     raise AgentError(f"Error executing node {node_name}: {str(e)}")
 
@@ -377,7 +363,7 @@ class Agent(AgentConfigManager):
         for field in self.input_fields:
             if hasattr(self._state, field):
                 input_data[field] = getattr(self._state, field)
-        self._state.INPUT_QUERY = input_data
+        setattr(self._state, "INPUT_QUERY", input_data)
 
     async def _convert_response_to_text(self) -> str:
         """Convert response fields to text format"""
@@ -395,20 +381,11 @@ class Agent(AgentConfigManager):
         return "\n\n".join(text_parts)
 
     async def execute_workflow(
-        self, state: Union[BaseModel, str, Dict[str, Any]] = None
+        self, state: BaseModel
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """Execute workflow if agent is configured as workflow"""
         if not self.is_workflow:
             raise AgentError("Not a workflow configuration")
-
-        if isinstance(state, Dict):
-            state = self.workflow_state_model(**state)
-
-        elif state is not None and isinstance(state, BaseModel):
-            state = self.workflow_state_model(**state.model_dump())
-
-        elif state is None:
-            state = self.workflow_state_model()
 
         workflow = self._construct_workflow(state)
 
@@ -417,9 +394,11 @@ class Agent(AgentConfigManager):
 
     async def execute(
         self,
-        state: Union[BaseModel, Dict, str] = None,
+        state: Union[BaseModel, Dict, str, None] = None,
         stream: bool = False,
-    ) -> Union[BaseModel, str, AsyncGenerator[str, None]]:
+    ) -> Union[
+        BaseModel, str, AsyncGenerator[str, None], AsyncGenerator[Dict[str, Any], None]
+    ]:
         # If workflow, use workflow execution
         if self.is_workflow:
             return self.execute_workflow(self._state)
@@ -443,7 +422,7 @@ class Agent(AgentConfigManager):
                     if stream:
                         raise AgentError("Stream is not supported with response fields")
 
-                    self._state = await self.llm_ainvoke()
+                    self._state = await self.llm_ainvoke(self._state)
 
                 else:
 
@@ -459,26 +438,21 @@ class Agent(AgentConfigManager):
             if post_custom_tool := self._import_post_custom_tool():
                 self._state = await post_custom_tool(self._state)
 
-            self._state = self.models.check_state_error(self._state)
-
             # Convert response fields to text
             if self.response_fields:
                 text_output = await self._convert_response_to_text()
-                self._state.TEXT_OUTPUT = text_output
+                setattr(self._state, "TEXT_OUTPUT", text_output)
 
             return self._state
 
         except AgentError as e:
-            self._state.ERROR_MESSAGE = str(e)
-            self._state.SUCCESS = False
-            return self._state
+            state = BaseResponseModel()
+            state.ERROR_MESSAGE = str(e)
+            state.SUCCESS = False
+            return state
 
         except Exception as e:
-            self._state.ERROR_MESSAGE = f"{str(e)}\n{traceback.format_exc()}"
-            self._state.SUCCESS = False
-            return self._state
-
-
-if __name__ == "__main__":
-    agents_list = Agent.list_agents()
-    print(json.dumps(agents_list, indent=4, ensure_ascii=False))
+            state = BaseResponseModel()
+            state.ERROR_MESSAGE = f"{str(e)}\n{traceback.format_exc()}"
+            state.SUCCESS = False
+            return state

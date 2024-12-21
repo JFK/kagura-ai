@@ -86,7 +86,11 @@ class ConfigInitializer:
         # Method 3: Try sys.modules
         try:
             module = sys.modules.get(self.package_name)
-            if module:
+            if (
+                module
+                and hasattr(module, "__file__")
+                and isinstance(module.__file__, str)
+            ):
                 package_root = Path(module.__file__).parent / "agents"
                 if package_root.exists():
                     logger.debug(
@@ -202,7 +206,9 @@ class ConfigBase:
         try:
             content = Template(content).safe_substitute(os.environ)
             config = yaml.safe_load(content)
-            return config or {}
+            if not isinstance(config, dict):
+                raise ValueError("Error parsing YAML: Expected a dictionary")
+            return config
         except yaml.YAMLError as e:
             raise ValueError(f"Error parsing YAML: {str(e)}")
         except Exception as e:
@@ -235,11 +241,14 @@ class ConfigBase:
         return self._system_config
 
     @property
-    def system_instructions(self) -> List[Dict[str, Any]]:
+    def system_instructions(self) -> str:
         if not hasattr(self, "_system_instructions"):
-            for instruction in self.system_config.get("prompt", {}).get(
+            default_instruction = ""
+            instructions_list = self.system_config.get("prompt", {}).get(
                 "instructions", []
-            ):
+            )
+            self._system_instructions = ""
+            for instruction in instructions_list:
                 if (
                     isinstance(instruction, dict)
                     and instruction.get("language") == self.system_language
@@ -248,7 +257,10 @@ class ConfigBase:
                         "description", ""
                     ).strip()
                     break
-                else:
+                elif (
+                    isinstance(instruction, dict)
+                    and instruction.get("language") == "en"
+                ):
                     default_instruction = instruction.get("description", "").strip()
             if not self._system_instructions:
                 self._system_instructions = default_instruction
@@ -282,9 +294,9 @@ class ConfigBase:
     def system_backends(self) -> List[str]:
         return self.system_config.get("backends", [])
 
-    def get_system_backend(self, backend_name: str) -> Dict[str, Any]:
+    def get_system_backend(self, backend_name: str) -> Union[Dict[str, Any], None]:
         for backend in self.system_backends:
-            if backend.get("name") == backend_name:
+            if isinstance(backend, dict) and backend.get("name") == backend_name:
                 return backend
 
     @property
@@ -311,7 +323,8 @@ class AgentConfigManager(ConfigBase):
             self._registered_custom_models: Dict = self._models.create_custom_models(
                 self.custom_models
             )
-            self._state_model: BaseModel = self._models.generate_state_model(
+            # generate_state_modelがType[BaseModel]を返す場合:
+            self._state_model: Type[BaseModel] = self._models.generate_state_model(
                 self.state_fields, self._registered_custom_models
             )
 
@@ -420,7 +433,7 @@ class AgentConfigManager(ConfigBase):
         return self._agent_config
 
     @property
-    def state_model(self) -> BaseModel:
+    def state_model(self) -> Type[BaseModel]:
         if not hasattr(self, "_state_model"):
             self._initialize_state_model()
         return self._state_model
@@ -490,13 +503,13 @@ class AgentConfigManager(ConfigBase):
             return agent_type
 
         if self.is_workflow:
-            return AgentType.WORKFLOW
+            return AgentType.WORKFLOW.value
 
         elif self.skip_llm_invoke:
-            return AgentType.TOOL
+            return AgentType.TOOL.value
 
         else:
-            return AgentType.ATOMIC
+            return AgentType.ATOMIC.value
 
     @property
     def agent_llm_config(self) -> Dict[str, Any]:
@@ -522,11 +535,11 @@ class AgentConfigManager(ConfigBase):
         return self._skip_llm_invoke
 
     @property
-    def llm_model(self) -> Union[str, None]:
+    def llm_model(self) -> str:
         if not hasattr(self, "_llm_model"):
             llm_model = self.agent_llm_config.get("model", None)
             self._llm_model = llm_model if llm_model else self.system_llm_model
-        return self._llm_model
+        return self._llm_model or ""
 
     @property
     def skip_state_model(self) -> bool:
@@ -561,7 +574,7 @@ class AgentConfigManager(ConfigBase):
         return self.agent_config.get("input_fields", [])
 
     @property
-    def instructions(self) -> List[Dict[str, Any]]:
+    def instructions(self) -> str:
         if not hasattr(self, "_instructions"):
             for instruction in self.agent_config.get("instructions", []):
                 if (
@@ -572,13 +585,13 @@ class AgentConfigManager(ConfigBase):
                     break
             else:
                 self._instructions = self.system_instructions
-        return self._instructions
+        return self._instructions or ""
 
     @property
-    def prompt_template(self) -> List[Dict[str, Any]]:
+    def prompt_template(self) -> str:
         if not hasattr(self, "_prompt_template"):
             default_prompt = ""
-            self._prompt_template = []
+            self._prompt_template = ""
             prompt = self.agent_config.get("prompt", [])
             for prompt_entry in prompt:
                 if (
@@ -586,15 +599,14 @@ class AgentConfigManager(ConfigBase):
                     and prompt_entry.get("language") == self.system_language
                 ):
                     self._prompt_template = prompt_entry.get("template", "").strip()
-                if (
+                elif (
                     isinstance(prompt_entry, dict)
                     and prompt_entry.get("language") == "en"
                 ):
                     default_prompt = prompt_entry.get("template", "").strip()
             if not self._prompt_template and default_prompt:
                 self._prompt_template = default_prompt
-
-        return self._prompt_template
+        return self._prompt_template or ""
 
     @property
     def custom_tool(self) -> Union[str, None]:
@@ -636,13 +648,11 @@ class AgentConfigManager(ConfigBase):
 
     @property
     def entry_point(self) -> str:
-        return self.agent_config.get("entry_point")
+        return self.agent_config.get("entry_point", "")
 
     @property
-    def workflow_state_model(self) -> Optional[BaseModel]:
+    def workflow_state_model(self) -> Type[BaseModel]:
         """Generate a combined state model from all nodes in the workflow"""
-        if not self.is_workflow:
-            return None
 
         if not hasattr(self, "_workflow_state_model"):
             all_state_fields = []
@@ -740,16 +750,15 @@ class AgentConfigManager(ConfigBase):
                             ):
                                 all_state_fields.append(field)
 
-            # Create combined state model
-            try:
-                registered_custom_models = self._models.create_custom_models(
-                    all_custom_models
-                )
-                self._workflow_state_model = self._models.generate_state_model(
+            # all_state_fields, all_custom_models等計算後
+            registered_custom_models = self._models.create_custom_models(
+                all_custom_models
+            )
+            self._workflow_state_model: Type[BaseModel] = (
+                self._models.generate_state_model(
                     all_state_fields, registered_custom_models
                 )
-            except Exception as e:
-                raise ConfigError(f"Error generating workflow state model: {str(e)}")
+            )
 
         return self._workflow_state_model
 

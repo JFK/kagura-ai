@@ -29,7 +29,7 @@ class BasePrompt:
 
     @property
     def template(self) -> str:
-        if self._template is None:
+        if self._template == "" or self._template is None:
             self._template = self._prompt
         return self._template
 

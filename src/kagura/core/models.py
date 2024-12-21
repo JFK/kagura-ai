@@ -15,7 +15,7 @@ from typing import (
     get_origin,
 )
 
-from pydantic import BaseModel, Field, create_model
+from pydantic import BaseModel, Field, create_model, Extra
 from tzlocal import get_localzone
 
 TIMEZONE = get_localzone()
@@ -36,7 +36,7 @@ class GenerateStateError(Exception):
     pass
 
 
-class BaseResponseModel(BaseModel):
+class BaseResponseModel(BaseModel, extra=Extra.allow):
     ERROR_MESSAGE: Optional[str] = None
     SUCCESS: bool = True
     COMPLETED: bool = False
@@ -62,7 +62,7 @@ class ModelRegistry:
         cls._model_fields[name] = set(model.model_fields.keys())
 
     @classmethod
-    def get(cls, name: str) -> Type[BaseModel]:
+    def get(cls, name: str) -> Optional[Type[BaseModel]]:
         return cls._models.get(name)
 
     @classmethod
@@ -97,7 +97,7 @@ class ModelRegistry:
 StateModel = ModelRegistry.get("StateModel")
 
 
-def get_custom_model(name: str) -> Type[BaseModel]:
+def get_custom_model(name: str) -> Optional[Type[BaseModel]]:
     return ModelRegistry.get(name)
 
 
@@ -133,8 +133,8 @@ def validate_required_state_fields(
 
 
 def map_type(
-    type_str: str, registered_custom_models: Dict[str, Type[Any]] = None
-) -> Type[Any]:
+    type_str: str, registered_custom_models: Optional[Dict[str, Type[Any]]] = None
+) -> Any:
     type_str = type_str.strip()
 
     if registered_custom_models and type_str in registered_custom_models:
@@ -226,10 +226,14 @@ def base_response_model_keys() -> Set[str]:
 def generate_json_schema(model: Type[BaseModel]) -> Dict[str, Any]:
     """Generate JSON Schema from a Pydantic model"""
     properties = {}
-    required = []
+    required: List[str] = []
 
     for field_name, field in model.model_fields.items():
-        field_schema = _get_field_type_schema(field.annotation)
+        if field.annotation is not None:
+            field_schema = _get_field_type_schema(field.annotation)
+        else:
+            # default to string if type is not specified
+            field_schema = {"type": "string"}
 
         # Add description if available
         if field.description:
@@ -251,7 +255,7 @@ def generate_json_schema(model: Type[BaseModel]) -> Dict[str, Any]:
 
 
 def convert_model_to_input_schema(
-    fields: Dict[str, Any], input_fields: List[str] = None
+    fields: Dict[str, Any], input_fields: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """Convert model fields to JSON Schema input format"""
     properties = {}
@@ -327,7 +331,7 @@ class Models:
     def __init__(self, language: str = "ja"):
         self._language = language
 
-    def check_state_error(self, state: BaseModel) -> BaseModel:
+    def check_state_error(self, state: BaseResponseModel) -> BaseResponseModel:
         if state.ERROR_MESSAGE:
             state.SUCCESS = False
         else:
@@ -379,9 +383,8 @@ class Models:
     def generate_state_model(
         self,
         state_fields: List[Dict[str, Any]],
-        custom_models: List[Dict[str, Any]] = None,
+        custom_models: Union[Dict[str, Any], None] = None,
     ) -> Type[BaseModel]:
-        """Generate the main state model and store it in the global StateModel variable."""
         try:
             fields = self.create_fields(state_fields, custom_models)
             StateModel = create_model(
@@ -444,8 +447,8 @@ class Models:
     def create_fields(
         self,
         state_fields: List[Dict[str, Any]],
-        registered_custom_models: Dict[str, Type[Any]],
-        target_fields: List[str] = None,
+        registered_custom_models: Union[Dict[str, Any], None] = None,
+        target_fields: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """Create fields for the state model or response fields model."""
         fields: Dict[str, Any] = {}
