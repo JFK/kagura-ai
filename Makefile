@@ -38,9 +38,9 @@ right: sync
 .PHONY: test
 test: right
 	@echo "Running tests with pytest..."
-	$(VENV_DIR)/bin/flake8 app/ tests/
+	$(VENV_DIR)/bin/flake8 tests/ src/
 	$(VENV_DIR)/bin/pytest --maxfail=5 --disable-warnings -q
-	$(VENV_DIR)/bin/pytest --cov=app --cov-report=term-missing
+	$(VENV_DIR)/bin/pytest --cov=src --cov-report=term-missing
 	@echo "Done."
 
 .PHONY: ruff
