@@ -52,8 +52,7 @@ ruff: test
 .PHONY: build
 build: ruff
 	@echo "Building the package..."
-	$(VENV_DIR)/bin/pip install --upgrade build
-	$(VENV_DIR)/bin/python -m build
+	$(VENV_DIR)/bin/uv build
 	@echo "Done. Build artifacts are in $(BUILD_DIR)/"
 
 .PHONY: clean
