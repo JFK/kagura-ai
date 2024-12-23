@@ -1,11 +1,78 @@
-from unittest.mock import AsyncMock, patch
+# tests/conftest.py
 
 import pytest
+import asyncio
+from unittest.mock import AsyncMock, patch
+
 import pytest_asyncio
 from pydantic import BaseModel
 
 from kagura.core.memory import MemoryBackend, MessageHistory
 from kagura.core.models import ModelRegistry
+
+
+@pytest.fixture(scope="session")
+def event_loop():
+    """セッション全体で共有するイベントループを作成"""
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    yield loop
+
+    # 保留中のタスクをキャンセル
+    pending = asyncio.all_tasks(loop)
+    for task in pending:
+        task.cancel()
+
+    # タスクの完了を待つ
+    if pending:
+        loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+
+    # クリーンアップ
+    loop.run_until_complete(loop.shutdown_asyncgens())
+    loop.close()
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def cleanup_redis():
+    """Redisのクリーンアップ"""
+    backend = None
+    try:
+        backend = MemoryBackend()
+        yield backend
+    finally:
+        if backend:
+            # _running フラグを False に設定してクリーンアップタスクを停止
+            backend._running = False
+            if backend._cleanup_task and not backend._cleanup_task.done():
+                backend._cleanup_task.cancel()
+                try:
+                    await backend._cleanup_task
+                except asyncio.CancelledError:
+                    pass
+            # Redis接続を閉じる
+            await backend.close()
+
+
+@pytest.fixture(autouse=True)
+async def cleanup_async_tasks():
+    """各テスト後の非同期タスクのクリーンアップ"""
+    yield
+
+    # 現在のタスクを除く全タスクを取得
+    current_task = asyncio.current_task()
+    tasks = [t for t in asyncio.all_tasks() if t is not current_task]
+
+    # タスクをキャンセルして完了を待つ
+    for task in tasks:
+        if not task.done() and not task.cancelled():
+            task.cancel()
+
+    if tasks:
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+    # 少し待って、保留中のコールバックを処理
+    await asyncio.sleep(0.1)
+
 
 # =========================
 # Fixtures
