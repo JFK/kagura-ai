@@ -7,6 +7,7 @@ from kagura.core.agent import Agent
 pytestmark = pytest.mark.asyncio
 
 
+@pytest.mark.asyncio
 async def test_content_summarizer():
     """Test content_summarizer workflow agent"""
 

@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
 from pathlib import Path
+import weakref
 
 from pydantic import BaseModel
 from redis import asyncio as aioredis
@@ -49,84 +50,105 @@ class Message:
 
 
 class MemoryBackend(ConfigBase):
+    _instances = weakref.WeakSet()
     _redis: Optional[aioredis.Redis] = None
     _ram_storage: Dict[str, Dict[str, Any]] = defaultdict(dict)
     _ram_ttl: Dict[str, datetime] = {}
-    _cleanup_task: Optional[asyncio.Task] = None
-    _running: bool = True
     _default_ttl: int = 86400
 
     def __init__(self, base_dir: Optional[Union[str, Path]] = None):
         if isinstance(base_dir, str):
             base_dir = Path(base_dir)
         super().__init__(base_dir)
-        if self._redis is None:
-            self._initialize_from_config()
-
-    async def close(self):
-        """Close Redis connection and cleanup resources"""
-        logger.debug("Starting MemoryBackend cleanup...")
-        self._running = False  # Signal the cleanup task to stop
-
-        # Cancel cleanup task if it's running
-        if self._cleanup_task and not self._cleanup_task.done():
-            logger.debug(f"Cancelling cleanup task: {self._cleanup_task}")
-            try:
-                self._cleanup_task.cancel()
-                await asyncio.wait_for(self._cleanup_task, timeout=5.0)
-            except asyncio.TimeoutError:
-                logger.warning("Cleanup task cancellation timed out")
-            except Exception as e:
-                logger.error(f"Error cancelling cleanup task: {e}")
-
-        # Disconnect Redis safely
-        if self._redis is not None:
-            try:
-                logger.debug("Closing Redis connection...")
-                await self._redis.close()
-                # await self._redis.connection_pool.disconnect()
-                self._redis = None
-            except Exception as e:
-                logger.error(f"Error closing Redis connection: {e}")
-
-        # Clear RAM storage
-        self._ram_storage.clear()
-        self._ram_ttl.clear()
-        logger.debug("MemoryBackend cleanup completed")
+        self._cleanup_task = None
+        self._running = True
+        self._redis_instance = None
+        self._instances.add(self)
+        self._initialize_from_config()
 
     def _initialize_from_config(self):
         redis_config = self.get_system_backend("redis")
-
         self._default_ttl = (
             self.system_memory_backend.get("default_ttl_hours", 24) * 3600
         )
         self.cleanup_interval = (
             self.system_memory_backend.get("cleanup_interval_hours", 1) * 3600
         )
+
         if redis_config:
             try:
                 redis_url = f"redis://{redis_config.get('host', 'localhost')}:{redis_config.get('port', 6379)}"
-                self._redis = aioredis.Redis.from_url(
+                self._redis_instance = aioredis.Redis.from_url(
                     redis_url, db=redis_config.get("db", 0), decode_responses=True
                 )
-                self._running = True
-                self._cleanup_task = asyncio.create_task(self._start_cleanup_task())
+                self._redis = self._redis_instance
                 logger.debug("Redis connection established")
+
+                if not self._cleanup_task:
+                    self._cleanup_task = asyncio.create_task(self._start_cleanup_task())
+                    self._cleanup_task.set_name(f"cleanup_task_{id(self)}")
             except Exception as e:
                 logger.warning(f"Failed to connect to Redis: {e}. Using RAM storage.")
 
     async def _start_cleanup_task(self):
-        """Start background task for cleaning expired RAM storage items"""
-        while self._running:
+        try:
+            while self._running:
+                if not self._running:
+                    break
+
+                try:
+                    await self._cleanup_expired()
+                    await asyncio.sleep(self.cleanup_interval)
+                except asyncio.CancelledError:
+                    logger.debug("Cleanup task cancelled")
+                    break
+                except Exception as e:
+                    logger.error(f"Error in cleanup task: {e}")
+                    await asyncio.sleep(1)
+        finally:
+            self._running = False
+
+    async def close(self):
+        """Close Redis connection and cleanup resources"""
+        if not self._running:
+            return
+
+        self._running = False
+        logger.debug("Starting MemoryBackend cleanup...")
+
+        # Cleanup task
+        if self._cleanup_task and not self._cleanup_task.done():
             try:
-                await self._cleanup_expired()
-                await asyncio.sleep(self.cleanup_interval)
-            except asyncio.CancelledError:
-                logger.debug("Cleanup task cancelled")
-                break
+                self._cleanup_task.cancel()
+                await asyncio.wait_for(asyncio.shield(self._cleanup_task), timeout=1.0)
+            except (asyncio.TimeoutError, asyncio.CancelledError, Exception) as e:
+                logger.debug(f"Cleanup task cancelled: {e}")
+            finally:
+                self._cleanup_task = None
+
+        # Redis connection
+        if self._redis_instance:
+            try:
+                await self._redis_instance.close()
             except Exception as e:
-                logger.error(f"Error in cleanup task: {e}")
-                await asyncio.sleep(60)
+                logger.error(f"Error closing Redis connection: {e}")
+            finally:
+                self._redis_instance = None
+                if self._redis is self._redis_instance:
+                    self._redis = None
+
+        # Clear storage
+        self._ram_storage.clear()
+        self._ram_ttl.clear()
+        self._instances.discard(self)
+        logger.debug("MemoryBackend cleanup completed")
+
+    @classmethod
+    async def cleanup_all(cls):
+        """Clean up all instances"""
+        instances = list(cls._instances)
+        for instance in instances:
+            await instance.close()
 
     async def _cleanup_expired(self):
         """Remove expired items from RAM storage"""

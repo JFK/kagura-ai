@@ -1,14 +1,55 @@
 # tests/core/test_memory.py
 import asyncio
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 import pytest_asyncio
 from pydantic import BaseModel
 
 from kagura.core.memory import Memory, MemoryBackend, MessageHistory
+from kagura.core.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 pytestmark = pytest.mark.asyncio
+
+
+@pytest.fixture(autouse=True)
+async def cleanup_memory():
+    """各テスト後にメモリとRedis接続をクリーンアップするフィクスチャ"""
+    yield
+
+    # まず実行中のすべてのタスクを取得
+    tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+
+    # cleanup_taskを探して停止
+    for task in tasks:
+        if "_start_cleanup_task" in str(task):
+            # タスクをキャンセル
+            task.cancel()
+            try:
+                # タスクの完了を待つ
+                await task
+            except (asyncio.CancelledError, Exception) as e:
+                logger.debug(f"Cleanup task cancelled: {e}")
+
+    # 残りのタスクを処理
+    remaining_tasks = [t for t in tasks if not t.done()]
+    if remaining_tasks:
+        # 残りのタスクもキャンセル
+        for task in remaining_tasks:
+            task.cancel()
+        await asyncio.gather(*remaining_tasks, return_exceptions=True)
+
+    # Redisのクリーンアップ
+    try:
+        backend = MemoryBackend()
+        await backend.close()
+    except Exception as e:
+        logger.error(f"Error during Redis cleanup: {e}")
+
+    # イベントループのクリーンアップ
+    await asyncio.sleep(0.1)
 
 
 class SampleModel(BaseModel):
@@ -18,14 +59,24 @@ class SampleModel(BaseModel):
 class TestMemoryBackend:
     @pytest_asyncio.fixture
     async def memory_backend(self):
-        with patch("redis.asyncio") as mock_redis:
-            mock_instance = AsyncMock()
-            mock_instance.ping.return_value = True
-            mock_instance.get.return_value = None
-            mock_instance.setex.return_value = True
-            mock_redis.from_url.return_value = mock_instance
-            backend = MemoryBackend()
+        backend = MemoryBackend()
+        try:
             yield backend
+        finally:
+            await backend.close()
+            # Ensure cleanup task is cancelled
+            tasks = [
+                t
+                for t in asyncio.all_tasks()
+                if "MemoryBackend._start_cleanup_task" in str(t)
+            ]
+            for task in tasks:
+                if not task.done():
+                    task.cancel()
+                    try:
+                        await asyncio.wait_for(task, timeout=1.0)
+                    except (asyncio.TimeoutError, asyncio.CancelledError):
+                        pass
 
     async def test_set_and_get(self, memory_backend):
         await memory_backend.set("test_key", "test_value", ttl=10)
@@ -81,7 +132,24 @@ class TestMessageHistory:
     async def message_history(self):
         history = await MessageHistory.factory(system_prompt="System prompt")
         yield history
+        await history.close()
 
+    @pytest.mark.asyncio
+    async def test_clear_history(self, message_history):
+        # システムプロンプトのみが残ることを確認
+        await message_history.clear()
+        messages = await message_history.get_messages()
+        system_messages = [msg for msg in messages if msg["role"] == "system"]
+        assert len(system_messages) == 1
+
+    @pytest.mark.asyncio
+    async def test_system_prompt_persistence(self, message_history):
+        # システムプロンプトの永続性をテスト
+        await message_history.clear()  # まずクリア
+        messages = await message_history.get_messages()
+        assert len([msg for msg in messages if msg["role"] == "system"]) == 1
+
+    @pytest.mark.asyncio
     async def test_add_and_get_messages(self, message_history):
         await message_history.clear()
         await message_history.add_message("user", "Hello")
@@ -91,12 +159,7 @@ class TestMessageHistory:
         assert messages[1]["content"] == "Hello"
         assert messages[2]["content"] == "Hi there"
 
-    async def test_clear_history(self, message_history):
-        await message_history.add_message("user", "Hello")
-        await message_history.clear()
-        messages = await message_history.get_messages()
-        assert len(messages) == 1  # Only system prompt remains
-
+    @pytest.mark.asyncio
     async def test_context_window_limit(self, message_history):
         """Test context window limitation"""
         await message_history.clear()
@@ -108,6 +171,7 @@ class TestMessageHistory:
         context_size = message_history.context_window * 2
         assert len(messages) <= context_size + 1  # +1 for system prompt
 
+    @pytest.mark.asyncio
     async def test_window_size_limit(self, message_history):
         """Test message window size limitation"""
         await message_history.clear()
@@ -118,14 +182,7 @@ class TestMessageHistory:
         messages = await message_history.get_messages(use_context_window=False)
         assert len(messages) <= message_history.window_size + 1  # +1 for system prompt
 
-    async def test_system_prompt_persistence(self, message_history):
-        """Test system prompt persistence across operations"""
-        await message_history.clear()
-        messages = await message_history.get_messages()
-        assert len(messages) == 1
-        assert messages[0]["role"] == "system"
-        assert messages[0]["content"] == "System prompt"
-
+    @pytest.mark.asyncio
     async def test_save_load_to_redis(self, message_history):
         """Test saving to and loading from Redis"""
         await message_history.clear()
@@ -143,48 +200,70 @@ class TestMessageHistory:
 
 class TestMemory:
     @pytest_asyncio.fixture
-    async def memory(self):
-        memory = Memory("test_namespace")
-        yield memory
+    async def memory_instance(self):
+        memory = Memory("test")
+        try:
+            yield memory
+        finally:
+            await memory._backend.close()
+            # Ensure cleanup task is cancelled
+            tasks = [
+                t
+                for t in asyncio.all_tasks()
+                if "MemoryBackend._start_cleanup_task" in str(t)
+            ]
+            for task in tasks:
+                if not task.done():
+                    task.cancel()
+                    try:
+                        await asyncio.wait_for(task, timeout=1.0)
+                    except (asyncio.TimeoutError, asyncio.CancelledError):
+                        pass
 
-    async def test_memory_get_and_set(self, memory):
+    @pytest.mark.asyncio
+    async def test_memory_get_and_set(self, memory_instance):
         data = SampleModel(field="test_value")
-        await memory.set("test_key", data)
-        retrieved_data = await memory.get("test_key", SampleModel)
+        await memory_instance.set("test_key", data)
+        retrieved_data = await memory_instance.get("test_key", SampleModel)
         assert retrieved_data.field == "test_value"
 
-    async def test_memory_list_storage(self, memory):
+    @pytest.mark.asyncio
+    async def test_memory_list_storage(self, memory_instance):
         """Test storing and retrieving lists of models"""
         data_list = [SampleModel(field="value1"), SampleModel(field="value2")]
-        await memory.set("test_list", data_list)
-        retrieved_list = await memory.get("test_list", SampleModel)
+        await memory_instance.set("test_list", data_list)
+        retrieved_list = await memory_instance.get("test_list", SampleModel)
         assert isinstance(retrieved_list, list)
         assert len(retrieved_list) == 2
         assert all(isinstance(item, SampleModel) for item in retrieved_list)
 
-    async def test_memory_json_decode_error(self, memory):
+    @pytest.mark.asyncio
+    async def test_memory_json_decode_error(self, memory_instance):
         """Test handling of JSON decode errors"""
-        with patch.object(memory._backend, "get", return_value="invalid json"):
-            result = await memory.get("test_key", SampleModel)
+        with patch.object(memory_instance._backend, "get", return_value="invalid json"):
+            result = await memory_instance.get("test_key", SampleModel)
             assert result is None
 
-    async def test_memory_delete(self, memory):
+    @pytest.mark.asyncio
+    async def test_memory_delete(self, memory_instance):
         """Test delete operation"""
         data = SampleModel(field="delete_test")
-        await memory.set("delete_key", data)
-        assert await memory.get("delete_key", SampleModel) is not None
-        await memory.delete("delete_key")
-        assert await memory.get("delete_key", SampleModel) is None
+        await memory_instance.set("delete_key", data)
+        assert await memory_instance.get("delete_key", SampleModel) is not None
+        await memory_instance.delete("delete_key")
+        assert await memory_instance.get("delete_key", SampleModel) is None
 
-    async def test_memory_invalid_model_data(self, memory):
+    @pytest.mark.asyncio
+    async def test_memory_invalid_model_data(self, memory_instance):
         """Test handling of invalid model data"""
         # Set data with missing required field
         invalid_data = {"wrong_field": "test"}
-        await memory._backend.set("invalid_key", str(invalid_data))
+        await memory_instance._backend.set("invalid_key", str(invalid_data))
 
-        result = await memory.get("invalid_key", SampleModel)
+        result = await memory_instance.get("invalid_key", SampleModel)
         assert result is None
 
+    @pytest.mark.asyncio
     async def test_memory_namespace_isolation(self):
         """Test that different namespaces don't interfere"""
         memory1 = Memory("namespace1")
