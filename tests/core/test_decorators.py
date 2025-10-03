@@ -5,27 +5,29 @@ from kagura import agent, tool, workflow
 
 @pytest.mark.asyncio
 async def test_agent_decorator_exists():
-    """Test that @agent decorator exists"""
+    """Test that @agent decorator exists and calls LLM"""
     @agent
     async def hello(name: str) -> str:
         '''Say hello to {{ name }}'''
-        return f"Hello, {name}!"
+        pass
 
-    # Stub test: just check it doesn't crash
+    # Real LLM test: check it returns a string containing the name
     result = await hello("World")
-    assert result == "Hello, World!"
+    assert isinstance(result, str)
+    assert "World" in result or "world" in result.lower()
 
 
 @pytest.mark.asyncio
 async def test_agent_decorator_with_params():
     """Test @agent decorator with parameters"""
-    @agent(model="gpt-4", temperature=0.5)
+    @agent(model="gpt-4o-mini", temperature=0.5)
     async def greet(name: str) -> str:
         '''Greet {{ name }}'''
-        return f"Greetings, {name}!"
+        pass
 
     result = await greet("Alice")
-    assert result == "Greetings, Alice!"
+    assert isinstance(result, str)
+    assert "Alice" in result or "alice" in result.lower()
 
 
 def test_tool_decorator():
