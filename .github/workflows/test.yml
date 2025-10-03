@@ -62,8 +62,24 @@ jobs:
         run: uv run pytest tests/core/test_agent_implementation.py tests/core/test_decorators.py -v --tb=short
         timeout-minutes: 1
 
-      - name: Run tests (core/executor)
-        run: uv run pytest tests/core/test_executor.py -v --tb=short
+      - name: Run tests (core/executor part 1)
+        run: uv run pytest tests/core/test_executor.py -k "test_simple or test_math or test_multiple or test_list or test_string or test_dict or test_stdout or test_multiple_prints" -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (core/executor part 2)
+        run: uv run pytest tests/core/test_executor.py -k "test_disallowed or test_allowed" -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (core/executor part 3)
+        run: uv run pytest tests/core/test_executor.py -k "test_syntax or test_runtime or test_name or test_type" -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (core/executor timeout 1)
+        run: uv run pytest tests/core/test_executor.py::test_timeout -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (core/executor timeout 2)
+        run: uv run pytest tests/core/test_executor.py::test_infinite_loop_timeout -v --tb=short
         timeout-minutes: 1
 
       - name: Run tests (core/parser)
