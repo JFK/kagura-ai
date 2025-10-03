@@ -11,6 +11,7 @@ Example:
 
     result = await hello("World")
 """
-__version__ = "2.0.0-alpha.1"
+from .version import __version__
+from .core.decorators import agent, tool, workflow
 
-__all__ = ["__version__"]
+__all__ = ["agent", "tool", "workflow", "__version__"]

@@ -13,50 +13,23 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "pydantic>=2.10.2",
-    "click>=8.1.7",
-    "PyYAML==6.0.2",
-    "rich==13.9.4",
-    "litellm==1.53.1",
-    "redis==5.2.0",
-    "langgraph==0.2.53",
-    "langchain==0.3.9",
-    "prompt_toolkit==3.0.48",
-    "tzlocal==5.2",
-    "chardet==5.2.0",
-    "python-pptx==1.0.2",
-    "python-docx==1.1.2",
-    "beautifulsoup4>=4.12.3",
-    "pdfminer-six>=20240706",
-    "toml>=0.10.2",
-    "mcp>=1.1.0",
-    "pytest>=8.3.4",
+    "pydantic>=2.10",
+    "click>=8.1",
 ]
 
 [project.scripts]
-kagura = "kagura.cli.__main__:entry_point"
+kagura = "kagura.cli.main:cli"
 
 [project.optional-dependencies]
 dev = [
-    "pre-commit>=4.0.1",
-    "mkdocs>=1.6.1",
-    "mkdocs-material>=9.5.46",
-    "mkdocs-i18n>=0.4.6",
-    "mkdocs-material[imaging]>=9.5.47",
-    "mkdocs-meta-descriptions-plugin>=3.0.0",
-    "mkdocs-social-plugin>=0.1.0",
-    "pymdown-extensions>=10.12",
-    "pyfakefs>=5.7.2",
-    "trio>=0.26.2",
-    "flake8>=7.1.1",
-    "pyright>=1.1.390",
-    "pytest-asyncio>=0.25.0",
-    "pytest-cov>=6.0.0",
-    "pytest>=8.3.4",
-    "ruff>=0.8.3",
-    "pytest-asyncio>=0.25.0",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.25",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+    "pyright>=1.1",
 ]
 
 [build-system]
@@ -68,15 +41,10 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["kagura"]
-
-[tool.uv.sources]
-kagura-ai = { workspace = true }
+include = ["kagura*"]
 
 [tool.pyright]
 include = ["src/kagura", "tests"]
-venvPath = "."
-venv = ".venv"
 
 [tool.ruff]
 line-length = 88
