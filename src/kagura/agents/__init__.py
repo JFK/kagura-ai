@@ -1,2 +1,4 @@
-"""Built-in agents"""
-# TODO: Add code_executor in Issue #EXEC-002
+"""Built-in agents for code execution and generation"""
+from .code_agent import execute_code, CodeExecutionAgent
+
+__all__ = ['execute_code', 'CodeExecutionAgent']
