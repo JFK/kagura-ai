@@ -1,33 +1,39 @@
 """Tests for decorators (stub)"""
 import pytest
+from unittest.mock import AsyncMock, patch
 from kagura import agent, tool, workflow
 
 
 @pytest.mark.asyncio
 async def test_agent_decorator_exists():
-    """Test that @agent decorator exists and calls LLM"""
-    @agent
-    async def hello(name: str) -> str:
-        '''Say hello to {{ name }}'''
-        pass
+    """Test that @agent decorator exists"""
+    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+        mock_llm.return_value = "Hello, World!"
 
-    # Real LLM test: check it returns a string containing the name
-    result = await hello("World")
-    assert isinstance(result, str)
-    assert "World" in result or "world" in result.lower()
+        @agent
+        async def hello(name: str) -> str:
+            '''Say hello to {{ name }}'''
+            pass
+
+        result = await hello("World")
+        assert isinstance(result, str)
+        assert "World" in result
 
 
 @pytest.mark.asyncio
 async def test_agent_decorator_with_params():
     """Test @agent decorator with parameters"""
-    @agent(model="gpt-4o-mini", temperature=0.5)
-    async def greet(name: str) -> str:
-        '''Greet {{ name }}'''
-        pass
+    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+        mock_llm.return_value = "Greetings, Alice!"
 
-    result = await greet("Alice")
-    assert isinstance(result, str)
-    assert "Alice" in result or "alice" in result.lower()
+        @agent(model="gpt-4o-mini", temperature=0.5)
+        async def greet(name: str) -> str:
+            '''Greet {{ name }}'''
+            pass
+
+        result = await greet("Alice")
+        assert isinstance(result, str)
+        assert "Alice" in result
 
 
 def test_tool_decorator():
