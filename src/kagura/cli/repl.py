@@ -1,11 +1,14 @@
 """Interactive REPL for Kagura AI"""
 import sys
+import os
+import readline
 from typing import Any
 import click
 from rich.console import Console
 from rich.table import Table
 from rich.syntax import Syntax
 from rich.panel import Panel
+from dotenv import load_dotenv
 
 # Ensure UTF-8 encoding for console I/O
 console = Console(force_terminal=True, legacy_windows=False)
@@ -15,10 +18,35 @@ class KaguraREPL:
     """Interactive REPL for Kagura AI"""
 
     def __init__(self):
+        # Load .env file if it exists
+        load_dotenv()
+
         self.agents: dict[str, Any] = {}
         self.history: list[str] = []
         self.default_model: str = "gpt-4o-mini"
         self.default_temperature: float = 0.7
+
+        # Set up readline history
+        self.history_file = os.path.expanduser("~/.kagura_history")
+        self._load_history()
+        readline.set_history_length(1000)
+
+    def _load_history(self):
+        """Load command history from file"""
+        try:
+            if os.path.exists(self.history_file):
+                readline.read_history_file(self.history_file)
+        except (FileNotFoundError, PermissionError):
+            # If history file doesn't exist or can't be read, that's ok
+            pass
+
+    def _save_history(self):
+        """Save command history to file"""
+        try:
+            readline.write_history_file(self.history_file)
+        except (FileNotFoundError, PermissionError):
+            # If we can't save history, that's ok
+            pass
 
     def show_welcome(self):
         """Display welcome message"""
@@ -99,6 +127,7 @@ class KaguraREPL:
             else:
                 console.print(f"Current temperature: [cyan]{self.default_temperature}[/cyan]")
         elif cmd == "/exit":
+            self._save_history()
             console.print("[green]Goodbye![/green]")
             sys.exit(0)
         elif cmd == "/clear":
@@ -199,6 +228,7 @@ class KaguraREPL:
                     self.execute_code(user_input)
 
             except (KeyboardInterrupt, EOFError):
+                self._save_history()
                 console.print("\n[green]Goodbye![/green]")
                 break
 
