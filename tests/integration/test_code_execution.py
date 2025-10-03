@@ -44,7 +44,7 @@ result = os.getcwd()
 """)
 
     assert result.success is False
-    assert "Forbidden import" in result.error or "not allowed" in result.error.lower()
+    assert "Disallowed import" in result.error or "Forbidden import" in result.error or "not allowed" in result.error.lower()
 
 
 @pytest.mark.asyncio

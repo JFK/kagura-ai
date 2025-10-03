@@ -52,7 +52,6 @@ nav:
     - Data Extractor: ../examples/agents/data_extractor/README.md
     - Code Generator: ../examples/agents/code_generator/README.md
     - Workflow Example: ../examples/agents/workflow_example/README.md
-  - FAQ: en/faq.md
   - For Developers:
     - How to Contribute: https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md
     - Contributing (日本語): https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING_JA.md

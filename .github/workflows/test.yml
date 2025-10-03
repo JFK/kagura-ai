@@ -50,7 +50,22 @@ jobs:
         run: |
           uv sync --frozen --all-extras --dev
 
-      - name: Run tests
-        run: |
-          uv run pytest --cov=kagura --cov-report=term -v
-        timeout-minutes: 5
+      - name: Run tests (agents)
+        run: uv run pytest tests/agents/ -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (cli)
+        run: uv run pytest tests/cli/ -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (core)
+        run: uv run pytest tests/core/ -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (integration)
+        run: uv run pytest tests/integration/ -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (version)
+        run: uv run pytest tests/test_version.py -v --tb=short
+        timeout-minutes: 1
