@@ -1,0 +1,15 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 0%
+    patch:
+      default:
+        target: 80%
+        threshold: 10%
+        
+ignore:
+  - "tests/"
+  - "**/__init__.py"
+  - "**/cli/main.py"  # CLI entry point has if __name__ == "__main__"
