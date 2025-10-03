@@ -58,8 +58,20 @@ jobs:
         run: uv run pytest tests/cli/ -v --tb=short
         timeout-minutes: 1
 
-      - name: Run tests (core)
-        run: uv run pytest tests/core/ -v --tb=short
+      - name: Run tests (core/agent)
+        run: uv run pytest tests/core/test_agent_implementation.py tests/core/test_decorators.py -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (core/executor)
+        run: uv run pytest tests/core/test_executor.py -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (core/parser)
+        run: uv run pytest tests/core/test_parser.py -v --tb=short
+        timeout-minutes: 1
+
+      - name: Run tests (core/prompt)
+        run: uv run pytest tests/core/test_prompt.py -v --tb=short
         timeout-minutes: 1
 
       - name: Run tests (integration)
