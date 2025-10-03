@@ -46,13 +46,7 @@ nav:
     - '@agent Decorator': en/api/agent.md
     - Code Executor: en/api/executor.md
     - CLI Commands: en/api/cli.md
-  - Examples:
-    - Overview: ../examples/README.md
-    - Simple Chat: ../examples/agents/simple_chat/README.md
-    - Data Extractor: ../examples/agents/data_extractor/README.md
-    - Code Generator: ../examples/agents/code_generator/README.md
-    - Workflow Example: ../examples/agents/workflow_example/README.md
-  - FAQ: en/faq.md
+  - Examples: https://github.com/JFK/kagura-ai/tree/main/examples
   - For Developers:
     - How to Contribute: https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md
     - Contributing (日本語): https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING_JA.md
