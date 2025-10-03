@@ -65,3 +65,8 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 # Exclude legacy test directories
 norecursedirs = [".*", "build", "dist", "*_legacy"]
+markers = [
+    "integration: Integration tests (deselect with '-m \"not integration\"')",
+    "unit: Unit tests",
+    "slow: Slow tests"
+]
