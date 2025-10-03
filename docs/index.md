@@ -1,90 +1,190 @@
 ---
-title: Kagura AI - AI Multi Agent Framework
-description: A lightweight open-source framework for building and orchestrating AI Multi Agents with YAML-based configurations.
+title: Kagura AI 2.0 - Python-First AI Agent Framework
+description: Convert any Python function into an AI agent with a single decorator. Built-in code execution, type-based parsing, and Pydantic support.
 keywords:
-  - AI Multi Agents
-  - YAML configuration
-  - Agent orchestration
-  - Machine learning
-  - AI framework
+  - AI Agents
+  - Python AI framework
+  - Code execution
+  - LLM integration
+  - Pydantic
 author: Fumikazu Kiyota
 robots: index, follow
-og_title: Kagura AI - AI Multi Agent Framework
+og_title: Kagura AI 2.0 - Python-First AI Agent Framework
 og_type: website
 og_url: https://www.kagura-ai.com
-og_description: Build sophisticated AI agent systems through simple YAML-based configurations while embodying the principles of harmony, connection, and respect.
+og_description: Convert any Python function into an AI agent with a single decorator. Built-in code execution, type-based parsing, and Pydantic support.
 og_image: assets/kagura-logo.svg
 twitter_card: summary_large_image
 twitter_site: "@kagura_ai"
 twitter_creator: "@JFK"
 ---
 
-# Introduction to Kagura AI
+# Kagura AI 2.0
 
 ![Kagura AI Logo](assets/kagura-logo.svg)
 
-Kagura AI is a lightweight open-source framework specialized in building and orchestrating AI Multi Agents. Through simple YAML-based configurations, it enables developers to create sophisticated agent-based systems that work together to accomplish complex tasks with higher accuracy and efficiency.
+**Python-First AI Agent Framework with Code Execution**
+
+Kagura AI 2.0 is a modern framework that makes building AI agents as simple as writing a Python function. With a single `@agent` decorator, you can transform any async function into a powerful AI agent.
 
 ---
 
-## Design Philosophy
+## What is Kagura AI?
 
-Kagura AI is built on a modular, state-driven architecture that prioritizes:
+Kagura AI 2.0 is a complete redesign focused on developer experience and simplicity. Instead of complex YAML configurations, you write agents in pure Python with familiar async/await patterns.
 
-- **Simplicity**: Simple YAML configurations for complex AI systems
-- **Flexibility**: Modular components that can be easily combined
-- **Type Safety**: Strong typing and state validation throughout
-- **Maintainability**: Clear separation of concerns and state management
+```python
+from kagura import agent
 
-## Core Components
+@agent
+async def hello(name: str) -> str:
+    '''Say hello to {{ name }}'''
+    pass
 
-### AI Multi Agents
-
-#### Agent Types
-
-- **Atomic Agent**: LLM-powered agents with state management and processing hooks
-- **Tool Agent**: Task-specific data processors for independent operations
-- **Workflow Agent**: Multi-agent workflow controller for complex task coordination
-
-#### Implementation Structure
+result = await hello("World")
+# "Hello, World!"
 ```
-agents/
-└── agent_name/
-    ├── agent.yml         # Core configuration
-    ├── state_model.yml   # State definition (optional)
-    └── tools.py          # Custom tools (optional)
-```
-
-### State Architecture
-
-- **Type-Safe Definitions**: Pydantic models ensure data consistency
-- **Inter-Agent Communication**: Seamless state sharing between components
-- **State Bindings**: Defined pathways for data flow between agents
-- **YAML Serialization**: Clear and maintainable state definitions
-
-### Tool Integration
-
-- **Custom Tools**: Extend agent capabilities with custom implementations
-- **Processing Hooks**: Pre/post hooks for flexible data handling
-- **External Connectors**: Seamless integration with external services
-- **LLM Support**: Connect with OpenAI, Anthropic, Ollama, Google via [LiteLLM](https://github.com/BerriAI/litellm)
 
 ## Key Features
 
-- **Modular Design**: Each agent operates as a self-contained unit
-- **Workflow Orchestration**: Complex task coordination through multi-agent composition
-- **Type Safety**: Strong typing and validation throughout the system
-- **Extensibility**: Easy addition of custom tools and hooks
-- **Multilingual**: Native support for multiple languages
+- **One-Line Agent Creation**: `@agent` decorator converts functions to AI agents
+- **Jinja2 Templates**: Dynamic prompts using template syntax in docstrings
+- **Type-Based Parsing**: Automatic response conversion using Python type hints
+- **Pydantic Support**: First-class structured output with Pydantic models
+- **Code Execution**: Built-in safe Python code generation and execution
+- **Interactive REPL**: `kagura repl` for rapid prototyping
+- **Multi-LLM Support**: Works with OpenAI, Anthropic, Google, and more
+
+## Core Concepts
+
+### 1. Agent Decorator
+
+Transform any async function into an AI agent:
+
+```python
+@agent
+async def my_agent(input: str) -> str:
+    '''Process {{ input }}'''
+    pass
+```
+
+The decorator:
+- Extracts the function signature
+- Uses the docstring as a Jinja2 template
+- Calls the LLM with rendered prompt
+- Parses the response based on return type
+
+### 2. Template Engine
+
+Use Jinja2 templates in docstrings for dynamic prompts:
+
+```python
+@agent
+async def translator(text: str, lang: str = "ja") -> str:
+    '''Translate to {{ lang }}: {{ text }}'''
+    pass
+```
+
+### 3. Type-Based Parser
+
+Automatic response parsing based on return type hints:
+
+```python
+from pydantic import BaseModel
+
+class Person(BaseModel):
+    name: str
+    age: int
+
+@agent
+async def extract_person(text: str) -> Person:
+    '''Extract person info from: {{ text }}'''
+    pass
+```
+
+Returns a fully validated Pydantic model instance.
+
+### 4. Code Execution
+
+Safe Python code generation and execution:
+
+```python
+from kagura.agents import execute_code
+
+result = await execute_code("Calculate the factorial of 10")
+# Generates code, executes safely, returns result
+```
+
+## Architecture
+
+Kagura AI 2.0 follows a clean, layered architecture:
+
+```
+┌─────────────────────────────────────┐
+│         @agent Decorator            │
+│  (Function → Agent transformation)  │
+└───────────────┬─────────────────────┘
+                │
+┌───────────────▼─────────────────────┐
+│       Template Engine (Jinja2)      │
+│    (Docstring → Rendered prompt)    │
+└───────────────┬─────────────────────┘
+                │
+┌───────────────▼─────────────────────┐
+│         LLM Layer (LiteLLM)         │
+│   (Prompt → LLM → Raw response)     │
+└───────────────┬─────────────────────┘
+                │
+┌───────────────▼─────────────────────┐
+│    Parser (Type-based parsing)      │
+│  (Raw response → Typed Python obj)  │
+└─────────────────────────────────────┘
+```
+
+## Design Philosophy
+
+Kagura AI 2.0 is built on these principles:
+
+- **Python-First**: No external configuration files
+- **Type Safety**: Leverages Python's type system
+- **Developer Experience**: Simple API, fast iteration
+- **Composability**: Agents are just async functions
+- **Explicitness**: Clear data flow, no magic
+
+## What's New in 2.0
+
+### Before (1.x)
+```yaml
+# agent.yml
+type: atomic
+llm:
+  model: gpt-4
+prompt:
+  - language: en
+    template: "You are helpful"
+```
+
+### After (2.0)
+```python
+@agent
+async def assistant(query: str) -> str:
+    '''You are helpful. Answer: {{ query }}'''
+    pass
+```
+
+**Breaking Changes:**
+- No more YAML configuration
+- No more `Agent.assigner()` API
+- Removed `kagura chat` command
+- Replaced with `kagura repl` command
 
 ## Get Started
 
-Explore our guides to start building with Kagura AI:
+Ready to build your first agent?
 
-- [Quick Start Tutorial](en/quickstart.md)
-- [Installation Guide](en/installation.md)
-- [Configuration Guide](en/system-configuration.md)
-
----
+- [Installation Guide](en/installation.md) - Install Kagura AI
+- [Quick Start Tutorial](en/quickstart.md) - Build your first agent in 5 minutes
+- [API Reference](en/api/) - Detailed API documentation
+- [Examples](../examples/) - More examples and patterns
 
 [Get Started →](en/installation.md){: .md-button .md-button--primary }

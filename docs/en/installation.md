@@ -1,136 +1,239 @@
 # Installation
 
-## Prerequisites
+## Requirements
 
-- Python 3.11+
-- Redis (optional, for persistence)
+- Python 3.11 or higher
+- pip or uv package manager
 
----
+## Install from PyPI
 
-## Installation Steps
+### Using pip
+
+```bash
+pip install kagura-ai
+```
+
+### Using uv (recommended)
 
 ```bash
 uv add kagura-ai
 ```
 
-### Starting Kagura
+## Verify Installation
 
-You can start Kagura using the following command:
-`kagura` command to initiate system setup.
-After the first run, the configuration file `system.yml` will be created in `~/.config/kagura/`.
+Check that Kagura AI is installed correctly:
 
 ```bash
-$ uv run kagura
-Welcome to Kagura AI!
-Here are some of Kagura's Zen principles:
-----------------------------------------
-Harmony is better than discord.
-Explicit is better than implicit.
-Simple is better than complex.
-Complex is better than complicated.
-Composition is better than inheritance.
-YAML is better than JSON for human configuration.
-Types are better than any.
-Errors should never pass silently.
-Unless explicitly silenced.
-In the face of ambiguity, refuse the temptation to guess.
-There should be one-- and preferably only one --obvious way to do it.
-Although that way may not be obvious at first.
-Now is better than never.
-Although never is often better than *right* now.
-If the implementation is hard to explain, it's a bad idea.
-If the implementation is easy to explain, it may be a good idea.
-Agents should be one thing, rather than everything.
-Dependencies are both necessary and a liability.
-While reactivity matters, thoughtfulness is key.
-Although practicality beats purity.
-Errors should never fail to inform.
-In the face of many options, take the one most explicit.
-Unless that path is fraught with danger.
-Beautiful is better than ugly.
-Understanding is better than magic.
-Although black boxes are sometimes necessary.
-Agent composition should be intuitive.
-Even though agents can be complex.
-Simple tasks should be simple.
-Complex tasks should be possible.
-The present is more important than the past.
-The future is more important than the present.
-But the past holds lessons we shouldn't forget.
+kagura version
 ```
 
+You should see output like:
 
-### Verifying Installation
+```
+Kagura AI v2.0.0-alpha.1
+```
 
-To verify that Kagura is installed correctly, use the following command:
+## Set API Key
+
+Kagura AI uses LiteLLM, which supports multiple LLM providers. You need to set the appropriate API key for your chosen provider.
+
+### OpenAI
 
 ```bash
-uv run kagura --help
+export OPENAI_API_KEY="your-key-here"
 ```
 
-Expected output:
-
-```
-Usage: kagura [OPTIONS] COMMAND [ARGS]...
-
-  Kagura AI - A flexible AI agent framework
-
-Options:
-  --version  Show the version and exit.
-  --help     Show this message and exit.
-
-Commands:
-  chat    Start interactive chat with Kagura AI
-  create  Create a new Kagura agent
+Or in Python:
+```python
+import os
+os.environ["OPENAI_API_KEY"] = "your-key-here"
 ```
 
----
-
-## Redis Setup (Optional)
-
-Redis provides persistent memory for the Kagura assistant.
-
-1. Install Redis:
+### Anthropic (Claude)
 
 ```bash
-sudo apt update
-sudo apt install redis-server
-sudo systemctl start redis-server
-sudo systemctl enable redis-server
+export ANTHROPIC_API_KEY="your-key-here"
 ```
 
-2. Verify Redis installation:
+### Google (Gemini)
 
 ```bash
-redis-cli ping
-# Output: PONG
+export GOOGLE_API_KEY="your-key-here"
 ```
 
----
-
-## Environment Variables
-
-### API Keys
-
-Kagura uses LiteLLM for LLM integration. Please refer to the [LiteLLM documentation](https://docs.litellm.ai/docs/set_keys#environment-variables) for more details.
-
-Export the following API keys in your environment to enable respective LLMs:
+### Azure OpenAI
 
 ```bash
-export OPENAI_API_KEY="your-openai-api-key"
-export ANTHROPIC_API_KEY="your-anthropic-api-key"
-export REPLICATE_API_KEY="your-replicate-api-key"
-export TOGETHERAI_API_KEY="your-togetherai-api-key"
+export AZURE_API_KEY="your-key-here"
+export AZURE_API_BASE="https://your-endpoint.openai.azure.com/"
+export AZURE_API_VERSION="2023-05-15"
 ```
 
-### Logging Level
+## Test Your Installation
 
-To set the logging level, use the following command:
+Create a simple test file:
+
+```python
+# test_kagura.py
+from kagura import agent
+
+@agent
+async def hello(name: str) -> str:
+    '''Say hello to {{ name }}'''
+    pass
+
+if __name__ == "__main__":
+    import asyncio
+
+    async def main():
+        result = await hello("Kagura AI")
+        print(result)
+
+    asyncio.run(main())
+```
+
+Run it:
 
 ```bash
-export LOG_LEVEL=DEBUG  # Options: DEBUG, INFO, WARNING, ERROR
+python test_kagura.py
 ```
 
----
+If successful, you should see a greeting message.
 
-[System Configuration →](system-configuration.md){: .md-button .md-button--primary }
+## Development Installation
+
+For contributing to Kagura AI or running from source:
+
+### Clone Repository
+
+```bash
+git clone https://github.com/JFK/kagura-ai.git
+cd kagura-ai
+```
+
+### Install Dependencies
+
+Using uv (recommended):
+
+```bash
+uv sync --dev
+```
+
+This will install:
+- All runtime dependencies
+- Development dependencies (pytest, pyright, ruff, etc.)
+
+### Run Tests
+
+```bash
+pytest
+```
+
+### Type Checking
+
+```bash
+pyright
+```
+
+### Code Formatting
+
+```bash
+ruff check src/
+```
+
+## Optional Dependencies
+
+### For Development
+
+Development tools are already included with `--dev` flag:
+
+- `pytest` - Testing framework
+- `pytest-asyncio` - Async test support
+- `pytest-cov` - Code coverage
+- `pyright` - Type checker
+- `ruff` - Linter and formatter
+
+### For Documentation
+
+To build documentation locally:
+
+```bash
+pip install mkdocs mkdocs-material
+mkdocs serve
+```
+
+Then visit `http://localhost:8000`
+
+## Troubleshooting
+
+### Import Error
+
+If you get import errors:
+
+```python
+ImportError: cannot import name 'agent' from 'kagura'
+```
+
+Make sure you're using Python 3.11+:
+
+```bash
+python --version
+```
+
+### API Key Not Found
+
+If you see authentication errors:
+
+```
+AuthenticationError: The api_key client option must be set
+```
+
+Set your API key as described above. The key must be set before importing kagura.
+
+### Type Errors
+
+If pyright shows errors in your IDE:
+
+1. Make sure your Python interpreter is set to 3.11+
+2. Ensure kagura-ai is installed in your environment
+3. Restart your IDE/language server
+
+## Upgrading
+
+### From PyPI
+
+```bash
+pip install --upgrade kagura-ai
+```
+
+or with uv:
+
+```bash
+uv add kagura-ai --upgrade
+```
+
+### From Git
+
+```bash
+cd kagura-ai
+git pull
+uv sync --dev
+```
+
+## Uninstalling
+
+```bash
+pip uninstall kagura-ai
+```
+
+or with uv:
+
+```bash
+uv remove kagura-ai
+```
+
+## Next Steps
+
+- [Quick Start](quickstart.md) - Build your first agent
+- [API Reference](api/agent.md) - Detailed API documentation
+- [Examples](../../examples/) - Example code

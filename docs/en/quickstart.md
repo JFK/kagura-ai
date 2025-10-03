@@ -1,107 +1,235 @@
 # Quick Start
 
-## Installation Steps
+Get started with Kagura AI 2.0 in 5 minutes.
+
+## Installation
+
+```bash
+pip install kagura-ai
+```
+
+or with uv:
 
 ```bash
 uv add kagura-ai
 ```
 
-## Kagura Chatbot
+## Set API Key
 
-**Start Kagura AI Chatbot**:
-
-To start the Kagura chatbot, use the following command:
+Kagura AI uses LiteLLM, which supports multiple LLM providers. Set your API key:
 
 ```bash
-kagura chat
+export OPENAI_API_KEY="your-key-here"
 ```
 
-During the chat session, you can use the following commands:
+## Your First Agent
 
-- `/help`: Show available commands and usage instructions.
-- `/clear`: Clear the current chat history.
-- `/history`: View the current chat history.
-- `/system`: Display system information and configuration settings.
-- `/agents`: List available agents and their descriptions.
-- `/exit`: Exit the chat session.
-
----
-
-## Creating an Agent
-
-### Step 1: Create Agent Directory
-
-Create a directory for your agent configuration:
-```bash
-mkdir -p ~/.config/kagura/agents/my_agent
-```
-
-### Step 2: Define Basic Agent Configuration
-
-Create an `agent.yml` file in the newly created directory:
-```yaml
-# ~/.config/kagura/agents/my_agent/agent.yml
-cat > ~/.config/kagura/agents/my_agent/agent.yml <<EOF
-type: atomic  # atomic, tool, or composite
-llm:
-  stream: true
-skip_state_model: true  # must be set to true if response_fields is not defined or there is no state_model.yml
-description:
-  - language: en
-    text: This is the default agent.
-  - language: ja
-    text: デフォルトのエージェントです。
-instructions:
-  - language: en
-    description: |
-      You will always respond in English.
-  - language: ja
-    description: |
-      あたなたは、必ず日本語で返答します。
-prompt:
-  - language: en
-    template: |
-      {QUERY}
-  - language: ja
-    template: |
-      {QUERY}
-EOF
-```
-
-### Step 3: Use the Agent in Your Code
-
-To interact with the agent programmatically, use the following Python code:
+Create a simple conversational agent:
 
 ```python
-cat > my_chat.py <<EOF
-from kagura.core.agent import Agent
+# chat.py
+from kagura import agent
 
-async def chat():
-    # Assign the created agent by its directory name
-    agent = Agent.assigner("my_agent")
-    # Send a query and stream the responses
-    async for response in await agent.execute("Tell me about AI"):
-        print(response, end="")
+@agent
+async def chat(message: str) -> str:
+    '''You are a friendly AI assistant. Respond to: {{ message }}'''
+    pass
 
+# Run
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(chat())
-EOF
+
+    async def main():
+        response = await chat("Hello! How are you?")
+        print(response)
+
+    asyncio.run(main())
 ```
 
-### Step 4: Run the Python Script
+Run it:
+```bash
+python chat.py
+```
+
+**Output:**
+```
+Hello! I'm doing well, thank you for asking! How can I help you today?
+```
+
+## Structured Output with Pydantic
+
+Extract structured data using Pydantic models:
+
+```python
+# extract.py
+from kagura import agent
+from pydantic import BaseModel
+
+class Person(BaseModel):
+    name: str
+    age: int
+    occupation: str
+
+@agent
+async def extract_person(text: str) -> Person:
+    '''Extract person information from: {{ text }}'''
+    pass
+
+# Use it
+if __name__ == "__main__":
+    import asyncio
+
+    async def main():
+        result = await extract_person(
+            "Alice is 30 years old and works as a software engineer"
+        )
+        print(f"Name: {result.name}")
+        print(f"Age: {result.age}")
+        print(f"Occupation: {result.occupation}")
+
+    asyncio.run(main())
+```
+
+**Output:**
+```
+Name: Alice
+Age: 30
+Occupation: software engineer
+```
+
+## Multiple Parameters
+
+Use multiple parameters in your templates:
+
+```python
+from kagura import agent
+
+@agent
+async def translator(text: str, target_lang: str = "ja") -> str:
+    '''Translate to {{ target_lang }}: {{ text }}'''
+    pass
+
+# Use with default
+result = await translator("Hello, world!")
+# Output: "こんにちは、世界！"
+
+# Use with custom language
+result = await translator("Hello, world!", target_lang="fr")
+# Output: "Bonjour, le monde!"
+```
+
+## Code Execution
+
+Generate and execute Python code:
+
+```python
+from kagura.agents import execute_code
+
+result = await execute_code("Calculate the factorial of 10")
+
+if result["success"]:
+    print(f"Code:\n{result['code']}\n")
+    print(f"Result: {result['result']}")
+else:
+    print(f"Error: {result['error']}")
+```
+
+**Output:**
+```python
+Code:
+import math
+result = math.factorial(10)
+
+Result: 3628800
+```
+
+## Interactive REPL
+
+Try the interactive REPL for rapid prototyping:
 
 ```bash
-uv run my_chat.py
+kagura repl
 ```
 
-### Expected Output
+Available commands:
+- `/help` - Show available commands
+- `/agents` - List defined agents
+- `/exit` - Exit REPL
+- `/clear` - Clear screen
 
-When you run the Python script, the agent will respond to your query, for example:
-```plaintext
-Artificial Intelligence (AI) refers to the simulation of human intelligence...
+Example REPL session:
+
+```
+╭──────────────────────────────────────╮
+│ Kagura AI REPL                       │
+│ Python-First AI Agent Framework      │
+│                                      │
+│ Type /help for commands, /exit to    │
+│ quit                                 │
+╰──────────────────────────────────────╯
+
+>>> @agent
+... async def hello(name: str) -> str:
+...     '''Say hello to {{ name }}'''
+...     pass
+...
+
+>>> await hello("World")
+Hello, World!
+
+>>> /exit
+Goodbye!
 ```
 
----
+## List Operations
 
-[AI Agents Overview →](agents/overview.md){: .md-button .md-button--primary }
+Return lists from agents:
+
+```python
+@agent
+async def extract_keywords(text: str) -> list[str]:
+    '''Extract keywords from: {{ text }}'''
+    pass
+
+keywords = await extract_keywords(
+    "Python is a programming language used for AI and web development"
+)
+print(keywords)
+# ['Python', 'programming language', 'AI', 'web development']
+```
+
+## Complex Data Structures
+
+Work with nested Pydantic models:
+
+```python
+from pydantic import BaseModel
+from typing import List
+
+class Task(BaseModel):
+    title: str
+    priority: int
+    completed: bool
+
+class Project(BaseModel):
+    name: str
+    tasks: List[Task]
+
+@agent
+async def plan_project(goal: str) -> Project:
+    '''Create a project plan for: {{ goal }}'''
+    pass
+
+project = await plan_project("Build a web application")
+print(f"Project: {project.name}")
+for task in project.tasks:
+    status = "✓" if task.completed else "○"
+    print(f"{status} [{task.priority}] {task.title}")
+```
+
+## Next Steps
+
+- [API Reference](api/agent.md) - Detailed API documentation
+- [Examples](../../examples/) - More examples and patterns
+- [Code Executor](api/executor.md) - Deep dive into code execution
+- [REPL Guide](tutorials/05-repl.md) - Advanced REPL usage
