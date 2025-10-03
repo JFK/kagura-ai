@@ -8,6 +8,8 @@
 [![Codecov](https://img.shields.io/codecov/c/github/JFK/kagura-ai)](https://codecov.io/gh/JFK/kagura-ai)
 [![Tests](https://img.shields.io/github/actions/workflow/status/JFK/kagura-ai/test.yml?label=tests)](https://github.com/JFK/kagura-ai/actions)
 
+> **⚠️ Beta Release**: Kagura AI 2.0.0-beta.1 is currently in beta. The API is stable but may receive minor changes based on community feedback. Production use is possible, but please report any issues you encounter.
+
 **Python-First AI Agent Framework with Code Execution**
 
 Kagura AI 2.0 is a complete redesign focused on simplicity and developer experience. Convert any Python function into an AI agent with a single decorator.

@@ -2,6 +2,7 @@
 import pytest
 from click.testing import CliRunner
 from kagura.cli.main import cli
+from kagura.version import __version__
 
 
 def test_cli_version_option():
@@ -9,7 +10,7 @@ def test_cli_version_option():
     runner = CliRunner()
     result = runner.invoke(cli, ['--version'])
     assert result.exit_code == 0
-    assert '2.0.0-alpha.1' in result.output
+    assert __version__ in result.output
 
 
 def test_cli_version_command():
@@ -17,7 +18,7 @@ def test_cli_version_command():
     runner = CliRunner()
     result = runner.invoke(cli, ['version'])
     assert result.exit_code == 0
-    assert 'Kagura AI v2.0.0-alpha.1' in result.output
+    assert f'Kagura AI v{__version__}' in result.output
 
 
 def test_cli_help():
@@ -33,7 +34,7 @@ def test_cli_verbose_flag():
     runner = CliRunner()
     result = runner.invoke(cli, ['--verbose', 'version'])
     assert result.exit_code == 0
-    assert 'Kagura AI v2.0.0-alpha.1' in result.output
+    assert f'Kagura AI v{__version__}' in result.output
     assert 'Python-First AI Agent Framework' in result.output
     assert 'https://github.com/JFK/kagura-ai' in result.output
 
@@ -43,7 +44,7 @@ def test_cli_verbose_short_flag():
     runner = CliRunner()
     result = runner.invoke(cli, ['-v', 'version'])
     assert result.exit_code == 0
-    assert 'Kagura AI v2.0.0-alpha.1' in result.output
+    assert f'Kagura AI v{__version__}' in result.output
     assert 'Python-First AI Agent Framework' in result.output
 
 
@@ -68,7 +69,7 @@ def test_cli_version_normal_output():
     runner = CliRunner()
     result = runner.invoke(cli, ['version'])
     assert result.exit_code == 0
-    assert 'Kagura AI v2.0.0-alpha.1' in result.output
+    assert f'Kagura AI v{__version__}' in result.output
     # Should not show verbose info by default
     assert 'Python-First AI Agent Framework' not in result.output
 
