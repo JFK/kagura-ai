@@ -1,6 +1,7 @@
 """Interactive REPL for Kagura AI"""
 import sys
-from typing import Any
+import asyncio
+from typing import Any, Optional
 import click
 from rich.console import Console
 from rich.table import Table
@@ -17,6 +18,9 @@ class KaguraREPL:
     def __init__(self):
         self.agents: dict[str, Any] = {}
         self.history: list[str] = []
+        self.namespace: dict[str, Any] = {}
+        self.default_model: str = "gpt-4o-mini"
+        self.default_temperature: float = 0.7
 
     def show_welcome(self):
         """Display welcome message"""
@@ -39,6 +43,8 @@ class KaguraREPL:
         commands = [
             ("/help", "Show this help message"),
             ("/agents", "List all defined agents"),
+            ("/model", "Show or set default model"),
+            ("/temp", "Show or set default temperature"),
             ("/exit", "Exit the REPL"),
             ("/clear", "Clear the screen"),
         ]
@@ -71,54 +77,115 @@ class KaguraREPL:
 
     def execute_command(self, command: str):
         """Execute a special command"""
-        command = command.strip()
+        parts = command.strip().split(maxsplit=1)
+        cmd = parts[0]
+        arg = parts[1] if len(parts) > 1 else None
 
-        if command == "/help":
+        if cmd == "/help":
             self.show_help()
-        elif command == "/agents":
+        elif cmd == "/agents":
             self.show_agents()
-        elif command == "/exit":
+        elif cmd == "/model":
+            if arg:
+                self.default_model = arg
+                console.print(f"[green]Model changed to:[/green] {arg}")
+            else:
+                console.print(f"Current model: [cyan]{self.default_model}[/cyan]")
+        elif cmd == "/temp":
+            if arg:
+                try:
+                    self.default_temperature = float(arg)
+                    console.print(f"[green]Temperature changed to:[/green] {self.default_temperature}")
+                except ValueError:
+                    console.print("[red]Error:[/red] Temperature must be a number")
+            else:
+                console.print(f"Current temperature: [cyan]{self.default_temperature}[/cyan]")
+        elif cmd == "/exit":
             console.print("[green]Goodbye![/green]")
             sys.exit(0)
-        elif command == "/clear":
+        elif cmd == "/clear":
             self.clear_screen()
         else:
-            console.print(f"[red]Unknown command: {command}[/red]")
+            console.print(f"[red]Unknown command: {cmd}[/red]")
             console.print("Type [cyan]/help[/cyan] for available commands")
 
-    def execute_code(self, code: str):
-        """Execute Python code"""
+    async def execute_code_async(self, code: str):
+        """Execute Python code with async support"""
         try:
-            # Create a namespace with kagura imports
-            namespace = {
-                "__name__": "__main__",
-                "console": console,
-                "agents": self.agents,
-            }
+            # Initialize namespace if first time
+            if not self.namespace:
+                self.namespace = {
+                    "__name__": "__main__",
+                    "console": console,
+                    "agents": self.agents,
+                }
+                # Import kagura modules
+                try:
+                    from kagura import agent
+                    from kagura.agents import execute_code
 
-            # Try to import kagura modules
+                    self.namespace["agent"] = agent
+                    self.namespace["execute_code"] = execute_code
+                except ImportError:
+                    pass
+
+            # Track agents before execution
+            agents_before = set(
+                k for k, v in self.namespace.items()
+                if callable(v) and hasattr(v, "_is_agent")
+            )
+
+            # Try to evaluate as expression first
             try:
-                from kagura import agent
-                from kagura.agents import execute_code
+                # Compile and check if it's an expression
+                compiled = compile(code, "<stdin>", "eval")
+                result = eval(compiled, self.namespace)
 
-                namespace["agent"] = agent
-                namespace["execute_code"] = execute_code
-            except ImportError:
-                pass
+                # Handle async results
+                if asyncio.iscoroutine(result):
+                    result = await result
 
-            # Execute the code
-            exec(code, namespace)
+                if result is not None:
+                    console.print(repr(result))
 
-            # Update agents if any were defined
-            for key, value in namespace.items():
-                if key not in ["__name__", "console", "agents"] and callable(value):
-                    if hasattr(value, "_is_agent"):
-                        self.agents[key] = value
+            except SyntaxError:
+                # Not an expression, try as statement
+                # Check if code contains await
+                if "await " in code:
+                    # Wrap in async function
+                    wrapped = f"async def __async_wrapper():\n"
+                    for line in code.split("\n"):
+                        wrapped += f"    {line}\n"
+                    wrapped += "\n__result = __async_wrapper()"
+
+                    exec(wrapped, self.namespace)
+                    result = self.namespace.get("__result")
+                    if asyncio.iscoroutine(result):
+                        await result
+                else:
+                    # Regular statement
+                    exec(code, self.namespace)
+
+            # Check for newly defined agents
+            agents_after = set(
+                k for k, v in self.namespace.items()
+                if callable(v) and hasattr(v, "_is_agent")
+            )
+            new_agents = agents_after - agents_before
+
+            if new_agents:
+                for agent_name in new_agents:
+                    self.agents[agent_name] = self.namespace[agent_name]
+                    console.print(f"[green]Agent '{agent_name}' defined[/green]")
 
         except SyntaxError as e:
             console.print(f"[red]Syntax Error:[/red] {e}")
         except Exception as e:
             console.print(f"[red]Error:[/red] {type(e).__name__}: {e}")
+
+    def execute_code(self, code: str):
+        """Execute Python code (sync wrapper)"""
+        asyncio.run(self.execute_code_async(code))
 
     def read_multiline(self) -> str:
         """Read multiline input"""
