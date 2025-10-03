@@ -30,6 +30,47 @@ You'll see the welcome screen:
 >>>
 ```
 
+## Environment Setup
+
+### API Keys with .env File
+
+The REPL automatically loads environment variables from a `.env` file in your project directory. This is the recommended way to manage API keys:
+
+**Step 1**: Create a `.env` file in your project root:
+
+```bash
+# .env
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_API_KEY=...
+```
+
+**Step 2**: Start the REPL (the `.env` file is loaded automatically):
+
+```bash
+kagura repl
+```
+
+That's it! No need to manually export environment variables.
+
+**Note**: Copy `.env.example` to `.env` to get started:
+```bash
+cp .env.example .env
+# Edit .env and add your API keys
+```
+
+### Command History
+
+The REPL automatically saves your command history to `~/.kagura_history`. This means:
+- **Up/Down arrows** work to navigate your previous commands
+- **History persists** across REPL sessions
+- **Up to 1000 commands** are saved
+
+This makes it easy to:
+- Rerun previous commands
+- Edit and retry agent definitions
+- Resume work from previous sessions
+
 ## Basic Usage
 
 ### Import and Define
@@ -375,10 +416,10 @@ $ kagura repl
 
 ## Keyboard Shortcuts
 
-- **↑/↓**: Navigate command history
+- **↑/↓**: Navigate command history (persistent across sessions, saved to `~/.kagura_history`)
 - **Tab**: Auto-complete (when available)
 - **Ctrl+C**: Cancel current input
-- **Ctrl+D**: Exit REPL
+- **Ctrl+D**: Exit REPL (saves history on exit)
 
 ## Troubleshooting
 
@@ -401,7 +442,14 @@ pip install kagura-ai
 AuthenticationError: API key not found
 ```
 
-**Solution**: Set your API key:
+**Solution 1 (Recommended)**: Create a `.env` file:
+```bash
+# Create .env file
+echo "OPENAI_API_KEY=your-key-here" > .env
+kagura repl
+```
+
+**Solution 2**: Export environment variable:
 ```bash
 export OPENAI_API_KEY="your-key-here"
 kagura repl

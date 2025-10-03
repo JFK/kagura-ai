@@ -1,7 +1,9 @@
 """Tests for REPL module"""
 import pytest
+import os
+import tempfile
 from io import StringIO
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from kagura.cli.repl import KaguraREPL
 
 
@@ -135,3 +137,59 @@ my_agent._is_agent = True
         # Agent should be registered
         assert "my_agent" in repl.agents
         assert callable(repl.agents["my_agent"])
+
+    def test_dotenv_loading(self):
+        """Test that .env file is loaded on initialization"""
+        with patch('kagura.cli.repl.load_dotenv') as mock_load_dotenv:
+            with patch('readline.read_history_file'):
+                with patch('readline.set_history_length'):
+                    repl = KaguraREPL()
+
+                    # Verify load_dotenv was called
+                    mock_load_dotenv.assert_called_once()
+
+    def test_history_file_loading(self):
+        """Test that history file is loaded on initialization"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='_history', delete=False) as f:
+            history_file = f.name
+            # Write some history
+            f.write("command1\n")
+            f.write("command2\n")
+
+        try:
+            with patch('os.path.expanduser', return_value=history_file):
+                with patch('readline.read_history_file') as mock_read:
+                    with patch('readline.set_history_length') as mock_set_length:
+                        repl = KaguraREPL()
+
+                        # Verify history file was read
+                        mock_read.assert_called_once_with(history_file)
+                        # Verify history length was set to 1000
+                        mock_set_length.assert_called_once_with(1000)
+        finally:
+            os.unlink(history_file)
+
+    def test_history_file_loading_missing_file(self):
+        """Test that missing history file doesn't cause errors"""
+        with patch('os.path.expanduser', return_value='/nonexistent/history'):
+            with patch('readline.set_history_length'):
+                # Should not raise any exceptions
+                repl = KaguraREPL()
+                assert repl.history_file == '/nonexistent/history'
+
+    def test_history_file_saving(self):
+        """Test that history file is saved"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='_history', delete=False) as f:
+            history_file = f.name
+
+        try:
+            with patch('os.path.expanduser', return_value=history_file):
+                with patch('readline.read_history_file'):
+                    with patch('readline.set_history_length'):
+                        repl = KaguraREPL()
+
+                with patch('readline.write_history_file') as mock_write:
+                    repl._save_history()
+                    mock_write.assert_called_once_with(history_file)
+        finally:
+            os.unlink(history_file)
