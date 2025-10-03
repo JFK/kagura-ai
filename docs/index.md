@@ -158,6 +158,6 @@ Ready to build your first agent?
 - [Installation Guide](en/installation.md) - Install Kagura AI
 - [Quick Start Tutorial](en/quickstart.md) - Build your first agent in 5 minutes
 - [API Reference](en/api/) - Detailed API documentation
-- [Examples](../examples/) - More examples and patterns
+- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - More examples and patterns
 
 [Get Started →](en/installation.md){: .md-button .md-button--primary }

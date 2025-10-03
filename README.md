@@ -127,8 +127,6 @@ async def assistant(query: str) -> str:
 - **Code Execution**: Built-in safe code generation and execution
 - **Better DX**: Interactive REPL for rapid development
 
-**Migration from 1.x**: See [Migration Guide](./ai_docs/migration_guide.md)
-
 ## 🔧 Core Concepts
 
 ### 1. Agent Decorator

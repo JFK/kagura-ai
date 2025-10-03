@@ -230,6 +230,6 @@ for task in project.tasks:
 ## Next Steps
 
 - [API Reference](api/agent.md) - Detailed API documentation
-- [Examples](../../examples/) - More examples and patterns
+- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - More examples and patterns
 - [Code Executor](api/executor.md) - Deep dive into code execution
 - [REPL Guide](tutorials/05-repl.md) - Advanced REPL usage
