@@ -10,8 +10,8 @@ ai_docs/
 ├── architecture.md         # システムアーキテクチャ概要
 ├── coding_standards.md     # コーディング規約
 ├── glossary.md            # 用語集・略語集
-├── migration_guide.md     # バージョン移行ガイドライン
 ├── DEVELOPMENT_ROADMAP.md # 開発ロードマップ
+├── NEXT_STEPS.md          # 次の開発ステップ
 ├── analysis/              # 調査レポート
 ├── suggestions/           # Claudeからの技術的提案
 └── fixes/                 # バグ修正の詳細記録
