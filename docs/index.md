@@ -31,7 +31,7 @@ Kagura AI 2.0 is a modern framework that makes building AI agents as simple as w
 
 ## What is Kagura AI?
 
-Kagura AI 2.0 is a complete redesign focused on developer experience and simplicity. Instead of complex YAML configurations, you write agents in pure Python with familiar async/await patterns.
+Kagura AI 2.0 is a modern framework focused on developer experience and simplicity. You write agents in pure Python with familiar async/await patterns.
 
 ```python
 from kagura import agent
@@ -150,33 +150,6 @@ Kagura AI 2.0 is built on these principles:
 - **Developer Experience**: Simple API, fast iteration
 - **Composability**: Agents are just async functions
 - **Explicitness**: Clear data flow, no magic
-
-## What's New in 2.0
-
-### Before (1.x)
-```yaml
-# agent.yml
-type: atomic
-llm:
-  model: gpt-4
-prompt:
-  - language: en
-    template: "You are helpful"
-```
-
-### After (2.0)
-```python
-@agent
-async def assistant(query: str) -> str:
-    '''You are helpful. Answer: {{ query }}'''
-    pass
-```
-
-**Breaking Changes:**
-- No more YAML configuration
-- No more `Agent.assigner()` API
-- Removed `kagura chat` command
-- Replaced with `kagura repl` command
 
 ## Get Started
 

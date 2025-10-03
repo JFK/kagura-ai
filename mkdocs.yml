@@ -35,25 +35,27 @@ plugins:
 nav:
   - Home: index.md
   - Getting Started:
-    - Quickstart: en/quickstart.md
     - Installation: en/installation.md
-    - System Configuration: en/system-configuration.md
-  - AI Agents:
-    - Overiew: en/agents/overview.md
-    - Types: en/agents/types.md
-    - Configuration: en/agents/configuration.md
-  - Advanced Topics:
-    - State Management: en/advanced/state-management.md
+    - Quick Start: en/quickstart.md
   - Tutorials:
-    - Coding Examples: en/tutorials/coding-examples.md
-    - Building Your First Agent: en/tutorials/first-agent.md
-    - Agent Pupblising Guide: en/tutorials/agent-publishing-guide.md
+    - Basic Agent: en/tutorials/01-basic-agent.md
+    - Using the REPL: en/tutorials/05-repl.md
+  - API Reference:
+    - Overview: en/api/index.md
+    - '@agent Decorator': en/api/agent.md
+    - Code Executor: en/api/executor.md
+    - CLI Commands: en/api/cli.md
+  - Examples:
+    - Overview: ../examples/README.md
+    - Simple Chat: ../examples/agents/simple_chat/README.md
+    - Data Extractor: ../examples/agents/data_extractor/README.md
+    - Code Generator: ../examples/agents/code_generator/README.md
+    - Workflow Example: ../examples/agents/workflow_example/README.md
+  - FAQ: en/faq.md
   - For Developers:
     - How to Contribute: https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md
     - Contributing (日本語): https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING_JA.md
     - Code of Conduct: https://github.com/JFK/kagura-ai/blob/main/CODE_OF_CONDUCT.md
-  - Why Kagura AI?: en/kagura.md
-  - Try ChatGPTs: https://chatgpt.com/g/g-674c1cfed1a88191bd594e13c2840a44-kagura-ai-agent-builder
   - GitHub: https://github.com/JFK/kagura-ai
 
 extra_css:
