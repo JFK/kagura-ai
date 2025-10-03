@@ -86,3 +86,11 @@ target-version = "py311"
 select = ["E", "F", "I"]
 ignore = []
 per-file-ignores = { "__init__.py" = ["F401"] }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+# Exclude legacy test directories
+norecursedirs = [".*", "build", "dist", "*_legacy"]
