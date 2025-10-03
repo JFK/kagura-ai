@@ -7,7 +7,8 @@ from rich.table import Table
 from rich.syntax import Syntax
 from rich.panel import Panel
 
-console = Console()
+# Ensure UTF-8 encoding for console I/O
+console = Console(force_terminal=True, legacy_windows=False)
 
 
 class KaguraREPL:
@@ -129,7 +130,9 @@ class KaguraREPL:
                 if lines:
                     prompt = "[bold blue]...[/bold blue] "
 
-                line = console.input(prompt)
+                # Use input() instead of console.input() to avoid encoding issues
+                console.print(prompt, end="")
+                line = input()
 
                 # Empty line ends multiline input
                 if not line.strip() and lines:
