@@ -1,29 +1,141 @@
 # Kagura AI 2.0 - 次の開発ステップ
 
-## 📊 現在の状態 (2025-10-03)
+## 📊 現在の状態 (2025-10-03 更新)
 
 ### ✅ 完了済み
 - ✅ Core engine (@agent decorator, prompt template, type parsing)
 - ✅ Code execution (CodeExecutor, code agent)
-- ✅ CLI framework & REPL
-- ✅ Integration tests
-- ✅ Documentation (MkDocs)
-- ✅ Examples
+- ✅ CLI framework & REPL (.env support, readline history)
+- ✅ Integration tests (152 tests, 92% coverage)
+- ✅ Documentation (MkDocs, 日英対応)
+- ✅ Examples (4+ エージェント実装例)
 - ✅ GitHub Issue Templates (Claude Code最適化済み)
-- ✅ GitHub Actions (CI/CD)
+- ✅ GitHub Actions (CI/CD, 自動テスト)
+- ✅ **Beta Release (v2.0.0-beta.1)** - PyPI公開完了 🎉
 
 ### 📦 現在のバージョン
-- `2.0.0-alpha.1`
+- **`2.0.0-beta.1`** (PyPI公開済み)
+- インストール: `pip install kagura-ai==2.0.0b1`
+- PyPI: https://pypi.org/project/kagura-ai/2.0.0b1/
+- GitHub Release: https://github.com/JFK/kagura-ai/releases/tag/v2.0.0-beta.1
 
 ### 🧪 テスト状況
-- ✅ CIパス (全テスト完了)
+- ✅ CIパス (152 passed, 1 skipped)
+- ✅ カバレッジ 92%
 - ⚠️ 1テストスキップ中 (`test_infinite_loop_timeout` - pytest-asyncio cleanup issue)
 
 ---
 
 ## 🎯 次の優先タスク
 
-### Phase 1: ドキュメント・品質改善 (Week 1-2)
+### Phase 1: Beta安定化 (今週〜来週)
+
+#### タスク1: テストカバレッジ向上（92% → 95%+）
+
+**優先度**: 🟡 中
+
+**内容**:
+- 残り3%のカバレッジ向上
+- スキップ中のテスト修正
+- エッジケースの追加テスト
+
+**Issue**: 作成予定
+
+#### タスク2: Beta版フィードバック収集
+
+**優先度**: 🟡 中
+
+**内容**:
+- GitHub Discussionsの設定
+- Issueテンプレートにbeta-feedbackラベル追加
+- READMEにフィードバック募集セクション追加
+
+**Issue**: 作成予定
+
+---
+
+### Phase 2: 次期機能検討 (来週〜)
+
+#### RFC #61: Memory & Workflow Features
+
+**関連Issue**: https://github.com/JFK/kagura-ai/issues/61
+**ステータス**: コミュニティフィードバック募集中
+**対象バージョン**: v2.1.0 - v2.2.0
+
+**提案機能**:
+1. **メモリ機能**
+   - `@memory.session` - セッション管理
+   - `@memory.vector` - ベクトルDB統合
+
+2. **ワークフロー機能**
+   - `@workflow.chain` - 逐次実行
+   - `@workflow.parallel` - 並列実行
+   - `@workflow.stateful` - 状態管理（Pydanticベース）
+
+3. **プラグインシステム**
+   - `@tool` デコレータ
+   - ツール自動選択
+
+4. **パフォーマンス最適化**
+   - `@cache` - レスポンスキャッシュ
+   - `@batch` - バッチング
+   - ストリーミング対応
+
+**参考**: LangGraphの設計を参考にしつつ、Kagura AIのシンプルさを維持
+
+#### RFC #62: Multimodal RAG Chat with Google Workspace
+
+**関連Issue**: https://github.com/JFK/kagura-ai/issues/62
+**ステータス**: コミュニティフィードバック募集中
+**対象バージョン**: v2.1.0 - v2.2.0
+**詳細ドキュメント**: `ai_docs/RFC_002_MULTIMODAL_RAG.md`
+
+**提案機能**:
+1. **マルチモーダル対応**
+   - Gemini 1.5 Flash/Pro統合
+   - 画像・音声・動画・PDF認識
+   - `kagura chat` コマンド
+
+2. **Google Workspace連携**
+   - Google Drive API統合
+   - Google Calendar API統合
+   - Gmail API統合
+
+3. **ハイブリッドツールシステム**
+   - Kagura独自 `@tool` デコレータ（コア）
+   - MCP互換レイヤー（オプション）
+
+4. **日本語完全対応**
+   - 日本語ネイティブな会話
+   - 文字起こし・要約
+
+**技術スタック**:
+- Gemini 1.5 Flash/Pro (マルチモーダルAPI)
+- Google Workspace APIs
+- ChromaDB (ベクトルDB)
+- MCP (Model Context Protocol) - オプション
+
+---
+
+### Phase 3: 正式版リリース準備 (1-2ヶ月後)
+
+#### v2.0.0正式版リリース
+
+**完了条件**:
+- Beta版での重大バグ0件
+- コミュニティフィードバック反映
+- テストカバレッジ95%+
+- ドキュメント完備
+
+**目標時期**: 2025年11月中旬〜12月
+
+---
+
+## 📋 廃止予定のセクション（Phase 1は完了済み）
+
+### ~~Phase 1: ドキュメント・品質改善 (Week 1-2)~~
+
+✅ 完了済み（Issue #54, #55, #56完了）
 
 #### Issue #1: ドキュメントの最終確認と改善
 
