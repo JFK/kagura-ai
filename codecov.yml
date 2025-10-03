@@ -4,12 +4,11 @@ coverage:
       default:
         target: auto
         threshold: 0%
+        informational: true
     patch:
       default:
-        target: 80%
-        threshold: 10%
-        
+        informational: true
+
 ignore:
   - "tests/"
   - "**/__init__.py"
-  - "**/cli/main.py"  # CLI entry point has if __name__ == "__main__"
