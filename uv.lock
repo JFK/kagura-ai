@@ -647,7 +647,7 @@ wheels = [
 
 [[package]]
 name = "kagura-ai"
-version = "2.0.0a1"
+version = "2.0.0b1"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
