@@ -38,7 +38,7 @@ right: sync
 .PHONY: test
 test: right
 	@echo "Running tests with pytest..."
-	$(VENV_DIR)/bin/flake8 tests/ src/
+	$(VENV_DIR)/bin/ruff check src/ tests/
 	$(VENV_DIR)/bin/pytest --maxfail=5 --disable-warnings -q
 	$(VENV_DIR)/bin/pytest --cov=src --cov-report=term-missing
 	@echo "Done."
@@ -66,6 +66,6 @@ clean:
 .PHONY: docs
 docs:
 	@echo "Building documentation..."
-	$(VENV_DIR)/bin/pip install --upgrade sphinx sphinx-rtd-theme
-	$(VENV_DIR)/bin/sphinx-build -b html docs/ docs/_build
-	@echo "Done. Documentation is in docs/_build/"
+	$(VENV_DIR)/bin/pip install mkdocs mkdocs-material
+	$(VENV_DIR)/bin/mkdocs build
+	@echo "Done. Documentation is in site/"
