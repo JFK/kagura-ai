@@ -3,6 +3,7 @@ Main CLI entry point for Kagura AI
 """
 import click
 from ..version import __version__
+from .repl import repl
 
 
 @click.group()
@@ -36,6 +37,10 @@ def version(ctx: click.Context):
         if ctx.obj.get('verbose'):
             click.echo(f"Python-First AI Agent Framework")
             click.echo(f"https://github.com/JFK/kagura-ai")
+
+
+# Add repl command to CLI group
+cli.add_command(repl)
 
 
 if __name__ == "__main__":

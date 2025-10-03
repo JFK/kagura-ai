@@ -71,3 +71,11 @@ def test_cli_version_normal_output():
     assert 'Kagura AI v2.0.0-alpha.1' in result.output
     # Should not show verbose info by default
     assert 'Python-First AI Agent Framework' not in result.output
+
+
+def test_cli_repl_help():
+    """Test repl command help"""
+    runner = CliRunner()
+    result = runner.invoke(cli, ['repl', '--help'])
+    assert result.exit_code == 0
+    assert 'Start interactive REPL' in result.output
