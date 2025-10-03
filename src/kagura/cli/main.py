@@ -1,24 +1,42 @@
 """
-Main CLI entry point
-
-Stub implementation.
+Main CLI entry point for Kagura AI
 """
 import click
 from ..version import __version__
 
 
 @click.group()
-@click.version_option(version=__version__)
-def cli():
-    """Kagura AI - Python-First AI Agent Framework"""
-    pass
+@click.version_option(version=__version__, prog_name="Kagura AI")
+@click.option('--verbose', '-v', is_flag=True, help='Enable verbose output')
+@click.option('--quiet', '-q', is_flag=True, help='Suppress non-error output')
+@click.pass_context
+def cli(ctx: click.Context, verbose: bool, quiet: bool):
+    """
+    Kagura AI - Python-First AI Agent Framework
+
+    A framework for building AI agents with code execution capabilities.
+    Use subcommands to interact with the framework.
+
+    Examples:
+      kagura version          Show version information
+      kagura --help           Show this help message
+    """
+    # Store options in context for subcommands
+    ctx.ensure_object(dict)
+    ctx.obj['verbose'] = verbose
+    ctx.obj['quiet'] = quiet
 
 
 @cli.command()
-def version():
-    """Show version"""
-    click.echo(f"Kagura AI v{__version__}")
+@click.pass_context
+def version(ctx: click.Context):
+    """Show version information"""
+    if not ctx.obj.get('quiet'):
+        click.echo(f"Kagura AI v{__version__}")
+        if ctx.obj.get('verbose'):
+            click.echo(f"Python-First AI Agent Framework")
+            click.echo(f"https://github.com/JFK/kagura-ai")
 
 
 if __name__ == "__main__":
-    cli()
+    cli(obj={})
