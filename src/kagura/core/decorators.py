@@ -1,9 +1,11 @@
 """
 Decorators to convert functions into AI agents
-
-This is a stub implementation. Full implementation in Issue #CORE-001.
 """
 from typing import TypeVar, Callable, ParamSpec, Awaitable, overload, Any
+import functools
+import inspect
+from .llm import LLMConfig, call_llm
+from .prompt import extract_template, render_prompt
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -55,9 +57,29 @@ def agent(
         result = await hello("World")
     """
     def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
-        # Stub: Just return the original function
-        # TODO: Implement in Issue #CORE-001
-        return func
+        # Extract template from docstring
+        template_str = extract_template(func)
+
+        # Create LLM config
+        config = LLMConfig(model=model, temperature=temperature)
+
+        @functools.wraps(func)
+        async def wrapper(*args: P.args, **kwargs_inner: P.kwargs) -> T:
+            # Get function signature
+            sig = inspect.signature(func)
+            bound = sig.bind(*args, **kwargs_inner)
+            bound.apply_defaults()
+
+            # Render prompt with arguments
+            prompt = render_prompt(template_str, **bound.arguments)
+
+            # Call LLM
+            response = await call_llm(prompt, config, **kwargs)
+
+            # For now, return response as-is (type parsing in CORE-003)
+            return response  # type: ignore
+
+        return wrapper  # type: ignore
 
     return decorator if fn is None else decorator(fn)
 
