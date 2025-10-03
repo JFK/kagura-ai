@@ -1,0 +1,8 @@
+# Investigation Reports
+
+このディレクトリには、コードベースの調査レポートを格納します。
+
+## ファイル命名規則
+`{issue-number}-{investigation-topic}.md`
+
+例: `123-performance-bottleneck-analysis.md`

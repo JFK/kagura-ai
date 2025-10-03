@@ -1,0 +1,8 @@
+# Technical Suggestions
+
+このディレクトリには、Claude Codeからの技術的提案を格納します。
+
+## ファイル命名規則
+`{issue-number}-{suggestion-topic}.md`
+
+例: `456-optimization-suggestions.md`
