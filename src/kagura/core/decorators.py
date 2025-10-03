@@ -6,6 +6,7 @@ import functools
 import inspect
 from .llm import LLMConfig, call_llm
 from .prompt import extract_template, render_prompt
+from .parser import parse_response
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -76,7 +77,11 @@ def agent(
             # Call LLM
             response = await call_llm(prompt, config, **kwargs)
 
-            # For now, return response as-is (type parsing in CORE-003)
+            # Parse response based on return type annotation
+            return_type = sig.return_annotation
+            if return_type != inspect.Signature.empty and return_type != str:
+                return parse_response(response, return_type)  # type: ignore
+
             return response  # type: ignore
 
         return wrapper  # type: ignore
