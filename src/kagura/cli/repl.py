@@ -51,7 +51,8 @@ class KaguraREPL:
         command_completer = WordCompleter(
             commands,
             ignore_case=True,
-            sentence=True,
+            sentence=False,  # Allow word-level completion
+            match_middle=True,  # Enable partial matching
         )
 
         # Python code completer (keywords, builtins, common imports)
@@ -62,7 +63,8 @@ class KaguraREPL:
         python_completer = WordCompleter(
             python_words,
             ignore_case=False,
-            sentence=True,
+            sentence=False,  # Allow word-level completion
+            match_middle=True,  # Enable partial matching
         )
 
         # Merge completers
@@ -73,24 +75,27 @@ class KaguraREPL:
 
         @kb.add('enter')
         def _(event):
-            """Handle Enter key - execute if complete, otherwise newline"""
+            """Handle Enter key - newline or execute on double Enter"""
             buffer = event.current_buffer
-            # If starts with /, it's a command - execute immediately
-            if buffer.text.strip().startswith('/'):
-                buffer.validate_and_handle()
-            else:
-                # Check if code is incomplete
-                if self._is_incomplete(buffer.text):
-                    # Add newline for incomplete code
-                    buffer.insert_text('\n')
-                else:
-                    # Execute complete code
-                    buffer.validate_and_handle()
+            text = buffer.text
 
-        @kb.add('escape', 'enter')  # Meta+Enter (Alt+Enter or Esc then Enter)
+            # IPython-style: empty line triggers execution
+            # If current line is empty and we have previous content, execute
+            if text.endswith('\n') or (text and not text.split('\n')[-1].strip()):
+                # Last line is empty, execute
+                if text.strip():  # But only if there's actual content
+                    buffer.validate_and_handle()
+                    return
+
+            # Otherwise, insert newline
+            buffer.insert_text('\n')
+
+        @kb.add('escape', 'enter')  # Meta+Enter (Alt+Enter) also executes
         def _(event):
-            """Always insert newline on Meta+Enter"""
-            event.current_buffer.insert_text('\n')
+            """Execute code on Meta+Enter (Alt+Enter)"""
+            buffer = event.current_buffer
+            if buffer.text.strip():
+                buffer.validate_and_handle()
 
         self.session = PromptSession(
             history=FileHistory(self.history_file),
@@ -112,8 +117,9 @@ class KaguraREPL:
                 "[bold green]Kagura AI REPL[/bold green]\n"
                 "Python-First AI Agent Framework\n\n"
                 "Type [cyan]/help[/cyan] for commands, [cyan]/exit[/cyan] to quit\n"
-                "[dim]Enter[/dim] = execute (or newline if incomplete)\n"
-                "[dim]Alt+Enter[/dim] = always newline\n"
+                "[dim]Enter[/dim] = newline\n"
+                "[dim]Empty line + Enter[/dim] = execute (IPython style)\n"
+                "[dim]Alt+Enter[/dim] = execute immediately\n"
                 "[dim]Tab[/dim] = autocomplete",
                 border_style="green",
             )
