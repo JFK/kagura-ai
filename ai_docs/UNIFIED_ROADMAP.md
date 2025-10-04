@@ -344,7 +344,7 @@ await team.parallel([
 ## 📚 参考ドキュメント
 
 - `ai_docs/DEVELOPMENT_ROADMAP.md` - v2.0.0詳細ロードマップ
-- `ai_docs/RFC_*.md` - 各RFC詳細仕様
+- `ai_docs/rfcs/RFC_*.md` - 各RFC詳細仕様
 - `ai_docs/coding_standards.md` - コーディング規約
 - `.github/ISSUE_TEMPLATE/` - Issueテンプレート
 

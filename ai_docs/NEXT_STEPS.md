@@ -332,7 +332,7 @@ A:
 - [DEVELOPMENT_ROADMAP.md](./DEVELOPMENT_ROADMAP.md) - v2.0.0詳細
 - [coding_standards.md](./coding_standards.md) - コーディング規約
 - [GitHub Issues](https://github.com/JFK/kagura-ai/issues) - 全Issue一覧
-- [RFC Documents](./RFC_*.md) - 各RFC詳細仕様
+- [RFC Documents](./rfcs/RFC_*.md) - 各RFC詳細仕様
 
 ---
 

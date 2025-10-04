@@ -1,5 +1,7 @@
 # Kagura AI 2.0 開発ロードマップ - Claude Code駆動開発
 
+**Note**: このドキュメントはv2.0.0の詳細な実装計画です。v2.1.0以降の計画は[UNIFIED_ROADMAP.md](./UNIFIED_ROADMAP.md)を参照してください。
+
 ## 前提条件
 
 - **既存Issue**: 全てクローズし、新規開始

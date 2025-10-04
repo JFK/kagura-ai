@@ -151,7 +151,7 @@ docs(api): update agent decorator documentation (#30)
 5. **対象Issueの内容**（完全理解）
 
 **RFC参照**:
-- `ai_docs/RFC_*.md` - 各機能の詳細仕様（002-014）
+- `ai_docs/rfcs/RFC_*.md` - 各機能の詳細仕様（002-014）
 
 ### 絶対に変更してはいけないパス
 
