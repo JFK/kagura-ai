@@ -158,6 +158,12 @@ my_agent._is_agent = True
         assert repl.session is not None
         assert hasattr(repl.session, 'prompt')
 
+    def test_command_completer_configured(self):
+        """Test that command completer is configured"""
+        repl = KaguraREPL()
+        assert repl.session.completer is not None
+        assert repl.session.complete_while_typing is True
+
     def test_is_incomplete_with_colon(self):
         """Test _is_incomplete detects code ending with colon"""
         repl = KaguraREPL()

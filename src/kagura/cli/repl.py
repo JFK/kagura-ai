@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
 from pygments.lexers.python import PythonLexer
@@ -42,9 +43,19 @@ class KaguraREPL:
         os.makedirs(history_dir, exist_ok=True)
         self.history_file = os.path.join(history_dir, "repl_history")
 
+        # Command completer for REPL commands
+        commands = ['/help', '/agents', '/model', '/temp', '/exit', '/clear']
+        command_completer = WordCompleter(
+            commands,
+            ignore_case=True,
+            sentence=True,  # Allow commands with spaces after /
+        )
+
         self.session = PromptSession(
             history=FileHistory(self.history_file),
             auto_suggest=AutoSuggestFromHistory(),
+            completer=command_completer,
+            complete_while_typing=True,  # Show completions while typing
             lexer=PygmentsLexer(PythonLexer),
             style=prompt_style,
             multiline=False,
