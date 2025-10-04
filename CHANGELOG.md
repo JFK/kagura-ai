@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2025-10-04
+
+### Fixed
+
+- **REPL Command Completion**
+  - Fixed command completion double slash issue (`/` + Tab → `/help` not `//help`)
+  - Implemented custom `CommandCompleter` to handle `/commands` correctly
+
+- **REPL Python Code Completion**
+  - Fixed prefix matching to complete `pr` → `print` instead of `__repr__`
+  - Prioritized common functions (`print`, `len`, `range`, etc.) in completion list
+  - Excluded private names starting with underscore from completion candidates
+  - Properly handle `__builtins__` dict vs module format
+
+- **REPL Key Bindings**
+  - Removed Alt+Enter key binding (user feedback)
+  - Simplified to IPython-style: Enter = newline, empty line + Enter = execute
+  - Updated welcome message to reflect correct keyboard shortcuts
+
+### Changed
+
+- Tab completion now shows `print` as first candidate when typing `p`
+- Completion order: common functions → keywords → other built-ins
+
 ## [2.0.1] - 2025-10-04
 
 ### Added
