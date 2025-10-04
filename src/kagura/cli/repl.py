@@ -11,7 +11,8 @@ from dotenv import load_dotenv
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-from prompt_toolkit.completion import WordCompleter, merge_completers
+from prompt_toolkit.completion import Completer, Completion, WordCompleter, merge_completers
+from prompt_toolkit.document import Document
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
@@ -27,6 +28,26 @@ prompt_style = Style.from_dict({
     'prompt': '#00aa00 bold',  # Green prompt
     'continuation': '#888888',  # Gray continuation
 })
+
+
+class CommandCompleter(Completer):
+    """Custom completer for REPL commands (starting with /)"""
+
+    def __init__(self):
+        self.commands = ['help', 'agents', 'model', 'temp', 'exit', 'clear']
+
+    def get_completions(self, document, complete_event):
+        """Generate completions for commands"""
+        text = document.text_before_cursor
+
+        # Only complete if text starts with /
+        if text.startswith('/'):
+            word = text[1:]  # Remove leading /
+            for cmd in self.commands:
+                if cmd.startswith(word.lower()):
+                    # Yield completion without the leading /
+                    # start_position is negative to replace the typed word
+                    yield Completion(cmd, start_position=-len(word))
 
 
 class KaguraREPL:
@@ -46,14 +67,8 @@ class KaguraREPL:
         os.makedirs(history_dir, exist_ok=True)
         self.history_file = os.path.join(history_dir, "repl_history")
 
-        # Command completer for REPL commands
-        commands = ['/help', '/agents', '/model', '/temp', '/exit', '/clear']
-        command_completer = WordCompleter(
-            commands,
-            ignore_case=True,
-            sentence=False,  # Allow word-level completion
-            match_middle=True,  # Enable partial matching
-        )
+        # Command completer for REPL commands (custom completer to avoid // issue)
+        command_completer = CommandCompleter()
 
         # Python code completer (keywords, builtins, common imports)
         python_keywords = list(keyword.kwlist)
