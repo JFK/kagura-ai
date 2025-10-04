@@ -115,6 +115,46 @@
 - ChromaDB (ベクトルDB)
 - MCP (Model Context Protocol) - オプション
 
+#### RFC #63: Personal AI Assistant with Auto Fine-tuning
+
+**関連Issue**: https://github.com/JFK/kagura-ai/issues/63
+**ステータス**: コミュニティフィードバック募集中
+**対象バージョン**: v2.3.0 - v2.4.0
+**詳細ドキュメント**: `ai_docs/RFC_003_PERSONAL_ASSISTANT.md`
+
+**提案機能**:
+1. **3段階パーソナライゼーション**
+   - Level 1: RAG（即座の記憶）
+   - Level 2: Few-shot Learning（短期学習）
+   - Level 3: Fine-tuning（長期学習）
+
+2. **自動データ収集**
+   - 会話履歴の自動保存
+   - フィードバックシステム
+   - プライバシーフィルター
+
+3. **Auto Fine-tuning**
+   - OpenAI/Gemini FT API統合
+   - ローカルLoRA対応（オプション）
+   - コスト見積もり・管理
+
+4. **パーソナルアシスタント**
+   - ユーザー固有のモデル作成
+   - 継続的な学習・改善
+   - `kagura assistant` CLI
+
+**技術スタック**:
+- OpenAI Fine-tuning API
+- Gemini Fine-tuning API
+- LoRA (PEFT library) - ローカルオプション
+- SQLite (会話データストレージ)
+- ChromaDB (ベクトルDB)
+
+**期待効果**:
+- 応答精度: 85% → 92% (+8%)
+- ユーザー満足度: 3.8/5 → 4.5/5 (+18%)
+- 使えば使うほど賢くなるアシスタント
+
 ---
 
 ### Phase 3: 正式版リリース準備 (1-2ヶ月後)
