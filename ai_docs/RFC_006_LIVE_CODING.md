@@ -8,9 +8,10 @@
 
 ## 概要
 
-Kagura AIをリアルタイムペアプログラミングパートナーとして機能させます。ユーザーがコードを書いている最中に、AIがリアルタイムで提案、補完、デバッグ、テストをサポートします。
+Kagura AIをリアルタイムペアプログラミングパートナーとして機能させます。ユーザーがコードを書いている最中に、AIがリアルタイムで提案、補完、デバッグ、テストをサポートします。さらに、**対話型Chat REPL**により、ターミナルから即座にAIと自然言語で対話できます。
 
 ### 目標
+- **対話型Chat REPL**（`kagura chat`）でエージェント定義不要の即座の対話
 - リアルタイムコード補完とインテリジェントな提案
 - エディタ統合（VS Code、Cursor、Vim/Neovimなど）
 - インタラクティブなデバッグとエラー修正
@@ -29,6 +30,8 @@ Kagura AIをリアルタイムペアプログラミングパートナーとし�
 3. コンテキストを保持しながらの継続的な開発が困難
 
 ### 解決するユースケース
+- **即座のAI対話**: ターミナルから`kagura chat`で即座にAIアシスタント起動
+- **ワンタイムタスク**: コード書くほどでもない質問・翻訳・要約を即実行
 - **リアルタイムペアプログラミング**: AIとペアを組んでコーディング
 - **コードレビュー**: 書いたコードをその場でレビュー
 - **TDD**: テストを書きながら実装を進める
@@ -46,22 +49,32 @@ Kagura AIをリアルタイムペアプログラミングパートナーとし�
 
 ```
 ┌─────────────────────────────────────────────┐
-│            Editor Integration               │
+│            User Interfaces                  │
 │                                             │
-│  ┌──────────────┐    ┌──────────────┐     │
-│  │  VS Code     │    │  Vim/Neovim  │     │
-│  │  Extension   │    │  Plugin      │     │
-│  └──────┬───────┘    └───────┬──────┘     │
-│         │                    │            │
-│         └──────────┬─────────┘            │
-│                    │                      │
-│         ┌──────────▼─────────┐            │
-│         │   LSP Server       │            │
-│         │  (Kagura LSP)      │            │
-│         └──────────┬─────────┘            │
-└────────────────────┼──────────────────────┘
-                     │
-                     ▼
+│  ┌──────────────┐  ┌──────────────┐        │
+│  │  VS Code     │  │  Vim/Neovim  │        │
+│  │  Extension   │  │  Plugin      │        │
+│  └──────┬───────┘  └───────┬──────┘        │
+│         │                  │               │
+│         └─────────┬────────┘               │
+│                   │                        │
+│        ┌──────────▼─────────┐              │
+│        │   LSP Server       │              │
+│        │  (Kagura LSP)      │              │
+│        └──────────┬─────────┘              │
+│                   │                        │
+│  ┌────────────────┼────────────────┐       │
+│  │                │                │       │
+│  │   ┌────────────▼────────────┐   │       │
+│  │   │  Interactive Chat REPL │   │       │
+│  │   │  - kagura chat         │   │       │
+│  │   │  - Natural language    │   │       │
+│  │   │  - Session management  │   │       │
+│  │   └────────────┬────────────┘   │       │
+│  └────────────────┼────────────────┘       │
+└───────────────────┼────────────────────────┘
+                    │
+                    ▼
 ┌─────────────────────────────────────────────┐
 │          Kagura Live Coding Core            │
 │                                             │
@@ -120,7 +133,141 @@ async def provide_code_action(document, range, diagnostics):
     return actions
 ```
 
-#### 2. Real-time Code Agent
+#### 2. Interactive Chat REPL
+
+ターミナルから即座にAIと対話できるチャットモード：
+
+```bash
+# Chat REPL起動
+kagura chat
+
+# または既存REPLからチャットモード
+kagura repl --chat
+```
+
+```python
+from kagura import agent
+from kagura.chat import ChatSession
+from rich.console import Console
+from rich.markdown import Markdown
+
+@agent(model="gpt-4o-mini", streaming=True)
+async def chat_agent(history: list[dict], user_input: str) -> str:
+    """
+    Previous conversation:
+    {% for msg in history %}
+    {{ msg.role }}: {{ msg.content }}
+    {% endfor %}
+
+    User: {{ user_input }}
+
+    Respond naturally and helpfully. Provide code examples when relevant.
+    """
+    pass
+
+class ChatSession:
+    """Interactive chat session manager"""
+
+    def __init__(self):
+        self.console = Console()
+        self.history = []
+        self.presets = {
+            "translate": "Translate text",
+            "summarize": "Summarize content",
+            "review": "Review code",
+            "debug": "Debug code"
+        }
+
+    async def run(self):
+        """Run interactive chat loop"""
+        self.console.print("[bold green]Kagura Chat[/] - Type /help for commands\n")
+
+        while True:
+            user_input = self.console.input("[bold blue]You:[/] ")
+
+            # Commands
+            if user_input.startswith("/"):
+                await self.handle_command(user_input)
+                continue
+
+            # Regular chat
+            response = await chat_agent(self.history, user_input)
+
+            self.console.print("\n[bold green]AI:[/]")
+            async for chunk in response:
+                self.console.print(chunk, end="")
+            self.console.print("\n")
+
+            # Save history
+            self.history.append({"role": "user", "content": user_input})
+            self.history.append({"role": "assistant", "content": response})
+
+    async def handle_command(self, cmd: str):
+        """Handle slash commands"""
+        if cmd == "/help":
+            self.show_help()
+        elif cmd == "/clear":
+            self.history = []
+        elif cmd == "/save":
+            self.save_session()
+        elif cmd.startswith("/translate"):
+            # Preset agent
+            text = cmd.split(" ", 2)[2] if len(cmd.split()) > 2 else ""
+            await self.preset_translate(text)
+        # ... more commands
+```
+
+**使用例:**
+
+```bash
+$ kagura chat
+
+You: このコードレビューして
+[コード貼り付け]
+
+AI: このコードには以下の改善点があります:
+    1. エラーハンドリングが不足しています
+    2. 型ヒントを追加すべきです
+    ...
+
+You: じゃあ修正コード書いて
+
+AI: 修正版です:
+```python
+def process(data: dict) -> Result:
+    try:
+        if not data:
+            raise ValueError("Empty data")
+        return Result(data)
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        raise
+```
+
+You: /save
+Session saved to: ~/.kagura/sessions/2025-10-04_10-30.json
+
+You: /exit
+```
+
+**Preset Commands:**
+
+```bash
+# 翻訳
+You: /translate "Hello" to ja
+AI: こんにちは
+
+# 要約
+You: /summarize [長い文章]
+AI: [要約結果]
+
+# コードレビュー
+You: /review
+[コード貼り付け]
+AI: [レビュー結果]
+```
+
+#### 3. Real-time Code Agent
 
 リアルタイムでコードを理解し、提案を生成：
 
@@ -148,7 +295,7 @@ async for chunk in code_assistant.stream("Add error handling"):
     print(chunk, end="", flush=True)
 ```
 
-#### 3. Interactive REPL with Live Editing
+#### 4. Interactive REPL with Live Editing
 
 REPLとエディタを融合：
 
@@ -174,7 +321,7 @@ AI: 以下の改善点があります:
     2. Line 23: 型ヒントがありません
 ```
 
-#### 4. TDD Workflow Integration
+#### 5. TDD Workflow Integration
 
 テスト駆動開発のワークフロー：
 
@@ -411,7 +558,11 @@ def calculate(x: float, y: float, operator: Operator) -> float:
 
 ## 実装計画
 
-### Phase 1: Core Live Coding (v2.2.0)
+### Phase 1: Core Live Coding & Chat Mode (v2.2.0)
+- [ ] **Interactive Chat REPL** (`kagura chat`)
+- [ ] チャット履歴管理・セッション保存
+- [ ] Preset agents（translate, summarize, review）
+- [ ] ストリーミング応答表示（Rich統合）
 - [ ] リアルタイムストリーミングエージェント
 - [ ] コンテキスト管理（ファイル、プロジェクト構造）
 - [ ] `kagura live` REPLコマンド
