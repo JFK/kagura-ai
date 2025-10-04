@@ -72,9 +72,28 @@ class KaguraREPL:
 
         # Python code completer (keywords, builtins, common imports)
         python_keywords = list(keyword.kwlist)
-        python_builtins = list(dir(__builtins__))
-        common_imports = ['import', 'from', 'as', 'kagura', 'asyncio', 'async', 'await']
-        python_words = list(set(python_keywords + python_builtins + common_imports))
+
+        # Get built-in functions properly
+        if isinstance(__builtins__, dict):
+            python_builtins = list(__builtins__.keys())
+        else:
+            python_builtins = dir(__builtins__)
+
+        # Common functions and imports to prioritize
+        common_words = [
+            'print', 'len', 'range', 'str', 'int', 'float', 'list', 'dict', 'set', 'tuple',
+            'input', 'open', 'help', 'type', 'isinstance', 'enumerate', 'zip', 'map', 'filter',
+            'import', 'from', 'as', 'kagura', 'asyncio', 'async', 'await', 'agent'
+        ]
+
+        # Combine all words and remove duplicates while preserving order
+        seen = set()
+        python_words = []
+        for word in common_words + python_keywords + python_builtins:
+            if word not in seen and not word.startswith('_'):
+                seen.add(word)
+                python_words.append(word)
+
         python_completer = WordCompleter(
             python_words,
             ignore_case=False,
