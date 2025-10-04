@@ -188,6 +188,9 @@ APIキー不要のブラウザ認証。v2.3.0で実装予定。優先度: Medium
 ### RFC-014: Web Integration
 Web検索・スクレイピング。v2.2.0で実装予定。優先度: High
 
+### RFC-015: Agent API Server
+HTTP API経由でエージェント登録・実行。REST API、WebSocket、JWT認証。v2.6.0で実装予定。優先度: High
+
 ---
 
 ## CLI関連
@@ -333,6 +336,9 @@ GitHub IssueとClaude Codeによる開発フロー。
 | v2.3.0 | 2026 Q3 | Personal AI、OAuth2 |
 | v2.4.0 | 2026 Q4 | Meta Agent、Marketplace、Orchestration |
 | v2.5.0+ | 2027 Q1+ | Voice、LSP、Observability、Automation |
+| v2.6.0 | 2027 Q2 | API Server、REST/WebSocket、認証 |
+| v2.7.0 | 2027 Q3 | Web UI、Dashboard、Marketplace UI |
+| v2.8.0+ | 2027 Q4+ | SaaS化、マルチテナント、従量課金 |
 
 詳細は`UNIFIED_ROADMAP.md`参照。
 

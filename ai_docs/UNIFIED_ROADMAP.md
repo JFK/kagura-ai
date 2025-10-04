@@ -311,6 +311,81 @@ await team.parallel([
 
 ---
 
+## 🚀 Version 2.6.0: API Server & Web Integration (Week 59+)
+
+### RFC-015: Agent API Server ⭐️ NEW
+**関連Issue**: TBD
+
+#### 実装内容
+1. **FastAPI Server** (Week 59-62)
+   - REST API (register, execute, list, delete)
+   - WebSocket (ストリーミング実行)
+   - JWT/API Key認証
+
+2. **セキュリティ** (Week 63-64)
+   - サンドボックス強化（Docker）
+   - レート制限
+   - 監査ログ
+
+3. **CLI** (Week 65-66)
+   ```bash
+   $ kagura api start --port 8000
+   $ kagura api register --file my_agent.py
+   ```
+
+4. **クライアントSDK** (Week 67-68)
+   ```javascript
+   // JavaScript SDK
+   const kagura = new KaguraClient('http://localhost:8000');
+   const result = await kagura.execute('translate', { text: 'Hello' });
+   ```
+
+#### 成功指標
+- ✅ REST API完全実装
+- ✅ WebSocket ストリーミング動作
+- ✅ Python以外のクライアント（JS、Go）から実行可能
+- ✅ ドキュメント完備（OpenAPI/Swagger）
+
+---
+
+## 🌐 Version 2.7.0: Web UI & Dashboard (Week 69+)
+
+### Web UI実装（RFC-015統合）
+
+#### 実装内容
+1. **Agent Builder UI** (Week 69-72)
+   - 自然言語 → Meta Agent → コード生成 → 登録
+   - RFC-005統合
+
+2. **Agent Executor UI** (Week 73-74)
+   - エージェント選択
+   - パラメータ入力フォーム
+   - 実行 → リアルタイム結果表示
+
+3. **Dashboard** (Week 75-76)
+   - 実行履歴
+   - コスト分析
+   - パフォーマンス統計
+
+4. **Marketplace UI** (Week 77-78)
+   - RFC-008統合
+   - コミュニティエージェント検索
+   - ワンクリックインストール
+
+---
+
+## ☁️ Version 2.8.0+: SaaS化オプション (Week 79+)
+
+### SaaS化機能（オプション）
+
+#### 実装内容
+- マルチテナント対応
+- 従量課金システム
+- エンタープライズ機能（SSO、監査ログ）
+- Kubernetes/Docker Compose デプロイ
+
+---
+
 ## 📈 マイルストーン一覧
 
 | Version | リリース時期 | 主要機能 | 関連RFC |
@@ -321,6 +396,9 @@ await team.parallel([
 | v2.3.0 | 2026 Q3 | Personal Assistant、OAuth2 | RFC-003, 013 |
 | v2.4.0 | 2026 Q4 | Meta Agent、Marketplace、Orchestration | RFC-005, 008, 009 |
 | v2.5.0+ | 2027 Q1+ | Voice、LSP、Observability、Automation | RFC-004, 006, 010, 011 |
+| v2.6.0 | 2027 Q2 | API Server、REST/WebSocket、認証 | RFC-015 |
+| v2.7.0 | 2027 Q3 | Web UI、Dashboard、Marketplace UI | RFC-015, 005, 008 |
+| v2.8.0+ | 2027 Q4+ | SaaS化、マルチテナント、従量課金 | RFC-015 |
 
 ---
 
