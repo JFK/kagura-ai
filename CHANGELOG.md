@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-10-04
+
+### Added
+
+- **REPL Enhancements** ([#72](https://github.com/JFK/kagura-ai/issues/72))
+  - Protected prompt (`>>>` cannot be deleted with backspace)
+  - Multiline input with automatic detection
+    - Detects incomplete code (ending with `:`)
+    - Detects unclosed brackets/parentheses
+    - Smart syntax checking with `compile()`
+  - Syntax highlighting with Pygments
+  - History file moved to `~/.kagura/repl_history`
+  - Auto-suggestion from history (Ctrl+R search)
+  - Integrated prompt_toolkit (>=3.0.52) and pygments (>=2.19.2)
+
+- **RFC-015: Agent API Server** (Planned for v2.6.0)
+  - Specification for FastAPI-based HTTP API server
+  - REST API + WebSocket streaming design
+  - JWT/API Key authentication
+  - Integration with RFC-005 (Meta Agent) and RFC-008 (Marketplace)
+
+### Changed
+
+- **Documentation Updates**
+  - Created `ai_docs/rfcs/` directory for all RFC specifications
+  - Updated `UNIFIED_ROADMAP.md` with v2.6.0, v2.7.0, v2.8.0+ milestones
+  - Updated `glossary.md` with RFC-015 and new version roadmap
+  - Added RFC-015 to `ai_docs/README.md` RFC table
+
+### Fixed
+
+- Prompt editing issue in REPL (backspace no longer deletes `>>>`)
+- Multiline paste support in REPL
+- History search functionality
+
 ## [2.0.0-beta.1] - 2025-10-03
 
 ### Added
@@ -94,5 +129,6 @@ This is a **complete rewrite** from Kagura AI 1.x:
 
 Legacy versions (1.0.0 - 1.x.x) are no longer maintained. Please migrate to 2.0.0+ for new projects.
 
+[2.0.0]: https://github.com/JFK/kagura-ai/compare/v2.0.0-beta.1...v2.0.0
 [2.0.0-beta.1]: https://github.com/JFK/kagura-ai/compare/v2.0.0-alpha.1...v2.0.0-beta.1
 [2.0.0-alpha.1]: https://github.com/JFK/kagura-ai/releases/tag/v2.0.0-alpha.1
