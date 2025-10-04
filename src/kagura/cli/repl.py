@@ -113,6 +113,11 @@ class KaguraREPL:
             buffer = event.current_buffer
             text = buffer.text
 
+            # Commands starting with / execute immediately
+            if text.strip().startswith('/'):
+                buffer.validate_and_handle()
+                return
+
             # IPython-style: empty line triggers execution
             # If current line is empty and we have previous content, execute
             if text.endswith('\n') or (text and not text.split('\n')[-1].strip()):
@@ -144,7 +149,8 @@ class KaguraREPL:
                 "[bold green]Kagura AI REPL[/bold green]\n"
                 "Python-First AI Agent Framework\n\n"
                 "Type [cyan]/help[/cyan] for commands, [cyan]/exit[/cyan] to quit\n"
-                "[dim]Enter[/dim] = newline\n"
+                "[dim]Commands (/help, /exit)[/dim] = execute immediately\n"
+                "[dim]Python code + Enter[/dim] = newline\n"
                 "[dim]Empty line + Enter[/dim] = execute (IPython style)\n"
                 "[dim]Tab[/dim] = autocomplete",
                 border_style="green",
