@@ -90,13 +90,6 @@ class KaguraREPL:
             # Otherwise, insert newline
             buffer.insert_text('\n')
 
-        @kb.add('escape', 'enter')  # Meta+Enter (Alt+Enter) also executes
-        def _(event):
-            """Execute code on Meta+Enter (Alt+Enter)"""
-            buffer = event.current_buffer
-            if buffer.text.strip():
-                buffer.validate_and_handle()
-
         self.session = PromptSession(
             history=FileHistory(self.history_file),
             auto_suggest=AutoSuggestFromHistory(),
@@ -119,7 +112,6 @@ class KaguraREPL:
                 "Type [cyan]/help[/cyan] for commands, [cyan]/exit[/cyan] to quit\n"
                 "[dim]Enter[/dim] = newline\n"
                 "[dim]Empty line + Enter[/dim] = execute (IPython style)\n"
-                "[dim]Alt+Enter[/dim] = execute immediately\n"
                 "[dim]Tab[/dim] = autocomplete",
                 border_style="green",
             )
