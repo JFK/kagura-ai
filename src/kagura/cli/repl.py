@@ -11,10 +11,13 @@ from dotenv import load_dotenv
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.completion import WordCompleter, merge_completers
+from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
+from prompt_toolkit.filters import Condition
 from pygments.lexers.python import PythonLexer
+import keyword
 
 # Ensure UTF-8 encoding for console I/O
 console = Console(force_terminal=True, legacy_windows=False)
@@ -48,17 +51,57 @@ class KaguraREPL:
         command_completer = WordCompleter(
             commands,
             ignore_case=True,
-            sentence=True,  # Allow commands with spaces after /
+            sentence=True,
         )
+
+        # Python code completer (keywords, builtins, common imports)
+        python_keywords = list(keyword.kwlist)
+        python_builtins = list(dir(__builtins__))
+        common_imports = ['import', 'from', 'as', 'kagura', 'asyncio', 'async', 'await']
+        python_words = list(set(python_keywords + python_builtins + common_imports))
+        python_completer = WordCompleter(
+            python_words,
+            ignore_case=False,
+            sentence=True,
+        )
+
+        # Merge completers
+        combined_completer = merge_completers([command_completer, python_completer])
+
+        # Custom key bindings for multiline support
+        kb = KeyBindings()
+
+        @kb.add('enter')
+        def _(event):
+            """Handle Enter key - execute if complete, otherwise newline"""
+            buffer = event.current_buffer
+            # If starts with /, it's a command - execute immediately
+            if buffer.text.strip().startswith('/'):
+                buffer.validate_and_handle()
+            else:
+                # Check if code is incomplete
+                if self._is_incomplete(buffer.text):
+                    # Add newline for incomplete code
+                    buffer.insert_text('\n')
+                else:
+                    # Execute complete code
+                    buffer.validate_and_handle()
+
+        @kb.add('escape', 'enter')  # Meta+Enter (Alt+Enter or Esc then Enter)
+        def _(event):
+            """Always insert newline on Meta+Enter"""
+            event.current_buffer.insert_text('\n')
 
         self.session = PromptSession(
             history=FileHistory(self.history_file),
             auto_suggest=AutoSuggestFromHistory(),
-            completer=command_completer,
-            complete_while_typing=True,  # Show completions while typing
+            completer=combined_completer,
+            complete_while_typing=True,
             lexer=PygmentsLexer(PythonLexer),
             style=prompt_style,
-            multiline=False,
+            multiline=True,  # Enable multiline input
+            prompt_continuation='... ',  # Continuation prompt
+            key_bindings=kb,
             enable_history_search=True,
         )
 
@@ -68,8 +111,10 @@ class KaguraREPL:
             Panel.fit(
                 "[bold green]Kagura AI REPL[/bold green]\n"
                 "Python-First AI Agent Framework\n\n"
-                "Type [cyan]/help[/cyan] for commands, "
-                "[cyan]/exit[/cyan] to quit",
+                "Type [cyan]/help[/cyan] for commands, [cyan]/exit[/cyan] to quit\n"
+                "[dim]Enter[/dim] = execute (or newline if incomplete)\n"
+                "[dim]Alt+Enter[/dim] = always newline\n"
+                "[dim]Tab[/dim] = autocomplete",
                 border_style="green",
             )
         )
@@ -192,40 +237,14 @@ class KaguraREPL:
 
     def read_multiline(self) -> str:
         """Read multiline input with prompt_toolkit"""
-        lines = []
-        prompt_text = ">>> "
-
         try:
-            while True:
-                if lines:
-                    prompt_text = "... "
-
-                # Use prompt_toolkit for input with protected prompt
-                line = self.session.prompt(
-                    [('class:prompt', prompt_text)],
-                    multiline=False,
-                )
-
-                # Empty line ends multiline input
-                if not line.strip() and lines:
-                    break
-
-                lines.append(line)
-
-                # Single command or single line
-                if line.startswith("/"):
-                    break
-
-                # Check if we need more lines (incomplete code)
-                combined = "\n".join(lines)
-                if not self._is_incomplete(combined):
-                    break
-
+            # PromptSession now handles multiline internally
+            # with our custom Enter/Shift+Enter key bindings
+            user_input = self.session.prompt('>>> ')
+            return user_input
         except (KeyboardInterrupt, EOFError):
             console.print("\n[yellow]Input cancelled[/yellow]")
             return ""
-
-        return "\n".join(lines)
 
     def _is_incomplete(self, code: str) -> bool:
         """Check if code is incomplete and needs more lines"""
