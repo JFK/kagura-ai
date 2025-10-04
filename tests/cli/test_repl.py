@@ -141,55 +141,40 @@ my_agent._is_agent = True
     def test_dotenv_loading(self):
         """Test that .env file is loaded on initialization"""
         with patch('kagura.cli.repl.load_dotenv') as mock_load_dotenv:
-            with patch('readline.read_history_file'):
-                with patch('readline.set_history_length'):
-                    repl = KaguraREPL()
+            repl = KaguraREPL()
 
-                    # Verify load_dotenv was called
-                    mock_load_dotenv.assert_called_once()
+            # Verify load_dotenv was called
+            mock_load_dotenv.assert_called_once()
 
-    def test_history_file_loading(self):
-        """Test that history file is loaded on initialization"""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='_history', delete=False) as f:
-            history_file = f.name
-            # Write some history
-            f.write("command1\n")
-            f.write("command2\n")
+    def test_history_file_location(self):
+        """Test that history file is in ~/.kagura directory"""
+        repl = KaguraREPL()
+        assert repl.history_file.endswith("repl_history")
+        assert ".kagura" in repl.history_file
 
-        try:
-            with patch('os.path.expanduser', return_value=history_file):
-                with patch('readline.read_history_file') as mock_read:
-                    with patch('readline.set_history_length') as mock_set_length:
-                        repl = KaguraREPL()
+    def test_prompt_session_initialized(self):
+        """Test that PromptSession is initialized correctly"""
+        repl = KaguraREPL()
+        assert repl.session is not None
+        assert hasattr(repl.session, 'prompt')
 
-                        # Verify history file was read
-                        mock_read.assert_called_once_with(history_file)
-                        # Verify history length was set to 1000
-                        mock_set_length.assert_called_once_with(1000)
-        finally:
-            os.unlink(history_file)
+    def test_is_incomplete_with_colon(self):
+        """Test _is_incomplete detects code ending with colon"""
+        repl = KaguraREPL()
+        assert repl._is_incomplete("def foo():")
+        assert repl._is_incomplete("if x > 0:")
 
-    def test_history_file_loading_missing_file(self):
-        """Test that missing history file doesn't cause errors"""
-        with patch('os.path.expanduser', return_value='/nonexistent/history'):
-            with patch('readline.set_history_length'):
-                # Should not raise any exceptions
-                repl = KaguraREPL()
-                assert repl.history_file == '/nonexistent/history'
+    def test_is_incomplete_with_unclosed_brackets(self):
+        """Test _is_incomplete detects unclosed brackets"""
+        repl = KaguraREPL()
+        assert repl._is_incomplete("foo(")
+        assert repl._is_incomplete("bar[")
+        assert repl._is_incomplete("baz{")
+        assert not repl._is_incomplete("foo()")
+        assert not repl._is_incomplete("bar[]")
 
-    def test_history_file_saving(self):
-        """Test that history file is saved"""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='_history', delete=False) as f:
-            history_file = f.name
-
-        try:
-            with patch('os.path.expanduser', return_value=history_file):
-                with patch('readline.read_history_file'):
-                    with patch('readline.set_history_length'):
-                        repl = KaguraREPL()
-
-                with patch('readline.write_history_file') as mock_write:
-                    repl._save_history()
-                    mock_write.assert_called_once_with(history_file)
-        finally:
-            os.unlink(history_file)
+    def test_is_incomplete_with_complete_code(self):
+        """Test _is_incomplete returns False for complete code"""
+        repl = KaguraREPL()
+        assert not repl._is_incomplete("x = 42")
+        assert not repl._is_incomplete("print('hello')")

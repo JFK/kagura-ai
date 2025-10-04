@@ -1,7 +1,6 @@
 """Interactive REPL for Kagura AI"""
 import sys
 import os
-import readline
 from typing import Any
 import click
 from rich.console import Console
@@ -9,9 +8,21 @@ from rich.table import Table
 from rich.syntax import Syntax
 from rich.panel import Panel
 from dotenv import load_dotenv
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.styles import Style
+from pygments.lexers.python import PythonLexer
 
 # Ensure UTF-8 encoding for console I/O
 console = Console(force_terminal=True, legacy_windows=False)
+
+# Custom prompt_toolkit style
+prompt_style = Style.from_dict({
+    'prompt': '#00aa00 bold',  # Green prompt
+    'continuation': '#888888',  # Gray continuation
+})
 
 
 class KaguraREPL:
@@ -26,27 +37,19 @@ class KaguraREPL:
         self.default_model: str = "gpt-4o-mini"
         self.default_temperature: float = 0.7
 
-        # Set up readline history
-        self.history_file = os.path.expanduser("~/.kagura_history")
-        self._load_history()
-        readline.set_history_length(1000)
+        # Set up prompt_toolkit session
+        history_dir = os.path.expanduser("~/.kagura")
+        os.makedirs(history_dir, exist_ok=True)
+        self.history_file = os.path.join(history_dir, "repl_history")
 
-    def _load_history(self):
-        """Load command history from file"""
-        try:
-            if os.path.exists(self.history_file):
-                readline.read_history_file(self.history_file)
-        except (FileNotFoundError, PermissionError):
-            # If history file doesn't exist or can't be read, that's ok
-            pass
-
-    def _save_history(self):
-        """Save command history to file"""
-        try:
-            readline.write_history_file(self.history_file)
-        except (FileNotFoundError, PermissionError):
-            # If we can't save history, that's ok
-            pass
+        self.session = PromptSession(
+            history=FileHistory(self.history_file),
+            auto_suggest=AutoSuggestFromHistory(),
+            lexer=PygmentsLexer(PythonLexer),
+            style=prompt_style,
+            multiline=False,
+            enable_history_search=True,
+        )
 
     def show_welcome(self):
         """Display welcome message"""
@@ -127,7 +130,6 @@ class KaguraREPL:
             else:
                 console.print(f"Current temperature: [cyan]{self.default_temperature}[/cyan]")
         elif cmd == "/exit":
-            self._save_history()
             console.print("[green]Goodbye![/green]")
             sys.exit(0)
         elif cmd == "/clear":
@@ -178,18 +180,20 @@ class KaguraREPL:
             console.print(f"[red]Error:[/red] {type(e).__name__}: {e}")
 
     def read_multiline(self) -> str:
-        """Read multiline input"""
+        """Read multiline input with prompt_toolkit"""
         lines = []
-        prompt = "[bold blue]>>>[/bold blue] "
+        prompt_text = ">>> "
 
-        while True:
-            try:
+        try:
+            while True:
                 if lines:
-                    prompt = "[bold blue]...[/bold blue] "
+                    prompt_text = "... "
 
-                # Use input() instead of console.input() to avoid encoding issues
-                console.print(prompt, end="")
-                line = input()
+                # Use prompt_toolkit for input with protected prompt
+                line = self.session.prompt(
+                    [('class:prompt', prompt_text)],
+                    multiline=False,
+                )
 
                 # Empty line ends multiline input
                 if not line.strip() and lines:
@@ -201,11 +205,40 @@ class KaguraREPL:
                 if line.startswith("/"):
                     break
 
-            except (KeyboardInterrupt, EOFError):
-                console.print("\n[yellow]Input cancelled[/yellow]")
-                return ""
+                # Check if we need more lines (incomplete code)
+                combined = "\n".join(lines)
+                if not self._is_incomplete(combined):
+                    break
+
+        except (KeyboardInterrupt, EOFError):
+            console.print("\n[yellow]Input cancelled[/yellow]")
+            return ""
 
         return "\n".join(lines)
+
+    def _is_incomplete(self, code: str) -> bool:
+        """Check if code is incomplete and needs more lines"""
+        # Simple heuristic: if it ends with : or has unclosed brackets
+        code = code.rstrip()
+        if code.endswith(":"):
+            return True
+
+        # Check for unclosed brackets/parentheses
+        open_brackets = code.count("(") + code.count("[") + code.count("{")
+        close_brackets = code.count(")") + code.count("]") + code.count("}")
+        if open_brackets > close_brackets:
+            return True
+
+        # Try to compile - if SyntaxError with "unexpected EOF", it's incomplete
+        try:
+            compile(code, "<stdin>", "exec")
+            return False
+        except SyntaxError as e:
+            if "unexpected EOF" in str(e) or "incomplete" in str(e).lower():
+                return True
+            return False
+        except Exception:
+            return False
 
     def run(self):
         """Run the REPL"""
@@ -228,7 +261,6 @@ class KaguraREPL:
                     self.execute_code(user_input)
 
             except (KeyboardInterrupt, EOFError):
-                self._save_history()
                 console.print("\n[green]Goodbye![/green]")
                 break
 
