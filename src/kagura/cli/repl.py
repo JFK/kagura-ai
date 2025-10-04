@@ -79,7 +79,7 @@ class KaguraREPL:
             python_words,
             ignore_case=False,
             sentence=False,  # Allow word-level completion
-            match_middle=True,  # Enable partial matching
+            match_middle=False,  # Only match from start of word
         )
 
         # Merge completers
