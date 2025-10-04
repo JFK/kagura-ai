@@ -11,13 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **REPL Tab Completion**
   - Tab completion for REPL commands (`/e` + Tab → `/exit`)
+  - Tab completion for Python keywords (`def`, `class`, `import`, etc.)
+  - Tab completion for built-in functions (`print`, `len`, `range`, etc.)
   - Completion list with cursor navigation (↑↓ keys)
   - Complete-while-typing with real-time suggestions
   - Support for all commands: `/help`, `/agents`, `/model`, `/temp`, `/exit`, `/clear`
 
+- **Smart Enter Key Handling**
+  - **Enter**: Auto-detect incomplete code and add newline, or execute if complete
+  - **Alt+Enter**: Always insert newline for explicit multiline input
+  - Automatic detection of incomplete code (ending with `:`, unclosed brackets, etc.)
+  - Commands starting with `/` execute immediately
+
 ### Changed
 
-- Enhanced REPL user experience with prompt_toolkit WordCompleter
+- Enhanced REPL user experience with prompt_toolkit features
+- Multiline input now natively supported by PromptSession
+- Welcome message updated with keyboard shortcuts guide
+- Fixed version.py to correctly display 2.0.1
 
 ## [2.0.0] - 2025-10-04
 
