@@ -291,6 +291,57 @@ await team.parallel([
 
 ---
 
+### RFC-016: Agent Routing System (Week 41-43) ⭐️ NEW
+**関連Issue**: #80
+
+#### 実装内容
+1. **Intent-based Routing** (Week 41)
+   - AgentRouter基本実装
+   - キーワードマッチング
+   - Fallback mechanism
+
+2. **Semantic Routing** (Week 42)
+   - Embedding-based matching
+   - Vector similarity search
+   - Hybrid routing（Intent + Semantic）
+
+3. **Chain & RFC-009統合** (Week 43)
+   - AgentChain実装
+   - Team内自動ルーティング
+   - 動的チーム構成
+
+#### 統合例
+```python
+from kagura import AgentRouter, Team
+
+# ルーター作成
+router = AgentRouter()
+router.register(code_reviewer, intents=["review", "check"])
+router.register(translator, intents=["translate", "翻訳"])
+
+# 自動ルーティング
+result = await router.route("このコードをレビューして")
+# → code_reviewer が自動選択される
+
+# Team統合
+team = Team("support")
+team_router = AgentRouter()
+team_router.register(billing_agent, intents=["billing"])
+team_router.register(tech_agent, intents=["technical"])
+
+@team.workflow
+async def support(query: str):
+    return await team_router.route(query)
+```
+
+#### 成功指標
+- ✅ `router.route()` で自動エージェント選択
+- ✅ Semantic matching動作
+- ✅ RFC-009 Team統合
+- ✅ Chat REPL（RFC-006）での利用可能
+
+---
+
 ## 🌟 Version 2.5.0+: Advanced Features (Week 43+)
 
 ### RFC-004: Voice First Interface (Week 43-46)
@@ -394,7 +445,7 @@ await team.parallel([
 | v2.1.0 | 2026 Q1 | MCP統合、Chat REPL、Commands & Hooks | RFC-007, 006, 012 |
 | v2.2.0 | 2026 Q2 | Multimodal RAG、Web統合 | RFC-002, 014 |
 | v2.3.0 | 2026 Q3 | Personal Assistant、OAuth2 | RFC-003, 013 |
-| v2.4.0 | 2026 Q4 | Meta Agent、Marketplace、Orchestration | RFC-005, 008, 009 |
+| v2.4.0 | 2026 Q4 | Meta Agent、Marketplace、Orchestration、**Agent Routing** | RFC-005, 008, 009, **016** |
 | v2.5.0+ | 2027 Q1+ | Voice、LSP、Observability、Automation | RFC-004, 006, 010, 011 |
 | v2.6.0 | 2027 Q2 | API Server、REST/WebSocket、認証 | RFC-015 |
 | v2.7.0 | 2027 Q3 | Web UI、Dashboard、Marketplace UI | RFC-015, 005, 008 |

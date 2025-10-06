@@ -295,8 +295,9 @@ A: Issue #72完了後、1-2週間以内（Week 1終了目標）
 A:
 1. RFC-007 (Very High) - MCP Integration
 2. RFC-006, 012, 014 (High)
-3. RFC-002, 003 (バージョン指定済み)
-4. その他（Medium）
+3. **RFC-016 (High) - Agent Routing System** ⭐️ NEW
+4. RFC-002, 003 (バージョン指定済み)
+5. その他（Medium）
 
 ### Q3: 途中でRFC追加される？
 A: はい。`UNIFIED_ROADMAP.md`を随時更新します。
