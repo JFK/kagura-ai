@@ -151,7 +151,7 @@ docs(api): update agent decorator documentation (#30)
 5. **対象Issueの内容**（完全理解）
 
 **RFC参照**:
-- `ai_docs/rfcs/RFC_*.md` - 各機能の詳細仕様（002-014）
+- `ai_docs/rfcs/RFC_*.md` - 各機能の詳細仕様（002-018）
 
 ### 絶対に変更してはいけないパス
 
@@ -547,7 +547,7 @@ A: Phase 4（v2.0.0統合・テスト段階）で一括更新。今は `ai_docs/
 ### Q: RFCの優先順位は？
 A: `ai_docs/UNIFIED_ROADMAP.md` を参照。
 - Very High: RFC-007（MCP Integration）
-- High: RFC-006, 012, 014
+- High: RFC-006, 012, 014, 016（Agent Routing）, 017（Shell Integration）, 018（Memory Management）
 - その他は Medium
 
 ---
