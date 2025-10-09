@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-10-09
+
+### Added
+
+- **MCP Integration** ([#75](https://github.com/JFK/kagura-ai/issues/75))
+  - Model Context Protocol (MCP) server implementation
+  - Direct integration with Claude Desktop
+  - `kagura mcp start` command to launch MCP server
+  - `kagura mcp config` command for Claude Desktop setup
+  - Agent Registry system for dynamic agent discovery
+  - JSON Schema generation for tool parameters
+  - Full documentation: MCP Integration tutorial and API reference
+  - PRs: [#89](https://github.com/JFK/kagura-ai/pull/89), [#90](https://github.com/JFK/kagura-ai/pull/90), [#91](https://github.com/JFK/kagura-ai/pull/91)
+
+- **Shell Integration** ([#76](https://github.com/JFK/kagura-ai/issues/76))
+  - Secure shell command execution with AST validation
+  - Built-in Git automation agents (`commit`, `push`, `status`, `create_pr`)
+  - Built-in file operation agents (`search_files`, `grep_files`)
+  - `shell()` function for secure command execution
+  - Security constraints: allowed commands whitelist, timeout protection
+  - Full documentation: Shell Integration tutorial and API reference
+  - PR: [#92](https://github.com/JFK/kagura-ai/pull/92)
+
+- **Memory Management System** ([#84](https://github.com/JFK/kagura-ai/issues/84))
+  - Three-tier memory architecture:
+    - **Working Memory**: Temporary scratchpad (in-memory)
+    - **Context Memory**: Session history (SQLite)
+    - **Persistent Memory**: Long-term storage (JSON files)
+  - `@agent(enable_memory=True)` decorator parameter
+  - `MemoryManager` for centralized memory operations
+  - Automatic memory persistence and retrieval
+  - Full documentation: Memory Management tutorial and API reference
+  - PR: [#94](https://github.com/JFK/kagura-ai/pull/94)
+
+- **Custom Commands & Hooks System** ([#73](https://github.com/JFK/kagura-ai/issues/73))
+  - Markdown-based command definitions with YAML frontmatter
+  - Jinja2 template rendering for dynamic prompts
+  - Inline shell command execution (`!`command``)
+  - `kagura run <command>` CLI for executing custom commands
+  - Parameter validation and type checking
+  - **Hooks System**:
+    - PreToolUse hooks for command interception
+    - PostToolUse hooks for logging and monitoring
+    - Validation hooks for parameter checking
+    - Decorator API: `@hook.pre_tool_use()`, `@hook.post_tool_use()`, `@hook.validation()`
+  - `CommandLoader` for loading commands from `~/.kagura/commands/`
+  - Full documentation: Commands & Hooks guides and API references
+  - PRs: [#95](https://github.com/JFK/kagura-ai/pull/95), [#96](https://github.com/JFK/kagura-ai/pull/96), [#97](https://github.com/JFK/kagura-ai/pull/97)
+
+### Changed
+
+- Updated README.md with new features section
+- Enhanced documentation structure with MCP, Shell, Memory, and Commands tutorials
+- Improved CLI with new commands: `mcp`, `run`
+
+### Documentation
+
+- Added `docs/en/tutorials/06-mcp-integration.md` (400 lines)
+- Added `docs/en/tutorials/07-shell-integration.md` (216 lines)
+- Added `docs/en/tutorials/08-memory-management.md` (429 lines)
+- Added `docs/en/api/mcp.md` (350 lines)
+- Added `docs/en/api/shell.md` (289 lines)
+- Added `docs/en/api/memory.md` (479 lines)
+- Added `docs/en/api/commands.md` (421 lines)
+- Added `docs/en/api/hooks.md` (559 lines)
+- Added `docs/en/guides/commands-quickstart.md` (418 lines)
+- Added `docs/en/guides/hooks-guide.md` (566 lines)
+
+### Tests
+
+- Added 21 MCP tests (100% coverage)
+- Added 26 Shell Integration tests (100% coverage)
+- Added 66 Memory Management tests (100% coverage)
+- Added 72 Commands & Hooks tests (100% coverage)
+- **Total**: 340+ tests passing
+
 ## [2.0.2] - 2025-10-04
 
 ### Fixed
@@ -178,6 +254,8 @@ This is a **complete rewrite** from Kagura AI 1.x:
 
 Legacy versions (1.0.0 - 1.x.x) are no longer maintained. Please migrate to 2.0.0+ for new projects.
 
+[2.1.0]: https://github.com/JFK/kagura-ai/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/JFK/kagura-ai/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/JFK/kagura-ai/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/JFK/kagura-ai/compare/v2.0.0-beta.1...v2.0.0
 [2.0.0-beta.1]: https://github.com/JFK/kagura-ai/compare/v2.0.0-alpha.1...v2.0.0-beta.1

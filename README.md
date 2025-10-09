@@ -8,8 +8,6 @@
 [![Codecov](https://img.shields.io/codecov/c/github/JFK/kagura-ai)](https://codecov.io/gh/JFK/kagura-ai)
 [![Tests](https://img.shields.io/github/actions/workflow/status/JFK/kagura-ai/test.yml?label=tests)](https://github.com/JFK/kagura-ai/actions)
 
-> **⚠️ Beta Release**: Kagura AI 2.0.0-beta.1 is currently in beta. The API is stable but may receive minor changes based on community feedback. Production use is possible, but please report any issues you encounter.
-
 **Python-First AI Agent Framework with Code Execution**
 
 Kagura AI 2.0 is a complete redesign focused on simplicity and developer experience. Convert any Python function into an AI agent with a single decorator.
@@ -18,6 +16,7 @@ Kagura AI 2.0 is a complete redesign focused on simplicity and developer experie
 
 ## ✨ Features
 
+### Core Framework
 - **@agent Decorator**: One-line AI agent creation
 - **Jinja2 Templates**: Powerful prompt templating in docstrings
 - **Type-based Parsing**: Automatic response parsing using type hints
@@ -25,6 +24,13 @@ Kagura AI 2.0 is a complete redesign focused on simplicity and developer experie
 - **Code Execution**: Safe Python code generation and execution
 - **Interactive REPL**: `kagura repl` for rapid prototyping
 - **Multi-LLM Support**: Works with OpenAI, Anthropic, Google, and more via [LiteLLM](https://github.com/BerriAI/litellm)
+
+### Advanced Features ⭐️ NEW in v2.1.0
+- **MCP Integration**: Use Kagura agents directly in Claude Desktop via Model Context Protocol
+- **Shell Integration**: Secure shell command execution with Git automation (`commit`, `push`, `status`, `create_pr`)
+- **Memory Management**: Three-tier memory system (Working/Context/Persistent) for stateful agents
+- **Custom Commands**: Define reusable AI tasks in Markdown files with YAML frontmatter
+- **Hooks System**: Intercept and modify command execution with PreToolUse/PostToolUse hooks
 
 ## 🚀 Quick Start
 
@@ -91,6 +97,59 @@ Available commands:
 - `/agents` - List defined agents
 - `/exit` - Exit REPL
 - `/clear` - Clear screen
+
+### MCP Integration (Claude Desktop)
+
+Use Kagura agents directly in Claude Desktop:
+
+```bash
+# Start MCP server
+kagura mcp start
+
+# Configure Claude Desktop (macOS)
+kagura mcp config claude
+```
+
+Then interact with your agents in Claude Desktop conversation!
+
+### Memory Management
+
+```python
+from kagura import agent
+
+@agent(enable_memory=True)
+async def chat_with_memory(message: str) -> str:
+    '''You are a helpful assistant. Remember our conversation.
+    User says: {{ message }}'''
+    pass
+
+# Memory persists across calls
+await chat_with_memory("My name is Alice")
+await chat_with_memory("What's my name?")  # "Your name is Alice"
+```
+
+### Custom Commands
+
+Create `~/.kagura/commands/deploy.md`:
+
+```markdown
+---
+name: deploy
+description: Deploy application
+parameters:
+  env: string
+---
+
+# Task
+Deploy to {{ env }} environment.
+
+Current commit: !`git rev-parse HEAD`
+```
+
+Run:
+```bash
+kagura run deploy --param env=production
+```
 
 ## 📚 Documentation
 
