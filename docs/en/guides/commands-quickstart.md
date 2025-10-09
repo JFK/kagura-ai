@@ -7,16 +7,32 @@ Learn how to create and use custom commands in Kagura AI.
 Custom commands are reusable AI tasks defined in simple Markdown files. They allow you to:
 
 - Define common workflows once, use them repeatedly
-- Share commands with your team
+- Share commands with your team via Git
 - Build a library of AI-powered automation
+- Use global commands across all projects
+- Override global commands with project-specific versions
 
 ## Creating Your First Command
 
 ### Step 1: Create Commands Directory
 
+**Option A: Global Commands** (available in all projects)
+
 ```bash
 mkdir -p ~/.kagura/commands
 ```
+
+**Option B: Local Commands** (project-specific)
+
+```bash
+mkdir -p .kagura/commands
+```
+
+**Recommended**: Use local commands for project-specific workflows, and global commands for general-purpose tasks.
+
+By default, Kagura searches both directories:
+1. `~/.kagura/commands` - Global commands
+2. `./.kagura/commands` - Local commands (takes priority)
 
 ### Step 2: Create a Command File
 
@@ -281,32 +297,76 @@ print(command.metadata["tags"])    # ["git", "automation"]
 
 ## Directory Structure
 
-Organize commands by category:
+### Global vs Local Commands
 
+**Global commands** (`~/.kagura/commands/`):
+- Available in all projects
+- General-purpose workflows
+- Shared across your system
+
+**Local commands** (`./.kagura/commands/`):
+- Project-specific workflows
+- Can be committed to Git
+- Override global commands with same name
+
+### Example Structure
+
+**Global commands**:
 ```
 ~/.kagura/commands/
-├── git/
-│   ├── commit-pr.md
-│   ├── sync-fork.md
-│   └── rebase-main.md
-├── docs/
-│   ├── generate-readme.md
-│   ├── update-changelog.md
-│   └── api-docs.md
-├── code/
-│   ├── review.md
-│   ├── refactor.md
-│   └── test-gen.md
-└── data/
-    ├── analyze-csv.md
-    └── clean-data.md
+├── git-commit-pr.md         # Generic git workflow
+├── code-review.md           # General code review
+└── translate.md             # Generic translation
 ```
 
-**Note:** Currently, the loader only searches the top-level commands directory. Subdirectory support will be added in a future release.
+**Local commands** (in project directory):
+```
+.kagura/commands/
+├── deploy.md                # Project-specific deployment
+├── test-suite.md            # Project-specific tests
+└── git-commit-pr.md         # Overrides global version
+```
+
+When both exist, **local takes priority**:
+```
+~/.kagura/commands/deploy.md      ← Not used (global)
+./.kagura/commands/deploy.md      ← Used (local)
+```
+
+### Organizing Commands
+
+You can organize commands by category:
+
+```
+.kagura/commands/
+├── git-commit.md
+├── git-pr.md
+├── docs-readme.md
+├── docs-changelog.md
+├── code-review.md
+└── data-analyze.md
+```
+
+**Note:** Subdirectory support will be added in a future release. Currently, only top-level `.md` files are loaded.
 
 ## Best Practices
 
-### 1. Clear, Descriptive Names
+### 1. Use Local Commands for Projects
+
+**Commit local commands to Git** for team collaboration:
+
+```bash
+# Add to Git
+git add .kagura/commands/
+git commit -m "Add project commands"
+```
+
+This allows your team to:
+- Use the same workflows
+- Override with their own local changes
+- Keep project-specific automation in version control
+
+### 2. Clear, Descriptive Names
 
 ✅ Good:
 ```yaml
@@ -318,7 +378,7 @@ name: git-commit-push-pr
 name: cmd1
 ```
 
-### 2. Detailed Descriptions
+### 3. Detailed Descriptions
 
 ✅ Good:
 ```yaml
@@ -330,7 +390,7 @@ description: Create commit, push to origin, and open pull request
 description: Git stuff
 ```
 
-### 3. Specific Task Instructions
+### 4. Specific Task Instructions
 
 ✅ Good:
 ```markdown
@@ -350,7 +410,7 @@ description: Git stuff
 Do git things
 ```
 
-### 4. Use Allowed Tools
+### 5. Use Allowed Tools
 
 Restrict tools for security:
 
@@ -360,7 +420,7 @@ allowed_tools: [git, gh]  # Only git and GitHub CLI
 ---
 ```
 
-### 5. Add Metadata
+### 6. Add Metadata
 
 Help others understand your command:
 

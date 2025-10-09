@@ -16,6 +16,10 @@ class CommandLoader:
     Commands are stored as Markdown files with YAML frontmatter containing
     metadata and a Markdown body containing the command template.
 
+    By default, searches both project-local (./.kagura/commands) and
+    global (~/.kagura/commands) directories. Local commands take priority
+    over global commands with the same name.
+
     Example command file (~/.kagura/commands/example.md):
         ---
         name: example
@@ -32,35 +36,59 @@ class CommandLoader:
         """Initialize command loader.
 
         Args:
-            commands_dir: Directory containing command files
-                         (default: ~/.kagura/commands)
+            commands_dir: Directory containing command files.
+                         If None, searches both local (./.kagura/commands)
+                         and global (~/.kagura/commands) directories.
+                         Local commands take priority over global ones.
         """
-        self.commands_dir = commands_dir or (Path.home() / ".kagura" / "commands")
+        if commands_dir is not None:
+            # Single directory specified
+            self.commands_dirs = [commands_dir]
+        else:
+            # Default: search global then local (so local overrides global)
+            self.commands_dirs = [
+                Path.home() / ".kagura" / "commands",  # Global
+                Path.cwd() / ".kagura" / "commands",   # Local (priority)
+            ]
+
         self.commands: dict[str, Command] = {}
 
     def load_all(self) -> dict[str, Command]:
-        """Load all commands from commands directory.
+        """Load all commands from commands directories.
+
+        Searches all configured directories. When multiple directories
+        contain commands with the same name, later directories take
+        priority (local overrides global).
 
         Returns:
             Dictionary mapping command names to Command objects
 
         Raises:
-            FileNotFoundError: If commands directory doesn't exist
+            FileNotFoundError: If no commands directory exists
         """
-        if not self.commands_dir.exists():
-            raise FileNotFoundError(
-                f"Commands directory not found: {self.commands_dir}"
-            )
-
         self.commands.clear()
+        found_any = False
 
-        for md_file in self.commands_dir.glob("*.md"):
-            try:
-                command = self.load_command(md_file)
-                self.commands[command.name] = command
-            except Exception as e:
-                # Log error but continue loading other commands
-                print(f"Warning: Failed to load {md_file.name}: {e}")
+        for commands_dir in self.commands_dirs:
+            if not commands_dir.exists():
+                continue
+
+            found_any = True
+
+            for md_file in commands_dir.glob("*.md"):
+                try:
+                    command = self.load_command(md_file)
+                    # Later directories override earlier ones (local > global)
+                    self.commands[command.name] = command
+                except Exception as e:
+                    # Log error but continue loading other commands
+                    print(f"Warning: Failed to load {md_file.name}: {e}")
+
+        if not found_any:
+            dirs_str = ", ".join(str(d) for d in self.commands_dirs)
+            raise FileNotFoundError(
+                f"No commands directory found. Searched: {dirs_str}"
+            )
 
         return self.commands
 
@@ -127,4 +155,5 @@ class CommandLoader:
 
     def __repr__(self) -> str:
         """String representation."""
-        return f"CommandLoader(dir={self.commands_dir}, commands={len(self.commands)})"
+        dirs_str = ", ".join(str(d) for d in self.commands_dirs)
+        return f"CommandLoader(dirs=[{dirs_str}], commands={len(self.commands)})"

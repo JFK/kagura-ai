@@ -69,6 +69,8 @@ command.validate_parameters({"file": "test.txt"})  # Missing 'count'
 
 Loads custom commands from Markdown files.
 
+By default, searches both project-local (`./.kagura/commands`) and global (`~/.kagura/commands`) directories. Local commands take priority over global commands with the same name.
+
 ### Constructor
 
 ```python
@@ -77,7 +79,9 @@ CommandLoader(commands_dir: Optional[Path] = None)
 
 **Parameters:**
 
-- `commands_dir`: Directory containing command files (default: `~/.kagura/commands`)
+- `commands_dir`: Directory containing command files. If `None`, searches both:
+  1. `~/.kagura/commands` (global commands)
+  2. `./.kagura/commands` (project-local commands, takes priority)
 
 ### Methods
 
@@ -112,20 +116,27 @@ print(command.name)  # "example"
 loader.load_all() -> dict[str, Command]
 ```
 
-Load all commands from the commands directory.
+Load all commands from configured directories.
+
+Searches all directories in priority order. When multiple directories contain commands with the same name, later directories take priority (local overrides global).
 
 **Returns:** Dictionary mapping command names to `Command` objects
 
-**Raises:** `FileNotFoundError` if commands directory doesn't exist
+**Raises:** `FileNotFoundError` if no commands directory exists
 
 **Example:**
 
 ```python
+# Default: searches both global and local directories
 loader = CommandLoader()
 commands = loader.load_all()
 
 for name, command in commands.items():
     print(f"{name}: {command.description}")
+
+# Custom single directory
+loader = CommandLoader(Path("./my-commands"))
+commands = loader.load_all()
 ```
 
 #### get_command
@@ -260,10 +271,13 @@ parameters:
 from pathlib import Path
 from kagura.commands import CommandLoader
 
-# Default directory (~/.kagura/commands)
+# Default: searches both global and local directories
 loader = CommandLoader()
+# Searches:
+#   1. ~/.kagura/commands (global)
+#   2. ./.kagura/commands (local, takes priority)
 
-# Custom directory
+# Custom single directory
 loader = CommandLoader(Path("./my-commands"))
 
 # Load all commands
@@ -275,6 +289,33 @@ example = loader.get_command("example")
 if example:
     print(f"Template: {example.template}")
 ```
+
+### Multi-Directory Search
+
+By default, `CommandLoader` searches both global and local directories:
+
+```python
+loader = CommandLoader()  # No argument
+
+# Equivalent to:
+# loader.commands_dirs = [
+#     Path.home() / ".kagura" / "commands",  # Global
+#     Path.cwd() / ".kagura" / "commands",   # Local (priority)
+# ]
+
+commands = loader.load_all()
+```
+
+**Priority**: Local commands override global commands with the same name.
+
+**Example**:
+
+```
+~/.kagura/commands/deploy.md       ← Global version
+./.kagura/commands/deploy.md       ← Local version (used)
+```
+
+When both exist, the local version is used.
 
 ### Creating Commands Programmatically
 
