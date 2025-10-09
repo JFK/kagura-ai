@@ -30,7 +30,10 @@ ai_docs/
 │   ├── RFC_012_COMMANDS_AND_HOOKS.md
 │   ├── RFC_013_OAUTH2_AUTH.md
 │   ├── RFC_014_WEB_INTEGRATION.md
-│   └── RFC_015_AGENT_API_SERVER.md
+│   ├── RFC_015_AGENT_API_SERVER.md
+│   ├── RFC_016_AGENT_ROUTING.md
+│   ├── RFC_017_SHELL_INTEGRATION.md
+│   └── RFC_018_MEMORY_MANAGEMENT.md
 │
 ├── analysis/                  # 調査レポート
 ├── suggestions/               # Claudeからの技術的提案
@@ -183,6 +186,9 @@ Issue番号を含むファイル名で管理：
 | 013 | OAuth2 Auth | Medium-High | v2.3.0 |
 | 014 | Web Integration | High | v2.2.0 |
 | 015 | Agent API Server | High | v2.6.0 |
+| 016 | Agent Routing System | High | v2.4.0 |
+| 017 | Shell Integration | **High** | v2.1.0 |
+| 018 | Memory Management | **High** | v2.2.0 |
 
 詳細は`UNIFIED_ROADMAP.md`を参照。
 

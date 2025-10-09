@@ -1,6 +1,6 @@
 # Kagura AI - Next Steps（次のアクション）
 
-**最終更新**: 2025-10-04
+**最終更新**: 2025-10-09
 **現在地**: v2.0.0-beta.1 リリース済み、v2.0.0正式版に向けて最終調整
 
 ---
@@ -24,7 +24,10 @@
 - **RFC-007 (Very High)**: MCP Integration (#67)
 - **RFC-006 (High)**: Live Coding - Chat REPL (#66)
 - **RFC-012 (High)**: Commands & Hooks (#73)
-- **RFC-002〜005, 008〜011, 013〜014**: 詳細は `UNIFIED_ROADMAP.md` 参照
+- **RFC-016 (High)**: Agent Routing System ⭐️
+- **RFC-017 (High)**: Shell Integration & Built-in Agents ⭐️ NEW
+- **RFC-018 (High)**: Memory Management System ⭐️ NEW
+- **RFC-002〜005, 008〜011, 013〜015**: 詳細は `UNIFIED_ROADMAP.md` 参照
 
 ---
 
@@ -294,10 +297,12 @@ A: Issue #72完了後、1-2週間以内（Week 1終了目標）
 ### Q2: RFC実装の優先順位は？
 A:
 1. RFC-007 (Very High) - MCP Integration
-2. RFC-006, 012, 014 (High)
-3. **RFC-016 (High) - Agent Routing System** ⭐️ NEW
-4. RFC-002, 003 (バージョン指定済み)
-5. その他（Medium）
+2. RFC-006, 012, 014, 016, 017, 018 (High)
+   - **RFC-016**: Agent Routing System ⭐️
+   - **RFC-017**: Shell Integration & Built-in Agents ⭐️ NEW
+   - **RFC-018**: Memory Management System ⭐️ NEW
+3. RFC-002, 003 (バージョン指定済み)
+4. その他（Medium）
 
 ### Q3: 途中でRFC追加される？
 A: はい。`UNIFIED_ROADMAP.md`を随時更新します。
