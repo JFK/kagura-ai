@@ -41,11 +41,13 @@ nav:
     - Type-Based Parsing: en/tutorials/03-type-parsing.md
     - Code Execution: en/tutorials/04-code-execution.md
     - Using the REPL: en/tutorials/05-repl.md
+    - MCP Integration: en/tutorials/06-mcp-integration.md
   - API Reference:
     - Overview: en/api/index.md
     - '@agent Decorator': en/api/agent.md
     - Code Executor: en/api/executor.md
     - CLI Commands: en/api/cli.md
+    - MCP Integration: en/api/mcp.md
   - Examples: https://github.com/JFK/kagura-ai/tree/main/examples
   - For Developers:
     - How to Contribute: https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md
