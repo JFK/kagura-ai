@@ -3,9 +3,11 @@ Decorators to convert functions into AI agents
 """
 import functools
 import inspect
-from typing import Any, Awaitable, Callable, ParamSpec, TypeVar, overload
+from pathlib import Path
+from typing import Any, Awaitable, Callable, Optional, ParamSpec, TypeVar, overload
 
 from .llm import LLMConfig, call_llm
+from .memory import MemoryManager
 from .parser import parse_response
 from .prompt import extract_template, render_prompt
 from .registry import agent_registry
@@ -20,6 +22,9 @@ def agent(
     *,
     model: str = "gpt-4o-mini",
     temperature: float = 0.7,
+    enable_memory: bool = False,
+    persist_dir: Optional[Path] = None,
+    max_messages: int = 100,
     **kwargs: Any
 ) -> Callable[P, Awaitable[T]]: ...
 
@@ -29,6 +34,9 @@ def agent(
     *,
     model: str = "gpt-4o-mini",
     temperature: float = 0.7,
+    enable_memory: bool = False,
+    persist_dir: Optional[Path] = None,
+    max_messages: int = 100,
     **kwargs: Any
 ) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]: ...
 
@@ -37,6 +45,9 @@ def agent(
     *,
     model: str = "gpt-4o-mini",
     temperature: float = 0.7,
+    enable_memory: bool = False,
+    persist_dir: Optional[Path] = None,
+    max_messages: int = 100,
     **kwargs: Any
 ) -> Callable[P, Awaitable[T]] | Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]:
     """
@@ -46,6 +57,9 @@ def agent(
         fn: Function to convert
         model: LLM model to use
         temperature: Temperature for LLM
+        enable_memory: Enable memory management
+        persist_dir: Directory for persistent memory storage
+        max_messages: Maximum messages in context memory
         **kwargs: Additional LLM parameters
 
     Returns:
@@ -58,6 +72,13 @@ def agent(
             pass
 
         result = await hello("World")
+
+        # With memory
+        @agent(enable_memory=True)
+        async def assistant(query: str, memory: MemoryManager) -> str:
+            '''Answer: {{ query }}'''
+            memory.add_message("user", query)
+            return "response"
     """
     def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
         # Extract template from docstring
@@ -66,15 +87,32 @@ def agent(
         # Create LLM config
         config = LLMConfig(model=model, temperature=temperature)
 
+        # Get function signature to check for memory parameter
+        sig = inspect.signature(func)
+        has_memory_param = "memory" in sig.parameters
+
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs_inner: P.kwargs) -> T:
-            # Get function signature
-            sig = inspect.signature(func)
+            # Create and inject memory if enabled
+            if enable_memory and has_memory_param:
+                memory = MemoryManager(
+                    agent_name=func.__name__,
+                    persist_dir=persist_dir,
+                    max_messages=max_messages,
+                )
+                # Inject memory into kwargs before binding
+                kwargs_inner = dict(kwargs_inner)  # type: ignore
+                kwargs_inner["memory"] = memory  # type: ignore
+
+            # Get function signature and bind arguments
             bound = sig.bind(*args, **kwargs_inner)
             bound.apply_defaults()
 
-            # Render prompt with arguments
-            prompt = render_prompt(template_str, **bound.arguments)
+            # Render prompt with arguments (excluding memory from template)
+            template_args = {
+                k: v for k, v in bound.arguments.items() if k != "memory"
+            }
+            prompt = render_prompt(template_str, **template_args)
 
             # Call LLM
             response = await call_llm(prompt, config, **kwargs)
@@ -90,6 +128,7 @@ def agent(
         wrapper._is_agent = True  # type: ignore
         wrapper._agent_config = config  # type: ignore
         wrapper._agent_template = template_str  # type: ignore
+        wrapper._enable_memory = enable_memory  # type: ignore
 
         # Register in global registry
         agent_name = func.__name__
