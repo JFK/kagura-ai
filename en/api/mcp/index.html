@@ -11,6 +11,8 @@
         <link rel="canonical" href="https://www.kagura-ai.com/en/api/mcp/">
       
       
+        <link rel="prev" href="../cli/">
+      
       
       
       <link rel="icon" href="../../../assets/kagura-icon.svg">
@@ -18,7 +20,7 @@
     
     
       
-        <title>MCP API Reference - Kagura AI Documentation</title>
+        <title>MCP Integration - Kagura AI Documentation</title>
       
     
     
@@ -105,7 +107,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              MCP API Reference
+              MCP Integration
             
           </span>
         </div>
@@ -459,6 +461,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/06-mcp-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -470,18 +495,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -497,7 +524,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             API Reference
@@ -591,6 +618,380 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    MCP Integration
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP Integration
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-kaguramcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Module: kagura.mcp
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module: kagura.mcp">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_mcp_servername-str-kagura-ai-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_mcp_server(name: str = "kagura-ai") -&gt; Server
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-kaguramcpschema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Module: kagura.mcp.schema
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module: kagura.mcp.schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generate_json_schemafunc-callable-dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      generate_json_schema(func: Callable) -&gt; dict
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python_type_to_json_schemapy_type-type-dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      python_type_to_json_schema(py_type: type) -&gt; dict
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-kaguracoreregistry" class="md-nav__link">
+    <span class="md-ellipsis">
+      Module: kagura.core.registry
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module: kagura.core.registry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-agentregistry" class="md-nav__link">
+    <span class="md-ellipsis">
+      class AgentRegistry
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="class AgentRegistry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#registername-str-func-callable-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      register(name: str, func: Callable) -&gt; None
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getname-str-callable-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      get(name: str) -&gt; Callable | None
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_all-dictstr-callable" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_all() -&gt; dict[str, Callable]
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_names-liststr" class="md-nav__link">
+    <span class="md-ellipsis">
+      list_names() -&gt; list[str]
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unregistername-str-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      unregister(name: str) -&gt; None
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clear-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      clear() -&gt; None
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto_discovermodule_path-str-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      auto_discover(module_path: str) -&gt; None
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#global-instance-agent_registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      Global Instance: agent_registry
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      CLI Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CLI Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kagura-mcp-serve" class="md-nav__link">
+    <span class="md-ellipsis">
+      kagura mcp serve
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kagura-mcp-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      kagura mcp list
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agent Metadata
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Agent Metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_is_agent-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      _is_agent: bool
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_agent_config-llmconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      _agent_config: LLMConfig
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_agent_template-str" class="md-nav__link">
+    <span class="md-ellipsis">
+      _agent_template: str
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mcp-tool-naming" class="md-nav__link">
+    <span class="md-ellipsis">
+      MCP Tool Naming
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-conversion-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Conversion Table
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type Conversion Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#python-json-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Python → JSON Schema
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
