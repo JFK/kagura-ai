@@ -357,7 +357,9 @@ class AgentRouter:
         """Initialize semantic-router with registered agents."""
         try:
             from semantic_router import Route  # type: ignore
-            from semantic_router import SemanticRouter as _SemanticRouter  # type: ignore
+            from semantic_router import (
+                SemanticRouter as _SemanticRouter,  # type: ignore
+            )
         except ImportError:
             # semantic-router not installed
             return
