@@ -44,6 +44,8 @@ nav:
     - MCP Integration: en/tutorials/06-mcp-integration.md
     - Shell Integration: en/tutorials/07-shell-integration.md
     - Memory Management: en/tutorials/08-memory-management.md
+  - Guides:
+    - Custom Commands: en/guides/commands-quickstart.md
   - API Reference:
     - Overview: en/api/index.md
     - '@agent Decorator': en/api/agent.md
@@ -52,6 +54,7 @@ nav:
     - MCP Integration: en/api/mcp.md
     - Shell Integration: en/api/shell.md
     - Memory Management: en/api/memory.md
+    - Custom Commands: en/api/commands.md
   - Examples: https://github.com/JFK/kagura-ai/tree/main/examples
   - For Developers:
     - How to Contribute: https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md

@@ -24,6 +24,7 @@ dependencies = [
     "python-dotenv>=1.0",
     "prompt-toolkit>=3.0.52",
     "pygments>=2.19.2",
+    "python-frontmatter>=1.0.0",
 ]
 
 [project.scripts]
