@@ -227,8 +227,66 @@ for task in project.tasks:
     print(f"{status} [{task.priority}] {task.title}")
 ```
 
+## Use in Claude Desktop
+
+**New in v2.1.0**: Integrate your Kagura agents with Claude Desktop!
+
+### 1. Install MCP Support
+
+```bash
+pip install kagura-ai[mcp]
+```
+
+### 2. Create an Agent
+
+```python
+# my_agents.py
+from kagura import agent
+
+@agent
+async def analyze_code(code: str) -> str:
+    """Analyze code quality and suggest improvements"""
+    pass
+```
+
+### 3. Configure Claude Desktop
+
+Add to Claude Desktop config file:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "kagura": {
+      "command": "kagura",
+      "args": ["mcp", "serve"],
+      "env": {
+        "OPENAI_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+### 4. Use in Claude Desktop
+
+Restart Claude Desktop, and your agents are available as tools!
+
+```
+You: Can you analyze this Python code?
+
+def calc(x):
+    return x * 2 + 3
+
+Claude: [Uses kagura_analyze_code tool]
+```
+
+See [MCP Integration Tutorial](tutorials/06-mcp-integration.md) for details.
+
 ## Next Steps
 
+- [MCP Integration](tutorials/06-mcp-integration.md) - Use agents in Claude Desktop
 - [API Reference](api/agent.md) - Detailed API documentation
 - [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - More examples and patterns
 - [Code Executor](api/executor.md) - Deep dive into code execution

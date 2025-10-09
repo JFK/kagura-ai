@@ -514,8 +514,238 @@ If REPL becomes slow or unresponsive:
 2. Clear variables: `del large_variable`
 3. Use `/clear` to clear screen
 
+## MCP Commands
+
+**New in v2.1.0**: MCP (Model Context Protocol) commands for Claude Desktop integration.
+
+### kagura mcp
+
+MCP command group for managing Model Context Protocol integration.
+
+```bash
+kagura mcp [OPTIONS] COMMAND [ARGS]...
+```
+
+**Commands:**
+- `serve` - Start MCP server
+- `list` - List registered agents
+
+---
+
+### kagura mcp serve
+
+Start MCP server using stdio transport for Claude Desktop, Claude Code, Cline, etc.
+
+```bash
+kagura mcp serve [OPTIONS]
+```
+
+**Options:**
+- `--name TEXT`: Server name (default: "kagura-ai")
+- `--help`: Show help message
+
+**Examples:**
+
+```bash
+# Start MCP server (called by Claude Desktop)
+kagura mcp serve
+
+# Custom server name
+kagura mcp serve --name my-custom-server
+
+# Verbose logging (stderr)
+kagura -v mcp serve
+```
+
+**Usage in Claude Desktop:**
+
+Add to Claude Desktop config file:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+**Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "kagura": {
+      "command": "kagura",
+      "args": ["mcp", "serve"],
+      "env": {
+        "OPENAI_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+**How it works:**
+
+1. Claude Desktop starts `kagura mcp serve` as a subprocess
+2. Communication happens via stdio (stdin/stdout)
+3. Kagura agents are exposed as MCP tools
+4. Claude can call agents using the MCP protocol
+
+---
+
+### kagura mcp list
+
+List all registered Kagura agents available via MCP.
+
+```bash
+kagura mcp list
+```
+
+**Example:**
+
+```bash
+$ kagura mcp list
+Registered agents (3):
+
+  • analyze_code
+    Analyze code quality and suggest improvements
+
+  • review_code
+    Review code and provide detailed feedback
+
+  • generate_tests
+    Generate unit tests for the provided code
+```
+
+**Output:**
+
+Shows agent names and descriptions extracted from docstrings.
+
+---
+
+## MCP Integration Examples
+
+### Example 1: Basic Setup
+
+```bash
+# 1. Install MCP support
+pip install kagura-ai[mcp]
+
+# 2. Create agent
+cat > my_agents.py << 'EOF'
+from kagura import agent
+
+@agent
+async def analyze_code(code: str) -> str:
+    """Analyze code quality"""
+    pass
+EOF
+
+# 3. Test locally
+kagura mcp list
+
+# 4. Configure Claude Desktop (edit config file)
+# See configuration above
+
+# 5. Restart Claude Desktop
+```
+
+### Example 2: Multiple Agents
+
+```python
+# agents.py
+from kagura import agent
+
+@agent
+async def code_review(code: str) -> str:
+    """Review code and suggest improvements"""
+    pass
+
+@agent
+async def generate_tests(code: str, framework: str = "pytest") -> str:
+    """Generate unit tests"""
+    pass
+
+@agent
+async def explain_code(code: str, audience: str = "beginner") -> str:
+    """Explain code for different audiences"""
+    pass
+```
+
+All three agents are automatically available in Claude Desktop.
+
+### Example 3: Debugging
+
+```bash
+# Check agents are registered
+kagura mcp list
+
+# Start server with verbose logging
+kagura -v mcp serve 2> mcp_debug.log
+
+# In another terminal, check logs
+tail -f mcp_debug.log
+```
+
+---
+
+## MCP Troubleshooting
+
+### Agent Not Appearing
+
+1. **Verify agent is registered:**
+   ```bash
+   kagura mcp list
+   ```
+
+2. **Check import errors:**
+   ```bash
+   python -c "import my_agents"
+   ```
+
+3. **Restart Claude Desktop completely:**
+   - Quit application
+   - Start again
+   - Check MCP indicator
+
+### Configuration Issues
+
+1. **Verify config file location:**
+   ```bash
+   # macOS
+   cat ~/Library/Application\ Support/Claude/claude_desktop_config.json
+
+   # Linux
+   cat ~/.config/Claude/claude_desktop_config.json
+   ```
+
+2. **Validate JSON syntax:**
+   ```bash
+   python -m json.tool < claude_desktop_config.json
+   ```
+
+3. **Check environment variables:**
+   ```json
+   {
+     "mcpServers": {
+       "kagura": {
+         "env": {
+           "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+         }
+       }
+     }
+   }
+   ```
+
+### Permission Errors
+
+On Unix systems:
+```bash
+which kagura
+chmod +x $(which kagura)
+```
+
+---
+
 ## Related
 
 - [@agent Decorator](agent.md) - Creating agents
+- [MCP Integration Tutorial](../tutorials/06-mcp-integration.md) - Complete MCP guide
+- [MCP API Reference](mcp.md) - MCP API documentation
 - [Quick Start](../quickstart.md) - Getting started
 - [REPL Tutorial](../tutorials/05-repl.md) - Detailed REPL guide

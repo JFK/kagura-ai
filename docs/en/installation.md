@@ -143,6 +143,26 @@ ruff check src/
 
 ## Optional Dependencies
 
+### For MCP Integration
+
+To use Kagura agents with Claude Desktop, Claude Code, and other MCP clients:
+
+```bash
+pip install kagura-ai[mcp]
+```
+
+Or with uv:
+
+```bash
+uv add "kagura-ai[mcp]"
+```
+
+This installs:
+- `mcp>=1.0.0` - Model Context Protocol SDK
+- `jsonschema>=4.20.0` - JSON Schema validation
+
+See [MCP Integration Tutorial](tutorials/06-mcp-integration.md) for setup guide.
+
 ### For Development
 
 Development tools are already included with `--dev` flag:
