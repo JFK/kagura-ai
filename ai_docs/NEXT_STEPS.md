@@ -1,248 +1,150 @@
 # Kagura AI - Next Steps（次のアクション）
 
-**最終更新**: 2025-10-09
-**現在地**: v2.0.0-beta.1 リリース済み、v2.0.0正式版に向けて最終調整
+**最終更新**: 2025-10-09 (21:00)
+**現在地**: v2.0.2 リリース済み、RFC-007 Phase 1 完了、RFC-017 完了 🎉
 
 ---
 
 ## 📍 現在の状況
 
-### ✅ 完了済み
-- **v2.0.0-beta.1**: PyPI公開完了（Issue #60）
+### ✅ 完了済み（v2.0.0〜v2.0.2）
+- **v2.0.2**: PyPI公開完了、安定版リリース
 - **Core Engine**: @agent, Prompt Template, Type Parser（#14, #15, #16）
 - **Code Executor**: AST検証、安全実行（#20, #21）
-- **CLI & REPL**: Click CLI、基本REPL（#24, #25, #27, #56）
-- **テスト**: 統合テスト、カバレッジ95%+（#31, #55）
+- **CLI & REPL**: Click CLI、prompt_toolkit REPL（#24, #25, #27, #56, #72）
+- **テスト**: 統合テスト、カバレッジ79%（202 passed）
 - **ドキュメント**: README、チュートリアル、サンプル（#32, #33, #34, #45, #54）
-- **RFC作成**: 全13個のRFC（002-014）作成完了、Issue作成済み
+- **RFC作成**: 全18個のRFC（002-018）作成完了、Issue作成済み
 - **統合ロードマップ**: `UNIFIED_ROADMAP.md`作成完了
 
-### 🚧 進行中
-- **Issue #72**: REPL改善（prompt_toolkit、マルチライン貼り付け、履歴）
+### ✅ **NEW: RFC-007 MCP Integration Phase 1 完了（2025-10-09）**
+- **PR #89**: MCP Server実装（Agent Registry, JSON Schema, MCP Server, CLI）
+  - `src/kagura/core/registry.py`: Agent Registry（117行）
+  - `src/kagura/mcp/schema.py`: JSON Schema生成（146行）
+  - `src/kagura/mcp/server.py`: MCP Server（130行）
+  - `src/kagura/cli/mcp.py`: CLI commands（121行）
+  - `tests/mcp/`: 21テスト（100%パス）
+- **PR #90**: MCP統合ドキュメント（1,172行）
+  - `docs/en/tutorials/06-mcp-integration.md`: チュートリアル（400行）
+  - `docs/en/api/mcp.md`: APIリファレンス（350行）
+  - Claude Desktop設定方法（macOS/Windows/Linux対応）
+- **PR #91**: ナビゲーションメニュー追加
 
-### 📝 計画済み（RFC）
-- **RFC-007 (Very High)**: MCP Integration (#67)
+**成果**: Kaguraエージェントを**Claude Desktop**で即座に利用可能に！
+
+### ✅ **NEW: RFC-017 Shell Integration 完了（2025-10-09）**
+- **PR #92**: Shell Integration & Built-in Agents実装（1,402行）
+  - `src/kagura/core/shell.py`: ShellExecutor（261行）
+  - `src/kagura/builtin/shell.py`: shell() 関数
+  - `src/kagura/builtin/git.py`: Git操作（commit, push, status, PR）
+  - `src/kagura/builtin/file.py`: File操作（search, grep）
+  - `tests/builtin/`: 26テスト（全パス）
+  - `docs/en/tutorials/07-shell-integration.md`: チュートリアル（216行）
+  - `docs/en/api/shell.md`: APIリファレンス（289行）
+
+**成果**: セキュアなシェルコマンド実行、Git自動化、ファイル操作が可能に！
+
+### 🚧 進行中
+- なし（RFC-017完了）
+
+### 📝 次の優先タスク
+- **RFC-018 (High)**: Memory Management System (#85)
 - **RFC-006 (High)**: Live Coding - Chat REPL (#66)
 - **RFC-012 (High)**: Commands & Hooks (#73)
-- **RFC-016 (High)**: Agent Routing System ⭐️
-- **RFC-017 (High)**: Shell Integration & Built-in Agents ⭐️ NEW
-- **RFC-018 (High)**: Memory Management System ⭐️ NEW
-- **RFC-002〜005, 008〜011, 013〜015**: 詳細は `UNIFIED_ROADMAP.md` 参照
+- **RFC-016 (High)**: Agent Routing System (#83)
+- **RFC-002〜005, 008〜015**: 詳細は `UNIFIED_ROADMAP.md` 参照
 
 ---
 
 ## 🎯 優先アクション（1-2週間）
 
-### 1. v2.0.0 正式版リリース（Week 1）
+### 1. 次の開発候補を選択
 
-#### Issue #72: REPL改善を完了
-**タスク**:
-```bash
-# 1. prompt_toolkit統合
-- ✅ インストール: `uv add prompt_toolkit`
-- ✅ PromptSession実装
-- ✅ マルチライン入力対応
-- ✅ 履歴機能（~/.kagura/repl_history）
-- ✅ 自動補完
+以下から選択してください：
 
-# 2. テスト
-- ✅ マルチライン貼り付けテスト
-- ✅ 履歴機能テスト
-- ✅ エッジケーステスト
-
-# 3. ドキュメント更新
-- ✅ REPL使用方法の更新
-```
-
-**完了条件**:
-- `>>>` プロンプトがバックスペースで削除不可
-- 複数行コードの貼り付けが正常動作
-- 履歴が`Ctrl+R`で検索可能
-
-**見積もり**: 2-3日
-
----
-
-#### v2.0.0 正式版リリース準備
-**タスク**:
-```bash
-# 1. 最終テスト
-pytest --cov=src/kagura --cov-report=html
-pyright src/kagura/
-
-# 2. CHANGELOGの更新
-# ai_docs/UNIFIED_ROADMAP.md → CHANGELOG.md v2.0.0セクション
-
-# 3. バージョン更新
-# pyproject.toml: version = "2.0.0"
-
-# 4. PyPI公開
-uv build
-uv publish
-
-# 5. GitHub Release
-gh release create v2.0.0 \
-  --title "Kagura AI v2.0.0 - Core Release" \
-  --notes "Full release notes in CHANGELOG.md"
-```
-
-**完了条件**:
-- ✅ テスト全てパス
-- ✅ `pip install kagura-ai==2.0.0` で動作
-- ✅ README のサンプル全て動作
-
-**見積もり**: 2-3日
-
-**期限**: Week 1終了まで
-
----
-
-## 🚀 短期目標（Week 2-6: v2.1.0開発）
-
-### 2. RFC-007: MCP Integration実装開始（Week 2-6）
-
-#### Week 2-3: MCPサーバー実装
-**Issue #67のサブタスク**:
-
-```python
-# 1. MCP SDK統合
-uv add mcp
-
-# 2. KaguraエージェントをMCPツールとして公開
-# src/kagura/mcp/server.py
-from mcp import Server
-
-@server.list_tools()
-async def list_tools():
-    """Kaguraエージェント → MCPツール変換"""
-    agents = agent_registry.get_all()
-    return [
-        {
-            "name": f"kagura_{agent.name}",
-            "description": agent.description,
-            "inputSchema": generate_json_schema(agent.signature)
-        }
-        for agent in agents
-    ]
-
-@server.call_tool()
-async def call_tool(name: str, arguments: dict):
-    """MCPツール実行"""
-    agent = agent_registry.get(name.replace("kagura_", ""))
-    return await agent(**arguments)
-```
-
-**完了条件**:
-- ✅ `kagura mcp start` でMCPサーバー起動
-- ✅ Claude Codeから `mcp install kagura-ai` で接続
-- ✅ Kaguraエージェントを呼び出し可能
-
-**見積もり**: 2週間
-
----
-
-#### Week 4-5: MCPクライアント実装
-**タスク**:
-
-```python
-# Kagura → 外部MCPツール呼び出し
-@agent
-@mcp.use("fetch", "filesystem")
-async def research_agent(topic: str) -> str:
-    """
-    Research {{ topic }} using web fetch tool
-    """
-    # 自動的に fetch ツールが利用可能
-    pass
-```
-
-**完了条件**:
-- ✅ `@mcp.use()` デコレータ実装
-- ✅ 既存MCPツールを呼び出し可能
-
-**見積もり**: 1.5週間
-
----
-
-#### Week 6: 統合テスト・ドキュメント
-**タスク**:
-- Claude Code ⇄ Kagura 双方向統合テスト
-- MCPサーバー設定ガイド
-- サンプルエージェント作成
-
-**完了条件**:
-- ✅ Claude Code内でKaguraエージェント利用可能
-- ✅ ドキュメント完備
-
-**見積もり**: 0.5週間
-
----
-
-### 3. RFC-006: Chat REPL実装（Week 4-6）
-
-**並行実装可能**（MCP実装と同時進行）
-
-```bash
-# 対話型チャット
-$ kagura chat
-You: 今日の天気は？
-AI: （Web検索して）東京は晴れ、最高気温25度...
-
-You: /translate こんにちは
-AI: Hello
-
-You: /exit
-```
+#### Option A: RFC-018 - Memory Management（Week 1-2）
+**Issue #85**
 
 **実装内容**:
-1. Chat REPL UI（Week 4）
-   - セッション管理
-   - 履歴表示
-2. プリセットコマンド（Week 5）
-   - `/translate`, `/summarize`, `/review`
-3. ドキュメント（Week 6）
+- [ ] Core Memory Types（Working/Context/Persistent）
+- [ ] MemoryRAG（ChromaDB/Qdrant統合）
+- [ ] Agent統合（`@agent(enable_memory=True)`）
+- [ ] テスト・ドキュメント
 
-**完了条件**:
-- ✅ `kagura chat` で即座に対話開始
-- ✅ エージェント定義不要
-
-**見積もり**: 2週間（MCP実装と並行）
+**見積もり**: 2週間
+**優先度**: High
 
 ---
 
-## 📅 中期目標（Week 7-26: v2.2.0まで）
+#### Option B: RFC-006 - Chat REPL（Week 1-2）
+**Issue #66**
 
-### Week 7-12: RFC-012 Commands & Hooks (#73)
-- Markdownコマンド定義
-- PreToolUse / PostToolUse Hooks
-- インライン実行 ``!`command` ``
+**実装内容**:
+- [ ] 対話型Chat REPL（`kagura chat`）
+- [ ] プリセットコマンド（/translate, /summarize, /review）
+- [ ] セッション管理
+- [ ] テスト・ドキュメント
 
-### Week 13-19: RFC-002 Multimodal RAG (#62)
-- 画像・音声・PDF処理
-- RAG Chat (`kagura chat --dir`)
-- Google Workspace連携
-
-### Week 20-26: RFC-014 Web Integration (#75)
-- Brave Search API
-- BeautifulSoup スクレイピング
-- `@web.enable` デコレータ
+**見積もり**: 1.5週間
+**優先度**: High
 
 ---
 
-## 🌐 長期目標（Week 27+: v2.3.0以降）
+#### Option C: RFC-012 - Commands & Hooks（Week 1-2）
+**Issue #73**
 
-### v2.3.0 (Week 27-34): Personal AI & Auth
-- RFC-003: Personal Assistant (#63)
+**実装内容**:
+- [ ] Markdownコマンド定義
+- [ ] PreToolUse / PostToolUse Hooks
+- [ ] インライン実行 ``!`command` ``
+- [ ] テスト・ドキュメント
+
+**見積もり**: 2週間
+**優先度**: High
+
+---
+
+#### Option D: RFC-016 - Agent Routing System（Week 1-2）
+**Issue #83**
+
+**実装内容**:
+- [ ] Router実装（Intent Detection）
+- [ ] Agent Selection Logic
+- [ ] Fallback Handling
+- [ ] テスト・ドキュメント
+
+**見積もり**: 2週間
+**優先度**: High
+
+---
+
+## 🚀 中期目標（v2.1.0〜v2.2.0）
+
+### v2.1.0 候補機能
+- RFC-018: Memory Management System
+- RFC-006: Chat REPL
+- RFC-012: Commands & Hooks
+- RFC-016: Agent Routing System
+
+### v2.2.0 候補機能
+- RFC-002: Multimodal RAG
+- RFC-014: Web Integration
+- RFC-003: Personal Assistant
+
+---
+
+## 🌐 長期目標（v2.3.0以降）
+
+### v2.3.0: Authentication & Security
 - RFC-013: OAuth2 Auth (#74)
 
-### v2.4.0 (Week 35-42): Meta Agent & Ecosystem
+### v2.4.0: Meta Agent & Ecosystem
 - RFC-005: Meta Agent (#65)
 - RFC-008: Plugin Marketplace (#68)
 - RFC-009: Multi-Agent Orchestration (#69)
 
-### v2.5.0+ (Week 43+): Advanced Features
+### v2.5.0+: Advanced Features
 - RFC-004: Voice Interface (#64)
-- RFC-006: LSP Integration (#66)
 - RFC-010: Observability (#70)
 - RFC-011: Scheduled Automation (#71)
 
@@ -291,44 +193,40 @@ ruff check src/
 
 ## ❓ よくある質問
 
-### Q1: v2.0.0正式版はいつリリース？
-A: Issue #72完了後、1-2週間以内（Week 1終了目標）
+### Q1: RFC-007とRFC-017は完了？
+A: はい！両方とも2025-10-09に完了しました。
+- RFC-007 Phase 1: Claude DesktopでKaguraエージェント利用可能
+- RFC-017: セキュアなシェル実行、Git自動化、ファイル操作
 
 ### Q2: RFC実装の優先順位は？
 A:
-1. RFC-007 (Very High) - MCP Integration
-2. RFC-006, 012, 014, 016, 017, 018 (High)
-   - **RFC-016**: Agent Routing System ⭐️
-   - **RFC-017**: Shell Integration & Built-in Agents ⭐️ NEW
-   - **RFC-018**: Memory Management System ⭐️ NEW
-3. RFC-002, 003 (バージョン指定済み)
-4. その他（Medium）
+1. ✅ RFC-007 (Very High) - MCP Integration Phase 1 **完了**
+2. ✅ RFC-017 (High) - Shell Integration **完了**
+3. RFC-006, 012, 016, 018 (High) - 次の候補
+4. RFC-002, 003, 014 (Medium)
+5. その他（Low-Medium）
 
 ### Q3: 途中でRFC追加される？
 A: はい。`UNIFIED_ROADMAP.md`を随時更新します。
 
-### Q4: v2.0.0でどの機能が使える？
+### Q4: v2.0.2でどの機能が使える？
 A:
 - ✅ `@agent` デコレータ
 - ✅ Jinja2プロンプトテンプレート
 - ✅ 型ベースパース（Pydantic対応）
 - ✅ 安全なコード実行（CodeExecutor）
 - ✅ CLI & REPL
+- ✅ **MCP Integration** (Claude Desktop対応) ⭐️ NEW
+- ✅ **Shell Integration** (シェル実行、Git自動化) ⭐️ NEW
 
 ---
 
 ## 🎬 今すぐやること
 
-### 明日から着手
-1. **Issue #72実装**: prompt_toolkit統合
-2. **テスト実行**: REPL改善の動作確認
-3. **ドキュメント更新**: REPL使用方法
-
-### 今週中に完了
-4. **v2.0.0リリース**: PyPI公開、GitHubリリース
-
-### 来週から
-5. **RFC-007着手**: MCP Integration設計・実装開始
+### 次の開発を選択
+1. 上記Option A〜Dから選択
+2. 対応するIssueを確認
+3. 実装開始
 
 ---
 
@@ -342,4 +240,4 @@ A:
 
 ---
 
-**最優先タスク: Issue #72を今週中に完了させ、v2.0.0正式版をリリースする！**
+**最優先タスク: 次の開発候補（Option A〜D）から選択して実装を開始する！**
