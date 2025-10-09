@@ -2,50 +2,58 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://www.kagura-ai.com/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/installation/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/quickstart/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/agent/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/cli/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/executor/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
+    </url>
+    <url>
+         <loc>https://www.kagura-ai.com/en/api/mcp/</loc>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/01-basic-agent/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/02-templates/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/03-type-parsing/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/04-code-execution/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/05-repl/</loc>
-         <lastmod>2025-10-03</lastmod>
+         <lastmod>2025-10-09</lastmod>
+    </url>
+    <url>
+         <loc>https://www.kagura-ai.com/en/tutorials/06-mcp-integration/</loc>
+         <lastmod>2025-10-09</lastmod>
     </url>
 </urlset>

@@ -497,6 +497,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#for-mcp-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      For MCP Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#for-development" class="md-nav__link">
     <span class="md-ellipsis">
       For Development
@@ -1314,6 +1323,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#for-mcp-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      For MCP Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#for-development" class="md-nav__link">
     <span class="md-ellipsis">
       For Development
@@ -1531,6 +1549,17 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>ruff<span class="w"> </span>check<span class="w"> </span>src/
 </code></pre></div>
 <h2 id="optional-dependencies">Optional Dependencies</h2>
+<h3 id="for-mcp-integration">For MCP Integration</h3>
+<p>To use Kagura agents with Claude Desktop, Claude Code, and other MCP clients:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>mcp<span class="o">]</span>
+</code></pre></div>
+<p>Or with uv:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;kagura-ai[mcp]&quot;</span>
+</code></pre></div>
+<p>This installs:
+- <code>mcp&gt;=1.0.0</code> - Model Context Protocol SDK
+- <code>jsonschema&gt;=4.20.0</code> - JSON Schema validation</p>
+<p>See <a href="../tutorials/06-mcp-integration/">MCP Integration Tutorial</a> for setup guide.</p>
 <h3 id="for-development">For Development</h3>
 <p>Development tools are already included with <code>--dev</code> flag:</p>
 <ul>
@@ -1542,21 +1571,21 @@
 </ul>
 <h3 id="for-documentation">For Documentation</h3>
 <p>To build documentation locally:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>pip<span class="w"> </span>install<span class="w"> </span>mkdocs<span class="w"> </span>mkdocs-material
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>mkdocs<span class="w"> </span>serve
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>pip<span class="w"> </span>install<span class="w"> </span>mkdocs<span class="w"> </span>mkdocs-material
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>mkdocs<span class="w"> </span>serve
 </code></pre></div>
 <p>Then visit <code>http://localhost:8000</code></p>
 <h2 id="troubleshooting">Troubleshooting</h2>
 <h3 id="import-error">Import Error</h3>
 <p>If you get import errors:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="ne">ImportError</span><span class="p">:</span> <span class="n">cannot</span> <span class="kn">import</span><span class="w"> </span><span class="nn">name</span> <span class="s1">&#39;agent&#39;</span> <span class="kn">from</span><span class="w"> </span><span class="s1">&#39;kagura&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="ne">ImportError</span><span class="p">:</span> <span class="n">cannot</span> <span class="kn">import</span><span class="w"> </span><span class="nn">name</span> <span class="s1">&#39;agent&#39;</span> <span class="kn">from</span><span class="w"> </span><span class="s1">&#39;kagura&#39;</span>
 </code></pre></div>
 <p>Make sure you're using Python 3.11+:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>python<span class="w"> </span>--version
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>python<span class="w"> </span>--version
 </code></pre></div>
 <h3 id="api-key-not-found">API Key Not Found</h3>
 <p>If you see authentication errors:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>AuthenticationError: The api_key client option must be set
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>AuthenticationError: The api_key client option must be set
 </code></pre></div>
 <p>Set your API key as described above. The key must be set before importing kagura.</p>
 <h3 id="type-errors">Type Errors</h3>
@@ -1568,21 +1597,21 @@
 </ol>
 <h2 id="upgrading">Upgrading</h2>
 <h3 id="from-pypi">From PyPI</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>kagura-ai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>kagura-ai
 </code></pre></div>
 <p>or with uv:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>uv<span class="w"> </span>add<span class="w"> </span>kagura-ai<span class="w"> </span>--upgrade
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>uv<span class="w"> </span>add<span class="w"> </span>kagura-ai<span class="w"> </span>--upgrade
 </code></pre></div>
 <h3 id="from-git">From Git</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="nb">cd</span><span class="w"> </span>kagura-ai
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>git<span class="w"> </span>pull
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="nb">cd</span><span class="w"> </span>kagura-ai
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>git<span class="w"> </span>pull
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev
 </code></pre></div>
 <h2 id="uninstalling">Uninstalling</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>pip<span class="w"> </span>uninstall<span class="w"> </span>kagura-ai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>pip<span class="w"> </span>uninstall<span class="w"> </span>kagura-ai
 </code></pre></div>
 <p>or with uv:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>uv<span class="w"> </span>remove<span class="w"> </span>kagura-ai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>uv<span class="w"> </span>remove<span class="w"> </span>kagura-ai
 </code></pre></div>
 <h2 id="next-steps">Next Steps</h2>
 <ul>

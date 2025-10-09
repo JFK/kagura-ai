@@ -420,6 +420,57 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#use-in-claude-desktop" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use in Claude Desktop
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use in Claude Desktop">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-install-mcp-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Install MCP Support
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-an-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Create an Agent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configure-claude-desktop" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Configure Claude Desktop
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-use-in-claude-desktop" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Use in Claude Desktop
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       Next Steps
@@ -1007,6 +1058,57 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#use-in-claude-desktop" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use in Claude Desktop
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use in Claude Desktop">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-install-mcp-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Install MCP Support
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-an-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Create an Agent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-configure-claude-desktop" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Configure Claude Desktop
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-use-in-claude-desktop" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Use in Claude Desktop
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       Next Steps
@@ -1208,8 +1310,48 @@
 <a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;✓&quot;</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">completed</span> <span class="k">else</span> <span class="s2">&quot;○&quot;</span>
 <a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">priority</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
+<h2 id="use-in-claude-desktop">Use in Claude Desktop</h2>
+<p><strong>New in v2.1.0</strong>: Integrate your Kagura agents with Claude Desktop!</p>
+<h3 id="1-install-mcp-support">1. Install MCP Support</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>mcp<span class="o">]</span>
+</code></pre></div>
+<h3 id="2-create-an-agent">2. Create an Agent</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># my_agents.py</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="nd">@agent</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze_code</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Analyze code quality and suggest improvements&quot;&quot;&quot;</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    <span class="k">pass</span>
+</code></pre></div>
+<h3 id="3-configure-claude-desktop">3. Configure Claude Desktop</h3>
+<p>Add to Claude Desktop config file:</p>
+<p><strong>macOS</strong>: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">{</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="nt">&quot;kagura&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kagura&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">        </span><span class="nt">&quot;OPENAI_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;your-api-key&quot;</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="4-use-in-claude-desktop">4. Use in Claude Desktop</h3>
+<p>Restart Claude Desktop, and your agents are available as tools!</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>You: Can you analyze this Python code?
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>def calc(x):
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    return x * 2 + 3
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>Claude: [Uses kagura_analyze_code tool]
+</code></pre></div>
+<p>See <a href="../tutorials/06-mcp-integration/">MCP Integration Tutorial</a> for details.</p>
 <h2 id="next-steps">Next Steps</h2>
 <ul>
+<li><a href="../tutorials/06-mcp-integration/">MCP Integration</a> - Use agents in Claude Desktop</li>
 <li><a href="../api/agent/">API Reference</a> - Detailed API documentation</li>
 <li><a href="https://github.com/JFK/kagura-ai/tree/main/examples">Examples</a> - More examples and patterns</li>
 <li><a href="../api/executor/">Code Executor</a> - Deep dive into code execution</li>
