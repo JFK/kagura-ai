@@ -360,30 +360,32 @@ class AgentRouter:
             from semantic_router import (
                 SemanticRouter as _SemanticRouter,  # type: ignore
             )
-        except ImportError:
-            # semantic-router not installed
+
+            # Create encoder
+            encoder = self._create_encoder()
+            if encoder is None:
+                return
+
+            # Create routes from registered agents
+            routes = []
+            for agent_data in self._agents.values():
+                if agent_data.samples:
+                    route = Route(
+                        name=agent_data.name,
+                        utterances=agent_data.samples,
+                    )
+                    routes.append(route)
+
+            if not routes:
+                return
+
+            # Create semantic router
+            self._semantic_router = _SemanticRouter(encoder=encoder, routes=routes)
+        except (ImportError, ValueError, Exception):
+            # ImportError: semantic-router not installed
+            # ValueError: API key missing or invalid configuration
+            # Exception: Any other initialization errors
             return
-
-        # Create encoder
-        encoder = self._create_encoder()
-        if encoder is None:
-            return
-
-        # Create routes from registered agents
-        routes = []
-        for agent_data in self._agents.values():
-            if agent_data.samples:
-                route = Route(
-                    name=agent_data.name,
-                    utterances=agent_data.samples,
-                )
-                routes.append(route)
-
-        if not routes:
-            return
-
-        # Create semantic router
-        self._semantic_router = _SemanticRouter(encoder=encoder, routes=routes)
 
     def _create_encoder(self) -> Any | None:
         """Create encoder for semantic routing."""
