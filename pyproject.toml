@@ -47,6 +47,9 @@ mcp = [
     "mcp>=1.0.0",
     "jsonschema>=4.20.0",
 ]
+routing = [
+    "semantic-router>=0.1.11",
+]
 
 [build-system]
 requires = ["setuptools>=42.0.0,<69.0", "wheel"]

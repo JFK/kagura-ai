@@ -208,6 +208,127 @@ This is useful for:
 - Tuning confidence thresholds
 - Understanding why an agent was selected
 
+## Semantic Routing (Advanced)
+
+Semantic routing uses embedding-based similarity matching for more intelligent routing. Instead of keyword matching, it understands the **meaning** of user queries.
+
+### Installation
+
+```bash
+pip install kagura-ai[routing]
+```
+
+### Basic Usage
+
+```python
+from kagura import agent
+from kagura.routing import AgentRouter
+
+@agent
+async def code_reviewer(code: str) -> str:
+    '''Review code: {{ code }}'''
+    pass
+
+@agent
+async def translator(text: str, lang: str = "en") -> str:
+    '''Translate: {{ text }} to {{ lang }}'''
+    pass
+
+# Create semantic router
+router = AgentRouter(strategy="semantic")
+
+# Register with sample queries (not keywords!)
+router.register(
+    code_reviewer,
+    samples=[
+        "Can you review this code?",
+        "Check my implementation",
+        "Look at this function",
+        "このコードをレビューして"  # Japanese
+    ]
+)
+
+router.register(
+    translator,
+    samples=[
+        "Translate this text",
+        "Convert to Japanese",
+        "What does this mean in French?",
+        "翻訳して"  # Japanese
+    ]
+)
+
+# Semantic matching understands meaning!
+await router.route("Could you look at my Python script?")
+# → code_reviewer (understands "look at" ≈ "review")
+
+await router.route("英語で何て言う？")
+# → translator (understands Japanese intent)
+```
+
+### Benefits of Semantic Routing
+
+✅ **Understands synonyms**: "check", "review", "analyze" all match
+✅ **Cross-language**: Matches meaning across languages
+✅ **Context-aware**: Understands similar phrases
+✅ **No keyword tuning**: Just provide natural examples
+
+### Intent vs Semantic Comparison
+
+| Feature | Intent (Keyword) | Semantic (Embedding) |
+|---------|------------------|---------------------|
+| **Speed** | ⚡ Very fast (<1ms) | 🐢 Slower (~50-200ms) |
+| **Cost** | 💰 Free | 💵 API calls required |
+| **Accuracy** | ✓ Good for exact keywords | ✓✓ Better for natural language |
+| **Setup** | Simple keywords | Sample queries needed |
+| **Offline** | ✅ Yes | ❌ No (needs API) |
+
+**When to use Intent:**
+- High-volume routing
+- Offline applications
+- Clear keyword patterns
+- Cost-sensitive applications
+
+**When to use Semantic:**
+- Natural language queries
+- Multilingual support
+- Complex intent understanding
+- User-facing chatbots
+
+### Configuration
+
+```python
+# OpenAI encoder (default)
+router = AgentRouter(
+    strategy="semantic",
+    encoder="openai"
+)
+
+# Cohere encoder
+router = AgentRouter(
+    strategy="semantic",
+    encoder="cohere"
+)
+
+# With fallback and threshold
+router = AgentRouter(
+    strategy="semantic",
+    fallback_agent=general_assistant,
+    confidence_threshold=0.7,
+    encoder="openai"
+)
+```
+
+**Environment Variables:**
+
+```bash
+# For OpenAI
+export OPENAI_API_KEY="sk-..."
+
+# For Cohere
+export COHERE_API_KEY="..."
+```
+
 ## Practical Examples
 
 ### Example 1: Customer Support Bot

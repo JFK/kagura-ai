@@ -4,14 +4,21 @@ Automatic agent selection based on user input patterns.
 
 ## Overview
 
-The routing system provides intent-based routing to automatically select the most appropriate agent for a given user input. Agents are registered with intent keywords, and the router calculates confidence scores to determine the best match.
+The routing system provides intelligent agent selection based on user input. It supports two routing strategies:
+
+1. **Intent-based routing**: Keyword matching for fast, simple routing
+2. **Semantic routing**: Embedding-based matching using semantic similarity
+
+Agents are registered with intent keywords or sample queries, and the router calculates confidence scores to determine the best match.
 
 **Key Features:**
 - Intent-based keyword matching
+- Semantic similarity matching (via semantic-router)
 - Confidence scoring
 - Fallback mechanism
 - Case-insensitive matching
 - Unicode support
+- Multiple encoder options (OpenAI, Cohere)
 
 ## AgentRouter Class
 
@@ -23,15 +30,21 @@ Routes user input to appropriate agents using intent-based matching.
 AgentRouter(
     strategy: str = "intent",
     fallback_agent: Callable | None = None,
-    confidence_threshold: float = 0.3
+    confidence_threshold: float = 0.3,
+    encoder: str = "openai"
 )
 ```
 
 **Parameters:**
 
-- `strategy`: Routing strategy (currently only `"intent"` is supported)
+- `strategy`: Routing strategy
+  - `"intent"`: Keyword-based matching (default, no API calls)
+  - `"semantic"`: Embedding-based semantic matching (requires API key)
 - `fallback_agent`: Default agent to use when no match is found or confidence is below threshold
 - `confidence_threshold`: Minimum confidence score (0.0-1.0) required for routing. Lower values are more lenient. Default: 0.3
+- `encoder`: Encoder for semantic routing (only used when `strategy="semantic"`)
+  - `"openai"`: OpenAI embeddings (default)
+  - `"cohere"`: Cohere embeddings
 
 **Raises:**
 - `InvalidRouterStrategyError`: If strategy is not valid
@@ -41,14 +54,27 @@ AgentRouter(
 ```python
 from kagura.routing import AgentRouter
 
-# Basic router
+# Intent-based router (fast, no API calls)
 router = AgentRouter()
+
+# Semantic router (embedding-based)
+router = AgentRouter(strategy="semantic")
 
 # Router with fallback
 router = AgentRouter(
+    strategy="semantic",
     fallback_agent=general_assistant,
-    confidence_threshold=0.5
+    confidence_threshold=0.5,
+    encoder="openai"
 )
+```
+
+**Installation:**
+
+For semantic routing, install the routing extra:
+
+```bash
+pip install kagura-ai[routing]
 ```
 
 ### Methods
@@ -59,6 +85,7 @@ router = AgentRouter(
 router.register(
     agent: Callable,
     intents: list[str] | None = None,
+    samples: list[str] | None = None,
     description: str = "",
     name: str | None = None
 ) -> None
@@ -69,7 +96,8 @@ Register an agent with routing patterns.
 **Parameters:**
 
 - `agent`: Agent function to register
-- `intents`: List of intent keywords/patterns for matching. Case-insensitive matching is used.
+- `intents`: List of intent keywords/patterns for matching. Case-insensitive matching is used. (For `strategy="intent"`)
+- `samples`: List of sample queries for semantic matching. (For `strategy="semantic"`)
 - `description`: Human-readable description of the agent
 - `name`: Agent name (defaults to function name)
 
@@ -83,9 +111,23 @@ async def code_reviewer(code: str) -> str:
     '''Review code: {{ code }}'''
     pass
 
-router.register(
+# Intent-based routing
+router_intent = AgentRouter(strategy="intent")
+router_intent.register(
     code_reviewer,
     intents=["review", "check", "analyze"],
+    description="Reviews code for quality and bugs"
+)
+
+# Semantic routing
+router_semantic = AgentRouter(strategy="semantic")
+router_semantic.register(
+    code_reviewer,
+    samples=[
+        "Can you review this code?",
+        "Check my implementation",
+        "このコードをレビューして"
+    ],
     description="Reviews code for quality and bugs"
 )
 ```
