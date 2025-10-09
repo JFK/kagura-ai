@@ -693,9 +693,53 @@ print(result)
 # You are currently on branch main in directory /home/alice/project.
 ```
 
+## Hook Integration
+
+CommandExecutor automatically applies hooks during execution. See [Hooks API](./hooks.md) for details.
+
+### Using Hooks with CommandExecutor
+
+```python
+from kagura.commands import Command, CommandExecutor, hook, HookResult
+
+# Define hook
+@hook.pre_tool_use("bash")
+def block_dangerous(tool_input):
+    if "rm -rf /" in tool_input.get("command", ""):
+        return HookResult.block("Dangerous command!")
+    return HookResult.ok()
+
+# Hooks automatically applied
+command = Command(
+    name="check",
+    description="Check system",
+    template="Files: !`ls`"
+)
+
+executor = CommandExecutor()
+result = executor.render(command)  # Hook applied
+```
+
+### Custom Hook Registry
+
+```python
+from kagura.commands import CommandExecutor, HookRegistry
+
+# Create custom registry
+registry = HookRegistry()
+
+# Register hooks to custom registry
+# ... (register hooks)
+
+# Use custom registry
+executor = CommandExecutor(hook_registry=registry)
+```
+
 ## See Also
 
 - [Custom Commands Quick Start](../guides/commands-quickstart.md)
+- [Hooks Guide](../guides/hooks-guide.md) - Hook system guide
+- [Hooks API](./hooks.md) - Hooks API reference
 - [CLI Commands Reference](./cli.md)
 - [@agent Decorator API](./agent.md)
 - [Memory Management API](./memory.md)
