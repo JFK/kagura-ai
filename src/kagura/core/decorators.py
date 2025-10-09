@@ -8,6 +8,7 @@ from typing import Any, Awaitable, Callable, ParamSpec, TypeVar, overload
 from .llm import LLMConfig, call_llm
 from .parser import parse_response
 from .prompt import extract_template, render_prompt
+from .registry import agent_registry
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -84,6 +85,19 @@ def agent(
                 return parse_response(response, return_type)  # type: ignore
 
             return response  # type: ignore
+
+        # Mark as agent for MCP discovery
+        wrapper._is_agent = True  # type: ignore
+        wrapper._agent_config = config  # type: ignore
+        wrapper._agent_template = template_str  # type: ignore
+
+        # Register in global registry
+        agent_name = func.__name__
+        try:
+            agent_registry.register(agent_name, wrapper)  # type: ignore
+        except ValueError:
+            # Agent already registered (e.g., in tests), skip
+            pass
 
         return wrapper  # type: ignore
 
