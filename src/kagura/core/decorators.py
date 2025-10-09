@@ -1,12 +1,13 @@
 """
 Decorators to convert functions into AI agents
 """
-from typing import TypeVar, Callable, ParamSpec, Awaitable, overload, Any
 import functools
 import inspect
+from typing import Any, Awaitable, Callable, ParamSpec, TypeVar, overload
+
 from .llm import LLMConfig, call_llm
-from .prompt import extract_template, render_prompt
 from .parser import parse_response
+from .prompt import extract_template, render_prompt
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -79,7 +80,7 @@ def agent(
 
             # Parse response based on return type annotation
             return_type = sig.return_annotation
-            if return_type != inspect.Signature.empty and return_type != str:
+            if return_type != inspect.Signature.empty and return_type is not str:
                 return parse_response(response, return_type)  # type: ignore
 
             return response  # type: ignore

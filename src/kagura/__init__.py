@@ -11,7 +11,7 @@ Example:
 
     result = await hello("World")
 """
-from .version import __version__
 from .core.decorators import agent, tool, workflow
+from .version import __version__
 
 __all__ = ["agent", "tool", "workflow", "__version__"]

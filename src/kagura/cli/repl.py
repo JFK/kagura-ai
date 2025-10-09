@@ -1,24 +1,27 @@
 """Interactive REPL for Kagura AI"""
-import sys
+import keyword
 import os
+import sys
 from typing import Any
+
 import click
-from rich.console import Console
-from rich.table import Table
-from rich.syntax import Syntax
-from rich.panel import Panel
 from dotenv import load_dotenv
 from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-from prompt_toolkit.completion import Completer, Completion, WordCompleter, merge_completers
-from prompt_toolkit.document import Document
+from prompt_toolkit.completion import (
+    Completer,
+    Completion,
+    WordCompleter,
+    merge_completers,
+)
+from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
-from prompt_toolkit.filters import Condition
 from pygments.lexers.python import PythonLexer
-import keyword
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
 
 # Ensure UTF-8 encoding for console I/O
 console = Console(force_terminal=True, legacy_windows=False)

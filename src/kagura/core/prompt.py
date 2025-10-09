@@ -1,6 +1,7 @@
 """Prompt template engine using Jinja2"""
 import inspect
-from typing import Callable, Any, Optional
+from typing import Any, Callable, Optional
+
 from jinja2 import Environment, StrictUndefined, TemplateSyntaxError, UndefinedError
 
 

@@ -1,8 +1,10 @@
 """Code execution agent that generates and executes Python code"""
 from typing import Any, Optional
+
 from pydantic import BaseModel
+
 from kagura import agent
-from kagura.core.executor import CodeExecutor, ExecutionResult
+from kagura.core.executor import CodeExecutor
 
 
 class CodeResult(BaseModel):

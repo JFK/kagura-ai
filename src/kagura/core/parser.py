@@ -1,7 +1,8 @@
 """Type-based response parser for LLM outputs"""
 import json
 import re
-from typing import Any, TypeVar, get_origin, get_args, Union
+from typing import Any, TypeVar, Union, get_args, get_origin
+
 from pydantic import BaseModel, ValidationError
 
 T = TypeVar('T')
@@ -81,24 +82,24 @@ def parse_basic_type(text: str, target_type: type) -> Any:
     """
     text = text.strip()
 
-    if target_type == str:
+    if target_type is str:
         return text
 
-    if target_type == int:
+    if target_type is int:
         # Extract first number from text
         numbers = re.findall(r'-?\d+', text)
         if numbers:
             return int(numbers[0])
         raise ValueError(f"No integer found in: {text}")
 
-    if target_type == float:
+    if target_type is float:
         # Extract first float from text
         numbers = re.findall(r'-?\d+\.?\d*', text)
         if numbers:
             return float(numbers[0])
         raise ValueError(f"No float found in: {text}")
 
-    if target_type == bool:
+    if target_type is bool:
         lower_text = text.lower()
         if any(word in lower_text for word in ['true', 'yes', '1']):
             return True
@@ -130,7 +131,7 @@ def parse_response(response: str, target_type: Any) -> T:
         ValueError: If parsing fails
     """
     # Handle str directly (no parsing needed)
-    if target_type == str:
+    if target_type is str:
         return response  # type: ignore
 
     # Handle basic types
