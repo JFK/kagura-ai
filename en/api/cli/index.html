@@ -1208,6 +1208,84 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#custom-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Custom Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kagura-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      kagura run
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inline Commands
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-passing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter Passing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output Modes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mcp-commands" class="md-nav__link">
     <span class="md-ellipsis">
       MCP Commands
@@ -2070,6 +2148,84 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#custom-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Custom Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kagura-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      kagura run
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inline Commands
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-passing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter Passing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output Modes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mcp-commands" class="md-nav__link">
     <span class="md-ellipsis">
       MCP Commands
@@ -2582,11 +2738,136 @@
 <li>Clear variables: <code>del large_variable</code></li>
 <li>Use <code>/clear</code> to clear screen</li>
 </ol>
+<h2 id="custom-commands">Custom Commands</h2>
+<p><strong>New in v2.0.2</strong>: Run custom commands defined in Markdown files.</p>
+<h3 id="kagura-run">kagura run</h3>
+<p>Execute a custom command defined in a Markdown file.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>kagura<span class="w"> </span>run<span class="w"> </span>COMMAND_NAME<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<p><strong>Arguments:</strong>
+- <code>COMMAND_NAME</code>: Name of the command to execute (required)</p>
+<p><strong>Options:</strong>
+- <code>--param, -p KEY=VALUE</code>: Command parameter in key=value format (can be used multiple times)
+- <code>--commands-dir PATH</code>: Custom commands directory (default: <code>~/.kagura/commands</code>)
+- <code>--no-inline</code>: Disable inline command execution
+- <code>--help</code>: Show help message</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="c1"># Run a simple command</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>kagura<span class="w"> </span>run<span class="w"> </span>git-workflow
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="c1"># Run with parameters</span>
+<a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>kagura<span class="w"> </span>run<span class="w"> </span>analyze-data<span class="w"> </span>--param<span class="w"> </span><span class="nv">file</span><span class="o">=</span>data.csv<span class="w"> </span>--param<span class="w"> </span><span class="nv">verbose</span><span class="o">=</span><span class="nb">true</span>
+<a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a>
+<a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a><span class="c1"># Use custom commands directory</span>
+<a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a>kagura<span class="w"> </span>run<span class="w"> </span>my-cmd<span class="w"> </span>--commands-dir<span class="w"> </span>./my-commands
+<a id="__codelineno-41-9" name="__codelineno-41-9" href="#__codelineno-41-9"></a>
+<a id="__codelineno-41-10" name="__codelineno-41-10" href="#__codelineno-41-10"></a><span class="c1"># Disable inline command execution</span>
+<a id="__codelineno-41-11" name="__codelineno-41-11" href="#__codelineno-41-11"></a>kagura<span class="w"> </span>run<span class="w"> </span>my-cmd<span class="w"> </span>--no-inline
+<a id="__codelineno-41-12" name="__codelineno-41-12" href="#__codelineno-41-12"></a>
+<a id="__codelineno-41-13" name="__codelineno-41-13" href="#__codelineno-41-13"></a><span class="c1"># Use global flags for quiet output</span>
+<a id="__codelineno-41-14" name="__codelineno-41-14" href="#__codelineno-41-14"></a>kagura<span class="w"> </span>--quiet<span class="w"> </span>run<span class="w"> </span>my-cmd
+</code></pre></div>
+<h3 id="command-files">Command Files</h3>
+<p>Commands are Markdown files with YAML frontmatter stored in <code>~/.kagura/commands/</code>.</p>
+<p><strong>Example command file</strong> (<code>~/.kagura/commands/git-status.md</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>---
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>name: git-status
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>description: Show git status with user context
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>parameters:
+<a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a><span class="gu">  username: string</span>
+<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a><span class="gu">---</span>
+<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a>
+<a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a><span class="gh"># Git Status Report</span>
+<a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a>
+<a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a><span class="gs">**User**</span>: {{ username }}
+<a id="__codelineno-42-11" name="__codelineno-42-11" href="#__codelineno-42-11"></a><span class="gs">**Branch**</span>: !<span class="sb">`git branch --show-current`</span>
+<a id="__codelineno-42-12" name="__codelineno-42-12" href="#__codelineno-42-12"></a><span class="gs">**Working Directory**</span>: !<span class="sb">`pwd`</span>
+<a id="__codelineno-42-13" name="__codelineno-42-13" href="#__codelineno-42-13"></a>
+<a id="__codelineno-42-14" name="__codelineno-42-14" href="#__codelineno-42-14"></a><span class="gu">## Changes</span>
+<a id="__codelineno-42-15" name="__codelineno-42-15" href="#__codelineno-42-15"></a>
+<a id="__codelineno-42-16" name="__codelineno-42-16" href="#__codelineno-42-16"></a>!<span class="sb">`git status --short`</span>
+<a id="__codelineno-42-17" name="__codelineno-42-17" href="#__codelineno-42-17"></a>
+<a id="__codelineno-42-18" name="__codelineno-42-18" href="#__codelineno-42-18"></a><span class="gu">## Task</span>
+<a id="__codelineno-42-19" name="__codelineno-42-19" href="#__codelineno-42-19"></a>
+<a id="__codelineno-42-20" name="__codelineno-42-20" href="#__codelineno-42-20"></a>Review the changes and provide a commit message.
+</code></pre></div>
+<p><strong>Run it:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>kagura<span class="w"> </span>run<span class="w"> </span>git-status<span class="w"> </span>--param<span class="w"> </span><span class="nv">username</span><span class="o">=</span>Alice
+</code></pre></div>
+<h3 id="inline-commands">Inline Commands</h3>
+<p>Commands can include inline shell commands using the <code>!</code>command`` syntax:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>Current directory: !<span class="sb">`pwd`</span>
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>Current user: !<span class="sb">`whoami`</span>
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>Git branch: !<span class="sb">`git branch --show-current`</span>
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a>File count: !<span class="sb">`ls | wc -l`</span>
+</code></pre></div>
+<p>Inline commands are executed before the template is rendered.</p>
+<h3 id="parameter-passing">Parameter Passing</h3>
+<p>Pass parameters via the <code>--param</code> flag:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="c1"># Single parameter</span>
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>kagura<span class="w"> </span>run<span class="w"> </span>my-cmd<span class="w"> </span>--param<span class="w"> </span><span class="nv">name</span><span class="o">=</span>Alice
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a><span class="c1"># Multiple parameters</span>
+<a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a>kagura<span class="w"> </span>run<span class="w"> </span>analyze-file<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a><span class="w">  </span>--param<span class="w"> </span><span class="nv">file</span><span class="o">=</span>data.csv<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a><span class="w">  </span>--param<span class="w"> </span><span class="nv">lines</span><span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a><span class="w">  </span>--param<span class="w"> </span><span class="nv">verbose</span><span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+<p>Parameters are validated against the command's <code>parameters</code> definition in frontmatter.</p>
+<h3 id="output-modes">Output Modes</h3>
+<p><strong>Normal mode</strong> (default):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>kagura<span class="w"> </span>run<span class="w"> </span>my-cmd
+</code></pre></div>
+<p>Shows command information and rendered output in formatted panels.</p>
+<p><strong>Quiet mode</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>kagura<span class="w"> </span>--quiet<span class="w"> </span>run<span class="w"> </span>my-cmd
+</code></pre></div>
+<p>Shows only the rendered result without decorations.</p>
+<p><strong>Verbose mode</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>kagura<span class="w"> </span>--verbose<span class="w"> </span>run<span class="w"> </span>my-cmd
+</code></pre></div>
+<p>Shows additional debugging information and tracebacks on errors.</p>
+<h3 id="error-handling_1">Error Handling</h3>
+<p><strong>Command not found:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>$<span class="w"> </span>kagura<span class="w"> </span>run<span class="w"> </span>nonexistent
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>Error:<span class="w"> </span>Command<span class="w"> </span>not<span class="w"> </span>found:<span class="w"> </span>nonexistent
+<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>
+<a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a>Available<span class="w"> </span>commands:
+<a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a><span class="w">  </span>•<span class="w"> </span>git-workflow:<span class="w"> </span>Complete<span class="w"> </span>git<span class="w"> </span>workflow<span class="w"> </span><span class="o">(</span>commit,<span class="w"> </span>push,<span class="w"> </span>PR<span class="o">)</span>
+<a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a><span class="w">  </span>•<span class="w"> </span>code-review:<span class="w"> </span>Review<span class="w"> </span>code<span class="w"> </span>changes
+<a id="__codelineno-49-7" name="__codelineno-49-7" href="#__codelineno-49-7"></a><span class="w">  </span>•<span class="w"> </span>analyze-data:<span class="w"> </span>Analyze<span class="w"> </span>CSV<span class="w"> </span>data<span class="w"> </span>file
+</code></pre></div>
+<p><strong>Missing required parameter:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>$<span class="w"> </span>kagura<span class="w"> </span>run<span class="w"> </span>analyze-data
+<a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a>Error:<span class="w"> </span>Required<span class="w"> </span>parameter<span class="w"> </span><span class="s1">&#39;file&#39;</span><span class="w"> </span>is<span class="w"> </span>missing
+<a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>
+<a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a>Required<span class="w"> </span>parameters:
+<a id="__codelineno-50-5" name="__codelineno-50-5" href="#__codelineno-50-5"></a><span class="w">  </span>•<span class="w"> </span>file:<span class="w"> </span>string<span class="w"> </span><span class="o">(</span>required<span class="o">)</span>
+</code></pre></div>
+<p><strong>Invalid parameter format:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>$<span class="w"> </span>kagura<span class="w"> </span>run<span class="w"> </span>my-cmd<span class="w"> </span>--param<span class="w"> </span>invalid
+<a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>Error:<span class="w"> </span>Invalid<span class="w"> </span>parameter<span class="w"> </span>format:<span class="w"> </span>invalid
+<a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>Use<span class="w"> </span>format:<span class="w"> </span><span class="nv">key</span><span class="o">=</span>value
+</code></pre></div>
+<p><strong>Commands directory not found:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>$<span class="w"> </span>kagura<span class="w"> </span>run<span class="w"> </span>my-cmd
+<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>Error:<span class="w"> </span>Commands<span class="w"> </span>directory<span class="w"> </span>not<span class="w"> </span>found:<span class="w"> </span>/home/user/.kagura/commands
+<a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a>
+<a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a>Tip:<span class="w"> </span>Create<span class="w"> </span>the<span class="w"> </span>directory<span class="w"> </span>with:
+<a id="__codelineno-52-5" name="__codelineno-52-5" href="#__codelineno-52-5"></a><span class="w">  </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/home/user/.kagura/commands
+</code></pre></div>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../commands/">Custom Commands API</a> - API reference for commands</li>
+<li><a href="../../guides/commands-quickstart/">Custom Commands Quick Start</a> - Tutorial and examples</li>
+<li><a href="../agent/">@agent Decorator</a> - Creating AI agents</li>
+</ul>
+<hr />
 <h2 id="mcp-commands">MCP Commands</h2>
 <p><strong>New in v2.1.0</strong>: MCP (Model Context Protocol) commands for Claude Desktop integration.</p>
 <h3 id="kagura-mcp">kagura mcp</h3>
 <p>MCP command group for managing Model Context Protocol integration.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </code></pre></div>
 <p><strong>Commands:</strong>
 - <code>serve</code> - Start MCP server
@@ -2594,37 +2875,37 @@
 <hr />
 <h3 id="kagura-mcp-serve">kagura mcp serve</h3>
 <p>Start MCP server using stdio transport for Claude Desktop, Claude Code, Cline, etc.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
 <p><strong>Options:</strong>
 - <code>--name TEXT</code>: Server name (default: "kagura-ai")
 - <code>--help</code>: Show help message</p>
 <p><strong>Examples:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="c1"># Start MCP server (called by Claude Desktop)</span>
-<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>serve
-<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>
-<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a><span class="c1"># Custom server name</span>
-<a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span>--name<span class="w"> </span>my-custom-server
-<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>
-<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a><span class="c1"># Verbose logging (stderr)</span>
-<a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a>kagura<span class="w"> </span>-v<span class="w"> </span>mcp<span class="w"> </span>serve
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a><span class="c1"># Start MCP server (called by Claude Desktop)</span>
+<a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>serve
+<a id="__codelineno-55-3" name="__codelineno-55-3" href="#__codelineno-55-3"></a>
+<a id="__codelineno-55-4" name="__codelineno-55-4" href="#__codelineno-55-4"></a><span class="c1"># Custom server name</span>
+<a id="__codelineno-55-5" name="__codelineno-55-5" href="#__codelineno-55-5"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span>--name<span class="w"> </span>my-custom-server
+<a id="__codelineno-55-6" name="__codelineno-55-6" href="#__codelineno-55-6"></a>
+<a id="__codelineno-55-7" name="__codelineno-55-7" href="#__codelineno-55-7"></a><span class="c1"># Verbose logging (stderr)</span>
+<a id="__codelineno-55-8" name="__codelineno-55-8" href="#__codelineno-55-8"></a>kagura<span class="w"> </span>-v<span class="w"> </span>mcp<span class="w"> </span>serve
 </code></pre></div>
 <p><strong>Usage in Claude Desktop:</strong></p>
 <p>Add to Claude Desktop config file:</p>
 <p><strong>macOS</strong>: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>
 <strong>Windows</strong>: <code>%APPDATA%\Claude\claude_desktop_config.json</code>
 <strong>Linux</strong>: <code>~/.config/Claude/claude_desktop_config.json</code></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="p">{</span>
-<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a><span class="w">    </span><span class="nt">&quot;kagura&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kagura&quot;</span><span class="p">,</span>
-<a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
-<a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a><span class="w">        </span><span class="nt">&quot;OPENAI_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;your-api-key-here&quot;</span>
-<a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a><span class="w">      </span><span class="p">}</span>
-<a id="__codelineno-43-9" name="__codelineno-43-9" href="#__codelineno-43-9"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-43-10" name="__codelineno-43-10" href="#__codelineno-43-10"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-43-11" name="__codelineno-43-11" href="#__codelineno-43-11"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a><span class="p">{</span>
+<a id="__codelineno-56-2" name="__codelineno-56-2" href="#__codelineno-56-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-56-3" name="__codelineno-56-3" href="#__codelineno-56-3"></a><span class="w">    </span><span class="nt">&quot;kagura&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-56-4" name="__codelineno-56-4" href="#__codelineno-56-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kagura&quot;</span><span class="p">,</span>
+<a id="__codelineno-56-5" name="__codelineno-56-5" href="#__codelineno-56-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
+<a id="__codelineno-56-6" name="__codelineno-56-6" href="#__codelineno-56-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-56-7" name="__codelineno-56-7" href="#__codelineno-56-7"></a><span class="w">        </span><span class="nt">&quot;OPENAI_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;your-api-key-here&quot;</span>
+<a id="__codelineno-56-8" name="__codelineno-56-8" href="#__codelineno-56-8"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-56-9" name="__codelineno-56-9" href="#__codelineno-56-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-56-10" name="__codelineno-56-10" href="#__codelineno-56-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-56-11" name="__codelineno-56-11" href="#__codelineno-56-11"></a><span class="p">}</span>
 </code></pre></div>
 <p><strong>How it works:</strong></p>
 <ol>
@@ -2636,76 +2917,76 @@
 <hr />
 <h3 id="kagura-mcp-list">kagura mcp list</h3>
 <p>List all registered Kagura agents available via MCP.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>list
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>list
 </code></pre></div>
 <p><strong>Example:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>$<span class="w"> </span>kagura<span class="w"> </span>mcp<span class="w"> </span>list
-<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>Registered<span class="w"> </span>agents<span class="w"> </span><span class="o">(</span><span class="m">3</span><span class="o">)</span>:
-<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>
-<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a><span class="w">  </span>•<span class="w"> </span>analyze_code
-<a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a><span class="w">    </span>Analyze<span class="w"> </span>code<span class="w"> </span>quality<span class="w"> </span>and<span class="w"> </span>suggest<span class="w"> </span>improvements
-<a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a>
-<a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a><span class="w">  </span>•<span class="w"> </span>review_code
-<a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a><span class="w">    </span>Review<span class="w"> </span>code<span class="w"> </span>and<span class="w"> </span>provide<span class="w"> </span>detailed<span class="w"> </span>feedback
-<a id="__codelineno-45-9" name="__codelineno-45-9" href="#__codelineno-45-9"></a>
-<a id="__codelineno-45-10" name="__codelineno-45-10" href="#__codelineno-45-10"></a><span class="w">  </span>•<span class="w"> </span>generate_tests
-<a id="__codelineno-45-11" name="__codelineno-45-11" href="#__codelineno-45-11"></a><span class="w">    </span>Generate<span class="w"> </span>unit<span class="w"> </span>tests<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>provided<span class="w"> </span>code
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>$<span class="w"> </span>kagura<span class="w"> </span>mcp<span class="w"> </span>list
+<a id="__codelineno-58-2" name="__codelineno-58-2" href="#__codelineno-58-2"></a>Registered<span class="w"> </span>agents<span class="w"> </span><span class="o">(</span><span class="m">3</span><span class="o">)</span>:
+<a id="__codelineno-58-3" name="__codelineno-58-3" href="#__codelineno-58-3"></a>
+<a id="__codelineno-58-4" name="__codelineno-58-4" href="#__codelineno-58-4"></a><span class="w">  </span>•<span class="w"> </span>analyze_code
+<a id="__codelineno-58-5" name="__codelineno-58-5" href="#__codelineno-58-5"></a><span class="w">    </span>Analyze<span class="w"> </span>code<span class="w"> </span>quality<span class="w"> </span>and<span class="w"> </span>suggest<span class="w"> </span>improvements
+<a id="__codelineno-58-6" name="__codelineno-58-6" href="#__codelineno-58-6"></a>
+<a id="__codelineno-58-7" name="__codelineno-58-7" href="#__codelineno-58-7"></a><span class="w">  </span>•<span class="w"> </span>review_code
+<a id="__codelineno-58-8" name="__codelineno-58-8" href="#__codelineno-58-8"></a><span class="w">    </span>Review<span class="w"> </span>code<span class="w"> </span>and<span class="w"> </span>provide<span class="w"> </span>detailed<span class="w"> </span>feedback
+<a id="__codelineno-58-9" name="__codelineno-58-9" href="#__codelineno-58-9"></a>
+<a id="__codelineno-58-10" name="__codelineno-58-10" href="#__codelineno-58-10"></a><span class="w">  </span>•<span class="w"> </span>generate_tests
+<a id="__codelineno-58-11" name="__codelineno-58-11" href="#__codelineno-58-11"></a><span class="w">    </span>Generate<span class="w"> </span>unit<span class="w"> </span>tests<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>provided<span class="w"> </span>code
 </code></pre></div>
 <p><strong>Output:</strong></p>
 <p>Shows agent names and descriptions extracted from docstrings.</p>
 <hr />
 <h2 id="mcp-integration-examples">MCP Integration Examples</h2>
 <h3 id="example-1-basic-setup">Example 1: Basic Setup</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="c1"># 1. Install MCP support</span>
-<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>mcp<span class="o">]</span>
-<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>
-<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="c1"># 2. Create agent</span>
-<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a>cat<span class="w"> </span>&gt;<span class="w"> </span>my_agents.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
-<a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a><span class="s">from kagura import agent</span>
-<a id="__codelineno-46-7" name="__codelineno-46-7" href="#__codelineno-46-7"></a>
-<a id="__codelineno-46-8" name="__codelineno-46-8" href="#__codelineno-46-8"></a><span class="s">@agent</span>
-<a id="__codelineno-46-9" name="__codelineno-46-9" href="#__codelineno-46-9"></a><span class="s">async def analyze_code(code: str) -&gt; str:</span>
-<a id="__codelineno-46-10" name="__codelineno-46-10" href="#__codelineno-46-10"></a><span class="s">    &quot;&quot;&quot;Analyze code quality&quot;&quot;&quot;</span>
-<a id="__codelineno-46-11" name="__codelineno-46-11" href="#__codelineno-46-11"></a><span class="s">    pass</span>
-<a id="__codelineno-46-12" name="__codelineno-46-12" href="#__codelineno-46-12"></a><span class="s">EOF</span>
-<a id="__codelineno-46-13" name="__codelineno-46-13" href="#__codelineno-46-13"></a>
-<a id="__codelineno-46-14" name="__codelineno-46-14" href="#__codelineno-46-14"></a><span class="c1"># 3. Test locally</span>
-<a id="__codelineno-46-15" name="__codelineno-46-15" href="#__codelineno-46-15"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>list
-<a id="__codelineno-46-16" name="__codelineno-46-16" href="#__codelineno-46-16"></a>
-<a id="__codelineno-46-17" name="__codelineno-46-17" href="#__codelineno-46-17"></a><span class="c1"># 4. Configure Claude Desktop (edit config file)</span>
-<a id="__codelineno-46-18" name="__codelineno-46-18" href="#__codelineno-46-18"></a><span class="c1"># See configuration above</span>
-<a id="__codelineno-46-19" name="__codelineno-46-19" href="#__codelineno-46-19"></a>
-<a id="__codelineno-46-20" name="__codelineno-46-20" href="#__codelineno-46-20"></a><span class="c1"># 5. Restart Claude Desktop</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a><span class="c1"># 1. Install MCP support</span>
+<a id="__codelineno-59-2" name="__codelineno-59-2" href="#__codelineno-59-2"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>mcp<span class="o">]</span>
+<a id="__codelineno-59-3" name="__codelineno-59-3" href="#__codelineno-59-3"></a>
+<a id="__codelineno-59-4" name="__codelineno-59-4" href="#__codelineno-59-4"></a><span class="c1"># 2. Create agent</span>
+<a id="__codelineno-59-5" name="__codelineno-59-5" href="#__codelineno-59-5"></a>cat<span class="w"> </span>&gt;<span class="w"> </span>my_agents.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<a id="__codelineno-59-6" name="__codelineno-59-6" href="#__codelineno-59-6"></a><span class="s">from kagura import agent</span>
+<a id="__codelineno-59-7" name="__codelineno-59-7" href="#__codelineno-59-7"></a>
+<a id="__codelineno-59-8" name="__codelineno-59-8" href="#__codelineno-59-8"></a><span class="s">@agent</span>
+<a id="__codelineno-59-9" name="__codelineno-59-9" href="#__codelineno-59-9"></a><span class="s">async def analyze_code(code: str) -&gt; str:</span>
+<a id="__codelineno-59-10" name="__codelineno-59-10" href="#__codelineno-59-10"></a><span class="s">    &quot;&quot;&quot;Analyze code quality&quot;&quot;&quot;</span>
+<a id="__codelineno-59-11" name="__codelineno-59-11" href="#__codelineno-59-11"></a><span class="s">    pass</span>
+<a id="__codelineno-59-12" name="__codelineno-59-12" href="#__codelineno-59-12"></a><span class="s">EOF</span>
+<a id="__codelineno-59-13" name="__codelineno-59-13" href="#__codelineno-59-13"></a>
+<a id="__codelineno-59-14" name="__codelineno-59-14" href="#__codelineno-59-14"></a><span class="c1"># 3. Test locally</span>
+<a id="__codelineno-59-15" name="__codelineno-59-15" href="#__codelineno-59-15"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>list
+<a id="__codelineno-59-16" name="__codelineno-59-16" href="#__codelineno-59-16"></a>
+<a id="__codelineno-59-17" name="__codelineno-59-17" href="#__codelineno-59-17"></a><span class="c1"># 4. Configure Claude Desktop (edit config file)</span>
+<a id="__codelineno-59-18" name="__codelineno-59-18" href="#__codelineno-59-18"></a><span class="c1"># See configuration above</span>
+<a id="__codelineno-59-19" name="__codelineno-59-19" href="#__codelineno-59-19"></a>
+<a id="__codelineno-59-20" name="__codelineno-59-20" href="#__codelineno-59-20"></a><span class="c1"># 5. Restart Claude Desktop</span>
 </code></pre></div>
 <h3 id="example-2-multiple-agents">Example 2: Multiple Agents</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="c1"># agents.py</span>
-<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
-<a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a>
-<a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a><span class="nd">@agent</span>
-<a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">code_review</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-47-6" name="__codelineno-47-6" href="#__codelineno-47-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Review code and suggest improvements&quot;&quot;&quot;</span>
-<a id="__codelineno-47-7" name="__codelineno-47-7" href="#__codelineno-47-7"></a>    <span class="k">pass</span>
-<a id="__codelineno-47-8" name="__codelineno-47-8" href="#__codelineno-47-8"></a>
-<a id="__codelineno-47-9" name="__codelineno-47-9" href="#__codelineno-47-9"></a><span class="nd">@agent</span>
-<a id="__codelineno-47-10" name="__codelineno-47-10" href="#__codelineno-47-10"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_tests</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pytest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-47-11" name="__codelineno-47-11" href="#__codelineno-47-11"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate unit tests&quot;&quot;&quot;</span>
-<a id="__codelineno-47-12" name="__codelineno-47-12" href="#__codelineno-47-12"></a>    <span class="k">pass</span>
-<a id="__codelineno-47-13" name="__codelineno-47-13" href="#__codelineno-47-13"></a>
-<a id="__codelineno-47-14" name="__codelineno-47-14" href="#__codelineno-47-14"></a><span class="nd">@agent</span>
-<a id="__codelineno-47-15" name="__codelineno-47-15" href="#__codelineno-47-15"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">explain_code</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">audience</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;beginner&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-47-16" name="__codelineno-47-16" href="#__codelineno-47-16"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Explain code for different audiences&quot;&quot;&quot;</span>
-<a id="__codelineno-47-17" name="__codelineno-47-17" href="#__codelineno-47-17"></a>    <span class="k">pass</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a><span class="c1"># agents.py</span>
+<a id="__codelineno-60-2" name="__codelineno-60-2" href="#__codelineno-60-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
+<a id="__codelineno-60-3" name="__codelineno-60-3" href="#__codelineno-60-3"></a>
+<a id="__codelineno-60-4" name="__codelineno-60-4" href="#__codelineno-60-4"></a><span class="nd">@agent</span>
+<a id="__codelineno-60-5" name="__codelineno-60-5" href="#__codelineno-60-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">code_review</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-60-6" name="__codelineno-60-6" href="#__codelineno-60-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Review code and suggest improvements&quot;&quot;&quot;</span>
+<a id="__codelineno-60-7" name="__codelineno-60-7" href="#__codelineno-60-7"></a>    <span class="k">pass</span>
+<a id="__codelineno-60-8" name="__codelineno-60-8" href="#__codelineno-60-8"></a>
+<a id="__codelineno-60-9" name="__codelineno-60-9" href="#__codelineno-60-9"></a><span class="nd">@agent</span>
+<a id="__codelineno-60-10" name="__codelineno-60-10" href="#__codelineno-60-10"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_tests</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pytest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-60-11" name="__codelineno-60-11" href="#__codelineno-60-11"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate unit tests&quot;&quot;&quot;</span>
+<a id="__codelineno-60-12" name="__codelineno-60-12" href="#__codelineno-60-12"></a>    <span class="k">pass</span>
+<a id="__codelineno-60-13" name="__codelineno-60-13" href="#__codelineno-60-13"></a>
+<a id="__codelineno-60-14" name="__codelineno-60-14" href="#__codelineno-60-14"></a><span class="nd">@agent</span>
+<a id="__codelineno-60-15" name="__codelineno-60-15" href="#__codelineno-60-15"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">explain_code</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">audience</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;beginner&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-60-16" name="__codelineno-60-16" href="#__codelineno-60-16"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Explain code for different audiences&quot;&quot;&quot;</span>
+<a id="__codelineno-60-17" name="__codelineno-60-17" href="#__codelineno-60-17"></a>    <span class="k">pass</span>
 </code></pre></div>
 <p>All three agents are automatically available in Claude Desktop.</p>
 <h3 id="example-3-debugging">Example 3: Debugging</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="c1"># Check agents are registered</span>
-<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>list
-<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>
-<a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a><span class="c1"># Start server with verbose logging</span>
-<a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>kagura<span class="w"> </span>-v<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span><span class="m">2</span>&gt;<span class="w"> </span>mcp_debug.log
-<a id="__codelineno-48-6" name="__codelineno-48-6" href="#__codelineno-48-6"></a>
-<a id="__codelineno-48-7" name="__codelineno-48-7" href="#__codelineno-48-7"></a><span class="c1"># In another terminal, check logs</span>
-<a id="__codelineno-48-8" name="__codelineno-48-8" href="#__codelineno-48-8"></a>tail<span class="w"> </span>-f<span class="w"> </span>mcp_debug.log
+<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a><span class="c1"># Check agents are registered</span>
+<a id="__codelineno-61-2" name="__codelineno-61-2" href="#__codelineno-61-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>list
+<a id="__codelineno-61-3" name="__codelineno-61-3" href="#__codelineno-61-3"></a>
+<a id="__codelineno-61-4" name="__codelineno-61-4" href="#__codelineno-61-4"></a><span class="c1"># Start server with verbose logging</span>
+<a id="__codelineno-61-5" name="__codelineno-61-5" href="#__codelineno-61-5"></a>kagura<span class="w"> </span>-v<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span><span class="m">2</span>&gt;<span class="w"> </span>mcp_debug.log
+<a id="__codelineno-61-6" name="__codelineno-61-6" href="#__codelineno-61-6"></a>
+<a id="__codelineno-61-7" name="__codelineno-61-7" href="#__codelineno-61-7"></a><span class="c1"># In another terminal, check logs</span>
+<a id="__codelineno-61-8" name="__codelineno-61-8" href="#__codelineno-61-8"></a>tail<span class="w"> </span>-f<span class="w"> </span>mcp_debug.log
 </code></pre></div>
 <hr />
 <h2 id="mcp-troubleshooting">MCP Troubleshooting</h2>
@@ -2713,12 +2994,12 @@
 <ol>
 <li>
 <p><strong>Verify agent is registered:</strong>
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>list
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>list
 </code></pre></div></p>
 </li>
 <li>
 <p><strong>Check import errors:</strong>
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import my_agents&quot;</span>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import my_agents&quot;</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -2732,36 +3013,36 @@
 <ol>
 <li>
 <p><strong>Verify config file location:</strong>
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="c1"># macOS</span>
-<a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>cat<span class="w"> </span>~/Library/Application<span class="se">\ </span>Support/Claude/claude_desktop_config.json
-<a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>
-<a id="__codelineno-51-4" name="__codelineno-51-4" href="#__codelineno-51-4"></a><span class="c1"># Linux</span>
-<a id="__codelineno-51-5" name="__codelineno-51-5" href="#__codelineno-51-5"></a>cat<span class="w"> </span>~/.config/Claude/claude_desktop_config.json
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a><span class="c1"># macOS</span>
+<a id="__codelineno-64-2" name="__codelineno-64-2" href="#__codelineno-64-2"></a>cat<span class="w"> </span>~/Library/Application<span class="se">\ </span>Support/Claude/claude_desktop_config.json
+<a id="__codelineno-64-3" name="__codelineno-64-3" href="#__codelineno-64-3"></a>
+<a id="__codelineno-64-4" name="__codelineno-64-4" href="#__codelineno-64-4"></a><span class="c1"># Linux</span>
+<a id="__codelineno-64-5" name="__codelineno-64-5" href="#__codelineno-64-5"></a>cat<span class="w"> </span>~/.config/Claude/claude_desktop_config.json
 </code></pre></div></p>
 </li>
 <li>
 <p><strong>Validate JSON syntax:</strong>
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>python<span class="w"> </span>-m<span class="w"> </span>json.tool<span class="w"> </span>&lt;<span class="w"> </span>claude_desktop_config.json
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>python<span class="w"> </span>-m<span class="w"> </span>json.tool<span class="w"> </span>&lt;<span class="w"> </span>claude_desktop_config.json
 </code></pre></div></p>
 </li>
 <li>
 <p><strong>Check environment variables:</strong>
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="p">{</span>
-<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a><span class="w">    </span><span class="nt">&quot;kagura&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a><span class="w">        </span><span class="nt">&quot;OPENAI_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;${OPENAI_API_KEY}&quot;</span>
-<a id="__codelineno-53-6" name="__codelineno-53-6" href="#__codelineno-53-6"></a><span class="w">      </span><span class="p">}</span>
-<a id="__codelineno-53-7" name="__codelineno-53-7" href="#__codelineno-53-7"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-53-8" name="__codelineno-53-8" href="#__codelineno-53-8"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-53-9" name="__codelineno-53-9" href="#__codelineno-53-9"></a><span class="p">}</span>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a><span class="p">{</span>
+<a id="__codelineno-66-2" name="__codelineno-66-2" href="#__codelineno-66-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-66-3" name="__codelineno-66-3" href="#__codelineno-66-3"></a><span class="w">    </span><span class="nt">&quot;kagura&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-66-4" name="__codelineno-66-4" href="#__codelineno-66-4"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-66-5" name="__codelineno-66-5" href="#__codelineno-66-5"></a><span class="w">        </span><span class="nt">&quot;OPENAI_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;${OPENAI_API_KEY}&quot;</span>
+<a id="__codelineno-66-6" name="__codelineno-66-6" href="#__codelineno-66-6"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-66-7" name="__codelineno-66-7" href="#__codelineno-66-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-66-8" name="__codelineno-66-8" href="#__codelineno-66-8"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-66-9" name="__codelineno-66-9" href="#__codelineno-66-9"></a><span class="p">}</span>
 </code></pre></div></p>
 </li>
 </ol>
 <h3 id="permission-errors">Permission Errors</h3>
 <p>On Unix systems:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>which<span class="w"> </span>kagura
-<a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a>chmod<span class="w"> </span>+x<span class="w"> </span><span class="k">$(</span>which<span class="w"> </span>kagura<span class="k">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>which<span class="w"> </span>kagura
+<a id="__codelineno-67-2" name="__codelineno-67-2" href="#__codelineno-67-2"></a>chmod<span class="w"> </span>+x<span class="w"> </span><span class="k">$(</span>which<span class="w"> </span>kagura<span class="k">)</span>
 </code></pre></div></p>
 <hr />
 <h2 id="related">Related</h2>
