@@ -142,26 +142,78 @@
 
 ---
 
+### RFC-017: Shell Integration & Command Execution ⭐️ NEW (Week 17-18)
+**関連Issue**: TBD
+
+#### 実装内容
+1. **ShellExecutor** (Week 17)
+   - セキュアなコマンド実行エンジン
+   - Whitelist/Blacklist検証
+   - サンドボックス実行
+
+2. **Built-in Agents** (Week 18)
+   - `@builtin.shell` - シェルコマンド実行
+   - `@builtin.git` - Git操作
+   - `@builtin.file` - ファイル操作
+
+3. **RFC-012統合**
+   - Commandsでシェル操作を許可
+   - Hooksでセキュリティ検証
+
+#### 成功指標
+- ✅ `await shell.exec("git status")` で安全にコマンド実行
+- ✅ ビルトインエージェントが動作
+- ✅ セキュリティポリシー有効
+
+---
+
 ## 🌐 Version 2.2.0: Multimodal & Web (Week 19-26)
 
-**リリース目標**: マルチモーダルRAG、Web検索・スクレイピング
+**リリース目標**: マルチモーダルRAG、Web検索・スクレイピング、メモリー管理
 
-### RFC-002: Multimodal RAG (Week 19-23)
+### RFC-018: Memory Management System ⭐️ NEW (Week 19-21)
+**関連Issue**: TBD
+
+#### 実装内容
+1. **Core Memory Types** (Week 19)
+   - WorkingMemory（作業記憶）
+   - ContextMemory（会話履歴）
+   - PersistentMemory（永続記憶）
+
+2. **Memory RAG** (Week 20)
+   - ChromaDB/Qdrant統合
+   - ベクトル検索
+   - セマンティック記憶検索
+
+3. **Agent統合** (Week 21)
+   - `@agent(enable_memory=True)`
+   - Memory injection
+   - セッション管理
+
+#### 成功指標
+- ✅ エージェントが記憶を保持
+- ✅ セマンティック検索動作
+- ✅ セッション保存・復元可能
+
+---
+
+### RFC-002: Multimodal RAG (Week 22-24)
 **関連Issue**: #62
 
 #### 実装内容
-1. **マルチモーダル対応** (Week 19-20)
+1. **マルチモーダル対応** (Week 22)
    - 画像・音声・動画・PDF処理
    - Gemini Vision API統合
+   - RFC-018 Memory統合
 
-2. **RAG Chat** (Week 21-22)
+2. **RAG Chat** (Week 23)
    ```bash
    $ kagura chat --dir ./project
    You: この図の意味は？
    AI: （画像を解析）このアーキテクチャ図は...
    ```
 
-3. **Google Workspace連携** (Week 23)
+3. **Google Workspace連携** (Week 24)
    - Drive / Calendar / Gmail統合
    - `@workspace.enable` デコレータ
 
@@ -171,13 +223,14 @@
 
 ---
 
-### RFC-014: Web Integration (Week 24-26)
+### RFC-014: Web Integration (Week 25-26)
 **関連Issue**: #75
 
 #### 実装内容
-1. **Web Search** (Week 24)
+1. **Web Search** (Week 25)
    - Brave Search API（無料枠2000クエリ/月）
    - DuckDuckGoフォールバック
+   - RFC-018 Memory統合（検索履歴）
 
 2. **Web Scraping** (Week 25)
    - BeautifulSoup統合
@@ -442,10 +495,10 @@ async def support(query: str):
 | Version | リリース時期 | 主要機能 | 関連RFC |
 |---------|-------------|---------|---------|
 | v2.0.0 | 2025 Q4 | Core、Executor、CLI、REPL | - |
-| v2.1.0 | 2026 Q1 | MCP統合、Chat REPL、Commands & Hooks | RFC-007, 006, 012 |
-| v2.2.0 | 2026 Q2 | Multimodal RAG、Web統合 | RFC-002, 014 |
+| v2.1.0 | 2026 Q1 | MCP統合、Chat REPL、Commands & Hooks、**Shell統合** | RFC-007, 006, 012, **017** |
+| v2.2.0 | 2026 Q2 | **Memory管理**、Multimodal RAG、Web統合 | **RFC-018**, 002, 014 |
 | v2.3.0 | 2026 Q3 | Personal Assistant、OAuth2 | RFC-003, 013 |
-| v2.4.0 | 2026 Q4 | Meta Agent、Marketplace、Orchestration、**Agent Routing** | RFC-005, 008, 009, **016** |
+| v2.4.0 | 2026 Q4 | Meta Agent、Marketplace、Orchestration、Agent Routing | RFC-005, 008, 009, 016 |
 | v2.5.0+ | 2027 Q1+ | Voice、LSP、Observability、Automation | RFC-004, 006, 010, 011 |
 | v2.6.0 | 2027 Q2 | API Server、REST/WebSocket、認証 | RFC-015 |
 | v2.7.0 | 2027 Q3 | Web UI、Dashboard、Marketplace UI | RFC-015, 005, 008 |
@@ -455,10 +508,11 @@ async def support(query: str):
 
 ## 🎯 次のアクション
 
-### 現在地（2025-10-04）
+### 現在地（2025-10-09）
 - ✅ v2.0.0 Phase 1-2 完了（Core Engine、Executor）
 - 🚧 v2.0.0 Phase 3 進行中（REPL改善 #72）
-- 📝 RFC-013/014 作成完了、Issue #74/#75 作成済み
+- 📝 RFC-013/014/015/016/017/018 作成完了
+- ⭐️ **NEW**: RFC-017（Shell Integration）、RFC-018（Memory Management）追加
 
 ### 即座に着手
 1. **Issue #72**: REPL改善（prompt_toolkit統合）
