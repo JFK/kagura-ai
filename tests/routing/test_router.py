@@ -367,3 +367,166 @@ class TestEdgeCases:
         # Korean
         matches = router.get_matched_agents("이것을 번역해주세요")
         assert len(matches) == 1
+
+
+class TestSemanticRouting:
+    """Tests for semantic routing strategy.
+
+    Note: These tests require OpenAI API key and make actual API calls.
+    They are marked as integration tests and will be skipped in CI.
+    """
+
+    def test_semantic_router_initialization(self):
+        """Test creating router with semantic strategy."""
+        router = AgentRouter(strategy="semantic")
+        assert router.strategy == "semantic"
+        assert router.encoder_type == "openai"
+
+    def test_semantic_router_with_samples(self):
+        """Test registering agents with sample queries."""
+        router = AgentRouter(strategy="semantic")
+        router.register(
+            code_reviewer,
+            samples=[
+                "Can you review this code?",
+                "Check my implementation",
+                "このコードをレビューして",
+            ],
+            description="Code reviewer",
+        )
+
+        agents = router.list_agents()
+        assert "code_reviewer" in agents
+
+    @pytest.mark.integration
+    @pytest.mark.asyncio
+    async def test_semantic_routing_execution(self):
+        """Test semantic routing with actual queries.
+
+        Requires OPENAI_API_KEY environment variable.
+        """
+        import os
+
+        if not os.getenv("OPENAI_API_KEY"):
+            pytest.skip("OPENAI_API_KEY not set")
+
+        router = AgentRouter(strategy="semantic", fallback_agent=fallback_agent)
+
+        router.register(
+            code_reviewer,
+            samples=[
+                "review this code",
+                "check code quality",
+                "analyze my implementation",
+            ],
+        )
+
+        router.register(
+            translator,
+            samples=[
+                "translate this text",
+                "convert to Japanese",
+                "翻訳して",
+            ],
+        )
+
+        # Test semantic matching (similar to training samples)
+        result = await router.route("Could you look at my code?")
+        assert result is not None
+
+    @pytest.mark.integration
+    @pytest.mark.asyncio
+    async def test_semantic_routing_with_fallback(self):
+        """Test semantic routing fallback mechanism.
+
+        Requires OPENAI_API_KEY environment variable.
+        """
+        import os
+
+        if not os.getenv("OPENAI_API_KEY"):
+            pytest.skip("OPENAI_API_KEY not set")
+
+        router = AgentRouter(
+            strategy="semantic",
+            fallback_agent=fallback_agent,
+            confidence_threshold=0.8,
+        )
+
+        router.register(
+            code_reviewer,
+            samples=["review code", "check code"],
+        )
+
+        # Unrelated query should use fallback
+        result = await router.route("What's the weather today?")
+        assert "Fallback" in result
+
+    def test_semantic_router_no_samples(self):
+        """Test semantic router with agent that has no samples."""
+        router = AgentRouter(strategy="semantic")
+        router.register(code_reviewer)  # No samples
+
+        # Should handle gracefully
+        agents = router.list_agents()
+        assert "code_reviewer" in agents
+
+    @pytest.mark.integration
+    @pytest.mark.asyncio
+    async def test_semantic_routing_multiple_agents(self):
+        """Test semantic routing with multiple agents.
+
+        Requires OPENAI_API_KEY environment variable.
+        """
+        import os
+
+        if not os.getenv("OPENAI_API_KEY"):
+            pytest.skip("OPENAI_API_KEY not set")
+
+        router = AgentRouter(strategy="semantic", fallback_agent=fallback_agent)
+
+        router.register(
+            code_reviewer,
+            samples=[
+                "review code",
+                "check implementation",
+            ],
+        )
+
+        router.register(
+            translator,
+            samples=[
+                "translate text",
+                "convert language",
+            ],
+        )
+
+        router.register(
+            data_analyzer,
+            samples=[
+                "analyze data",
+                "process dataset",
+            ],
+        )
+
+        # Should route to appropriate agent
+        result = await router.route("Can you help with data analysis?")
+        assert result is not None
+
+    def test_semantic_router_cohere_encoder(self):
+        """Test semantic router with Cohere encoder."""
+        router = AgentRouter(strategy="semantic", encoder="cohere")
+        assert router.encoder_type == "cohere"
+
+    @pytest.mark.asyncio
+    async def test_semantic_router_graceful_degradation(self):
+        """Test graceful degradation when semantic router fails."""
+        router = AgentRouter(strategy="semantic", fallback_agent=fallback_agent)
+
+        router.register(
+            code_reviewer,
+            samples=["review code"],
+        )
+
+        # Should use fallback if semantic router fails (e.g., no API key)
+        result = await router.route("test query")
+        assert result is not None
