@@ -16,16 +16,24 @@ def tmp_commands_dir(tmp_path):
 
 
 def test_loader_initialization_default():
-    """Test loader initialization with default directory."""
+    """Test loader initialization with default directories."""
     loader = CommandLoader()
-    expected_dir = Path.home() / ".kagura" / "commands"
-    assert loader.commands_dir == expected_dir
+    expected_global = Path.home() / ".kagura" / "commands"
+    expected_local = Path.cwd() / ".kagura" / "commands"
+
+    assert len(loader.commands_dirs) == 2
+    assert expected_global in loader.commands_dirs
+    assert expected_local in loader.commands_dirs
+    # Global should come first, then local (so local overrides global)
+    assert loader.commands_dirs[0] == expected_global
+    assert loader.commands_dirs[1] == expected_local
 
 
 def test_loader_initialization_custom(tmp_commands_dir):
     """Test loader initialization with custom directory."""
     loader = CommandLoader(tmp_commands_dir)
-    assert loader.commands_dir == tmp_commands_dir
+    assert len(loader.commands_dirs) == 1
+    assert loader.commands_dirs[0] == tmp_commands_dir
 
 
 def test_load_command_basic(tmp_commands_dir):
@@ -219,6 +227,7 @@ def test_loader_repr(tmp_commands_dir):
 
     repr_str = repr(loader)
     assert "CommandLoader" in repr_str
+    assert "dirs=" in repr_str
     assert str(tmp_commands_dir) in repr_str
     assert "commands=0" in repr_str
 
@@ -267,3 +276,126 @@ def hello():
     assert "!`git status`" in command.template
     assert "```python" in command.template
     assert "**Important**" in command.template
+
+
+def test_load_all_from_multiple_directories(tmp_path):
+    """Test loading commands from multiple directories."""
+    # Create two directories
+    global_dir = tmp_path / "global"
+    local_dir = tmp_path / "local"
+    global_dir.mkdir()
+    local_dir.mkdir()
+
+    # Add commands to global directory
+    (global_dir / "global-cmd.md").write_text(
+        """---
+name: global-cmd
+description: Global command
+---
+Global task
+"""
+    )
+
+    # Add commands to local directory
+    (local_dir / "local-cmd.md").write_text(
+        """---
+name: local-cmd
+description: Local command
+---
+Local task
+"""
+    )
+
+    # Create loader with both directories
+    loader = CommandLoader()
+    loader.commands_dirs = [global_dir, local_dir]
+    commands = loader.load_all()
+
+    # Should load from both directories
+    assert len(commands) == 2
+    assert "global-cmd" in commands
+    assert "local-cmd" in commands
+    assert commands["global-cmd"].description == "Global command"
+    assert commands["local-cmd"].description == "Local command"
+
+
+def test_local_commands_override_global(tmp_path):
+    """Test that local commands override global commands with same name."""
+    # Create two directories
+    global_dir = tmp_path / "global"
+    local_dir = tmp_path / "local"
+    global_dir.mkdir()
+    local_dir.mkdir()
+
+    # Add command to global directory
+    (global_dir / "shared.md").write_text(
+        """---
+name: shared-cmd
+description: Global version
+---
+Global task
+"""
+    )
+
+    # Add command with same name to local directory
+    (local_dir / "shared.md").write_text(
+        """---
+name: shared-cmd
+description: Local version
+---
+Local task (overrides global)
+"""
+    )
+
+    # Create loader with both directories (global first, local second)
+    loader = CommandLoader()
+    loader.commands_dirs = [global_dir, local_dir]
+    commands = loader.load_all()
+
+    # Should only have one command, with local version taking priority
+    assert len(commands) == 1
+    assert "shared-cmd" in commands
+    assert commands["shared-cmd"].description == "Local version"
+    assert "overrides global" in commands["shared-cmd"].template
+
+
+def test_load_all_with_no_directories_existing(tmp_path):
+    """Test that load_all raises error when no directories exist."""
+    nonexistent1 = tmp_path / "nonexistent1"
+    nonexistent2 = tmp_path / "nonexistent2"
+
+    loader = CommandLoader()
+    loader.commands_dirs = [nonexistent1, nonexistent2]
+
+    with pytest.raises(FileNotFoundError) as exc_info:
+        loader.load_all()
+
+    # Error message should mention both directories
+    assert str(nonexistent1) in str(exc_info.value)
+    assert str(nonexistent2) in str(exc_info.value)
+
+
+def test_load_all_with_some_directories_existing(tmp_path):
+    """Test loading when only some directories exist."""
+    existing_dir = tmp_path / "existing"
+    nonexistent_dir = tmp_path / "nonexistent"
+    existing_dir.mkdir()
+
+    # Add command to existing directory
+    (existing_dir / "test.md").write_text(
+        """---
+name: test
+description: Test command
+---
+Test task
+"""
+    )
+
+    # Create loader with both existing and non-existing directories
+    loader = CommandLoader()
+    loader.commands_dirs = [nonexistent_dir, existing_dir]
+    commands = loader.load_all()
+
+    # Should successfully load from existing directory
+    assert len(commands) == 1
+    assert "test" in commands

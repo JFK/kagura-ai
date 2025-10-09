@@ -69,6 +69,8 @@ command.validate_parameters({"file": "test.txt"})  # Missing 'count'
 
 Loads custom commands from Markdown files.
 
+By default, searches both project-local (`./.kagura/commands`) and global (`~/.kagura/commands`) directories. Local commands take priority over global commands with the same name.
+
 ### Constructor
 
 ```python
@@ -77,7 +79,9 @@ CommandLoader(commands_dir: Optional[Path] = None)
 
 **Parameters:**
 
-- `commands_dir`: Directory containing command files (default: `~/.kagura/commands`)
+- `commands_dir`: Directory containing command files. If `None`, searches both:
+  1. `~/.kagura/commands` (global commands)
+  2. `./.kagura/commands` (project-local commands, takes priority)
 
 ### Methods
 
@@ -112,20 +116,27 @@ print(command.name)  # "example"
 loader.load_all() -> dict[str, Command]
 ```
 
-Load all commands from the commands directory.
+Load all commands from configured directories.
+
+Searches all directories in priority order. When multiple directories contain commands with the same name, later directories take priority (local overrides global).
 
 **Returns:** Dictionary mapping command names to `Command` objects
 
-**Raises:** `FileNotFoundError` if commands directory doesn't exist
+**Raises:** `FileNotFoundError` if no commands directory exists
 
 **Example:**
 
 ```python
+# Default: searches both global and local directories
 loader = CommandLoader()
 commands = loader.load_all()
 
 for name, command in commands.items():
     print(f"{name}: {command.description}")
+
+# Custom single directory
+loader = CommandLoader(Path("./my-commands"))
+commands = loader.load_all()
 ```
 
 #### get_command
@@ -260,10 +271,13 @@ parameters:
 from pathlib import Path
 from kagura.commands import CommandLoader
 
-# Default directory (~/.kagura/commands)
+# Default: searches both global and local directories
 loader = CommandLoader()
+# Searches:
+#   1. ~/.kagura/commands (global)
+#   2. ./.kagura/commands (local, takes priority)
 
-# Custom directory
+# Custom single directory
 loader = CommandLoader(Path("./my-commands"))
 
 # Load all commands
@@ -275,6 +289,33 @@ example = loader.get_command("example")
 if example:
     print(f"Template: {example.template}")
 ```
+
+### Multi-Directory Search
+
+By default, `CommandLoader` searches both global and local directories:
+
+```python
+loader = CommandLoader()  # No argument
+
+# Equivalent to:
+# loader.commands_dirs = [
+#     Path.home() / ".kagura" / "commands",  # Global
+#     Path.cwd() / ".kagura" / "commands",   # Local (priority)
+# ]
+
+commands = loader.load_all()
+```
+
+**Priority**: Local commands override global commands with the same name.
+
+**Example**:
+
+```
+~/.kagura/commands/deploy.md       ← Global version
+./.kagura/commands/deploy.md       ← Local version (used)
+```
+
+When both exist, the local version is used.
 
 ### Creating Commands Programmatically
 
@@ -413,8 +454,248 @@ tags: [git, workflow]
     └── report-metrics.md
 ```
 
+## InlineCommandExecutor Class
+
+Executes inline shell commands in templates using the `!`command`` syntax.
+
+### Constructor
+
+```python
+InlineCommandExecutor(timeout: int = 10)
+```
+
+**Parameters:**
+
+- `timeout`: Timeout in seconds for command execution (default: 10)
+
+### Methods
+
+#### execute
+
+```python
+executor.execute(template: str) -> str
+```
+
+Execute all inline commands in a template string.
+
+**Parameters:**
+
+- `template`: Template string containing inline commands in `!`command`` format
+
+**Returns:** Template with inline commands replaced by their output
+
+**Example:**
+
+```python
+from kagura.commands import InlineCommandExecutor
+
+executor = InlineCommandExecutor()
+
+# Simple command
+result = executor.execute("Current user: !`whoami`")
+print(result)  # "Current user: alice"
+
+# Multiple commands
+result = executor.execute("User: !`whoami`, PWD: !`pwd`")
+print(result)  # "User: alice, PWD: /home/alice/project"
+
+# Command with pipes
+result = executor.execute("Files: !`ls | wc -l`")
+print(result)  # "Files: 5"
+```
+
+### Inline Command Syntax
+
+Inline commands use the format: `!`command``
+
+**Examples:**
+
+```markdown
+Current directory: !`pwd`
+Current user: !`whoami`
+Git branch: !`git branch --show-current`
+File count: !`ls | wc -l`
+Date: !`date +%Y-%m-%d`
+```
+
+### Error Handling
+
+Failed commands are replaced with error messages:
+
+```python
+executor = InlineCommandExecutor()
+
+# Nonexistent command
+result = executor.execute("Result: !`nonexistent_cmd`")
+print(result)  # "Result: [Error: command not found]"
+
+# Failed command
+result = executor.execute("Result: !`false`")
+print(result)  # "Result: [Error: ...]"
+```
+
+### Timeout
+
+Commands that exceed the timeout are terminated:
+
+```python
+executor = InlineCommandExecutor(timeout=1)
+
+# This will timeout
+result = executor.execute("Result: !`sleep 5`")
+print(result)  # "Result: [Error: Command timed out after 1s]"
+```
+
+## CommandExecutor Class
+
+Executes custom commands with template rendering and inline command execution.
+
+Combines two rendering steps:
+1. Execute inline commands (`!`command``)
+2. Render Jinja2 template with parameters
+
+### Constructor
+
+```python
+CommandExecutor(
+    inline_timeout: int = 10,
+    enable_inline: bool = True
+)
+```
+
+**Parameters:**
+
+- `inline_timeout`: Timeout for inline command execution (default: 10)
+- `enable_inline`: Enable inline command execution (default: True)
+
+### Methods
+
+#### render
+
+```python
+executor.render(
+    command: Command,
+    parameters: Optional[dict[str, Any]] = None
+) -> str
+```
+
+Render command template with parameters and inline commands.
+
+**Parameters:**
+
+- `command`: Command to render
+- `parameters`: Template parameters (default: {})
+
+**Returns:** Rendered template string
+
+**Raises:** `ValueError` if required parameters are missing
+
+**Example:**
+
+```python
+from kagura.commands import Command, CommandExecutor
+
+# Command with inline commands
+command = Command(
+    name="status",
+    description="Show status",
+    template="User: {{ user }}, PWD: !`pwd`",
+    parameters={"user": "string"}
+)
+
+executor = CommandExecutor()
+result = executor.render(command, {"user": "Alice"})
+print(result)  # "User: Alice, PWD: /home/alice"
+```
+
+#### execute
+
+```python
+executor.execute(
+    command: Command,
+    parameters: Optional[dict[str, Any]] = None
+) -> str
+```
+
+Alias for `render()` for consistency with executor pattern.
+
+### Rendering Order
+
+1. **Inline commands first**: `!`pwd`` → `/home/user`
+2. **Jinja2 second**: `{{ user }}` → `Alice`
+
+**Example:**
+
+```python
+# Template
+template = "{{ name }} is in !`pwd`"
+
+# Step 1: Inline execution
+# → "{{ name }} is in /home/alice"
+
+# Step 2: Jinja2 rendering with {"name": "Alice"}
+# → "Alice is in /home/alice"
+```
+
+### Disabling Inline Commands
+
+```python
+executor = CommandExecutor(enable_inline=False)
+result = executor.render(command)
+# Inline commands like !`pwd` are NOT executed
+```
+
+### Full Example
+
+```python
+from kagura.commands import Command, CommandExecutor
+
+# Create command
+command = Command(
+    name="git-status",
+    description="Show git status for user",
+    template="""# Git Status Report
+
+**User**: {{ username }}
+**Branch**: !`git branch --show-current`
+**Working Directory**: !`pwd`
+
+## Changes
+
+!`git status --short`
+
+## Summary
+
+You are currently on branch !`git branch --show-current` in directory !`pwd`.
+""",
+    parameters={"username": "string"}
+)
+
+# Execute
+executor = CommandExecutor()
+result = executor.render(command, {"username": "Alice"})
+
+print(result)
+# Output:
+# # Git Status Report
+#
+# **User**: Alice
+# **Branch**: main
+# **Working Directory**: /home/alice/project
+#
+# ## Changes
+#
+# M src/main.py
+# ?? new_file.py
+#
+# ## Summary
+#
+# You are currently on branch main in directory /home/alice/project.
+```
+
 ## See Also
 
-- [Custom Commands Tutorial](../tutorials/09-custom-commands.md) (coming soon)
+- [Custom Commands Quick Start](../guides/commands-quickstart.md)
+- [CLI Commands Reference](./cli.md)
 - [@agent Decorator API](./agent.md)
 - [Memory Management API](./memory.md)
