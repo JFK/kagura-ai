@@ -2,12 +2,11 @@
 import ast
 import asyncio
 import io
-import sys
 import time
-from contextlib import redirect_stdout, redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from typing import Any, Optional
-from pydantic import BaseModel
 
+from pydantic import BaseModel
 
 # Security configuration
 ALLOWED_IMPORTS = {
