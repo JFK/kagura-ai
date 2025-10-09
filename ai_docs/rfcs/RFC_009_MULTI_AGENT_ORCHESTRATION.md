@@ -515,6 +515,131 @@ async def test_parallel_execution():
 - [CrewAI](https://www.crewai.com/)
 - [LangGraph](https://langchain-ai.github.io/langgraph/)
 
+## RFC-016統合: Agent Routing
+
+RFC-016 (Agent Routing System) と統合することで、チーム内でのエージェント選択を自動化できます。
+
+### Team内自動ルーティング
+
+```python
+from kagura import Team, AgentRouter
+
+team = Team("support-team")
+
+# チーム内エージェント
+@agent(model="gpt-4o-mini", role="billing")
+async def billing_agent(query: str) -> str:
+    """Handle billing: {{ query }}"""
+    pass
+
+@agent(model="gpt-4o-mini", role="technical")
+async def technical_agent(query: str) -> str:
+    """Handle technical: {{ query }}"""
+    pass
+
+team.add_agent(billing_agent, name="billing")
+team.add_agent(technical_agent, name="technical")
+
+# チーム内ルーター設定
+team_router = AgentRouter()
+team_router.register(billing_agent, intents=["payment", "invoice", "billing"])
+team_router.register(technical_agent, intents=["error", "bug", "technical"])
+
+# Teamワークフローで自動ルーティング
+@team.workflow
+async def support_workflow(customer_query: str):
+    # ユーザー入力に基づいて自動的に適切なエージェントを選択
+    return await team_router.route(customer_query)
+
+# 使用例
+result = await support_workflow("請求書が届かない")
+# → billing_agent が自動選択される
+
+result = await support_workflow("アプリがクラッシュする")
+# → technical_agent が自動選択される
+```
+
+### 動的チーム構成
+
+ルーティング結果に基づいてチーム構成を動的に変更：
+
+```python
+from kagura import Team, AgentRouter
+
+router = AgentRouter()
+
+# 複数の専門エージェント登録
+router.register(data_collector, intents=["collect", "fetch", "gather"])
+router.register(data_analyzer, intents=["analyze", "examine", "investigate"])
+router.register(visualizer, intents=["visualize", "chart", "graph"])
+router.register(reporter, intents=["report", "summarize", "document"])
+
+async def handle_complex_request(request: str):
+    # マッチした上位3つのエージェントを取得
+    matched_agents = router.get_matched_agents(request, top_k=3)
+
+    # マッチしたエージェントで動的チーム構成
+    dynamic_team = Team("dynamic")
+
+    for agent, confidence in matched_agents:
+        if confidence > 0.5:
+            dynamic_team.add_agent(agent)
+
+    # チームで並列実行
+    results = await dynamic_team.parallel([
+        agent(request) for agent, _ in matched_agents
+    ])
+
+    return results
+
+# 使用例
+results = await handle_complex_request("データを収集して分析しグラフ化")
+# → data_collector, data_analyzer, visualizer が自動選択・並列実行
+```
+
+### Semantic Routing統合
+
+意味ベースルーティングでより柔軟なエージェント選択：
+
+```python
+from kagura import Team, SemanticRouter
+
+team = Team("research-team")
+
+# セマンティックルーター（埋め込みベクトルベース）
+semantic_router = SemanticRouter(threshold=0.7)
+
+semantic_router.register(
+    paper_searcher,
+    samples=[
+        "Find research papers about AI",
+        "論文を検索して",
+        "Search academic articles"
+    ]
+)
+
+semantic_router.register(
+    paper_summarizer,
+    samples=[
+        "Summarize this paper",
+        "論文を要約して",
+        "Give me the key points"
+    ]
+)
+
+@team.workflow
+async def research_workflow(query: str):
+    # 意味的に類似したエージェントを自動選択
+    return await semantic_router.route(query)
+
+# 使用例
+result = await research_workflow("機械学習の最新論文を探したい")
+# → paper_searcher が選択される（"Find research papers"と意味的に類似）
+```
+
+詳細は [RFC-016: Agent Routing System](./RFC_016_AGENT_ROUTING.md) を参照。
+
 ## 改訂履歴
 
 - 2025-10-04: 初版作成
+- 2025-10-06: RFC-016統合セクション追加
