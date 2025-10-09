@@ -3,9 +3,10 @@
 Loads commands from Markdown files with YAML frontmatter.
 """
 
-import frontmatter
 from pathlib import Path
 from typing import Optional
+
+import frontmatter
 
 from .command import Command
 
