@@ -5,9 +5,12 @@ Markdown files with YAML frontmatter.
 """
 
 from .command import Command
+from .executor import CommandExecutor, InlineCommandExecutor
 from .loader import CommandLoader
 
 __all__ = [
     "Command",
     "CommandLoader",
+    "CommandExecutor",
+    "InlineCommandExecutor",
 ]

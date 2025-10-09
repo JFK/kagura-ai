@@ -406,10 +406,329 @@ Create the commands directory if it doesn't exist:
 mkdir -p ~/.kagura/commands
 ```
 
+## Inline Command Execution
+
+### What are Inline Commands?
+
+Inline commands allow you to embed shell commands directly in your templates using the `!`command`` syntax. They are executed before the template is rendered.
+
+### Basic Syntax
+
+```markdown
+Current directory: !`pwd`
+Current user: !`whoami`
+Git branch: !`git branch --show-current`
+```
+
+### Example Command with Inline Execution
+
+Create `~/.kagura/commands/system-info.md`:
+
+```markdown
+---
+name: system-info
+description: Show system information
+---
+
+# System Information
+
+**Current User**: !`whoami`
+**Working Directory**: !`pwd`
+**Git Branch**: !`git branch --show-current`
+**Current Date**: !`date +%Y-%m-%d`
+
+## Task
+
+Analyze the current development environment.
+```
+
+### Using Inline Commands Programmatically
+
+```python
+from kagura.commands import InlineCommandExecutor
+
+executor = InlineCommandExecutor()
+
+# Simple command
+result = executor.execute("User: !`whoami`")
+print(result)  # "User: alice"
+
+# Multiple commands
+template = """
+Current directory: !`pwd`
+Current user: !`whoami`
+Git branch: !`git branch --show-current`
+"""
+result = executor.execute(template)
+print(result)
+```
+
+### Inline Commands with Parameters
+
+Combine Jinja2 parameters with inline commands:
+
+```markdown
+---
+name: git-info
+description: Show git information
+parameters:
+  project: string
+---
+
+# Git Information for {{ project }}
+
+**Branch**: !`git branch --show-current`
+**Status**: !`git status --short`
+**Last Commit**: !`git log -1 --oneline`
+
+Project {{ project }} is on branch !`git branch --show-current`.
+```
+
+### Rendering Order
+
+1. **Inline commands execute first**: `!`pwd`` → `/home/user`
+2. **Jinja2 renders second**: `{{ project }}` → `my-project`
+
+```python
+from kagura.commands import Command, CommandExecutor
+
+command = Command(
+    name="example",
+    description="Example",
+    template="{{ name }} is in !`pwd`",
+    parameters={"name": "string"}
+)
+
+executor = CommandExecutor()
+result = executor.render(command, {"name": "Alice"})
+# Result: "Alice is in /home/alice/project"
+```
+
+### Error Handling
+
+Failed commands show error messages:
+
+```markdown
+Result: !`nonexistent_command`
+```
+
+Renders as:
+
+```
+Result: [Error: command not found]
+```
+
+### Disabling Inline Execution
+
+```python
+executor = CommandExecutor(enable_inline=False)
+result = executor.render(command)
+# Inline commands are NOT executed
+```
+
+## Using the CLI
+
+### Installing
+
+After installing Kagura AI, the `kagura run` command is available:
+
+```bash
+pip install kagura-ai
+```
+
+### Basic Usage
+
+```bash
+# Run a command
+kagura run hello
+
+# Run with parameters
+kagura run greet --param name=Alice --param formal=true
+
+# Use custom commands directory
+kagura run my-cmd --commands-dir ./my-commands
+
+# Disable inline command execution
+kagura run my-cmd --no-inline
+```
+
+### CLI Options
+
+```
+kagura run COMMAND_NAME [OPTIONS]
+
+Options:
+  --param, -p KEY=VALUE    Command parameter (can be used multiple times)
+  --commands-dir PATH      Custom commands directory
+  --no-inline              Disable inline command execution
+  --help                   Show help message
+```
+
+### Example: Git Workflow
+
+Create `~/.kagura/commands/git-status.md`:
+
+```markdown
+---
+name: git-status
+description: Show detailed git status
+parameters:
+  username: string
+---
+
+# Git Status Report
+
+**User**: {{ username }}
+**Branch**: !`git branch --show-current`
+**Working Directory**: !`pwd`
+
+## Changes
+
+!`git status --short`
+
+## Task
+
+Review the changes and create an appropriate commit message.
+```
+
+Run it:
+
+```bash
+kagura run git-status --param username=Alice
+```
+
+Output:
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Executing Command    ┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
+git-status
+Show detailed git status
+
+Rendered Command:
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ # Git Status Report                ┃
+┃                                     ┃
+┃ **User**: Alice                    ┃
+┃ **Branch**: main                   ┃
+┃ **Working Directory**: /home/alice ┃
+┃                                     ┃
+┃ ## Changes                         ┃
+┃                                     ┃
+┃ M src/main.py                      ┃
+┃ ?? new_file.py                     ┃
+┃                                     ┃
+┃ ## Task                            ┃
+┃                                     ┃
+┃ Review the changes and create an   ┃
+┃ appropriate commit message.        ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+### Quiet Mode
+
+Use global flags for quiet output:
+
+```bash
+kagura --quiet run my-cmd
+```
+
+This prints only the rendered result without decorations.
+
+### Verbose Mode
+
+Use verbose mode for debugging:
+
+```bash
+kagura --verbose run my-cmd
+```
+
+## Advanced Examples
+
+### Command with Multiple Parameters
+
+`~/.kagura/commands/analyze-file.md`:
+
+```markdown
+---
+name: analyze-file
+description: Analyze a file
+parameters:
+  file: string
+  lines:
+    type: int
+    required: false
+  verbose:
+    type: bool
+    required: false
+---
+
+# File Analysis: {{ file }}
+
+**File Location**: !`realpath {{ file }}`
+**File Size**: !`stat -c%s {{ file }}` bytes
+**Line Count**: !`wc -l < {{ file }}`
+
+{% if lines %}
+**First {{ lines }} lines**:
+
+!`head -n {{ lines }} {{ file }}`
+{% endif %}
+
+## Task
+
+{% if verbose %}
+Perform a detailed analysis of {{ file }}.
+{% else %}
+Provide a summary analysis of {{ file }}.
+{% endif %}
+```
+
+Run it:
+
+```bash
+# Basic usage
+kagura run analyze-file --param file=data.csv
+
+# With optional parameters
+kagura run analyze-file \
+  --param file=data.csv \
+  --param lines=10 \
+  --param verbose=true
+```
+
+### Command with Pipes
+
+`~/.kagura/commands/code-stats.md`:
+
+```markdown
+---
+name: code-stats
+description: Show code statistics
+---
+
+# Code Statistics
+
+**Total Python Files**: !`find . -name "*.py" | wc -l`
+**Total Lines of Code**: !`find . -name "*.py" -exec wc -l {} + | tail -1 | awk '{print $1}'`
+**Most Recent Change**: !`git log -1 --format=%cr`
+
+## Task
+
+Review the code statistics and provide insights.
+```
+
+Run it:
+
+```bash
+kagura run code-stats
+```
+
 ## Next Steps
 
 - Read the [Commands API Reference](../api/commands.md)
-- Learn about inline command execution (coming soon)
+- Learn about [CLI Commands](../api/cli.md)
 - Explore hooks and validation (coming soon)
 
 ## Examples

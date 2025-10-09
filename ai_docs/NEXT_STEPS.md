@@ -1,7 +1,7 @@
 # Kagura AI - Next Steps（次のアクション）
 
-**最終更新**: 2025-10-09 (21:00)
-**現在地**: v2.0.2 リリース済み、RFC-007 Phase 1 完了、RFC-017 完了 🎉
+**最終更新**: 2025-10-09 (22:30)
+**現在地**: v2.0.2 リリース済み、RFC-007 Phase 1 完了、RFC-017 完了、RFC-018 Phase 1 完了、RFC-012 Phase 1-B 完了 🎉
 
 ---
 
@@ -12,7 +12,7 @@
 - **Core Engine**: @agent, Prompt Template, Type Parser（#14, #15, #16）
 - **Code Executor**: AST検証、安全実行（#20, #21）
 - **CLI & REPL**: Click CLI、prompt_toolkit REPL（#24, #25, #27, #56, #72）
-- **テスト**: 統合テスト、カバレッジ79%（202 passed）
+- **テスト**: 統合テスト、カバレッジ80%（310 passed）
 - **ドキュメント**: README、チュートリアル、サンプル（#32, #33, #34, #45, #54）
 - **RFC作成**: 全18個のRFC（002-018）作成完了、Issue作成済み
 - **統合ロードマップ**: `UNIFIED_ROADMAP.md`作成完了
@@ -44,14 +44,52 @@
 
 **成果**: セキュアなシェルコマンド実行、Git自動化、ファイル操作が可能に！
 
+### ✅ **NEW: RFC-018 Memory Management Phase 1 完了（2025-10-09）**
+- **PR #94**: Memory Management System実装（777行）
+  - `src/kagura/core/memory/working.py`: WorkingMemory（99行）
+  - `src/kagura/core/memory/context.py`: ContextMemory（166行）
+  - `src/kagura/core/memory/persistent.py`: PersistentMemory（249行）
+  - `src/kagura/core/memory/manager.py`: MemoryManager（263行）
+  - `@agent` デコレータにメモリ統合
+  - `tests/core/memory/`: 66テスト（100%カバレッジ）
+  - `docs/en/tutorials/08-memory-management.md`: チュートリアル（429行）
+  - `docs/en/api/memory.md`: APIリファレンス（479行）
+
+**成果**: Working/Context/Persistent の3層メモリシステムを実装！
+
+### ✅ **NEW: RFC-012 Commands & Hooks Phase 1-A 完了（2025-10-09）**
+- **PR #95**: Markdown Command Loader実装（170行）
+  - `src/kagura/commands/command.py`: Command dataclass（66行）
+  - `src/kagura/commands/loader.py`: CommandLoader（104行）
+  - Markdownファイルから YAML frontmatter + template 読み込み
+  - `tests/commands/`: 23テスト（100%カバレッジ）
+  - `docs/en/api/commands.md`: APIリファレンス（421行）
+  - `docs/en/guides/commands-quickstart.md`: クイックスタート（418行）
+
+**成果**: Markdownファイルから簡単にカスタムコマンド作成可能に！
+
+### ✅ **NEW: RFC-012 Commands & Hooks Phase 1-B 完了（2025-10-09）**
+- **PR #96 (Draft)**: Inline Command Execution + CLI Integration（実装完了、PR作成待ち）
+  - `src/kagura/commands/executor.py`: InlineCommandExecutor + CommandExecutor（157行、95%カバレッジ）
+  - `src/kagura/cli/commands_cli.py`: `kagura run` CLI command（130行、20%カバレッジ）
+  - インライン実行: `!`command`` 構文でシェルコマンド実行
+  - Jinja2テンプレートレンダリング
+  - `tests/commands/test_executor.py`: 19テスト（全パス）
+  - 全体: 310テスト（80%カバレッジ）
+  - `docs/en/api/commands.md`: Executor APIリファレンス追加（244行追加）
+  - `docs/en/guides/commands-quickstart.md`: CLI & Inline実行ガイド追加（328行追加）
+  - `docs/en/api/cli.md`: `kagura run` CLI ドキュメント追加（177行追加）
+
+**成果**: `kagura run` でカスタムコマンド実行、インラインシェルコマンド埋め込み可能に！
+
 ### 🚧 進行中
-- なし（RFC-017完了）
+- RFC-012 Phase 1-B: PR作成・マージ待ち
 
 ### 📝 次の優先タスク
-- **RFC-018 (High)**: Memory Management System (#85)
+- **RFC-012 (High)**: Phase 2 - Hooks System (PreToolUse/PostToolUse) (#73)
 - **RFC-006 (High)**: Live Coding - Chat REPL (#66)
-- **RFC-012 (High)**: Commands & Hooks (#73)
 - **RFC-016 (High)**: Agent Routing System (#83)
+- **RFC-018 (Medium)**: Phase 2 - MemoryRAG (ChromaDB/Qdrant統合) (#85)
 - **RFC-002〜005, 008〜015**: 詳細は `UNIFIED_ROADMAP.md` 参照
 
 ---
@@ -62,16 +100,18 @@
 
 以下から選択してください：
 
-#### Option A: RFC-018 - Memory Management（Week 1-2）
-**Issue #85**
+#### Option A: RFC-012 - Commands & Hooks Phase 2（Week 1）
+**Issue #73**
 
 **実装内容**:
-- [ ] Core Memory Types（Working/Context/Persistent）
-- [ ] MemoryRAG（ChromaDB/Qdrant統合）
-- [ ] Agent統合（`@agent(enable_memory=True)`）
+- [x] Markdownコマンド定義 ✅ (Phase 1-A)
+- [x] インライン実行 ``!`command` `` ✅ (Phase 1-B)
+- [x] `kagura run` CLI ✅ (Phase 1-B)
+- [ ] PreToolUse / PostToolUse Hooks
+- [ ] Validation Hooks
 - [ ] テスト・ドキュメント
 
-**見積もり**: 2週間
+**見積もり**: 1週間
 **優先度**: High
 
 ---
@@ -90,21 +130,7 @@
 
 ---
 
-#### Option C: RFC-012 - Commands & Hooks（Week 1-2）
-**Issue #73**
-
-**実装内容**:
-- [ ] Markdownコマンド定義
-- [ ] PreToolUse / PostToolUse Hooks
-- [ ] インライン実行 ``!`command` ``
-- [ ] テスト・ドキュメント
-
-**見積もり**: 2週間
-**優先度**: High
-
----
-
-#### Option D: RFC-016 - Agent Routing System（Week 1-2）
+#### Option C: RFC-016 - Agent Routing System（Week 1-2）
 **Issue #83**
 
 **実装内容**:
@@ -115,6 +141,21 @@
 
 **見積もり**: 2週間
 **優先度**: High
+
+---
+
+#### Option D: RFC-018 - Memory Management Phase 2（Week 1-2）
+**Issue #85**
+
+**実装内容**:
+- [x] Core Memory Types（Working/Context/Persistent）✅ (Phase 1)
+- [x] Agent統合（`@agent(enable_memory=True)`）✅ (Phase 1)
+- [ ] MemoryRAG（ChromaDB/Qdrant統合）
+- [ ] セマンティック検索
+- [ ] テスト・ドキュメント
+
+**見積もり**: 1.5週間
+**優先度**: Medium
 
 ---
 
@@ -193,23 +234,28 @@ ruff check src/
 
 ## ❓ よくある質問
 
-### Q1: RFC-007とRFC-017は完了？
-A: はい！両方とも2025-10-09に完了しました。
-- RFC-007 Phase 1: Claude DesktopでKaguraエージェント利用可能
-- RFC-017: セキュアなシェル実行、Git自動化、ファイル操作
+### Q1: どのRFCが完了している？
+A: 以下のRFCが完了しています（2025-10-09現在）：
+- ✅ RFC-007 Phase 1: MCP Integration（Claude Desktop統合）
+- ✅ RFC-017: Shell Integration（シェル実行、Git自動化）
+- ✅ RFC-018 Phase 1: Memory Management（3層メモリシステム）
+- ✅ RFC-012 Phase 1-A: Markdown Command Loader
+- ✅ RFC-012 Phase 1-B: Inline Command Execution + CLI
 
 ### Q2: RFC実装の優先順位は？
 A:
-1. ✅ RFC-007 (Very High) - MCP Integration Phase 1 **完了**
+1. ✅ RFC-007 Phase 1 (Very High) - MCP Integration **完了**
 2. ✅ RFC-017 (High) - Shell Integration **完了**
-3. RFC-006, 012, 016, 018 (High) - 次の候補
-4. RFC-002, 003, 014 (Medium)
-5. その他（Low-Medium）
+3. ✅ RFC-018 Phase 1 (High) - Memory Management Core **完了**
+4. ✅ RFC-012 Phase 1-A & 1-B (High) - Commands Basic **完了**
+5. 🔜 RFC-012 Phase 2, RFC-006, RFC-016 (High) - 次の候補
+6. RFC-002, 003, 014 (Medium)
+7. その他（Low-Medium）
 
 ### Q3: 途中でRFC追加される？
 A: はい。`UNIFIED_ROADMAP.md`を随時更新します。
 
-### Q4: v2.0.2でどの機能が使える？
+### Q4: v2.0.2+でどの機能が使える？
 A:
 - ✅ `@agent` デコレータ
 - ✅ Jinja2プロンプトテンプレート
@@ -218,6 +264,15 @@ A:
 - ✅ CLI & REPL
 - ✅ **MCP Integration** (Claude Desktop対応) ⭐️ NEW
 - ✅ **Shell Integration** (シェル実行、Git自動化) ⭐️ NEW
+- ✅ **Memory Management** (Working/Context/Persistent) ⭐️ NEW
+- ✅ **Custom Commands** (Markdown定義、インライン実行、`kagura run`) ⭐️ NEW
+
+### Q5: RFC-012 Phase 1-B で何ができる？
+A:
+- ✅ `!`pwd`` などのインラインシェルコマンド実行
+- ✅ `kagura run` CLI でカスタムコマンド実行
+- ✅ パラメータ渡し（`--param key=value`）
+- ✅ Jinja2 + インラインコマンドの組み合わせ
 
 ---
 

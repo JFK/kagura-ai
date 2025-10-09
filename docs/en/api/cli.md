@@ -514,6 +514,187 @@ If REPL becomes slow or unresponsive:
 2. Clear variables: `del large_variable`
 3. Use `/clear` to clear screen
 
+## Custom Commands
+
+**New in v2.0.2**: Run custom commands defined in Markdown files.
+
+### kagura run
+
+Execute a custom command defined in a Markdown file.
+
+```bash
+kagura run COMMAND_NAME [OPTIONS]
+```
+
+**Arguments:**
+- `COMMAND_NAME`: Name of the command to execute (required)
+
+**Options:**
+- `--param, -p KEY=VALUE`: Command parameter in key=value format (can be used multiple times)
+- `--commands-dir PATH`: Custom commands directory (default: `~/.kagura/commands`)
+- `--no-inline`: Disable inline command execution
+- `--help`: Show help message
+
+**Examples:**
+
+```bash
+# Run a simple command
+kagura run git-workflow
+
+# Run with parameters
+kagura run analyze-data --param file=data.csv --param verbose=true
+
+# Use custom commands directory
+kagura run my-cmd --commands-dir ./my-commands
+
+# Disable inline command execution
+kagura run my-cmd --no-inline
+
+# Use global flags for quiet output
+kagura --quiet run my-cmd
+```
+
+### Command Files
+
+Commands are Markdown files with YAML frontmatter stored in `~/.kagura/commands/`.
+
+**Example command file** (`~/.kagura/commands/git-status.md`):
+
+```markdown
+---
+name: git-status
+description: Show git status with user context
+parameters:
+  username: string
+---
+
+# Git Status Report
+
+**User**: {{ username }}
+**Branch**: !`git branch --show-current`
+**Working Directory**: !`pwd`
+
+## Changes
+
+!`git status --short`
+
+## Task
+
+Review the changes and provide a commit message.
+```
+
+**Run it:**
+
+```bash
+kagura run git-status --param username=Alice
+```
+
+### Inline Commands
+
+Commands can include inline shell commands using the `!`command`` syntax:
+
+```markdown
+Current directory: !`pwd`
+Current user: !`whoami`
+Git branch: !`git branch --show-current`
+File count: !`ls | wc -l`
+```
+
+Inline commands are executed before the template is rendered.
+
+### Parameter Passing
+
+Pass parameters via the `--param` flag:
+
+```bash
+# Single parameter
+kagura run my-cmd --param name=Alice
+
+# Multiple parameters
+kagura run analyze-file \
+  --param file=data.csv \
+  --param lines=10 \
+  --param verbose=true
+```
+
+Parameters are validated against the command's `parameters` definition in frontmatter.
+
+### Output Modes
+
+**Normal mode** (default):
+
+```bash
+kagura run my-cmd
+```
+
+Shows command information and rendered output in formatted panels.
+
+**Quiet mode**:
+
+```bash
+kagura --quiet run my-cmd
+```
+
+Shows only the rendered result without decorations.
+
+**Verbose mode**:
+
+```bash
+kagura --verbose run my-cmd
+```
+
+Shows additional debugging information and tracebacks on errors.
+
+### Error Handling
+
+**Command not found:**
+
+```bash
+$ kagura run nonexistent
+Error: Command not found: nonexistent
+
+Available commands:
+  • git-workflow: Complete git workflow (commit, push, PR)
+  • code-review: Review code changes
+  • analyze-data: Analyze CSV data file
+```
+
+**Missing required parameter:**
+
+```bash
+$ kagura run analyze-data
+Error: Required parameter 'file' is missing
+
+Required parameters:
+  • file: string (required)
+```
+
+**Invalid parameter format:**
+
+```bash
+$ kagura run my-cmd --param invalid
+Error: Invalid parameter format: invalid
+Use format: key=value
+```
+
+**Commands directory not found:**
+
+```bash
+$ kagura run my-cmd
+Error: Commands directory not found: /home/user/.kagura/commands
+
+Tip: Create the directory with:
+  mkdir -p /home/user/.kagura/commands
+```
+
+### See Also
+
+- [Custom Commands API](commands.md) - API reference for commands
+- [Custom Commands Quick Start](../guides/commands-quickstart.md) - Tutorial and examples
+- [@agent Decorator](agent.md) - Creating AI agents
+
+---
+
 ## MCP Commands
 
 **New in v2.1.0**: MCP (Model Context Protocol) commands for Claude Desktop integration.
