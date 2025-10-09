@@ -401,5 +401,7 @@ class AgentRouter:
                 from semantic_router.encoders import OpenAIEncoder  # type: ignore
 
                 return OpenAIEncoder()
-        except ImportError:
+        except (ImportError, ValueError):
+            # ImportError: semantic-router not installed
+            # ValueError: API key missing
             return None
