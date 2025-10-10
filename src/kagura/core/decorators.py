@@ -18,6 +18,68 @@ P = ParamSpec('P')
 T = TypeVar('T')
 
 
+def _convert_tools_to_llm_format(tools: list[Callable]) -> list[dict[str, Any]]:
+    """Convert Python tool functions to LiteLLM tools format.
+
+    Args:
+        tools: List of tool functions
+
+    Returns:
+        List of tool dictionaries in OpenAI tools format
+    """
+    llm_tools = []
+    for tool in tools:
+        sig = inspect.signature(tool)
+
+        # Build parameters schema
+        properties: dict[str, Any] = {}
+        required: list[str] = []
+
+        for param_name, param in sig.parameters.items():
+            # Convert Python type annotations to JSON schema types
+            param_type = "string"  # default
+            if param.annotation != inspect.Parameter.empty:
+                if param.annotation in (int, type(1)):
+                    param_type = "integer"
+                elif param.annotation in (float, type(1.0)):
+                    param_type = "number"
+                elif param.annotation in (bool, type(True)):
+                    param_type = "boolean"
+                elif param.annotation in (list, type([])):
+                    param_type = "array"
+                elif param.annotation in (dict, type({})):
+                    param_type = "object"
+
+            properties[param_name] = {
+                "type": param_type,
+                "description": f"{param_name} parameter"
+            }
+
+            # Mark as required if no default value
+            if param.default == inspect.Parameter.empty:
+                required.append(param_name)
+
+        # Get function description from docstring
+        description = tool.__doc__ or tool.__name__
+        if description:
+            description = description.strip().split('\n')[0]  # First line only
+
+        llm_tools.append({
+            "type": "function",
+            "function": {
+                "name": tool.__name__,
+                "description": description,
+                "parameters": {
+                    "type": "object",
+                    "properties": properties,
+                    "required": required
+                }
+            }
+        })
+
+    return llm_tools
+
+
 @overload
 def agent(
     fn: Callable[P, Awaitable[T]],
@@ -27,6 +89,7 @@ def agent(
     enable_memory: bool = False,
     persist_dir: Optional[Path] = None,
     max_messages: int = 100,
+    tools: Optional[list[Callable]] = None,
     **kwargs: Any
 ) -> Callable[P, Awaitable[T]]: ...
 
@@ -39,6 +102,7 @@ def agent(
     enable_memory: bool = False,
     persist_dir: Optional[Path] = None,
     max_messages: int = 100,
+    tools: Optional[list[Callable]] = None,
     **kwargs: Any
 ) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]: ...
 
@@ -50,8 +114,12 @@ def agent(
     enable_memory: bool = False,
     persist_dir: Optional[Path] = None,
     max_messages: int = 100,
+    tools: Optional[list[Callable]] = None,
     **kwargs: Any
-) -> Callable[P, Awaitable[T]] | Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]:
+) -> (
+    Callable[P, Awaitable[T]]
+    | Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]
+):
     """
     Convert a function into an AI agent.
 
@@ -62,6 +130,7 @@ def agent(
         enable_memory: Enable memory management
         persist_dir: Directory for persistent memory storage
         max_messages: Maximum messages in context memory
+        tools: List of tool functions available to the agent
         **kwargs: Additional LLM parameters
 
     Returns:
@@ -81,6 +150,12 @@ def agent(
             '''Answer: {{ query }}'''
             memory.add_message("user", query)
             return "response"
+
+        # With tools
+        @agent(tools=[search_tool, calculator])
+        async def research_agent(topic: str) -> str:
+            '''Research {{ topic }} using available tools'''
+            pass
     """
     def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
         # Extract template from docstring
@@ -92,6 +167,11 @@ def agent(
         # Get function signature to check for memory parameter
         sig = inspect.signature(func)
         has_memory_param = "memory" in sig.parameters
+
+        # Convert tools to LiteLLM format if provided
+        llm_tools = None
+        if tools:
+            llm_tools = _convert_tools_to_llm_format(tools)
 
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs_inner: P.kwargs) -> T:
@@ -116,8 +196,13 @@ def agent(
             }
             prompt = render_prompt(template_str, **template_args)
 
+            # Prepare additional kwargs for LLM
+            llm_kwargs = dict(kwargs)
+            if llm_tools:
+                llm_kwargs["tools"] = llm_tools
+
             # Call LLM
-            response = await call_llm(prompt, config, **kwargs)
+            response = await call_llm(prompt, config, **llm_kwargs)
 
             # Parse response based on return type annotation
             return_type = sig.return_annotation
