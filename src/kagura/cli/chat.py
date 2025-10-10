@@ -34,11 +34,17 @@ from kagura.chat import ChatSession
     is_flag=True,
     help="Enable web search capabilities",
 )
+@click.option(
+    "--full",
+    is_flag=True,
+    help="Enable all features (multimodal + web). Requires --dir",
+)
 def chat(
     model: str,
     enable_multimodal: bool,
     dir: Path | None,
     enable_web: bool,
+    full: bool,
 ) -> None:
     """
     Start an interactive chat session with AI.
@@ -59,7 +65,19 @@ def chat(
 
         # Enable both multimodal and web
         kagura chat --enable-multimodal --dir ./project --enable-web
+
+        # Full-featured mode (all capabilities)
+        kagura chat --full --dir ./project
     """
+    # Handle --full flag
+    if full:
+        if not dir:
+            raise click.UsageError(
+                "--full requires --dir to be set for multimodal RAG"
+            )
+        enable_multimodal = True
+        enable_web = True
+
     # Validate options
     if dir and not enable_multimodal:
         raise click.UsageError(

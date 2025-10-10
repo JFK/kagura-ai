@@ -18,7 +18,7 @@ from kagura.core.memory import MemoryManager
 from .preset import CodeReviewAgent, SummarizeAgent, TranslateAgent
 
 
-@agent(model="gpt-4o-mini", temperature=0.7, streaming=False, enable_memory=True)
+@agent(model="gpt-4o-mini", temperature=0.7, enable_memory=True)
 async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     """
     You are a helpful AI assistant. Previous conversation context is available
@@ -42,15 +42,22 @@ async def _web_search_tool(query: str) -> str:
     Returns:
         Formatted search results
     """
+    from rich.console import Console
+
     from kagura.web.decorators import web_search
 
-    return await web_search(query)
+    console = Console()
+    console.print(f"[dim]🌐 Searching the web for: {query}...[/]")
+
+    result = await web_search(query)
+
+    console.print("[dim]✓ Web search completed[/]")
+    return result
 
 
 @agent(
     model="gpt-4o-mini",
     temperature=0.7,
-    streaming=False,
     enable_memory=True,
     tools=[_web_search_tool],
 )
@@ -221,6 +228,7 @@ class ChatSession:
             enhanced_input = f"{user_input}\n{rag_context}"
 
         # Get AI response (use web-enabled agent if enabled)
+        self.console.print("[dim]💬 Generating response...[/]")
         if self.enable_web:
             response = await chat_agent_with_web(enhanced_input, memory=self.memory)
         else:
@@ -279,17 +287,26 @@ class ChatSession:
         features.append("  [cyan]/review[/]    - Review code")
         features.append("  [cyan]/exit[/]      - Exit chat")
 
-        if self.enable_multimodal:
-            features.insert(1, "\n[bold yellow]⚡ Multimodal RAG Enabled[/]")
+        # Full-featured mode
+        if self.enable_multimodal and self.enable_web:
+            features.insert(1, "\n[bold magenta]🚀 Full-Featured Mode[/]")
+            features.insert(2, "[bold yellow]⚡ Multimodal RAG[/]")
             if self.rag_directory:
-                features.insert(
-                    2,
-                    f"[dim]Indexed: {self.rag_directory}[/]"
-                )
+                features.insert(3, f"[dim]   Indexed: {self.rag_directory}[/]")
+            features.insert(4, "[bold cyan]🌐 Web Search[/]")
+        else:
+            # Individual features
+            if self.enable_multimodal:
+                features.insert(1, "\n[bold yellow]⚡ Multimodal RAG Enabled[/]")
+                if self.rag_directory:
+                    features.insert(
+                        2,
+                        f"[dim]Indexed: {self.rag_directory}[/]"
+                    )
 
-        if self.enable_web:
-            insert_pos = 2 if self.enable_multimodal else 1
-            features.insert(insert_pos, "\n[bold cyan]🌐 Web Search Enabled[/]")
+            if self.enable_web:
+                insert_pos = 2 if self.enable_multimodal else 1
+                features.insert(insert_pos, "\n[bold cyan]🌐 Web Search Enabled[/]")
 
         welcome = Panel(
             "[bold green]Welcome to Kagura Chat![/]\n\n" + "\n".join(features) + "\n",

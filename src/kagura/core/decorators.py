@@ -268,13 +268,20 @@ def agent(
             }
             prompt = render_prompt(template_str, **template_args)
 
-            # Prepare additional kwargs for LLM
+            # Prepare kwargs for LLM call
             llm_kwargs = dict(kwargs)
+
+            # Add OpenAI tools schema to kwargs for litellm.acompletion
             if llm_tools:
                 llm_kwargs["tools"] = llm_tools
 
-            # Call LLM
-            response = await call_llm(prompt, config, **llm_kwargs)
+            # Call LLM with Python tool functions (renamed parameter to avoid conflict)
+            response = await call_llm(
+                prompt,
+                config,
+                tool_functions=tools_list if tools_list else None,
+                **llm_kwargs,
+            )
 
             # Parse response based on return type annotation
             return_type = sig.return_annotation
