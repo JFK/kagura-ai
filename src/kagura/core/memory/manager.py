@@ -8,6 +8,7 @@ from typing import Any, Optional
 
 from .context import ContextMemory, Message
 from .persistent import PersistentMemory
+from .rag import MemoryRAG
 from .working import WorkingMemory
 
 
@@ -22,6 +23,7 @@ class MemoryManager:
         agent_name: Optional[str] = None,
         persist_dir: Optional[Path] = None,
         max_messages: int = 100,
+        enable_rag: bool = False,
     ) -> None:
         """Initialize memory manager.
 
@@ -29,6 +31,7 @@ class MemoryManager:
             agent_name: Optional agent name for scoping
             persist_dir: Directory for persistent storage
             max_messages: Maximum messages in context
+            enable_rag: Enable RAG (vector-based semantic search)
         """
         self.agent_name = agent_name
 
@@ -41,6 +44,17 @@ class MemoryManager:
             db_path = persist_dir / "memory.db"
 
         self.persistent = PersistentMemory(db_path=db_path)
+
+        # Optional: RAG
+        self.rag: Optional[MemoryRAG] = None
+        if enable_rag:
+            collection_name = (
+                f"kagura_{agent_name}" if agent_name else "kagura_memory"
+            )
+            vector_dir = persist_dir / "vector_db" if persist_dir else None
+            self.rag = MemoryRAG(
+                collection_name=collection_name, persist_dir=vector_dir
+            )
 
     # Working Memory
     def set_temp(self, key: str, value: Any) -> None:
@@ -247,20 +261,61 @@ class MemoryManager:
 
         return True
 
+    # RAG Memory
+    def store_semantic(
+        self, content: str, metadata: Optional[dict] = None
+    ) -> str:
+        """Store content for semantic search.
+
+        Args:
+            content: Content to store
+            metadata: Optional metadata
+
+        Returns:
+            Content hash (unique ID)
+
+        Raises:
+            ValueError: If RAG is not enabled
+        """
+        if not self.rag:
+            raise ValueError("RAG not enabled. Set enable_rag=True")
+        return self.rag.store(content, metadata, self.agent_name)
+
+    def recall_semantic(
+        self, query: str, top_k: int = 5
+    ) -> list[dict[str, Any]]:
+        """Semantic search for relevant memories.
+
+        Args:
+            query: Search query
+            top_k: Number of results to return
+
+        Returns:
+            List of memory dictionaries with content, distance, and metadata
+
+        Raises:
+            ValueError: If RAG is not enabled
+        """
+        if not self.rag:
+            raise ValueError("RAG not enabled. Set enable_rag=True")
+        return self.rag.recall(query, top_k, self.agent_name)
+
     def clear_all(self) -> None:
         """Clear all memory (working and context).
 
-        Note: Does not clear persistent memory.
+        Note: Does not clear persistent memory or RAG memory.
         """
         self.working.clear()
         self.context.clear()
 
     def __repr__(self) -> str:
         """String representation."""
+        rag_count = self.rag.count(self.agent_name) if self.rag else 0
         return (
             f"MemoryManager("
             f"agent={self.agent_name}, "
             f"working={len(self.working)}, "
             f"context={len(self.context)}, "
-            f"persistent={self.persistent.count(self.agent_name)})"
+            f"persistent={self.persistent.count(self.agent_name)}, "
+            f"rag={rag_count})"
         )

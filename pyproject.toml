@@ -50,6 +50,9 @@ mcp = [
 routing = [
     "semantic-router>=0.1.11",
 ]
+memory = [
+    "chromadb>=0.4.0",
+]
 
 [build-system]
 requires = ["setuptools>=42.0.0,<69.0", "wheel"]
