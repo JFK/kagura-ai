@@ -18,7 +18,7 @@ from kagura.core.memory import MemoryManager
 from .preset import CodeReviewAgent, SummarizeAgent, TranslateAgent
 
 
-@agent(model="gpt-4o-mini", temperature=0.7, streaming=False, enable_memory=True)
+@agent(model="gpt-4o-mini", temperature=0.7, enable_memory=True)
 async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     """
     You are a helpful AI assistant. Previous conversation context is available
@@ -50,7 +50,6 @@ async def _web_search_tool(query: str) -> str:
 @agent(
     model="gpt-4o-mini",
     temperature=0.7,
-    streaming=False,
     enable_memory=True,
     tools=[_web_search_tool],
 )
