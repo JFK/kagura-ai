@@ -1,7 +1,7 @@
 # Kagura AI - Next Steps（次のアクション）
 
-**最終更新**: 2025-10-10 (21:00)
-**現在地**: v2.1.0 リリース済み 🎉 → **v2.2.0 開始** 🚀 (RFC-019完了！)
+**最終更新**: 2025-10-10
+**現在地**: ✅ **v2.2.0 リリース完了！** 🎉 → v2.3.0準備中 🚀
 
 ---
 
@@ -155,104 +155,78 @@
 
 ---
 
-## 🎉 v2.2.0 開始！（2025-10-10）
+## 🎉 v2.2.0 リリース完了！（2025-10-10）
 
-### ✅ RFC-019: Unified Agent Builder - 完了！
-**PR #111, #112, #113** (2025-10-10)
+### ✅ 完了済み機能まとめ
 
-**Phase 1: Core Builder**
-- `src/kagura/builder/agent_builder.py`: AgentBuilder基本実装（225行）
-- `src/kagura/builder/config.py`: Configuration classes（82行）
-- Fluent API pattern (method chaining)
-- `tests/builder/test_agent_builder.py`: 19テスト（全パス）
+| RFC | 機能 | PR | Status |
+|-----|------|----|--------|
+| RFC-018 | Memory RAG (Phase 2) | #105 | ✅ |
+| RFC-019 | Unified Agent Builder | #111-113 | ✅ |
+| RFC-022 | Agent Testing Framework | #114 | ✅ |
+| RFC-001 | Workflow System - Advanced | #115 | ✅ |
+| RFC-020 | Memory-Aware Routing | #116 | ✅ |
+| RFC-021 | Agent Observability Dashboard | #117-118 | ✅ |
 
-**Phase 1.5: Memory + Tools Integration** (PR #112)
-- `@agent` decorator に `tools` パラメータ追加
-- `_convert_tools_to_llm_format()` helper関数
-- Memory設定を`@agent`に渡す統合
-- 4つの統合テスト追加（Memory, Tools, RAG, Memory+Tools）
-
-**Phase 2: Hooks + Presets** (PR #113)
-- Hooks wrapper実装（pre/post hooks support）
-- `src/kagura/presets/chatbot.py`: ChatbotPreset
-- `src/kagura/presets/research.py`: ResearchPreset
-- `src/kagura/presets/code_review.py`: CodeReviewPreset
-- 11個のPresetテスト追加
-
-**使用例**:
-```python
-from kagura import AgentBuilder
-from kagura.presets import ChatbotPreset
-
-# Manual builder
-agent = (
-    AgentBuilder("my_agent")
-    .with_model("gpt-4o-mini")
-    .with_memory(type="rag", enable_rag=True)
-    .with_tools([search_tool, calculator])
-    .with_hooks(pre=[validation_hook], post=[logging_hook])
-    .build()
-)
-
-# Preset
-chatbot = ChatbotPreset("my_chatbot").with_model("gpt-4o").build()
-```
-
-**成果**:
-- ✅ 複数機能の統合が簡単に
-- ✅ 3つのプリセット提供
-- ✅ Hooks統合
-- ✅ 31個のテスト（全パス）
+**合計**: 18個のPR、13個のRFC完了（Phase含む）🎉
+**新規テスト**: 246個（全パス、100%カバレッジ）
+**総テスト数**: 586+
 
 ---
 
-### ✅ RFC-022: Agent Testing Framework Phase 1 - 完了！
-**PR #114** (2025-10-10)
+### 📊 v2.2.0 主要機能
 
-**Phase 1: Core Testing Framework**
-- `src/kagura/testing/testcase.py`: AgentTestCase基本クラス（326行）
-  - Content Assertions: assert_contains, assert_contains_any, assert_not_contains
-  - Pattern Matching: assert_matches_pattern
-  - Language Detection: assert_language（langdetect統合）
-  - LLM Behavior: assert_llm_calls, assert_token_usage, assert_tool_calls
-  - Performance: assert_duration, assert_cost
-  - Structured Output: assert_valid_model, assert_field_value
+#### 1. RFC-018: Memory RAG (Phase 2) ✅
+**PR #105**
+- ChromaDB統合でベクトル検索
+- セマンティックメモリの保存・検索
+- エージェントスコープの分離
+- 9テスト追加
 
-- `src/kagura/testing/mocking.py`: Mocking utilities（103行）
-  - LLMRecorder: LLM呼び出し記録
-  - LLMMock: LLM応答モック
-  - ToolMock: ツール呼び出しモック
+#### 2. RFC-019: Unified Agent Builder ✅
+**PR #111-113**
+- Fluent API pattern (method chaining)
+- 3つのプリセット（Chatbot, Research, CodeReview）
+- Memory/Tools/Hooks統合
+- 31テスト追加
 
-- `src/kagura/testing/utils.py`: Timer utility（28行）
-- `src/kagura/testing/plugin.py`: pytest plugin（42行）
-  - @pytest.mark.agent マーカー
-  - @pytest.mark.benchmark マーカー
-  - agent_context fixture
+#### 3. RFC-022: Agent Testing Framework ✅
+**PR #114**
+- LLM非決定性対応のアサーション
+- モッキング機能（LLMRecorder, LLMMock）
+- pytest統合（マーカー、フィクスチャ）
+- 34テスト追加
 
-- `tests/testing/`: 34テスト（32パス、2スキップ）
-- `pyproject.toml`: testing optional dependency追加、pytest plugin登録
+#### 4. RFC-001: Workflow System - Advanced ✅
+**PR #115**
+- `@workflow.chain` - シーケンシャル実行
+- `@workflow.parallel` - 並列実行
+- `@workflow.stateful` - Pydanticベースのステートグラフ
+- 17テスト追加
 
-**使用例**:
-```python
-from kagura.testing import AgentTestCase
+#### 5. RFC-020: Memory-Aware Routing ✅
+**PR #116**
+- ContextAnalyzer（文脈依存検出）
+- MemoryAwareRouter（会話履歴考慮）
+- 48テスト追加
 
-class TestMyAgent(AgentTestCase):
-    agent = my_agent
+#### 6. RFC-021: Agent Observability Dashboard ✅
+**PR #117-118**
+- EventStore + TelemetryCollector
+- Rich TUI Dashboard
+- `kagura monitor` CLI（live/list/stats/trace/cost）
+- 107テスト追加
 
-    async def test_translation(self):
-        result = await self.agent("Hello", "ja")
+---
 
-        # Flexible assertions for LLM
-        self.assert_contains_any(result, ["こんにちは", "ハロー"])
-        self.assert_language(result, "ja")
-        self.assert_not_empty(result)
-```
+### 🎯 v2.2.0 統計
 
-**成果**:
-- ✅ LLM非決定性に対応した柔軟なアサーション
-- ✅ pytest統合（マーカー、フィクスチャ）
-- ✅ モッキング機能でAPIコスト削減
-- ✅ パフォーマンス・コスト検証
+- **6つのRFC完了**: RFC-001, 018, 019, 020, 021, 022
+- **18 PRマージ**: #105, #111-118
+- **246 新規テスト**: 全パス（100%カバレッジ）
+- **総テスト数**: 586+
+- **リリース日**: 2025-10-10
+- **GitHub Release**: [v2.2.0](https://github.com/JFK/kagura-ai/releases/tag/v2.2.0)
 
 ---
 
@@ -640,60 +614,133 @@ A: v2.1.0で多数の機能（Memory、Routing、Tools、Hooks）が追加され
 
 ---
 
-## 🎬 今すぐやること
+## 🎬 次のステップ（v2.3.0に向けて）
 
-### 次のステップ
-1. ✅ 新規RFC作成（019-022）完了
+### ✅ v2.2.0 完了タスク
+1. ✅ 新規RFC作成（019-022）
 2. ✅ 各RFCのGitHub Issue作成（#107-110）
-3. ✅ 実装優先順位の決定（プランA採用）
-4. ✅ **RFC-019完了！**（2025-10-10）
-5. ✅ **RFC-022 Phase 1完了！**（2025-10-10）
-6. **⏳ 次の実装候補を決定** ← 次はここ！
+3. ✅ RFC-019: Unified Agent Builder完了（PR #111-113）
+4. ✅ RFC-022: Agent Testing Framework完了（PR #114）
+5. ✅ RFC-001: Advanced Workflows完了（PR #115）
+6. ✅ RFC-020: Memory-Aware Routing完了（PR #116）
+7. ✅ RFC-021: Observability Dashboard完了（PR #117-118）
+8. ✅ v2.2.0リリース（2025-10-10）
 
-**v2.2.0 タイムライン（更新）**:
+---
+
+## 🚀 v2.3.0 候補機能
+
+### 🥇 優先度: High
+
+#### RFC-002: Multimodal RAG
+**期間**: 3週間
+**Issue**: [#62](https://github.com/JFK/kagura-ai/issues/62)
+
+**概要**: 画像・音声・動画・PDFの処理とRAG統合
+
+**実装内容**:
+- 画像処理（Gemini Vision API統合）
+- 音声・動画処理（Whisper統合）
+- PDF処理（PyPDF2統合）
+- マルチモーダルベクトル検索
+
+**使用例**:
+```python
+@agent(enable_multimodal=True)
+async def visual_agent(image_path: str) -> str:
+    """Analyze image: {{ image_path }}"""
+    pass
+
+result = await visual_agent("diagram.png")
 ```
-✅ Week 0: RFC-019 (Unified Agent Builder) - 完了
-✅ Week 1: RFC-022 Phase 1 (Agent Testing Framework) - 完了
-□ Week 2-3: 次の実装候補（下記参照）
-□ Week 4-5: 追加機能実装
-```
 
-### 🎯 次の実装候補（3つの選択肢）
+---
 
-#### オプション A: RFC-001 Phase 2 - Advanced Workflow 🔥 推奨
+#### RFC-014: Web Integration
 **期間**: 2週間
-**内容**: RFC-001の残り機能（高度なワークフロー）を実装
-- `@workflow.chain` - シーケンシャル実行
-- `@workflow.parallel` - 並列実行ヘルパー
-- `@workflow.stateful` - Pydanticベースのステートグラフ
+**Issue**: [#75](https://github.com/JFK/kagura-ai/issues/75)
 
-**理由**:
-- RFC-001の基本機能は完了済み（RFC-018, PR #103-104）
-- @workflowの強化でLangGraph互換性向上
-- コアフレームワーク完成に近づく
+**概要**: Web検索・スクレイピング機能
 
-#### オプション B: RFC-020 - Memory-Aware Routing
+**実装内容**:
+- Brave Search API統合（無料枠2000クエリ/月）
+- DuckDuckGo フォールバック
+- BeautifulSoup スクレイピング
+- robots.txt 遵守
+
+**使用例**:
+```python
+@agent
+@web.enable
+async def research_agent(topic: str) -> str:
+    """Research {{ topic }} using web search"""
+    pass
+```
+
+---
+
+### 🥈 優先度: Medium
+
+#### RFC-007 Phase 2: MCP Memory Protocol
+**期間**: 1週間
+**Issue**: [#67](https://github.com/JFK/kagura-ai/issues/67)
+
+**概要**: Claude DesktopとKaguraエージェント間でメモリ共有
+
+**実装内容**:
+- MCP Memory Protocol実装
+- 双方向メモリ同期
+- セッション復元
+
+---
+
+#### RFC-013: OAuth2 Authentication
 **期間**: 1.5週間
-**内容**: 過去の会話履歴を考慮したルーティング
-- RFC-016 + RFC-018の統合
-- より自然な会話フロー
+**Issue**: [#74](https://github.com/JFK/kagura-ai/issues/74)
 
-**理由**:
-- 既存機能（Memory + Routing）の統合
-- 実用性が高い
-- 実装難易度: Medium
+**概要**: Google OAuth2認証でAPIキー不要に
 
-#### オプション C: RFC-021 - Agent Observability Dashboard
-**期間**: 2週間
-**内容**: エージェント動作の可視化・監視
-- パフォーマンス追跡
-- コスト管理
-- デバッグ支援
+**実装内容**:
+- Google OAuth2フロー
+- トークン管理（Fernet暗号化）
+- 自動リフレッシュ
 
-**理由**:
-- エンタープライズ対応に重要
-- RFC-010と統合可能
-- 実装難易度: Medium-High
+---
+
+### 📅 v2.3.0 推奨プラン
+
+**プラン A: マルチモーダル重視（推奨）**
+- Week 1-3: RFC-002 (Multimodal RAG)
+- Week 4-5: RFC-014 (Web Integration)
+- **期間**: 5週間
+- **利点**: 実用性が大幅向上
+
+**プラン B: エコシステム拡張**
+- Week 1-2: RFC-014 (Web Integration)
+- Week 3: RFC-007 Phase 2 (MCP Memory)
+- Week 4-5: RFC-013 (OAuth2)
+- **期間**: 5週間
+- **利点**: Claude Desktop統合強化、認証改善
+
+---
+
+## 🔧 改善タスク（v2.2.0リリース後）
+
+### 完了済み ✅
+- [x] v2.2.0リリース（2025-10-10）
+- [x] CHANGELOG.md更新
+- [x] GitHub Release作成
+
+### 進行中 🚧
+- [ ] ai_docs/NEXT_STEPS.md更新（このファイル）
+- [ ] ai_docs/UNIFIED_ROADMAP.md更新
+- [ ] コードコメント追加（複雑な関数）
+- [ ] リファクタリング候補の洗い出し
+
+### 今後の計画 📋
+- [ ] ユーザードキュメント追加検討（docs/）
+- [ ] examples/ 更新（v2.2.0新機能）
+- [ ] Integration tests CI追加
 
 ---
 
