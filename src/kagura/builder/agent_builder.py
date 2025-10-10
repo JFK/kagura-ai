@@ -216,6 +216,40 @@ class AgentBuilder:
 
             enhanced_agent = _agent_no_memory
 
+        # Wrap with hooks if configured
+        if config.hooks and (config.hooks.pre or config.hooks.post):
+            base_agent = enhanced_agent
+
+            async def hooked_agent(*args: Any, **kwargs: Any) -> Any:
+                """Agent wrapper with pre/post hooks."""
+                # Run pre-hooks
+                if config.hooks:
+                    for hook in config.hooks.pre:
+                        result = hook(*args, **kwargs)
+                        # Support both sync and async hooks
+                        if hasattr(result, "__await__"):
+                            await result
+
+                # Run agent
+                agent_result = await base_agent(*args, **kwargs)
+
+                # Run post-hooks
+                if config.hooks:
+                    for hook in config.hooks.post:
+                        result = hook(agent_result)
+                        # Support both sync and async hooks
+                        if hasattr(result, "__await__"):
+                            await result
+
+                return agent_result
+
+            # Copy metadata from base agent
+            hooked_agent._builder_config = config  # type: ignore
+            hooked_agent._agent_name = config.name  # type: ignore
+            hooked_agent._base_agent = base_agent  # type: ignore
+
+            return hooked_agent
+
         # Attach metadata
         enhanced_agent._builder_config = config  # type: ignore
         enhanced_agent._agent_name = config.name  # type: ignore

@@ -13,6 +13,16 @@ Example:
 """
 from .builder import AgentBuilder
 from .core.decorators import agent, tool, workflow
+from .presets import ChatbotPreset, CodeReviewPreset, ResearchPreset
 from .version import __version__
 
-__all__ = ["agent", "tool", "workflow", "AgentBuilder", "__version__"]
+__all__ = [
+    "agent",
+    "tool",
+    "workflow",
+    "AgentBuilder",
+    "ChatbotPreset",
+    "CodeReviewPreset",
+    "ResearchPreset",
+    "__version__",
+]
