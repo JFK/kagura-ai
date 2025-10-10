@@ -279,17 +279,26 @@ class ChatSession:
         features.append("  [cyan]/review[/]    - Review code")
         features.append("  [cyan]/exit[/]      - Exit chat")
 
-        if self.enable_multimodal:
-            features.insert(1, "\n[bold yellow]⚡ Multimodal RAG Enabled[/]")
+        # Full-featured mode
+        if self.enable_multimodal and self.enable_web:
+            features.insert(1, "\n[bold magenta]🚀 Full-Featured Mode[/]")
+            features.insert(2, "[bold yellow]⚡ Multimodal RAG[/]")
             if self.rag_directory:
-                features.insert(
-                    2,
-                    f"[dim]Indexed: {self.rag_directory}[/]"
-                )
+                features.insert(3, f"[dim]   Indexed: {self.rag_directory}[/]")
+            features.insert(4, "[bold cyan]🌐 Web Search[/]")
+        else:
+            # Individual features
+            if self.enable_multimodal:
+                features.insert(1, "\n[bold yellow]⚡ Multimodal RAG Enabled[/]")
+                if self.rag_directory:
+                    features.insert(
+                        2,
+                        f"[dim]Indexed: {self.rag_directory}[/]"
+                    )
 
-        if self.enable_web:
-            insert_pos = 2 if self.enable_multimodal else 1
-            features.insert(insert_pos, "\n[bold cyan]🌐 Web Search Enabled[/]")
+            if self.enable_web:
+                insert_pos = 2 if self.enable_multimodal else 1
+                features.insert(insert_pos, "\n[bold cyan]🌐 Web Search Enabled[/]")
 
         welcome = Panel(
             "[bold green]Welcome to Kagura Chat![/]\n\n" + "\n".join(features) + "\n",
