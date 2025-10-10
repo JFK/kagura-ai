@@ -38,6 +38,7 @@ dev = [
     "pytest>=8.3",
     "pytest-asyncio>=0.25",
     "pytest-cov>=6.0",
+    "pytest-timeout>=2.3",
     "ruff>=0.8",
     "pyright>=1.1",
 ]
