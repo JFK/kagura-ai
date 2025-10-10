@@ -47,6 +47,8 @@ class ChatSession:
         self,
         model: str = "gpt-4o-mini",
         session_dir: Path | None = None,
+        enable_multimodal: bool = False,
+        rag_directory: Path | None = None,
     ):
         """
         Initialize chat session.
@@ -54,9 +56,13 @@ class ChatSession:
         Args:
             model: LLM model to use
             session_dir: Directory for session storage
+            enable_multimodal: Enable multimodal RAG (images, PDFs, audio)
+            rag_directory: Directory to index for RAG (requires enable_multimodal)
         """
         self.console = Console()
         self.model = model
+        self.enable_multimodal = enable_multimodal
+        self.rag_directory = rag_directory
         self.session_dir = session_dir or Path.home() / ".kagura" / "sessions"
         self.session_dir.mkdir(parents=True, exist_ok=True)
 
@@ -66,10 +72,49 @@ class ChatSession:
             persist_dir=self.session_dir / "memory",
         )
 
+        # Initialize MultimodalRAG if enabled
+        self.rag = None
+        if self.enable_multimodal:
+            self._init_multimodal_rag()
+
         # Prompt session with history
         history_file = self.session_dir / "chat_history.txt"
         self.prompt_session: PromptSession[str] = PromptSession(
             history=FileHistory(str(history_file))
+        )
+
+    def _init_multimodal_rag(self) -> None:
+        """Initialize MultimodalRAG."""
+        try:
+            from kagura.core.memory import MultimodalRAG
+        except ImportError:
+            self.console.print(
+                "[red]Error: MultimodalRAG requires multimodal extra.[/]\n"
+                "[yellow]Install with: pip install kagura-ai[multimodal][/]"
+            )
+            raise
+
+        if not self.rag_directory:
+            self.console.print(
+                "[yellow]Warning: Multimodal RAG enabled without directory.[/]\n"
+                "[yellow]Use --dir to index a directory for RAG.[/]"
+            )
+            return
+
+        # Initialize RAG with directory
+        self.console.print(
+            f"[cyan]Initializing multimodal RAG for: {self.rag_directory}[/]"
+        )
+
+        self.rag = MultimodalRAG(
+            directory=self.rag_directory,
+            collection_name="chat_session_rag",
+            persist_dir=self.session_dir / "rag",
+        )
+
+        self.console.print(
+            f"[green]✓ Indexed {len(list(self.rag_directory.rglob('*')))} "
+            f"files from {self.rag_directory}[/]"
         )
 
     async def run(self) -> None:
@@ -111,8 +156,29 @@ class ChatSession:
         # Add user message to memory
         self.memory.add_message("user", user_input)
 
+        # Query RAG if available
+        rag_context = ""
+        if self.rag is not None:
+            self.console.print("[dim]Searching indexed files...[/]")
+            rag_results = self.rag.query(user_input, n_results=3)
+
+            if rag_results:
+                rag_context = "\n\n[Relevant context from indexed files]:\n"
+                for i, result in enumerate(rag_results, 1):
+                    rag_context += f"\n{i}. From {result.get('source', 'unknown')}:\n"
+                    rag_context += f"{result.get('content', '')}\n"
+
+                self.console.print(
+                    f"[dim]Found {len(rag_results)} relevant documents[/]"
+                )
+
+        # Enhance input with RAG context
+        enhanced_input = user_input
+        if rag_context:
+            enhanced_input = f"{user_input}\n{rag_context}"
+
         # Get AI response
-        response = await chat_agent(user_input, memory=self.memory)
+        response = await chat_agent(enhanced_input, memory=self.memory)
 
         # Add assistant message to memory
         self.memory.add_message("assistant", response)
@@ -159,14 +225,24 @@ class ChatSession:
 
     def show_welcome(self) -> None:
         """Display welcome message."""
+        features = []
+        features.append("Type your message to chat with AI, or use commands:")
+        features.append("  [cyan]/help[/]      - Show help")
+        features.append("  [cyan]/translate[/] - Translate text")
+        features.append("  [cyan]/summarize[/] - Summarize text")
+        features.append("  [cyan]/review[/]    - Review code")
+        features.append("  [cyan]/exit[/]      - Exit chat")
+
+        if self.enable_multimodal:
+            features.insert(1, "\n[bold yellow]⚡ Multimodal RAG Enabled[/]")
+            if self.rag_directory:
+                features.insert(
+                    2,
+                    f"[dim]Indexed: {self.rag_directory}[/]"
+                )
+
         welcome = Panel(
-            "[bold green]Welcome to Kagura Chat![/]\n\n"
-            "Type your message to chat with AI, or use commands:\n"
-            "  [cyan]/help[/]      - Show help\n"
-            "  [cyan]/translate[/] - Translate text\n"
-            "  [cyan]/summarize[/] - Summarize text\n"
-            "  [cyan]/review[/]    - Review code\n"
-            "  [cyan]/exit[/]      - Exit chat\n",
+            "[bold green]Welcome to Kagura Chat![/]\n\n" + "\n".join(features) + "\n",
             title="Kagura AI Chat",
             border_style="green",
         )
