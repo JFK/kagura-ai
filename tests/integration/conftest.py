@@ -7,14 +7,17 @@ from unittest.mock import AsyncMock, MagicMock, patch
 def mock_llm_response():
     """Fixture to mock LLM responses"""
     def _mock(response_text: str):
+        # Create message mock with tool_calls explicitly set to None
+        message_mock = MagicMock(
+            content=response_text,
+            tool_calls=None
+        )
         return patch(
             'litellm.acompletion',
             new_callable=AsyncMock,
             return_value=MagicMock(
                 choices=[
-                    MagicMock(
-                        message=MagicMock(content=response_text)
-                    )
+                    MagicMock(message=message_mock)
                 ]
             )
         )
