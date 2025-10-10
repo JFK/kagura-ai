@@ -4,7 +4,7 @@ Represents a custom command loaded from a Markdown file with frontmatter.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass

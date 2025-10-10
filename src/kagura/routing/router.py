@@ -20,13 +20,15 @@ class RegisteredAgent:
     Attributes:
         agent: The agent function
         name: Agent name
-        intents: List of intent keywords/patterns
+        intents: List of intent keywords/patterns (for intent strategy)
+        samples: List of sample queries (for semantic strategy)
         description: Agent description
     """
 
     agent: Callable
     name: str
     intents: list[str]
+    samples: list[str]
     description: str
 
 
@@ -68,21 +70,24 @@ class AgentRouter:
         >>> # → code_reviewer is automatically selected
     """
 
-    VALID_STRATEGIES = ["intent"]
+    VALID_STRATEGIES = ["intent", "semantic"]
 
     def __init__(
         self,
         strategy: str = "intent",
         fallback_agent: Callable | None = None,
         confidence_threshold: float = 0.3,
+        encoder: str = "openai",
     ) -> None:
         """Initialize agent router.
 
         Args:
-            strategy: Routing strategy (currently only "intent" is supported)
+            strategy: Routing strategy ("intent" for keyword matching,
+                "semantic" for embedding-based routing)
             fallback_agent: Default agent to use when no match is found
             confidence_threshold: Minimum confidence score (0.0-1.0) required
                 for routing. Lower values are more lenient.
+            encoder: Encoder to use for semantic routing ("openai" or "cohere")
 
         Raises:
             InvalidRouterStrategyError: If strategy is not valid
@@ -93,12 +98,15 @@ class AgentRouter:
         self.strategy = strategy
         self.fallback_agent = fallback_agent
         self.confidence_threshold = confidence_threshold
+        self.encoder_type = encoder
         self._agents: dict[str, RegisteredAgent] = {}
+        self._semantic_router: Any | None = None
 
     def register(
         self,
         agent: Callable,
         intents: list[str] | None = None,
+        samples: list[str] | None = None,
         description: str = "",
         name: str | None = None,
     ) -> None:
@@ -107,26 +115,41 @@ class AgentRouter:
         Args:
             agent: Agent function to register
             intents: List of intent keywords/patterns for matching.
-                Case-insensitive matching is used.
+                Case-insensitive matching is used. (For intent strategy)
+            samples: List of sample queries for semantic matching.
+                (For semantic strategy)
             description: Human-readable description of the agent
             name: Agent name (defaults to function name)
 
         Example:
+            >>> # Intent-based routing
             >>> router.register(
             ...     code_reviewer,
             ...     intents=["review", "check", "analyze"],
             ...     description="Reviews code for quality and bugs"
             ... )
+            >>> # Semantic routing
+            >>> router.register(
+            ...     code_reviewer,
+            ...     samples=["Can you review this code?", "Check my code"],
+            ...     description="Reviews code for quality and bugs"
+            ... )
         """
         agent_name = name or agent.__name__
         intents = intents or []
+        samples = samples or []
 
         self._agents[agent_name] = RegisteredAgent(
             agent=agent,
             name=agent_name,
             intents=intents,
+            samples=samples,
             description=description,
         )
+
+        # Reset semantic router to rebuild with new agent
+        if self.strategy == "semantic":
+            self._semantic_router = None
 
     async def route(
         self,
@@ -273,6 +296,8 @@ class AgentRouter:
         """
         if self.strategy == "intent":
             return self._intent_score(user_input, agent_data.intents)
+        elif self.strategy == "semantic":
+            return self._semantic_score(user_input, agent_data.name)
         return 0.0
 
     def _intent_score(self, user_input: str, intents: list[str]) -> float:
@@ -295,3 +320,90 @@ class AgentRouter:
         matches = sum(1 for intent in intents if intent.lower() in input_lower)
 
         return matches / len(intents)
+
+    def _semantic_score(self, user_input: str, agent_name: str) -> float:
+        """Calculate semantic similarity score using semantic-router.
+
+        Args:
+            user_input: User input string
+            agent_name: Name of the agent to score
+
+        Returns:
+            Score between 0.0 and 1.0
+        """
+        # Initialize semantic router if not already done
+        if self._semantic_router is None:
+            self._init_semantic_router()
+
+        if self._semantic_router is None:
+            # Fallback if semantic router initialization failed
+            return 0.0
+
+        try:
+            # Route the input
+            result = self._semantic_router(user_input)
+
+            # Check if result matches this agent
+            if result and hasattr(result, "name") and result.name == agent_name:
+                # semantic-router doesn't provide score directly, so we use 1.0 for matches
+                return 1.0
+        except (ValueError, Exception):
+            # Index not ready or other errors
+            return 0.0
+
+        return 0.0
+
+    def _init_semantic_router(self) -> None:
+        """Initialize semantic-router with registered agents."""
+        try:
+            from semantic_router import Route  # type: ignore
+            from semantic_router import (
+                SemanticRouter as _SemanticRouter,  # type: ignore
+            )
+
+            # Create encoder
+            encoder = self._create_encoder()
+            if encoder is None:
+                return
+
+            # Create routes from registered agents
+            routes = []
+            for agent_data in self._agents.values():
+                if agent_data.samples:
+                    route = Route(
+                        name=agent_data.name,
+                        utterances=agent_data.samples,
+                    )
+                    routes.append(route)
+
+            if not routes:
+                return
+
+            # Create semantic router
+            self._semantic_router = _SemanticRouter(encoder=encoder, routes=routes)
+        except (ImportError, ValueError, Exception):
+            # ImportError: semantic-router not installed
+            # ValueError: API key missing or invalid configuration
+            # Exception: Any other initialization errors
+            return
+
+    def _create_encoder(self) -> Any | None:
+        """Create encoder for semantic routing."""
+        try:
+            if self.encoder_type == "openai":
+                from semantic_router.encoders import OpenAIEncoder  # type: ignore
+
+                return OpenAIEncoder()
+            elif self.encoder_type == "cohere":
+                from semantic_router.encoders import CohereEncoder  # type: ignore
+
+                return CohereEncoder()
+            else:
+                # Default to OpenAI
+                from semantic_router.encoders import OpenAIEncoder  # type: ignore
+
+                return OpenAIEncoder()
+        except (ImportError, ValueError):
+            # ImportError: semantic-router not installed
+            # ValueError: API key missing
+            return None
