@@ -37,10 +37,14 @@ async def call_llm(
     # Build messages list
     messages: list[dict[str, Any]] = [{"role": "user", "content": prompt}]
 
-    # Create tool name -> function mapping
+    # Create tool name -> function mapping from Python callables
     tool_map: dict[str, Callable] = {}
     if tools:
         tool_map = {tool.__name__: tool for tool in tools}
+
+    # Extract OpenAI tools schema from kwargs (if present)
+    # This avoids conflict with tools= parameter
+    openai_tools = kwargs.pop("tools", None)
 
     # Maximum iterations to prevent infinite loops
     max_iterations = 5
@@ -49,14 +53,18 @@ async def call_llm(
     while iterations < max_iterations:
         iterations += 1
 
-        # Call LLM
+        # Call LLM with OpenAI tools schema if available
+        llm_kwargs = dict(kwargs)
+        if openai_tools:
+            llm_kwargs["tools"] = openai_tools
+
         response = await litellm.acompletion(
             model=config.model,
             messages=messages,
             temperature=config.temperature,
             max_tokens=config.max_tokens,
             top_p=config.top_p,
-            **kwargs,
+            **llm_kwargs,
         )
 
         message = response.choices[0].message  # type: ignore
