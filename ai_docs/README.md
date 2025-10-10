@@ -12,6 +12,7 @@ ai_docs/
 ├── UNIFIED_ROADMAP.md         # 統合開発ロードマップ（v2.0.0〜v2.5.0+）⭐️
 ├── DEVELOPMENT_ROADMAP.md     # v2.0.0詳細ロードマップ
 ├── NEXT_STEPS.md              # 次のアクション（優先タスク）
+├── RFC_STATUS.md              # RFC完全ステータス（RFC-001〜022）⭐️ NEW
 ├── architecture.md            # システムアーキテクチャ概要
 ├── coding_standards.md        # コーディング規約
 ├── glossary.md                # 用語集・略語集
@@ -33,7 +34,13 @@ ai_docs/
 │   ├── RFC_015_AGENT_API_SERVER.md
 │   ├── RFC_016_AGENT_ROUTING.md
 │   ├── RFC_017_SHELL_INTEGRATION.md
-│   └── RFC_018_MEMORY_MANAGEMENT.md
+│   ├── RFC_018_MEMORY_MANAGEMENT.md
+│   ├── RFC_019_UNIFIED_AGENT_BUILDER.md
+│   ├── RFC_020_MEMORY_AWARE_ROUTING.md
+│   ├── RFC_021_AGENT_OBSERVABILITY_DASHBOARD.md
+│   └── RFC_022_AGENT_TESTING_FRAMEWORK.md
+│
+│   注: RFC-001は Issue #61として存在
 │
 ├── analysis/                  # 調査レポート
 ├── suggestions/               # Claudeからの技術的提案
@@ -56,19 +63,25 @@ ai_docs/
    - 短期・中期・長期目標
    - よくある質問
 
-3. **`DEVELOPMENT_ROADMAP.md`** - v2.0.0詳細計画
+3. **`RFC_STATUS.md`** ⭐️ NEW - 全RFCステータス確認
+   - RFC-001〜022の完全ステータス
+   - 完了済み・候補・未実装の一覧
+   - RFC重複・統合の提案
+
+4. **`DEVELOPMENT_ROADMAP.md`** - v2.0.0詳細計画
    - Phase 0〜5の詳細
    - Issue作成テンプレート
 
-4. **`coding_standards.md`** - コーディング規約
+5. **`coding_standards.md`** - コーディング規約
    - 命名規則
    - 型ヒント規約
    - ドキュメンテーション
 
-5. **対象Issueの内容**（完全理解）
+6. **対象Issueの内容**（完全理解）
 
-6. **該当するRFC**（機能実装時）
+7. **該当するRFC**（機能実装時）
    - `rfcs/RFC_XXX_*.md`
+   - RFC-001は Issue #61として存在
 
 ### 作業中の原則
 
@@ -170,27 +183,34 @@ Issue番号を含むファイル名で管理：
 
 `rfcs/`配下に全てのRFC（Request for Comments）を格納：
 
-| RFC | タイトル | 優先度 | バージョン |
-|-----|---------|--------|-----------|
-| 002 | Multimodal RAG | - | v2.2.0 |
-| 003 | Personal Assistant | - | v2.3.0 |
-| 004 | Voice First Interface | Medium | v2.5.0+ |
-| 005 | Meta Agent | High | v2.4.0 |
-| 006 | Live Coding | High | v2.1.0/v2.5.0 |
-| 007 | MCP Integration | **Very High** | v2.1.0 |
-| 008 | Plugin Marketplace | High | v2.4.0 |
-| 009 | Multi-Agent Orchestration | Medium-High | v2.4.0 |
-| 010 | Observability | Medium | v2.5.0+ |
-| 011 | Scheduled Automation | Medium | v2.5.0+ |
-| 012 | Commands & Hooks | High | v2.1.0 |
-| 013 | OAuth2 Auth | Medium-High | v2.3.0 |
-| 014 | Web Integration | High | v2.2.0 |
-| 015 | Agent API Server | High | v2.6.0 |
-| 016 | Agent Routing System | High | v2.4.0 |
-| 017 | Shell Integration | **High** | v2.1.0 |
-| 018 | Memory Management | **High** | v2.2.0 |
+| RFC | タイトル | 優先度 | ステータス | バージョン |
+|-----|---------|--------|-----------|-----------|
+| 001 | Memory & Workflow | High | ⚠️ 部分完了 | Issue #61 |
+| 002 | Multimodal RAG | High | 未実装 | v2.2.0+ |
+| 003 | Personal Assistant | Medium | 未実装 | v2.3.0 |
+| 004 | Voice First Interface | Medium | 未実装 | v2.5.0+ |
+| 005 | Meta Agent | Medium | 未実装 | v2.4.0 |
+| 006 | Live Coding | High | ✅ Phase 1完了 | v2.1.0 |
+| 007 | MCP Integration | **Very High** | ✅ Phase 1完了 | v2.1.0 |
+| 008 | Plugin Marketplace | Medium | 未実装 | v2.4.0 |
+| 009 | Multi-Agent Orchestration | Medium | 未実装 | v2.4.0 |
+| 010 | Observability | Medium | 未実装 | v2.5.0+ |
+| 011 | Scheduled Automation | Medium | 未実装 | v2.5.0+ |
+| 012 | Commands & Hooks | High | ✅ 完了 | v2.1.0 |
+| 013 | OAuth2 Auth | Medium | 未実装 | v2.3.0 |
+| 014 | Web Integration | High | 未実装 | v2.2.0+ |
+| 015 | Agent API Server | High | 未実装 | v2.6.0 |
+| 016 | Agent Routing | High | ✅ Phase 1+2完了 | v2.1.0 |
+| 017 | Shell Integration | **High** | ✅ 完了 | v2.1.0 |
+| 018 | Memory Management | **High** | ✅ Phase 1+2完了 | v2.1.0 |
+| 019 | Unified Agent Builder | High | ✅ 完了 | v2.2.0 |
+| 020 | Memory-Aware Routing | High | 候補 | v2.2.0 |
+| 021 | Agent Observability | Medium-High | 候補 | v2.2.0 |
+| 022 | Agent Testing Framework | High | ✅ Phase 1完了 | v2.2.0 |
 
-詳細は`UNIFIED_ROADMAP.md`を参照。
+**完了**: 9個（RFC-001部分含む） | **候補**: 2個 | **未実装**: 11個
+
+詳細は`RFC_STATUS.md`と`UNIFIED_ROADMAP.md`を参照。
 
 ---
 
