@@ -1208,6 +1208,102 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#memoryrag" class="md-nav__link">
+    <span class="md-ellipsis">
+      MemoryRAG
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MemoryRAG">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructor_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Constructor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#store" class="md-nav__link">
+    <span class="md-ellipsis">
+      store()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recall_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      recall()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_all" class="md-nav__link">
+    <span class="md-ellipsis">
+      delete_all()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count" class="md-nav__link">
+    <span class="md-ellipsis">
+      count()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memorymanager-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      MemoryManager Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete-rag-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete RAG Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rag-with-agent-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      RAG with Agent Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agent-integration" class="md-nav__link">
     <span class="md-ellipsis">
       Agent Integration
@@ -1872,6 +1968,102 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#memoryrag" class="md-nav__link">
+    <span class="md-ellipsis">
+      MemoryRAG
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MemoryRAG">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructor_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Constructor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#store" class="md-nav__link">
+    <span class="md-ellipsis">
+      store()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recall_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      recall()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_all" class="md-nav__link">
+    <span class="md-ellipsis">
+      delete_all()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count" class="md-nav__link">
+    <span class="md-ellipsis">
+      count()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memorymanager-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      MemoryManager Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete-rag-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete RAG Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rag-with-agent-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      RAG with Agent Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agent-integration" class="md-nav__link">
     <span class="md-ellipsis">
       Agent Integration
@@ -2208,28 +2400,259 @@
 <li><code>prune(older_than_days: int = 90, agent_name: Optional[str] = None) -&gt; int</code></li>
 <li><code>count(agent_name: Optional[str] = None) -&gt; int</code></li>
 </ul>
+<h2 id="memoryrag">MemoryRAG</h2>
+<p>Vector-based semantic memory search using ChromaDB for Retrieval-Augmented Generation (RAG).</p>
+<h3 id="constructor_1">Constructor</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryRAG</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="n">rag</span> <span class="o">=</span> <span class="n">MemoryRAG</span><span class="p">(</span>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>    <span class="n">collection_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kagura_memory&quot;</span><span class="p">,</span>
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>    <span class="n">persist_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>collection_name</code>: Name for the vector collection (default: <code>"kagura_memory"</code>)</li>
+<li><code>persist_dir</code>: Directory for persistent storage (default: <code>~/.kagura/vector_db</code>)</li>
+</ul>
+<p><strong>Requires:</strong> <code>pip install chromadb</code></p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryRAG</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="c1"># Default location</span>
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a><span class="n">rag</span> <span class="o">=</span> <span class="n">MemoryRAG</span><span class="p">()</span>
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>
+<a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a><span class="c1"># Custom location</span>
+<a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a><span class="n">rag</span> <span class="o">=</span> <span class="n">MemoryRAG</span><span class="p">(</span>
+<a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a>    <span class="n">collection_name</span><span class="o">=</span><span class="s2">&quot;my_agent_memory&quot;</span><span class="p">,</span>
+<a id="__codelineno-35-10" name="__codelineno-35-10" href="#__codelineno-35-10"></a>    <span class="n">persist_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;.myapp&quot;</span> <span class="o">/</span> <span class="s2">&quot;vectors&quot;</span>
+<a id="__codelineno-35-11" name="__codelineno-35-11" href="#__codelineno-35-11"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="store">store()</h3>
+<p>Store memory with automatic embedding.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>    <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a>    <span class="n">agent_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>content</code>: Content to store (will be automatically embedded)</li>
+<li><code>metadata</code>: Optional metadata dictionary</li>
+<li><code>agent_name</code>: Optional agent name for scoping</li>
+</ul>
+<p><strong>Returns:</strong> Content hash (unique ID)</p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="c1"># Store facts</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Python is a programming language created by Guido van Rossum&quot;</span><span class="p">)</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;The Eiffel Tower is in Paris, France&quot;</span><span class="p">)</span>
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a><span class="c1"># With metadata</span>
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span>
+<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a>    <span class="s2">&quot;User prefers dark mode&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a>    <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;preference&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;123&quot;</span><span class="p">},</span>
+<a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a>    <span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;assistant&quot;</span>
+<a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="recall_1">recall()</h3>
+<p>Semantic search for memories using vector similarity.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="n">rag</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>    <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>    <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>    <span class="n">agent_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+</code></pre></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>query</code>: Search query (will be embedded automatically)</li>
+<li><code>top_k</code>: Number of results to return (sorted by similarity)</li>
+<li><code>agent_name</code>: Optional agent name filter</li>
+</ul>
+<p><strong>Returns:</strong> List of memory dictionaries containing:
+- <code>content</code> (<code>str</code>): Original memory text
+- <code>distance</code> (<code>float</code>): Cosine distance (lower = more similar, range 0.0-2.0)
+- <code>metadata</code> (<code>dict</code>): Optional metadata</p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="c1"># Store knowledge</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Python is a programming language&quot;</span><span class="p">)</span>
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Java is a programming language&quot;</span><span class="p">)</span>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;The Eiffel Tower is in Paris&quot;</span><span class="p">)</span>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a>
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a><span class="c1"># Semantic search</span>
+<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a><span class="n">results</span> <span class="o">=</span> <span class="n">rag</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">&quot;What is Python?&quot;</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-39-8" name="__codelineno-39-8" href="#__codelineno-39-8"></a>
+<a id="__codelineno-39-9" name="__codelineno-39-9" href="#__codelineno-39-9"></a><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+<a id="__codelineno-39-10" name="__codelineno-39-10" href="#__codelineno-39-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Content: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-39-11" name="__codelineno-39-11" href="#__codelineno-39-11"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Distance: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># e.g., 0.342</span>
+<a id="__codelineno-39-12" name="__codelineno-39-12" href="#__codelineno-39-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Metadata: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;metadata&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="delete_all">delete_all()</h3>
+<p>Delete all memories.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="n">rag</span><span class="o">.</span><span class="n">delete_all</span><span class="p">(</span><span class="n">agent_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>agent_name</code>: Optional agent name filter (deletes only that agent's memories)</li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="c1"># Delete all memories</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="n">rag</span><span class="o">.</span><span class="n">delete_all</span><span class="p">()</span>
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="c1"># Delete only specific agent&#39;s memories</span>
+<a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a><span class="n">rag</span><span class="o">.</span><span class="n">delete_all</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;assistant&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="count">count()</h3>
+<p>Count stored memories.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="n">rag</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">agent_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>agent_name</code>: Optional agent name filter</li>
+</ul>
+<p><strong>Returns:</strong> Number of memories</p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="n">total</span> <span class="o">=</span> <span class="n">rag</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total memories: </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a>
+<a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a><span class="n">agent_memories</span> <span class="o">=</span> <span class="n">rag</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;assistant&quot;</span><span class="p">)</span>
+<a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Assistant memories: </span><span class="si">{</span><span class="n">agent_memories</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="memorymanager-integration">MemoryManager Integration</h3>
+<p>Use RAG with MemoryManager by setting <code>enable_rag=True</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="c1"># Initialize with RAG enabled</span>
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a><span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span>
+<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>    <span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;my_agent&quot;</span><span class="p">,</span>
+<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>    <span class="n">enable_rag</span><span class="o">=</span><span class="kc">True</span>
+<a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a><span class="p">)</span>
+<a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a>
+<a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a><span class="c1"># Store semantically</span>
+<a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a><span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;Python is great for AI development&quot;</span><span class="p">)</span>
+<a id="__codelineno-44-11" name="__codelineno-44-11" href="#__codelineno-44-11"></a>
+<a id="__codelineno-44-12" name="__codelineno-44-12" href="#__codelineno-44-12"></a><span class="c1"># Semantic recall</span>
+<a id="__codelineno-44-13" name="__codelineno-44-13" href="#__codelineno-44-13"></a><span class="n">results</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">recall_semantic</span><span class="p">(</span><span class="s2">&quot;Tell me about Python&quot;</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-44-14" name="__codelineno-44-14" href="#__codelineno-44-14"></a><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+<a id="__codelineno-44-15" name="__codelineno-44-15" href="#__codelineno-44-15"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">])</span>
+</code></pre></div>
+<p><strong>Note:</strong> When <code>enable_rag=True</code>, MemoryManager automatically stores conversation messages in the RAG vector database for semantic retrieval.</p>
+<h3 id="complete-rag-example">Complete RAG Example</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryRAG</span>
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a><span class="c1"># Initialize</span>
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a><span class="n">rag</span> <span class="o">=</span> <span class="n">MemoryRAG</span><span class="p">(</span><span class="n">collection_name</span><span class="o">=</span><span class="s2">&quot;knowledge_base&quot;</span><span class="p">)</span>
+<a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a>
+<a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a><span class="c1"># Store domain knowledge</span>
+<a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Machine learning is a subset of artificial intelligence&quot;</span><span class="p">)</span>
+<a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Deep learning uses neural networks with multiple layers&quot;</span><span class="p">)</span>
+<a id="__codelineno-45-9" name="__codelineno-45-9" href="#__codelineno-45-9"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Natural language processing deals with text and speech&quot;</span><span class="p">)</span>
+<a id="__codelineno-45-10" name="__codelineno-45-10" href="#__codelineno-45-10"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Computer vision focuses on image and video analysis&quot;</span><span class="p">)</span>
+<a id="__codelineno-45-11" name="__codelineno-45-11" href="#__codelineno-45-11"></a>
+<a id="__codelineno-45-12" name="__codelineno-45-12" href="#__codelineno-45-12"></a><span class="c1"># Semantic search</span>
+<a id="__codelineno-45-13" name="__codelineno-45-13" href="#__codelineno-45-13"></a><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;What is deep learning?&quot;</span>
+<a id="__codelineno-45-14" name="__codelineno-45-14" href="#__codelineno-45-14"></a><span class="n">results</span> <span class="o">=</span> <span class="n">rag</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-45-15" name="__codelineno-45-15" href="#__codelineno-45-15"></a>
+<a id="__codelineno-45-16" name="__codelineno-45-16" href="#__codelineno-45-16"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Query: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-45-17" name="__codelineno-45-17" href="#__codelineno-45-17"></a><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+<a id="__codelineno-45-18" name="__codelineno-45-18" href="#__codelineno-45-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-45-19" name="__codelineno-45-19" href="#__codelineno-45-19"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Similarity: </span><span class="si">{</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-45-20" name="__codelineno-45-20" href="#__codelineno-45-20"></a>
+<a id="__codelineno-45-21" name="__codelineno-45-21" href="#__codelineno-45-21"></a><span class="c1"># Output:</span>
+<a id="__codelineno-45-22" name="__codelineno-45-22" href="#__codelineno-45-22"></a><span class="c1"># Query: What is deep learning?</span>
+<a id="__codelineno-45-23" name="__codelineno-45-23" href="#__codelineno-45-23"></a><span class="c1">#</span>
+<a id="__codelineno-45-24" name="__codelineno-45-24" href="#__codelineno-45-24"></a><span class="c1"># 1. Deep learning uses neural networks with multiple layers</span>
+<a id="__codelineno-45-25" name="__codelineno-45-25" href="#__codelineno-45-25"></a><span class="c1">#    Similarity: 89%</span>
+<a id="__codelineno-45-26" name="__codelineno-45-26" href="#__codelineno-45-26"></a><span class="c1">#</span>
+<a id="__codelineno-45-27" name="__codelineno-45-27" href="#__codelineno-45-27"></a><span class="c1"># 2. Machine learning is a subset of artificial intelligence</span>
+<a id="__codelineno-45-28" name="__codelineno-45-28" href="#__codelineno-45-28"></a><span class="c1">#    Similarity: 72%</span>
+</code></pre></div>
+<h3 id="rag-with-agent-integration">RAG with Agent Integration</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>
+<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">enable_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">knowledge_agent</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="n">MemoryManager</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Answer {{ query }} using semantic memory&quot;&quot;&quot;</span>
+<a id="__codelineno-46-7" name="__codelineno-46-7" href="#__codelineno-46-7"></a>
+<a id="__codelineno-46-8" name="__codelineno-46-8" href="#__codelineno-46-8"></a>    <span class="c1"># Store query in RAG (if RAG enabled in MemoryManager)</span>
+<a id="__codelineno-46-9" name="__codelineno-46-9" href="#__codelineno-46-9"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-46-10" name="__codelineno-46-10" href="#__codelineno-46-10"></a>
+<a id="__codelineno-46-11" name="__codelineno-46-11" href="#__codelineno-46-11"></a>    <span class="c1"># Semantic search over past conversations</span>
+<a id="__codelineno-46-12" name="__codelineno-46-12" href="#__codelineno-46-12"></a>    <span class="k">if</span> <span class="n">memory</span><span class="o">.</span><span class="n">rag</span><span class="p">:</span>
+<a id="__codelineno-46-13" name="__codelineno-46-13" href="#__codelineno-46-13"></a>        <span class="n">relevant</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">recall_semantic</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-46-14" name="__codelineno-46-14" href="#__codelineno-46-14"></a>        <span class="n">context</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">relevant</span><span class="p">])</span>
+<a id="__codelineno-46-15" name="__codelineno-46-15" href="#__codelineno-46-15"></a>        <span class="n">enriched_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Context: </span><span class="si">{</span><span class="n">context</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">Query: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-46-16" name="__codelineno-46-16" href="#__codelineno-46-16"></a>        <span class="c1"># Use enriched_query for LLM call</span>
+<a id="__codelineno-46-17" name="__codelineno-46-17" href="#__codelineno-46-17"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-46-18" name="__codelineno-46-18" href="#__codelineno-46-18"></a>        <span class="n">enriched_query</span> <span class="o">=</span> <span class="n">query</span>
+<a id="__codelineno-46-19" name="__codelineno-46-19" href="#__codelineno-46-19"></a>
+<a id="__codelineno-46-20" name="__codelineno-46-20" href="#__codelineno-46-20"></a>    <span class="c1"># Process with LLM...</span>
+<a id="__codelineno-46-21" name="__codelineno-46-21" href="#__codelineno-46-21"></a>    <span class="n">response</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Processing: </span><span class="si">{</span><span class="n">enriched_query</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-46-22" name="__codelineno-46-22" href="#__codelineno-46-22"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<a id="__codelineno-46-23" name="__codelineno-46-23" href="#__codelineno-46-23"></a>
+<a id="__codelineno-46-24" name="__codelineno-46-24" href="#__codelineno-46-24"></a>    <span class="k">return</span> <span class="n">response</span>
+</code></pre></div>
+<h3 id="best-practices">Best Practices</h3>
+<ol>
+<li>
+<p><strong>Meaningful Content</strong>: Store complete, self-contained information
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="c1"># Good</span>
+<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;The capital of France is Paris&quot;</span><span class="p">)</span>
+<a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a>
+<a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a><span class="c1"># Less good (lacks context)</span>
+<a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Paris&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Use Metadata for Filtering</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;User prefers Python&quot;</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;preference&quot;</span><span class="p">})</span>
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Project deadline is March 1&quot;</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;deadline&quot;</span><span class="p">})</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Agent Scoping</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="c1"># Separate knowledge per agent</span>
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Translation context&quot;</span><span class="p">,</span> <span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;translator&quot;</span><span class="p">)</span>
+<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a><span class="n">rag</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;Code review context&quot;</span><span class="p">,</span> <span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;reviewer&quot;</span><span class="p">)</span>
+<a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a>
+<a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a><span class="c1"># Query specific agent&#39;s knowledge</span>
+<a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a><span class="n">results</span> <span class="o">=</span> <span class="n">rag</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">&quot;translate&quot;</span><span class="p">,</span> <span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;translator&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Semantic vs Keyword Search</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="c1"># Semantic search - finds conceptually similar content</span>
+<a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a><span class="n">rag</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">&quot;programming languages&quot;</span><span class="p">)</span>  <span class="c1"># Finds &quot;Python&quot;, &quot;Java&quot;, etc.</span>
+<a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>
+<a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a><span class="c1"># Keyword search would miss variations</span>
+<a id="__codelineno-50-5" name="__codelineno-50-5" href="#__codelineno-50-5"></a><span class="n">memory</span><span class="o">.</span><span class="n">search_memory</span><span class="p">(</span><span class="s2">&quot;programming language&quot;</span><span class="p">)</span>  <span class="c1"># Exact match only</span>
+</code></pre></div></p>
+</li>
+</ol>
 <h2 id="agent-integration">Agent Integration</h2>
 <p>Enable memory in agents using the <code>enable_memory</code> parameter:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
-<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
-<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>
-<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">enable_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_messages</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_agent</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="n">MemoryManager</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Answer {{ query }} using memory&quot;&quot;&quot;</span>
-<a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a>
-<a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a>    <span class="c1"># Add to context</span>
-<a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
-<a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>
-<a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>    <span class="c1"># Remember facts</span>
-<a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">remember</span><span class="p">(</span><span class="s2">&quot;last_query&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
-<a id="__codelineno-34-13" name="__codelineno-34-13" href="#__codelineno-34-13"></a>
-<a id="__codelineno-34-14" name="__codelineno-34-14" href="#__codelineno-34-14"></a>    <span class="c1"># Recall past information</span>
-<a id="__codelineno-34-15" name="__codelineno-34-15" href="#__codelineno-34-15"></a>    <span class="n">past</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">&quot;user_name&quot;</span><span class="p">)</span>
-<a id="__codelineno-34-16" name="__codelineno-34-16" href="#__codelineno-34-16"></a>
-<a id="__codelineno-34-17" name="__codelineno-34-17" href="#__codelineno-34-17"></a>    <span class="n">response</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Processing </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span>
-<a id="__codelineno-34-18" name="__codelineno-34-18" href="#__codelineno-34-18"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
-<a id="__codelineno-34-19" name="__codelineno-34-19" href="#__codelineno-34-19"></a>
-<a id="__codelineno-34-20" name="__codelineno-34-20" href="#__codelineno-34-20"></a>    <span class="k">return</span> <span class="n">response</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
+<a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
+<a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>
+<a id="__codelineno-51-4" name="__codelineno-51-4" href="#__codelineno-51-4"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">enable_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_messages</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<a id="__codelineno-51-5" name="__codelineno-51-5" href="#__codelineno-51-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_agent</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="n">MemoryManager</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-51-6" name="__codelineno-51-6" href="#__codelineno-51-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Answer {{ query }} using memory&quot;&quot;&quot;</span>
+<a id="__codelineno-51-7" name="__codelineno-51-7" href="#__codelineno-51-7"></a>
+<a id="__codelineno-51-8" name="__codelineno-51-8" href="#__codelineno-51-8"></a>    <span class="c1"># Add to context</span>
+<a id="__codelineno-51-9" name="__codelineno-51-9" href="#__codelineno-51-9"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-51-10" name="__codelineno-51-10" href="#__codelineno-51-10"></a>
+<a id="__codelineno-51-11" name="__codelineno-51-11" href="#__codelineno-51-11"></a>    <span class="c1"># Remember facts</span>
+<a id="__codelineno-51-12" name="__codelineno-51-12" href="#__codelineno-51-12"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">remember</span><span class="p">(</span><span class="s2">&quot;last_query&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-51-13" name="__codelineno-51-13" href="#__codelineno-51-13"></a>
+<a id="__codelineno-51-14" name="__codelineno-51-14" href="#__codelineno-51-14"></a>    <span class="c1"># Recall past information</span>
+<a id="__codelineno-51-15" name="__codelineno-51-15" href="#__codelineno-51-15"></a>    <span class="n">past</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">&quot;user_name&quot;</span><span class="p">)</span>
+<a id="__codelineno-51-16" name="__codelineno-51-16" href="#__codelineno-51-16"></a>
+<a id="__codelineno-51-17" name="__codelineno-51-17" href="#__codelineno-51-17"></a>    <span class="n">response</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Processing </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-51-18" name="__codelineno-51-18" href="#__codelineno-51-18"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<a id="__codelineno-51-19" name="__codelineno-51-19" href="#__codelineno-51-19"></a>
+<a id="__codelineno-51-20" name="__codelineno-51-20" href="#__codelineno-51-20"></a>    <span class="k">return</span> <span class="n">response</span>
 </code></pre></div>
 <h3 id="parameters">Parameters</h3>
 <ul>
@@ -2239,61 +2662,61 @@
 </ul>
 <h2 id="examples">Examples</h2>
 <h3 id="basic-usage">Basic Usage</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
-<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>
-<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="c1"># Create manager</span>
-<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;my_agent&quot;</span><span class="p">)</span>
-<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>
-<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a><span class="c1"># Store and recall</span>
-<a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a><span class="n">memory</span><span class="o">.</span><span class="n">remember</span><span class="p">(</span><span class="s2">&quot;api_key&quot;</span><span class="p">,</span> <span class="s2">&quot;sk-...&quot;</span><span class="p">)</span>
-<a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a><span class="n">api_key</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">&quot;api_key&quot;</span><span class="p">)</span>
-<a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a>
-<a id="__codelineno-35-10" name="__codelineno-35-10" href="#__codelineno-35-10"></a><span class="c1"># Conversation context</span>
-<a id="__codelineno-35-11" name="__codelineno-35-11" href="#__codelineno-35-11"></a><span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;Hello&quot;</span><span class="p">)</span>
-<a id="__codelineno-35-12" name="__codelineno-35-12" href="#__codelineno-35-12"></a><span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;Hi there!&quot;</span><span class="p">)</span>
-<a id="__codelineno-35-13" name="__codelineno-35-13" href="#__codelineno-35-13"></a><span class="n">context</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">get_llm_context</span><span class="p">()</span>
-<a id="__codelineno-35-14" name="__codelineno-35-14" href="#__codelineno-35-14"></a>
-<a id="__codelineno-35-15" name="__codelineno-35-15" href="#__codelineno-35-15"></a><span class="c1"># Search</span>
-<a id="__codelineno-35-16" name="__codelineno-35-16" href="#__codelineno-35-16"></a><span class="n">results</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">search_memory</span><span class="p">(</span><span class="s2">&quot;api&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
+<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>
+<a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a><span class="c1"># Create manager</span>
+<a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a><span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;my_agent&quot;</span><span class="p">)</span>
+<a id="__codelineno-52-5" name="__codelineno-52-5" href="#__codelineno-52-5"></a>
+<a id="__codelineno-52-6" name="__codelineno-52-6" href="#__codelineno-52-6"></a><span class="c1"># Store and recall</span>
+<a id="__codelineno-52-7" name="__codelineno-52-7" href="#__codelineno-52-7"></a><span class="n">memory</span><span class="o">.</span><span class="n">remember</span><span class="p">(</span><span class="s2">&quot;api_key&quot;</span><span class="p">,</span> <span class="s2">&quot;sk-...&quot;</span><span class="p">)</span>
+<a id="__codelineno-52-8" name="__codelineno-52-8" href="#__codelineno-52-8"></a><span class="n">api_key</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">&quot;api_key&quot;</span><span class="p">)</span>
+<a id="__codelineno-52-9" name="__codelineno-52-9" href="#__codelineno-52-9"></a>
+<a id="__codelineno-52-10" name="__codelineno-52-10" href="#__codelineno-52-10"></a><span class="c1"># Conversation context</span>
+<a id="__codelineno-52-11" name="__codelineno-52-11" href="#__codelineno-52-11"></a><span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;Hello&quot;</span><span class="p">)</span>
+<a id="__codelineno-52-12" name="__codelineno-52-12" href="#__codelineno-52-12"></a><span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;Hi there!&quot;</span><span class="p">)</span>
+<a id="__codelineno-52-13" name="__codelineno-52-13" href="#__codelineno-52-13"></a><span class="n">context</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">get_llm_context</span><span class="p">()</span>
+<a id="__codelineno-52-14" name="__codelineno-52-14" href="#__codelineno-52-14"></a>
+<a id="__codelineno-52-15" name="__codelineno-52-15" href="#__codelineno-52-15"></a><span class="c1"># Search</span>
+<a id="__codelineno-52-16" name="__codelineno-52-16" href="#__codelineno-52-16"></a><span class="n">results</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">search_memory</span><span class="p">(</span><span class="s2">&quot;api&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="session-persistence">Session Persistence</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="c1"># Save session</span>
-<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;What is AI?&quot;</span><span class="p">)</span>
-<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;AI stands for...&quot;</span><span class="p">)</span>
-<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="n">memory</span><span class="o">.</span><span class="n">save_session</span><span class="p">(</span><span class="s2">&quot;conversation_1&quot;</span><span class="p">)</span>
-<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a>
-<a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a><span class="c1"># Later... restore session</span>
-<a id="__codelineno-36-7" name="__codelineno-36-7" href="#__codelineno-36-7"></a><span class="n">new_memory</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;my_agent&quot;</span><span class="p">)</span>
-<a id="__codelineno-36-8" name="__codelineno-36-8" href="#__codelineno-36-8"></a><span class="k">if</span> <span class="n">new_memory</span><span class="o">.</span><span class="n">load_session</span><span class="p">(</span><span class="s2">&quot;conversation_1&quot;</span><span class="p">):</span>
-<a id="__codelineno-36-9" name="__codelineno-36-9" href="#__codelineno-36-9"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">new_memory</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span>
-<a id="__codelineno-36-10" name="__codelineno-36-10" href="#__codelineno-36-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Restored </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="si">}</span><span class="s2"> messages&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="c1"># Save session</span>
+<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a><span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;What is AI?&quot;</span><span class="p">)</span>
+<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a><span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;AI stands for...&quot;</span><span class="p">)</span>
+<a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a><span class="n">memory</span><span class="o">.</span><span class="n">save_session</span><span class="p">(</span><span class="s2">&quot;conversation_1&quot;</span><span class="p">)</span>
+<a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a>
+<a id="__codelineno-53-6" name="__codelineno-53-6" href="#__codelineno-53-6"></a><span class="c1"># Later... restore session</span>
+<a id="__codelineno-53-7" name="__codelineno-53-7" href="#__codelineno-53-7"></a><span class="n">new_memory</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;my_agent&quot;</span><span class="p">)</span>
+<a id="__codelineno-53-8" name="__codelineno-53-8" href="#__codelineno-53-8"></a><span class="k">if</span> <span class="n">new_memory</span><span class="o">.</span><span class="n">load_session</span><span class="p">(</span><span class="s2">&quot;conversation_1&quot;</span><span class="p">):</span>
+<a id="__codelineno-53-9" name="__codelineno-53-9" href="#__codelineno-53-9"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">new_memory</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span>
+<a id="__codelineno-53-10" name="__codelineno-53-10" href="#__codelineno-53-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Restored </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="si">}</span><span class="s2"> messages&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="agent-with-memory">Agent with Memory</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">enable_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">persist_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./data&quot;</span><span class="p">))</span>
-<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">assistant</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="n">MemoryManager</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Personal assistant: {{ query }}&quot;&quot;&quot;</span>
-<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>
-<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a>    <span class="c1"># Track conversation</span>
-<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
-<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a>
-<a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a>    <span class="c1"># Remember user preferences</span>
-<a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a>    <span class="k">if</span> <span class="s2">&quot;my name is&quot;</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
-<a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a>        <span class="n">name</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;my name is&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-<a id="__codelineno-37-11" name="__codelineno-37-11" href="#__codelineno-37-11"></a>        <span class="n">memory</span><span class="o">.</span><span class="n">remember</span><span class="p">(</span><span class="s2">&quot;user_name&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-<a id="__codelineno-37-12" name="__codelineno-37-12" href="#__codelineno-37-12"></a>
-<a id="__codelineno-37-13" name="__codelineno-37-13" href="#__codelineno-37-13"></a>    <span class="c1"># Use remembered information</span>
-<a id="__codelineno-37-14" name="__codelineno-37-14" href="#__codelineno-37-14"></a>    <span class="n">user_name</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">&quot;user_name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;there&quot;</span>
-<a id="__codelineno-37-15" name="__codelineno-37-15" href="#__codelineno-37-15"></a>    <span class="n">response</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Hello </span><span class="si">{</span><span class="n">user_name</span><span class="si">}</span><span class="s2">! How can I help?&quot;</span>
-<a id="__codelineno-37-16" name="__codelineno-37-16" href="#__codelineno-37-16"></a>
-<a id="__codelineno-37-17" name="__codelineno-37-17" href="#__codelineno-37-17"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
-<a id="__codelineno-37-18" name="__codelineno-37-18" href="#__codelineno-37-18"></a>    <span class="k">return</span> <span class="n">response</span>
-<a id="__codelineno-37-19" name="__codelineno-37-19" href="#__codelineno-37-19"></a>
-<a id="__codelineno-37-20" name="__codelineno-37-20" href="#__codelineno-37-20"></a><span class="c1"># Usage</span>
-<a id="__codelineno-37-21" name="__codelineno-37-21" href="#__codelineno-37-21"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">assistant</span><span class="p">(</span><span class="s2">&quot;Hello, my name is Alice&quot;</span><span class="p">)</span>
-<a id="__codelineno-37-22" name="__codelineno-37-22" href="#__codelineno-37-22"></a><span class="c1"># &quot;Hello Alice! How can I help?&quot;</span>
-<a id="__codelineno-37-23" name="__codelineno-37-23" href="#__codelineno-37-23"></a>
-<a id="__codelineno-37-24" name="__codelineno-37-24" href="#__codelineno-37-24"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">assistant</span><span class="p">(</span><span class="s2">&quot;What&#39;s the weather?&quot;</span><span class="p">)</span>
-<a id="__codelineno-37-25" name="__codelineno-37-25" href="#__codelineno-37-25"></a><span class="c1"># &quot;Hello Alice! How can I help?&quot; (remembers name)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">enable_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">persist_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./data&quot;</span><span class="p">))</span>
+<a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">assistant</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="n">MemoryManager</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Personal assistant: {{ query }}&quot;&quot;&quot;</span>
+<a id="__codelineno-54-4" name="__codelineno-54-4" href="#__codelineno-54-4"></a>
+<a id="__codelineno-54-5" name="__codelineno-54-5" href="#__codelineno-54-5"></a>    <span class="c1"># Track conversation</span>
+<a id="__codelineno-54-6" name="__codelineno-54-6" href="#__codelineno-54-6"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-54-7" name="__codelineno-54-7" href="#__codelineno-54-7"></a>
+<a id="__codelineno-54-8" name="__codelineno-54-8" href="#__codelineno-54-8"></a>    <span class="c1"># Remember user preferences</span>
+<a id="__codelineno-54-9" name="__codelineno-54-9" href="#__codelineno-54-9"></a>    <span class="k">if</span> <span class="s2">&quot;my name is&quot;</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+<a id="__codelineno-54-10" name="__codelineno-54-10" href="#__codelineno-54-10"></a>        <span class="n">name</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;my name is&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-54-11" name="__codelineno-54-11" href="#__codelineno-54-11"></a>        <span class="n">memory</span><span class="o">.</span><span class="n">remember</span><span class="p">(</span><span class="s2">&quot;user_name&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+<a id="__codelineno-54-12" name="__codelineno-54-12" href="#__codelineno-54-12"></a>
+<a id="__codelineno-54-13" name="__codelineno-54-13" href="#__codelineno-54-13"></a>    <span class="c1"># Use remembered information</span>
+<a id="__codelineno-54-14" name="__codelineno-54-14" href="#__codelineno-54-14"></a>    <span class="n">user_name</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">&quot;user_name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;there&quot;</span>
+<a id="__codelineno-54-15" name="__codelineno-54-15" href="#__codelineno-54-15"></a>    <span class="n">response</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Hello </span><span class="si">{</span><span class="n">user_name</span><span class="si">}</span><span class="s2">! How can I help?&quot;</span>
+<a id="__codelineno-54-16" name="__codelineno-54-16" href="#__codelineno-54-16"></a>
+<a id="__codelineno-54-17" name="__codelineno-54-17" href="#__codelineno-54-17"></a>    <span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<a id="__codelineno-54-18" name="__codelineno-54-18" href="#__codelineno-54-18"></a>    <span class="k">return</span> <span class="n">response</span>
+<a id="__codelineno-54-19" name="__codelineno-54-19" href="#__codelineno-54-19"></a>
+<a id="__codelineno-54-20" name="__codelineno-54-20" href="#__codelineno-54-20"></a><span class="c1"># Usage</span>
+<a id="__codelineno-54-21" name="__codelineno-54-21" href="#__codelineno-54-21"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">assistant</span><span class="p">(</span><span class="s2">&quot;Hello, my name is Alice&quot;</span><span class="p">)</span>
+<a id="__codelineno-54-22" name="__codelineno-54-22" href="#__codelineno-54-22"></a><span class="c1"># &quot;Hello Alice! How can I help?&quot;</span>
+<a id="__codelineno-54-23" name="__codelineno-54-23" href="#__codelineno-54-23"></a>
+<a id="__codelineno-54-24" name="__codelineno-54-24" href="#__codelineno-54-24"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">assistant</span><span class="p">(</span><span class="s2">&quot;What&#39;s the weather?&quot;</span><span class="p">)</span>
+<a id="__codelineno-54-25" name="__codelineno-54-25" href="#__codelineno-54-25"></a><span class="c1"># &quot;Hello Alice! How can I help?&quot; (remembers name)</span>
 </code></pre></div>
 <h2 id="see-also">See Also</h2>
 <ul>

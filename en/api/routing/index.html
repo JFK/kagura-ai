@@ -1272,6 +1272,126 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#memoryawarerouter" class="md-nav__link">
+    <span class="md-ellipsis">
+      MemoryAwareRouter
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MemoryAwareRouter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#constructor_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Constructor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#route_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      route()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#context-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Context Detection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#context-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Context Enhancement
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#utility-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Utility Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Utility Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get_conversation_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_conversation_summary()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clear_context" class="md-nav__link">
+    <span class="md-ellipsis">
+      clear_context()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#best-practices_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       See Also
@@ -1702,11 +1822,217 @@
 <p><strong>Future Phases:</strong>
 - <strong>Phase 2</strong>: Semantic routing with embeddings
 - <strong>Phase 3</strong>: Agent chaining and conditional routing</p>
+<h2 id="memoryawarerouter">MemoryAwareRouter</h2>
+<p>Context-aware routing that considers conversation history for better agent selection.</p>
+<h3 id="overview_1">Overview</h3>
+<p><code>MemoryAwareRouter</code> extends <code>AgentRouter</code> with memory-aware capabilities:
+- Detects context-dependent queries (pronouns, implicit references)
+- Retrieves relevant context from conversation history
+- Enhances queries with context before routing
+- Supports semantic context retrieval via RAG</p>
+<h3 id="constructor_1">Constructor</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.routing</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryAwareRouter</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="n">enable_rag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="n">router</span> <span class="o">=</span> <span class="n">MemoryAwareRouter</span><span class="p">(</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>    <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;intent&quot;</span><span class="p">,</span>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>    <span class="n">fallback_agent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    <span class="n">confidence_threshold</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>    <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>    <span class="n">context_window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a>    <span class="n">use_semantic_context</span><span class="o">=</span><span class="kc">True</span>
+<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>memory</strong> (<code>MemoryManager</code>, required): Memory manager instance</li>
+<li><strong>strategy</strong> (<code>str</code>, default: <code>"intent"</code>): Routing strategy (<code>"intent"</code> or <code>"semantic"</code>)</li>
+<li><strong>fallback_agent</strong> (<code>Optional[Callable]</code>, default: <code>None</code>): Default agent</li>
+<li><strong>confidence_threshold</strong> (<code>float</code>, default: <code>0.3</code>): Minimum confidence score</li>
+<li><strong>encoder</strong> (<code>str</code>, default: <code>"openai"</code>): Encoder for semantic routing</li>
+<li><strong>context_window</strong> (<code>int</code>, default: <code>5</code>): Number of recent messages to consider</li>
+<li><strong>use_semantic_context</strong> (<code>bool</code>, default: <code>True</code>): Enable RAG-based context retrieval</li>
+</ul>
+<h3 id="route_1">route()</h3>
+<p>Route user input with memory awareness.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">route</span><span class="p">(</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    <span class="n">user_input</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>    <span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span>
+</code></pre></div>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>user_input</strong> (<code>str</code>): User's natural language input</li>
+<li><strong>context</strong> (<code>Optional[dict]</code>): Optional context information</li>
+<li><strong>kwargs</strong>: Additional arguments to pass to the selected agent</li>
+</ul>
+<p><strong>Returns:</strong> Result from executing the selected agent</p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.routing</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryAwareRouter</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="c1"># Define agents</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="nd">@agent</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">translator</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Translate &quot;{{ text }}&quot; to {{ target_lang }}&#39;&#39;&#39;</span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>    <span class="k">pass</span>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="c1"># Initialize memory and router</span>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="n">enable_rag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="n">router</span> <span class="o">=</span> <span class="n">MemoryAwareRouter</span><span class="p">(</span><span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">)</span>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="c1"># Register agent</span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="n">router</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">translator</span><span class="p">,</span> <span class="n">intents</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">,</span> <span class="s2">&quot;翻訳&quot;</span><span class="p">])</span>
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a>
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a><span class="c1"># First query (explicit)</span>
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;Translate &#39;hello&#39; to French&quot;</span><span class="p">)</span>
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a><span class="c1"># Routes to translator, translates to French</span>
+<a id="__codelineno-27-21" name="__codelineno-27-21" href="#__codelineno-27-21"></a>
+<a id="__codelineno-27-22" name="__codelineno-27-22" href="#__codelineno-27-22"></a><span class="c1"># Second query (context-dependent)</span>
+<a id="__codelineno-27-23" name="__codelineno-27-23" href="#__codelineno-27-23"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;What about Spanish?&quot;</span><span class="p">)</span>
+<a id="__codelineno-27-24" name="__codelineno-27-24" href="#__codelineno-27-24"></a><span class="c1"># Router understands &quot;Spanish&quot; refers to translation</span>
+<a id="__codelineno-27-25" name="__codelineno-27-25" href="#__codelineno-27-25"></a><span class="c1"># Enhances query with context: &quot;Previous: Translate &#39;hello&#39; to French. Current: What about Spanish?&quot;</span>
+<a id="__codelineno-27-26" name="__codelineno-27-26" href="#__codelineno-27-26"></a><span class="c1"># Routes to translator with inferred context</span>
+</code></pre></div>
+<h3 id="context-detection">Context Detection</h3>
+<p>The router automatically detects context-dependent queries:</p>
+<p><strong>Pronouns:</strong>
+- it, this, that, them, etc.
+- Example: "What about <strong>it</strong>?"</p>
+<p><strong>Implicit References:</strong>
+- also, too, again, similar, same, etc.
+- Example: "Do <strong>that again</strong>"</p>
+<p><strong>Follow-up Patterns:</strong>
+- "What about...", "How about...", "And if..."
+- Example: "<strong>What about</strong> Japanese?"</p>
+<h3 id="context-enhancement">Context Enhancement</h3>
+<p>When context is needed, the router performs two-stage enhancement:</p>
+<p><strong>Stage 1: Recent Conversation</strong>
+- Retrieves last N messages from ContextMemory
+- Resolves pronouns and implicit references
+- Combines with current query</p>
+<p><strong>Stage 2: Semantic Context (Optional)</strong>
+- If RAG enabled, queries ChromaDB for semantically similar past conversations
+- Appends top-k relevant messages as additional context</p>
+<h3 id="complete-example_1">Complete Example</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.routing</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryAwareRouter</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="nd">@agent</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">translator</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Translate &quot;{{ text }}&quot; to {{ target_lang }}&#39;&#39;&#39;</span>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>    <span class="k">pass</span>
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a>
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a>
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a><span class="nd">@agent</span>
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">summarizer</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Summarize: {{ text }}&#39;&#39;&#39;</span>
+<a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a>    <span class="k">pass</span>
+<a id="__codelineno-28-17" name="__codelineno-28-17" href="#__codelineno-28-17"></a>
+<a id="__codelineno-28-18" name="__codelineno-28-18" href="#__codelineno-28-18"></a>
+<a id="__codelineno-28-19" name="__codelineno-28-19" href="#__codelineno-28-19"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-28-20" name="__codelineno-28-20" href="#__codelineno-28-20"></a>    <span class="c1"># Initialize with memory</span>
+<a id="__codelineno-28-21" name="__codelineno-28-21" href="#__codelineno-28-21"></a>    <span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span>
+<a id="__codelineno-28-22" name="__codelineno-28-22" href="#__codelineno-28-22"></a>        <span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-23" name="__codelineno-28-23" href="#__codelineno-28-23"></a>        <span class="n">enable_rag</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Enable semantic context</span>
+<a id="__codelineno-28-24" name="__codelineno-28-24" href="#__codelineno-28-24"></a>    <span class="p">)</span>
+<a id="__codelineno-28-25" name="__codelineno-28-25" href="#__codelineno-28-25"></a>
+<a id="__codelineno-28-26" name="__codelineno-28-26" href="#__codelineno-28-26"></a>    <span class="n">router</span> <span class="o">=</span> <span class="n">MemoryAwareRouter</span><span class="p">(</span>
+<a id="__codelineno-28-27" name="__codelineno-28-27" href="#__codelineno-28-27"></a>        <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+<a id="__codelineno-28-28" name="__codelineno-28-28" href="#__codelineno-28-28"></a>        <span class="n">context_window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># Consider last 5 messages</span>
+<a id="__codelineno-28-29" name="__codelineno-28-29" href="#__codelineno-28-29"></a>        <span class="n">use_semantic_context</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Use RAG</span>
+<a id="__codelineno-28-30" name="__codelineno-28-30" href="#__codelineno-28-30"></a>    <span class="p">)</span>
+<a id="__codelineno-28-31" name="__codelineno-28-31" href="#__codelineno-28-31"></a>
+<a id="__codelineno-28-32" name="__codelineno-28-32" href="#__codelineno-28-32"></a>    <span class="c1"># Register agents</span>
+<a id="__codelineno-28-33" name="__codelineno-28-33" href="#__codelineno-28-33"></a>    <span class="n">router</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">translator</span><span class="p">,</span> <span class="n">intents</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">,</span> <span class="s2">&quot;translation&quot;</span><span class="p">])</span>
+<a id="__codelineno-28-34" name="__codelineno-28-34" href="#__codelineno-28-34"></a>    <span class="n">router</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">summarizer</span><span class="p">,</span> <span class="n">intents</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;summarize&quot;</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">])</span>
+<a id="__codelineno-28-35" name="__codelineno-28-35" href="#__codelineno-28-35"></a>
+<a id="__codelineno-28-36" name="__codelineno-28-36" href="#__codelineno-28-36"></a>    <span class="c1"># Conversation with context</span>
+<a id="__codelineno-28-37" name="__codelineno-28-37" href="#__codelineno-28-37"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Query 1:&quot;</span><span class="p">)</span>
+<a id="__codelineno-28-38" name="__codelineno-28-38" href="#__codelineno-28-38"></a>    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;Translate &#39;hello world&#39; to French&quot;</span><span class="p">)</span>
+<a id="__codelineno-28-39" name="__codelineno-28-39" href="#__codelineno-28-39"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Result: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-28-40" name="__codelineno-28-40" href="#__codelineno-28-40"></a>
+<a id="__codelineno-28-41" name="__codelineno-28-41" href="#__codelineno-28-41"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Query 2 (context-dependent):&quot;</span><span class="p">)</span>
+<a id="__codelineno-28-42" name="__codelineno-28-42" href="#__codelineno-28-42"></a>    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;What about Japanese?&quot;</span><span class="p">)</span>
+<a id="__codelineno-28-43" name="__codelineno-28-43" href="#__codelineno-28-43"></a>    <span class="c1"># Router understands &quot;Japanese&quot; refers to translation</span>
+<a id="__codelineno-28-44" name="__codelineno-28-44" href="#__codelineno-28-44"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Result: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-28-45" name="__codelineno-28-45" href="#__codelineno-28-45"></a>
+<a id="__codelineno-28-46" name="__codelineno-28-46" href="#__codelineno-28-46"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Query 3 (another context):&quot;</span><span class="p">)</span>
+<a id="__codelineno-28-47" name="__codelineno-28-47" href="#__codelineno-28-47"></a>    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;Summarize the previous translation&quot;</span><span class="p">)</span>
+<a id="__codelineno-28-48" name="__codelineno-28-48" href="#__codelineno-28-48"></a>    <span class="c1"># Router understands &quot;previous translation&quot; from context</span>
+<a id="__codelineno-28-49" name="__codelineno-28-49" href="#__codelineno-28-49"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Result: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-28-50" name="__codelineno-28-50" href="#__codelineno-28-50"></a>
+<a id="__codelineno-28-51" name="__codelineno-28-51" href="#__codelineno-28-51"></a>
+<a id="__codelineno-28-52" name="__codelineno-28-52" href="#__codelineno-28-52"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-28-53" name="__codelineno-28-53" href="#__codelineno-28-53"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<h3 id="utility-methods">Utility Methods</h3>
+<h4 id="get_conversation_summary">get_conversation_summary()</h4>
+<p>Get a summary of recent conversation.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">summary</span> <span class="o">=</span> <span class="n">router</span><span class="o">.</span><span class="n">get_conversation_summary</span><span class="p">(</span><span class="n">last_n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="c1"># Output:</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="c1"># User: Translate &#39;hello&#39; to French</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a><span class="c1"># Assistant: Bonjour</span>
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="c1"># User: What about Spanish?</span>
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a><span class="c1"># Assistant: Hola</span>
+</code></pre></div>
+<h4 id="clear_context">clear_context()</h4>
+<p>Clear conversation context from memory.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">router</span><span class="o">.</span><span class="n">clear_context</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="best-practices_1">Best Practices</h3>
+<ol>
+<li>
+<p><strong>Enable RAG for Better Context</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span><span class="n">enable_rag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="n">router</span> <span class="o">=</span> <span class="n">MemoryAwareRouter</span><span class="p">(</span><span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span> <span class="n">use_semantic_context</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Adjust Context Window</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="c1"># Short conversations</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="n">router</span> <span class="o">=</span> <span class="n">MemoryAwareRouter</span><span class="p">(</span><span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span> <span class="n">context_window</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="c1"># Long conversations</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="n">router</span> <span class="o">=</span> <span class="n">MemoryAwareRouter</span><span class="p">(</span><span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span> <span class="n">context_window</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Store Conversation History</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="c1"># Router automatically stores messages, but you can also manually add context</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="n">memory</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;User prefers concise responses&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Clear Context Between Sessions</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="c1"># Start new conversation</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="n">router</span><span class="o">.</span><span class="n">clear_context</span><span class="p">()</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="limitations_1">Limitations</h3>
+<ul>
+<li>Context detection is heuristic-based (may miss some edge cases)</li>
+<li>Semantic context requires ChromaDB installation</li>
+<li>Performance depends on RAG query speed (~100ms)</li>
+</ul>
 <h2 id="see-also">See Also</h2>
 <ul>
 <li><a href="../../tutorials/09-agent-routing/">Agent Routing Tutorial</a></li>
+<li><a href="../memory/">Memory Management API</a></li>
 <li><a href="../agent/">Agent Decorator API</a></li>
 <li><a href="../../ai_docs/rfcs/RFC_016_AGENT_ROUTING.md">RFC-016: Agent Routing System</a></li>
+<li><a href="../../ai_docs/rfcs/RFC_020_MEMORY_AWARE_ROUTING.md">RFC-020: Memory-Aware Routing</a></li>
 </ul>
 
 

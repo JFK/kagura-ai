@@ -21,6 +21,10 @@
          <lastmod>2025-10-10</lastmod>
     </url>
     <url>
+         <loc>https://www.kagura-ai.com/en/api/builder/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
          <loc>https://www.kagura-ai.com/en/api/chat/</loc>
          <lastmod>2025-10-10</lastmod>
     </url>
@@ -49,11 +53,19 @@
          <lastmod>2025-10-10</lastmod>
     </url>
     <url>
+         <loc>https://www.kagura-ai.com/en/api/observability/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
          <loc>https://www.kagura-ai.com/en/api/routing/</loc>
          <lastmod>2025-10-10</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/shell/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
+         <loc>https://www.kagura-ai.com/en/api/testing/</loc>
          <lastmod>2025-10-10</lastmod>
     </url>
     <url>
@@ -118,6 +130,18 @@
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/12-workflows/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
+         <loc>https://www.kagura-ai.com/en/tutorials/13-agent-builder/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
+         <loc>https://www.kagura-ai.com/en/tutorials/14-testing/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
+         <loc>https://www.kagura-ai.com/en/tutorials/15-observability/</loc>
          <lastmod>2025-10-10</lastmod>
     </url>
 </urlset>

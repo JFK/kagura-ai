@@ -1425,6 +1425,102 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#advanced-workflow-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Workflow Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Workflow Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflow-context-sharing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow Context Sharing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-branching_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conditional Branching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parallel-execution_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parallel Execution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retry-logic_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retry Logic
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-agent-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dynamic Agent Selection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow Composition
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete-advanced-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Advanced Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#best-practices-for-advanced-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices for Advanced Workflows
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       See Also
@@ -1869,12 +1965,323 @@
 <a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;processed&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">}</span>
 </code></pre></div>
 <hr />
+<h2 id="advanced-workflow-features">Advanced Workflow Features</h2>
+<p>Kagura v2.2.0 introduces advanced workflow capabilities for complex multi-agent orchestration.</p>
+<h3 id="workflow-context-sharing">Workflow Context Sharing</h3>
+<p>Share state across workflow steps using context dictionary:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="nd">@workflow</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">context_workflow</span><span class="p">(</span><span class="n">input_data</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">workflow_context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Workflow with shared context&quot;&quot;&quot;</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>    <span class="c1"># Initialize context</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>    <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;step_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>    <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;accumulated_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>    <span class="c1"># Step 1</span>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>    <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;step_count&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a>    <span class="n">result1</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent1</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a>    <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;accumulated_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result1</span><span class="p">)</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a>    <span class="c1"># Step 2 - uses context from step 1</span>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a>    <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;step_count&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a>    <span class="n">result2</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent2</span><span class="p">(</span><span class="n">result1</span><span class="p">,</span> <span class="n">previous_data</span><span class="o">=</span><span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;accumulated_data&quot;</span><span class="p">])</span>
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a>
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a>        <span class="s2">&quot;final_result&quot;</span><span class="p">:</span> <span class="n">result2</span><span class="p">,</span>
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a>        <span class="s2">&quot;steps_executed&quot;</span><span class="p">:</span> <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;step_count&quot;</span><span class="p">]</span>
+<a id="__codelineno-27-21" name="__codelineno-27-21" href="#__codelineno-27-21"></a>    <span class="p">}</span>
+<a id="__codelineno-27-22" name="__codelineno-27-22" href="#__codelineno-27-22"></a>
+<a id="__codelineno-27-23" name="__codelineno-27-23" href="#__codelineno-27-23"></a><span class="c1"># Execute with context</span>
+<a id="__codelineno-27-24" name="__codelineno-27-24" href="#__codelineno-27-24"></a><span class="n">context</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-27-25" name="__codelineno-27-25" href="#__codelineno-27-25"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">context_workflow</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="n">workflow_context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+<a id="__codelineno-27-26" name="__codelineno-27-26" href="#__codelineno-27-26"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Executed </span><span class="si">{</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;step_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> steps&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="conditional-branching_1">Conditional Branching</h3>
+<p>Implement conditional logic in workflows:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="nd">@workflow</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">conditional_workflow</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Workflow with conditional branches&quot;&quot;&quot;</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>    <span class="c1"># Classify query</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>    <span class="n">classification</span> <span class="o">=</span> <span class="k">await</span> <span class="n">classifier_agent</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>    <span class="c1"># Branch based on classification</span>
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>    <span class="k">if</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;technical&quot;</span><span class="p">:</span>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">technical_agent</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a>    <span class="k">elif</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;business&quot;</span><span class="p">:</span>
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a>        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">business_agent</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a>        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">general_agent</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a>
+<a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;classification&quot;</span><span class="p">:</span> <span class="n">classification</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">}</span>
+</code></pre></div>
+<h3 id="parallel-execution_1">Parallel Execution</h3>
+<p>Execute multiple agents in parallel:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="nd">@workflow</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">parallel_workflow</span><span class="p">(</span><span class="n">input_data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Workflow with parallel agent execution&quot;&quot;&quot;</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>    <span class="c1"># Execute agents in parallel</span>
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>        <span class="n">agent1</span><span class="p">(</span><span class="n">input_data</span><span class="p">),</span>
+<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>        <span class="n">agent2</span><span class="p">(</span><span class="n">input_data</span><span class="p">),</span>
+<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>        <span class="n">agent3</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+<a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a>    <span class="p">)</span>
+<a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a>
+<a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a>    <span class="c1"># Combine results</span>
+<a id="__codelineno-29-15" name="__codelineno-29-15" href="#__codelineno-29-15"></a>    <span class="n">combined</span> <span class="o">=</span> <span class="k">await</span> <span class="n">synthesis_agent</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<a id="__codelineno-29-16" name="__codelineno-29-16" href="#__codelineno-29-16"></a>
+<a id="__codelineno-29-17" name="__codelineno-29-17" href="#__codelineno-29-17"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;individual&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span> <span class="s2">&quot;combined&quot;</span><span class="p">:</span> <span class="n">combined</span><span class="p">}</span>
+</code></pre></div>
+<h3 id="retry-logic_1">Retry Logic</h3>
+<p>Implement automatic retry for failed steps:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="nd">@workflow</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">retry_workflow</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Workflow with retry logic&quot;&quot;&quot;</span>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>    <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_retries</span><span class="p">):</span>
+<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>        <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">unreliable_agent</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a>            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">,</span> <span class="s2">&quot;attempts&quot;</span><span class="p">:</span> <span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}</span>
+<a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a>            <span class="k">if</span> <span class="n">attempt</span> <span class="o">==</span> <span class="n">max_retries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+<a id="__codelineno-30-11" name="__codelineno-30-11" href="#__codelineno-30-11"></a>                <span class="c1"># Final attempt failed</span>
+<a id="__codelineno-30-12" name="__codelineno-30-12" href="#__codelineno-30-12"></a>                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;attempts&quot;</span><span class="p">:</span> <span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}</span>
+<a id="__codelineno-30-13" name="__codelineno-30-13" href="#__codelineno-30-13"></a>            <span class="c1"># Wait before retry</span>
+<a id="__codelineno-30-14" name="__codelineno-30-14" href="#__codelineno-30-14"></a>            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">attempt</span><span class="p">)</span>  <span class="c1"># Exponential backoff</span>
+<a id="__codelineno-30-15" name="__codelineno-30-15" href="#__codelineno-30-15"></a>
+<a id="__codelineno-30-16" name="__codelineno-30-16" href="#__codelineno-30-16"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Max retries exceeded&quot;</span><span class="p">}</span>
+</code></pre></div>
+<h3 id="dynamic-agent-selection">Dynamic Agent Selection</h3>
+<p>Select agents dynamically based on runtime conditions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="nd">@workflow</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_workflow</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">agent_pool</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Workflow with dynamic agent selection&quot;&quot;&quot;</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>    <span class="c1"># Analyze query to determine best agent</span>
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>    <span class="n">analysis</span> <span class="o">=</span> <span class="k">await</span> <span class="n">analyzer_agent</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>
+<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>    <span class="c1"># Select agent from pool</span>
+<a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a>    <span class="n">selected_agent_name</span> <span class="o">=</span> <span class="n">analysis</span><span class="p">[</span><span class="s2">&quot;recommended_agent&quot;</span><span class="p">]</span>
+<a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a>    <span class="n">selected_agent</span> <span class="o">=</span> <span class="n">agent_pool</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">selected_agent_name</span><span class="p">)</span>
+<a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a>
+<a id="__codelineno-31-12" name="__codelineno-31-12" href="#__codelineno-31-12"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">selected_agent</span><span class="p">:</span>
+<a id="__codelineno-31-13" name="__codelineno-31-13" href="#__codelineno-31-13"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Agent </span><span class="si">{</span><span class="n">selected_agent_name</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+<a id="__codelineno-31-14" name="__codelineno-31-14" href="#__codelineno-31-14"></a>
+<a id="__codelineno-31-15" name="__codelineno-31-15" href="#__codelineno-31-15"></a>    <span class="c1"># Execute selected agent</span>
+<a id="__codelineno-31-16" name="__codelineno-31-16" href="#__codelineno-31-16"></a>    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">selected_agent</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-31-17" name="__codelineno-31-17" href="#__codelineno-31-17"></a>
+<a id="__codelineno-31-18" name="__codelineno-31-18" href="#__codelineno-31-18"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-31-19" name="__codelineno-31-19" href="#__codelineno-31-19"></a>        <span class="s2">&quot;selected_agent&quot;</span><span class="p">:</span> <span class="n">selected_agent_name</span><span class="p">,</span>
+<a id="__codelineno-31-20" name="__codelineno-31-20" href="#__codelineno-31-20"></a>        <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">result</span>
+<a id="__codelineno-31-21" name="__codelineno-31-21" href="#__codelineno-31-21"></a>    <span class="p">}</span>
+<a id="__codelineno-31-22" name="__codelineno-31-22" href="#__codelineno-31-22"></a>
+<a id="__codelineno-31-23" name="__codelineno-31-23" href="#__codelineno-31-23"></a><span class="c1"># Usage</span>
+<a id="__codelineno-31-24" name="__codelineno-31-24" href="#__codelineno-31-24"></a><span class="n">agents</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-31-25" name="__codelineno-31-25" href="#__codelineno-31-25"></a>    <span class="s2">&quot;translator&quot;</span><span class="p">:</span> <span class="n">translator_agent</span><span class="p">,</span>
+<a id="__codelineno-31-26" name="__codelineno-31-26" href="#__codelineno-31-26"></a>    <span class="s2">&quot;summarizer&quot;</span><span class="p">:</span> <span class="n">summarizer_agent</span><span class="p">,</span>
+<a id="__codelineno-31-27" name="__codelineno-31-27" href="#__codelineno-31-27"></a>    <span class="s2">&quot;analyzer&quot;</span><span class="p">:</span> <span class="n">analyzer_agent</span>
+<a id="__codelineno-31-28" name="__codelineno-31-28" href="#__codelineno-31-28"></a><span class="p">}</span>
+<a id="__codelineno-31-29" name="__codelineno-31-29" href="#__codelineno-31-29"></a>
+<a id="__codelineno-31-30" name="__codelineno-31-30" href="#__codelineno-31-30"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">dynamic_workflow</span><span class="p">(</span><span class="s2">&quot;Translate to French&quot;</span><span class="p">,</span> <span class="n">agent_pool</span><span class="o">=</span><span class="n">agents</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="workflow-monitoring">Workflow Monitoring</h3>
+<p>Track workflow execution with telemetry:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="nd">@workflow</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">monitored_workflow</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Workflow with execution monitoring&quot;&quot;&quot;</span>
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a>    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a>    <span class="n">steps_executed</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a>
+<a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a>        <span class="c1"># Step 1</span>
+<a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a>        <span class="n">step_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<a id="__codelineno-32-13" name="__codelineno-32-13" href="#__codelineno-32-13"></a>        <span class="n">result1</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent1</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<a id="__codelineno-32-14" name="__codelineno-32-14" href="#__codelineno-32-14"></a>        <span class="n">steps_executed</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<a id="__codelineno-32-15" name="__codelineno-32-15" href="#__codelineno-32-15"></a>            <span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="s2">&quot;agent1&quot;</span><span class="p">,</span>
+<a id="__codelineno-32-16" name="__codelineno-32-16" href="#__codelineno-32-16"></a>            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">step_start</span><span class="p">,</span>
+<a id="__codelineno-32-17" name="__codelineno-32-17" href="#__codelineno-32-17"></a>            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span>
+<a id="__codelineno-32-18" name="__codelineno-32-18" href="#__codelineno-32-18"></a>        <span class="p">})</span>
+<a id="__codelineno-32-19" name="__codelineno-32-19" href="#__codelineno-32-19"></a>
+<a id="__codelineno-32-20" name="__codelineno-32-20" href="#__codelineno-32-20"></a>        <span class="c1"># Step 2</span>
+<a id="__codelineno-32-21" name="__codelineno-32-21" href="#__codelineno-32-21"></a>        <span class="n">step_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<a id="__codelineno-32-22" name="__codelineno-32-22" href="#__codelineno-32-22"></a>        <span class="n">result2</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent2</span><span class="p">(</span><span class="n">result1</span><span class="p">)</span>
+<a id="__codelineno-32-23" name="__codelineno-32-23" href="#__codelineno-32-23"></a>        <span class="n">steps_executed</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<a id="__codelineno-32-24" name="__codelineno-32-24" href="#__codelineno-32-24"></a>            <span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="s2">&quot;agent2&quot;</span><span class="p">,</span>
+<a id="__codelineno-32-25" name="__codelineno-32-25" href="#__codelineno-32-25"></a>            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">step_start</span><span class="p">,</span>
+<a id="__codelineno-32-26" name="__codelineno-32-26" href="#__codelineno-32-26"></a>            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span>
+<a id="__codelineno-32-27" name="__codelineno-32-27" href="#__codelineno-32-27"></a>        <span class="p">})</span>
+<a id="__codelineno-32-28" name="__codelineno-32-28" href="#__codelineno-32-28"></a>
+<a id="__codelineno-32-29" name="__codelineno-32-29" href="#__codelineno-32-29"></a>        <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-32-30" name="__codelineno-32-30" href="#__codelineno-32-30"></a>            <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">result2</span><span class="p">,</span>
+<a id="__codelineno-32-31" name="__codelineno-32-31" href="#__codelineno-32-31"></a>            <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-32-32" name="__codelineno-32-32" href="#__codelineno-32-32"></a>                <span class="s2">&quot;total_duration&quot;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">,</span>
+<a id="__codelineno-32-33" name="__codelineno-32-33" href="#__codelineno-32-33"></a>                <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="n">steps_executed</span>
+<a id="__codelineno-32-34" name="__codelineno-32-34" href="#__codelineno-32-34"></a>            <span class="p">}</span>
+<a id="__codelineno-32-35" name="__codelineno-32-35" href="#__codelineno-32-35"></a>        <span class="p">}</span>
+<a id="__codelineno-32-36" name="__codelineno-32-36" href="#__codelineno-32-36"></a>
+<a id="__codelineno-32-37" name="__codelineno-32-37" href="#__codelineno-32-37"></a>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-32-38" name="__codelineno-32-38" href="#__codelineno-32-38"></a>        <span class="n">steps_executed</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<a id="__codelineno-32-39" name="__codelineno-32-39" href="#__codelineno-32-39"></a>            <span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+<a id="__codelineno-32-40" name="__codelineno-32-40" href="#__codelineno-32-40"></a>            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+<a id="__codelineno-32-41" name="__codelineno-32-41" href="#__codelineno-32-41"></a>            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span>
+<a id="__codelineno-32-42" name="__codelineno-32-42" href="#__codelineno-32-42"></a>        <span class="p">})</span>
+<a id="__codelineno-32-43" name="__codelineno-32-43" href="#__codelineno-32-43"></a>        <span class="k">raise</span>
+</code></pre></div>
+<h3 id="workflow-composition">Workflow Composition</h3>
+<p>Compose workflows from sub-workflows:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="nd">@workflow</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">data_processing_workflow</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Sub-workflow for data processing&quot;&quot;&quot;</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>    <span class="n">cleaned</span> <span class="o">=</span> <span class="k">await</span> <span class="n">clean_agent</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>    <span class="n">normalized</span> <span class="o">=</span> <span class="k">await</span> <span class="n">normalize_agent</span><span class="p">(</span><span class="n">cleaned</span><span class="p">)</span>
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;cleaned&quot;</span><span class="p">:</span> <span class="n">cleaned</span><span class="p">,</span> <span class="s2">&quot;normalized&quot;</span><span class="p">:</span> <span class="n">normalized</span><span class="p">}</span>
+<a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a>
+<a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a>
+<a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a><span class="nd">@workflow</span>
+<a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analysis_workflow</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-33-11" name="__codelineno-33-11" href="#__codelineno-33-11"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Sub-workflow for analysis&quot;&quot;&quot;</span>
+<a id="__codelineno-33-12" name="__codelineno-33-12" href="#__codelineno-33-12"></a>    <span class="n">insights</span> <span class="o">=</span> <span class="k">await</span> <span class="n">analysis_agent</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;normalized&quot;</span><span class="p">])</span>
+<a id="__codelineno-33-13" name="__codelineno-33-13" href="#__codelineno-33-13"></a>    <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">summary_agent</span><span class="p">(</span><span class="n">insights</span><span class="p">)</span>
+<a id="__codelineno-33-14" name="__codelineno-33-14" href="#__codelineno-33-14"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;insights&quot;</span><span class="p">:</span> <span class="n">insights</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="p">}</span>
+<a id="__codelineno-33-15" name="__codelineno-33-15" href="#__codelineno-33-15"></a>
+<a id="__codelineno-33-16" name="__codelineno-33-16" href="#__codelineno-33-16"></a>
+<a id="__codelineno-33-17" name="__codelineno-33-17" href="#__codelineno-33-17"></a><span class="nd">@workflow</span>
+<a id="__codelineno-33-18" name="__codelineno-33-18" href="#__codelineno-33-18"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">master_workflow</span><span class="p">(</span><span class="n">raw_data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-33-19" name="__codelineno-33-19" href="#__codelineno-33-19"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Master workflow composing sub-workflows&quot;&quot;&quot;</span>
+<a id="__codelineno-33-20" name="__codelineno-33-20" href="#__codelineno-33-20"></a>
+<a id="__codelineno-33-21" name="__codelineno-33-21" href="#__codelineno-33-21"></a>    <span class="c1"># Execute sub-workflows in sequence</span>
+<a id="__codelineno-33-22" name="__codelineno-33-22" href="#__codelineno-33-22"></a>    <span class="n">processed</span> <span class="o">=</span> <span class="k">await</span> <span class="n">data_processing_workflow</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
+<a id="__codelineno-33-23" name="__codelineno-33-23" href="#__codelineno-33-23"></a>    <span class="n">analyzed</span> <span class="o">=</span> <span class="k">await</span> <span class="n">analysis_workflow</span><span class="p">(</span><span class="n">processed</span><span class="p">)</span>
+<a id="__codelineno-33-24" name="__codelineno-33-24" href="#__codelineno-33-24"></a>
+<a id="__codelineno-33-25" name="__codelineno-33-25" href="#__codelineno-33-25"></a>    <span class="c1"># Combine results</span>
+<a id="__codelineno-33-26" name="__codelineno-33-26" href="#__codelineno-33-26"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-33-27" name="__codelineno-33-27" href="#__codelineno-33-27"></a>        <span class="s2">&quot;processing&quot;</span><span class="p">:</span> <span class="n">processed</span><span class="p">,</span>
+<a id="__codelineno-33-28" name="__codelineno-33-28" href="#__codelineno-33-28"></a>        <span class="s2">&quot;analysis&quot;</span><span class="p">:</span> <span class="n">analyzed</span><span class="p">,</span>
+<a id="__codelineno-33-29" name="__codelineno-33-29" href="#__codelineno-33-29"></a>        <span class="s2">&quot;pipeline&quot;</span><span class="p">:</span> <span class="s2">&quot;master_workflow&quot;</span>
+<a id="__codelineno-33-30" name="__codelineno-33-30" href="#__codelineno-33-30"></a>    <span class="p">}</span>
+</code></pre></div>
+<h3 id="complete-advanced-example">Complete Advanced Example</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span><span class="p">,</span> <span class="n">workflow</span>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="nd">@agent</span>
+<a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">classifier</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Classify {{ text }} as: technical, business, or general&#39;&#39;&#39;</span>
+<a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a>    <span class="k">pass</span>
+<a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>
+<a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>
+<a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a><span class="nd">@agent</span>
+<a id="__codelineno-34-13" name="__codelineno-34-13" href="#__codelineno-34-13"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">technical_expert</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-34-14" name="__codelineno-34-14" href="#__codelineno-34-14"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Technical answer: {{ query }}&#39;&#39;&#39;</span>
+<a id="__codelineno-34-15" name="__codelineno-34-15" href="#__codelineno-34-15"></a>    <span class="k">pass</span>
+<a id="__codelineno-34-16" name="__codelineno-34-16" href="#__codelineno-34-16"></a>
+<a id="__codelineno-34-17" name="__codelineno-34-17" href="#__codelineno-34-17"></a>
+<a id="__codelineno-34-18" name="__codelineno-34-18" href="#__codelineno-34-18"></a><span class="nd">@agent</span>
+<a id="__codelineno-34-19" name="__codelineno-34-19" href="#__codelineno-34-19"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">business_expert</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-34-20" name="__codelineno-34-20" href="#__codelineno-34-20"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Business answer: {{ query }}&#39;&#39;&#39;</span>
+<a id="__codelineno-34-21" name="__codelineno-34-21" href="#__codelineno-34-21"></a>    <span class="k">pass</span>
+<a id="__codelineno-34-22" name="__codelineno-34-22" href="#__codelineno-34-22"></a>
+<a id="__codelineno-34-23" name="__codelineno-34-23" href="#__codelineno-34-23"></a>
+<a id="__codelineno-34-24" name="__codelineno-34-24" href="#__codelineno-34-24"></a><span class="nd">@agent</span>
+<a id="__codelineno-34-25" name="__codelineno-34-25" href="#__codelineno-34-25"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">summarizer</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-34-26" name="__codelineno-34-26" href="#__codelineno-34-26"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Summarize: {{ text }}&#39;&#39;&#39;</span>
+<a id="__codelineno-34-27" name="__codelineno-34-27" href="#__codelineno-34-27"></a>    <span class="k">pass</span>
+<a id="__codelineno-34-28" name="__codelineno-34-28" href="#__codelineno-34-28"></a>
+<a id="__codelineno-34-29" name="__codelineno-34-29" href="#__codelineno-34-29"></a>
+<a id="__codelineno-34-30" name="__codelineno-34-30" href="#__codelineno-34-30"></a><span class="nd">@workflow</span>
+<a id="__codelineno-34-31" name="__codelineno-34-31" href="#__codelineno-34-31"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">intelligent_workflow</span><span class="p">(</span>
+<a id="__codelineno-34-32" name="__codelineno-34-32" href="#__codelineno-34-32"></a>    <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-34-33" name="__codelineno-34-33" href="#__codelineno-34-33"></a>    <span class="n">workflow_context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+<a id="__codelineno-34-34" name="__codelineno-34-34" href="#__codelineno-34-34"></a>    <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
+<a id="__codelineno-34-35" name="__codelineno-34-35" href="#__codelineno-34-35"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-34-36" name="__codelineno-34-36" href="#__codelineno-34-36"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Advanced workflow with multiple features&quot;&quot;&quot;</span>
+<a id="__codelineno-34-37" name="__codelineno-34-37" href="#__codelineno-34-37"></a>
+<a id="__codelineno-34-38" name="__codelineno-34-38" href="#__codelineno-34-38"></a>    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<a id="__codelineno-34-39" name="__codelineno-34-39" href="#__codelineno-34-39"></a>    <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-34-40" name="__codelineno-34-40" href="#__codelineno-34-40"></a>
+<a id="__codelineno-34-41" name="__codelineno-34-41" href="#__codelineno-34-41"></a>    <span class="c1"># Step 1: Classification</span>
+<a id="__codelineno-34-42" name="__codelineno-34-42" href="#__codelineno-34-42"></a>    <span class="n">classification</span> <span class="o">=</span> <span class="k">await</span> <span class="n">classifier</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-34-43" name="__codelineno-34-43" href="#__codelineno-34-43"></a>    <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">classification</span><span class="p">})</span>
+<a id="__codelineno-34-44" name="__codelineno-34-44" href="#__codelineno-34-44"></a>
+<a id="__codelineno-34-45" name="__codelineno-34-45" href="#__codelineno-34-45"></a>    <span class="c1"># Step 2: Conditional routing with retry</span>
+<a id="__codelineno-34-46" name="__codelineno-34-46" href="#__codelineno-34-46"></a>    <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_retries</span><span class="p">):</span>
+<a id="__codelineno-34-47" name="__codelineno-34-47" href="#__codelineno-34-47"></a>        <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-34-48" name="__codelineno-34-48" href="#__codelineno-34-48"></a>            <span class="k">if</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;technical&quot;</span><span class="p">:</span>
+<a id="__codelineno-34-49" name="__codelineno-34-49" href="#__codelineno-34-49"></a>                <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">technical_expert</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-34-50" name="__codelineno-34-50" href="#__codelineno-34-50"></a>            <span class="k">elif</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;business&quot;</span><span class="p">:</span>
+<a id="__codelineno-34-51" name="__codelineno-34-51" href="#__codelineno-34-51"></a>                <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">business_expert</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-34-52" name="__codelineno-34-52" href="#__codelineno-34-52"></a>            <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-34-53" name="__codelineno-34-53" href="#__codelineno-34-53"></a>                <span class="c1"># Parallel execution for general queries</span>
+<a id="__codelineno-34-54" name="__codelineno-34-54" href="#__codelineno-34-54"></a>                <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+<a id="__codelineno-34-55" name="__codelineno-34-55" href="#__codelineno-34-55"></a>                    <span class="n">technical_expert</span><span class="p">(</span><span class="n">query</span><span class="p">),</span>
+<a id="__codelineno-34-56" name="__codelineno-34-56" href="#__codelineno-34-56"></a>                    <span class="n">business_expert</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-34-57" name="__codelineno-34-57" href="#__codelineno-34-57"></a>                <span class="p">)</span>
+<a id="__codelineno-34-58" name="__codelineno-34-58" href="#__codelineno-34-58"></a>                <span class="n">response</span> <span class="o">=</span> <span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+<a id="__codelineno-34-59" name="__codelineno-34-59" href="#__codelineno-34-59"></a>
+<a id="__codelineno-34-60" name="__codelineno-34-60" href="#__codelineno-34-60"></a>            <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="s2">&quot;response&quot;</span><span class="p">,</span> <span class="s2">&quot;attempt&quot;</span><span class="p">:</span> <span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">})</span>
+<a id="__codelineno-34-61" name="__codelineno-34-61" href="#__codelineno-34-61"></a>            <span class="k">break</span>
+<a id="__codelineno-34-62" name="__codelineno-34-62" href="#__codelineno-34-62"></a>
+<a id="__codelineno-34-63" name="__codelineno-34-63" href="#__codelineno-34-63"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-34-64" name="__codelineno-34-64" href="#__codelineno-34-64"></a>            <span class="k">if</span> <span class="n">attempt</span> <span class="o">==</span> <span class="n">max_retries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+<a id="__codelineno-34-65" name="__codelineno-34-65" href="#__codelineno-34-65"></a>                <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)})</span>
+<a id="__codelineno-34-66" name="__codelineno-34-66" href="#__codelineno-34-66"></a>                <span class="k">raise</span>
+<a id="__codelineno-34-67" name="__codelineno-34-67" href="#__codelineno-34-67"></a>            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-34-68" name="__codelineno-34-68" href="#__codelineno-34-68"></a>
+<a id="__codelineno-34-69" name="__codelineno-34-69" href="#__codelineno-34-69"></a>    <span class="c1"># Step 3: Summarization</span>
+<a id="__codelineno-34-70" name="__codelineno-34-70" href="#__codelineno-34-70"></a>    <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">summarizer</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+<a id="__codelineno-34-71" name="__codelineno-34-71" href="#__codelineno-34-71"></a>    <span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="s2">&quot;summary&quot;</span><span class="p">})</span>
+<a id="__codelineno-34-72" name="__codelineno-34-72" href="#__codelineno-34-72"></a>
+<a id="__codelineno-34-73" name="__codelineno-34-73" href="#__codelineno-34-73"></a>    <span class="c1"># Return comprehensive result</span>
+<a id="__codelineno-34-74" name="__codelineno-34-74" href="#__codelineno-34-74"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-34-75" name="__codelineno-34-75" href="#__codelineno-34-75"></a>        <span class="s2">&quot;classification&quot;</span><span class="p">:</span> <span class="n">classification</span><span class="p">,</span>
+<a id="__codelineno-34-76" name="__codelineno-34-76" href="#__codelineno-34-76"></a>        <span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">,</span>
+<a id="__codelineno-34-77" name="__codelineno-34-77" href="#__codelineno-34-77"></a>        <span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="p">,</span>
+<a id="__codelineno-34-78" name="__codelineno-34-78" href="#__codelineno-34-78"></a>        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-34-79" name="__codelineno-34-79" href="#__codelineno-34-79"></a>            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">,</span>
+<a id="__codelineno-34-80" name="__codelineno-34-80" href="#__codelineno-34-80"></a>            <span class="s2">&quot;steps_executed&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">workflow_context</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">])</span>
+<a id="__codelineno-34-81" name="__codelineno-34-81" href="#__codelineno-34-81"></a>        <span class="p">}</span>
+<a id="__codelineno-34-82" name="__codelineno-34-82" href="#__codelineno-34-82"></a>    <span class="p">}</span>
+<a id="__codelineno-34-83" name="__codelineno-34-83" href="#__codelineno-34-83"></a>
+<a id="__codelineno-34-84" name="__codelineno-34-84" href="#__codelineno-34-84"></a>
+<a id="__codelineno-34-85" name="__codelineno-34-85" href="#__codelineno-34-85"></a><span class="c1"># Execute</span>
+<a id="__codelineno-34-86" name="__codelineno-34-86" href="#__codelineno-34-86"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-34-87" name="__codelineno-34-87" href="#__codelineno-34-87"></a>    <span class="n">context</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-34-88" name="__codelineno-34-88" href="#__codelineno-34-88"></a>    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">intelligent_workflow</span><span class="p">(</span>
+<a id="__codelineno-34-89" name="__codelineno-34-89" href="#__codelineno-34-89"></a>        <span class="s2">&quot;Explain machine learning&quot;</span><span class="p">,</span>
+<a id="__codelineno-34-90" name="__codelineno-34-90" href="#__codelineno-34-90"></a>        <span class="n">workflow_context</span><span class="o">=</span><span class="n">context</span>
+<a id="__codelineno-34-91" name="__codelineno-34-91" href="#__codelineno-34-91"></a>    <span class="p">)</span>
+<a id="__codelineno-34-92" name="__codelineno-34-92" href="#__codelineno-34-92"></a>
+<a id="__codelineno-34-93" name="__codelineno-34-93" href="#__codelineno-34-93"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Classification: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;classification&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-34-94" name="__codelineno-34-94" href="#__codelineno-34-94"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Summary: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;summary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-34-95" name="__codelineno-34-95" href="#__codelineno-34-95"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Steps executed: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;steps_executed&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-34-96" name="__codelineno-34-96" href="#__codelineno-34-96"></a>
+<a id="__codelineno-34-97" name="__codelineno-34-97" href="#__codelineno-34-97"></a>
+<a id="__codelineno-34-98" name="__codelineno-34-98" href="#__codelineno-34-98"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<h3 id="best-practices-for-advanced-workflows">Best Practices for Advanced Workflows</h3>
+<ol>
+<li><strong>Use Context Judiciously</strong>: Only share state that's truly needed across steps</li>
+<li><strong>Handle Errors Gracefully</strong>: Implement proper error handling and recovery</li>
+<li><strong>Monitor Performance</strong>: Track execution time and identify bottlenecks</li>
+<li><strong>Keep It Modular</strong>: Break complex workflows into reusable sub-workflows</li>
+<li><strong>Document Branching Logic</strong>: Make conditional logic clear and well-documented</li>
+</ol>
+<hr />
 <h2 id="see-also">See Also</h2>
 <ul>
 <li><a href="../../tutorials/12-workflows/">Workflows Tutorial</a></li>
 <li><a href="./agents.md">Agent Decorator</a></li>
 <li><a href="../tools/">Tool Decorator</a></li>
 <li><a href="../mcp/">MCP Integration</a></li>
+<li><a href="../../ai_docs/rfcs/RFC_001_WORKFLOWS.md">RFC-001: Advanced Workflow System</a></li>
 </ul>
 
 
