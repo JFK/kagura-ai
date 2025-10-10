@@ -11,6 +11,7 @@ from .memory import MemoryManager
 from .parser import parse_response
 from .prompt import extract_template, render_prompt
 from .registry import agent_registry
+from .tool_registry import tool_registry
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -149,15 +150,83 @@ def tool(fn: Callable[P, T]) -> Callable[P, T]: ...
 @overload
 def tool(fn: None = None) -> Callable[[Callable[P, T]], Callable[P, T]]: ...
 
-def tool(fn: Callable[P, T] | None = None) -> Callable[P, T] | Callable[[Callable[P, T]], Callable[P, T]]:
+def tool(
+    fn: Callable[P, T] | None = None, *, name: Optional[str] = None
+) -> Callable[P, T] | Callable[[Callable[P, T]], Callable[P, T]]:
     """
     Convert a function into a tool (non-LLM function).
 
-    Stub implementation.
+    Tools are regular Python functions that can be called by agents.
+    They are registered in the tool registry and can be exposed via MCP.
+
+    Args:
+        fn: Function to convert
+        name: Optional tool name (defaults to function name)
+
+    Returns:
+        Decorated function with type validation
+
+    Example:
+        @tool
+        def calculate_tax(amount: float, rate: float = 0.1) -> float:
+            '''Calculate tax amount'''
+            return amount * rate
+
+        # Call directly
+        result = calculate_tax(100.0, 0.15)  # 15.0
+
+        # Or use in agent via MCP
+        @agent
+        async def shopping_assistant(query: str) -> str:
+            '''
+            Help with shopping. Available tools:
+            - calculate_tax(amount, rate): Calculate tax
+
+            Query: {{ query }}
+            '''
+            pass
     """
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
-        # Stub
-        return func
+        # Get function signature for validation
+        sig = inspect.signature(func)
+        tool_name = name or func.__name__
+
+        @functools.wraps(func)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+            # Bind arguments to signature for validation
+            try:
+                bound = sig.bind(*args, **kwargs)
+                bound.apply_defaults()
+            except TypeError as e:
+                raise TypeError(
+                    f"Tool '{tool_name}' called with invalid arguments: {e}"
+                ) from e
+
+            # Execute the tool function
+            result = func(*bound.args, **bound.kwargs)
+
+            # Validate return type if annotated
+            return_type = sig.return_annotation
+            if return_type != inspect.Signature.empty:
+                # TODO: Add Pydantic validation for return type
+                pass
+
+            return result  # type: ignore
+
+        # Mark as tool for MCP discovery
+        wrapper._is_tool = True  # type: ignore
+        wrapper._tool_name = tool_name  # type: ignore
+        wrapper._tool_signature = sig  # type: ignore
+        wrapper._tool_docstring = func.__doc__ or ""  # type: ignore
+
+        # Register in global tool registry
+        try:
+            tool_registry.register(tool_name, wrapper)  # type: ignore
+        except ValueError:
+            # Tool already registered (e.g., in tests), skip
+            pass
+
+        return wrapper  # type: ignore
 
     return decorator if fn is None else decorator(fn)
 
