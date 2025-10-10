@@ -1,7 +1,7 @@
 # Kagura AI - Next Steps（次のアクション）
 
-**最終更新**: 2025-10-10 (17:30)
-**現在地**: v2.1.0 リリース済み 🎉
+**最終更新**: 2025-10-10 (19:00)
+**現在地**: v2.1.0 リリース済み 🎉 → v2.2.0 計画中
 
 ---
 
@@ -141,7 +141,7 @@
 ### 📊 v2.1.0 完了機能まとめ
 
 | RFC | 機能 | PR | Status |
-|-----|------|----|----|
+|-----|------|----|--------|
 | RFC-007 | MCP Integration Phase 1 | #89-91 | ✅ |
 | RFC-017 | Shell Integration | #92 | ✅ |
 | RFC-018 | Memory Management Phase 1 & 2 | #94, #105 | ✅ |
@@ -155,95 +155,279 @@
 
 ---
 
-## 📝 次の優先タスク
+## 🤔 v2.1.0からの気づきと改善点
 
-### Option A: ドキュメント整理（推奨）
-**見積もり**: 1-2時間
+### 発見された課題
+
+#### 1. **統合性・相互運用性の不足**
+現在、各機能（Memory、Routing、Tools、Hooks）が個別に実装されており、統合が煩雑：
+```python
+# 現状：個別設定が必要
+memory = MemoryManager(enable_rag=True)
+router = SemanticRouter()
+# エージェントとの統合が手動
+```
+
+#### 2. **Optional Dependenciesの管理**
+4つのoptional groups（memory, routing, mcp, docs）があり、ユーザーが混乱：
+```bash
+pip install kagura-ai[memory]  # これだけでいい？
+pip install kagura-ai[routing] # これも必要？
+```
+
+#### 3. **Integration Testsの未実行**
+`@pytest.mark.integration`でマークされているが、CIで実行されていない
+
+#### 4. **テスト戦略の不足**
+エージェントの振る舞いをテストする標準的な方法がない
+
+#### 5. **可観測性の欠如**
+エージェントが何をしているか見えない（デバッグ困難、パフォーマンス不明、コスト不明）
+
+---
+
+## 💡 新規RFC提案（v2.2.0候補）
+
+### 🆕 RFC-019: Unified Agent Builder
 **優先度**: High
-
-**実装内容**:
-- [ ] ユーザーガイド作成（Chat REPL, Routing, Memory RAG）
-- [ ] README.md更新（新機能追加）
-- [ ] チュートリアルの整理
-
----
-
-### Option B: RFC-007 MCP Phase 2 - Memory Protocol
-**Issue #67**
-**見積もり**: 1週間
-**優先度**: Medium
-
-**実装内容**:
-- [ ] MCP Memory Protocol実装
-- [ ] Claude Codeとの記憶共有
-- [ ] Multi-agent memory sharing
-- [ ] テスト・ドキュメント
-
----
-
-### Option C: RFC-002 - Multimodal RAG
-**Issue #62**
 **見積もり**: 2週間
-**優先度**: Medium
+**Issue**: #107
 
-**実装内容**:
-- [ ] 画像処理（vision models統合）
-- [ ] PDFパース
-- [ ] Audio/Videoサポート
-- [ ] テスト・ドキュメント
+**概要**: 複数機能を簡単に組み合わせられる統合ビルダーAPI
+
+```python
+from kagura import AgentBuilder
+
+agent = (
+    AgentBuilder("my_agent")
+    .with_model("gpt-4o-mini")
+    .with_memory(type="rag", persist=True)
+    .with_routing(strategy="semantic", routes={...})
+    .with_tools([search_tool, calc_tool])
+    .with_hooks(pre=validation_hook)
+    .build()
+)
+```
+
+**解決する課題**:
+- 複数機能統合の簡易化
+- プリセット提供（Chatbot, Research, CodeReview）
+- 一貫性のあるAPI
+
+**実装計画**:
+- Phase 1: Core Builder (1週間)
+- Phase 2: Presets & Advanced Features (1週間)
 
 ---
 
-### Option D: RFC-014 - Web Integration
-**Issue #75**
+### 🆕 RFC-020: Memory-Aware Routing
+**優先度**: Medium
 **見積もり**: 1.5週間
-**優先度**: Medium
+**Issue**: #108
 
-**実装内容**:
-- [ ] Web Scraping（BeautifulSoup/Playwright）
-- [ ] API Integration（REST/GraphQL）
-- [ ] WebSocket support
-- [ ] テスト・ドキュメント
+**概要**: 過去の会話履歴を考慮したルーティング
+
+```python
+# 会話継続を理解
+User: "Translate 'Hello' to Japanese"
+→ translation_agent
+
+User: "What about French?"
+→ 会話履歴から「translation」と認識 → translation_agent
+```
+
+**解決する課題**:
+- 代名詞・省略表現の理解
+- コンテキストの継続性
+- より自然な会話フロー
+
+**実装計画**:
+- Phase 1: Core Implementation (1週間)
+- Phase 2: Advanced NLP (3日)
 
 ---
 
-### Option E: RFC-003 - Personal Assistant
-**Issue #63**
+### 🆕 RFC-021: Agent Observability Dashboard
+**優先度**: Medium-High
 **見積もり**: 2週間
-**優先度**: Medium
+**Issue**: #109
 
-**実装内容**:
-- [ ] タスク管理（TODO, Calendar）
-- [ ] メール統合
-- [ ] ファイル管理
-- [ ] テスト・ドキュメント
+**概要**: エージェント動作のリアルタイム可視化・監視
+
+```bash
+kagura monitor --agent my_agent
+
+[my_agent] Execution Timeline:
+├─ LLM Call (gpt-4o) .......... 2.3s  [$0.0023]
+├─ Tool: search_tool .......... 1.5s
+├─ LLM Call (gpt-4o) .......... 2.1s  [$0.0021]
+└─ Total ...................... 5.9s  [$0.0044]
+
+⚠️ LLM calls taking 75% of time
+💡 Consider caching or using faster model
+```
+
+**解決する課題**:
+- パフォーマンスボトルネックの特定
+- コスト管理
+- デバッグの簡易化
+
+**実装計画**:
+- Phase 1: Telemetry Collection (1週間)
+- Phase 2: CLI Dashboard (1週間)
+- Phase 3: Web UI (optional, v2.3.0)
 
 ---
 
-## 🚀 中期目標（v2.2.0〜v2.3.0）
+### 🆕 RFC-022: Agent Testing Framework
+**優先度**: High
+**見積もり**: 2週間
+**Issue**: #110
 
-### v2.2.0 候補機能
+**概要**: AIエージェント専用のテストフレームワーク
+
+```python
+from kagura.testing import AgentTestCase
+
+class TestTranslator(AgentTestCase):
+    agent = translator
+
+    async def test_japanese_translation(self):
+        result = await self.agent("Hello", "ja")
+
+        # Flexible assertions for LLM outputs
+        self.assert_contains_any(result, ["こんにちは", "ハロー", "やあ"])
+        self.assert_language(result, "ja")
+        self.assert_no_english(result)
+```
+
+**解決する課題**:
+- LLMの非決定性への対応
+- 振る舞い駆動テスト (BDD)
+- 回帰テストの自動化
+
+**実装計画**:
+- Phase 1: Core Framework (1週間)
+- Phase 2: Advanced Assertions & Mocking (1週間)
+
+---
+
+## 📝 v2.2.0 優先順位（改訂版）
+
+### 🥇 Tier 1: 統合性とユーザビリティ（必須）
+**期間**: 2-3週間
+
+1. **RFC-019: Unified Agent Builder** (High, 2週間)
+   - 複数機能の統合を簡単に
+   - プリセット提供
+   - 学習曲線の改善
+
+2. **RFC-022: Agent Testing Framework** (High, 2週間)
+   - 品質保証の標準化
+   - TDDの推進
+   - エンタープライズ対応
+
+**並行実装可能** → 合計2週間で完了可能
+
+---
+
+### 🥈 Tier 2: 可観測性と品質（重要）
+**期間**: 2-3週間
+
+3. **RFC-021: Agent Observability Dashboard** (Medium-High, 2週間)
+   - パフォーマンス最適化
+   - コスト管理
+   - デバッグ支援
+
+4. **RFC-020: Memory-Aware Routing** (Medium, 1.5週間)
+   - より自然な会話
+   - RFC-016とRFC-018の統合
+
+**並行実装可能** → 合計2週間で完了可能
+
+---
+
+### 🥉 Tier 3: 既存RFC実装（拡張）
+**期間**: 2-4週間
+
+5. **RFC-007 Phase 2: MCP Memory Protocol** (Medium, 1週間)
+   - Claude Codeとの記憶共有
+   - Phase 1完了済みで継続性高い
+
+6. **RFC-014: Web Integration** (Medium, 1.5週間)
+   - 実用性が高い
+   - Web Scraping, API統合
+
+---
+
+### 改善タスク（小規模、随時対応）
+
+- **Integration Tests CI** (1日)
+  - GitHub Actions workflowで`pytest -m integration`実行
+
+- **Preset Dependencies** (半日)
+  ```toml
+  [project.optional-dependencies]
+  full = ["chromadb>=0.4.0", "semantic-router>=0.1.11", "mcp>=1.0.0"]
+  ai = ["chromadb>=0.4.0", "semantic-router>=0.1.11"]
+  ```
+
+- **examples/ Update** (2-3日)
+  - v2.1.0新機能のサンプル追加
+  - Memory RAG + Routingの組み合わせ例
+
+---
+
+## 🚀 v2.2.0 推奨実装プラン
+
+### プラン A: 統合性重視（推奨）
+**期間**: 4週間
+**内容**:
+1. Week 1-2: RFC-019 (Unified Builder) + RFC-022 (Testing) 並行
+2. Week 3-4: RFC-021 (Observability) + RFC-020 (Memory-Aware Routing) 並行
+
+**利点**: ユーザビリティと品質が大幅向上、v2.3.0以降の基盤
+
+---
+
+### プラン B: 機能拡張重視
+**期間**: 4週間
+**内容**:
+1. Week 1-2: RFC-019 (Unified Builder)
+2. Week 3: RFC-007 Phase 2 (MCP Memory)
+3. Week 4: RFC-014 (Web Integration)
+
+**利点**: 新機能追加、エコシステム拡大
+
+---
+
+### プラン C: ドキュメント優先
+**期間**: 1週間 + 2-3週間
+**内容**:
+1. Week 1: ドキュメント整理・チュートリアル追加
+2. Week 2-4: プランAまたはB実行
+
+**利点**: v2.1.0の完全なドキュメント化 → 新機能実装
+
+---
+
+## 🌐 中長期ロードマップ（v2.3.0以降）
+
+### v2.3.0: Web & Multimodal (2-3ヶ月後)
 - RFC-002: Multimodal RAG
-- RFC-014: Web Integration
+- RFC-014: Web Integration (未完の場合)
+- RFC-013: OAuth2 Auth
+
+### v2.4.0: Meta Agent & Ecosystem (4-5ヶ月後)
+- RFC-005: Meta Agent
+- RFC-008: Plugin Marketplace
+- RFC-009: Multi-Agent Orchestration
+
+### v2.5.0+: Advanced Features (6ヶ月以降)
 - RFC-003: Personal Assistant
-- RFC-007 Phase 2: MCP Memory Protocol
-
-### v2.3.0: Authentication & Security
-- RFC-013: OAuth2 Auth (#74)
-
----
-
-## 🌐 長期目標（v2.4.0以降）
-
-### v2.4.0: Meta Agent & Ecosystem
-- RFC-005: Meta Agent (#65)
-- RFC-008: Plugin Marketplace (#68)
-- RFC-009: Multi-Agent Orchestration (#69)
-
-### v2.5.0+: Advanced Features
-- RFC-004: Voice Interface (#64)
-- RFC-010: Observability (#70)
-- RFC-011: Scheduled Automation (#71)
+- RFC-004: Voice Interface
+- RFC-010: Observability (未完の場合)
+- RFC-011: Scheduled Automation
 
 **詳細**: `ai_docs/UNIFIED_ROADMAP.md` 参照
 
@@ -264,8 +448,14 @@ uv sync --extra memory  # Memory RAG (ChromaDB)
 uv sync --extra routing # Semantic Routing
 uv sync --extra mcp     # MCP Integration
 
+# 全てインストール（開発用）
+uv sync --all-extras
+
 # テスト実行
 pytest
+
+# Integration testsも含める
+pytest -m integration
 
 # 型チェック
 pyright src/kagura/
@@ -278,6 +468,7 @@ ruff check src/
 - GitHub Actions設定済み
 - PyPI自動デプロイ設定済み
 - Codecov統合済み
+- **TODO**: Integration tests CI追加
 
 ---
 
@@ -304,18 +495,25 @@ A: 以下のRFCが完了しています（2025-10-10現在）：
 - ✅ RFC-016 Phase 1 & 2: Agent Routing（3種類のルーティング）
 - ✅ RFC-006 Phase 1: Chat REPL（対話型チャット）
 
-### Q2: RFC実装の優先順位は？
-A:
-1. ✅ RFC-007 Phase 1 (Very High) - MCP Integration **完了**
-2. ✅ RFC-017 (High) - Shell Integration **完了**
-3. ✅ RFC-018 Phase 1 & 2 (High) - Memory Management **完了**
-4. ✅ RFC-012 Phase 1 & 2 (High) - Commands & Hooks **完了**
-5. ✅ RFC-016 Phase 1 & 2 (High) - Agent Routing **完了**
-6. ✅ RFC-006 Phase 1 (High) - Chat REPL **完了**
-7. 🔜 RFC-002, 003, 007 Phase 2, 014 (Medium) - 次の候補
-8. その他（Low-Medium）
+### Q2: 新規RFC（019-022）はどこで確認できる？
+A: `ai_docs/rfcs/` ディレクトリ：
+- RFC-019: Unified Agent Builder
+- RFC-020: Memory-Aware Routing
+- RFC-021: Agent Observability Dashboard
+- RFC-022: Agent Testing Framework
 
-### Q3: v2.1.0でどの機能が使える？
+各RFCには詳細な設計、API例、実装計画が含まれています。
+
+### Q3: v2.2.0で何を実装すべき？
+A: **プランA（推奨）**:
+1. RFC-019: Unified Agent Builder（統合性）
+2. RFC-022: Agent Testing Framework（品質保証）
+3. RFC-021: Agent Observability Dashboard（可観測性）
+4. RFC-020: Memory-Aware Routing（高度化）
+
+これらは相互に依存しないため、並行実装可能。
+
+### Q4: v2.1.0でどの機能が使える？
 A:
 - ✅ `@agent` デコレータ
 - ✅ `@tool` デコレータ ⭐️ NEW
@@ -331,43 +529,24 @@ A:
 - ✅ **Agent Routing** (Keyword/LLM/Semantic) ⭐️ NEW
 - ✅ **Chat REPL** (対話型チャット、プリセット) ⭐️ NEW
 
-### Q4: Memory RAGの使い方は？
-A:
-```python
-from kagura.core.memory import MemoryManager
-
-# RAG有効化
-memory = MemoryManager(agent_name="assistant", enable_rag=True)
-
-# セマンティックメモリ保存
-memory.store_semantic("Python is great for AI development")
-
-# 意味検索
-results = memory.recall_semantic("AI programming", top_k=5)
-```
-
-### Q5: Chat REPLの使い方は？
-A:
-```bash
-# Chat REPL起動
-kagura chat
-
-# プリセットエージェント使用
-/translate Hello World
-/summarize <long text>
-/review <code>
-```
+### Q5: なぜUnified Agent Builderが重要？
+A: v2.1.0で多数の機能（Memory、Routing、Tools、Hooks）が追加されましたが、統合が手動で煩雑です。Builderパターンにより：
+- 初心者でも簡単に複数機能を組み合わせられる
+- プリセットで一般的な構成をすぐ使える
+- 一貫性のあるAPI
+- 学習曲線が改善される
 
 ---
 
 ## 🎬 今すぐやること
 
-### 次の開発を選択
-1. 上記Option A〜Eから選択
-2. 対応するIssueを確認
-3. 実装開始
+### 次のステップ
+1. ✅ 新規RFC作成（019-022）完了
+2. ⏳ 各RFCのGitHub Issue作成
+3. ⏳ 実装優先順位の決定
+4. ⏳ 開発開始
 
-**推奨**: Option A（ドキュメント整理）から始めることをおすすめします！
+**推奨**: プランA（統合性重視）で、RFC-019とRFC-022を並行実装から開始！
 
 ---
 
@@ -378,7 +557,11 @@ kagura chat
 - [coding_standards.md](./coding_standards.md) - コーディング規約
 - [GitHub Issues](https://github.com/JFK/kagura-ai/issues) - 全Issue一覧
 - [RFC Documents](./rfcs/RFC_*.md) - 各RFC詳細仕様
+  - [RFC-019](./rfcs/RFC_019_UNIFIED_AGENT_BUILDER.md) - Unified Agent Builder
+  - [RFC-020](./rfcs/RFC_020_MEMORY_AWARE_ROUTING.md) - Memory-Aware Routing
+  - [RFC-021](./rfcs/RFC_021_AGENT_OBSERVABILITY_DASHBOARD.md) - Observability Dashboard
+  - [RFC-022](./rfcs/RFC_022_AGENT_TESTING_FRAMEWORK.md) - Testing Framework
 
 ---
 
-**v2.1.0完了おめでとうございます！次はドキュメント整理がおすすめです 📚**
+**v2.1.0完了おめでとうございます！次はv2.2.0で統合性と品質の向上を目指しましょう 🚀**
