@@ -1,4 +1,8 @@
 # File: .github/workflows/test.yml
+# Unit and functional tests workflow
+# Runs on: pull requests, pushes to main
+# Note: Integration tests are in integration_tests.yml
+
 name: Run tests
 
 on:
@@ -52,11 +56,11 @@ jobs:
           uv sync --frozen --all-extras
 
       - name: Run type checking
-        run: uv run pyright src/kagura/ || true
+        run: uv run pyright src/kagura/
         timeout-minutes: 2
 
       - name: Run linting
-        run: uv run ruff check src/kagura/ || true
+        run: uv run ruff check src/kagura/
         timeout-minutes: 1
 
       - name: Run tests with coverage

@@ -1,0 +1,124 @@
+# Integration Tests Workflow
+# Runs integration tests that require API keys and make real API calls
+#
+# Execution triggers:
+# - Manual: workflow_dispatch
+# - Scheduled: Daily at 2:00 AM UTC
+# - Push to main: After merges to main branch
+#
+# Note: Does NOT run on pull requests to save costs
+
+name: Integration Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_pattern:
+        description: 'Test pattern (e.g., test_mcp, test_routing)'
+        required: false
+        default: ''
+  schedule:
+    # Run daily at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+
+jobs:
+  integration:
+    name: Run integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Setup caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/uv
+            ~/.cache/pip
+          key: ${{ runner.os }}-python-integration-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-python-integration-
+            ${{ runner.os }}-python-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
+            echo "❌ OPENAI_API_KEY is not set"
+            echo "Please add API keys to GitHub Secrets:"
+            echo "  Settings > Secrets and variables > Actions > New repository secret"
+            exit 1
+          else
+            echo "✓ OPENAI_API_KEY is set"
+          fi
+
+      - name: Run integration tests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          if [ -n "${{ github.event.inputs.test_pattern }}" ]; then
+            echo "Running tests matching pattern: ${{ github.event.inputs.test_pattern }}"
+            uv run pytest -m integration \
+              -k "${{ github.event.inputs.test_pattern }}" \
+              --tb=short \
+              -v \
+              --timeout=300
+          else
+            echo "Running all integration tests"
+            uv run pytest -m integration \
+              --tb=short \
+              -v \
+              --timeout=300
+          fi
+        timeout-minutes: 20
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: integration-test-results
+          path: |
+            .pytest_cache/
+            test-results/
+
+      - name: Report summary
+        if: always()
+        run: |
+          echo "### Integration Tests Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Note**: Integration tests make real API calls and may incur costs." >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify on failure
+        if: failure() && github.event_name == 'schedule'
+        run: |
+          echo "❌ Scheduled integration tests failed"
+          echo "Check the workflow run for details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          # Add notification logic here (e.g., Slack, email)
