@@ -19,7 +19,7 @@ class LLMConfig(BaseModel):
 async def call_llm(
     prompt: str,
     config: LLMConfig,
-    tools: Optional[list[Callable]] = None,
+    tool_functions: Optional[list[Callable]] = None,
     **kwargs: Any,
 ) -> str:
     """
@@ -28,8 +28,8 @@ async def call_llm(
     Args:
         prompt: The prompt to send
         config: LLM configuration
-        tools: Optional list of tool functions (Python callables)
-        **kwargs: Additional LiteLLM parameters (including 'tools' in OpenAI format)
+        tool_functions: Optional list of tool functions (Python callables)
+        **kwargs: Additional LiteLLM parameters (including 'tools' schema)
 
     Returns:
         LLM response text
@@ -39,12 +39,8 @@ async def call_llm(
 
     # Create tool name -> function mapping from Python callables
     tool_map: dict[str, Callable] = {}
-    if tools:
-        tool_map = {tool.__name__: tool for tool in tools}
-
-    # Extract OpenAI tools schema from kwargs (if present)
-    # This avoids conflict with tools= parameter
-    openai_tools = kwargs.pop("tools", None)
+    if tool_functions:
+        tool_map = {tool.__name__: tool for tool in tool_functions}
 
     # Maximum iterations to prevent infinite loops
     max_iterations = 5
@@ -53,18 +49,14 @@ async def call_llm(
     while iterations < max_iterations:
         iterations += 1
 
-        # Call LLM with OpenAI tools schema if available
-        llm_kwargs = dict(kwargs)
-        if openai_tools:
-            llm_kwargs["tools"] = openai_tools
-
+        # Call LLM (kwargs may contain 'tools' for OpenAI schema)
         response = await litellm.acompletion(
             model=config.model,
             messages=messages,
             temperature=config.temperature,
             max_tokens=config.max_tokens,
             top_p=config.top_p,
-            **llm_kwargs,
+            **kwargs,
         )
 
         message = response.choices[0].message  # type: ignore

@@ -275,12 +275,12 @@ def agent(
             if llm_tools:
                 llm_kwargs["tools"] = llm_tools
 
-            # Call LLM with Python tool functions (separate from OpenAI schema)
+            # Call LLM with Python tool functions (renamed parameter to avoid conflict)
             response = await call_llm(
                 prompt,
                 config,
-                tools=tools_list if tools_list else None,
-                **{k: v for k, v in llm_kwargs.items()},
+                tool_functions=tools_list if tools_list else None,
+                **llm_kwargs,
             )
 
             # Parse response based on return type annotation
