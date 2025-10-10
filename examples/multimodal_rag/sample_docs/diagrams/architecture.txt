@@ -1,0 +1,94 @@
+# System Architecture Diagram
+
+This is a text representation of the Sample Project architecture.
+(In a real project, this would be architecture.png with an actual diagram)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Client Applications                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │  Web App     │  │  Mobile App  │  │  CLI Tool    │     │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘     │
+└─────────┼──────────────────┼──────────────────┼─────────────┘
+          │                  │                  │
+          └──────────────────┴──────────────────┘
+                             │
+                   ┌─────────▼──────────┐
+                   │   Load Balancer    │
+                   │  (nginx/ALB)       │
+                   └─────────┬──────────┘
+                             │
+          ┌──────────────────┼──────────────────┐
+          │                  │                  │
+   ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐
+   │   API       │   │   API       │   │   API       │
+   │  Server 1   │   │  Server 2   │   │  Server 3   │
+   │             │   │             │   │             │
+   └──────┬──────┘   └──────┬──────┘   └──────┬──────┘
+          │                  │                  │
+          └──────────────────┴──────────────────┘
+                             │
+          ┌──────────────────┼──────────────────┐
+          │                  │                  │
+   ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐
+   │             │   │             │   │             │
+   │ PostgreSQL  │   │   Redis     │   │  Task       │
+   │  Database   │   │   Cache     │   │  Queue      │
+   │             │   │             │   │             │
+   └─────────────┘   └─────────────┘   └─────────────┘
+```
+
+## Architecture Components
+
+### Frontend Layer
+- **Web Application**: React-based SPA
+- **Mobile Apps**: Native iOS and Android
+- **CLI Tool**: Python-based command-line interface
+
+### Application Layer
+- **API Servers**: FastAPI-based REST API
+- **Authentication**: OAuth 2.0 + API keys
+- **Rate Limiting**: Redis-based rate limiter
+- **Monitoring**: Prometheus + Grafana
+
+### Data Layer
+- **PostgreSQL**: Primary data store with read replicas
+- **Redis**: Caching and session storage
+- **Task Queue**: Celery with Redis broker
+
+### Infrastructure
+- **Load Balancer**: Nginx or AWS ALB
+- **Container Orchestration**: Kubernetes
+- **Monitoring**: ELK stack for logging
+- **CI/CD**: GitHub Actions
+
+## Data Flow
+
+1. Client sends request to Load Balancer
+2. Request routed to available API server
+3. API server checks Redis cache
+4. If cache miss, query PostgreSQL
+5. Response cached in Redis
+6. Response returned to client
+
+## Security
+
+- All external traffic over HTTPS (TLS 1.3)
+- API servers authenticate via JWT tokens
+- Database connections encrypted
+- Secrets stored in HashiCorp Vault
+- Network segmentation via VPC
+
+## Scalability
+
+- Horizontal scaling of API servers
+- Database read replicas for scaling reads
+- Redis cluster for distributed caching
+- Task queue workers scale based on queue depth
+
+## High Availability
+
+- Multi-AZ deployment
+- Database failover with automatic promotion
+- Redis Sentinel for cache HA
+- Load balancer health checks with automatic failover
