@@ -21,9 +21,15 @@ Example:
     >>>
     >>> # Query telemetry data
     >>> executions = store.get_executions(agent_name="my_agent")
+    >>>
+    >>> # Monitor with dashboard
+    >>> from kagura.observability import Dashboard
+    >>> dashboard = Dashboard(store)
+    >>> dashboard.show_stats()
 """
 
 from .collector import TelemetryCollector
+from .dashboard import Dashboard
 from .instrumentation import (
     Telemetry,
     get_global_telemetry,
@@ -35,6 +41,7 @@ __all__ = [
     "EventStore",
     "TelemetryCollector",
     "Telemetry",
+    "Dashboard",
     "get_global_telemetry",
     "set_global_telemetry",
 ]
