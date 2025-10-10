@@ -298,11 +298,40 @@
 
 ---
 
-### 🔄 RFC-001: Memory and Workflow features (Issue #61) - 部分完了
+### ✅ RFC-020: Memory-Aware Routing (Completed - PR #116)
+**関連Issue**: TBD
 
-**ステータス**: ⚠️ 部分完了（基本機能は別RFCとして実装済み）
+#### 実装完了内容
+- ✅ **ContextAnalyzer** (PR #116)
+  - `src/kagura/routing/context_analyzer.py`: ContextAnalyzer（214行）
+  - 代名詞検出（it, this, that, them, etc.）
+  - 暗黙的参照検出（also, too, again, etc.）
+  - フォローアップ質問検出（what about, how about, etc.）
+  - スマートフィルタリング（誤検知防止）
+  - `tests/routing/test_context_analyzer.py`: 28テスト（全パス）
 
-#### ✅ 完了済み機能（別RFCで実装）
+- ✅ **MemoryAwareRouter** (PR #116)
+  - `src/kagura/routing/memory_aware_router.py`: MemoryAwareRouter（185行）
+  - AgentRouter拡張（会話履歴考慮）
+  - 自動文脈検出・クエリ強化
+  - MemoryManager統合
+  - オプションRAG対応
+  - `tests/routing/test_memory_aware_router.py`: 20テスト（全パス）
+
+#### 成功指標
+- ✅ 文脈依存クエリの自動検出
+- ✅ 会話履歴による自動補完
+- ✅ 全83 routingテストがパス
+- ✅ Pyright: 0 errors, Ruff: All checks passed
+
+---
+
+### ✅ RFC-001: Workflow System (Completed - PR #115)
+**関連Issue**: #61
+
+**ステータス**: ✅ 完了（全Phase実装済み）
+
+#### ✅ 完了済み機能
 1. **メモリ機能** → **RFC-018で実装済み** ✅
    - `@memory.session` 相当 → `MemoryManager`
    - `@memory.vector` 相当 → `MemoryRAG`
@@ -315,20 +344,22 @@
    - `@workflow` デコレータ
    - WorkflowRegistry
 
-#### ❌ 未実装機能（v2.2.0候補）
-1. **高度なワークフロー機能**
+4. **高度なワークフロー** → **PR #115で実装済み** ✅
    - `@workflow.chain` - シーケンシャル実行チェーン
-   - `@workflow.parallel` - 並列実行ヘルパー
+   - `@workflow.parallel` - 並列実行ヘルパー（`run_parallel()`含む）
    - `@workflow.stateful` - Pydanticベースのステートグラフ
+   - LangGraph互換のステート管理
+   - `tests/core/test_workflow_advanced.py`: 17テスト（全パス）
 
-2. **パフォーマンス最適化**
-   - `@cache` - キャッシングデコレータ
-   - `@batch` - バッチング処理
-   - `stream=True` - ストリーミングサポート
+#### ❌ 未実装機能（将来検討）
+- `@cache` - キャッシングデコレータ
+- `@batch` - バッチング処理
+- `stream=True` - ストリーミングサポート
 
-**実装計画**:
-- Phase 2: Advanced Workflow (2週間)
-- Phase 3: Performance Optimization (1-2週間)
+#### 成功指標
+- ✅ Chain/Parallel/Statefulの3つの高度なパターン実装
+- ✅ マルチエージェントオーケストレーション対応
+- ✅ LangGraph互換性確保
 
 ---
 
@@ -627,30 +658,42 @@ async def support(query: str):
 - ✅ **v2.1.0 リリース完了！**
 - ✅ RFC-007, 006, 012, 017, 018, 016 実装完了
 - ✅ @agent, @tool, @workflow の3つのコアデコレータ完成
-- ✅ **v2.2.0開始**: RFC-019, RFC-022 Phase 1 完了！
-- ✅ 合計 15個のPR、10個のRFC（Phase含む）完了
-- ✅ **RFC-001分析完了**: 基本機能は実装済み、高度な機能は未実装
+- ✅ **v2.2.0進行中**: RFC-019, RFC-022, RFC-001, RFC-020 完了！
+- ✅ **合計 16個のPR、12個のRFC（Phase含む）完了**
+- ✅ **最新完了**: RFC-020 Memory-Aware Routing（PR #116）
 
 ### 📊 全RFCステータス（RFC-001〜022）
-- **完了**: 9個（RFC-001部分, 006, 007, 012, 016, 017, 018, 019, 022）
-- **v2.2.0候補**: 3個（RFC-001 Phase 2, 020, 021）
-- **未実装**: 10個（RFC-002, 003, 004, 005, 008, 009, 010, 011, 013, 014, 015）
+- **完了**: 11個（RFC-001, 006, 007, 012, 016, 017, 018, 019, 020, 022）
+- **v2.2.0候補**: 2個（RFC-002, 021）
+- **未実装**: 9個（RFC-003, 004, 005, 008, 009, 010, 011, 013, 014, 015）
 - **詳細**: `ai_docs/RFC_STATUS.md` 参照
 
-### 次の候補（v2.2.0に向けて）
+### 次の候補（v2.2.0完成に向けて）
 
-#### 🔥 推奨: RFC-001 Phase 2 - Advanced Workflow
+#### 🔥 推奨: RFC-021 - Agent Observability Dashboard
 **期間**: 2週間
 **理由**:
-- 基本機能完了済み（RFC-018, PR #103-104）
-- @workflowの強化でLangGraph互換性向上
-- コアフレームワーク完成に近づく
+- コアフレームワークほぼ完成（RFC-001, 016, 018, 020完了）
+- Observabilityでプロダクション対応強化
+- コスト追跡・パフォーマンス監視が可能に
+- エンタープライズ採用に必須
+
+**実装内容**:
+- メトリクス収集（LLM呼び出し、レイテンシ、コスト）
+- リアルタイムダッシュボード
+- ログ記録・トレーシング
+- アラート・通知システム
 
 #### その他の候補
-1. **RFC-020**: Memory-Aware Routing (#86) - 1.5週間
-2. **RFC-021**: Agent Observability Dashboard - 2週間
-3. **RFC-002**: Multimodal RAG (#62) - 3週間
-4. **RFC-014**: Web Integration (#75) - 1.5-2週間
+1. **RFC-002**: Multimodal RAG (#62) - 3週間
+   - 画像・音声・PDF処理
+   - Gemini Vision統合
+   - v2.2.0のマルチモーダル対応
+
+2. **RFC-014**: Web Integration (#75) - 1.5-2週間
+   - Web Search（Brave API）
+   - Web Scraping
+   - リアルタイム情報取得
 
 ---
 
