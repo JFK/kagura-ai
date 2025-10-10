@@ -22,7 +22,9 @@ jobs:
         python-version-file: ".python-version"
 
     - name: Install the project
-      run: uv sync --frozen --all-extras --dev
+      env:
+        UV_HTTP_TIMEOUT: 60
+      run: uv sync --frozen --extra dev
 
     - name: Build
       run: uv build

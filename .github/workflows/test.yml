@@ -52,8 +52,10 @@ jobs:
             ${{ runner.os }}-python-
 
       - name: Install dependencies
+        env:
+          UV_HTTP_TIMEOUT: 60
         run: |
-          uv sync --frozen --all-extras
+          uv sync --frozen --extra dev --extra memory --extra routing --extra mcp --extra multimodal --extra testing --extra web
 
       - name: Run type checking
         run: uv run pyright src/kagura/
