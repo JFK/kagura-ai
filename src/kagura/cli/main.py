@@ -4,6 +4,7 @@ Main CLI entry point for Kagura AI
 import click
 
 from ..version import __version__
+from .chat import chat
 from .commands_cli import run
 from .mcp import mcp
 from .repl import repl
@@ -44,6 +45,7 @@ def version(ctx: click.Context):
 
 # Add subcommands to CLI group
 cli.add_command(repl)
+cli.add_command(chat)
 cli.add_command(mcp)
 cli.add_command(run)
 
