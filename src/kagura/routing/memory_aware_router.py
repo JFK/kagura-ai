@@ -123,35 +123,53 @@ class MemoryAwareRouter(AgentRouter):
             raise
 
     async def _enhance_with_context(self, query: str) -> str:
-        """Enhance query with conversation context.
+        """Enhance query with conversation context and semantic retrieval.
+
+        This method performs a two-stage context enhancement:
+        1. Recent conversation history (last N messages)
+        2. Semantic context via RAG (if enabled)
+
+        The enhanced query helps the router understand context-dependent
+        references like "what about that?" or "do it again".
 
         Args:
-            query: Original user query
+            query: Original user query (possibly context-dependent)
 
         Returns:
-            Enhanced query with context
+            Enhanced query with resolved context
+
+        Example:
+            Input: "What about Spanish?"
+            History: ["Translate 'hello' to French"]
+            Output: "Previous context: Translate 'hello' to French\n
+                     Current query: What about Spanish?"
         """
-        # Get recent conversation history
+        # === Stage 1: Recent Conversation Context ===
+        # Retrieve last N messages from ContextMemory
         recent_messages = self.memory.get_llm_context(last_n=self.context_window)
 
-        # Use context analyzer to extract intent
+        # Use ContextAnalyzer to resolve pronouns and implicit references
+        # This combines recent messages with current query
         enhanced = self.context_analyzer.extract_intent_from_context(
             query, recent_messages
         )
 
-        # If RAG is enabled, add semantic context
+        # === Stage 2: Semantic Context (Optional) ===
+        # If RAG is enabled, retrieve semantically similar past conversations
         if self.use_semantic_context and self.memory.rag:
             try:
+                # Query ChromaDB for top-3 semantically similar messages
                 semantic_results = self.memory.recall_semantic(query, top_k=3)
 
                 if semantic_results:
-                    # Add relevant semantic context
+                    # Append top-2 results as additional context
+                    # (Top-3 retrieved, but only top-2 used to avoid noise)
                     semantic_context = "\n".join(
                         result["content"] for result in semantic_results[:2]
                     )
                     enhanced = f"{enhanced}\n\nRelevant context:\n{semantic_context}"
             except ValueError:
-                # RAG not enabled, skip semantic context
+                # RAG not initialized, gracefully skip semantic enhancement
                 pass
 
         return enhanced

@@ -359,17 +359,39 @@ class Dashboard:
     def _create_dashboard_layout(
         self, agent_name: Optional[str] = None
     ) -> Layout:
-        """Create dashboard layout."""
+        """Create Rich TUI dashboard layout for live monitoring.
+
+        This creates a two-section layout used by show_live():
+        1. Header: Summary statistics (total/completed/failed executions)
+        2. Body: Recent activity table (last 15 executions)
+
+        The layout is optimized for terminal display and auto-refresh.
+
+        Args:
+            agent_name: Filter executions by agent name (optional)
+
+        Returns:
+            Rich Layout object ready for Live rendering
+
+        Note:
+            Called repeatedly by show_live() for real-time updates.
+            Keep queries lightweight for smooth refresh performance.
+        """
+        # Create root layout container
         layout = Layout()
 
-        # Split into header and body
+        # Split into header (fixed 3 lines) and body (flexible)
+        # This ensures header doesn't resize during refresh
         layout.split_column(
             Layout(name="header", size=3),
             Layout(name="body"),
         )
 
-        # Header
+        # === Header Section: Summary Statistics ===
+        # Fetch aggregated stats from EventStore
         stats = self.store.get_summary_stats(agent_name=agent_name)
+
+        # Build styled header text with Rich Text markup
         header_text = Text()
         header_text.append("📊 Kagura Agent Monitor", style="bold cyan")
         if agent_name:
@@ -381,16 +403,21 @@ class Dashboard:
             style="white",
         )
 
+        # Wrap header in Panel with cyan border
         layout["header"].update(
             Panel(header_text, border_style="cyan", padding=(0, 1))
         )
 
-        # Body - Recent activity
+        # === Body Section: Recent Activity Table ===
+        # Fetch last 15 executions (limit for performance)
         executions = self.store.get_executions(
             agent_name=agent_name, limit=15
         )
+
+        # Create formatted table with execution details
         activity_table = self._create_execution_table(executions)
 
+        # Wrap table in Panel with title
         layout["body"].update(
             Panel(activity_table, title="Recent Activity", border_style="cyan")
         )

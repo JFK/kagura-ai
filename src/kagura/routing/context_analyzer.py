@@ -101,23 +101,38 @@ class ContextAnalyzer:
         return False
 
     def _has_pronouns(self, query: str) -> bool:
-        """Check if query contains pronouns indicating reference.
+        """Check if query contains pronouns indicating reference to previous context.
+
+        This method implements smart pronoun detection to avoid false positives
+        in imperative commands like "translate this text".
+
+        Strategy:
+        1. Detect pronouns (it, this, that, them, etc.)
+        2. For ambiguous words ("this"/"that"), distinguish between:
+           - Demonstrative adjective: "review this code" → NO context needed
+           - Standalone pronoun: "what about this?" → NEEDS context
 
         Args:
             query: Query text (lowercase)
 
         Returns:
-            True if pronouns found
+            True if context-dependent pronouns found
+
+        Examples:
+            >>> _has_pronouns("what about it?")        # True
+            >>> _has_pronouns("translate this text")   # False (imperative)
+            >>> _has_pronouns("check this?")           # True (no noun after)
         """
-        # Strip punctuation from words for matching
+        # Strip punctuation for clean word matching
         words = query.split()
         clean_words = [word.strip(string.punctuation) for word in words]
 
-        # Create word pairs to detect demonstrative adjectives vs pronouns
-        # e.g., "this text" (adjective) vs "this?" (pronoun)
+        # Create word pairs (current, next) to analyze context
+        # e.g., ["review", "this", "code"] → [("review", "this"), ("this", "code"), ("code", "")]
         word_pairs = list(zip(clean_words, clean_words[1:] + [""]))
 
-        # Action verbs that indicate imperative commands
+        # Action verbs indicating imperative commands (not context-dependent)
+        # These appear before "this/that" in commands like "translate this text"
         action_verbs = {
             "translate",
             "convert",
@@ -139,17 +154,21 @@ class ContextAnalyzer:
 
         for word, next_word in word_pairs:
             if word in self.PRONOUNS:
-                # For "this" and "that", check if it's part of imperative command
+                # Special handling for "this" and "that" (can be adjective or pronoun)
                 if word in ("this", "that"):
-                    # Check if preceded by an action verb AND followed by a noun
-                    # e.g., "review this code", "translate this text"
-                    # but NOT "review this?" or "check that?"
                     idx = clean_words.index(word)
+
+                    # Check pattern: [action_verb] [this/that] [noun]
+                    # If matches, it's an imperative command → NO context needed
                     if idx > 0 and clean_words[idx - 1] in action_verbs:
-                        # Only skip if there's a noun following (not punctuation or end)
+                        # Verify there's a following noun (len > 2 is heuristic)
+                        # e.g., "translate this text" → skip
+                        # but "translate this?" → detect (no noun)
                         if next_word and len(next_word) > 2:
-                            # Likely an imperative command with object
+                            # Likely imperative with direct object
                             continue
+
+                # Found a context-dependent pronoun
                 return True
 
         return False
