@@ -18,17 +18,21 @@ Kagura AI 2.0 is a complete redesign focused on simplicity and developer experie
 
 ### Core Framework
 - **@agent Decorator**: One-line AI agent creation
+- **@tool Decorator**: Convert Python functions into callable tools ⭐️ NEW
+- **@workflow Decorator**: Multi-agent orchestration and workflows ⭐️ NEW
 - **Jinja2 Templates**: Powerful prompt templating in docstrings
 - **Type-based Parsing**: Automatic response parsing using type hints
 - **Pydantic Models**: First-class support for structured outputs
 - **Code Execution**: Safe Python code generation and execution
 - **Interactive REPL**: `kagura repl` for rapid prototyping
+- **Chat REPL**: `kagura chat` with preset agents (translate, summarize, review) ⭐️ NEW
 - **Multi-LLM Support**: Works with OpenAI, Anthropic, Google, and more via [LiteLLM](https://github.com/BerriAI/litellm)
 
 ### Advanced Features ⭐️ NEW in v2.1.0
 - **MCP Integration**: Use Kagura agents directly in Claude Desktop via Model Context Protocol
 - **Shell Integration**: Secure shell command execution with Git automation (`commit`, `push`, `status`, `create_pr`)
-- **Memory Management**: Three-tier memory system (Working/Context/Persistent) for stateful agents
+- **Memory Management**: Three-tier memory system (Working/Context/Persistent) + RAG with ChromaDB for semantic search
+- **Agent Routing**: Intelligent routing with Keyword/LLM/Semantic strategies
 - **Custom Commands**: Define reusable AI tasks in Markdown files with YAML frontmatter
 - **Hooks System**: Intercept and modify command execution with PreToolUse/PostToolUse hooks
 
@@ -126,6 +130,50 @@ async def chat_with_memory(message: str) -> str:
 # Memory persists across calls
 await chat_with_memory("My name is Alice")
 await chat_with_memory("What's my name?")  # "Your name is Alice"
+```
+
+### Chat REPL
+
+```bash
+# Start interactive chat
+kagura chat
+
+# Use preset agents
+/translate Hello World
+/summarize <paste long text>
+/review <paste code>
+```
+
+### Tool & Workflow Decorators
+
+```python
+from kagura import tool, workflow
+
+@tool
+def calculate_tax(amount: float, rate: float = 0.1) -> float:
+    '''Calculate tax amount'''
+    return amount * rate
+
+@workflow
+async def shopping_workflow(items: list[str]) -> dict:
+    '''Complete shopping workflow'''
+    total = sum([get_price(item) for item in items])
+    tax = calculate_tax(total)
+    return {"total": total, "tax": tax, "grand_total": total + tax}
+```
+
+### Agent Routing
+
+```python
+from kagura.routing import SemanticRouter
+
+router = SemanticRouter()
+router.add_route("translation", translation_agent)
+router.add_route("code_review", review_agent)
+
+# Automatically selects the right agent
+agent = await router.route("Translate this to Japanese")
+result = await agent("Hello World")
 ```
 
 ### Custom Commands
