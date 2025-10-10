@@ -66,6 +66,10 @@ multimodal = [
 testing = [
     "langdetect>=1.0.9",
 ]
+web = [
+    "httpx>=0.25.0",
+    "duckduckgo-search>=4.1.0",
+]
 
 [build-system]
 requires = ["setuptools>=42.0.0,<69.0", "wheel"]
