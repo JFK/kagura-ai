@@ -12,18 +12,56 @@ from ..observability import EventStore
 from ..observability.dashboard import Dashboard
 
 
-@click.group()
-def monitor() -> None:
+@click.group(invoke_without_command=True)
+@click.option(
+    "--agent", "-a", help="Filter by agent name", type=str, default=None
+)
+@click.option(
+    "--refresh",
+    "-r",
+    help="Refresh interval in seconds",
+    type=float,
+    default=1.0,
+)
+@click.option(
+    "--db",
+    help="Path to telemetry database",
+    type=click.Path(),
+    default=None,
+)
+@click.pass_context
+def monitor(
+    ctx: click.Context,
+    agent: Optional[str],
+    refresh: float,
+    db: Optional[str],
+) -> None:
     """Monitor agent execution telemetry.
 
+    When called without a subcommand, starts live monitoring (default behavior).
+
     Examples:
-        kagura monitor live                    # Live dashboard
+        kagura monitor                         # Live dashboard (default)
+        kagura monitor --agent my_agent        # Monitor specific agent
+        kagura monitor live                    # Explicit live dashboard
         kagura monitor list                    # List recent executions
         kagura monitor stats                   # Show statistics
         kagura monitor trace <execution_id>    # Show trace details
         kagura monitor cost                    # Show cost summary
     """
-    pass
+    if ctx.invoked_subcommand is None:
+        # No subcommand provided, run live monitoring
+        db_path = Path(db) if db else None
+        store = EventStore(db_path)
+        dashboard = Dashboard(store)
+
+        click.echo("Starting live monitor... (Press Ctrl+C to exit)")
+        time.sleep(0.5)
+
+        try:
+            dashboard.show_live(agent_name=agent, refresh_rate=refresh)
+        except KeyboardInterrupt:
+            click.echo("\nMonitoring stopped.")
 
 
 @monitor.command()
@@ -198,42 +236,3 @@ def cost(since: Optional[float], group_by: str, db: Optional[str]) -> None:
     dashboard = Dashboard(store)
 
     dashboard.show_cost_summary(since=since, group_by=group_by)
-
-
-# Add shortcuts as standalone commands
-@click.command(name="monitor")
-@click.option(
-    "--agent", "-a", help="Filter by agent name", type=str, default=None
-)
-@click.option(
-    "--refresh",
-    "-r",
-    help="Refresh interval in seconds",
-    type=float,
-    default=1.0,
-)
-@click.option(
-    "--db",
-    help="Path to telemetry database",
-    type=click.Path(),
-    default=None,
-)
-def monitor_shortcut(agent: Optional[str], refresh: float, db: Optional[str]) -> None:
-    """Monitor agent execution telemetry (shortcut for 'monitor live').
-
-    \b
-    Examples:
-        kagura monitor                          # Start live monitoring
-        kagura monitor --agent my_agent         # Monitor specific agent
-    """
-    db_path = Path(db) if db else None
-    store = EventStore(db_path)
-    dashboard = Dashboard(store)
-
-    click.echo("Starting live monitor... (Press Ctrl+C to exit)")
-    time.sleep(0.5)
-
-    try:
-        dashboard.show_live(agent_name=agent, refresh_rate=refresh)
-    except KeyboardInterrupt:
-        click.echo("\nMonitoring stopped.")

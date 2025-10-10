@@ -7,7 +7,7 @@ from ..version import __version__
 from .chat import chat
 from .commands_cli import run
 from .mcp import mcp
-from .monitor import monitor, monitor_shortcut
+from .monitor import monitor
 from .repl import repl
 
 
@@ -49,7 +49,7 @@ cli.add_command(repl)
 cli.add_command(chat)
 cli.add_command(mcp)
 cli.add_command(run)
-cli.add_command(monitor_shortcut)
+cli.add_command(monitor)
 
 
 if __name__ == "__main__":

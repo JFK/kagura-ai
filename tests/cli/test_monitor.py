@@ -3,7 +3,7 @@
 import pytest
 from click.testing import CliRunner
 
-from kagura.cli.monitor import list, monitor_shortcut, stats, cost, trace
+from kagura.cli.monitor import list, stats, cost, trace
 from kagura.observability import EventStore, TelemetryCollector
 
 
