@@ -4,6 +4,7 @@ Global registry for Kagura workflows
 This module provides a centralized registry for all Kagura workflows,
 enabling MCP integration and workflow discovery.
 """
+
 import importlib
 import inspect
 from typing import Any, Callable

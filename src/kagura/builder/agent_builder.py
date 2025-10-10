@@ -174,6 +174,7 @@ class AgentBuilder:
         # Build agent with memory parameter if memory is enabled
         enhanced_agent: Callable
         if config.memory:
+
             @agent(**agent_kwargs)
             async def _agent_with_memory(
                 prompt: str, memory: MemoryManager, **kwargs: Any
@@ -197,6 +198,7 @@ class AgentBuilder:
             enhanced_agent = _agent_with_memory
 
         else:
+
             @agent(**agent_kwargs)
             async def _agent_no_memory(prompt: str, **kwargs: Any) -> str:
                 """Enhanced agent with tools (no memory).

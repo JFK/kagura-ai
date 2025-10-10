@@ -1,6 +1,7 @@
 """
 Decorators to convert functions into AI agents
 """
+
 import functools
 import inspect
 from pathlib import Path
@@ -14,8 +15,8 @@ from .registry import agent_registry
 from .tool_registry import tool_registry
 from .workflow_registry import workflow_registry
 
-P = ParamSpec('P')
-T = TypeVar('T')
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 def _convert_tools_to_llm_format(tools: list[Callable]) -> list[dict[str, Any]]:
@@ -52,7 +53,7 @@ def _convert_tools_to_llm_format(tools: list[Callable]) -> list[dict[str, Any]]:
 
             properties[param_name] = {
                 "type": param_type,
-                "description": f"{param_name} parameter"
+                "description": f"{param_name} parameter",
             }
 
             # Mark as required if no default value
@@ -62,20 +63,22 @@ def _convert_tools_to_llm_format(tools: list[Callable]) -> list[dict[str, Any]]:
         # Get function description from docstring
         description = tool.__doc__ or tool.__name__
         if description:
-            description = description.strip().split('\n')[0]  # First line only
+            description = description.strip().split("\n")[0]  # First line only
 
-        llm_tools.append({
-            "type": "function",
-            "function": {
-                "name": tool.__name__,
-                "description": description,
-                "parameters": {
-                    "type": "object",
-                    "properties": properties,
-                    "required": required
-                }
+        llm_tools.append(
+            {
+                "type": "function",
+                "function": {
+                    "name": tool.__name__,
+                    "description": description,
+                    "parameters": {
+                        "type": "object",
+                        "properties": properties,
+                        "required": required,
+                    },
+                },
             }
-        })
+        )
 
     return llm_tools
 
@@ -90,8 +93,9 @@ def agent(
     persist_dir: Optional[Path] = None,
     max_messages: int = 100,
     tools: Optional[list[Callable]] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[P, Awaitable[T]]: ...
+
 
 @overload
 def agent(
@@ -103,8 +107,9 @@ def agent(
     persist_dir: Optional[Path] = None,
     max_messages: int = 100,
     tools: Optional[list[Callable]] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]: ...
+
 
 def agent(
     fn: Callable[P, Awaitable[T]] | None = None,
@@ -115,7 +120,7 @@ def agent(
     persist_dir: Optional[Path] = None,
     max_messages: int = 100,
     tools: Optional[list[Callable]] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> (
     Callable[P, Awaitable[T]]
     | Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]
@@ -157,6 +162,7 @@ def agent(
             '''Research {{ topic }} using available tools'''
             pass
     """
+
     def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
         # Extract template from docstring
         template_str = extract_template(func)
@@ -191,9 +197,7 @@ def agent(
             bound.apply_defaults()
 
             # Render prompt with arguments (excluding memory from template)
-            template_args = {
-                k: v for k, v in bound.arguments.items() if k != "memory"
-            }
+            template_args = {k: v for k, v in bound.arguments.items() if k != "memory"}
             prompt = render_prompt(template_str, **template_args)
 
             # Prepare additional kwargs for LLM
@@ -233,8 +237,10 @@ def agent(
 @overload
 def tool(fn: Callable[P, T]) -> Callable[P, T]: ...
 
+
 @overload
 def tool(fn: None = None) -> Callable[[Callable[P, T]], Callable[P, T]]: ...
+
 
 def tool(
     fn: Callable[P, T] | None = None, *, name: Optional[str] = None
@@ -272,6 +278,7 @@ def tool(
             '''
             pass
     """
+
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         # Get function signature for validation
         sig = inspect.signature(func)
@@ -320,10 +327,12 @@ def tool(
 @overload
 def workflow(fn: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]: ...
 
+
 @overload
 def workflow(
-    fn: None = None
+    fn: None = None,
 ) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]: ...
+
 
 def workflow(
     fn: Callable[P, Awaitable[T]] | None = None, *, name: Optional[str] = None
@@ -362,6 +371,7 @@ def workflow(
 
         result = await research_workflow("AI safety")
     """
+
     def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
         # Get function signature
         sig = inspect.signature(func)

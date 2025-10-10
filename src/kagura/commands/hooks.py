@@ -3,7 +3,7 @@
 Provides hooks for intercepting and modifying command execution flow.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, Optional
 
@@ -76,7 +76,9 @@ class HookResult:
         return cls(action=HookAction.SUGGEST, message=message)
 
     @classmethod
-    def modify(cls, modified_input: dict[str, Any], message: Optional[str] = None) -> "HookResult":
+    def modify(
+        cls, modified_input: dict[str, Any], message: Optional[str] = None
+    ) -> "HookResult":
         """Create MODIFY result (modify input before execution).
 
         Args:
@@ -87,9 +89,7 @@ class HookResult:
             HookResult with MODIFY action
         """
         return cls(
-            action=HookAction.MODIFY,
-            message=message,
-            modified_input=modified_input
+            action=HookAction.MODIFY, message=message, modified_input=modified_input
         )
 
     def is_ok(self) -> bool:

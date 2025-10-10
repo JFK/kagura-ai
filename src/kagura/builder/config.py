@@ -19,9 +19,7 @@ class MemoryConfig(BaseModel):
     max_messages: int = Field(
         default=100, description="Maximum number of messages to store"
     )
-    enable_rag: bool = Field(
-        default=False, description="Enable RAG (semantic search)"
-    )
+    enable_rag: bool = Field(default=False, description="Enable RAG (semantic search)")
 
     class Config:
         arbitrary_types_allowed = True
@@ -45,9 +43,7 @@ class RoutingConfig(BaseModel):
 class HooksConfig(BaseModel):
     """Hooks configuration for agents."""
 
-    pre: list[Callable] = Field(
-        default_factory=list, description="Pre-execution hooks"
-    )
+    pre: list[Callable] = Field(default_factory=list, description="Pre-execution hooks")
     post: list[Callable] = Field(
         default_factory=list, description="Post-execution hooks"
     )

@@ -128,7 +128,8 @@ class ContextAnalyzer:
         clean_words = [word.strip(string.punctuation) for word in words]
 
         # Create word pairs (current, next) to analyze context
-        # e.g., ["review", "this", "code"] → [("review", "this"), ("this", "code"), ("code", "")]
+        # e.g., ["review", "this", "code"] → [("review", "this"),
+        # ("this", "code"), ("code", "")]
         word_pairs = list(zip(clean_words, clean_words[1:] + [""]))
 
         # Action verbs indicating imperative commands (not context-dependent)
@@ -215,9 +216,7 @@ class ContextAnalyzer:
 
         # Get last few user messages for context
         user_messages = [
-            msg["content"]
-            for msg in conversation_history
-            if msg.get("role") == "user"
+            msg["content"] for msg in conversation_history if msg.get("role") == "user"
         ][-3:]  # Last 3 user messages
 
         # If no context needed, return as-is

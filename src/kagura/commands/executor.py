@@ -35,7 +35,7 @@ class InlineCommandExecutor:
         """
         self.timeout = timeout
         self.hook_registry = hook_registry or get_registry()
-        self._pattern = re.compile(r'!`([^`]+)`')
+        self._pattern = re.compile(r"!`([^`]+)`")
 
     def execute(self, template: str) -> str:
         """Execute all inline commands in template.
@@ -88,7 +88,11 @@ class InlineCommandExecutor:
                 timeout=self.timeout,
             )
 
-            output = result.stdout.strip() if result.returncode == 0 else f"[Error: {result.stderr.strip()}]"
+            output = (
+                result.stdout.strip()
+                if result.returncode == 0
+                else f"[Error: {result.stderr.strip()}]"
+            )
 
             # Execute post-tool-use hooks
             post_input = {
@@ -97,9 +101,7 @@ class InlineCommandExecutor:
                 "output": output,
                 "returncode": result.returncode,
             }
-            self.hook_registry.execute_hooks(
-                HookType.POST_TOOL_USE, "bash", post_input
-            )
+            self.hook_registry.execute_hooks(HookType.POST_TOOL_USE, "bash", post_input)
 
             return output
 

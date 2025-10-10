@@ -68,9 +68,7 @@ def run(
             commands = loader.load_all()
         except FileNotFoundError:
             dirs_str = ", ".join(str(d) for d in loader.commands_dirs)
-            console.print(
-                f"[red]Error:[/red] Commands directory not found: {dirs_str}"
-            )
+            console.print(f"[red]Error:[/red] Commands directory not found: {dirs_str}")
             console.print("\n[yellow]Tip:[/yellow] Create the directory with:")
             for cmd_dir in loader.commands_dirs:
                 console.print(f"  mkdir -p {cmd_dir}")
@@ -89,9 +87,7 @@ def run(
         parameters = {}
         for p in param:
             if "=" not in p:
-                console.print(
-                    f"[red]Error:[/red] Invalid parameter format: {p}"
-                )
+                console.print(f"[red]Error:[/red] Invalid parameter format: {p}")
                 console.print("[yellow]Use format:[/yellow] key=value")
                 sys.exit(1)
 
@@ -118,11 +114,13 @@ def run(
 
         # Execute command
         if not ctx.obj.get("quiet"):
-            console.print(Panel(
-                f"[bold]{command.name}[/bold]\n{command.description}",
-                title="Executing Command",
-                border_style="blue",
-            ))
+            console.print(
+                Panel(
+                    f"[bold]{command.name}[/bold]\n{command.description}",
+                    title="Executing Command",
+                    border_style="blue",
+                )
+            )
 
         executor = CommandExecutor(enable_inline=not no_inline)
         result = executor.execute(command, parameters)
@@ -142,6 +140,7 @@ def run(
         console.print(f"[red]Error:[/red] {e}")
         if ctx.obj.get("verbose"):
             import traceback
+
             console.print("\n[yellow]Traceback:[/yellow]")
             traceback.print_exc()
         sys.exit(1)

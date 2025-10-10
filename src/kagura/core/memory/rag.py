@@ -118,7 +118,8 @@ class MemoryRAG:
 
         Note:
             ChromaDB handles query embedding internally using the default
-            sentence-transformers model. Distance range: 0.0 (identical) to 2.0 (opposite).
+            sentence-transformers model. Distance range: 0.0 (identical)
+            to 2.0 (opposite).
 
         Example:
             >>> rag.store("Python is a programming language", agent_name="assistant")

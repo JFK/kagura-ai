@@ -1,4 +1,5 @@
 """Safe Python code executor with AST validation"""
+
 import ast
 import asyncio
 import io
@@ -10,29 +11,95 @@ from pydantic import BaseModel
 
 # Security configuration
 ALLOWED_IMPORTS = {
-    'math', 'datetime', 'json', 'itertools', 'functools',
-    'collections', 're', 'random', 'statistics', 'decimal',
-    'string', 'typing', 'dataclasses', 'enum', 'fractions', 'time'
+    "math",
+    "datetime",
+    "json",
+    "itertools",
+    "functools",
+    "collections",
+    "re",
+    "random",
+    "statistics",
+    "decimal",
+    "string",
+    "typing",
+    "dataclasses",
+    "enum",
+    "fractions",
+    "time",
 }
 
 ALLOWED_BUILTINS = {
-    'abs', 'all', 'any', 'ascii', 'bin', 'bool', 'bytearray', 'bytes',
-    'chr', 'dict', 'divmod', 'enumerate', 'filter', 'float', 'format',
-    'frozenset', 'hash', 'hex', 'int', 'isinstance', 'issubclass',
-    'iter', 'len', 'list', 'map', 'max', 'min', 'next', 'oct', 'ord',
-    'pow', 'print', 'range', 'repr', 'reversed', 'round', 'set',
-    'slice', 'sorted', 'str', 'sum', 'tuple', 'type', 'zip'
+    "abs",
+    "all",
+    "any",
+    "ascii",
+    "bin",
+    "bool",
+    "bytearray",
+    "bytes",
+    "chr",
+    "dict",
+    "divmod",
+    "enumerate",
+    "filter",
+    "float",
+    "format",
+    "frozenset",
+    "hash",
+    "hex",
+    "int",
+    "isinstance",
+    "issubclass",
+    "iter",
+    "len",
+    "list",
+    "map",
+    "max",
+    "min",
+    "next",
+    "oct",
+    "ord",
+    "pow",
+    "print",
+    "range",
+    "repr",
+    "reversed",
+    "round",
+    "set",
+    "slice",
+    "sorted",
+    "str",
+    "sum",
+    "tuple",
+    "type",
+    "zip",
 }
 
 DISALLOWED_NAMES = {
-    'exec', 'eval', 'compile', 'open', 'input',
-    'file', 'quit', 'exit', 'help', 'license', 'copyright',
-    'credits', 'globals', 'locals', 'vars', 'dir', 'breakpoint'
+    "exec",
+    "eval",
+    "compile",
+    "open",
+    "input",
+    "file",
+    "quit",
+    "exit",
+    "help",
+    "license",
+    "copyright",
+    "credits",
+    "globals",
+    "locals",
+    "vars",
+    "dir",
+    "breakpoint",
 }
 
 
 class ExecutionResult(BaseModel):
     """Result of code execution"""
+
     success: bool
     result: Any = None
     error: Optional[str] = None
@@ -43,6 +110,7 @@ class ExecutionResult(BaseModel):
 
 class SecurityError(Exception):
     """Raised when code violates security constraints"""
+
     pass
 
 
@@ -56,7 +124,7 @@ class ASTValidator(ast.NodeVisitor):
     def visit_Import(self, node: ast.Import) -> None:
         """Check import statements"""
         for alias in node.names:
-            module = alias.name.split('.')[0]
+            module = alias.name.split(".")[0]
             if module not in self.allowed_imports:
                 self.errors.append(f"Disallowed import: {module}")
         self.generic_visit(node)
@@ -64,7 +132,7 @@ class ASTValidator(ast.NodeVisitor):
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         """Check from...import statements"""
         if node.module:
-            module = node.module.split('.')[0]
+            module = node.module.split(".")[0]
             if module not in self.allowed_imports:
                 self.errors.append(f"Disallowed import: {module}")
         self.generic_visit(node)
@@ -77,7 +145,7 @@ class ASTValidator(ast.NodeVisitor):
 
     def visit_Attribute(self, node: ast.Attribute) -> None:
         """Check for dangerous attributes"""
-        dangerous_attrs = {'__builtins__', '__globals__', '__code__', '__dict__'}
+        dangerous_attrs = {"__builtins__", "__globals__", "__code__", "__dict__"}
         if node.attr in dangerous_attrs:
             self.errors.append(f"Disallowed attribute access: {node.attr}")
         self.generic_visit(node)
@@ -90,7 +158,7 @@ class CodeExecutor:
         self,
         timeout: float = 30.0,
         allowed_imports: Optional[set[str]] = None,
-        memory_limit_mb: Optional[int] = None
+        memory_limit_mb: Optional[int] = None,
     ):
         """
         Initialize code executor.
@@ -143,17 +211,17 @@ class CodeExecutor:
         # Add restricted __import__ function
         def safe_import(name: str, *args: Any, **kwargs: Any) -> Any:
             """Restricted import that only allows whitelisted modules"""
-            module_name = name.split('.')[0]
+            module_name = name.split(".")[0]
             if module_name not in self.allowed_imports:
                 raise ImportError(f"Import of '{name}' is not allowed")
-            return __builtins__['__import__'](name, *args, **kwargs)  # type: ignore
+            return __builtins__["__import__"](name, *args, **kwargs)  # type: ignore
 
-        safe_builtins['__import__'] = safe_import
+        safe_builtins["__import__"] = safe_import
 
         return {
-            '__builtins__': safe_builtins,
-            '__name__': '__main__',
-            '__doc__': None,
+            "__builtins__": safe_builtins,
+            "__name__": "__main__",
+            "__doc__": None,
         }
 
     async def execute(self, code: str) -> ExecutionResult:
@@ -185,21 +253,23 @@ class CodeExecutor:
                 with redirect_stdout(stdout_capture), redirect_stderr(stderr_capture):
                     # Run in executor to enable timeout
                     await asyncio.wait_for(
-                        self._execute_in_thread(code, execution_namespace, execution_namespace),
-                        timeout=self.timeout
+                        self._execute_in_thread(
+                            code, execution_namespace, execution_namespace
+                        ),
+                        timeout=self.timeout,
                     )
 
                 execution_time = time.time() - start_time
 
                 # Get result variable if it exists
-                result = execution_namespace.get('result', None)
+                result = execution_namespace.get("result", None)
 
                 return ExecutionResult(
                     success=True,
                     result=result,
                     stdout=stdout_capture.getvalue(),
                     stderr=stderr_capture.getvalue(),
-                    execution_time=execution_time
+                    execution_time=execution_time,
                 )
 
             except asyncio.TimeoutError:
@@ -209,7 +279,7 @@ class CodeExecutor:
                     error=f"TimeoutError: Execution exceeded {self.timeout} seconds",
                     stdout=stdout_capture.getvalue(),
                     stderr=stderr_capture.getvalue(),
-                    execution_time=execution_time
+                    execution_time=execution_time,
                 )
 
         except SecurityError as e:
@@ -217,7 +287,7 @@ class CodeExecutor:
             return ExecutionResult(
                 success=False,
                 error=f"SecurityError: {str(e)}",
-                execution_time=execution_time
+                execution_time=execution_time,
             )
 
         except SyntaxError as e:
@@ -225,7 +295,7 @@ class CodeExecutor:
             return ExecutionResult(
                 success=False,
                 error=f"SyntaxError: {str(e)}",
-                execution_time=execution_time
+                execution_time=execution_time,
             )
 
         except Exception as e:
@@ -233,14 +303,11 @@ class CodeExecutor:
             return ExecutionResult(
                 success=False,
                 error=f"{type(e).__name__}: {str(e)}",
-                execution_time=execution_time
+                execution_time=execution_time,
             )
 
     async def _execute_in_thread(
-        self,
-        code: str,
-        globals_dict: dict[str, Any],
-        locals_dict: dict[str, Any]
+        self, code: str, globals_dict: dict[str, Any], locals_dict: dict[str, Any]
     ) -> None:
         """
         Execute code in a thread to allow timeout.
@@ -251,10 +318,4 @@ class CodeExecutor:
             locals_dict: Local namespace
         """
         loop = asyncio.get_event_loop()
-        await loop.run_in_executor(
-            None,
-            exec,
-            code,
-            globals_dict,
-            locals_dict
-        )
+        await loop.run_in_executor(None, exec, code, globals_dict, locals_dict)

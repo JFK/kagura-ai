@@ -32,7 +32,9 @@ class HookDecorators:
 
     def pre_tool_use(
         self, matcher: str = "*", name: str | None = None
-    ) -> Callable[[Callable[[dict[str, Any]], HookResult]], Callable[[dict[str, Any]], HookResult]]:
+    ) -> Callable[
+        [Callable[[dict[str, Any]], HookResult]], Callable[[dict[str, Any]], HookResult]
+    ]:
         """Decorator for PreToolUse hooks.
 
         Args:
@@ -49,8 +51,9 @@ class HookDecorators:
                     return HookResult.block("Blocked!")
                 return HookResult.ok()
         """
+
         def decorator(
-            func: Callable[[dict[str, Any]], HookResult]
+            func: Callable[[dict[str, Any]], HookResult],
         ) -> Callable[[dict[str, Any]], HookResult]:
             hook_name = name or func.__name__
             hook = Hook(
@@ -66,7 +69,9 @@ class HookDecorators:
 
     def post_tool_use(
         self, matcher: str = "*", name: str | None = None
-    ) -> Callable[[Callable[[dict[str, Any]], HookResult]], Callable[[dict[str, Any]], HookResult]]:
+    ) -> Callable[
+        [Callable[[dict[str, Any]], HookResult]], Callable[[dict[str, Any]], HookResult]
+    ]:
         """Decorator for PostToolUse hooks.
 
         Args:
@@ -82,8 +87,9 @@ class HookDecorators:
                 print(f"Git command executed: {tool_input}")
                 return HookResult.ok()
         """
+
         def decorator(
-            func: Callable[[dict[str, Any]], HookResult]
+            func: Callable[[dict[str, Any]], HookResult],
         ) -> Callable[[dict[str, Any]], HookResult]:
             hook_name = name or func.__name__
             hook = Hook(
@@ -99,7 +105,9 @@ class HookDecorators:
 
     def validation(
         self, matcher: str = "*", name: str | None = None
-    ) -> Callable[[Callable[[dict[str, Any]], HookResult]], Callable[[dict[str, Any]], HookResult]]:
+    ) -> Callable[
+        [Callable[[dict[str, Any]], HookResult]], Callable[[dict[str, Any]], HookResult]
+    ]:
         """Decorator for Validation hooks.
 
         Args:
@@ -116,8 +124,9 @@ class HookDecorators:
                     return HookResult.block("Empty input!")
                 return HookResult.ok()
         """
+
         def decorator(
-            func: Callable[[dict[str, Any]], HookResult]
+            func: Callable[[dict[str, Any]], HookResult],
         ) -> Callable[[dict[str, Any]], HookResult]:
             hook_name = name or func.__name__
             hook = Hook(

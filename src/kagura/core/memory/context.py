@@ -158,4 +158,6 @@ class ContextMemory:
 
     def __repr__(self) -> str:
         """String representation."""
-        return f"ContextMemory(messages={len(self._messages)}, session={self._session_id})"
+        return (
+            f"ContextMemory(messages={len(self._messages)}, session={self._session_id})"
+        )

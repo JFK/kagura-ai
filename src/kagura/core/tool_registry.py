@@ -4,6 +4,7 @@ Global registry for Kagura tools
 This module provides a centralized registry for all Kagura tools,
 enabling MCP integration and tool discovery.
 """
+
 import importlib
 import inspect
 from typing import Any, Callable

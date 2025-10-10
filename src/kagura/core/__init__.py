@@ -1,4 +1,5 @@
 """Core functionality for Kagura AI"""
+
 from typing import Awaitable, Callable, Optional, ParamSpec, TypeVar, overload
 
 from . import workflow as workflow_module
@@ -10,6 +11,7 @@ from .workflow_registry import WorkflowRegistry, workflow_registry
 
 P = ParamSpec("P")
 T = TypeVar("T")
+
 
 # Create workflow namespace with both basic decorator and advanced patterns
 class WorkflowNamespace:
@@ -28,6 +30,7 @@ class WorkflowNamespace:
         @workflow.stateful(state_class=MyState)  # Stateful workflow
         async def stateful_flow(state): ...
     """
+
     def __call__(self, *args, **kwargs):  # type: ignore
         """Basic workflow decorator (backward compatible)."""
         return workflow_decorator(*args, **kwargs)
@@ -37,6 +40,7 @@ class WorkflowNamespace:
     parallel = workflow_module.parallel
     stateful = workflow_module.stateful
     run_parallel = staticmethod(workflow_module.run_parallel)
+
 
 # Create singleton workflow namespace
 workflow = WorkflowNamespace()

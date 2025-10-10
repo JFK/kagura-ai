@@ -110,8 +110,7 @@ async def git_create_pr(
     escaped_body = body.replace('"', '\\"')
 
     cmd = (
-        f'gh pr create --title "{escaped_title}" '
-        f'--body "{escaped_body}" --base {base}'
+        f'gh pr create --title "{escaped_title}" --body "{escaped_body}" --base {base}'
     )
     result = await _executor.exec(cmd)
     return result.stdout

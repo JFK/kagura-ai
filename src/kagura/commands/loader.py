@@ -49,7 +49,7 @@ class CommandLoader:
             # Default: search global then local (so local overrides global)
             self.commands_dirs = [
                 Path.home() / ".kagura" / "commands",  # Global
-                Path.cwd() / ".kagura" / "commands",   # Local (priority)
+                Path.cwd() / ".kagura" / "commands",  # Local (priority)
             ]
 
         self.commands: dict[str, Command] = {}

@@ -48,9 +48,7 @@ class MemoryManager:
         # Optional: RAG
         self.rag: Optional[MemoryRAG] = None
         if enable_rag:
-            collection_name = (
-                f"kagura_{agent_name}" if agent_name else "kagura_memory"
-            )
+            collection_name = f"kagura_{agent_name}" if agent_name else "kagura_memory"
             vector_dir = persist_dir / "vector_db" if persist_dir else None
             self.rag = MemoryRAG(
                 collection_name=collection_name, persist_dir=vector_dir
@@ -262,9 +260,7 @@ class MemoryManager:
         return True
 
     # RAG Memory
-    def store_semantic(
-        self, content: str, metadata: Optional[dict] = None
-    ) -> str:
+    def store_semantic(self, content: str, metadata: Optional[dict] = None) -> str:
         """Store content for semantic search.
 
         Args:
@@ -281,9 +277,7 @@ class MemoryManager:
             raise ValueError("RAG not enabled. Set enable_rag=True")
         return self.rag.store(content, metadata, self.agent_name)
 
-    def recall_semantic(
-        self, query: str, top_k: int = 5
-    ) -> list[dict[str, Any]]:
+    def recall_semantic(self, query: str, top_k: int = 5) -> list[dict[str, Any]]:
         """Semantic search for relevant memories.
 
         Args:

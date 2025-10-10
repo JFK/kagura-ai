@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 try:
     import google.generativeai as genai
@@ -12,7 +12,7 @@ except ImportError:
     GEMINI_AVAILABLE = False
 
 if TYPE_CHECKING:
-    from google.generativeai.types import GenerateContentResponse
+    pass
 
 
 class GeminiLoader:
@@ -102,9 +102,7 @@ class GeminiLoader:
             prompt = f"{prompt}\n日本語で回答してください。"
 
         # Generate content
-        response = await self.model.generate_content_async(
-            [prompt, uploaded_file]
-        )
+        response = await self.model.generate_content_async([prompt, uploaded_file])
 
         return response.text
 
@@ -136,9 +134,7 @@ class GeminiLoader:
         else:
             prompt = "Transcribe this audio."
 
-        response = await self.model.generate_content_async(
-            [prompt, uploaded_file]
-        )
+        response = await self.model.generate_content_async([prompt, uploaded_file])
 
         return response.text
 
@@ -170,9 +166,7 @@ class GeminiLoader:
         if language == "ja":
             prompt = f"{prompt}\n日本語で回答してください。"
 
-        response = await self.model.generate_content_async(
-            [prompt, uploaded_file]
-        )
+        response = await self.model.generate_content_async([prompt, uploaded_file])
 
         return response.text
 
@@ -204,9 +198,7 @@ class GeminiLoader:
         if language == "ja":
             prompt = f"{prompt}\n日本語で回答してください。"
 
-        response = await self.model.generate_content_async(
-            [prompt, uploaded_file]
-        )
+        response = await self.model.generate_content_async([prompt, uploaded_file])
 
         return response.text
 
@@ -232,7 +224,7 @@ class GeminiLoader:
             FileNotFoundError: If file not found
             ValueError: If file type is not supported
         """
-        from kagura.loaders.file_types import detect_file_type, FileType
+        from kagura.loaders.file_types import FileType, detect_file_type
 
         path = Path(file_path)
         file_type = detect_file_type(path)

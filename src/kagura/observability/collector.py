@@ -136,9 +136,7 @@ class TelemetryCollector:
                 metrics.get("total_tokens", 0) + prompt_tokens + completion_tokens
             )
 
-    def record_tool_call(
-        self, tool_name: str, duration: float, **kwargs: Any
-    ) -> None:
+    def record_tool_call(self, tool_name: str, duration: float, **kwargs: Any) -> None:
         """Record tool call.
 
         Args:

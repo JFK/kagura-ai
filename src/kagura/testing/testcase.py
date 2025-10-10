@@ -240,9 +240,7 @@ class AgentTestCase:
             f"Expected {model_class.__name__}, got {type(result).__name__}"
         )
 
-    def assert_field_value(
-        self, result: Any, field: str, expected: Any
-    ) -> None:
+    def assert_field_value(self, result: Any, field: str, expected: Any) -> None:
         """Assert model field has expected value.
 
         Args:
