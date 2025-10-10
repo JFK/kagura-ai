@@ -2,15 +2,17 @@
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 try:
     import google.generativeai as genai
-    from google.generativeai.types import GenerateContentResponse
 
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
+
+if TYPE_CHECKING:
+    from google.generativeai.types import GenerateContentResponse
 
 
 class GeminiLoader:
@@ -100,7 +102,7 @@ class GeminiLoader:
             prompt = f"{prompt}\n日本語で回答してください。"
 
         # Generate content
-        response: GenerateContentResponse = await self.model.generate_content_async(
+        response = await self.model.generate_content_async(
             [prompt, uploaded_file]
         )
 
@@ -134,7 +136,7 @@ class GeminiLoader:
         else:
             prompt = "Transcribe this audio."
 
-        response: GenerateContentResponse = await self.model.generate_content_async(
+        response = await self.model.generate_content_async(
             [prompt, uploaded_file]
         )
 
@@ -168,7 +170,7 @@ class GeminiLoader:
         if language == "ja":
             prompt = f"{prompt}\n日本語で回答してください。"
 
-        response: GenerateContentResponse = await self.model.generate_content_async(
+        response = await self.model.generate_content_async(
             [prompt, uploaded_file]
         )
 
@@ -202,7 +204,7 @@ class GeminiLoader:
         if language == "ja":
             prompt = f"{prompt}\n日本語で回答してください。"
 
-        response: GenerateContentResponse = await self.model.generate_content_async(
+        response = await self.model.generate_content_async(
             [prompt, uploaded_file]
         )
 
