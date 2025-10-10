@@ -29,10 +29,16 @@ from kagura.chat import ChatSession
     type=click.Path(exists=True, path_type=Path),
     help="Directory to index for RAG (requires --enable-multimodal)",
 )
+@click.option(
+    "--enable-web",
+    is_flag=True,
+    help="Enable web search capabilities",
+)
 def chat(
     model: str,
     enable_multimodal: bool,
     dir: Path | None,
+    enable_web: bool,
 ) -> None:
     """
     Start an interactive chat session with AI.
@@ -48,8 +54,11 @@ def chat(
         # Enable multimodal with directory RAG
         kagura chat --enable-multimodal --dir ./project
 
-        # Enable multimodal without directory
-        kagura chat --enable-multimodal
+        # Enable web search
+        kagura chat --enable-web
+
+        # Enable both multimodal and web
+        kagura chat --enable-multimodal --dir ./project --enable-web
     """
     # Validate options
     if dir and not enable_multimodal:
@@ -61,5 +70,6 @@ def chat(
         model=model,
         enable_multimodal=enable_multimodal,
         rag_directory=dir,
+        enable_web=enable_web,
     )
     asyncio.run(session.run())

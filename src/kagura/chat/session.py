@@ -32,6 +32,46 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     ...
 
 
+# Web-enabled chat agent with web_search tool
+async def _web_search_tool(query: str) -> str:
+    """Search the web for information.
+
+    Args:
+        query: Search query
+
+    Returns:
+        Formatted search results
+    """
+    from kagura.web.decorators import web_search
+
+    return await web_search(query)
+
+
+@agent(
+    model="gpt-4o-mini",
+    temperature=0.7,
+    streaming=False,
+    enable_memory=True,
+    tools=[_web_search_tool],
+)
+async def chat_agent_with_web(user_input: str, memory: MemoryManager) -> str:
+    """
+    You are a helpful AI assistant with web search capabilities. Previous
+    conversation context is available in your memory.
+
+    User: {{ user_input }}
+
+    You have access to the web_search(query) tool. Use it when you need to:
+    - Find current information or recent events
+    - Look up facts, statistics, or references
+    - Research topics the user asks about
+
+    Respond naturally and helpfully. Provide code examples when relevant.
+    Use markdown formatting for better readability.
+    """
+    ...
+
+
 class ChatSession:
     """
     Interactive chat session manager for Kagura AI.
@@ -49,6 +89,7 @@ class ChatSession:
         session_dir: Path | None = None,
         enable_multimodal: bool = False,
         rag_directory: Path | None = None,
+        enable_web: bool = False,
     ):
         """
         Initialize chat session.
@@ -58,11 +99,13 @@ class ChatSession:
             session_dir: Directory for session storage
             enable_multimodal: Enable multimodal RAG (images, PDFs, audio)
             rag_directory: Directory to index for RAG (requires enable_multimodal)
+            enable_web: Enable web search capabilities
         """
         self.console = Console()
         self.model = model
         self.enable_multimodal = enable_multimodal
         self.rag_directory = rag_directory
+        self.enable_web = enable_web
         self.session_dir = session_dir or Path.home() / ".kagura" / "sessions"
         self.session_dir.mkdir(parents=True, exist_ok=True)
 
@@ -177,8 +220,11 @@ class ChatSession:
         if rag_context:
             enhanced_input = f"{user_input}\n{rag_context}"
 
-        # Get AI response
-        response = await chat_agent(enhanced_input, memory=self.memory)
+        # Get AI response (use web-enabled agent if enabled)
+        if self.enable_web:
+            response = await chat_agent_with_web(enhanced_input, memory=self.memory)
+        else:
+            response = await chat_agent(enhanced_input, memory=self.memory)
 
         # Add assistant message to memory
         self.memory.add_message("assistant", response)
@@ -240,6 +286,10 @@ class ChatSession:
                     2,
                     f"[dim]Indexed: {self.rag_directory}[/]"
                 )
+
+        if self.enable_web:
+            insert_pos = 2 if self.enable_multimodal else 1
+            features.insert(insert_pos, "\n[bold cyan]🌐 Web Search Enabled[/]")
 
         welcome = Panel(
             "[bold green]Welcome to Kagura Chat![/]\n\n" + "\n".join(features) + "\n",
