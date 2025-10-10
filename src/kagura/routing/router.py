@@ -345,7 +345,8 @@ class AgentRouter:
 
             # Check if result matches this agent
             if result and hasattr(result, "name") and result.name == agent_name:
-                # semantic-router doesn't provide score directly, so we use 1.0 for matches
+                # semantic-router doesn't provide score directly,
+                # so we use 1.0 for matches
                 return 1.0
         except (ValueError, Exception):
             # Index not ready or other errors

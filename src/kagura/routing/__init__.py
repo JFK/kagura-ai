@@ -16,17 +16,21 @@ Example:
     >>> result = await router.route("Please review this code")
 """
 
+from .context_analyzer import ContextAnalyzer
 from .exceptions import (
     AgentNotRegisteredError,
     InvalidRouterStrategyError,
     NoAgentFoundError,
     RoutingError,
 )
+from .memory_aware_router import MemoryAwareRouter
 from .router import AgentRouter, RegisteredAgent
 
 __all__ = [
     "AgentRouter",
     "RegisteredAgent",
+    "ContextAnalyzer",
+    "MemoryAwareRouter",
     "RoutingError",
     "NoAgentFoundError",
     "AgentNotRegisteredError",
