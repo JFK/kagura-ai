@@ -69,6 +69,7 @@ testing = [
 web = [
     "httpx>=0.25.0",
     "duckduckgo-search>=4.1.0",
+    "beautifulsoup4>=4.12.0",
 ]
 
 [build-system]
