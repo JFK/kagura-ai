@@ -3,6 +3,8 @@
 Provides web search and scraping capabilities.
 """
 
+from kagura.web import decorators as web
+from kagura.web.decorators import enable, web_search
 from kagura.web.search import (
     BraveSearch,
     DuckDuckGoSearch,
@@ -15,4 +17,7 @@ __all__ = [
     "DuckDuckGoSearch",
     "SearchResult",
     "search",
+    "web",
+    "enable",
+    "web_search",
 ]

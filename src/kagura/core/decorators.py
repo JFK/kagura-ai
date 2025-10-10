@@ -206,10 +206,18 @@ def agent(
                     "Function must have 'rag' parameter when enable_multimodal_rag=True"
                 )
 
+        # Check if @web.enable is applied and inject web_search tool
+        tools_list = list(tools) if tools else []
+        if hasattr(func, "_web_enabled") and func._web_enabled:
+            # Inject web_search tool from @web.enable decorator
+            web_tool = getattr(func, "_web_search_tool", None)
+            if web_tool and web_tool not in tools_list:
+                tools_list.append(web_tool)
+
         # Convert tools to LiteLLM format if provided
         llm_tools = None
-        if tools:
-            llm_tools = _convert_tools_to_llm_format(tools)
+        if tools_list:
+            llm_tools = _convert_tools_to_llm_format(tools_list)
 
         # Initialize MultimodalRAG once (shared across calls)
         multimodal_rag = None
