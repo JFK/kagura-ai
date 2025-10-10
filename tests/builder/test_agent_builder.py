@@ -236,3 +236,101 @@ def test_agent_configuration():
     assert config.memory is not None
     assert config.routing is not None
     assert config.context["temperature"] == 0.7
+
+
+# Integration tests for Memory + Tools
+
+
+def test_agent_builder_with_memory_integration():
+    """Test building agent with memory integration."""
+    from pathlib import Path
+
+    builder = (
+        AgentBuilder("memory_agent")
+        .with_model("gpt-4o-mini")
+        .with_memory(type="context", max_messages=50)
+    )
+
+    agent = builder.build()
+
+    # Verify metadata
+    assert agent._agent_name == "memory_agent"
+    config = agent._builder_config
+    assert config.memory is not None
+    assert config.memory.type == "context"
+    assert config.memory.max_messages == 50
+
+
+def test_agent_builder_with_rag_memory():
+    """Test building agent with RAG memory."""
+    from pathlib import Path
+
+    builder = (
+        AgentBuilder("rag_agent")
+        .with_model("gpt-4o-mini")
+        .with_memory(
+            type="rag",
+            enable_rag=True,
+            persist_dir=Path("/tmp/kagura_test")
+        )
+    )
+
+    agent = builder.build()
+
+    config = agent._builder_config
+    assert config.memory is not None
+    assert config.memory.enable_rag is True
+    assert config.memory.persist_dir == Path("/tmp/kagura_test")
+
+
+def test_agent_builder_with_tools_integration():
+    """Test building agent with tools integration."""
+    def search_tool(query: str) -> str:
+        """Search for information"""
+        return f"Results for: {query}"
+
+    def calculator(a: float, b: float) -> float:
+        """Calculate sum"""
+        return a + b
+
+    builder = (
+        AgentBuilder("tool_agent")
+        .with_model("gpt-4o-mini")
+        .with_tools([search_tool, calculator])
+    )
+
+    agent = builder.build()
+
+    # Verify metadata
+    config = agent._builder_config
+    assert len(config.tools) == 2
+    assert search_tool in config.tools
+    assert calculator in config.tools
+
+
+def test_agent_builder_memory_and_tools_integration():
+    """Test building agent with both memory and tools."""
+    from pathlib import Path
+
+    def test_tool() -> str:
+        """Test tool"""
+        return "tool result"
+
+    builder = (
+        AgentBuilder("full_agent")
+        .with_model("gpt-4o-mini")
+        .with_memory(type="working", max_messages=100)
+        .with_tools([test_tool])
+        .with_context(temperature=0.5)
+    )
+
+    agent = builder.build()
+
+    # Verify all configurations
+    config = agent._builder_config
+    assert config.name == "full_agent"
+    assert config.model == "gpt-4o-mini"
+    assert config.memory is not None
+    assert config.memory.type == "working"
+    assert len(config.tools) == 1
+    assert config.context["temperature"] == 0.5

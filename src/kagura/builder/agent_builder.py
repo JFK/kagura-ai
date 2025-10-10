@@ -149,33 +149,72 @@ class AgentBuilder:
             Enhanced agent callable
         """
         from kagura import agent
+        from kagura.core.memory import MemoryManager
 
         # Store config for closure
         config = self._config
 
-        # Build base agent with integrated features
-        @agent(model=config.model, **config.context)
-        async def enhanced_agent(prompt: str, **kwargs: Any) -> str:
-            """Enhanced agent with integrated features.
+        # Prepare decorator arguments
+        agent_kwargs: dict[str, Any] = {
+            "model": config.model,
+            **config.context,
+        }
 
-            Args:
-                prompt: User prompt
-                **kwargs: Additional arguments
+        # Add memory configuration
+        if config.memory:
+            agent_kwargs["enable_memory"] = True
+            if config.memory.persist_dir:
+                agent_kwargs["persist_dir"] = config.memory.persist_dir
+            agent_kwargs["max_messages"] = config.memory.max_messages
 
-            Returns:
-                Agent response
-            """
-            # Note: Full integration of memory, routing, tools will be
-            # implemented in subsequent phases. For now, we return
-            # the base agent behavior.
+        # Add tools
+        if config.tools:
+            agent_kwargs["tools"] = config.tools
 
-            # TODO: Phase 1 - Integrate memory
-            # TODO: Phase 1 - Integrate tools
-            # TODO: Phase 2 - Integrate routing
-            # TODO: Phase 2 - Integrate hooks
+        # Build agent with memory parameter if memory is enabled
+        enhanced_agent: Callable
+        if config.memory:
+            @agent(**agent_kwargs)
+            async def _agent_with_memory(
+                prompt: str, memory: MemoryManager, **kwargs: Any
+            ) -> str:
+                """Enhanced agent with memory and tools.
 
-            # Placeholder: return prompt template
-            return f"Process: {prompt}"
+                Args:
+                    prompt: User prompt
+                    memory: Memory manager
+                    **kwargs: Additional arguments
+
+                Returns:
+                    Agent response
+                """
+                # TODO: Phase 2 - Integrate routing
+                # TODO: Phase 2 - Integrate hooks
+
+                # Process prompt - actual LLM call handled by @agent decorator
+                return f"{prompt}"
+
+            enhanced_agent = _agent_with_memory
+
+        else:
+            @agent(**agent_kwargs)
+            async def _agent_no_memory(prompt: str, **kwargs: Any) -> str:
+                """Enhanced agent with tools (no memory).
+
+                Args:
+                    prompt: User prompt
+                    **kwargs: Additional arguments
+
+                Returns:
+                    Agent response
+                """
+                # TODO: Phase 2 - Integrate routing
+                # TODO: Phase 2 - Integrate hooks
+
+                # Process prompt - actual LLM call handled by @agent decorator
+                return f"{prompt}"
+
+            enhanced_agent = _agent_no_memory
 
         # Attach metadata
         enhanced_agent._builder_config = config  # type: ignore
