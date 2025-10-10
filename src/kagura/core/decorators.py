@@ -93,6 +93,9 @@ def agent(
     persist_dir: Optional[Path] = None,
     max_messages: int = 100,
     tools: Optional[list[Callable]] = None,
+    enable_multimodal_rag: bool = False,
+    rag_directory: Optional[Path] = None,
+    rag_cache_size_mb: int = 100,
     **kwargs: Any,
 ) -> Callable[P, Awaitable[T]]: ...
 
@@ -107,6 +110,9 @@ def agent(
     persist_dir: Optional[Path] = None,
     max_messages: int = 100,
     tools: Optional[list[Callable]] = None,
+    enable_multimodal_rag: bool = False,
+    rag_directory: Optional[Path] = None,
+    rag_cache_size_mb: int = 100,
     **kwargs: Any,
 ) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]: ...
 
@@ -120,6 +126,9 @@ def agent(
     persist_dir: Optional[Path] = None,
     max_messages: int = 100,
     tools: Optional[list[Callable]] = None,
+    enable_multimodal_rag: bool = False,
+    rag_directory: Optional[Path] = None,
+    rag_cache_size_mb: int = 100,
     **kwargs: Any,
 ) -> (
     Callable[P, Awaitable[T]]
@@ -136,6 +145,10 @@ def agent(
         persist_dir: Directory for persistent memory storage
         max_messages: Maximum messages in context memory
         tools: List of tool functions available to the agent
+        enable_multimodal_rag: Enable multimodal RAG (requires multimodal extra)
+        rag_directory: Directory to index for RAG
+            (required if enable_multimodal_rag=True)
+        rag_cache_size_mb: Cache size in MB for RAG file loading
         **kwargs: Additional LLM parameters
 
     Returns:
@@ -161,6 +174,13 @@ def agent(
         async def research_agent(topic: str) -> str:
             '''Research {{ topic }} using available tools'''
             pass
+
+        # With multimodal RAG
+        @agent(enable_multimodal_rag=True, rag_directory=Path("./docs"))
+        async def docs_assistant(query: str, rag: MultimodalRAG) -> str:
+            '''Answer {{ query }} using documentation.
+            Use rag.query() to search relevant content.'''
+            pass
     """
 
     def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
@@ -170,17 +190,50 @@ def agent(
         # Create LLM config
         config = LLMConfig(model=model, temperature=temperature)
 
-        # Get function signature to check for memory parameter
+        # Get function signature to check for special parameters
         sig = inspect.signature(func)
         has_memory_param = "memory" in sig.parameters
+        has_rag_param = "rag" in sig.parameters
+
+        # Validate MultimodalRAG configuration
+        if enable_multimodal_rag:
+            if rag_directory is None:
+                raise ValueError(
+                    "rag_directory is required when enable_multimodal_rag=True"
+                )
+            if not has_rag_param:
+                raise ValueError(
+                    "Function must have 'rag' parameter when enable_multimodal_rag=True"
+                )
 
         # Convert tools to LiteLLM format if provided
         llm_tools = None
         if tools:
             llm_tools = _convert_tools_to_llm_format(tools)
 
+        # Initialize MultimodalRAG once (shared across calls)
+        multimodal_rag = None
+        if enable_multimodal_rag and has_rag_param:
+            try:
+                from .memory import MultimodalRAG
+
+                multimodal_rag = MultimodalRAG(
+                    directory=rag_directory,  # type: ignore
+                    collection_name=f"{func.__name__}_rag",
+                    persist_dir=persist_dir,
+                    cache_size_mb=rag_cache_size_mb,
+                )
+            except ImportError as e:
+                raise ImportError(
+                    "MultimodalRAG requires multimodal extra. "
+                    "Install with: pip install kagura-ai[multimodal]"
+                ) from e
+
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs_inner: P.kwargs) -> T:
+            # Make kwargs mutable
+            kwargs_inner = dict(kwargs_inner)  # type: ignore
+
             # Create and inject memory if enabled
             if enable_memory and has_memory_param:
                 memory = MemoryManager(
@@ -188,16 +241,23 @@ def agent(
                     persist_dir=persist_dir,
                     max_messages=max_messages,
                 )
-                # Inject memory into kwargs before binding
-                kwargs_inner = dict(kwargs_inner)  # type: ignore
                 kwargs_inner["memory"] = memory  # type: ignore
+
+            # Inject MultimodalRAG if enabled
+            if multimodal_rag is not None and has_rag_param:
+                kwargs_inner["rag"] = multimodal_rag  # type: ignore
 
             # Get function signature and bind arguments
             bound = sig.bind(*args, **kwargs_inner)
             bound.apply_defaults()
 
-            # Render prompt with arguments (excluding memory from template)
-            template_args = {k: v for k, v in bound.arguments.items() if k != "memory"}
+            # Render prompt with arguments (excluding special params from template)
+            exclude_from_template = {"memory", "rag"}
+            template_args = {
+                k: v
+                for k, v in bound.arguments.items()
+                if k not in exclude_from_template
+            }
             prompt = render_prompt(template_str, **template_args)
 
             # Prepare additional kwargs for LLM
