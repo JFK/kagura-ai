@@ -4,7 +4,7 @@ Loads commands from Markdown files with YAML frontmatter.
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import frontmatter
 
@@ -110,17 +110,23 @@ class CommandLoader:
             raise FileNotFoundError(f"Command file not found: {path}")
 
         # Parse frontmatter and content
-        post = frontmatter.load(path)
+        post = frontmatter.load(str(path))
 
         # Extract metadata from frontmatter
         metadata = dict(post.metadata)
 
         # Get command name (use frontmatter name or filename)
-        name = metadata.pop("name", path.stem)
-        description = metadata.pop("description", "")
-        allowed_tools = metadata.pop("allowed_tools", [])
-        model = metadata.pop("model", "gpt-4o-mini")
-        parameters = metadata.pop("parameters", {})
+        name = str(metadata.pop("name", path.stem))
+        description = str(metadata.pop("description", ""))
+        allowed_tools_raw = metadata.pop("allowed_tools", [])
+        allowed_tools: list[str] = (
+            allowed_tools_raw if isinstance(allowed_tools_raw, list) else []
+        )
+        model = str(metadata.pop("model", "gpt-4o-mini"))
+        parameters_raw = metadata.pop("parameters", {})
+        parameters: dict[str, Any] = (
+            parameters_raw if isinstance(parameters_raw, dict) else {}
+        )
 
         # Template is the Markdown body
         template = post.content.strip()

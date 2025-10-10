@@ -67,11 +67,13 @@ def run(
         try:
             commands = loader.load_all()
         except FileNotFoundError:
+            dirs_str = ", ".join(str(d) for d in loader.commands_dirs)
             console.print(
-                f"[red]Error:[/red] Commands directory not found: {loader.commands_dir}"
+                f"[red]Error:[/red] Commands directory not found: {dirs_str}"
             )
             console.print("\n[yellow]Tip:[/yellow] Create the directory with:")
-            console.print(f"  mkdir -p {loader.commands_dir}")
+            for cmd_dir in loader.commands_dirs:
+                console.print(f"  mkdir -p {cmd_dir}")
             sys.exit(1)
 
         # Get command

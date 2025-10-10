@@ -7,7 +7,7 @@ import asyncio
 import sys
 
 import click
-from mcp.server.stdio import stdio_server
+from mcp.server.stdio import stdio_server  # type: ignore
 
 from kagura.mcp import create_mcp_server
 

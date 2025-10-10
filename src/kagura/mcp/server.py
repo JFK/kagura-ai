@@ -7,8 +7,8 @@ Claude Code, Cline, and other MCP clients.
 import inspect
 from typing import Any
 
-from mcp.server import Server
-from mcp.types import TextContent, Tool
+from mcp.server import Server  # type: ignore
+from mcp.types import TextContent, Tool  # type: ignore
 
 from kagura.core.registry import agent_registry
 
