@@ -5,6 +5,7 @@ Provides four types of memory:
 - Context Memory: Conversation history and session management
 - Persistent Memory: Long-term storage using SQLite
 - Memory RAG: Vector-based semantic search (requires chromadb)
+- Multimodal RAG: RAG with directory scanning (requires chromadb + gemini)
 
 The MemoryManager provides a unified interface to all memory types.
 """
@@ -23,3 +24,11 @@ __all__ = [
     "MemoryRAG",
     "Message",
 ]
+
+# Conditional import for MultimodalRAG (requires multimodal extra)
+try:
+    from .multimodal_rag import MultimodalRAG
+
+    __all__.append("MultimodalRAG")
+except ImportError:
+    pass
