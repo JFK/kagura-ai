@@ -740,7 +740,11 @@ async def research_agent(topic: str) -> str:
 ### 今後の計画 📋
 - [ ] ユーザードキュメント追加検討（docs/）
 - [ ] examples/ 更新（v2.2.0新機能）
-- [ ] Integration tests CI追加
+- [x] **Integration tests CI追加** ✅ (2025-10-10)
+  - `.github/workflows/integration_tests.yml` 作成
+  - `pytest-timeout` 依存関係追加
+  - `ai_docs/github_actions_setup.md` ドキュメント作成
+  - 16個のintegration tests全てパス
 
 ---
 
