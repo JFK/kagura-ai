@@ -5,6 +5,139 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2025-10-11
+
+### Added
+
+- **RFC-002: Multimodal RAG** ([#62](https://github.com/JFK/kagura-ai/issues/62))
+  - **Phase 1: Gemini API Integration** (Week 1, [#121](https://github.com/JFK/kagura-ai/issues/121))
+    - Gemini 1.5 Flash/Pro support for multimodal processing
+    - Image analysis with vision API
+    - Audio transcription capabilities
+    - Video content analysis
+    - PDF document processing
+    - Optional dependency: `pip install kagura-ai[multimodal]`
+
+  - **Phase 2: Multimodal Loaders** (Week 2, [#122](https://github.com/JFK/kagura-ai/issues/122))
+    - `GeminiLoader` class for multimodal file processing
+    - `DirectoryScanner` with parallel file processing
+    - File type detection for images, audio, video, PDFs, text
+    - `.gitignore` and `.kaguraignore` support
+    - File content caching with `LoaderCache`
+    - Configurable cache size and TTL
+
+  - **Phase 3: ChromaDB Integration** (Week 3, [#123](https://github.com/JFK/kagura-ai/issues/123))
+    - `MultimodalRAG` class extending `MemoryRAG`
+    - Automatic directory indexing with `build_index()`
+    - Incremental updates with `incremental_update()`
+    - Semantic search across all file types
+    - File type filtering in queries
+    - `@agent` integration with `enable_multimodal_rag=True`
+    - Persistent index storage with ChromaDB
+
+- **RFC-014: Web Integration** ([#75](https://github.com/JFK/kagura-ai/issues/75))
+  - **Phase 1: Web Search** (Week 4, [#124](https://github.com/JFK/kagura-ai/issues/124))
+    - `BraveSearch` class with API integration
+    - `DuckDuckGoSearch` as fallback (no API key required)
+    - `web_search()` convenience function
+    - `SearchResult` dataclass for structured results
+    - Automatic fallback from Brave to DuckDuckGo
+    - Optional dependency: `pip install kagura-ai[web]`
+
+  - **Phase 2: Web Scraping** (Week 5, [#125](https://github.com/JFK/kagura-ai/issues/125))
+    - `WebScraper` class with BeautifulSoup
+    - HTML fetching with httpx (async)
+    - Text extraction with `fetch_text()`
+    - CSS selector-based scraping
+    - `robots.txt` compliance with `RobotsTxtChecker`
+    - Rate limiting with `RateLimiter`
+    - Configurable user agent and delays
+
+- **Full-Featured Chat Mode** (Week 6, [#126](https://github.com/JFK/kagura-ai/issues/126), PR [#138](https://github.com/JFK/kagura-ai/pull/138))
+  - `--full` flag for combined multimodal RAG + web search
+  - `kagura chat --full --dir <path>` single command
+  - Automatic validation (requires `--dir` when using `--full`)
+  - Rich progress indicators:
+    - 🌐 Web search progress
+    - 💬 AI response generation
+    - RAG file search status
+  - Special "🚀 Full-Featured Mode" banner in UI
+  - Tool calling loop implementation for OpenAI-compatible agents
+  - Support for both sync and async tool functions
+
+### Documentation
+
+- **User Guides** (PR [#140](https://github.com/JFK/kagura-ai/pull/140))
+  - `docs/en/guides/chat-multimodal.md` - Multimodal RAG guide (400+ lines)
+    - Setup and installation
+    - Supported file types
+    - Programmatic API usage
+    - Agent integration examples
+    - Configuration options
+    - Best practices and troubleshooting
+
+  - `docs/en/guides/web-integration.md` - Web integration guide (350+ lines)
+    - Web search and scraping
+    - Brave Search and DuckDuckGo setup
+    - robots.txt compliance
+    - Rate limiting best practices
+    - Agent integration patterns
+    - Ethical scraping guidelines
+
+  - `docs/en/guides/full-featured-mode.md` - Full-featured mode guide (450+ lines)
+    - Combined multimodal RAG + web search
+    - Use cases and examples
+    - Intelligent routing
+    - Cost estimation
+    - Performance optimization
+    - Real-world applications
+
+### Tests
+
+- **Integration Tests** (PR [#139](https://github.com/JFK/kagura-ai/pull/139))
+  - 7 multimodal RAG integration tests
+  - 9 web integration tests
+  - 5 full-featured mode integration tests
+  - **Total integration tests**: 34 (up from 13)
+  - All tests passing with 100% success rate
+
+### Changed
+
+- Enhanced `@agent` decorator with tool calling loop
+  - Renamed internal parameter `tools` → `tool_functions` to avoid conflicts
+  - Support for OpenAI-compatible tool calling
+  - Iterative tool execution with max 5 iterations
+  - Automatic tool result injection back to LLM
+  - Support for both sync and async tools
+
+- Improved `kagura chat` command
+  - Added `--full` flag for full-featured mode
+  - Added `--enable-multimodal` and `--dir` options
+  - Added `--enable-web` option
+  - Better progress indication with Rich console
+  - Validation for required parameters
+
+- Updated integration test mocks
+  - Fixed `mock_llm_response` to include `tool_calls=None`
+  - Proper `SearchResult` dataclass usage in web tests
+  - Improved error messages in test failures
+
+### Fixed
+
+- Tool calling loop implementation
+  - Fixed infinite loop when LLM returns empty content with tool calls
+  - Added maximum iteration limit (5) to prevent hangs
+  - Proper tool result formatting for conversation history
+
+- Parameter naming conflicts
+  - Resolved `tools` keyword argument conflict in `call_llm()`
+  - Clean separation between Python callables and OpenAI schema
+
+- Integration test stability
+  - Fixed DuckDuckGo search mock with proper context manager
+  - Fixed memory access in full-featured mode tests
+  - Removed problematic CLI tests with asyncio conflicts
+
 ## [2.2.0] - 2025-10-10
 
 ### Added
