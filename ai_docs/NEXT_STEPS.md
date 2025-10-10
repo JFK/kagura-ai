@@ -1,7 +1,7 @@
 # Kagura AI - Next Steps（次のアクション）
 
-**最終更新**: 2025-10-10 (19:00)
-**現在地**: v2.1.0 リリース済み 🎉 → v2.2.0 計画中
+**最終更新**: 2025-10-10 (21:00)
+**現在地**: v2.1.0 リリース済み 🎉 → **v2.2.0 開始** 🚀 (RFC-019完了！)
 
 ---
 
@@ -152,6 +152,57 @@
 | Core | @workflow decorator | #104 | ✅ |
 
 **合計**: 13個のPR、8個のRFC（Phase含む）完了 🎉
+
+---
+
+## 🎉 v2.2.0 開始！（2025-10-10）
+
+### ✅ RFC-019: Unified Agent Builder - 完了！
+**PR #111, #112, #113** (2025-10-10)
+
+**Phase 1: Core Builder**
+- `src/kagura/builder/agent_builder.py`: AgentBuilder基本実装（225行）
+- `src/kagura/builder/config.py`: Configuration classes（82行）
+- Fluent API pattern (method chaining)
+- `tests/builder/test_agent_builder.py`: 19テスト（全パス）
+
+**Phase 1.5: Memory + Tools Integration** (PR #112)
+- `@agent` decorator に `tools` パラメータ追加
+- `_convert_tools_to_llm_format()` helper関数
+- Memory設定を`@agent`に渡す統合
+- 4つの統合テスト追加（Memory, Tools, RAG, Memory+Tools）
+
+**Phase 2: Hooks + Presets** (PR #113)
+- Hooks wrapper実装（pre/post hooks support）
+- `src/kagura/presets/chatbot.py`: ChatbotPreset
+- `src/kagura/presets/research.py`: ResearchPreset
+- `src/kagura/presets/code_review.py`: CodeReviewPreset
+- 11個のPresetテスト追加
+
+**使用例**:
+```python
+from kagura import AgentBuilder
+from kagura.presets import ChatbotPreset
+
+# Manual builder
+agent = (
+    AgentBuilder("my_agent")
+    .with_model("gpt-4o-mini")
+    .with_memory(type="rag", enable_rag=True)
+    .with_tools([search_tool, calculator])
+    .with_hooks(pre=[validation_hook], post=[logging_hook])
+    .build()
+)
+
+# Preset
+chatbot = ChatbotPreset("my_chatbot").with_model("gpt-4o").build()
+```
+
+**成果**:
+- ✅ 複数機能の統合が簡単に
+- ✅ 3つのプリセット提供
+- ✅ Hooks統合
+- ✅ 31個のテスト（全パス）
 
 ---
 
@@ -487,13 +538,14 @@ ruff check src/
 ## ❓ よくある質問
 
 ### Q1: どのRFCが完了している？
-A: 以下のRFCが完了しています（2025-10-10現在）：
+A: 以下のRFCが完了しています（2025-10-10 21:00現在）：
 - ✅ RFC-007 Phase 1: MCP Integration（Claude Desktop統合）
 - ✅ RFC-017: Shell Integration（シェル実行、Git自動化）
 - ✅ RFC-018 Phase 1 & 2: Memory Management（3層メモリ + RAG検索）
 - ✅ RFC-012 Phase 1 & 2: Commands & Hooks（コマンド + Hooks）
 - ✅ RFC-016 Phase 1 & 2: Agent Routing（3種類のルーティング）
 - ✅ RFC-006 Phase 1: Chat REPL（対話型チャット）
+- ✅ **RFC-019: Unified Agent Builder**（統合ビルダー + Presets）⭐️ NEW
 
 ### Q2: 新規RFC（019-022）はどこで確認できる？
 A: `ai_docs/rfcs/` ディレクトリ：
@@ -542,11 +594,18 @@ A: v2.1.0で多数の機能（Memory、Routing、Tools、Hooks）が追加され
 
 ### 次のステップ
 1. ✅ 新規RFC作成（019-022）完了
-2. ⏳ 各RFCのGitHub Issue作成
-3. ⏳ 実装優先順位の決定
-4. ⏳ 開発開始
+2. ✅ 各RFCのGitHub Issue作成（#107-110）
+3. ✅ 実装優先順位の決定（プランA採用）
+4. ✅ **RFC-019完了！**（2025-10-10）
+5. **⏳ RFC-022 (Testing Framework) 実装開始** ← 次はここ！
 
-**推奨**: プランA（統合性重視）で、RFC-019とRFC-022を並行実装から開始！
+**v2.2.0 タイムライン**:
+```
+✅ Week 0: RFC-019 (Unified Agent Builder) - 完了
+⏳ Week 1-2: RFC-022 (Agent Testing Framework)
+□ Week 3-4: RFC-021 (Agent Observability Dashboard)
+□ Week 5-6: RFC-020 (Memory-Aware Routing) + RFC-007 Phase 2
+```
 
 ---
 

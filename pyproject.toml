@@ -30,6 +30,9 @@ dependencies = [
 [project.scripts]
 kagura = "kagura.cli.main:cli"
 
+[project.entry-points.pytest11]
+kagura_testing = "kagura.testing.plugin"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3",
@@ -52,6 +55,9 @@ routing = [
 ]
 memory = [
     "chromadb>=0.4.0",
+]
+testing = [
+    "langdetect>=1.0.9",
 ]
 
 [build-system]
@@ -88,5 +94,7 @@ asyncio_default_fixture_loop_scope = "function"
 markers = [
     "integration: Integration tests (deselect with '-m \"not integration\"')",
     "unit: Unit tests",
-    "slow: Slow tests"
+    "slow: Slow tests",
+    "agent: Agent tests (for agent-specific testing)",
+    "benchmark: Performance benchmarks",
 ]
