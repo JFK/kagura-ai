@@ -28,7 +28,9 @@ Kagura AI 2.0 is a complete redesign focused on simplicity and developer experie
 - **Chat REPL**: `kagura chat` with preset agents (translate, summarize, review) ⭐️ NEW
 - **Multi-LLM Support**: Works with OpenAI, Anthropic, Google, and more via [LiteLLM](https://github.com/BerriAI/litellm)
 
-### Advanced Features ⭐️ NEW in v2.1.0
+### Advanced Features
+- **Multimodal RAG**: Index and search images, PDFs, audio, video using Gemini API + ChromaDB ⭐️ NEW in v2.3.0
+- **Web Integration**: Brave Search + DuckDuckGo + web scraping for real-time information ⭐️ NEW in v2.3.0
 - **MCP Integration**: Use Kagura agents directly in Claude Desktop via Model Context Protocol
 - **Shell Integration**: Secure shell command execution with Git automation (`commit`, `push`, `status`, `create_pr`)
 - **Memory Management**: Three-tier memory system (Working/Context/Persistent) + RAG with ChromaDB for semantic search
@@ -41,7 +43,17 @@ Kagura AI 2.0 is a complete redesign focused on simplicity and developer experie
 ### Installation
 
 ```bash
+# Basic installation
 pip install kagura-ai
+
+# With multimodal support (images, PDFs, audio, video)
+pip install kagura-ai[multimodal]
+
+# With web search and scraping
+pip install kagura-ai[web]
+
+# With all features
+pip install kagura-ai[multimodal,web]
 ```
 
 ### Basic Example

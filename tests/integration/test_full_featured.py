@@ -4,6 +4,13 @@ from pathlib import Path
 from unittest.mock import patch, AsyncMock, MagicMock
 import tempfile
 import shutil
+import os
+
+# Skip all tests in this file if GEMINI_API_KEY is not set (for CI)
+pytestmark = pytest.mark.skipif(
+    not os.getenv("GEMINI_API_KEY") and not os.getenv("GOOGLE_API_KEY"),
+    reason="GEMINI_API_KEY or GOOGLE_API_KEY not set (required for multimodal features)"
+)
 
 
 @pytest.fixture
