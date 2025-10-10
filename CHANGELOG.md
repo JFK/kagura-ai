@@ -5,6 +5,124 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2025-10-10
+
+### Added
+
+- **RFC-018: Memory RAG (Phase 2)** ([#85](https://github.com/JFK/kagura-ai/issues/85), PR [#105](https://github.com/JFK/kagura-ai/pull/105))
+  - `MemoryRAG` class for semantic memory retrieval
+  - ChromaDB integration for vector search
+  - `store_semantic()` and `recall_semantic()` methods
+  - Agent-scoped semantic search
+  - Optional dependency: `pip install kagura-ai[memory]`
+  - 9 comprehensive tests (100% coverage)
+
+- **RFC-019: Unified Agent Builder** ([#87](https://github.com/JFK/kagura-ai/issues/87))
+  - **Phase 1: Core Builder** (PR [#111](https://github.com/JFK/kagura-ai/pull/111))
+    - `AgentBuilder` class with fluent API pattern
+    - Method chaining for easy configuration
+    - `AgentConfig`, `MemoryConfig`, `LLMConfig` classes
+    - 19 unit tests (100% coverage)
+
+  - **Phase 1.5: Memory + Tools Integration** (PR [#112](https://github.com/JFK/kagura-ai/pull/112))
+    - `tools` parameter in `@agent` decorator
+    - Automatic tool conversion to LLM format
+    - Memory configuration integration
+    - 4 integration tests
+
+  - **Phase 2: Hooks + Presets** (PR [#113](https://github.com/JFK/kagura-ai/pull/113))
+    - Hooks wrapper for pre/post execution
+    - `ChatbotPreset`, `ResearchPreset`, `CodeReviewPreset`
+    - 11 preset tests
+    - **Total**: 31 tests, 3 built-in presets
+
+- **RFC-022: Agent Testing Framework** (PR [#114](https://github.com/JFK/kagura-ai/pull/114))
+  - `AgentTestCase` class for comprehensive agent testing
+  - Flexible assertions for non-deterministic LLM responses
+    - `assert_contains()`, `assert_any_of()`, `assert_pattern()`
+  - Mocking utilities: `mock_llm_response()`, `MockLLMProvider`
+  - Performance testing: `Timer` utility
+  - Cost tracking: `assert_cost_below()`
+  - pytest plugin with `@pytest.mark.agent` marker
+  - Optional dependency: `pip install kagura-ai[testing]`
+  - 34 tests (32 passed, 2 skipped)
+
+- **RFC-001: Workflow System - Advanced Patterns** ([#61](https://github.com/JFK/kagura-ai/issues/61), PR [#115](https://github.com/JFK/kagura-ai/pull/115))
+  - `@workflow.chain` - Sequential execution chains
+  - `@workflow.parallel` - Parallel execution helper with `run_parallel()`
+  - `@workflow.stateful` - Pydantic-based state graphs (LangGraph-compatible)
+  - Multi-agent orchestration support
+  - 17 comprehensive tests (100% coverage)
+
+- **RFC-020: Memory-Aware Routing** (PR [#116](https://github.com/JFK/kagura-ai/pull/116))
+  - **ContextAnalyzer**: Detects context-dependent queries
+    - Pronoun detection (it, this, that, them, etc.)
+    - Implicit reference detection (also, too, again, etc.)
+    - Follow-up question detection (what about, how about, etc.)
+    - Smart filtering to prevent false positives
+    - 28 unit tests (100% coverage)
+
+  - **MemoryAwareRouter**: Context-enhanced agent routing
+    - Extends `AgentRouter` with conversation history
+    - Automatic query enrichment using context
+    - `MemoryManager` integration
+    - Optional RAG support for semantic context
+    - 20 integration tests (100% coverage)
+    - **Total routing tests**: 83 (all passing)
+
+- **RFC-021: Agent Observability Dashboard** ([#109](https://github.com/JFK/kagura-ai/issues/109))
+  - **Phase 1: Telemetry Collection** (PR [#117](https://github.com/JFK/kagura-ai/pull/117))
+    - `EventStore` - SQLite-based event storage
+    - `TelemetryCollector` - Metrics collection engine
+    - `Telemetry` - Decorator-based instrumentation
+    - Track LLM calls, tool calls, memory operations
+    - Cost tracking and performance metrics
+    - 70 comprehensive tests (100% coverage)
+
+  - **Phase 2: CLI Dashboard** (PR [#118](https://github.com/JFK/kagura-ai/pull/118))
+    - `Dashboard` class with Rich TUI visualization
+    - Real-time monitoring with auto-refresh
+    - **CLI Commands**:
+      - `kagura monitor` / `kagura monitor live` - Live dashboard
+      - `kagura monitor list` - Execution history with filters
+      - `kagura monitor stats` - Statistics summary
+      - `kagura monitor trace <id>` - Detailed execution trace
+      - `kagura monitor cost` - Cost analysis by agent/date
+    - Timeline visualization with event details
+    - Monthly cost estimation
+    - 37 comprehensive tests (23 dashboard + 14 CLI, 100% coverage)
+    - **Total observability tests**: 107
+
+### Changed
+
+- Enhanced `@agent` decorator with `tools` parameter support
+- Improved routing system with context awareness
+- Updated CLI with `kagura monitor` command group
+
+### Documentation
+
+- Memory RAG integration guide
+- Agent Builder tutorial and API reference
+- Testing framework guide with examples
+- Advanced workflow patterns documentation
+- Memory-aware routing guide
+- Observability dashboard tutorial
+
+### Tests
+
+- Added 9 Memory RAG tests (100% coverage)
+- Added 31 Agent Builder tests (100% coverage)
+- Added 34 Agent Testing Framework tests
+- Added 17 Advanced Workflow tests (100% coverage)
+- Added 48 Memory-Aware Routing tests (100% coverage)
+- Added 107 Observability tests (100% coverage)
+- **Total v2.2.0 tests**: 246 new tests
+- **Total project tests**: 586+ tests passing
+
+### Fixed
+
+- Monitor CLI shortcut support for `kagura monitor` (without subcommand)
+
 ## [2.1.0] - 2025-10-09
 
 ### Added
@@ -254,6 +372,7 @@ This is a **complete rewrite** from Kagura AI 1.x:
 
 Legacy versions (1.0.0 - 1.x.x) are no longer maintained. Please migrate to 2.0.0+ for new projects.
 
+[2.2.0]: https://github.com/JFK/kagura-ai/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/JFK/kagura-ai/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/JFK/kagura-ai/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/JFK/kagura-ai/compare/v2.0.0...v2.0.1
