@@ -1,4 +1,5 @@
 """Prompt template engine using Jinja2"""
+
 import inspect
 from typing import Any, Callable, Optional
 
@@ -39,9 +40,9 @@ def create_environment() -> Environment:
     )
 
     # Register custom filters
-    env.filters['truncate'] = filter_truncate
-    env.filters['format_code'] = filter_format_code
-    env.filters['list_items'] = filter_list_items
+    env.filters["truncate"] = filter_truncate
+    env.filters["format_code"] = filter_format_code
+    env.filters["list_items"] = filter_list_items
 
     return env
 

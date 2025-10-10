@@ -34,9 +34,7 @@ class WorkflowChain:
             return summary
     """
 
-    def __call__(
-        self, fn: Callable[P, Awaitable[T]]
-    ) -> Callable[P, Awaitable[T]]:
+    def __call__(self, fn: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
         """Decorate a function as a chain workflow.
 
         Args:
@@ -86,9 +84,7 @@ class WorkflowParallel:
             }
     """
 
-    def __call__(
-        self, fn: Callable[P, Awaitable[T]]
-    ) -> Callable[P, Awaitable[T]]:
+    def __call__(self, fn: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
         """Decorate a function as a parallel workflow.
 
         Args:

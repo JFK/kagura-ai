@@ -43,9 +43,7 @@ class Telemetry:
             store = EventStore()
         self.collector = TelemetryCollector(store)
 
-    def instrument(
-        self, agent_name: Optional[str] = None
-    ) -> Callable[[T], T]:
+    def instrument(self, agent_name: Optional[str] = None) -> Callable[[T], T]:
         """Decorator to instrument agent with telemetry.
 
         Args:

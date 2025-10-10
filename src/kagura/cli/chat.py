@@ -1,6 +1,7 @@
 """
 CLI command for interactive chat
 """
+
 import asyncio
 
 import click

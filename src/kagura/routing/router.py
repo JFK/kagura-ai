@@ -358,8 +358,8 @@ class AgentRouter:
         """Initialize semantic-router with registered agents."""
         try:
             from semantic_router import Route  # type: ignore
-            from semantic_router import (
-                SemanticRouter as _SemanticRouter,  # type: ignore
+            from semantic_router import (  # type: ignore
+                SemanticRouter as _SemanticRouter,
             )
 
             # Create encoder

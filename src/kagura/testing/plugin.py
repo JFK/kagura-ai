@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import pytest
+import pytest  # type: ignore
 
 if TYPE_CHECKING:
     from kagura.testing import AgentTestCase

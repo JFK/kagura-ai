@@ -1,6 +1,7 @@
 """
 Preset agents for common tasks in Chat REPL
 """
+
 from kagura import agent
 
 

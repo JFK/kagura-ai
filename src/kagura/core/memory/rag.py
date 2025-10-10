@@ -6,7 +6,7 @@ for semantic memory search using vector embeddings.
 
 import hashlib
 from pathlib import Path
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 # ChromaDB (lightweight, local vector DB)
 try:
@@ -16,6 +16,9 @@ try:
     CHROMADB_AVAILABLE = True
 except ImportError:
     CHROMADB_AVAILABLE = False
+
+if TYPE_CHECKING:
+    from chromadb.types import Where  # type: ignore
 
 
 class MemoryRAG:
@@ -115,7 +118,8 @@ class MemoryRAG:
 
         Note:
             ChromaDB handles query embedding internally using the default
-            sentence-transformers model. Distance range: 0.0 (identical) to 2.0 (opposite).
+            sentence-transformers model. Distance range: 0.0 (identical)
+            to 2.0 (opposite).
 
         Example:
             >>> rag.store("Python is a programming language", agent_name="assistant")
@@ -126,7 +130,7 @@ class MemoryRAG:
             0.34
         """
         # Build metadata filter for agent-scoped search
-        where = {"agent_name": agent_name} if agent_name else None
+        where: "Where | None" = {"agent_name": agent_name} if agent_name else None
 
         # Query ChromaDB collection
         # Returns: {"documents": [[...]], "distances": [[...]], "metadatas": [[...]]}

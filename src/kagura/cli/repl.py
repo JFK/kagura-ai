@@ -1,4 +1,5 @@
 """Interactive REPL for Kagura AI"""
+
 import keyword
 import os
 import sys
@@ -27,24 +28,26 @@ from rich.table import Table
 console = Console(force_terminal=True, legacy_windows=False)
 
 # Custom prompt_toolkit style
-prompt_style = Style.from_dict({
-    'prompt': '#00aa00 bold',  # Green prompt
-    'continuation': '#888888',  # Gray continuation
-})
+prompt_style = Style.from_dict(
+    {
+        "prompt": "#00aa00 bold",  # Green prompt
+        "continuation": "#888888",  # Gray continuation
+    }
+)
 
 
 class CommandCompleter(Completer):
     """Custom completer for REPL commands (starting with /)"""
 
     def __init__(self):
-        self.commands = ['help', 'agents', 'model', 'temp', 'exit', 'clear']
+        self.commands = ["help", "agents", "model", "temp", "exit", "clear"]
 
     def get_completions(self, document, complete_event):
         """Generate completions for commands"""
         text = document.text_before_cursor
 
         # Only complete if text starts with /
-        if text.startswith('/'):
+        if text.startswith("/"):
             word = text[1:]  # Remove leading /
             for cmd in self.commands:
                 if cmd.startswith(word.lower()):
@@ -84,16 +87,40 @@ class KaguraREPL:
 
         # Common functions and imports to prioritize
         common_words = [
-            'print', 'len', 'range', 'str', 'int', 'float', 'list', 'dict', 'set', 'tuple',
-            'input', 'open', 'help', 'type', 'isinstance', 'enumerate', 'zip', 'map', 'filter',
-            'import', 'from', 'as', 'kagura', 'asyncio', 'async', 'await', 'agent'
+            "print",
+            "len",
+            "range",
+            "str",
+            "int",
+            "float",
+            "list",
+            "dict",
+            "set",
+            "tuple",
+            "input",
+            "open",
+            "help",
+            "type",
+            "isinstance",
+            "enumerate",
+            "zip",
+            "map",
+            "filter",
+            "import",
+            "from",
+            "as",
+            "kagura",
+            "asyncio",
+            "async",
+            "await",
+            "agent",
         ]
 
         # Combine all words and remove duplicates while preserving order
         seen = set()
         python_words = []
         for word in common_words + python_keywords + python_builtins:
-            if word not in seen and not word.startswith('_'):
+            if word not in seen and not word.startswith("_"):
                 seen.add(word)
                 python_words.append(word)
 
@@ -110,27 +137,27 @@ class KaguraREPL:
         # Custom key bindings for multiline support
         kb = KeyBindings()
 
-        @kb.add('enter')
+        @kb.add("enter")
         def _(event):
             """Handle Enter key - newline or execute on double Enter"""
             buffer = event.current_buffer
             text = buffer.text
 
             # Commands starting with / execute immediately
-            if text.strip().startswith('/'):
+            if text.strip().startswith("/"):
                 buffer.validate_and_handle()
                 return
 
             # IPython-style: empty line triggers execution
             # If current line is empty and we have previous content, execute
-            if text.endswith('\n') or (text and not text.split('\n')[-1].strip()):
+            if text.endswith("\n") or (text and not text.split("\n")[-1].strip()):
                 # Last line is empty, execute
                 if text.strip():  # But only if there's actual content
                     buffer.validate_and_handle()
                     return
 
             # Otherwise, insert newline
-            buffer.insert_text('\n')
+            buffer.insert_text("\n")
 
         self.session = PromptSession(
             history=FileHistory(self.history_file),
@@ -140,7 +167,7 @@ class KaguraREPL:
             lexer=PygmentsLexer(PythonLexer),
             style=prompt_style,
             multiline=True,  # Enable multiline input
-            prompt_continuation='... ',  # Continuation prompt
+            prompt_continuation="... ",  # Continuation prompt
             key_bindings=kb,
             enable_history_search=True,
         )
@@ -221,11 +248,14 @@ class KaguraREPL:
             if arg:
                 try:
                     self.default_temperature = float(arg)
-                    console.print(f"[green]Temperature changed to:[/green] {self.default_temperature}")
+                    temp_val = self.default_temperature
+                    console.print(f"[green]Temperature changed to:[/green] {temp_val}")
                 except ValueError:
                     console.print("[red]Error:[/red] Temperature must be a number")
             else:
-                console.print(f"Current temperature: [cyan]{self.default_temperature}[/cyan]")
+                console.print(
+                    f"Current temperature: [cyan]{self.default_temperature}[/cyan]"
+                )
         elif cmd == "/exit":
             console.print("[green]Goodbye![/green]")
             sys.exit(0)
@@ -281,7 +311,7 @@ class KaguraREPL:
         try:
             # PromptSession now handles multiline internally
             # with our custom Enter/Shift+Enter key bindings
-            user_input = self.session.prompt('>>> ')
+            user_input = self.session.prompt(">>> ")
             return user_input
         except (KeyboardInterrupt, EOFError):
             console.print("\n[yellow]Input cancelled[/yellow]")

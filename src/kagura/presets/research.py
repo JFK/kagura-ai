@@ -24,9 +24,7 @@ class ResearchPreset(AgentBuilder):
         >>> result = await researcher("Analyze trends in AI")
     """
 
-    def __init__(
-        self, name: str, persist_dir: Optional[Path] = None
-    ):
+    def __init__(self, name: str, persist_dir: Optional[Path] = None):
         """Initialize research preset.
 
         Args:

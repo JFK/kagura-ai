@@ -4,6 +4,7 @@ Global registry for Kagura agents
 This module provides a centralized registry for all Kagura agents,
 enabling MCP integration and agent discovery.
 """
+
 import importlib
 import inspect
 from typing import Any, Callable

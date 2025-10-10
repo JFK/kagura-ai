@@ -81,9 +81,7 @@ class WorkingMemory:
         """
         return {
             "data": self._data.copy(),
-            "access_log": {
-                k: v.isoformat() for k, v in self._access_log.items()
-            },
+            "access_log": {k: v.isoformat() for k, v in self._access_log.items()},
         }
 
     def __len__(self) -> int:

@@ -37,12 +37,8 @@ class PersistentMemory:
                     metadata TEXT
                 )
             """)
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_key ON memories(key)"
-            )
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_agent ON memories(agent_name)"
-            )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_key ON memories(key)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_agent ON memories(agent_name)")
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_key_agent ON memories(key, agent_name)"
             )
@@ -96,9 +92,7 @@ class PersistentMemory:
                     (key, value_json, agent_name, metadata_json),
                 )
 
-    def recall(
-        self, key: str, agent_name: Optional[str] = None
-    ) -> Optional[Any]:
+    def recall(self, key: str, agent_name: Optional[str] = None) -> Optional[Any]:
         """Retrieve persistent memory.
 
         Args:
@@ -143,7 +137,8 @@ class PersistentMemory:
                 """
                 SELECT key, value, created_at, updated_at, metadata
                 FROM memories
-                WHERE key LIKE ? AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))
+                WHERE key LIKE ?
+                  AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))
                 ORDER BY updated_at DESC
                 LIMIT ?
                 """,

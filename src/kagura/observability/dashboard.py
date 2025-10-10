@@ -91,9 +91,7 @@ class Dashboard:
             agent_name: Filter by agent name
             since: Filter by start time (timestamp)
         """
-        stats = self.store.get_summary_stats(
-            agent_name=agent_name, since=since
-        )
+        stats = self.store.get_summary_stats(agent_name=agent_name, since=since)
 
         # Get recent executions for detailed stats
         executions = self.store.get_executions(
@@ -102,13 +100,11 @@ class Dashboard:
 
         # Calculate additional stats
         total_cost = sum(
-            exec.get("metrics", {}).get("total_cost", 0.0)
-            for exec in executions
+            exec.get("metrics", {}).get("total_cost", 0.0) for exec in executions
         )
 
         total_tokens = sum(
-            exec.get("metrics", {}).get("total_tokens", 0)
-            for exec in executions
+            exec.get("metrics", {}).get("total_tokens", 0) for exec in executions
         )
 
         llm_calls = sum(
@@ -125,9 +121,7 @@ class Dashboard:
         stats_text.append(
             f"Total Executions: {stats['total_executions']}\n", style="white"
         )
-        stats_text.append(
-            f"  • Completed: {stats['completed']}\n", style="green"
-        )
+        stats_text.append(f"  • Completed: {stats['completed']}\n", style="green")
         stats_text.append(f"  • Failed: {stats['failed']}\n", style="red")
         stats_text.append(
             f"Avg Duration: {stats['avg_duration']:.2f}s\n", style="white"
@@ -138,9 +132,7 @@ class Dashboard:
         stats_text.append(f"Tool Calls: {tool_calls}\n", style="white")
 
         if stats["total_executions"] > 0:
-            success_rate = (
-                stats["completed"] / stats["total_executions"] * 100
-            )
+            success_rate = stats["completed"] / stats["total_executions"] * 100
             stats_text.append(
                 f"\nSuccess Rate: {success_rate:.1f}%\n",
                 style="bold green" if success_rate > 90 else "bold yellow",
@@ -158,23 +150,18 @@ class Dashboard:
         execution = self.store.get_execution(execution_id)
 
         if not execution:
-            self.console.print(
-                f"[red]Execution {execution_id} not found[/red]"
-            )
+            self.console.print(f"[red]Execution {execution_id} not found[/red]")
             return
 
         # Create trace tree
         agent_name = execution["agent_name"]
         tree = Tree(
-            f"[bold cyan]Execution Trace: {agent_name} "
-            f"({execution_id})[/bold cyan]"
+            f"[bold cyan]Execution Trace: {agent_name} ({execution_id})[/bold cyan]"
         )
 
         # Add execution info
         info_branch = tree.add("[bold]Execution Info[/bold]")
-        info_branch.add(
-            f"Started: {self._format_timestamp(execution['started_at'])}"
-        )
+        info_branch.add(f"Started: {self._format_timestamp(execution['started_at'])}")
         info_branch.add(f"Status: {self._format_status(execution['status'])}")
         info_branch.add(f"Duration: {execution.get('duration', 0):.2f}s")
 
@@ -326,9 +313,7 @@ class Dashboard:
         date_costs: dict[str, float] = {}
 
         for exec in executions:
-            date = datetime.fromtimestamp(exec["started_at"]).strftime(
-                "%Y-%m-%d"
-            )
+            date = datetime.fromtimestamp(exec["started_at"]).strftime("%Y-%m-%d")
             cost = exec.get("metrics", {}).get("total_cost", 0.0)
 
             if date not in date_costs:
@@ -356,9 +341,7 @@ class Dashboard:
 
         self.console.print(table)
 
-    def _create_dashboard_layout(
-        self, agent_name: Optional[str] = None
-    ) -> Layout:
+    def _create_dashboard_layout(self, agent_name: Optional[str] = None) -> Layout:
         """Create Rich TUI dashboard layout for live monitoring.
 
         This creates a two-section layout used by show_live():
@@ -404,15 +387,11 @@ class Dashboard:
         )
 
         # Wrap header in Panel with cyan border
-        layout["header"].update(
-            Panel(header_text, border_style="cyan", padding=(0, 1))
-        )
+        layout["header"].update(Panel(header_text, border_style="cyan", padding=(0, 1)))
 
         # === Body Section: Recent Activity Table ===
         # Fetch last 15 executions (limit for performance)
-        executions = self.store.get_executions(
-            agent_name=agent_name, limit=15
-        )
+        executions = self.store.get_executions(agent_name=agent_name, limit=15)
 
         # Create formatted table with execution details
         activity_table = self._create_execution_table(executions)
@@ -424,9 +403,7 @@ class Dashboard:
 
         return layout
 
-    def _create_execution_table(
-        self, executions: list[dict[str, Any]]
-    ) -> Table:
+    def _create_execution_table(self, executions: list[dict[str, Any]]) -> Table:
         """Create table of executions."""
         table = Table(show_header=True, header_style="bold")
         table.add_column("Time", style="dim")

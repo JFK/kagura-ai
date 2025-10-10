@@ -57,6 +57,12 @@ routing = [
 memory = [
     "chromadb>=0.4.0",
 ]
+multimodal = [
+    "google-generativeai>=0.8.0",
+    "pillow>=10.0.0",
+    "proto-plus<2.0.0dev",
+    "protobuf>=4.25.0,<6.0.0",
+]
 testing = [
     "langdetect>=1.0.9",
 ]

@@ -3,6 +3,7 @@ JSON Schema generation for MCP tool integration
 
 Converts Python type hints to JSON Schema format required by MCP.
 """
+
 import inspect
 from typing import Any, Callable, get_args, get_origin
 
@@ -47,7 +48,11 @@ def python_type_to_json_schema(py_type: type) -> dict[str, Any]:
     args = get_args(py_type)
 
     # Optional[X] -> Union[X, None]
-    if origin is type(None) or (hasattr(origin, '__name__') and origin.__name__ == 'UnionType'):  # type: ignore
+    if origin is type(None) or (
+        origin is not None
+        and hasattr(origin, "__name__")
+        and origin.__name__ == "UnionType"
+    ):  # type: ignore
         # Union type - check if it's Optional (X | None)
         if len(args) == 2 and type(None) in args:
             # Optional[X] case
@@ -104,7 +109,10 @@ def generate_json_schema(func: Callable[..., Any]) -> dict[str, Any]:
 
     for param_name, param in sig.parameters.items():
         # Skip *args, **kwargs
-        if param.kind in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD):
+        if param.kind in (
+            inspect.Parameter.VAR_POSITIONAL,
+            inspect.Parameter.VAR_KEYWORD,
+        ):
             continue
 
         # Get type annotation
@@ -119,10 +127,10 @@ def generate_json_schema(func: Callable[..., Any]) -> dict[str, Any]:
         if func.__doc__:
             # Simple docstring parsing for parameter descriptions
             # Format: "param_name: description"
-            for line in func.__doc__.split('\n'):
+            for line in func.__doc__.split("\n"):
                 stripped = line.strip()
                 if stripped.startswith(f"{param_name}:"):
-                    desc = stripped.split(':', 1)[1].strip()
+                    desc = stripped.split(":", 1)[1].strip()
                     param_schema["description"] = desc
                     break
 

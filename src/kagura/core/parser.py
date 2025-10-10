@@ -1,11 +1,12 @@
 """Type-based response parser for LLM outputs"""
+
 import json
 import re
 from typing import Any, TypeVar, Union, get_args, get_origin
 
 from pydantic import BaseModel, ValidationError
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def extract_json(text: str) -> str:
@@ -24,7 +25,7 @@ def extract_json(text: str) -> str:
         Extracted JSON string or original text
     """
     # Strategy 1: Extract from markdown code blocks
-    json_block_pattern = r'```(?:json)?\s*(\{.*?\}|\[.*?\])\s*```'
+    json_block_pattern = r"```(?:json)?\s*(\{.*?\}|\[.*?\])\s*```"
     matches = re.findall(json_block_pattern, text, re.DOTALL)
     if matches:
         return matches[0]
@@ -53,12 +54,12 @@ def extract_json(text: str) -> str:
         return results
 
     # Try arrays first (more specific)
-    arrays = find_balanced_json(text, '[', ']')
+    arrays = find_balanced_json(text, "[", "]")
     if arrays:
         return max(arrays, key=len)
 
     # Try objects
-    objects = find_balanced_json(text, '{', '}')
+    objects = find_balanced_json(text, "{", "}")
     if objects:
         return max(objects, key=len)
 
@@ -87,23 +88,23 @@ def parse_basic_type(text: str, target_type: type) -> Any:
 
     if target_type is int:
         # Extract first number from text
-        numbers = re.findall(r'-?\d+', text)
+        numbers = re.findall(r"-?\d+", text)
         if numbers:
             return int(numbers[0])
         raise ValueError(f"No integer found in: {text}")
 
     if target_type is float:
         # Extract first float from text
-        numbers = re.findall(r'-?\d+\.?\d*', text)
+        numbers = re.findall(r"-?\d+\.?\d*", text)
         if numbers:
             return float(numbers[0])
         raise ValueError(f"No float found in: {text}")
 
     if target_type is bool:
         lower_text = text.lower()
-        if any(word in lower_text for word in ['true', 'yes', '1']):
+        if any(word in lower_text for word in ["true", "yes", "1"]):
             return True
-        if any(word in lower_text for word in ['false', 'no', '0']):
+        if any(word in lower_text for word in ["false", "no", "0"]):
             return False
         raise ValueError(f"No boolean found in: {text}")
 
@@ -174,7 +175,7 @@ def parse_response(response: str, target_type: Any) -> T:
 
         # Fallback: split by common delimiters (only for basic types)
         if item_type in (str, int, float, bool):
-            items = re.split(r'[,\n]', response)
+            items = re.split(r"[,\n]", response)
             cleaned_items = [item.strip() for item in items if item.strip()]
             try:
                 return [item_type(item) for item in cleaned_items]  # type: ignore

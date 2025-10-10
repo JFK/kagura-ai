@@ -4,11 +4,12 @@ MCP Server implementation for Kagura AI
 Exposes Kagura agents as MCP tools, enabling integration with
 Claude Code, Cline, and other MCP clients.
 """
+
 import inspect
 from typing import Any
 
-from mcp.server import Server
-from mcp.types import TextContent, Tool
+from mcp.server import Server  # type: ignore
+from mcp.types import TextContent, Tool  # type: ignore
 
 from kagura.core.registry import agent_registry
 
@@ -57,7 +58,7 @@ def create_mcp_server(name: str = "kagura-ai") -> Server:
             # Extract description from docstring
             description = agent_func.__doc__ or f"Kagura agent: {agent_name}"
             # Clean up description (first line only)
-            description = description.strip().split('\n')[0]
+            description = description.strip().split("\n")[0]
 
             # Create MCP Tool
             tool = Tool(
@@ -72,8 +73,7 @@ def create_mcp_server(name: str = "kagura-ai") -> Server:
 
     @server.call_tool()
     async def handle_call_tool(
-        name: str,
-        arguments: dict[str, Any] | None
+        name: str, arguments: dict[str, Any] | None
     ) -> list[TextContent]:
         """Execute a Kagura agent
 
@@ -117,12 +117,7 @@ def create_mcp_server(name: str = "kagura-ai") -> Server:
             result_text = f"Error executing agent '{agent_name}': {str(e)}"
 
         # Return as TextContent
-        return [
-            TextContent(
-                type="text",
-                text=result_text
-            )
-        ]
+        return [TextContent(type="text", text=result_text)]
 
     return server
 

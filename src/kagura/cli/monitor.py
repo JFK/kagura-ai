@@ -13,9 +13,7 @@ from ..observability.dashboard import Dashboard
 
 
 @click.group(invoke_without_command=True)
-@click.option(
-    "--agent", "-a", help="Filter by agent name", type=str, default=None
-)
+@click.option("--agent", "-a", help="Filter by agent name", type=str, default=None)
 @click.option(
     "--refresh",
     "-r",
@@ -65,9 +63,7 @@ def monitor(
 
 
 @monitor.command()
-@click.option(
-    "--agent", "-a", help="Filter by agent name", type=str, default=None
-)
+@click.option("--agent", "-a", help="Filter by agent name", type=str, default=None)
 @click.option(
     "--refresh",
     "-r",
@@ -104,9 +100,7 @@ def live(agent: Optional[str], refresh: float, db: Optional[str]) -> None:
 
 
 @monitor.command()
-@click.option(
-    "--agent", "-a", help="Filter by agent name", type=str, default=None
-)
+@click.option("--agent", "-a", help="Filter by agent name", type=str, default=None)
 @click.option(
     "--status",
     "-s",
@@ -147,9 +141,7 @@ def list(
 
 
 @monitor.command()
-@click.option(
-    "--agent", "-a", help="Filter by agent name", type=str, default=None
-)
+@click.option("--agent", "-a", help="Filter by agent name", type=str, default=None)
 @click.option(
     "--since",
     "-s",

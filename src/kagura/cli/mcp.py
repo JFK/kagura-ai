@@ -3,11 +3,12 @@ MCP CLI commands for Kagura AI
 
 Provides commands to start MCP server and manage MCP integration.
 """
+
 import asyncio
 import sys
 
 import click
-from mcp.server.stdio import stdio_server
+from mcp.server.stdio import stdio_server  # type: ignore
 
 from kagura.mcp import create_mcp_server
 
@@ -26,11 +27,7 @@ def mcp():
 
 
 @mcp.command()
-@click.option(
-    '--name',
-    default='kagura-ai',
-    help='Server name (default: kagura-ai)'
-)
+@click.option("--name", default="kagura-ai", help="Server name (default: kagura-ai)")
 @click.pass_context
 def serve(ctx: click.Context, name: str):
     """Start MCP server
@@ -51,7 +48,7 @@ def serve(ctx: click.Context, name: str):
         }
       }
     """
-    verbose = ctx.obj.get('verbose', False)
+    verbose = ctx.obj.get("verbose", False)
 
     if verbose:
         click.echo(f"Starting Kagura MCP server: {name}", err=True)
@@ -63,9 +60,7 @@ def serve(ctx: click.Context, name: str):
     async def run_server():
         async with stdio_server() as (read_stream, write_stream):
             await server.run(
-                read_stream,
-                write_stream,
-                server.create_initialization_options()
+                read_stream, write_stream, server.create_initialization_options()
             )
 
     # Run async server
@@ -111,7 +106,7 @@ def list(ctx: click.Context):
         # Get description from docstring
         description = agent_func.__doc__ or "No description"
         # Clean description (first line only)
-        description = description.strip().split('\n')[0]
+        description = description.strip().split("\n")[0]
 
         click.echo(f"  • {agent_name}")
         click.echo(f"    {description}")
