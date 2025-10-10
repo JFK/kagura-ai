@@ -210,9 +210,11 @@
 
 ---
 
-## 🌐 Version 2.2.0: Multimodal & Web (Week 19-26)
+## 🌐 Version 2.2.0: Unified Builder & Testing (Week 19-26)
 
-**リリース目標**: マルチモーダルRAG、Web検索・スクレイピング、メモリー管理
+**リリース目標**: 統合ビルダー、テストフレームワーク、高度なワークフロー
+
+**現在地**: RFC-019, RFC-022 Phase 1 完了！ (2025-10-10)
 
 ### ✅ RFC-018: Memory Management System (Completed - PR #94, #105)
 **関連Issue**: #85
@@ -242,6 +244,91 @@
 - ✅ エージェントが記憶を保持（Working/Context/Persistent）
 - ✅ セマンティック検索動作（ChromaDB RAG）
 - ✅ セッション保存・復元可能
+
+---
+
+### ✅ RFC-019: Unified Agent Builder (Completed - PR #111-113)
+**関連Issue**: #87
+
+#### 実装完了内容
+- ✅ **Phase 1: Core Builder** (PR #111)
+  - `src/kagura/builder/agent_builder.py`: AgentBuilder（225行）
+  - `src/kagura/builder/config.py`: Configuration classes（82行）
+  - Fluent API pattern (method chaining)
+  - `tests/builder/test_agent_builder.py`: 19テスト（全パス）
+
+- ✅ **Phase 1.5: Memory + Tools Integration** (PR #112)
+  - `@agent` decorator に `tools` パラメータ追加
+  - `_convert_tools_to_llm_format()` helper関数
+  - Memory設定を`@agent`に渡す統合
+  - 4つの統合テスト追加
+
+- ✅ **Phase 2: Hooks + Presets** (PR #113)
+  - Hooks wrapper実装（pre/post hooks support）
+  - `src/kagura/presets/chatbot.py`: ChatbotPreset
+  - `src/kagura/presets/research.py`: ResearchPreset
+  - `src/kagura/presets/code_review.py`: CodeReviewPreset
+  - 11個のPresetテスト追加
+
+#### 成功指標
+- ✅ 複数機能の統合が簡単に
+- ✅ 3つのプリセット提供
+- ✅ Hooks統合
+- ✅ 31個のテスト（全パス）
+
+---
+
+### ✅ RFC-022: Agent Testing Framework Phase 1 (Completed - PR #114)
+**関連Issue**: TBD
+
+#### 実装完了内容
+- ✅ **Phase 1: Core Testing Framework** (PR #114)
+  - `src/kagura/testing/testcase.py`: AgentTestCase（326行）
+  - `src/kagura/testing/mocking.py`: Mocking utilities（103行）
+  - `src/kagura/testing/utils.py`: Timer utility（28行）
+  - `src/kagura/testing/plugin.py`: pytest plugin（42行）
+  - `tests/testing/`: 34テスト（32パス、2スキップ）
+  - `pyproject.toml`: testing optional dependency追加
+
+#### 成功指標
+- ✅ LLM非決定性に対応した柔軟なアサーション
+- ✅ pytest統合（マーカー、フィクスチャ）
+- ✅ モッキング機能でAPIコスト削減
+- ✅ パフォーマンス・コスト検証
+
+---
+
+### 🔄 RFC-001: Memory and Workflow features (Issue #61) - 部分完了
+
+**ステータス**: ⚠️ 部分完了（基本機能は別RFCとして実装済み）
+
+#### ✅ 完了済み機能（別RFCで実装）
+1. **メモリ機能** → **RFC-018で実装済み** ✅
+   - `@memory.session` 相当 → `MemoryManager`
+   - `@memory.vector` 相当 → `MemoryRAG`
+
+2. **ツールシステム** → **PR #103で実装済み** ✅
+   - `@tool` デコレータ
+   - ToolRegistry
+
+3. **基本ワークフロー** → **PR #104で実装済み** ✅
+   - `@workflow` デコレータ
+   - WorkflowRegistry
+
+#### ❌ 未実装機能（v2.2.0候補）
+1. **高度なワークフロー機能**
+   - `@workflow.chain` - シーケンシャル実行チェーン
+   - `@workflow.parallel` - 並列実行ヘルパー
+   - `@workflow.stateful` - Pydanticベースのステートグラフ
+
+2. **パフォーマンス最適化**
+   - `@cache` - キャッシングデコレータ
+   - `@batch` - バッチング処理
+   - `stream=True` - ストリーミングサポート
+
+**実装計画**:
+- Phase 2: Advanced Workflow (2週間)
+- Phase 3: Performance Optimization (1-2週間)
 
 ---
 
@@ -540,13 +627,30 @@ async def support(query: str):
 - ✅ **v2.1.0 リリース完了！**
 - ✅ RFC-007, 006, 012, 017, 018, 016 実装完了
 - ✅ @agent, @tool, @workflow の3つのコアデコレータ完成
-- ✅ 合計 13個のPR、8個のRFC（Phase含む）完了
+- ✅ **v2.2.0開始**: RFC-019, RFC-022 Phase 1 完了！
+- ✅ 合計 15個のPR、10個のRFC（Phase含む）完了
+- ✅ **RFC-001分析完了**: 基本機能は実装済み、高度な機能は未実装
+
+### 📊 全RFCステータス（RFC-001〜022）
+- **完了**: 9個（RFC-001部分, 006, 007, 012, 016, 017, 018, 019, 022）
+- **v2.2.0候補**: 3個（RFC-001 Phase 2, 020, 021）
+- **未実装**: 10個（RFC-002, 003, 004, 005, 008, 009, 010, 011, 013, 014, 015）
+- **詳細**: `ai_docs/RFC_STATUS.md` 参照
 
 ### 次の候補（v2.2.0に向けて）
-1. **RFC-002**: Multimodal RAG (#62)
-2. **RFC-014**: Web Integration (#75)
-3. **RFC-003**: Personal Assistant (#63)
-4. **RFC-007 Phase 2**: MCP Memory Protocol (#67)
+
+#### 🔥 推奨: RFC-001 Phase 2 - Advanced Workflow
+**期間**: 2週間
+**理由**:
+- 基本機能完了済み（RFC-018, PR #103-104）
+- @workflowの強化でLangGraph互換性向上
+- コアフレームワーク完成に近づく
+
+#### その他の候補
+1. **RFC-020**: Memory-Aware Routing (#86) - 1.5週間
+2. **RFC-021**: Agent Observability Dashboard - 2週間
+3. **RFC-002**: Multimodal RAG (#62) - 3週間
+4. **RFC-014**: Web Integration (#75) - 1.5-2週間
 
 ---
 

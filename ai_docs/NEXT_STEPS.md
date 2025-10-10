@@ -206,6 +206,56 @@ chatbot = ChatbotPreset("my_chatbot").with_model("gpt-4o").build()
 
 ---
 
+### ✅ RFC-022: Agent Testing Framework Phase 1 - 完了！
+**PR #114** (2025-10-10)
+
+**Phase 1: Core Testing Framework**
+- `src/kagura/testing/testcase.py`: AgentTestCase基本クラス（326行）
+  - Content Assertions: assert_contains, assert_contains_any, assert_not_contains
+  - Pattern Matching: assert_matches_pattern
+  - Language Detection: assert_language（langdetect統合）
+  - LLM Behavior: assert_llm_calls, assert_token_usage, assert_tool_calls
+  - Performance: assert_duration, assert_cost
+  - Structured Output: assert_valid_model, assert_field_value
+
+- `src/kagura/testing/mocking.py`: Mocking utilities（103行）
+  - LLMRecorder: LLM呼び出し記録
+  - LLMMock: LLM応答モック
+  - ToolMock: ツール呼び出しモック
+
+- `src/kagura/testing/utils.py`: Timer utility（28行）
+- `src/kagura/testing/plugin.py`: pytest plugin（42行）
+  - @pytest.mark.agent マーカー
+  - @pytest.mark.benchmark マーカー
+  - agent_context fixture
+
+- `tests/testing/`: 34テスト（32パス、2スキップ）
+- `pyproject.toml`: testing optional dependency追加、pytest plugin登録
+
+**使用例**:
+```python
+from kagura.testing import AgentTestCase
+
+class TestMyAgent(AgentTestCase):
+    agent = my_agent
+
+    async def test_translation(self):
+        result = await self.agent("Hello", "ja")
+
+        # Flexible assertions for LLM
+        self.assert_contains_any(result, ["こんにちは", "ハロー"])
+        self.assert_language(result, "ja")
+        self.assert_not_empty(result)
+```
+
+**成果**:
+- ✅ LLM非決定性に対応した柔軟なアサーション
+- ✅ pytest統合（マーカー、フィクスチャ）
+- ✅ モッキング機能でAPIコスト削減
+- ✅ パフォーマンス・コスト検証
+
+---
+
 ## 🤔 v2.1.0からの気づきと改善点
 
 ### 発見された課題
@@ -597,15 +647,53 @@ A: v2.1.0で多数の機能（Memory、Routing、Tools、Hooks）が追加され
 2. ✅ 各RFCのGitHub Issue作成（#107-110）
 3. ✅ 実装優先順位の決定（プランA採用）
 4. ✅ **RFC-019完了！**（2025-10-10）
-5. **⏳ RFC-022 (Testing Framework) 実装開始** ← 次はここ！
+5. ✅ **RFC-022 Phase 1完了！**（2025-10-10）
+6. **⏳ 次の実装候補を決定** ← 次はここ！
 
-**v2.2.0 タイムライン**:
+**v2.2.0 タイムライン（更新）**:
 ```
 ✅ Week 0: RFC-019 (Unified Agent Builder) - 完了
-⏳ Week 1-2: RFC-022 (Agent Testing Framework)
-□ Week 3-4: RFC-021 (Agent Observability Dashboard)
-□ Week 5-6: RFC-020 (Memory-Aware Routing) + RFC-007 Phase 2
+✅ Week 1: RFC-022 Phase 1 (Agent Testing Framework) - 完了
+□ Week 2-3: 次の実装候補（下記参照）
+□ Week 4-5: 追加機能実装
 ```
+
+### 🎯 次の実装候補（3つの選択肢）
+
+#### オプション A: RFC-001 Phase 2 - Advanced Workflow 🔥 推奨
+**期間**: 2週間
+**内容**: RFC-001の残り機能（高度なワークフロー）を実装
+- `@workflow.chain` - シーケンシャル実行
+- `@workflow.parallel` - 並列実行ヘルパー
+- `@workflow.stateful` - Pydanticベースのステートグラフ
+
+**理由**:
+- RFC-001の基本機能は完了済み（RFC-018, PR #103-104）
+- @workflowの強化でLangGraph互換性向上
+- コアフレームワーク完成に近づく
+
+#### オプション B: RFC-020 - Memory-Aware Routing
+**期間**: 1.5週間
+**内容**: 過去の会話履歴を考慮したルーティング
+- RFC-016 + RFC-018の統合
+- より自然な会話フロー
+
+**理由**:
+- 既存機能（Memory + Routing）の統合
+- 実用性が高い
+- 実装難易度: Medium
+
+#### オプション C: RFC-021 - Agent Observability Dashboard
+**期間**: 2週間
+**内容**: エージェント動作の可視化・監視
+- パフォーマンス追跡
+- コスト管理
+- デバッグ支援
+
+**理由**:
+- エンタープライズ対応に重要
+- RFC-010と統合可能
+- 実装難易度: Medium-High
 
 ---
 
