@@ -539,9 +539,354 @@ async def typed_workflow(
 
 ---
 
+## Advanced Workflow Features
+
+Kagura v2.2.0 introduces advanced workflow capabilities for complex multi-agent orchestration.
+
+### Workflow Context Sharing
+
+Share state across workflow steps using context dictionary:
+
+```python
+@workflow
+async def context_workflow(input_data: str, workflow_context: dict) -> dict:
+    """Workflow with shared context"""
+
+    # Initialize context
+    workflow_context["step_count"] = 0
+    workflow_context["accumulated_data"] = []
+
+    # Step 1
+    workflow_context["step_count"] += 1
+    result1 = await agent1(input_data)
+    workflow_context["accumulated_data"].append(result1)
+
+    # Step 2 - uses context from step 1
+    workflow_context["step_count"] += 1
+    result2 = await agent2(result1, previous_data=workflow_context["accumulated_data"])
+
+    return {
+        "final_result": result2,
+        "steps_executed": workflow_context["step_count"]
+    }
+
+# Execute with context
+context = {}
+result = await context_workflow("input", workflow_context=context)
+print(f"Executed {context['step_count']} steps")
+```
+
+### Conditional Branching
+
+Implement conditional logic in workflows:
+
+```python
+@workflow
+async def conditional_workflow(query: str) -> dict:
+    """Workflow with conditional branches"""
+
+    # Classify query
+    classification = await classifier_agent(query)
+
+    # Branch based on classification
+    if classification == "technical":
+        result = await technical_agent(query)
+    elif classification == "business":
+        result = await business_agent(query)
+    else:
+        result = await general_agent(query)
+
+    return {"classification": classification, "result": result}
+```
+
+### Parallel Execution
+
+Execute multiple agents in parallel:
+
+```python
+import asyncio
+
+@workflow
+async def parallel_workflow(input_data: str) -> dict:
+    """Workflow with parallel agent execution"""
+
+    # Execute agents in parallel
+    results = await asyncio.gather(
+        agent1(input_data),
+        agent2(input_data),
+        agent3(input_data)
+    )
+
+    # Combine results
+    combined = await synthesis_agent(results)
+
+    return {"individual": results, "combined": combined}
+```
+
+### Retry Logic
+
+Implement automatic retry for failed steps:
+
+```python
+@workflow
+async def retry_workflow(data: str, max_retries: int = 3) -> dict:
+    """Workflow with retry logic"""
+
+    for attempt in range(max_retries):
+        try:
+            result = await unreliable_agent(data)
+            return {"success": True, "result": result, "attempts": attempt + 1}
+        except Exception as e:
+            if attempt == max_retries - 1:
+                # Final attempt failed
+                return {"success": False, "error": str(e), "attempts": attempt + 1}
+            # Wait before retry
+            await asyncio.sleep(2 ** attempt)  # Exponential backoff
+
+    return {"success": False, "error": "Max retries exceeded"}
+```
+
+### Dynamic Agent Selection
+
+Select agents dynamically based on runtime conditions:
+
+```python
+@workflow
+async def dynamic_workflow(query: str, agent_pool: dict) -> dict:
+    """Workflow with dynamic agent selection"""
+
+    # Analyze query to determine best agent
+    analysis = await analyzer_agent(query)
+
+    # Select agent from pool
+    selected_agent_name = analysis["recommended_agent"]
+    selected_agent = agent_pool.get(selected_agent_name)
+
+    if not selected_agent:
+        raise ValueError(f"Agent {selected_agent_name} not found")
+
+    # Execute selected agent
+    result = await selected_agent(query)
+
+    return {
+        "selected_agent": selected_agent_name,
+        "result": result
+    }
+
+# Usage
+agents = {
+    "translator": translator_agent,
+    "summarizer": summarizer_agent,
+    "analyzer": analyzer_agent
+}
+
+result = await dynamic_workflow("Translate to French", agent_pool=agents)
+```
+
+### Workflow Monitoring
+
+Track workflow execution with telemetry:
+
+```python
+import time
+
+@workflow
+async def monitored_workflow(data: str) -> dict:
+    """Workflow with execution monitoring"""
+
+    start_time = time.time()
+    steps_executed = []
+
+    try:
+        # Step 1
+        step_start = time.time()
+        result1 = await agent1(data)
+        steps_executed.append({
+            "step": "agent1",
+            "duration": time.time() - step_start,
+            "success": True
+        })
+
+        # Step 2
+        step_start = time.time()
+        result2 = await agent2(result1)
+        steps_executed.append({
+            "step": "agent2",
+            "duration": time.time() - step_start,
+            "success": True
+        })
+
+        return {
+            "result": result2,
+            "metadata": {
+                "total_duration": time.time() - start_time,
+                "steps": steps_executed
+            }
+        }
+
+    except Exception as e:
+        steps_executed.append({
+            "step": "error",
+            "error": str(e),
+            "success": False
+        })
+        raise
+```
+
+### Workflow Composition
+
+Compose workflows from sub-workflows:
+
+```python
+@workflow
+async def data_processing_workflow(data: str) -> dict:
+    """Sub-workflow for data processing"""
+    cleaned = await clean_agent(data)
+    normalized = await normalize_agent(cleaned)
+    return {"cleaned": cleaned, "normalized": normalized}
+
+
+@workflow
+async def analysis_workflow(data: dict) -> dict:
+    """Sub-workflow for analysis"""
+    insights = await analysis_agent(data["normalized"])
+    summary = await summary_agent(insights)
+    return {"insights": insights, "summary": summary}
+
+
+@workflow
+async def master_workflow(raw_data: str) -> dict:
+    """Master workflow composing sub-workflows"""
+
+    # Execute sub-workflows in sequence
+    processed = await data_processing_workflow(raw_data)
+    analyzed = await analysis_workflow(processed)
+
+    # Combine results
+    return {
+        "processing": processed,
+        "analysis": analyzed,
+        "pipeline": "master_workflow"
+    }
+```
+
+### Complete Advanced Example
+
+```python
+import asyncio
+import time
+from kagura import agent, workflow
+
+
+@agent
+async def classifier(text: str) -> str:
+    '''Classify {{ text }} as: technical, business, or general'''
+    pass
+
+
+@agent
+async def technical_expert(query: str) -> str:
+    '''Technical answer: {{ query }}'''
+    pass
+
+
+@agent
+async def business_expert(query: str) -> str:
+    '''Business answer: {{ query }}'''
+    pass
+
+
+@agent
+async def summarizer(text: str) -> str:
+    '''Summarize: {{ text }}'''
+    pass
+
+
+@workflow
+async def intelligent_workflow(
+    query: str,
+    workflow_context: dict,
+    max_retries: int = 3
+) -> dict:
+    """Advanced workflow with multiple features"""
+
+    start_time = time.time()
+    workflow_context["steps"] = []
+
+    # Step 1: Classification
+    classification = await classifier(query)
+    workflow_context["steps"].append({"step": "classification", "result": classification})
+
+    # Step 2: Conditional routing with retry
+    for attempt in range(max_retries):
+        try:
+            if classification == "technical":
+                response = await technical_expert(query)
+            elif classification == "business":
+                response = await business_expert(query)
+            else:
+                # Parallel execution for general queries
+                responses = await asyncio.gather(
+                    technical_expert(query),
+                    business_expert(query)
+                )
+                response = " | ".join(responses)
+
+            workflow_context["steps"].append({"step": "response", "attempt": attempt + 1})
+            break
+
+        except Exception as e:
+            if attempt == max_retries - 1:
+                workflow_context["steps"].append({"step": "error", "error": str(e)})
+                raise
+            await asyncio.sleep(1)
+
+    # Step 3: Summarization
+    summary = await summarizer(response)
+    workflow_context["steps"].append({"step": "summary"})
+
+    # Return comprehensive result
+    return {
+        "classification": classification,
+        "response": response,
+        "summary": summary,
+        "metadata": {
+            "duration": time.time() - start_time,
+            "steps_executed": len(workflow_context["steps"])
+        }
+    }
+
+
+# Execute
+async def main():
+    context = {}
+    result = await intelligent_workflow(
+        "Explain machine learning",
+        workflow_context=context
+    )
+
+    print(f"Classification: {result['classification']}")
+    print(f"Summary: {result['summary']}")
+    print(f"Steps executed: {result['metadata']['steps_executed']}")
+
+
+asyncio.run(main())
+```
+
+### Best Practices for Advanced Workflows
+
+1. **Use Context Judiciously**: Only share state that's truly needed across steps
+2. **Handle Errors Gracefully**: Implement proper error handling and recovery
+3. **Monitor Performance**: Track execution time and identify bottlenecks
+4. **Keep It Modular**: Break complex workflows into reusable sub-workflows
+5. **Document Branching Logic**: Make conditional logic clear and well-documented
+
+---
+
 ## See Also
 
 - [Workflows Tutorial](../tutorials/12-workflows.md)
 - [Agent Decorator](./agents.md)
 - [Tool Decorator](./tools.md)
 - [MCP Integration](./mcp.md)
+- [RFC-001: Advanced Workflow System](../../ai_docs/rfcs/RFC_001_WORKFLOWS.md)

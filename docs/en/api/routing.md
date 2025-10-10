@@ -514,8 +514,249 @@ for input_text, expected in test_cases:
 - **Phase 2**: Semantic routing with embeddings
 - **Phase 3**: Agent chaining and conditional routing
 
+## MemoryAwareRouter
+
+Context-aware routing that considers conversation history for better agent selection.
+
+### Overview
+
+`MemoryAwareRouter` extends `AgentRouter` with memory-aware capabilities:
+- Detects context-dependent queries (pronouns, implicit references)
+- Retrieves relevant context from conversation history
+- Enhances queries with context before routing
+- Supports semantic context retrieval via RAG
+
+### Constructor
+
+```python
+from kagura.core.memory import MemoryManager
+from kagura.routing import MemoryAwareRouter
+
+memory = MemoryManager(agent_name="assistant", enable_rag=True)
+router = MemoryAwareRouter(
+    memory=memory,
+    strategy="intent",
+    fallback_agent=None,
+    confidence_threshold=0.3,
+    encoder="openai",
+    context_window=5,
+    use_semantic_context=True
+)
+```
+
+**Parameters:**
+
+- **memory** (`MemoryManager`, required): Memory manager instance
+- **strategy** (`str`, default: `"intent"`): Routing strategy (`"intent"` or `"semantic"`)
+- **fallback_agent** (`Optional[Callable]`, default: `None`): Default agent
+- **confidence_threshold** (`float`, default: `0.3`): Minimum confidence score
+- **encoder** (`str`, default: `"openai"`): Encoder for semantic routing
+- **context_window** (`int`, default: `5`): Number of recent messages to consider
+- **use_semantic_context** (`bool`, default: `True`): Enable RAG-based context retrieval
+
+### route()
+
+Route user input with memory awareness.
+
+```python
+async def route(
+    self,
+    user_input: str,
+    context: Optional[dict[str, Any]] = None,
+    **kwargs: Any
+) -> Any
+```
+
+**Parameters:**
+
+- **user_input** (`str`): User's natural language input
+- **context** (`Optional[dict]`): Optional context information
+- **kwargs**: Additional arguments to pass to the selected agent
+
+**Returns:** Result from executing the selected agent
+
+**Example:**
+
+```python
+from kagura import agent
+from kagura.core.memory import MemoryManager
+from kagura.routing import MemoryAwareRouter
+
+# Define agents
+@agent
+async def translator(text: str, target_lang: str) -> str:
+    '''Translate "{{ text }}" to {{ target_lang }}'''
+    pass
+
+# Initialize memory and router
+memory = MemoryManager(agent_name="assistant", enable_rag=True)
+router = MemoryAwareRouter(memory=memory)
+
+# Register agent
+router.register(translator, intents=["translate", "翻訳"])
+
+# First query (explicit)
+result = await router.route("Translate 'hello' to French")
+# Routes to translator, translates to French
+
+# Second query (context-dependent)
+result = await router.route("What about Spanish?")
+# Router understands "Spanish" refers to translation
+# Enhances query with context: "Previous: Translate 'hello' to French. Current: What about Spanish?"
+# Routes to translator with inferred context
+```
+
+### Context Detection
+
+The router automatically detects context-dependent queries:
+
+**Pronouns:**
+- it, this, that, them, etc.
+- Example: "What about **it**?"
+
+**Implicit References:**
+- also, too, again, similar, same, etc.
+- Example: "Do **that again**"
+
+**Follow-up Patterns:**
+- "What about...", "How about...", "And if..."
+- Example: "**What about** Japanese?"
+
+### Context Enhancement
+
+When context is needed, the router performs two-stage enhancement:
+
+**Stage 1: Recent Conversation**
+- Retrieves last N messages from ContextMemory
+- Resolves pronouns and implicit references
+- Combines with current query
+
+**Stage 2: Semantic Context (Optional)**
+- If RAG enabled, queries ChromaDB for semantically similar past conversations
+- Appends top-k relevant messages as additional context
+
+### Complete Example
+
+```python
+import asyncio
+from kagura import agent
+from kagura.core.memory import MemoryManager
+from kagura.routing import MemoryAwareRouter
+
+
+@agent
+async def translator(text: str, target_lang: str) -> str:
+    '''Translate "{{ text }}" to {{ target_lang }}'''
+    pass
+
+
+@agent
+async def summarizer(text: str) -> str:
+    '''Summarize: {{ text }}'''
+    pass
+
+
+async def main():
+    # Initialize with memory
+    memory = MemoryManager(
+        agent_name="assistant",
+        enable_rag=True  # Enable semantic context
+    )
+
+    router = MemoryAwareRouter(
+        memory=memory,
+        context_window=5,  # Consider last 5 messages
+        use_semantic_context=True  # Use RAG
+    )
+
+    # Register agents
+    router.register(translator, intents=["translate", "translation"])
+    router.register(summarizer, intents=["summarize", "summary"])
+
+    # Conversation with context
+    print("Query 1:")
+    result = await router.route("Translate 'hello world' to French")
+    print(f"Result: {result}\n")
+
+    print("Query 2 (context-dependent):")
+    result = await router.route("What about Japanese?")
+    # Router understands "Japanese" refers to translation
+    print(f"Result: {result}\n")
+
+    print("Query 3 (another context):")
+    result = await router.route("Summarize the previous translation")
+    # Router understands "previous translation" from context
+    print(f"Result: {result}\n")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### Utility Methods
+
+#### get_conversation_summary()
+
+Get a summary of recent conversation.
+
+```python
+summary = router.get_conversation_summary(last_n=10)
+print(summary)
+
+# Output:
+# User: Translate 'hello' to French
+# Assistant: Bonjour
+# User: What about Spanish?
+# Assistant: Hola
+```
+
+#### clear_context()
+
+Clear conversation context from memory.
+
+```python
+router.clear_context()
+```
+
+### Best Practices
+
+1. **Enable RAG for Better Context**:
+   ```python
+   memory = MemoryManager(enable_rag=True)
+   router = MemoryAwareRouter(memory=memory, use_semantic_context=True)
+   ```
+
+2. **Adjust Context Window**:
+   ```python
+   # Short conversations
+   router = MemoryAwareRouter(memory=memory, context_window=3)
+
+   # Long conversations
+   router = MemoryAwareRouter(memory=memory, context_window=10)
+   ```
+
+3. **Store Conversation History**:
+   ```python
+   # Router automatically stores messages, but you can also manually add context
+   memory.add_message("system", "User prefers concise responses")
+   ```
+
+4. **Clear Context Between Sessions**:
+   ```python
+   # Start new conversation
+   router.clear_context()
+   ```
+
+### Limitations
+
+- Context detection is heuristic-based (may miss some edge cases)
+- Semantic context requires ChromaDB installation
+- Performance depends on RAG query speed (~100ms)
+
 ## See Also
 
 - [Agent Routing Tutorial](../tutorials/09-agent-routing.md)
+- [Memory Management API](./memory.md)
 - [Agent Decorator API](./agent.md)
 - [RFC-016: Agent Routing System](../../ai_docs/rfcs/RFC_016_AGENT_ROUTING.md)
+- [RFC-020: Memory-Aware Routing](../../ai_docs/rfcs/RFC_020_MEMORY_AWARE_ROUTING.md)

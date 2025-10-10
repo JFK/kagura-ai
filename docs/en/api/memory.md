@@ -388,6 +388,287 @@ Direct access to persistent memory (also available via `MemoryManager.persistent
 - `prune(older_than_days: int = 90, agent_name: Optional[str] = None) -> int`
 - `count(agent_name: Optional[str] = None) -> int`
 
+## MemoryRAG
+
+Vector-based semantic memory search using ChromaDB for Retrieval-Augmented Generation (RAG).
+
+### Constructor
+
+```python
+from kagura.core.memory import MemoryRAG
+
+rag = MemoryRAG(
+    collection_name: str = "kagura_memory",
+    persist_dir: Optional[Path] = None
+)
+```
+
+**Parameters:**
+
+- `collection_name`: Name for the vector collection (default: `"kagura_memory"`)
+- `persist_dir`: Directory for persistent storage (default: `~/.kagura/vector_db`)
+
+**Requires:** `pip install chromadb`
+
+**Example:**
+
+```python
+from pathlib import Path
+from kagura.core.memory import MemoryRAG
+
+# Default location
+rag = MemoryRAG()
+
+# Custom location
+rag = MemoryRAG(
+    collection_name="my_agent_memory",
+    persist_dir=Path.home() / ".myapp" / "vectors"
+)
+```
+
+### store()
+
+Store memory with automatic embedding.
+
+```python
+rag.store(
+    content: str,
+    metadata: Optional[dict[str, Any]] = None,
+    agent_name: Optional[str] = None
+) -> str
+```
+
+**Parameters:**
+
+- `content`: Content to store (will be automatically embedded)
+- `metadata`: Optional metadata dictionary
+- `agent_name`: Optional agent name for scoping
+
+**Returns:** Content hash (unique ID)
+
+**Example:**
+
+```python
+# Store facts
+rag.store("Python is a programming language created by Guido van Rossum")
+rag.store("The Eiffel Tower is in Paris, France")
+
+# With metadata
+rag.store(
+    "User prefers dark mode",
+    metadata={"category": "preference", "user_id": "123"},
+    agent_name="assistant"
+)
+```
+
+### recall()
+
+Semantic search for memories using vector similarity.
+
+```python
+rag.recall(
+    query: str,
+    top_k: int = 5,
+    agent_name: Optional[str] = None
+) -> list[dict[str, Any]]
+```
+
+**Parameters:**
+
+- `query`: Search query (will be embedded automatically)
+- `top_k`: Number of results to return (sorted by similarity)
+- `agent_name`: Optional agent name filter
+
+**Returns:** List of memory dictionaries containing:
+- `content` (`str`): Original memory text
+- `distance` (`float`): Cosine distance (lower = more similar, range 0.0-2.0)
+- `metadata` (`dict`): Optional metadata
+
+**Example:**
+
+```python
+# Store knowledge
+rag.store("Python is a programming language")
+rag.store("Java is a programming language")
+rag.store("The Eiffel Tower is in Paris")
+
+# Semantic search
+results = rag.recall("What is Python?", top_k=2)
+
+for result in results:
+    print(f"Content: {result['content']}")
+    print(f"Distance: {result['distance']:.3f}")  # e.g., 0.342
+    print(f"Metadata: {result.get('metadata')}")
+```
+
+### delete_all()
+
+Delete all memories.
+
+```python
+rag.delete_all(agent_name: Optional[str] = None) -> None
+```
+
+**Parameters:**
+
+- `agent_name`: Optional agent name filter (deletes only that agent's memories)
+
+**Example:**
+
+```python
+# Delete all memories
+rag.delete_all()
+
+# Delete only specific agent's memories
+rag.delete_all(agent_name="assistant")
+```
+
+### count()
+
+Count stored memories.
+
+```python
+rag.count(agent_name: Optional[str] = None) -> int
+```
+
+**Parameters:**
+
+- `agent_name`: Optional agent name filter
+
+**Returns:** Number of memories
+
+**Example:**
+
+```python
+total = rag.count()
+print(f"Total memories: {total}")
+
+agent_memories = rag.count(agent_name="assistant")
+print(f"Assistant memories: {agent_memories}")
+```
+
+### MemoryManager Integration
+
+Use RAG with MemoryManager by setting `enable_rag=True`:
+
+```python
+from kagura.core.memory import MemoryManager
+
+# Initialize with RAG enabled
+memory = MemoryManager(
+    agent_name="my_agent",
+    enable_rag=True
+)
+
+# Store semantically
+memory.add_message("user", "Python is great for AI development")
+
+# Semantic recall
+results = memory.recall_semantic("Tell me about Python", top_k=3)
+for result in results:
+    print(result['content'])
+```
+
+**Note:** When `enable_rag=True`, MemoryManager automatically stores conversation messages in the RAG vector database for semantic retrieval.
+
+### Complete RAG Example
+
+```python
+from kagura.core.memory import MemoryRAG
+
+# Initialize
+rag = MemoryRAG(collection_name="knowledge_base")
+
+# Store domain knowledge
+rag.store("Machine learning is a subset of artificial intelligence")
+rag.store("Deep learning uses neural networks with multiple layers")
+rag.store("Natural language processing deals with text and speech")
+rag.store("Computer vision focuses on image and video analysis")
+
+# Semantic search
+query = "What is deep learning?"
+results = rag.recall(query, top_k=2)
+
+print(f"Query: {query}\n")
+for i, result in enumerate(results, 1):
+    print(f"{i}. {result['content']}")
+    print(f"   Similarity: {1 - result['distance']/2:.2%}\n")
+
+# Output:
+# Query: What is deep learning?
+#
+# 1. Deep learning uses neural networks with multiple layers
+#    Similarity: 89%
+#
+# 2. Machine learning is a subset of artificial intelligence
+#    Similarity: 72%
+```
+
+### RAG with Agent Integration
+
+```python
+from kagura import agent
+from kagura.core.memory import MemoryManager
+
+@agent(enable_memory=True)
+async def knowledge_agent(query: str, memory: MemoryManager) -> str:
+    """Answer {{ query }} using semantic memory"""
+
+    # Store query in RAG (if RAG enabled in MemoryManager)
+    memory.add_message("user", query)
+
+    # Semantic search over past conversations
+    if memory.rag:
+        relevant = memory.recall_semantic(query, top_k=3)
+        context = "\n".join([r['content'] for r in relevant])
+        enriched_query = f"Context: {context}\n\nQuery: {query}"
+        # Use enriched_query for LLM call
+    else:
+        enriched_query = query
+
+    # Process with LLM...
+    response = f"Processing: {enriched_query}"
+    memory.add_message("assistant", response)
+
+    return response
+```
+
+### Best Practices
+
+1. **Meaningful Content**: Store complete, self-contained information
+   ```python
+   # Good
+   rag.store("The capital of France is Paris")
+
+   # Less good (lacks context)
+   rag.store("Paris")
+   ```
+
+2. **Use Metadata for Filtering**:
+   ```python
+   rag.store("User prefers Python", metadata={"type": "preference"})
+   rag.store("Project deadline is March 1", metadata={"type": "deadline"})
+   ```
+
+3. **Agent Scoping**:
+   ```python
+   # Separate knowledge per agent
+   rag.store("Translation context", agent_name="translator")
+   rag.store("Code review context", agent_name="reviewer")
+
+   # Query specific agent's knowledge
+   results = rag.recall("translate", agent_name="translator")
+   ```
+
+4. **Semantic vs Keyword Search**:
+   ```python
+   # Semantic search - finds conceptually similar content
+   rag.recall("programming languages")  # Finds "Python", "Java", etc.
+
+   # Keyword search would miss variations
+   memory.search_memory("programming language")  # Exact match only
+   ```
+
 ## Agent Integration
 
 Enable memory in agents using the `enable_memory` parameter:
