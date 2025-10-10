@@ -42,9 +42,17 @@ async def _web_search_tool(query: str) -> str:
     Returns:
         Formatted search results
     """
+    from rich.console import Console
+
     from kagura.web.decorators import web_search
 
-    return await web_search(query)
+    console = Console()
+    console.print(f"[dim]🌐 Searching the web for: {query}...[/]")
+
+    result = await web_search(query)
+
+    console.print("[dim]✓ Web search completed[/]")
+    return result
 
 
 @agent(
@@ -220,6 +228,7 @@ class ChatSession:
             enhanced_input = f"{user_input}\n{rag_context}"
 
         # Get AI response (use web-enabled agent if enabled)
+        self.console.print("[dim]💬 Generating response...[/]")
         if self.enable_web:
             response = await chat_agent_with_web(enhanced_input, memory=self.memory)
         else:
