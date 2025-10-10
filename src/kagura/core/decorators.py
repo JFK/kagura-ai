@@ -12,6 +12,7 @@ from .parser import parse_response
 from .prompt import extract_template, render_prompt
 from .registry import agent_registry
 from .tool_registry import tool_registry
+from .workflow_registry import workflow_registry
 
 P = ParamSpec('P')
 T = TypeVar('T')
@@ -235,16 +236,76 @@ def tool(
 def workflow(fn: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]: ...
 
 @overload
-def workflow(fn: None = None) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]: ...
+def workflow(
+    fn: None = None
+) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]: ...
 
-def workflow(fn: Callable[P, Awaitable[T]] | None = None) -> Callable[P, Awaitable[T]] | Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]:
+def workflow(
+    fn: Callable[P, Awaitable[T]] | None = None, *, name: Optional[str] = None
+) -> (
+    Callable[P, Awaitable[T]]
+    | Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]
+):
     """
     Convert a function into a workflow (multi-agent orchestration).
 
-    Stub implementation.
+    Workflows coordinate multiple agents and tools to accomplish complex tasks.
+    Unlike @agent, workflows execute the actual function body which orchestrates
+    the agent calls.
+
+    Args:
+        fn: Function to convert
+        name: Optional workflow name (defaults to function name)
+
+    Returns:
+        Decorated async function
+
+    Example:
+        @workflow
+        async def research_workflow(topic: str) -> dict:
+            '''Research a topic using multiple agents'''
+            # Search for information
+            search_results = await search_agent(topic)
+
+            # Summarize findings
+            summary = await summarize_agent(search_results)
+
+            # Generate report
+            report = await report_agent(summary)
+
+            return {"topic": topic, "report": report}
+
+        result = await research_workflow("AI safety")
     """
     def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
-        # Stub
-        return func
+        # Get function signature
+        sig = inspect.signature(func)
+        workflow_name = name or func.__name__
+
+        @functools.wraps(func)
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+            # Bind arguments to signature
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
+
+            # Execute the workflow function
+            result = await func(*bound.args, **bound.kwargs)
+
+            return result  # type: ignore
+
+        # Mark as workflow for MCP discovery
+        wrapper._is_workflow = True  # type: ignore
+        wrapper._workflow_name = workflow_name  # type: ignore
+        wrapper._workflow_signature = sig  # type: ignore
+        wrapper._workflow_docstring = func.__doc__ or ""  # type: ignore
+
+        # Register in global workflow registry
+        try:
+            workflow_registry.register(workflow_name, wrapper)  # type: ignore
+        except ValueError:
+            # Workflow already registered (e.g., in tests), skip
+            pass
+
+        return wrapper  # type: ignore
 
     return decorator if fn is None else decorator(fn)
