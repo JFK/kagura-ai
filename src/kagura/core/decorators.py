@@ -273,8 +273,10 @@ def agent(
             if llm_tools:
                 llm_kwargs["tools"] = llm_tools
 
-            # Call LLM
-            response = await call_llm(prompt, config, **llm_kwargs)
+            # Call LLM with tool functions
+            response = await call_llm(
+                prompt, config, tools=tools_list if tools_list else None, **llm_kwargs
+            )
 
             # Parse response based on return type annotation
             return_type = sig.return_annotation
