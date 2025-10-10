@@ -21,6 +21,10 @@
          <lastmod>2025-10-10</lastmod>
     </url>
     <url>
+         <loc>https://www.kagura-ai.com/en/api/chat/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
          <loc>https://www.kagura-ai.com/en/api/cli/</loc>
          <lastmod>2025-10-10</lastmod>
     </url>
@@ -94,6 +98,10 @@
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/09-agent-routing/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
+         <loc>https://www.kagura-ai.com/en/tutorials/10-chat-repl/</loc>
          <lastmod>2025-10-10</lastmod>
     </url>
 </urlset>
