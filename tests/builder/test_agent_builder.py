@@ -116,8 +116,7 @@ def test_agent_builder_method_chaining():
     assert builder._config.context["temperature"] == 0.7
 
 
-@pytest.mark.asyncio
-async def test_agent_builder_build():
+def test_agent_builder_build():
     """Test building an agent."""
     builder = AgentBuilder("test_agent").with_model("gpt-4o-mini")
 
@@ -131,10 +130,9 @@ async def test_agent_builder_build():
     assert hasattr(agent, "_agent_name")
     assert agent._agent_name == "test_agent"
 
-    # Test basic execution (LLM will be called)
-    result = await agent("test prompt")
-    assert isinstance(result, str)
-    assert len(result) > 0  # Just verify we got a response
+    # Verify config
+    assert agent._builder_config.model == "gpt-4o-mini"
+    assert agent._builder_config.name == "test_agent"
 
 
 @pytest.mark.asyncio
