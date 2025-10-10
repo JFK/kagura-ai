@@ -49,7 +49,9 @@ def python_type_to_json_schema(py_type: type) -> dict[str, Any]:
 
     # Optional[X] -> Union[X, None]
     if origin is type(None) or (
-        hasattr(origin, "__name__") and origin.__name__ == "UnionType"
+        origin is not None
+        and hasattr(origin, "__name__")
+        and origin.__name__ == "UnionType"
     ):  # type: ignore
         # Union type - check if it's Optional (X | None)
         if len(args) == 2 and type(None) in args:
