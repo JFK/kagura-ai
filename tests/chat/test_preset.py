@@ -4,6 +4,7 @@ import pytest
 from kagura.chat.preset import CodeReviewAgent, SummarizeAgent, TranslateAgent
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_translate_agent():
     """Test TranslateAgent basic functionality"""
@@ -12,6 +13,7 @@ async def test_translate_agent():
     assert len(result) > 0
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_translate_agent_default_language():
     """Test TranslateAgent with default language (Japanese)"""
@@ -20,6 +22,7 @@ async def test_translate_agent_default_language():
     assert len(result) > 0
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_summarize_agent():
     """Test SummarizeAgent"""
@@ -36,6 +39,7 @@ async def test_summarize_agent():
     assert len(result) < len(long_text)
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_code_review_agent():
     """Test CodeReviewAgent"""
@@ -48,6 +52,7 @@ def add(a, b):
     assert len(result) > 0
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_code_review_agent_default_language():
     """Test CodeReviewAgent with default language"""
