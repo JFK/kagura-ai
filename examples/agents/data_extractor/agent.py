@@ -23,8 +23,8 @@ class Person(BaseModel):
 class Task(BaseModel):
     """Represents a task with title and priority."""
 
-    title: str
-    priority: int
+    task: str  # Task description
+    priority: str  # Priority level: high, medium, low
     completed: bool = False
 
 
@@ -72,9 +72,10 @@ async def main():
     task_list = await extract_tasks(task_text)
     print(f"Input: {task_text}")
     print(f"Output: Found {len(task_list.tasks)} tasks")
-    for task in task_list.tasks:
-        status = "✓" if task.completed else "○"
-        print(f"  {status} [{task.priority}] {task.title}\n")
+    for t in task_list.tasks:
+        status = "✓" if t.completed else "○"
+        print(f"  {status} [{t.priority}] {t.task}")
+    print()
 
     # Example 3: Extract keywords
     print("3. Extract Keywords")

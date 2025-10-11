@@ -53,15 +53,14 @@ def extract_json(text: str) -> str:
                 i += 1
         return results
 
-    # Try arrays first (more specific)
+    # Find both arrays and objects
     arrays = find_balanced_json(text, "[", "]")
-    if arrays:
-        return max(arrays, key=len)
-
-    # Try objects
     objects = find_balanced_json(text, "{", "}")
-    if objects:
-        return max(objects, key=len)
+
+    # Return the longest one (outermost structure)
+    all_json = arrays + objects
+    if all_json:
+        return max(all_json, key=len)
 
     # Strategy 3: Return original text
     return text.strip()
