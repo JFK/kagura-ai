@@ -5,7 +5,7 @@ agent outputs, user input, or runtime conditions.
 """
 
 import asyncio
-from kagura import agent, workflow, conditional
+from kagura import agent, workflow
 
 
 # Define workflow agents
