@@ -12,7 +12,7 @@ from kagura.testing import AgentTestCase
 
 # Define agents for testing
 @agent(model="gpt-4o-mini")
-async def data_analyzer(data: str) -> dict:
+async def data_analyzer(data: str) -> str:
     """Analyze the following data and return a JSON summary: {{ data }}"""
     pass
 
@@ -33,15 +33,13 @@ async def code_reviewer(code: str) -> str:
 class TestWithBasicMocks(AgentTestCase):
     """Test agents with basic LLM mocking."""
 
-    agent = data_analyzer
-
     @pytest.mark.asyncio
     async def test_with_mocked_response(self):
         """Test agent with a mocked LLM response."""
         mock_response = '{"status": "success", "count": 5}'
 
-        with self.mock_llm_response(mock_response):
-            result = await self.agent("sample data")
+        with self.mock_llm(mock_response):
+            result = await data_analyzer("sample data")
 
             # Verify the mocked response is returned
             assert result == mock_response
@@ -51,9 +49,9 @@ class TestWithBasicMocks(AgentTestCase):
         """Test multiple agent calls with same mock."""
         mock_response = '{"analysis": "complete"}'
 
-        with self.mock_llm_response(mock_response):
-            result1 = await self.agent("data set 1")
-            result2 = await self.agent("data set 2")
+        with self.mock_llm(mock_response):
+            result1 = await data_analyzer("data set 1")
+            result2 = await data_analyzer("data set 2")
 
             # Both should return the mocked response
             assert result1 == mock_response
@@ -64,27 +62,23 @@ class TestWithBasicMocks(AgentTestCase):
 class TestWithSequentialMocks(AgentTestCase):
     """Test agents with different mocked responses."""
 
-    agent = chatbot
-
     @pytest.mark.asyncio
     async def test_conversation_with_mocks(self):
         """Test a multi-turn conversation with mocked responses."""
         # Mock first response
-        with self.mock_llm_response("Hello! How can I help you?"):
-            response1 = await self.agent("Hi")
+        with self.mock_llm("Hello! How can I help you?"):
+            response1 = await chatbot("Hi")
             assert "Hello" in response1
 
         # Mock second response
-        with self.mock_llm_response("Python is a programming language."):
-            response2 = await self.agent("What is Python?")
+        with self.mock_llm("Python is a programming language."):
+            response2 = await chatbot("What is Python?")
             assert "Python" in response2
 
 
 # Test Class 3: Testing Without API Calls
 class TestCodeReviewerOffline(AgentTestCase):
     """Test code reviewer agent without making API calls."""
-
-    agent = code_reviewer
 
     @pytest.mark.asyncio
     async def test_review_logic_without_api(self):
@@ -99,8 +93,8 @@ Good: Simple and clear function.
 Improvement: Add docstring and type hints.
         """
 
-        with self.mock_llm_response(mock_review):
-            result = await self.agent(test_code)
+        with self.mock_llm(mock_review):
+            result = await code_reviewer(test_code)
 
             # Verify we got the mocked review
             self.assert_contains(result, "Good")
@@ -116,8 +110,8 @@ Improvement: Add docstring and type hints.
         ]
 
         for code, expected_mock in test_cases:
-            with self.mock_llm_response(expected_mock):
-                result = await self.agent(code)
+            with self.mock_llm(expected_mock):
+                result = await code_reviewer(code)
                 assert result == expected_mock
 
 
@@ -134,23 +128,44 @@ class TestWithSideEffects:
             """Process: {{ query }}"""
             pass
 
-        # Create a mock that returns different values on each call
+        # Create mock responses that return different values on each call
+        response_index = 0
         mock_responses = [
             "First response",
             "Second response",
             "Third response"
         ]
 
-        with patch('kagura.core.llm.LLMClient.generate') as mock_generate:
-            mock_generate.side_effect = mock_responses
+        async def mock_side_effect(*args, **kwargs):
+            nonlocal response_index
+            response = mock_responses[response_index]
+            response_index += 1
 
+            class Message:
+                def __init__(self, content: str):
+                    self.content = content
+                    self.tool_calls = None
+
+            class Choice:
+                def __init__(self, message: Message):
+                    self.message = message
+
+            class Response:
+                def __init__(self, content: str):
+                    self.choices = [Choice(Message(content))]
+
+            return Response(response)
+
+        with patch('litellm.acompletion', side_effect=mock_side_effect) as mock_generate:
             # Each call gets a different response
             result1 = await counter_agent("query 1")
             result2 = await counter_agent("query 2")
             result3 = await counter_agent("query 3")
 
-            # Note: Actual behavior depends on implementation
-            # This is a pattern demonstration
+            # Verify each call returned the correct response
+            assert result1 == "First response"
+            assert result2 == "Second response"
+            assert result3 == "Third response"
             assert mock_generate.call_count == 3
 
     @pytest.mark.asyncio
@@ -162,11 +177,12 @@ class TestWithSideEffects:
             """Process: {{ query }}"""
             pass
 
-        with patch('kagura.core.llm.LLMClient.generate') as mock_generate:
-            mock_generate.side_effect = Exception("API Error")
+        async def mock_exception(*args, **kwargs):
+            raise Exception("API Error")
 
+        with patch('litellm.acompletion', side_effect=mock_exception):
             # Verify exception is propagated
-            with pytest.raises(Exception):
+            with pytest.raises(Exception, match="API Error"):
                 await test_agent("test query")
 
 
@@ -183,17 +199,40 @@ class TestPromptGeneration:
             """Create profile for {{ name }} who is {{ age }} years old"""
             pass
 
-        # Mock to capture the rendered prompt
-        with patch('kagura.core.llm.LLMClient.generate') as mock_generate:
-            mock_generate.return_value = "Mocked profile"
+        captured_prompt = None
 
-            await template_agent("Alice", age=30)
+        async def mock_capture(*args, **kwargs):
+            nonlocal captured_prompt
+            # Capture the prompt from messages
+            messages = kwargs.get("messages", [])
+            if messages:
+                captured_prompt = messages[0].get("content", "")
 
-            # Verify the prompt was rendered correctly
-            call_args = mock_generate.call_args
-            # Check that the prompt contains expected values
-            # (Actual structure depends on implementation)
+            class Message:
+                def __init__(self, content: str):
+                    self.content = content
+                    self.tool_calls = None
+
+            class Choice:
+                def __init__(self, message: Message):
+                    self.message = message
+
+            class Response:
+                def __init__(self, content: str):
+                    self.choices = [Choice(Message(content))]
+
+            return Response("Mocked profile")
+
+        with patch('litellm.acompletion', side_effect=mock_capture) as mock_generate:
+            result = await template_agent("Alice", age=30)
+
+            # Verify the mock was called
             assert mock_generate.called
+            # Verify the rendered prompt contains the values
+            assert captured_prompt is not None
+            assert "Alice" in captured_prompt
+            assert "30" in captured_prompt
+            assert result == "Mocked profile"
 
 
 # Test Class 6: Cost and Performance Testing with Mocks
@@ -209,13 +248,28 @@ class TestCostOptimization(AgentTestCase):
             """Answer: {{ query }}"""
             pass
 
-        with patch('kagura.core.llm.LLMClient.generate') as mock_generate:
-            mock_generate.return_value = "Mocked response"
+        async def mock_response(*args, **kwargs):
+            class Message:
+                def __init__(self, content: str):
+                    self.content = content
+                    self.tool_calls = None
 
-            await efficient_agent("test query")
+            class Choice:
+                def __init__(self, message: Message):
+                    self.message = message
+
+            class Response:
+                def __init__(self, content: str):
+                    self.choices = [Choice(Message(content))]
+
+            return Response("Mocked response")
+
+        with patch('litellm.acompletion', side_effect=mock_response) as mock_generate:
+            result = await efficient_agent("test query")
 
             # Should call LLM exactly once
             assert mock_generate.call_count == 1
+            assert result == "Mocked response"
 
     @pytest.mark.asyncio
     async def test_cached_responses_no_llm_call(self):
@@ -226,9 +280,23 @@ class TestCostOptimization(AgentTestCase):
             """Process: {{ query }}"""
             pass
 
-        with patch('kagura.core.llm.LLMClient.generate') as mock_generate:
-            mock_generate.return_value = "Cached response"
+        async def mock_response(*args, **kwargs):
+            class Message:
+                def __init__(self, content: str):
+                    self.content = content
+                    self.tool_calls = None
 
+            class Choice:
+                def __init__(self, message: Message):
+                    self.message = message
+
+            class Response:
+                def __init__(self, content: str):
+                    self.choices = [Choice(Message(content))]
+
+            return Response("Cached response")
+
+        with patch('litellm.acompletion', side_effect=mock_response) as mock_generate:
             # First call should hit LLM
             result1 = await caching_agent("same query")
             first_call_count = mock_generate.call_count
@@ -238,7 +306,9 @@ class TestCostOptimization(AgentTestCase):
             result2 = await caching_agent("same query")
 
             # This test documents expected behavior
-            # Adjust based on actual caching strategy
+            # Note: Current implementation doesn't cache, so both calls hit LLM
+            assert result1 == "Cached response"
+            assert result2 == "Cached response"
 
 
 # Run tests
