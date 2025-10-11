@@ -8,7 +8,6 @@ from kagura.testing import AgentTestCase
 def test_testcase_initialization():
     """Test AgentTestCase initialization."""
     testcase = AgentTestCase()
-    testcase.setup_method(None)  # Initialize instance attributes
 
     assert testcase.agent is None
     assert testcase._llm_calls == []
@@ -137,7 +136,6 @@ def test_assert_language_failure():
 def test_assert_llm_calls_count():
     """Test assert_llm_calls with count assertion."""
     testcase = AgentTestCase()
-    testcase.setup_method(None)  # Initialize instance attributes
 
     # Empty calls
     testcase.assert_llm_calls(count=0)
