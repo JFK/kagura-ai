@@ -281,9 +281,11 @@ def agent(
 
                 # Handle Optional[Model] -> get the actual model type
                 if origin is Union:
-                    args = get_args(return_type)
-                    if type(None) in args:
-                        actual_type = next(arg for arg in args if arg is not type(None))
+                    type_args = get_args(return_type)
+                    # Filter out None type to get actual type
+                    non_none_args = [arg for arg in type_args if arg is not type(None)]
+                    if non_none_args:
+                        actual_type = non_none_args[0]
                         origin = get_origin(actual_type)
 
                 # Check if it's a Pydantic model
@@ -294,15 +296,15 @@ def agent(
                 # Check if it's list[PydanticModel]
                 is_pydantic_list = False
                 if origin is list:
-                    args = get_args(actual_type)
+                    list_args = get_args(actual_type)
                     if (
-                        args
-                        and isinstance(args[0], type)
-                        and issubclass(args[0], BaseModel)
+                        list_args
+                        and isinstance(list_args[0], type)
+                        and issubclass(list_args[0], BaseModel)
                     ):
                         is_pydantic = True
                         is_pydantic_list = True
-                        actual_type = args[0]  # Get the model type
+                        actual_type = list_args[0]  # Get the model type
 
                 # If it's a Pydantic model, add JSON instruction
                 if is_pydantic:
