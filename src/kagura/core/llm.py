@@ -49,14 +49,21 @@ async def call_llm(
     while iterations < max_iterations:
         iterations += 1
 
-        # Call LLM (kwargs may contain 'tools' for OpenAI schema)
+        # Filter out parameters already set in config to avoid duplication
+        filtered_kwargs = {
+            k: v
+            for k, v in kwargs.items()
+            if k not in ("model", "temperature", "max_tokens", "top_p")
+        }
+
+        # Call LLM (filtered kwargs may contain 'tools' for OpenAI schema)
         response = await litellm.acompletion(
             model=config.model,
             messages=messages,
             temperature=config.temperature,
             max_tokens=config.max_tokens,
             top_p=config.top_p,
-            **kwargs,
+            **filtered_kwargs,
         )
 
         message = response.choices[0].message  # type: ignore

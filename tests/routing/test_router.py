@@ -175,11 +175,12 @@ class TestIntentMatching:
             intents=["review", "check", "analyze"],
         )
 
-        # Match 2 out of 3 intents
+        # Match 2 out of 3 intents - new scoring uses best match
+        # "review" and "check" both match with 0.8 score (exact single word)
         matches = router.get_matched_agents("review and check code")
         assert len(matches) == 1
         score = matches[0][1]
-        assert score == 2 / 3  # 2 matched out of 3 intents
+        assert score == 0.8  # Best match score from matching intents
 
     def test_no_match(self):
         """Test when no agent matches."""
@@ -235,10 +236,10 @@ class TestGetMatchedAgents:
         )  # Both match
         assert len(matches) == 2
 
-        # Both match 1 keyword, but translator has more intents,
-        # so code_reviewer should have higher score (1/1 vs 1/2)
-        assert matches[0][0] == code_reviewer
-        assert matches[0][1] > matches[1][1]
+        # New scoring: Both agents get 0.8 score (exact single word match)
+        # The order may vary, but both should have equal scores
+        assert matches[0][1] == 0.8
+        assert matches[1][1] == 0.8
 
 
 class TestRouting:

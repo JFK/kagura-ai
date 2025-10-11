@@ -303,8 +303,20 @@ class AgentRouter:
     def _intent_score(self, user_input: str, intents: list[str]) -> float:
         """Calculate intent-based matching score.
 
-        Uses simple keyword matching with case-insensitive comparison.
-        Score is calculated as: (matched_intents / total_intents)
+        Uses flexible keyword matching with:
+        - Case-insensitive comparison
+        - Exact phrase matching (highest priority)
+        - Word-level matching with overlap calculation
+        - Normalized scoring that rewards any match
+
+        The scoring algorithm prioritizes strong matches:
+        1. Exact multi-word phrase match: score = 1.0 (immediate match)
+        2. Single word exact match: contribute to overall score
+        3. Word overlap: weighted by overlap ratio
+
+        The final score is based on the best match found, not diluted
+        by the number of intents. This prevents having many intents
+        from reducing match confidence.
 
         Args:
             user_input: User input string
@@ -317,9 +329,35 @@ class AgentRouter:
             return 0.0
 
         input_lower = user_input.lower()
-        matches = sum(1 for intent in intents if intent.lower() in input_lower)
+        input_words = set(input_lower.split())
 
-        return matches / len(intents)
+        max_score = 0.0
+
+        for intent in intents:
+            intent_lower = intent.lower()
+            intent_score = 0.0
+
+            # Check for exact phrase match (highest priority)
+            if intent_lower in input_lower:
+                # Multi-word phrases are strong signals
+                if ' ' in intent_lower:
+                    intent_score = 1.0  # Perfect match for phrase
+                else:
+                    intent_score = 0.8  # Strong match for single word
+            else:
+                # Check for word-level matches
+                intent_words = set(intent_lower.split())
+                common_words = input_words & intent_words
+
+                if common_words:
+                    # Calculate overlap ratio
+                    overlap_ratio = len(common_words) / len(intent_words)
+                    intent_score = overlap_ratio * 0.6  # Partial match
+
+            # Keep the highest score from any intent
+            max_score = max(max_score, intent_score)
+
+        return max_score
 
     def _semantic_score(self, user_input: str, agent_name: str) -> float:
         """Calculate semantic similarity score using semantic-router.

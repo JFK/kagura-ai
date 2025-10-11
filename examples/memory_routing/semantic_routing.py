@@ -35,6 +35,12 @@ async def database_expert(question: str) -> str:
     pass
 
 
+@agent(model="gpt-4o-mini")
+async def general_tech_expert(question: str) -> str:
+    """Answer general technology question: {{ question }}"""
+    pass
+
+
 async def main():
     """Demonstrate semantic routing with RAG."""
     print("=== Semantic Routing with RAG ===\n")
@@ -48,10 +54,11 @@ async def main():
     router = MemoryAwareRouter(memory=memory, context_window=10)
 
     # Register specialized agents
-    router.register(python_expert, intents=["python", "py"])
-    router.register(javascript_expert, intents=["javascript", "js"])
-    router.register(devops_expert, intents=["devops", "docker", "kubernetes"])
-    router.register(database_expert, intents=["database", "sql"])
+    router.register(python_expert, intents=["python", "py", "data science", "machine learning", "numpy", "pandas", "good for", "async", "patterns"])
+    router.register(javascript_expert, intents=["javascript", "js", "web development", "frontend", "nodejs", "async", "patterns"])
+    router.register(devops_expert, intents=["devops", "docker", "kubernetes", "deployment", "containerization"])
+    router.register(database_expert, intents=["database", "sql", "postgres", "analytics"])
+    router.register(general_tech_expert, intents=["general", "technology", "help", "compare"])  # Fallback
 
     # Example 1: Build knowledge base
     print("1. Building Knowledge Base")

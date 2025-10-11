@@ -12,8 +12,8 @@ from kagura.core.memory import MemoryManager
 
 # Define specialized agents
 @agent(model="gpt-4o-mini")
-async def translator(text: str, target_language: str) -> str:
-    """Translate "{{ text }}" to {{ target_language }}"""
+async def translator(query: str) -> str:
+    """{{ query }}. Translate the text to the requested target language."""
     pass
 
 
@@ -44,10 +44,10 @@ async def main():
     router = MemoryAwareRouter(memory=memory, context_window=5)
 
     # Register agents with intents
-    router.register(translator, intents=["translate", "translation"])
-    router.register(calculator, intents=["calculate", "math", "compute"])
-    router.register(summarizer, intents=["summarize", "summary"])
-    router.register(general_assistant, intents=["general"])  # Fallback
+    router.register(translator, intents=["translate", "translation", "language"])
+    router.register(calculator, intents=["calculate", "math", "compute", "multiply", "add", "divide", "subtract", "what is"])
+    router.register(summarizer, intents=["summarize", "summary", "brief"])
+    router.register(general_assistant, intents=["general", "help", "tell me", "explain"])  # Fallback
 
     # Example 1: Basic routing without context
     print("1. Basic Routing")
