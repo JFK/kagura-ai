@@ -84,18 +84,30 @@ class LLMMock:
     def __enter__(self) -> "LLMMock":
         """Start mocking."""
 
-        def mock_completion(*args: Any, **kwargs: Any) -> dict[str, Any]:
-            """Return mock response."""
-            return {
-                "choices": [{"message": {"content": self.response}}],
-                "usage": {
-                    "prompt_tokens": 10,
-                    "completion_tokens": 10,
-                    "total_tokens": 20,
-                },
-            }
+        async def mock_acompletion(*args: Any, **kwargs: Any) -> dict[str, Any]:
+            """Return mock response (async version)."""
+            # Create a simple namespace object to hold message content
+            class Message:
+                def __init__(self, content: str):
+                    self.content = content
+                    self.tool_calls = None
 
-        self.patcher = patch("litellm.completion", side_effect=mock_completion)
+            class Choice:
+                def __init__(self, message: Message):
+                    self.message = message
+
+            class Response:
+                def __init__(self, content: str):
+                    self.choices = [Choice(Message(content))]
+                    self.usage = {
+                        "prompt_tokens": 10,
+                        "completion_tokens": 10,
+                        "total_tokens": 20,
+                    }
+
+            return Response(self.response)  # type: ignore
+
+        self.patcher = patch("litellm.acompletion", side_effect=mock_acompletion)
         self.patcher.__enter__()
         return self
 
