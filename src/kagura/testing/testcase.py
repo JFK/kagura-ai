@@ -16,6 +16,14 @@ class AgentTestCase:
     Provides assertion methods and utilities for testing AI agents,
     handling the non-deterministic nature of LLM outputs.
 
+    Note:
+        This class can be used in two ways:
+        1. As a test class base (pytest will call setup_method before each test)
+        2. As a standalone utility (instantiate directly with AgentTestCase())
+
+        Both __init__ and setup_method initialize the same attributes to ensure
+        proper functionality in either usage pattern.
+
     Example:
         >>> from kagura.testing import AgentTestCase
         >>> class TestMyAgent(AgentTestCase):
@@ -28,7 +36,28 @@ class AgentTestCase:
     agent: Optional[Callable] = None  # Agent to test
 
     def __init__(self) -> None:
-        """Initialize test case."""
+        """Initialize test case.
+
+        This method is called when:
+        1. The class is instantiated directly (e.g., in fixtures)
+        2. Pytest creates test class instances
+
+        Pytest will not show collection warnings if __init__ has no parameters.
+        """
+        self._llm_calls: list[dict[str, Any]] = []
+        self._tool_calls: list[dict[str, Any]] = []
+        self._start_time: Optional[float] = None
+        self._duration: float = 0.0
+
+    def setup_method(self, method: Any) -> None:
+        """Setup method called by pytest before each test method.
+
+        This reinitializes all instance attributes before each test method,
+        ensuring test isolation.
+
+        Args:
+            method: Test method being executed
+        """
         self._llm_calls: list[dict[str, Any]] = []
         self._tool_calls: list[dict[str, Any]] = []
         self._start_time: Optional[float] = None
