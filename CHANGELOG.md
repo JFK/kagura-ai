@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2025-10-11
+
+### Fixed
+
+- **Examples Health Check Fixes**
+  - **AgentBuilder.with_session_id() implementation** ([#142](https://github.com/JFK/kagura-ai/issues/142), PR [#147](https://github.com/JFK/kagura-ai/pull/147))
+    - Added `with_session_id()` method to `AgentBuilder` for memory session isolation
+    - Added `session_id` field to `MemoryConfig`
+    - Integrated with `MemoryManager.set_session_id()`
+    - 25 comprehensive tests (100% coverage)
+
+  - **Conditional workflow import fix** ([#143](https://github.com/JFK/kagura-ai/issues/143), PR [#148](https://github.com/JFK/kagura-ai/pull/148))
+    - Removed unused `conditional` import from workflow example
+    - Created feature request [#149](https://github.com/JFK/kagura-ai/issues/149) for conditional workflow helpers
+
+  - **JSON parsing improvements** ([#144](https://github.com/JFK/kagura-ai/issues/144), PR [#151](https://github.com/JFK/kagura-ai/pull/151))
+    - Fixed `extract_json()` to return longest (outermost) JSON structure
+    - Added automatic JSON format instructions for Pydantic model return types
+    - Fixed `Task` model field names in data_extractor example
+    - Resolved LLM returning schema mixed with data
+
+  - **Mock testing framework fixes** ([#145](https://github.com/JFK/kagura-ai/issues/145), PR [#152](https://github.com/JFK/kagura-ai/pull/152))
+    - Updated `LLMMock` to use `litellm.acompletion` (async version)
+    - Fixed all mock test paths to use correct litellm API
+    - Fixed `test_with_mocks.py` to use `mock_llm()` instead of `mock_llm_response()`
+    - All 10 mock tests now passing
+
+  - **Pytest collection warnings** ([#146](https://github.com/JFK/kagura-ai/issues/146), PR [#150](https://github.com/JFK/kagura-ai/pull/150))
+    - Added both `__init__` and `setup_method` to `AgentTestCase` for dual usage pattern
+    - Fixed pytest collection warnings for test classes
+    - All 36 testing module tests passing
+
+### Tests
+
+- All examples health check issues resolved
+- 46 total tests passing (10 mock tests + 36 testing module tests)
+- 0 pytest collection warnings
+- Pyright: 0 errors
+- Ruff: All checks passed
+
 ## [2.3.0] - 2025-10-11
 
 ### Added
