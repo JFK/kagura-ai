@@ -1,9 +1,9 @@
 # Kagura AI 統合開発ロードマップ (v2.0.0 〜 v2.5.0+)
 
-**最終更新**: 2025-10-10
+**最終更新**: 2025-10-11
 **策定方針**: RFC駆動開発 - 全22個のRFC（001-022）を優先度・依存関係に基づいて統合
 
-**現在地**: ✅ v2.2.0 リリース完了！→ v2.3.0準備中
+**現在地**: ✅ v2.3.1 リリース完了！→ v2.4.0準備中
 
 ---
 
@@ -374,82 +374,120 @@
 
 ---
 
-## 🌐 Version 2.3.0: Multimodal & Web (Week 27-32)
+## ✅ Version 2.3.0: Multimodal & Web (Completed - 2025-10-10)
 
-**リリース目標**: マルチモーダルRAG、Web統合、認証機能
+**リリース目標**: マルチモーダルRAG、Web統合 ✅ 達成
 
-**現在地**: 計画段階
+**リリース日**: 2025-10-10
+**GitHub Release**: [v2.3.0](https://github.com/JFK/kagura-ai/releases/tag/v2.3.0)
 
-### RFC-002: Multimodal RAG (Week 27-29)
+### ✅ RFC-002: Multimodal RAG (Completed - PR #117-131)
 **関連Issue**: [#62](https://github.com/JFK/kagura-ai/issues/62)
 
-#### 実装内容
-1. **マルチモーダル対応** (Week 22)
-   - 画像・音声・動画・PDF処理
-   - Gemini Vision API統合
-   - RFC-018 Memory統合
+#### 実装完了内容
+- ✅ **マルチモーダルファイル処理** (PR #117-125)
+  - 画像処理（PNG, JPG, GIF, WebP）- Gemini Vision API
+  - PDF処理（PyPDF2）
+  - 音声処理（MP3, WAV, M4A）- Whisper API
+  - 動画処理（MP4, MOV, AVI）
+  - `src/kagura/multimodal/`: 完全実装
+  - `tests/multimodal/`: テスト実装
 
-2. **RAG Chat** (Week 23)
-   ```bash
-   $ kagura chat --dir ./project
-   You: この図の意味は？
-   AI: （画像を解析）このアーキテクチャ図は...
-   ```
-
-3. **Google Workspace連携** (Week 24)
-   - Drive / Calendar / Gmail統合
-   - `@workspace.enable` デコレータ
+- ✅ **RAG Chat統合** (PR #136)
+  - `kagura chat --enable-multimodal --dir <path>`
+  - 全ファイルタイプのインデックス化
+  - セマンティック検索による関連ファイル取得
+  - ChromaDB統合
 
 #### 成功指標
 - ✅ `kagura chat --dir <path>` でディレクトリ全体を理解
 - ✅ 画像・PDF・音声ファイルの内容を質問可能
+- ✅ マルチモーダルベクトル検索動作
 
 ---
 
-### RFC-014: Web Integration (Week 25-26)
-**関連Issue**: #75
+### ✅ RFC-014: Web Integration (Completed - PR #133-138)
+**関連Issue**: ~~#75~~ (Closed - Completed in v2.3.0)
 
-#### 実装内容
-1. **Web Search** (Week 25)
-   - Brave Search API（無料枠2000クエリ/月）
-   - DuckDuckGoフォールバック
-   - RFC-018 Memory統合（検索履歴）
+#### 実装完了内容
+- ✅ **Web Search** (PR #133)
+  - Brave Search API統合（無料枠2000クエリ/月）
+  - DuckDuckGoフォールバック
+  - `src/kagura/web/search.py`: 実装完了
+  - `tests/web/test_search.py`: テスト完了
 
-2. **Web Scraping** (Week 25)
-   - BeautifulSoup統合
-   - robots.txt遵守
+- ✅ **Web Scraping** (PR #135)
+  - BeautifulSoup統合
+  - robots.txt遵守
+  - `src/kagura/web/scraper.py`: 実装完了
+  - `tests/web/test_scraper.py`: テスト完了
 
-3. **エージェント統合** (Week 26)
-   ```python
-   @agent
-   @web.enable
-   async def research(topic: str) -> str:
-       """Research {{ topic }} using web search"""
-       pass
-   ```
+- ✅ **エージェント統合** (PR #134, #137, #138)
+  - `@web.enable` デコレータ
+  - Chat REPL統合 (`--enable-web`)
+  - Full-featured mode統合
 
 #### 成功指標
 - ✅ `web.search()` でリアルタイム情報取得
 - ✅ `@web.enable` でエージェントに自動統合
+- ✅ `kagura chat --enable-web` で即座にWeb検索可能
 
 ---
 
-## 🤖 Version 2.3.0: Personal AI & Auth (Week 27-34)
+### 🎯 v2.3.0 完了サマリー
 
-**リリース目標**: パーソナライズされたAIアシスタント
+**完了したRFC**: 2個（RFC-002, RFC-014）
+**マージしたPR**: 22個（#117-138）
+**リリース日**: 2025-10-10
 
-### RFC-003: Personal Assistant (Week 27-32)
-**関連Issue**: #63
+**主要機能**:
+- ✅ Multimodal RAG（画像・音声・PDF・動画処理）
+- ✅ Web Integration（Search + Scraping）
+- ✅ Chat REPL統合
+
+---
+
+## 🛠️ Version 2.4.0: OAuth2 & Personal AI (Week 35-42)
+
+**リリース目標**: OAuth2認証、パーソナルAIアシスタント
+
+### RFC-013: OAuth2 Authentication (Week 35-37)
+**関連Issue**: [#74](https://github.com/JFK/kagura-ai/issues/74)
 
 #### 実装内容
-1. **RAG記憶システム** (Week 27-28)
+1. **Google OAuth2** (Week 35-36)
+   ```bash
+   $ kagura auth login --provider google
+   → ブラウザでログイン → 完了
+   $ kagura chat  # APIキー不要で即使える
+   ```
+
+2. **認証情報管理** (Week 37)
+   - Fernet暗号化保存
+   - 自動トークンリフレッシュ
+   - `~/.kagura/credentials.enc` に安全に保存
+
+#### 成功指標
+- ✅ APIキー不要でGemini使用可能
+- ✅ ブラウザログインのみでKagura使用可能
+- ✅ トークン自動更新
+
+---
+
+### RFC-003: Personal Assistant (Week 38-40)
+**関連Issue**: [#63](https://github.com/JFK/kagura-ai/issues/63)
+
+#### 実装内容
+1. **RAG記憶システム** (Week 38)
    - 会話履歴をベクトルDB保存
    - ChromaDB / Qdrant統合
+   - 長期記憶管理
 
-2. **Few-shot Learning** (Week 29-30)
+2. **Few-shot Learning** (Week 39)
    - 最近の会話から動的Few-shot例生成
+   - コンテキスト適応型プロンプト
 
-3. **Auto Fine-tuning** (Week 31-32)
+3. **Auto Fine-tuning** (Week 40)
    ```python
    @agent(auto_finetune=True)
    async def my_assistant(query: str) -> str:
@@ -459,34 +497,15 @@
 
 #### 成功指標
 - ✅ 使うほど賢くなる体験
-- ✅ 月次自動ファインチューニング
+- ✅ ユーザー固有の振る舞い学習
 
 ---
 
-### RFC-013: OAuth2 Authentication (Week 32-34)
-**関連Issue**: #74
-
-#### 実装内容
-1. **Google OAuth2** (Week 32-33)
-   ```bash
-   $ kagura auth login --provider google
-   → ブラウザでログイン → 完了
-   ```
-
-2. **認証情報管理** (Week 34)
-   - Fernet暗号化保存
-   - 自動トークンリフレッシュ
-
-#### 成功指標
-- ✅ APIキー不要でGemini使用可能
-
----
-
-## 🛠️ Version 2.4.0: Meta Agent & Ecosystem (Week 35-42)
+## 🤖 Version 2.5.0: Meta Agent & Ecosystem (Week 43-50)
 
 **リリース目標**: エージェント生成自動化、エコシステム拡大
 
-### RFC-005: Meta Agent (Week 35-37)
+### RFC-005: Meta Agent (Week 43-45)
 **関連Issue**: #65
 
 #### 実装内容
@@ -499,7 +518,7 @@ $ kagura create "GitHubのPR内容を要約するエージェント"
 
 ---
 
-### RFC-008: Plugin Marketplace (Week 38-40)
+### RFC-008: Plugin Marketplace (Week 46-48)
 **関連Issue**: #68
 
 #### 実装内容
@@ -511,7 +530,7 @@ $ kagura publish my-agent
 
 ---
 
-### RFC-009: Multi-Agent Orchestration (Week 41-42)
+### RFC-009: Multi-Agent Orchestration (Week 49-50)
 **関連Issue**: #69
 
 #### 実装内容
@@ -558,27 +577,27 @@ async def support(query: str):
 
 ---
 
-## 🌟 Version 2.5.0+: Advanced Features (Week 43+)
+## 🌟 Version 2.6.0+: Advanced Features (Week 51+)
 
-### RFC-004: Voice First Interface (Week 43-46)
+### RFC-004: Voice First Interface (Week 51-54)
 **関連Issue**: #64
 - 音声入出力（STT/TTS）
 
-### RFC-006: LSP Integration (Week 47-50)
+### RFC-006: LSP Integration (Week 55-58)
 **関連Issue**: #66
 - VS Code / Vim拡張
 
-### RFC-010: Observability (Week 51-54)
+### RFC-010: Observability (Week 59-62)
 **関連Issue**: #70
 - コスト追跡、パフォーマンス監視
 
-### RFC-011: Scheduled Automation (Week 55-58)
+### RFC-011: Scheduled Automation (Week 63-66)
 **関連Issue**: #71
 - Cron、Webhook、ファイル監視
 
 ---
 
-## 🚀 Version 2.6.0: API Server & Web Integration (Week 59+)
+## 🚀 Version 2.7.0: API Server & Web Integration (Week 67+)
 
 ### RFC-015: Agent API Server ⭐️ NEW
 **関連Issue**: TBD
@@ -615,7 +634,7 @@ async def support(query: str):
 
 ---
 
-## 🌐 Version 2.7.0: Web UI & Dashboard (Week 69+)
+## 🌐 Version 2.8.0: Web UI & Dashboard (Week 75+)
 
 ### Web UI実装（RFC-015統合）
 
@@ -641,7 +660,7 @@ async def support(query: str):
 
 ---
 
-## ☁️ Version 2.8.0+: SaaS化オプション (Week 79+)
+## ☁️ Version 2.9.0+: SaaS化オプション (Week 85+)
 
 ### SaaS化機能（オプション）
 
@@ -659,60 +678,54 @@ async def support(query: str):
 |---------|-------------|---------|---------|--------|
 | v2.0.0 | 2025 Q4 | Core、Executor、CLI、REPL | - | ✅ |
 | v2.1.0 | 2026 Q1 | MCP統合、Chat REPL、Commands & Hooks、Shell統合 | RFC-007, 006, 012, 017 | ✅ |
-| v2.2.0 | 2026 Q2 | **Unified Builder、Testing、Observability、Memory RAG** | **RFC-001, 018-022** | ✅ |
-| v2.3.0 | 2026 Q3 | Multimodal RAG、Web統合、OAuth2 | RFC-002, 013, 014 | 🚧 |
-| v2.4.0 | 2026 Q4 | Meta Agent、Marketplace、Orchestration | RFC-005, 008, 009 | 📋 |
-| v2.5.0+ | 2027 Q1+ | Voice、LSP、Personal Assistant、Automation | RFC-003, 004, 010, 011 | 📋 |
-| v2.6.0 | 2027 Q2 | API Server、REST/WebSocket、認証 | RFC-015 | 📋 |
-| v2.7.0 | 2027 Q3 | Web UI、Dashboard、Marketplace UI | RFC-015, 005, 008 | 📋 |
-| v2.8.0+ | 2027 Q4+ | SaaS化、マルチテナント、従量課金 | RFC-015 | 📋 |
+| v2.2.0 | 2026 Q2 | Unified Builder、Testing、Memory RAG | RFC-001, 018-022 | ✅ |
+| v2.3.0 | 2026 Q3 | **Multimodal RAG、Web統合** | **RFC-002, 014** | ✅ |
+| v2.4.0 | 2026 Q4 | OAuth2認証、Personal AI | RFC-013, 003 | 📋 |
+| v2.5.0 | 2027 Q1 | Meta Agent、Marketplace、Orchestration | RFC-005, 008, 009 | 📋 |
+| v2.6.0+ | 2027 Q2+ | Voice、LSP、Observability、Automation | RFC-004, 006, 010, 011 | 📋 |
+| v2.7.0 | 2027 Q3 | API Server、REST/WebSocket | RFC-015 | 📋 |
+| v2.8.0 | 2027 Q4 | Web UI、Dashboard、Marketplace UI | RFC-015, 005, 008 | 📋 |
+| v2.9.0+ | 2028 Q1+ | SaaS化、マルチテナント、従量課金 | RFC-015 | 📋 |
 
 ---
 
 ## 🎯 次のアクション
 
-### 現在地（2025-10-10）
-- ✅ **v2.2.0 リリース完了！** 🎉
-- ✅ RFC-001, 018, 019, 020, 021, 022 実装完了
-- ✅ @agent, @tool, @workflow の3つのコアデコレータ完成
-- ✅ **合計 18個のPR、13個のRFC（Phase含む）完了**
-- ✅ **総テスト数**: 586+（246個追加）
-- ✅ **GitHub Release**: [v2.2.0](https://github.com/JFK/kagura-ai/releases/tag/v2.2.0)
+### 現在地（2025-10-11）
+- ✅ **v2.3.1 リリース完了！** 🎉
+- ✅ RFC-002 (Multimodal RAG) + RFC-014 (Web Integration) 実装完了
+- ✅ **合計 40個のPR、15個のRFC（Phase含む）完了**
+- ✅ **GitHub Release**: [v2.3.1](https://github.com/JFK/kagura-ai/releases/tag/v2.3.1)
 
 ### 📊 全RFCステータス（RFC-001〜022）
-- **完了**: 13個（RFC-001, 006, 007, 012, 016, 017, 018, 019, 020, 021, 022 + Phase含む）
-- **v2.3.0候補**: 3個（RFC-002, 013, 014）
-- **未実装**: 6個（RFC-003, 004, 005, 008, 009, 010, 011, 015）
+- **完了**: 15個（RFC-001, 002, 006, 007, 012, 014, 016, 017, 018, 019, 020, 021, 022 + Phase含む）
+- **v2.4.0候補**: 2個（RFC-013, 003）
+- **未実装**: 5個（RFC-004, 005, 008, 009, 010, 011, 015）
 - **詳細**: `ai_docs/RFC_STATUS.md` 参照
 
-### 🚀 v2.3.0 開発候補
+### 🚀 v2.4.0 開発候補
 
-#### 🔥 推奨: RFC-002 - Multimodal RAG
-**期間**: 3週間
-**Issue**: [#62](https://github.com/JFK/kagura-ai/issues/62)
+#### 🔥 推奨: RFC-013 - OAuth2認証
+**期間**: 1.5週間
+**Issue**: [#74](https://github.com/JFK/kagura-ai/issues/74)
 
 **理由**:
-- 実用性が大幅向上（画像・音声・PDF処理）
-- RAGシステムと自然に統合
-- Gemini Vision API活用
-- ユーザー要望が高い
+- ユーザー体験大幅向上（APIキー不要）
+- Claude Codeと同等の簡易性
+- セキュリティ向上（平文APIキー削減）
+- Gemini API完全統合
 
 **実装内容**:
-- 画像処理（Gemini Vision API）
-- 音声・動画処理（Whisper API）
-- PDF処理（PyPDF2）
-- マルチモーダルベクトル検索
+- Google OAuth2認証
+- Fernet暗号化保存
+- 自動トークンリフレッシュ
+- `kagura auth` CLI実装
 
 #### その他の候補
-1. **RFC-014**: Web Integration (#75) - 2週間
-   - Web Search（Brave API）
-   - Web Scraping（BeautifulSoup）
-   - リアルタイム情報取得
-
-2. **RFC-013**: OAuth2 Authentication (#74) - 1.5週間
-   - Google OAuth2認証
-   - APIキー不要化
-   - トークン管理
+1. **RFC-003**: Personal Assistant (#63) - 3週間
+   - RAG記憶システム
+   - Few-shot Learning
+   - Auto Fine-tuning
 
 ---
 
