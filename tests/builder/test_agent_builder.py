@@ -41,6 +41,28 @@ def test_agent_builder_with_memory():
     assert builder._config.memory.enable_rag is True
 
 
+def test_agent_builder_with_session_id():
+    """Test setting session ID."""
+    builder = (
+        AgentBuilder("test_agent")
+        .with_memory(type="persistent", max_messages=50)
+        .with_session_id("user_123_session_1")
+    )
+
+    assert builder._config.memory is not None
+    assert builder._config.memory.session_id == "user_123_session_1"
+
+
+def test_agent_builder_with_session_id_without_memory():
+    """Test that session ID requires memory to be configured first."""
+    builder = AgentBuilder("test_agent")
+
+    with pytest.raises(ValueError) as exc_info:
+        builder.with_session_id("session_123")
+
+    assert "Memory must be configured" in str(exc_info.value)
+
+
 def test_agent_builder_with_routing():
     """Test configuring routing."""
     routes = {"translation": "translation_agent", "code_review": "review_agent"}
@@ -185,12 +207,14 @@ def test_memory_config():
     config = MemoryConfig(
         type="rag",
         max_messages=50,
-        enable_rag=True
+        enable_rag=True,
+        session_id="test_session"
     )
 
     assert config.type == "rag"
     assert config.max_messages == 50
     assert config.enable_rag is True
+    assert config.session_id == "test_session"
 
 
 def test_routing_config():
@@ -395,3 +419,40 @@ async def test_agent_builder_hooks_execution():
     assert hasattr(agent, "_base_agent")
     config = agent._builder_config
     assert config.hooks is not None
+
+
+def test_agent_builder_with_session_id_integration():
+    """Test building agent with session ID integration."""
+    builder = (
+        AgentBuilder("session_agent")
+        .with_model("gpt-4o-mini")
+        .with_memory(type="persistent", max_messages=50)
+        .with_session_id("user_123_session_1")
+    )
+
+    agent = builder.build()
+
+    # Verify configuration
+    config = agent._builder_config
+    assert config.memory is not None
+    assert config.memory.session_id == "user_123_session_1"
+
+
+def test_agent_builder_method_chaining_with_session():
+    """Test full method chaining including session ID."""
+    agent = (
+        AgentBuilder("full_chain_agent")
+        .with_model("gpt-4o")
+        .with_memory(type="persistent", max_messages=100)
+        .with_session_id("chain_session_123")
+        .with_context(temperature=0.7, max_tokens=1000)
+        .build()
+    )
+
+    assert agent is not None
+    config = agent._builder_config
+    assert config.model == "gpt-4o"
+    assert config.memory is not None
+    assert config.memory.type == "persistent"
+    assert config.memory.session_id == "chain_session_123"
+    assert config.context["temperature"] == 0.7

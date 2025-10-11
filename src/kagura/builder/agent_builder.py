@@ -67,6 +67,37 @@ class AgentBuilder:
         )
         return self
 
+    def with_session_id(self, session_id: str) -> "AgentBuilder":
+        """Set session ID for memory isolation.
+
+        Session IDs allow multiple isolated conversation contexts for the same agent.
+        Each session maintains its own memory state.
+
+        Args:
+            session_id: Unique identifier for this conversation session
+
+        Returns:
+            Self for method chaining
+
+        Raises:
+            ValueError: If memory is not configured before setting session_id
+
+        Example:
+            >>> agent = (
+            ...     AgentBuilder("chatbot")
+            ...     .with_memory(type="persistent")
+            ...     .with_session_id("user_123_session_1")
+            ...     .build()
+            ... )
+        """
+        if self._config.memory is None:
+            raise ValueError(
+                "Memory must be configured before setting session_id. "
+                "Call .with_memory() first."
+            )
+        self._config.memory.session_id = session_id
+        return self
+
     def with_routing(
         self,
         strategy: str = "semantic",
@@ -189,6 +220,10 @@ class AgentBuilder:
                 Returns:
                     Agent response
                 """
+                # Set session ID if configured
+                if config.memory and config.memory.session_id:
+                    memory.set_session_id(config.memory.session_id)
+
                 # TODO: Phase 2 - Integrate routing
                 # TODO: Phase 2 - Integrate hooks
 
