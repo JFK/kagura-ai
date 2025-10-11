@@ -268,6 +268,75 @@ def agent(
             }
             prompt = render_prompt(template_str, **template_args)
 
+            # Add JSON format instruction for Pydantic models
+            return_type = sig.return_annotation
+            if return_type != inspect.Signature.empty:
+                from typing import Union, get_args, get_origin
+
+                from pydantic import BaseModel
+
+                # Check if return type is a Pydantic model or list[Pydantic]
+                origin = get_origin(return_type)
+                actual_type = return_type
+
+                # Handle Optional[Model] -> get the actual model type
+                if origin is Union:
+                    args = get_args(return_type)
+                    if type(None) in args:
+                        actual_type = next(arg for arg in args if arg is not type(None))
+                        origin = get_origin(actual_type)
+
+                # Check if it's a Pydantic model
+                is_pydantic = isinstance(actual_type, type) and issubclass(
+                    actual_type, BaseModel
+                )
+
+                # Check if it's list[PydanticModel]
+                is_pydantic_list = False
+                if origin is list:
+                    args = get_args(actual_type)
+                    if (
+                        args
+                        and isinstance(args[0], type)
+                        and issubclass(args[0], BaseModel)
+                    ):
+                        is_pydantic = True
+                        is_pydantic_list = True
+                        actual_type = args[0]  # Get the model type
+
+                # If it's a Pydantic model, add JSON instruction
+                if is_pydantic:
+                    from pydantic import BaseModel
+
+                    # Type assertion for pyright
+                    assert isinstance(actual_type, type) and issubclass(
+                        actual_type, BaseModel
+                    )
+                    schema = actual_type.model_json_schema()
+                    # Get required fields and properties for better instruction
+                    properties = schema.get("properties", {})
+
+                    # Build field description
+                    field_desc = ", ".join(
+                        f'"{field}" ({props.get("type", "any")})'
+                        for field, props in properties.items()
+                    )
+
+                    if is_pydantic_list:
+                        prompt += (
+                            f"\n\nIMPORTANT: Return ONLY a JSON array of objects "
+                            f"with these fields: {field_desc}. "
+                            "Do NOT include the schema definition, explanations, "
+                            "or any other text. Just the data array."
+                        )
+                    else:
+                        prompt += (
+                            f"\n\nIMPORTANT: Return ONLY a JSON object "
+                            f"with these fields: {field_desc}. "
+                            "Do NOT include the schema definition, explanations, "
+                            "or any other text. Just the data object."
+                        )
+
             # Prepare kwargs for LLM call
             llm_kwargs = dict(kwargs)
 
