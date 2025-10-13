@@ -164,7 +164,9 @@ async def _build_agent_async(
                 f"[bold]Output:[/bold] {spec.output_type}\n"
                 f"[bold]Tools:[/bold] "
                 f"{', '.join(spec.tools) if spec.tools else 'None'}\n"
-                f"[bold]Memory:[/bold] {'Yes' if spec.has_memory else 'No'}",
+                f"[bold]Memory:[/bold] {'Yes' if spec.has_memory else 'No'}\n"
+                f"[bold]Code execution:[/bold] "
+                f"{'[green]Yes[/green]' if spec.requires_code_execution else 'No'}",
                 title="📋 Agent Specification",
                 border_style="green",
             )
@@ -278,7 +280,9 @@ async def _build_agent_chat_async(
                     f"[bold]Output:[/bold] {spec.output_type}\n"
                     f"[bold]Tools:[/bold] "
                     f"{', '.join(spec.tools) if spec.tools else 'None'}\n"
-                    f"[bold]Memory:[/bold] {'Yes' if spec.has_memory else 'No'}",
+                    f"[bold]Memory:[/bold] {'Yes' if spec.has_memory else 'No'}\n"
+                    f"[bold]Code execution:[/bold] "
+                    f"{'[green]Yes[/green]' if spec.requires_code_execution else 'No'}",
                     title="📋 Agent Specification",
                     border_style="green",
                 )
