@@ -2,162 +2,170 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://www.kagura-ai.com/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/installation/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/quickstart/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/agent/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
+    </url>
+    <url>
+         <loc>https://www.kagura-ai.com/en/api/auth/</loc>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/builder/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/chat/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/cli/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/commands/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/executor/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/hooks/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/mcp/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/memory/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/observability/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/routing/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/shell/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/testing/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/tools/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/api/workflows/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/guides/chat-multimodal/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/guides/commands-quickstart/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/guides/full-featured-mode/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/guides/hooks-guide/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
+    </url>
+    <url>
+         <loc>https://www.kagura-ai.com/en/guides/oauth2-authentication/</loc>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/guides/web-integration/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/01-basic-agent/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/02-templates/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/03-type-parsing/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/04-code-execution/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/05-repl/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/06-mcp-integration/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/07-shell-integration/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/08-memory-management/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/09-agent-routing/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/10-chat-repl/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/11-tools/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/12-workflows/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/13-agent-builder/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/13-multimodal-rag/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/14-testing/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/tutorials/15-observability/</loc>
-         <lastmod>2025-10-10</lastmod>
+         <lastmod>2025-10-13</lastmod>
     </url>
 </urlset>

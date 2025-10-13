@@ -497,6 +497,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#for-oauth2-authentication-advanced" class="md-nav__link">
+    <span class="md-ellipsis">
+      For OAuth2 Authentication (Advanced)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#for-mcp-integration" class="md-nav__link">
     <span class="md-ellipsis">
       For MCP Integration
@@ -950,6 +959,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/oauth2-authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OAuth2 Authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1077,6 +1109,29 @@
   
   <span class="md-ellipsis">
     CLI Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Authentication
     
   </span>
   
@@ -1552,6 +1607,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#for-oauth2-authentication-advanced" class="md-nav__link">
+    <span class="md-ellipsis">
+      For OAuth2 Authentication (Advanced)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#for-mcp-integration" class="md-nav__link">
     <span class="md-ellipsis">
       For MCP Integration
@@ -1714,6 +1778,14 @@
 </code></pre></div>
 <h2 id="set-api-key">Set API Key</h2>
 <p>Kagura AI uses LiteLLM, which supports multiple LLM providers. You need to set the appropriate API key for your chosen provider.</p>
+<blockquote>
+<p><strong>💡 Quick Start Tip</strong></p>
+<p>The fastest way to get started with Gemini:
+1. Visit <a href="https://aistudio.google.com/app/apikey">Google AI Studio</a>
+2. Click "Create API Key"
+3. Copy the key and set: <code>export GOOGLE_API_KEY="your-key"</code></p>
+<p><strong>No Google Cloud Console setup needed!</strong> OAuth2 is an advanced feature for specific use cases. See <a href="../guides/oauth2-authentication/">OAuth2 Authentication Guide</a> for details.</p>
+</blockquote>
 <h3 id="openai">OpenAI</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-key-here&quot;</span>
 </code></pre></div>
@@ -1778,12 +1850,25 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>ruff<span class="w"> </span>check<span class="w"> </span>src/
 </code></pre></div>
 <h2 id="optional-dependencies">Optional Dependencies</h2>
-<h3 id="for-mcp-integration">For MCP Integration</h3>
-<p>To use Kagura agents with Claude Desktop, Claude Code, and other MCP clients:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>mcp<span class="o">]</span>
+<h3 id="for-oauth2-authentication-advanced">For OAuth2 Authentication (Advanced)</h3>
+<p>To use OAuth2 authentication with Google/Gemini (advanced feature):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>oauth<span class="o">]</span>
 </code></pre></div>
 <p>Or with uv:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;kagura-ai[mcp]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;kagura-ai[oauth]&quot;</span>
+</code></pre></div>
+<p>This installs:
+- <code>google-auth&gt;=2.25.0</code> - Google authentication library
+- <code>google-auth-oauthlib&gt;=1.2.0</code> - OAuth2 flow
+- <code>google-auth-httplib2&gt;=0.2.0</code> - HTTP library
+- <code>cryptography&gt;=41.0.0</code> - Credential encryption</p>
+<p><strong>Note</strong>: OAuth2 is an advanced feature. For most users, <strong>using API Keys is recommended</strong> as it's simpler. See <a href="../guides/oauth2-authentication/">OAuth2 Authentication Guide</a> for when to use OAuth2.</p>
+<h3 id="for-mcp-integration">For MCP Integration</h3>
+<p>To use Kagura agents with Claude Desktop, Claude Code, and other MCP clients:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>mcp<span class="o">]</span>
+</code></pre></div>
+<p>Or with uv:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;kagura-ai[mcp]&quot;</span>
 </code></pre></div>
 <p>This installs:
 - <code>mcp&gt;=1.0.0</code> - Model Context Protocol SDK
@@ -1800,21 +1885,21 @@
 </ul>
 <h3 id="for-documentation">For Documentation</h3>
 <p>To build documentation locally:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>pip<span class="w"> </span>install<span class="w"> </span>mkdocs<span class="w"> </span>mkdocs-material
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>mkdocs<span class="w"> </span>serve
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>pip<span class="w"> </span>install<span class="w"> </span>mkdocs<span class="w"> </span>mkdocs-material
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>mkdocs<span class="w"> </span>serve
 </code></pre></div>
 <p>Then visit <code>http://localhost:8000</code></p>
 <h2 id="troubleshooting">Troubleshooting</h2>
 <h3 id="import-error">Import Error</h3>
 <p>If you get import errors:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="ne">ImportError</span><span class="p">:</span> <span class="n">cannot</span> <span class="kn">import</span><span class="w"> </span><span class="nn">name</span> <span class="s1">&#39;agent&#39;</span> <span class="kn">from</span><span class="w"> </span><span class="s1">&#39;kagura&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="ne">ImportError</span><span class="p">:</span> <span class="n">cannot</span> <span class="kn">import</span><span class="w"> </span><span class="nn">name</span> <span class="s1">&#39;agent&#39;</span> <span class="kn">from</span><span class="w"> </span><span class="s1">&#39;kagura&#39;</span>
 </code></pre></div>
 <p>Make sure you're using Python 3.11+:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>python<span class="w"> </span>--version
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>python<span class="w"> </span>--version
 </code></pre></div>
 <h3 id="api-key-not-found">API Key Not Found</h3>
 <p>If you see authentication errors:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>AuthenticationError: The api_key client option must be set
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>AuthenticationError: The api_key client option must be set
 </code></pre></div>
 <p>Set your API key as described above. The key must be set before importing kagura.</p>
 <h3 id="type-errors">Type Errors</h3>
@@ -1826,21 +1911,21 @@
 </ol>
 <h2 id="upgrading">Upgrading</h2>
 <h3 id="from-pypi">From PyPI</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>kagura-ai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>kagura-ai
 </code></pre></div>
 <p>or with uv:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>uv<span class="w"> </span>add<span class="w"> </span>kagura-ai<span class="w"> </span>--upgrade
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>uv<span class="w"> </span>add<span class="w"> </span>kagura-ai<span class="w"> </span>--upgrade
 </code></pre></div>
 <h3 id="from-git">From Git</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="nb">cd</span><span class="w"> </span>kagura-ai
-<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>git<span class="w"> </span>pull
-<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="nb">cd</span><span class="w"> </span>kagura-ai
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>git<span class="w"> </span>pull
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev
 </code></pre></div>
 <h2 id="uninstalling">Uninstalling</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>pip<span class="w"> </span>uninstall<span class="w"> </span>kagura-ai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>pip<span class="w"> </span>uninstall<span class="w"> </span>kagura-ai
 </code></pre></div>
 <p>or with uv:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>uv<span class="w"> </span>remove<span class="w"> </span>kagura-ai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>uv<span class="w"> </span>remove<span class="w"> </span>kagura-ai
 </code></pre></div>
 <h2 id="next-steps">Next Steps</h2>
 <ul>
