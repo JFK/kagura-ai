@@ -1,7 +1,6 @@
 """LLM integration using LiteLLM"""
 
 import json
-import os
 from typing import Any, Callable, Literal, Optional
 
 import litellm
