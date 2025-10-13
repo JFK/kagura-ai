@@ -5,6 +5,7 @@ Main CLI entry point for Kagura AI
 import click
 
 from ..version import __version__
+from .auth_cli import auth_group
 from .chat import chat
 from .commands_cli import run
 from .mcp import mcp
@@ -51,6 +52,7 @@ cli.add_command(chat)
 cli.add_command(mcp)
 cli.add_command(run)
 cli.add_command(monitor)
+cli.add_command(auth_group)
 
 
 if __name__ == "__main__":
