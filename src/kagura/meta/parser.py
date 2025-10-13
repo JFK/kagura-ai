@@ -71,16 +71,19 @@ Return JSON with these fields:
 - description: What the agent does (1-2 sentences)
 - input_type: Parameter type (str, dict, list, etc.)
 - output_type: Return type (str, dict, list, etc.)
-- tools: Required tools (code_executor, web_search, memory, file_ops, etc.)
+- tools: List of required tools (e.g., ["code_executor", "web_search"])
 - has_memory: Whether agent needs conversation memory (true/false)
 - system_prompt: Agent's system instructions (detailed, professional)
-- examples: Example inputs/outputs (if any mentioned)
+- examples: Array of objects with "input"/"output" keys, e.g.,
+  [{{"input": "Hello", "output": "こんにちは"}}] or empty array []
 
 Guidelines:
 - Use descriptive, clear names
 - System prompt should be professional and specific
-- Only include tools if explicitly needed
+- Only include tools if explicitly needed (empty array [] if none)
 - has_memory=true only if conversation context is needed
+- examples should be an array of objects, or empty array [] if none
+- For YouTube/web content agents, include "web_search" in tools
 """
 
     def detect_tools(self, description: str) -> list[str]:
@@ -104,7 +107,18 @@ Guidelines:
                 "code execution",
                 "calculate",
             ],
-            "web_search": ["search", "google", "find online", "look up", "web"],
+            "web_search": [
+                "search",
+                "google",
+                "find online",
+                "look up",
+                "web",
+                "youtube",
+                "url",
+                "link",
+                "scrape",
+                "fetch",
+            ],
             "memory": ["remember", "recall", "memory", "history", "conversation"],
             "file_ops": ["read file", "write file", "file operations", "save to file"],
         }

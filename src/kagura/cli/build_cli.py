@@ -119,7 +119,22 @@ async def _build_agent_async(
 
     try:
         # Parse description and generate code
-        spec = await meta.parser.parse(description)
+        try:
+            spec = await meta.parser.parse(description)
+        except Exception as e:
+            # Check if it's a Pydantic validation error
+            error_msg = str(e)
+            if "validation error" in error_msg.lower():
+                console.print(
+                    f"[red]❌ Failed to parse agent specification[/red]\n"
+                    f"[yellow]The AI returned an invalid format. Please try:[/yellow]\n"
+                    f"  • Simplifying your description\n"
+                    f"  • Being more specific about what the agent should do\n"
+                    f"  • Using a different model (--model gpt-4o)\n\n"
+                    f"[dim]Technical details: {error_msg}[/dim]"
+                )
+                raise click.Abort()
+            raise
 
         # Show parsed spec
         console.print(
