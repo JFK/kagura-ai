@@ -297,3 +297,91 @@ class TestAgentCommandErrorHandling:
         # Verify
         assert result.exit_code == 1
         assert "Error" in result.output
+
+
+# Phase 2: Code-Aware Agent Tests
+
+
+class TestAgentCommandCodeExecution:
+    """Tests for Phase 2 code execution integration"""
+
+    @patch("kagura.cli.build_cli.MetaAgent")
+    def test_agent_command_shows_code_execution_status(
+        self, mock_meta_class, runner, tmp_path, mock_code
+    ):
+        """Test that code execution status is shown in spec display"""
+        # Create spec with code execution enabled
+        spec_with_code_exec = AgentSpec(
+            name="data_analyst",
+            description="Analyze CSV files",
+            input_type="str",
+            output_type="dict",
+            system_prompt="Analyze data",
+            requires_code_execution=True,  # Phase 2 field
+        )
+
+        # Setup mocks
+        mock_meta = MagicMock()
+        mock_meta.parser = MagicMock()
+        mock_meta.parser.parse = AsyncMock(return_value=spec_with_code_exec)
+        mock_meta.generate_from_spec = AsyncMock(return_value=mock_code)
+        mock_meta_class.return_value = mock_meta
+
+        # Run command
+        output_path = tmp_path / "data_analyst.py"
+        result = runner.invoke(
+            agent_command,
+            [
+                "--description",
+                "Analyze CSV files",
+                "--output",
+                str(output_path),
+                "--no-interactive",
+            ],
+        )
+
+        # Verify code execution status is displayed
+        assert result.exit_code == 0
+        assert "Code execution:" in result.output
+        assert "Yes" in result.output  # Should show Yes for code execution
+
+    @patch("kagura.cli.build_cli.MetaAgent")
+    def test_agent_command_no_code_execution(
+        self, mock_meta_class, runner, tmp_path, mock_code
+    ):
+        """Test that No is shown when code execution is not needed"""
+        # Create spec without code execution
+        spec_no_code_exec = AgentSpec(
+            name="translator",
+            description="Translate text",
+            input_type="str",
+            output_type="str",
+            system_prompt="Translate",
+            requires_code_execution=False,  # No code execution
+        )
+
+        # Setup mocks
+        mock_meta = MagicMock()
+        mock_meta.parser = MagicMock()
+        mock_meta.parser.parse = AsyncMock(return_value=spec_no_code_exec)
+        mock_meta.generate_from_spec = AsyncMock(return_value=mock_code)
+        mock_meta_class.return_value = mock_meta
+
+        # Run command
+        output_path = tmp_path / "translator.py"
+        result = runner.invoke(
+            agent_command,
+            [
+                "--description",
+                "Translate text",
+                "--output",
+                str(output_path),
+                "--no-interactive",
+            ],
+        )
+
+        # Verify code execution status shows No
+        assert result.exit_code == 0
+        assert "Code execution:" in result.output
+        # "No" should appear for code execution (not green Yes)
+        assert "Yes" not in result.output or result.output.count("Yes") <= 1

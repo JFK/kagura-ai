@@ -15,6 +15,7 @@ class AgentSpec(BaseModel):
         output_type: Return type annotation
         tools: List of required tool names
         has_memory: Whether agent needs conversation memory
+        requires_code_execution: Whether agent needs code execution (Phase 2)
         system_prompt: Agent's system instructions for LLM
         examples: Example input/output pairs
 
@@ -34,6 +35,10 @@ class AgentSpec(BaseModel):
     output_type: str = Field(default="str", description="Output type")
     tools: list[str] = Field(default_factory=list, description="Required tools")
     has_memory: bool = Field(default=False, description="Needs memory context")
+    requires_code_execution: bool = Field(
+        default=False,
+        description="Whether agent needs Python code execution capabilities",
+    )
     system_prompt: str = Field(..., description="Agent system prompt")
     examples: list[dict[str, str]] = Field(
         default_factory=list, description="Example inputs/outputs"
@@ -50,6 +55,7 @@ class AgentSpec(BaseModel):
                 "output_type": "str",
                 "tools": [],
                 "has_memory": False,
+                "requires_code_execution": False,
                 "system_prompt": (
                     "You are a professional translator. "
                     "Translate the given text from English to Japanese."

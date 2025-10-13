@@ -53,12 +53,18 @@ class CodeGenerator:
             >>> assert "@agent" in code
             >>> assert f"def {spec.name}" in code
         """
+        # Phase 2: Auto-add execute_code tool if needed
+        tools = spec.tools.copy()
+        if spec.requires_code_execution and "execute_code" not in tools:
+            tools.insert(0, "execute_code")  # Add at beginning for priority
+
         template_name = self._select_template(spec)
         template = self.env.get_template(template_name)
 
         # Add metadata for template
         context = {
             "spec": spec,
+            "tools": tools,  # Use modified tools list
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "kagura_version": self._get_kagura_version(),
             "tool_descriptions": self._get_tool_descriptions(),
@@ -75,7 +81,10 @@ class CodeGenerator:
         Returns:
             Template filename
         """
-        if spec.has_memory:
+        # Phase 2: Priority for code execution template
+        if spec.requires_code_execution:
+            return "agent_with_code_exec.py.j2"
+        elif spec.has_memory:
             return "agent_with_memory.py.j2"
         elif spec.tools:
             return "agent_with_tools.py.j2"
@@ -102,6 +111,7 @@ class CodeGenerator:
             Dictionary mapping tool names to descriptions
         """
         return {
+            "execute_code": "Execute Python code safely with AST validation",
             "code_executor": "Execute Python code safely",
             "web_search": "Search the web for information",
             "memory": "Persistent conversation memory",
