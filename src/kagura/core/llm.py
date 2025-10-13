@@ -1,19 +1,80 @@
 """LLM integration using LiteLLM"""
 
 import json
-from typing import Any, Callable, Optional
+import os
+from typing import Any, Callable, Literal, Optional
 
 import litellm
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class LLMConfig(BaseModel):
-    """LLM configuration"""
+    """LLM configuration
+
+    Supports both API key and OAuth2 authentication for Google models.
+
+    Example with API key:
+        >>> config = LLMConfig(model="gemini/gemini-1.5-flash")
+        >>> # Uses GOOGLE_API_KEY environment variable
+
+    Example with OAuth2:
+        >>> config = LLMConfig(
+        ...     model="gemini/gemini-1.5-flash",
+        ...     auth_type="oauth2",
+        ...     oauth_provider="google"
+        ... )
+        >>> # Uses OAuth2Manager to get token automatically
+    """
 
     model: str = "gpt-4o-mini"
     temperature: float = 0.7
     max_tokens: Optional[int] = None
     top_p: float = 1.0
+
+    # OAuth2 authentication options
+    auth_type: Literal["api_key", "oauth2"] = Field(
+        default="api_key",
+        description="Authentication type: 'api_key' or 'oauth2'"
+    )
+    oauth_provider: Optional[str] = Field(
+        default=None,
+        description="OAuth2 provider (e.g., 'google') when auth_type='oauth2'"
+    )
+
+    def get_api_key(self) -> Optional[str]:
+        """Get API key or OAuth2 token based on auth_type
+
+        Returns:
+            API key or OAuth2 access token
+
+        Raises:
+            ValueError: If OAuth2 is requested but auth module not installed
+            NotAuthenticatedError: If OAuth2 auth required but not logged in
+        """
+        if self.auth_type == "api_key":
+            # Use environment variable (standard LiteLLM behavior)
+            return None  # LiteLLM will use env vars
+
+        # OAuth2 authentication
+        if self.auth_type == "oauth2":
+            if self.oauth_provider is None:
+                raise ValueError(
+                    "oauth_provider must be specified when auth_type='oauth2'"
+                )
+
+            try:
+                from kagura.auth import OAuth2Manager
+            except ImportError as e:
+                raise ValueError(
+                    "OAuth2 authentication requires the 'oauth' extra. "
+                    "Install with: pip install kagura-ai[oauth]"
+                ) from e
+
+            # Get token from OAuth2Manager
+            auth = OAuth2Manager(provider=self.oauth_provider)
+            return auth.get_token()
+
+        return None
 
 
 async def call_llm(
@@ -25,14 +86,20 @@ async def call_llm(
     """
     Call LLM with given prompt, handling tool calls if present.
 
+    Supports both API key and OAuth2 authentication based on config.
+
     Args:
         prompt: The prompt to send
-        config: LLM configuration
+        config: LLM configuration (includes auth settings)
         tool_functions: Optional list of tool functions (Python callables)
         **kwargs: Additional LiteLLM parameters (including 'tools' schema)
 
     Returns:
         LLM response text
+
+    Raises:
+        ValueError: If OAuth2 configuration is invalid
+        NotAuthenticatedError: If OAuth2 required but not logged in
     """
     # Build messages list
     messages: list[dict[str, Any]] = [{"role": "user", "content": prompt}]
@@ -46,6 +113,9 @@ async def call_llm(
     max_iterations = 5
     iterations = 0
 
+    # Get API key/token based on auth_type
+    api_key = config.get_api_key()
+
     while iterations < max_iterations:
         iterations += 1
 
@@ -53,8 +123,12 @@ async def call_llm(
         filtered_kwargs = {
             k: v
             for k, v in kwargs.items()
-            if k not in ("model", "temperature", "max_tokens", "top_p")
+            if k not in ("model", "temperature", "max_tokens", "top_p", "api_key")
         }
+
+        # Add API key if OAuth2 authentication is used
+        if api_key:
+            filtered_kwargs["api_key"] = api_key
 
         # Call LLM (filtered kwargs may contain 'tools' for OpenAI schema)
         response = await litellm.acompletion(
