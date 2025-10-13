@@ -5,6 +5,168 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2025-10-13
+
+### Added
+
+- **RFC-013: OAuth2 Authentication** ([#74](https://github.com/JFK/kagura-ai/issues/74), PR [#154](https://github.com/JFK/kagura-ai/pull/154))
+
+  **Phase 1: Core OAuth2 Implementation** (2025-10-11)
+  - **OAuth2Manager** - Google OAuth2 authentication flow
+    - Browser-based login flow with `InstalledAppFlow`
+    - Fernet encryption (AES-128) for credential storage
+    - Automatic token refresh with Google auth library
+    - Secure file permissions (0o600) for credentials and encryption keys
+    - `~/.kagura/credentials.json.enc` encrypted storage
+    - `~/.kagura/encryption.key` encryption key storage
+
+  - **AuthConfig** - Authentication configuration management
+    - Provider-specific scope management
+    - Google Generative Language API scopes
+    - Extensible for future OAuth2 providers
+
+  - **Custom Exceptions** - Error handling
+    - `NotAuthenticatedError` - User not logged in
+    - `InvalidCredentialsError` - Corrupted or invalid credentials
+
+  - **CLI Commands** - `kagura auth` command group
+    - `kagura auth login --provider google` - Browser login
+    - `kagura auth status` - Check authentication status
+    - `kagura auth logout` - Remove credentials
+
+  **Phase 2: Integration & Documentation** (2025-10-13)
+  - **LLMConfig OAuth2 Integration**
+    - `auth_type` parameter: `"api_key"` (default) or `"oauth2"`
+    - `oauth_provider` parameter: OAuth2 provider name (e.g., `"google"`)
+    - `get_api_key()` method returns OAuth2 token when `auth_type="oauth2"`
+    - Seamless LiteLLM integration (OAuth2 token used as API key)
+    - Backward compatible with existing API key authentication
+
+  - **User Documentation** (1772 lines total)
+    - `docs/en/guides/oauth2-authentication.md` - Setup guide (466 lines)
+      - Comparison: OAuth2 vs API Key (when to use each)
+      - Google Cloud Console setup instructions
+      - Authentication workflow
+      - LLMConfig integration examples
+      - Troubleshooting guide
+      - **Prominent notice**: API Key recommended for most users, OAuth2 for advanced use cases
+
+    - `docs/en/api/auth.md` - API reference (400 lines)
+      - `OAuth2Manager` class documentation
+      - `AuthConfig` class documentation
+      - `NotAuthenticatedError` and `InvalidCredentialsError` documentation
+      - LLMConfig OAuth2 integration documentation
+      - Code examples and best practices
+
+    - `docs/en/installation.md` - OAuth2 section added
+      - Quick start tip emphasizing API Key simplicity
+      - Optional OAuth2 dependencies: `pip install kagura-ai[oauth]`
+      - Clear guidance on when OAuth2 is needed
+
+    - `mkdocs.yml` - Navigation updated with OAuth2 documentation
+
+  - **Integration Tests**
+    - `scripts/test_oauth2.py` - Manual testing script (464 lines)
+      - Interactive test suite for OAuth2 functionality
+      - Tests: login, status, token, refresh, logout, LLM call, CLI
+      - Available flags: `--all`, `--login`, `--status`, `--token`, `--refresh`, `--logout`, `--llm`, `--cli`
+
+    - `tests/integration/test_oauth2_integration.py` - Integration tests (15 tests)
+      - Real OAuth2 flow testing (skipped when credentials not available)
+      - `@pytest.mark.integration` marker for optional testing
+      - Tests: authentication status, token retrieval, encryption, file permissions, LLM calls
+
+    - `ai_docs/OAUTH2_TESTING_GUIDE.md` - Testing guide (442 lines)
+      - Comprehensive testing documentation
+      - Google Cloud Console setup (step-by-step with screenshots)
+      - Manual testing scenarios
+      - Integration test execution guide
+      - Troubleshooting common issues
+
+### Changed
+
+- **LLMConfig Authentication Enhancement**
+  - Added `auth_type` field: `Literal["api_key", "oauth2"]` (default: `"api_key"`)
+  - Added `oauth_provider` field: `Optional[str]` for OAuth2 provider name
+  - `get_api_key()` method now returns OAuth2 token when `auth_type="oauth2"`
+  - Maintains backward compatibility with existing API key authentication
+  - Lazy import of `OAuth2Manager` to avoid hard dependency
+
+- **call_llm() OAuth2 Integration**
+  - Automatically retrieves OAuth2 token via `config.get_api_key()` when configured
+  - Passes token as `api_key` parameter to `litellm.acompletion`
+  - No changes required for existing API key users
+
+### Documentation
+
+- **OAuth2 Documentation Package** (1772 lines)
+  - User-facing documentation with clear use case guidance
+  - API reference with complete OAuth2Manager documentation
+  - Testing guide with Google Cloud Console setup
+  - Installation guide updated with OAuth2 section
+  - **Key message**: API Key recommended for most users, OAuth2 for advanced use cases
+
+### Tests
+
+- **Unit Tests** (54 tests in `tests/auth/`)
+  - `test_oauth2_manager.py` - OAuth2Manager tests (29 tests)
+  - `test_auth_config.py` - AuthConfig tests (9 tests)
+  - `test_exceptions.py` - Exception tests (4 tests)
+  - `test_auth_cli.py` - CLI command tests (12 tests)
+  - **Coverage**: 100% for auth module
+
+- **LLMConfig Integration Tests** (11 tests in `tests/core/test_llm_oauth2.py`)
+  - OAuth2 authentication with LLMConfig
+  - OAuth2 token usage in `call_llm()`
+  - Error handling (NotAuthenticatedError, missing provider)
+  - Mock-based testing (no real OAuth2 flow required)
+
+- **Integration Tests** (15 tests in `tests/integration/test_oauth2_integration.py`)
+  - Real OAuth2 flow testing (optional, skipped without credentials)
+  - Authentication status, token retrieval, encryption, file permissions
+  - LLM calls with OAuth2 token
+  - `@pytest.mark.integration` marker
+
+- **Total v2.4.0 Tests**: 65+ tests (54 unit + 11 LLM integration + 15 integration)
+
+### Security
+
+- **Credential Encryption**
+  - Fernet encryption (AES-128) for OAuth2 credentials
+  - Symmetric key stored separately in `~/.kagura/encryption.key`
+  - File permissions: 0o600 (owner read/write only) for both credentials and key
+  - Protection against unauthorized access
+
+- **Token Management**
+  - Automatic token refresh using Google auth library
+  - Timezone-naive UTC datetime handling for expiry
+  - No tokens logged or exposed in error messages
+
+### Technical Details
+
+- **Dependencies Added** (optional `[oauth]` extra)
+  - `google-auth>=2.25.0` - Google authentication library
+  - `google-auth-oauthlib>=1.2.0` - OAuth2 flow
+  - `cryptography>=41.0.0` - Credential encryption (Fernet)
+
+- **Files Changed**: +5054 / -26 lines
+  - **New files**: 14 (auth module, tests, docs)
+  - **Modified files**: 3 (`llm.py`, `installation.md`, `mkdocs.yml`)
+
+- **Technical Learnings**
+  - Google auth library uses timezone-naive UTC datetime (`_helpers.utcnow()`)
+  - OAuth2 tokens can be used directly as LiteLLM API keys
+  - Mock patching must target class definition location, not import location
+  - Documentation clarity is crucial for advanced features (API Key vs OAuth2)
+
+### Fixed
+
+- **Documentation Clarity**
+  - Added prominent notices that API Key is recommended for most users
+  - Clarified OAuth2 is an advanced feature for specific use cases
+  - Added comparison tables showing OAuth2 vs API Key trade-offs
+  - Emphasized OAuth2 is Google/Gemini only (Claude and OpenAI use API keys)
+
 ## [2.3.1] - 2025-10-11
 
 ### Fixed
