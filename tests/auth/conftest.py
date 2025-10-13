@@ -27,7 +27,7 @@ def mock_credentials() -> Credentials:
     """Create mock Google OAuth2 credentials
 
     Returns:
-        Mock Credentials object
+        Mock Credentials object with valid token (not expired)
     """
     creds_data = {
         "token": "mock_access_token_12345",
@@ -41,10 +41,15 @@ def mock_credentials() -> Credentials:
         ],
     }
 
-    return Credentials.from_authorized_user_info(
+    creds = Credentials.from_authorized_user_info(
         creds_data,
         scopes=creds_data["scopes"],
     )
+
+    # Mark credentials as valid (not expired) to avoid refresh attempts
+    creds._expires = None  # No expiration set means valid
+
+    return creds
 
 
 @pytest.fixture

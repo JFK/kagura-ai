@@ -170,7 +170,7 @@ class OAuth2Manager:
         creds = self._load_credentials()
 
         # Refresh if expired
-        if creds.expired and creds.refresh_token:
+        if hasattr(creds, "expired") and creds.expired and creds.refresh_token:
             try:
                 logger.info("Refreshing expired token")
                 creds.refresh(Request())

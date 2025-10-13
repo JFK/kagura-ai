@@ -242,9 +242,10 @@ class TestOAuth2ManagerCredentials:
         auth = OAuth2Manager()
         auth._save_credentials(creds)
 
-        # Mock refresh
-        def mock_refresh(request):
-            creds.token = "new_token"  # Update token
+        # Mock refresh method
+        def mock_refresh(self, request):
+            """Mock refresh that updates token"""
+            self.token = "new_token"
 
         with patch.object(Credentials, "refresh", mock_refresh):
             with patch.object(Credentials, "expired", True):
