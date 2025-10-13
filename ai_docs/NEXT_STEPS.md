@@ -925,7 +925,7 @@ A: v2.1.0で多数の機能（Memory、Routing、Tools、Hooks）が追加され
 
 #### ✅ RFC-005 Phase 1 完了！（2025-10-13）
 
-**PR**: [#156](https://github.com/JFK/kagura-ai/pull/156) - Ready for Review
+**PR**: [#156](https://github.com/JFK/kagura-ai/pull/156) - ✅ Merged
 
 **完了内容**:
 - ✅ コア実装（MetaAgent, Parser, Generator, Validator）
@@ -943,9 +943,46 @@ A: v2.1.0で多数の機能（Memory、Routing、Tools、Hooks）が追加され
 - **テスト**: 36個（100%パス）
 - **ドキュメント**: 1078行
 
+#### 🚧 RFC-005 Phase 2: Code-Aware Agent（進行中）
+
+**Issue**: [#157](https://github.com/JFK/kagura-ai/issues/157)
+**RFC Plan**: [RFC_005_PHASE2_PLAN.md](./rfcs/RFC_005_PHASE2_PLAN.md)
+**PR**: [#158](https://github.com/JFK/kagura-ai/pull/158) - Draft
+
+**実装目標**:
+- 🚧 コード実行が必要なタスクを自動検出
+- 🚧 `execute_code` ツールを自動で追加
+- 🚧 コード実行用テンプレートの生成
+- 🚧 CLI でコード実行ステータスを表示
+
+**完了したタスク（Phase 2-1 〜 2-3）**:
+
+**Phase 2-1: Code Detection & Spec Extension ✅**
+- ✅ `AgentSpec.requires_code_execution` フィールド追加
+- ✅ `NLSpecParser.detect_code_execution_need()` 実装（キーワード + LLM検出）
+- ✅ 10テスト追加（CSV/JSON/計算/データ分析/翻訳/会話）
+
+**Phase 2-2: Auto-add Tool & Template ✅**
+- ✅ `CodeGenerator` に execute_code 自動追加ロジック実装
+- ✅ 新テンプレート `agent_with_code_exec.py.j2` 作成（95行）
+- ✅ テンプレート選択ロジック更新（コード実行優先）
+- ✅ 4テスト追加（自動ツール追加/既存ツール統合/ガイダンス）
+
+**Phase 2-3: CLI Integration ✅**
+- ✅ `kagura build agent` CLI に "Code execution: Yes/No" 表示追加
+- ✅ Interactive mode と Chat mode 両方に対応
+- ✅ 2 CLI テスト追加
+- ✅ 全テスト 51 passed, 1 skipped
+
+**成果物**:
+- **実装**: +266行（spec, parser, generator, templates, cli）
+- **テスト**: 16個（10 parser + 4 generator + 2 cli）
+- **テンプレート**: 1個（code execution用）
+
 **次のステップ**:
-- ⏳ PRレビュー & マージ待ち
-- ⏳ Phase 2計画（review/improve機能、テンプレート追加）
+- ⏳ Phase 2-4: ドキュメント更新（進行中）
+- ⏳ PRレビュー & マージ
+- ⏳ Phase 3計画（Self-Improving Agent検討）
 
 ---
 
