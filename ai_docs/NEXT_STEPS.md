@@ -734,34 +734,92 @@ A: v2.1.0で多数の機能（Memory、Routing、Tools、Hooks）が追加され
 - ✅ トークン自動リフレッシュ
 - ✅ `kagura auth` CLI実装（login/logout/status）
 
-#### 完了したタスク（Phase 1: 5/8タスク）
+#### 完了したタスク（Phase 1 & 2 - 全8タスク完了！✅）
+
+**Phase 1: Core OAuth2 Implementation（2025-10-11 完了）**
 1. ✅ **Task 1**: OAuth dependencies追加（0.5日）
 2. ✅ **Task 2**: OAuth2Manager実装（1.5日）
 3. ✅ **Task 3**: AuthConfig実装（0.5日）
 4. ✅ **Task 4**: Custom Exceptions実装（0.5日）
 5. ✅ **Task 5**: CLI Commands実装（1日）
-6. ⏳ **Task 6**: LLMConfig統合（Phase 2）
-7. ⏳ **Task 7**: Documentation作成（Phase 2）
-8. ⏳ **Task 8**: Integration Tests実装（Phase 2）
 
-#### 成功指標（Phase 1達成）
-- ✅ 43+ tests（89% coverage）
+**Phase 2: Integration & Documentation（2025-10-13 完了）**
+6. ✅ **Task 6**: LLMConfig統合（1日）
+7. ✅ **Task 7**: Documentation作成（1日）
+8. ✅ **Task 8**: Integration Tests実装（1日）
+
+#### 成功指標（全Phase達成！✅）
+
+**Phase 1**:
+- ✅ 54+ ユニットテスト（100% coverage）
 - ✅ `kagura auth login` でブラウザログイン成功
-- ✅ セットアップ時間70%削減
+- ✅ Fernet暗号化（AES-128）
+- ✅ 0o600ファイルパーミッション
+
+**Phase 2**:
+- ✅ LLMConfig OAuth2統合完了（`auth_type`, `oauth_provider`）
+- ✅ 包括的ドキュメント（1772行: ユーザーガイド + APIリファレンス + テストガイド）
+- ✅ 統合テスト（手動スクリプト + pytest統合テスト）
+- ✅ MkDocsナビゲーション更新
+- ✅ ドキュメント明確化（API Key推奨、OAuth2は高度な機能）
+
+**全体**:
+- ✅ 65+ tests（95% coverage）
 - ✅ Pyright 0 errors（strict mode）
 - ✅ Ruff linting全パス
-- ✅ CI全テストパス（870 passed）
-- ✅ Security: Fernet暗号化、0o600ファイルパーミッション
+- ✅ CI全テストパス（897 passed）
 
 #### 技術的な学び
 - **タイムゾーン問題解決**: Google auth library は timezone-naive UTC datetime を使用
 - `_helpers.utcnow()` は `datetime.utcnow()` (tzinfo=None) を返す
 - 保存時に timezone-aware だった expiry を naive UTC に変換する必要があった
 
-#### Phase 2予定（v2.4.0以降）
-- LLMConfig との統合（`@auto_auth` デコレータ）
-- ユーザードキュメント（OAuth2 setup guide）
-- Integration tests（実際のGoogle OAuth2フロー）
+#### RFC-013 完了内容
+
+**Phase 1: Core OAuth2 Implementation（2025-10-11）**
+- ✅ OAuth2Manager実装（認証フロー、トークン管理）
+- ✅ AuthConfig実装（設定管理）
+- ✅ Custom Exceptions実装（エラーハンドリング）
+- ✅ CLI Commands実装（`kagura auth login/logout/status`）
+- ✅ 54+ユニットテスト（100% coverage）
+
+**Phase 2: Integration & Documentation（2025-10-13）**
+- ✅ LLMConfig OAuth2統合（`auth_type`, `oauth_provider` フィールド）
+- ✅ ユーザードキュメント（OAuth2 setup guide + API reference）
+- ✅ Integration tests（手動テストスクリプト + pytest統合テスト）
+- ✅ MkDocsナビゲーション更新
+- ✅ ドキュメント明確化（API Key推奨、OAuth2は高度な機能）
+- ✅ Installation guide更新（OAuth2 optional dependency）
+
+#### 成果物
+
+**Phase 1 実装ファイル**:
+- `src/kagura/auth/__init__.py`: 公開API
+- `src/kagura/auth/oauth2.py`: OAuth2Manager（262行）
+- `src/kagura/auth/config.py`: AuthConfig（99行）
+- `src/kagura/auth/exceptions.py`: Custom Exceptions（48行）
+- `src/kagura/cli/auth_cli.py`: CLI commands（157行）
+- `tests/auth/`: 54+ユニットテスト（5ファイル）
+
+**Phase 2 統合・ドキュメント**:
+- `src/kagura/core/llm.py`: OAuth2統合（`auth_type`, `oauth_provider`追加）
+- `tests/core/test_llm_oauth2.py`: LLMConfig統合テスト（11テスト）
+- `tests/integration/test_oauth2_integration.py`: 統合テスト（15テスト）
+- `docs/en/guides/oauth2-authentication.md`: ユーザーガイド（466行）
+- `docs/en/api/auth.md`: APIリファレンス（400行）
+- `docs/en/installation.md`: OAuth2セクション追加
+- `scripts/test_oauth2.py`: 手動テストスクリプト（464行）
+- `ai_docs/OAUTH2_TESTING_GUIDE.md`: テストガイド（442行）
+- `mkdocs.yml`: ナビゲーション更新
+
+**統計**:
+- **新規ファイル**: 14ファイル
+- **変更ファイル**: 3ファイル（llm.py, installation.md, mkdocs.yml）
+- **変更行数**: +5054 / -26
+- **テスト数**: 65+ tests（54 unit + 11 LLM integration）
+- **ドキュメント**: 1772行（ユーザーガイド466 + APIリファレンス400 + テストガイド442 + スクリプト464）
+
+**PR**: [#154](https://github.com/JFK/kagura-ai/pull/154) - ✅ Merged (2025-10-13)
 
 ---
 
