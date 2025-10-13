@@ -451,26 +451,41 @@
 
 **リリース目標**: OAuth2認証、パーソナルAIアシスタント
 
-### RFC-013: OAuth2 Authentication (Week 35-37)
+### RFC-013: OAuth2 Authentication (Week 35) ✅ Phase 1完了
 **関連Issue**: [#74](https://github.com/JFK/kagura-ai/issues/74)
+**PR**: [#154](https://github.com/JFK/kagura-ai/pull/154) - Ready for Review
 
-#### 実装内容
-1. **Google OAuth2** (Week 35-36)
+#### 実装完了内容（Phase 1）
+1. ✅ **Google OAuth2認証** (Week 35)
    ```bash
    $ kagura auth login --provider google
    → ブラウザでログイン → 完了
    $ kagura chat  # APIキー不要で即使える
    ```
 
-2. **認証情報管理** (Week 37)
-   - Fernet暗号化保存
+2. ✅ **認証情報管理**
+   - Fernet暗号化保存（AES-128）
    - 自動トークンリフレッシュ
-   - `~/.kagura/credentials.enc` に安全に保存
+   - `~/.kagura/credentials.json.enc` に安全に保存
+   - ファイルパーミッション: 0o600
 
-#### 成功指標
+3. ✅ **CLI Commands**
+   - `kagura auth login` - ブラウザログイン
+   - `kagura auth status` - 認証状態確認
+   - `kagura auth logout` - ログアウト
+
+#### 成功指標（Phase 1達成）
 - ✅ APIキー不要でGemini使用可能
 - ✅ ブラウザログインのみでKagura使用可能
 - ✅ トークン自動更新
+- ✅ 43+テスト（89% coverage）
+- ✅ Pyright 0 errors、Ruff全パス
+- ✅ Security: Fernet暗号化、0o600パーミッション
+
+#### Phase 2予定（v2.4.0以降）
+- LLMConfig統合（`@auto_auth`デコレータ）
+- ユーザードキュメント
+- Integration tests
 
 ---
 
