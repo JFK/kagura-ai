@@ -1,5 +1,7 @@
 """Tests for NLSpecParser Phase 2 (Code Detection)"""
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
 
 from kagura.meta.parser import NLSpecParser
@@ -55,16 +57,24 @@ async def test_detect_code_execution_visualization(parser):
 
 
 @pytest.mark.asyncio
-async def test_detect_no_code_execution_translation(parser):
+@patch("kagura.meta.parser.call_llm", new_callable=AsyncMock)
+async def test_detect_no_code_execution_translation(mock_call_llm, parser):
     """No code execution for simple translation tasks"""
+    # Mock LLM response (fallback for non-keyword match)
+    mock_call_llm.return_value = "NO"
+
     description = "Translate English text to Japanese"
     result = await parser.detect_code_execution_need(description)
     assert result is False
 
 
 @pytest.mark.asyncio
-async def test_detect_no_code_execution_conversation(parser):
+@patch("kagura.meta.parser.call_llm", new_callable=AsyncMock)
+async def test_detect_no_code_execution_conversation(mock_call_llm, parser):
     """No code execution for conversational agents"""
+    # Mock LLM response (fallback for non-keyword match)
+    mock_call_llm.return_value = "NO"
+
     description = "A friendly chatbot that answers questions"
     result = await parser.detect_code_execution_need(description)
     assert result is False
@@ -87,8 +97,16 @@ async def test_detect_no_code_execution_summarization(parser):
 
 
 @pytest.mark.asyncio
-async def test_parse_with_code_execution_detection(parser):
+@patch("kagura.meta.parser.call_llm", new_callable=AsyncMock)
+async def test_parse_with_code_execution_detection(mock_call_llm, parser):
     """Test that parse() sets requires_code_execution correctly"""
+    # Mock LLM responses
+    # First call: parse() generates spec
+    mock_call_llm.side_effect = [
+        '{"name": "csv_analyzer", "description": "Analyze CSV files", "input_type": "str", "output_type": "dict", "system_prompt": "Analyze CSV files and calculate statistics."}',
+        # No second call needed - keyword detection will catch "CSV"
+    ]
+
     description = "Create an agent that reads CSV files and calculates statistics"
 
     spec = await parser.parse(description)
@@ -100,8 +118,17 @@ async def test_parse_with_code_execution_detection(parser):
 
 
 @pytest.mark.asyncio
-async def test_parse_without_code_execution(parser):
+@patch("kagura.meta.parser.call_llm", new_callable=AsyncMock)
+async def test_parse_without_code_execution(mock_call_llm, parser):
     """Test that parse() correctly identifies non-code tasks"""
+    # Mock LLM responses
+    # First call: parse() generates spec
+    # Second call: detect_code_execution_need() (no keyword match, needs LLM)
+    mock_call_llm.side_effect = [
+        '{"name": "translator", "description": "Translate text", "input_type": "str", "output_type": "str", "system_prompt": "Translate English to Spanish."}',
+        "NO",  # LLM says no code execution needed
+    ]
+
     description = "Create a translator agent for English to Spanish"
 
     spec = await parser.parse(description)
