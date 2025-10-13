@@ -57,6 +57,10 @@
          <lastmod>2025-10-13</lastmod>
     </url>
     <url>
+         <loc>https://www.kagura-ai.com/en/api/meta/</loc>
+         <lastmod>2025-10-13</lastmod>
+    </url>
+    <url>
          <loc>https://www.kagura-ai.com/en/api/observability/</loc>
          <lastmod>2025-10-13</lastmod>
     </url>
@@ -94,6 +98,10 @@
     </url>
     <url>
          <loc>https://www.kagura-ai.com/en/guides/hooks-guide/</loc>
+         <lastmod>2025-10-13</lastmod>
+    </url>
+    <url>
+         <loc>https://www.kagura-ai.com/en/guides/meta-agent/</loc>
          <lastmod>2025-10-13</lastmod>
     </url>
     <url>
