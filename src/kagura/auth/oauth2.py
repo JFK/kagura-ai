@@ -205,6 +205,7 @@ class OAuth2Manager:
         Args:
             creds: Google OAuth2 credentials to save
         """
+        # Prepare credentials data for encryption
         creds_data = {
             "token": creds.token,
             "refresh_token": creds.refresh_token,
@@ -212,8 +213,19 @@ class OAuth2Manager:
             "client_id": creds.client_id,
             "client_secret": creds.client_secret,
             "scopes": creds.scopes,
-            "expiry": creds.expiry.isoformat() if creds.expiry else None,
         }
+
+        # Save expiry as ISO format string with timezone
+        if creds.expiry:
+            # Ensure expiry has timezone info before saving
+            from datetime import timezone
+            expiry_to_save = creds.expiry
+            if expiry_to_save.tzinfo is None:
+                # If naive, assume UTC
+                expiry_to_save = expiry_to_save.replace(tzinfo=timezone.utc)
+            creds_data["expiry"] = expiry_to_save.isoformat()
+        else:
+            creds_data["expiry"] = None
 
         # Encrypt credentials
         encrypted = self.cipher.encrypt(json.dumps(creds_data).encode())
@@ -250,8 +262,14 @@ class OAuth2Manager:
             # Restore expiry if it exists
             if expiry_str:
                 from datetime import datetime
-                # Parse ISO format datetime
+                # Parse ISO format datetime (preserves timezone from string)
                 expiry_dt = datetime.fromisoformat(expiry_str)
+                # Ensure expiry is timezone-aware for Google auth library
+                # fromisoformat should preserve timezone, but verify it
+                if expiry_dt.tzinfo is None:
+                    # If somehow naive, assume UTC
+                    from datetime import timezone
+                    expiry_dt = expiry_dt.replace(tzinfo=timezone.utc)
                 creds.expiry = expiry_dt
 
             return creds
