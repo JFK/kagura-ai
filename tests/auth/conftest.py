@@ -1,6 +1,7 @@
 """Pytest fixtures for authentication tests"""
 
 import json
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -46,8 +47,8 @@ def mock_credentials() -> Credentials:
         scopes=creds_data["scopes"],
     )
 
-    # Mark credentials as valid (not expired) to avoid refresh attempts
-    creds._expires = None  # No expiration set means valid
+    # Set expiration to 1 hour in the future (valid token)
+    creds.expiry = datetime.now(timezone.utc) + timedelta(hours=1)
 
     return creds
 
