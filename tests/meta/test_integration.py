@@ -36,7 +36,11 @@ class TestMetaAgentIntegration:
 
         # Verify code structure
         tree = ast.parse(code)
-        func_defs = [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]
+        func_defs = [
+            n
+            for n in ast.walk(tree)
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+        ]
         assert len(func_defs) == 1
         assert func_defs[0].name == "word_counter"
 
