@@ -36,8 +36,8 @@ class TestLLMConfigOAuth2:
         """Test OAuth2 with Google provider gets token"""
         monkeypatch.setenv("HOME", str(tmp_path))
 
-        # Mock OAuth2Manager
-        with patch("kagura.core.llm.OAuth2Manager") as mock_manager_class:
+        # Mock OAuth2Manager (patch where it's imported, not where it's defined)
+        with patch("kagura.auth.oauth2.OAuth2Manager") as mock_manager_class:
             mock_manager = MagicMock()
             mock_manager.get_token.return_value = "mock_oauth2_token_12345"
             mock_manager_class.return_value = mock_manager
@@ -74,7 +74,7 @@ class TestLLMConfigOAuth2:
 
         from kagura.auth.exceptions import NotAuthenticatedError
 
-        with patch("kagura.core.llm.OAuth2Manager") as mock_manager_class:
+        with patch("kagura.auth.oauth2.OAuth2Manager") as mock_manager_class:
             mock_manager = MagicMock()
             mock_manager.get_token.side_effect = NotAuthenticatedError("google")
             mock_manager_class.return_value = mock_manager
@@ -128,7 +128,7 @@ async def test_call_llm_with_oauth2_mock(tmp_path: Path, monkeypatch):
     from kagura.core.llm import call_llm
 
     # Mock OAuth2Manager to return a token
-    with patch("kagura.core.llm.OAuth2Manager") as mock_manager_class:
+    with patch("kagura.auth.oauth2.OAuth2Manager") as mock_manager_class:
         mock_manager = MagicMock()
         mock_manager.get_token.return_value = "mock_oauth2_token"
         mock_manager_class.return_value = mock_manager
