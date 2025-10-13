@@ -2,9 +2,23 @@
 
 Learn how to use OAuth2 authentication with Kagura AI to access Google models (like Gemini) without managing API keys.
 
+> **📌 Important Note**
+>
+> **For most users, using API Keys is recommended** as it's simpler and faster to set up:
+> - **Gemini**: Get API key from [Google AI Studio](https://aistudio.google.com/app/apikey) → Set `GOOGLE_API_KEY`
+> - **Claude**: Get API key from [Anthropic Console](https://console.anthropic.com/) → Set `ANTHROPIC_API_KEY`
+> - **OpenAI**: Get API key from [OpenAI Platform](https://platform.openai.com/api-keys) → Set `OPENAI_API_KEY`
+>
+> **OAuth2 is an advanced feature** for specific use cases like:
+> - Multi-user applications where each user authenticates with their own Google account
+> - Production environments requiring strict access controls
+> - Applications that need per-user quota management
+>
+> Currently, **only Google/Gemini supports OAuth2**. Claude and OpenAI use API keys only.
+
 ## Overview
 
-Kagura AI supports OAuth2 authentication for Google services, allowing you to:
+Kagura AI supports OAuth2 authentication for **Google services only**, allowing you to:
 
 - **No API Key Management**: Use Google models without storing API keys
 - **Secure Authentication**: OAuth2 tokens are encrypted locally (Fernet/AES-128)
@@ -286,12 +300,38 @@ config = LLMConfig(model="gemini/gemini-1.5-flash")
 
 | Feature | OAuth2 | API Key |
 |---------|--------|---------|
-| **Security** | OAuth2 tokens (short-lived) | Long-lived API keys |
-| **Setup** | Requires OAuth client setup | Just set environment variable |
+| **Supported LLMs** | Google/Gemini only | All LLMs (OpenAI, Claude, Gemini) |
+| **Setup Complexity** | Complex (Google Cloud Console setup required) | Simple (just get API key) |
+| **Security** | OAuth2 tokens (short-lived, auto-refresh) | Long-lived API keys |
+| **Use Case** | Multi-user apps, production with strict access control | Personal development, prototyping, CI/CD |
+| **Recommended For** | Advanced users with specific needs | **Most users (recommended)** |
 | **Expiration** | Auto-refresh | Manual rotation |
 | **Revocation** | Can revoke from Google Console | Delete/regenerate key |
-| **Sharing** | Per-user authentication | Shared key |
-| **Best for** | Personal use, desktop apps | CI/CD, servers |
+
+### When to Use API Key (Recommended)
+
+✅ **Use API Key if:**
+- You're doing personal development or prototyping
+- You want quick and simple setup
+- You're using Claude or OpenAI (OAuth2 not supported)
+- You're running in CI/CD pipelines
+- You're building single-user applications
+
+**How to get API Keys:**
+- **Gemini**: [Google AI Studio](https://aistudio.google.com/app/apikey) (fastest way!)
+- **Claude**: [Anthropic Console](https://console.anthropic.com/account/keys)
+- **OpenAI**: [OpenAI Platform](https://platform.openai.com/api-keys)
+
+### When to Use OAuth2 (Advanced)
+
+⚠️ **Use OAuth2 only if:**
+- You're building a multi-user application
+- Each user needs their own Google account authentication
+- You need strict per-user quota management
+- You have specific security requirements
+- You're comfortable with Google Cloud Console setup
+
+**Note**: OAuth2 is only available for Google/Gemini.
 
 ## Advanced Configuration
 

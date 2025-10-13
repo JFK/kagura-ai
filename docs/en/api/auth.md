@@ -2,6 +2,22 @@
 
 API reference for Kagura AI's OAuth2 authentication system.
 
+> **📌 Important Note**
+>
+> **OAuth2 is an advanced feature for Google/Gemini only.**
+>
+> For most use cases, **API Keys are recommended**:
+> - Simpler setup (no Google Cloud Console required)
+> - Works with all LLMs (OpenAI, Claude, Gemini)
+> - Faster to get started
+>
+> OAuth2 is designed for:
+> - Multi-user applications
+> - Production environments with strict access controls
+> - Per-user quota management
+>
+> See [OAuth2 Authentication Guide](../guides/oauth2-authentication.md) for when to use each method.
+
 ## OAuth2Manager
 
 Main class for managing OAuth2 authentication with Google services.
