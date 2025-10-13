@@ -261,15 +261,15 @@ class OAuth2Manager:
 
             # Restore expiry if it exists
             if expiry_str:
-                from datetime import datetime
+                from datetime import datetime, timezone
                 # Parse ISO format datetime (preserves timezone from string)
                 expiry_dt = datetime.fromisoformat(expiry_str)
-                # Ensure expiry is timezone-aware for Google auth library
-                # fromisoformat should preserve timezone, but verify it
-                if expiry_dt.tzinfo is None:
-                    # If somehow naive, assume UTC
-                    from datetime import timezone
-                    expiry_dt = expiry_dt.replace(tzinfo=timezone.utc)
+                # IMPORTANT: Google auth library's _helpers.utcnow() is timezone-NAIVE
+                # We must store expiry as naive UTC datetime to match
+                if expiry_dt.tzinfo is not None:
+                    # Convert to UTC and make naive
+                    expiry_dt = expiry_dt.astimezone(timezone.utc).replace(tzinfo=None)
+                # Now expiry_dt is naive UTC datetime, matching Google's expectations
                 creds.expiry = expiry_dt
 
             return creds
