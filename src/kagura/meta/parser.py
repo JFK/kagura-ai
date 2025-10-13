@@ -104,7 +104,7 @@ Guidelines:
                 "code execution",
                 "calculate",
             ],
-            "web_search": ["search web", "google", "find online", "look up"],
+            "web_search": ["search", "google", "find online", "look up", "web"],
             "memory": ["remember", "recall", "memory", "history", "conversation"],
             "file_ops": ["read file", "write file", "file operations", "save to file"],
         }

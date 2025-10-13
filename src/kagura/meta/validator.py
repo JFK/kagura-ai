@@ -118,7 +118,8 @@ class CodeValidator:
         has_agent_decorator = False
 
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef):
+            # Check both sync and async function definitions
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 for decorator in node.decorator_list:
                     # Check for @agent or @agent(...)
                     if isinstance(decorator, ast.Name) and decorator.id == "agent":
