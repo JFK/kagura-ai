@@ -923,11 +923,29 @@ A: v2.1.0で多数の機能（Memory、Routing、Tools、Hooks）が追加され
 - ✅ **追加依存関係なし**: 既存の kagura コア機能のみ使用
 - ✅ **命名改善**: `AgentBuilder`重複回避 → `MetaAgent`
 
-#### 次のステップ（Phase 1残タスク）
+#### ✅ RFC-005 Phase 1 完了！（2025-10-13）
 
-**残りタスク**:
-- ⏳ ドキュメント作成（ユーザーガイド + APIリファレンス）
-- ⏳ PR作成 & レビュー
+**PR**: [#156](https://github.com/JFK/kagura-ai/pull/156) - Ready for Review
+
+**完了内容**:
+- ✅ コア実装（MetaAgent, Parser, Generator, Validator）
+- ✅ CLI command（`kagura build agent`）
+- ✅ **対話形式作成（`--chat` フラグ）** 🎉 NEW
+- ✅ **直接実行（`kagura build run-agent`）** 🎉 NEW
+- ✅ **REPL統合（自動読み込み + Tab補完 + async/await）** 🎉 NEW
+- ✅ **Chat統合（自動ルーティング + `/agent` コマンド）** 🎉 NEW
+- ✅ 36テスト（全パス）
+- ✅ ドキュメント（ユーザーガイド + APIリファレンス、1078行）
+- ✅ CI全パス（471 passed）
+
+**成果物**:
+- **実装**: +1384行（コア679 + 拡張705）
+- **テスト**: 36個（100%パス）
+- **ドキュメント**: 1078行
+
+**次のステップ**:
+- ⏳ PRレビュー & マージ待ち
+- ⏳ Phase 2計画（review/improve機能、テンプレート追加）
 
 ---
 
