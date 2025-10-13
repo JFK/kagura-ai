@@ -714,11 +714,11 @@ A: v2.1.0で多数の機能（Memory、Routing、Tools、Hooks）が追加され
 
 ---
 
-## 🚀 v2.4.0 実装計画（進行中）
+## 🚀 v2.4.0 リリース完了！（2025-10-13）
 
 **開始日**: 2025-10-13
-**期間**: 1.5週間（RFC-013のみ）
-**リリース予定**: 2025-10-末
+**完了日**: 2025-10-13
+**GitHub Release**: [v2.4.0](https://github.com/JFK/kagura-ai/releases/tag/v2.4.0)
 
 ### 🔥 RFC-013: OAuth2 Authentication（Week 1）✅
 
@@ -820,6 +820,114 @@ A: v2.1.0で多数の機能（Memory、Routing、Tools、Hooks）が追加され
 - **ドキュメント**: 1772行（ユーザーガイド466 + APIリファレンス400 + テストガイド442 + スクリプト464）
 
 **PR**: [#154](https://github.com/JFK/kagura-ai/pull/154) - ✅ Merged (2025-10-13)
+
+---
+
+## 🎉 v2.5.0 実装開始！（2025-10-13）
+
+**開始日**: 2025-10-13
+**期間**: 2週間（RFC-005 Phase 1）
+**リリース予定**: 2025-10-末
+
+### 🤖 RFC-005: Meta Agent Phase 1（Week 1-2）🚧
+
+**Issue**: [#65](https://github.com/JFK/kagura-ai/issues/65)
+**RFC**: [RFC_005_META_AGENT.md](./rfcs/RFC_005_META_AGENT.md)
+**実装計画**: [RFC_005_PHASE1_PLAN.md](./rfcs/RFC_005_PHASE1_PLAN.md)
+**PR**: TBD
+
+#### 実装目標（Phase 1: Meta Agent Core）
+- 🚧 自然言語からエージェントコード生成
+- 🚧 `kagura build agent` CLI command
+- 🚧 テンプレートベースのコード生成
+- 🚧 セキュリティ検証（AST解析）
+
+#### 完了したタスク（Phase 1 - 6タスク中4完了）
+
+**Task 1: プロジェクト構造 ✅**
+- ✅ `src/kagura/meta/` モジュール作成
+- ✅ `spec.py`: AgentSpec（Pydantic model）
+- ✅ `parser.py`: NLSpecParser（LLM-based）
+- ✅ `generator.py`: CodeGenerator（Jinja2）
+- ✅ `validator.py`: CodeValidator（AST検証）
+- ✅ `meta_agent.py`: MetaAgent（main API）
+- ✅ Jinja2テンプレート3種類
+- ✅ 型チェック・リント全パス
+
+**Task 2-4: コア実装 ✅**
+- ✅ 既存インフラ活用（`call_llm`, `parse_response`, `ASTValidator`）
+- ✅ 16ユニットテスト実装（spec, validator, generator）
+- ✅ 型チェック・リント全パス
+
+**Task 5: CLI Command実装 ✅**
+- ✅ `kagura build agent` コマンド実装
+- ✅ インタラクティブモード + 非インタラクティブモード
+- ✅ Rich UI（Panel, Syntax highlighting）
+- ✅ `src/kagura/cli/build_cli.py` (183行)
+- ✅ 型チェック・リント全パス
+
+**Task 6: Integration Tests ✅**
+- ✅ `test_integration.py`: 16統合テスト
+- ✅ `test_cli.py`: 13 CLIテスト
+- ✅ End-to-end テストカバレッジ
+- ✅ 型チェック・リント全パス
+
+#### 成功指標（Phase 1達成中）
+
+**コード品質**:
+- ✅ Pyright 0 errors（strict mode）
+- ✅ Ruff linting全パス
+- ✅ 29+ tests実装（16 unit + 13 CLI）
+
+**機能**:
+- ✅ 自然言語 → AgentSpec パース（LLM使用）
+- ✅ AgentSpec → Pythonコード生成（Jinja2）
+- ✅ セキュリティ検証（AST + ASTValidator再利用）
+- ✅ `kagura build agent` CLI実装
+
+**設計改善**:
+- ✅ `AgentBuilder`命名重複回避（→ `MetaAgent`）
+- ✅ 既存インフラ最大活用
+- ✅ 追加依存関係なし
+
+#### RFC-005 Phase 1 成果物
+
+**実装ファイル（10ファイル）**:
+- `src/kagura/meta/__init__.py`: 公開API
+- `src/kagura/meta/spec.py`: AgentSpec（60行）
+- `src/kagura/meta/parser.py`: NLSpecParser（119行）
+- `src/kagura/meta/generator.py`: CodeGenerator（115行）
+- `src/kagura/meta/validator.py`: CodeValidator（109行）
+- `src/kagura/meta/meta_agent.py`: MetaAgent（93行）
+- `src/kagura/meta/templates/agent_base.py.j2`: 基本テンプレート
+- `src/kagura/meta/templates/agent_with_tools.py.j2`: ツール付きテンプレート
+- `src/kagura/meta/templates/agent_with_memory.py.j2`: メモリ付きテンプレート
+- `src/kagura/cli/build_cli.py`: CLI command（183行）
+
+**テストファイル（5ファイル）**:
+- `tests/meta/test_spec.py`: 5テスト
+- `tests/meta/test_validator.py`: 6テスト
+- `tests/meta/test_generator.py`: 5テスト
+- `tests/meta/test_integration.py`: 16統合テスト
+- `tests/meta/test_cli.py`: 13 CLIテスト
+
+**統計**:
+- **新規ファイル**: 15ファイル（10実装 + 5テスト）
+- **変更ファイル**: 1ファイル（cli/main.py）
+- **コード行数**: +679行（実装）
+- **テスト行数**: +600行（45テスト）
+- **テンプレート**: 3ファイル（Jinja2）
+
+**特徴**:
+- ✅ **既存インフラ活用**: `call_llm`, `parse_response`, `ASTValidator` 再利用
+- ✅ **追加依存関係なし**: 既存の kagura コア機能のみ使用
+- ✅ **命名改善**: `AgentBuilder`重複回避 → `MetaAgent`
+
+#### 次のステップ（Phase 1残タスク）
+
+**残りタスク**:
+- ⏳ ドキュメント作成（ユーザーガイド + APIリファレンス）
+- ⏳ PR作成 & レビュー
 
 ---
 

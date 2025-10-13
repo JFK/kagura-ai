@@ -6,6 +6,7 @@ import click
 
 from ..version import __version__
 from .auth_cli import auth_group
+from .build_cli import build_group
 from .chat import chat
 from .commands_cli import run
 from .mcp import mcp
@@ -53,6 +54,7 @@ cli.add_command(mcp)
 cli.add_command(run)
 cli.add_command(monitor)
 cli.add_command(auth_group)
+cli.add_command(build_group)
 
 
 if __name__ == "__main__":
