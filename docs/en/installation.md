@@ -37,6 +37,15 @@ Kagura AI v2.0.0-alpha.1
 
 Kagura AI uses LiteLLM, which supports multiple LLM providers. You need to set the appropriate API key for your chosen provider.
 
+> **💡 Quick Start Tip**
+>
+> The fastest way to get started with Gemini:
+> 1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+> 2. Click "Create API Key"
+> 3. Copy the key and set: `export GOOGLE_API_KEY="your-key"`
+>
+> **No Google Cloud Console setup needed!** OAuth2 is an advanced feature for specific use cases. See [OAuth2 Authentication Guide](guides/oauth2-authentication.md) for details.
+
 ### OpenAI
 
 ```bash
@@ -142,6 +151,28 @@ ruff check src/
 ```
 
 ## Optional Dependencies
+
+### For OAuth2 Authentication (Advanced)
+
+To use OAuth2 authentication with Google/Gemini (advanced feature):
+
+```bash
+pip install kagura-ai[oauth]
+```
+
+Or with uv:
+
+```bash
+uv add "kagura-ai[oauth]"
+```
+
+This installs:
+- `google-auth>=2.25.0` - Google authentication library
+- `google-auth-oauthlib>=1.2.0` - OAuth2 flow
+- `google-auth-httplib2>=0.2.0` - HTTP library
+- `cryptography>=41.0.0` - Credential encryption
+
+**Note**: OAuth2 is an advanced feature. For most users, **using API Keys is recommended** as it's simpler. See [OAuth2 Authentication Guide](guides/oauth2-authentication.md) for when to use OAuth2.
 
 ### For MCP Integration
 

@@ -55,7 +55,7 @@ jobs:
         env:
           UV_HTTP_TIMEOUT: 60
         run: |
-          uv sync --frozen --extra dev --extra memory --extra routing --extra mcp --extra multimodal --extra testing --extra web
+          uv sync --frozen --extra dev --extra memory --extra routing --extra mcp --extra multimodal --extra testing --extra web --extra oauth
 
       - name: Run type checking
         run: uv run pyright src/kagura/
