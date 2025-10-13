@@ -51,6 +51,11 @@ class NLSpecParser:
         response = await call_llm(prompt, self.config)
         spec = parse_response(response, AgentSpec)
 
+        # Phase 2: Detect code execution need
+        spec.requires_code_execution = await self.detect_code_execution_need(
+            description
+        )
+
         return spec
 
     def _build_prompt(self, description: str) -> str:
@@ -71,8 +76,11 @@ Return JSON with these fields:
 - description: What the agent does (1-2 sentences)
 - input_type: Parameter type (str, dict, list, etc.)
 - output_type: Return type (str, dict, list, etc.)
-- tools: List of required tools (e.g., ["code_executor", "web_search"])
+- tools: List of required tools (e.g., ["web_search"])
+  NOTE: Do NOT include "execute_code" here - it will be auto-added if needed
 - has_memory: Whether agent needs conversation memory (true/false)
+- requires_code_execution: Whether agent needs code execution (true/false)
+  Set to true for: data processing, calculations, file operations
 - system_prompt: Agent's system instructions (detailed, professional)
 - examples: Array of objects with "input"/"output" keys, e.g.,
   [{{"input": "Hello", "output": "こんにちは"}}] or empty array []
@@ -131,3 +139,104 @@ Guidelines:
                 detected.append(tool)
 
         return detected
+
+    async def detect_code_execution_need(self, description: str) -> bool:
+        """Detect if the task requires Python code execution
+
+        Uses both keyword matching and LLM-based analysis for accurate detection.
+
+        Args:
+            description: Natural language agent description
+
+        Returns:
+            True if code execution capabilities are needed
+
+        Example:
+            >>> desc = "Analyze sales.csv and calculate average"
+            >>> needs_code = await parser.detect_code_execution_need(desc)
+            >>> assert needs_code is True
+        """
+        CODE_EXECUTION_KEYWORDS = [
+            # Data processing
+            "csv",
+            "json",
+            "xml",
+            "excel",
+            "pandas",
+            "numpy",
+            "データ処理",
+            "データ分析",
+            "ファイル読み込み",
+            # Calculations
+            "計算",
+            "calculate",
+            "compute",
+            "fibonacci",
+            "素数",
+            "prime",
+            "平均",
+            "average",
+            "合計",
+            "sum",
+            "最大",
+            "max",
+            "最小",
+            "min",
+            "統計",
+            "statistics",
+            # File operations
+            "ファイル処理",
+            "file processing",
+            "read file",
+            "write file",
+            "parse",
+            "抽出",
+            "extract",
+            "変換",
+            "convert",
+            # Algorithms
+            "ソート",
+            "sort",
+            "フィルタ",
+            "filter",
+            "集計",
+            "aggregate",
+            # Visualization
+            "グラフ",
+            "plot",
+            "chart",
+            "visualization",
+            "matplotlib",
+            "seaborn",
+        ]
+
+        description_lower = description.lower()
+
+        # Quick keyword-based detection
+        if any(keyword in description_lower for keyword in CODE_EXECUTION_KEYWORDS):
+            return True
+
+        # LLM-based detection for edge cases
+        prompt = f"""Does this task require Python code execution?
+
+Task: {description}
+
+Answer YES if the task involves:
+- Data processing (CSV, JSON, Excel files)
+- Mathematical calculations or algorithms
+- File manipulation or parsing
+- Complex data transformations
+- Statistical analysis
+- Data visualization
+
+Answer NO if the task involves:
+- Simple text generation
+- Translation or summarization
+- Conversation or Q&A
+- Information retrieval only (without processing)
+
+Answer with just "YES" or "NO".
+"""
+
+        response = await call_llm(prompt, self.config)
+        return "yes" in response.lower()

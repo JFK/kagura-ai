@@ -118,3 +118,80 @@ def test_generator_save(generator, basic_spec, tmp_path):
 
     assert output_path.exists()
     assert output_path.read_text() == code
+
+
+# Phase 2: Code-Aware Agent Tests
+
+
+def test_generator_code_execution_template_selection(generator):
+    """Test that code execution agents use correct template"""
+    spec = AgentSpec(
+        name="data_analyst",
+        description="Analyze data",
+        system_prompt="Analyze data",
+        requires_code_execution=True,
+    )
+
+    template = generator._select_template(spec)
+    assert template == "agent_with_code_exec.py.j2"
+
+
+def test_generator_code_execution_auto_add_tool(generator):
+    """Test that execute_code tool is automatically added"""
+    spec = AgentSpec(
+        name="calculator",
+        description="Calculate fibonacci",
+        system_prompt="Calculate",
+        requires_code_execution=True,
+        tools=[],  # Empty tools list
+    )
+
+    code = generator.generate(spec)
+
+    # Verify code is valid Python
+    ast.parse(code)
+
+    # Verify execute_code tool is added
+    assert "from kagura.agents import execute_code" in code
+    assert "tools=[execute_code]" in code
+
+
+def test_generator_code_execution_with_existing_tools(generator):
+    """Test that execute_code is added alongside existing tools"""
+    spec = AgentSpec(
+        name="web_scraper",
+        description="Scrape and analyze web data",
+        system_prompt="Scrape data",
+        requires_code_execution=True,
+        tools=["web_search"],
+    )
+
+    code = generator.generate(spec)
+
+    # Verify code is valid Python
+    ast.parse(code)
+
+    # Verify both tools are present
+    assert "from kagura.agents import execute_code" in code
+    assert "execute_code" in code
+    assert "web_search" in code
+
+
+def test_generator_code_execution_guidance_in_docstring(generator):
+    """Test that generated code includes execution guidance"""
+    spec = AgentSpec(
+        name="data_processor",
+        description="Process CSV files",
+        system_prompt="Process data",
+        requires_code_execution=True,
+    )
+
+    code = generator.generate(spec)
+
+    # Verify code is valid Python
+    ast.parse(code)
+
+    # Verify code execution guidance is included
+    assert "Code Execution Capabilities" in code
+    assert "execute_code" in code.lower()
+    assert "example" in code.lower()
