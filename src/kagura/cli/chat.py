@@ -39,12 +39,18 @@ from kagura.chat import ChatSession
     is_flag=True,
     help="Enable all features (multimodal + web). Requires --dir",
 )
+@click.option(
+    "--no-routing",
+    is_flag=True,
+    help="Disable automatic agent routing",
+)
 def chat(
     model: str,
     enable_multimodal: bool,
     dir: Path | None,
     enable_web: bool,
     full: bool,
+    no_routing: bool,
 ) -> None:
     """
     Start an interactive chat session with AI.
@@ -89,5 +95,6 @@ def chat(
         enable_multimodal=enable_multimodal,
         rag_directory=dir,
         enable_web=enable_web,
+        enable_routing=not no_routing,
     )
     asyncio.run(session.run())

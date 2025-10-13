@@ -1,8 +1,11 @@
 """Interactive REPL for Kagura AI"""
 
+import asyncio
+import importlib.util
 import keyword
 import os
 import sys
+from pathlib import Path
 from typing import Any
 
 import click
@@ -59,7 +62,7 @@ class CommandCompleter(Completer):
 class KaguraREPL:
     """Interactive REPL for Kagura AI"""
 
-    def __init__(self):
+    def __init__(self, auto_import_agents: bool = True):
         # Load .env file if it exists
         load_dotenv()
 
@@ -67,6 +70,18 @@ class KaguraREPL:
         self.history: list[str] = []
         self.default_model: str = "gpt-4o-mini"
         self.default_temperature: float = 0.7
+        self.auto_import_agents = auto_import_agents
+
+        # Create persistent event loop for async execution
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+
+        # Persistent namespace for REPL
+        self.namespace: dict[str, Any] = {
+            "__name__": "__main__",
+            "console": console,
+            "agents": self.agents,
+        }
 
         # Set up prompt_toolkit session
         history_dir = os.path.expanduser("~/.kagura")
@@ -118,21 +133,24 @@ class KaguraREPL:
 
         # Combine all words and remove duplicates while preserving order
         seen = set()
-        python_words = []
+        self.python_words = []
         for word in common_words + python_keywords + python_builtins:
             if word not in seen and not word.startswith("_"):
                 seen.add(word)
-                python_words.append(word)
+                self.python_words.append(word)
 
-        python_completer = WordCompleter(
-            python_words,
+        # Create python completer (will be updated with agent names)
+        self.python_completer = WordCompleter(
+            self.python_words,
             ignore_case=False,
             sentence=False,  # Allow word-level completion
             match_middle=False,  # Only match from start of word
         )
 
         # Merge completers
-        combined_completer = merge_completers([command_completer, python_completer])
+        combined_completer = merge_completers(
+            [command_completer, self.python_completer]
+        )
 
         # Custom key bindings for multiline support
         kb = KeyBindings()
@@ -172,8 +190,82 @@ class KaguraREPL:
             enable_history_search=True,
         )
 
+    def update_completions(self):
+        """Update tab completion with current agent names"""
+        # Add agent names to completion list
+        agent_names = list(self.agents.keys())
+
+        # Combine python words with agent names (remove duplicates)
+        all_words = list(dict.fromkeys(self.python_words + agent_names))
+
+        # Update the completer's word list
+        self.python_completer.words = all_words
+
+    def load_agents_from_directory(self, directory: Path | None = None):
+        """Load agents from the specified directory (default: ./agents)"""
+        if directory is None:
+            directory = Path.cwd() / "agents"
+
+        if not directory.exists() or not directory.is_dir():
+            return
+
+        console.print(f"[dim]Loading agents from {directory}...[/dim]")
+
+        agent_files = list(directory.glob("*.py"))
+        if not agent_files:
+            return
+
+        loaded_count = 0
+        for agent_file in agent_files:
+            try:
+                # Load the module
+                module_name = agent_file.stem
+                spec = importlib.util.spec_from_file_location(
+                    module_name, agent_file
+                )
+
+                if spec is None or spec.loader is None:
+                    continue
+
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[module_name] = module
+                spec.loader.exec_module(module)
+
+                # Find agent functions
+                for attr_name in dir(module):
+                    attr = getattr(module, attr_name)
+                    if callable(attr) and asyncio.iscoroutinefunction(attr):
+                        # Check for @agent decorator marker
+                        if hasattr(attr, "_is_agent"):
+                            self.agents[attr_name] = attr
+                            loaded_count += 1
+                            console.print(
+                                f"[green]✓[/green] Loaded agent: "
+                                f"[cyan]{attr_name}[/cyan] "
+                                f"from [dim]{agent_file.name}[/dim]"
+                            )
+
+            except Exception as e:
+                console.print(
+                    f"[yellow]⚠[/yellow] Failed to load {agent_file.name}: {e}"
+                )
+
+        if loaded_count > 0:
+            console.print(
+                f"[green]Loaded {loaded_count} agent(s)[/green]\n"
+            )
+            # Update tab completions with loaded agent names
+            self.update_completions()
+
     def show_welcome(self):
         """Display welcome message"""
+        agent_info = ""
+        if self.agents:
+            agent_info = (
+                f"\n[green]Loaded {len(self.agents)} agent(s) - "
+                f"available in Tab completion[/green]"
+            )
+
         console.print(
             Panel.fit(
                 "[bold green]Kagura AI REPL[/bold green]\n"
@@ -182,7 +274,8 @@ class KaguraREPL:
                 "[dim]Commands (/help, /exit)[/dim] = execute immediately\n"
                 "[dim]Python code + Enter[/dim] = newline\n"
                 "[dim]Empty line + Enter[/dim] = execute (IPython style)\n"
-                "[dim]Tab[/dim] = autocomplete",
+                "[dim]Tab[/dim] = autocomplete (includes loaded agents)"
+                + agent_info,
                 border_style="green",
             )
         )
@@ -268,38 +361,79 @@ class KaguraREPL:
     def execute_code(self, code: str):
         """Execute Python code"""
         try:
-            # Create a namespace with kagura imports
-            namespace = {
-                "__name__": "__main__",
-                "console": console,
-                "agents": self.agents,
-            }
+            # Add loaded agents to namespace
+            for agent_name, agent_func in self.agents.items():
+                self.namespace[agent_name] = agent_func
 
-            # Try to import kagura modules
-            try:
-                from kagura import agent
-                from kagura.agents import execute_code
+            # Try to import kagura modules (only once)
+            if "agent" not in self.namespace:
+                try:
+                    from kagura import agent
+                    from kagura.agents import execute_code
 
-                namespace["agent"] = agent
-                namespace["execute_code"] = execute_code
-            except ImportError:
-                pass
+                    self.namespace["agent"] = agent
+                    self.namespace["execute_code"] = execute_code
+                except ImportError:
+                    pass
 
-            # Try to evaluate as expression first
-            try:
-                result = eval(code, namespace)
-                if result is not None:
-                    console.print(repr(result))
-            except SyntaxError:
-                # If not an expression, execute as statement
-                exec(code, namespace)
+            # Import asyncio for await support
+            self.namespace["asyncio"] = asyncio
+
+            # Check if code contains await (needs async context)
+            if "await " in code:
+                # Create async wrapper that modifies the persistent namespace
+                async_code = "async def __repl_exec():\n"
+                async_code += "    global " + ", ".join(
+                    [k for k in self.namespace.keys() if not k.startswith("_")]
+                )
+                async_code += "\n"
+                for line in code.split("\n"):
+                    async_code += f"    {line}\n"
+                async_code += "    return locals()\n"
+
+                # Execute the async function definition
+                exec(async_code, self.namespace)
+
+                # Run and get local variables
+                local_vars = self.loop.run_until_complete(
+                    self.namespace["__repl_exec"]()
+                )
+
+                # Update namespace with new variables
+                for key, value in local_vars.items():
+                    if not key.startswith("_"):
+                        self.namespace[key] = value
+
+                # If the result should be printed (not an assignment)
+                if "=" not in code.split("await")[0]:
+                    # This was an expression, print the result
+                    if "__repl_exec" in self.namespace:
+                        result = local_vars.get("return", None)
+                        if result is not None:
+                            console.print(repr(result))
+
+            else:
+                # Try to evaluate as expression first
+                try:
+                    result = eval(code, self.namespace)
+                    if result is not None:
+                        console.print(repr(result))
+                except SyntaxError:
+                    # If not an expression, execute as statement
+                    exec(code, self.namespace)
 
             # Update agents if any were defined
-            for key, value in namespace.items():
+            agents_updated = False
+            for key, value in self.namespace.items():
                 if key not in ["__name__", "console", "agents"] and callable(value):
                     if hasattr(value, "_is_agent"):
                         self.agents[key] = value
                         console.print(f"[green]Agent '{key}' defined[/green]")
+                        agents_updated = True
+
+            # Update completions if new agents were added
+            if agents_updated:
+                self.update_completions()
 
         except SyntaxError as e:
             console.print(f"[red]Syntax Error:[/red] {e}")
@@ -341,8 +475,13 @@ class KaguraREPL:
         except Exception:
             return False
 
-    def run(self):
+    def run(self, agents_directory: Path | None = None):
         """Run the REPL"""
+        # Auto-import agents from ./agents directory first
+        if self.auto_import_agents:
+            self.load_agents_from_directory(agents_directory)
+
+        # Show welcome after loading agents (so count is correct)
         self.show_welcome()
 
         while True:
@@ -367,7 +506,26 @@ class KaguraREPL:
 
 
 @click.command()
-def repl():
-    """Start interactive REPL"""
-    repl_instance = KaguraREPL()
-    repl_instance.run()
+@click.option(
+    "--no-auto-import",
+    is_flag=True,
+    help="Disable automatic agent import from ./agents directory",
+)
+@click.option(
+    "--agents-dir",
+    type=click.Path(exists=True, path_type=Path),
+    help="Custom agents directory (default: ./agents)",
+)
+def repl(no_auto_import: bool, agents_dir: Path | None):
+    """Start interactive REPL
+
+    The REPL automatically imports agents from ./agents directory.
+    Use --no-auto-import to disable this behavior.
+
+    Examples:
+        kagura repl                    # Auto-import from ./agents
+        kagura repl --no-auto-import   # Don't auto-import
+        kagura repl --agents-dir ./my-agents  # Custom directory
+    """
+    repl_instance = KaguraREPL(auto_import_agents=not no_auto_import)
+    repl_instance.run(agents_directory=agents_dir)

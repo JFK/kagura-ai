@@ -47,12 +47,14 @@ nav:
   - Guides:
     - Custom Commands: en/guides/commands-quickstart.md
     - OAuth2 Authentication: en/guides/oauth2-authentication.md
+    - Meta Agent: en/guides/meta-agent.md
   - API Reference:
     - Overview: en/api/index.md
     - '@agent Decorator': en/api/agent.md
     - Code Executor: en/api/executor.md
     - CLI Commands: en/api/cli.md
     - Authentication: en/api/auth.md
+    - Meta Agent: en/api/meta.md
     - MCP Integration: en/api/mcp.md
     - Shell Integration: en/api/shell.md
     - Memory Management: en/api/memory.md
