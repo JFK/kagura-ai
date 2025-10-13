@@ -250,7 +250,9 @@ class OAuth2Manager:
             # Restore expiry if it exists
             if expiry_str:
                 from datetime import datetime
-                creds.expiry = datetime.fromisoformat(expiry_str)
+                # Parse ISO format datetime
+                expiry_dt = datetime.fromisoformat(expiry_str)
+                creds.expiry = expiry_dt
 
             return creds
 
