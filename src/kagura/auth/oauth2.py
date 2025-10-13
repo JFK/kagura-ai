@@ -212,6 +212,7 @@ class OAuth2Manager:
             "client_id": creds.client_id,
             "client_secret": creds.client_secret,
             "scopes": creds.scopes,
+            "expiry": creds.expiry.isoformat() if creds.expiry else None,
         }
 
         # Encrypt credentials
@@ -238,10 +239,20 @@ class OAuth2Manager:
             decrypted = self.cipher.decrypt(encrypted)
             creds_data = json.loads(decrypted)
 
+            # Extract expiry separately (not part of from_authorized_user_info)
+            expiry_str = creds_data.pop("expiry", None)
+
             # Reconstruct Credentials object
-            return Credentials.from_authorized_user_info(
+            creds = Credentials.from_authorized_user_info(
                 creds_data, self.config.scopes or self.SCOPES[self.provider]
             )
+
+            # Restore expiry if it exists
+            if expiry_str:
+                from datetime import datetime
+                creds.expiry = datetime.fromisoformat(expiry_str)
+
+            return creds
 
         except Exception as e:
             logger.error(f"Failed to load credentials: {e}")
