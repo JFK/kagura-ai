@@ -163,11 +163,11 @@ async def test_full_mode_memory_persistence(temp_project_dir):
 
         # First message
         await session.chat("First question")
-        first_memory_size = len(session.memory.get_llm_context())
+        first_memory_size = len(await session.memory.get_llm_context())
 
         # Second message
         await session.chat("Second question")
-        second_memory_size = len(session.memory.get_llm_context())
+        second_memory_size = len(await session.memory.get_llm_context())
 
         # Memory should grow
         assert second_memory_size > first_memory_size

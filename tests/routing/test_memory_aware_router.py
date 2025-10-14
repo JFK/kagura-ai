@@ -134,7 +134,7 @@ async def test_route_no_agent_found():
 @pytest.mark.asyncio
 async def test_route_with_context_detection():
     """Test context detection in queries."""
-    memory = MemoryManager()
+    memory = MemoryManager(enable_compression=False)
     router = MemoryAwareRouter(memory=memory, use_semantic_context=False)
 
     router.register(translator_agent, intents=["translate"])
@@ -195,7 +195,7 @@ async def test_route_with_pronoun_query():
 @pytest.mark.asyncio
 async def test_route_with_implicit_reference():
     """Test routing with implicit reference query."""
-    memory = MemoryManager()
+    memory = MemoryManager(enable_compression=False)
     router = MemoryAwareRouter(memory=memory, use_semantic_context=False)
 
     router.register(translator_agent, intents=["translate"])
@@ -333,7 +333,7 @@ async def test_route_error_stored_in_memory():
 @pytest.mark.asyncio
 async def test_full_conversation_flow():
     """Test full conversation flow with context."""
-    memory = MemoryManager()
+    memory = MemoryManager(enable_compression=False)
     router = MemoryAwareRouter(memory=memory, use_semantic_context=False)
 
     router.register(translator_agent, intents=["translate", "翻訳"])

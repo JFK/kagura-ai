@@ -18,7 +18,11 @@ def temp_session_dir(tmp_path):
 @pytest.fixture
 def chat_session(temp_session_dir):
     """Create ChatSession instance"""
-    return ChatSession(session_dir=temp_session_dir)
+    session = ChatSession(session_dir=temp_session_dir)
+    # Disable compression for predictable test behavior
+    session.memory.enable_compression = False
+    session.memory.context_manager = None
+    return session
 
 
 def test_chat_session_initialization(chat_session, temp_session_dir):
@@ -40,7 +44,8 @@ def test_show_help(chat_session):
     chat_session.show_help()
 
 
-def test_clear_history(chat_session):
+@pytest.mark.asyncio
+async def test_clear_history(chat_session):
     """Test clearing conversation history"""
     # Add some messages
     chat_session.memory.add_message("user", "Hello")
@@ -50,7 +55,7 @@ def test_clear_history(chat_session):
     chat_session.clear_history()
 
     # Verify cleared
-    messages = chat_session.memory.get_llm_context()
+    messages = await chat_session.memory.get_llm_context()
     assert len(messages) == 0
 
 
@@ -114,7 +119,7 @@ async def test_load_session(chat_session, temp_session_dir):
     await chat_session.load_session(session_name)
 
     # Verify messages loaded
-    messages = chat_session.memory.get_llm_context()
+    messages = await chat_session.memory.get_llm_context()
     assert len(messages) == 2
     assert messages[0]["content"] == "Hello"
     assert messages[1]["content"] == "Hi there"
@@ -188,7 +193,7 @@ async def test_chat_interaction(chat_session):
         assert mock.called
 
         # Verify messages in memory
-        messages = chat_session.memory.get_llm_context()
+        messages = await chat_session.memory.get_llm_context()
         assert len(messages) == 2
         assert messages[0]["role"] == "user"
         assert messages[0]["content"] == "Hello"

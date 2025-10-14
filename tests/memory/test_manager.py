@@ -53,14 +53,15 @@ def test_manager_context_memory():
     assert messages[0].content == "Hello"
 
 
-def test_manager_get_llm_context():
+@pytest.mark.asyncio
+async def test_manager_get_llm_context():
     """Test LLM format context."""
-    manager = MemoryManager()
+    manager = MemoryManager(enable_compression=False)
 
     manager.add_message("user", "Hello")
     manager.add_message("assistant", "Hi")
 
-    llm_context = manager.get_llm_context()
+    llm_context = await manager.get_llm_context()
     assert len(llm_context) == 2
     assert llm_context[0] == {"role": "user", "content": "Hello"}
 

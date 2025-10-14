@@ -13,7 +13,9 @@ Example:
 """
 
 from .builder import AgentBuilder
+from .core.compression import CompressionPolicy, ContextManager
 from .core.decorators import agent, tool, workflow
+from .core.memory import MemoryManager
 from .presets import ChatbotPreset, CodeReviewPreset, ResearchPreset
 from .version import __version__
 
@@ -25,5 +27,8 @@ __all__ = [
     "ChatbotPreset",
     "CodeReviewPreset",
     "ResearchPreset",
+    "CompressionPolicy",
+    "ContextManager",
+    "MemoryManager",
     "__version__",
 ]

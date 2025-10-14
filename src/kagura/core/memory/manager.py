@@ -6,6 +6,8 @@ Provides a unified interface to all memory types (working, context, persistent).
 from pathlib import Path
 from typing import Any, Optional
 
+from kagura.core.compression import CompressionPolicy, ContextManager
+
 from .context import ContextMemory, Message
 from .persistent import PersistentMemory
 from .rag import MemoryRAG
@@ -24,6 +26,9 @@ class MemoryManager:
         persist_dir: Optional[Path] = None,
         max_messages: int = 100,
         enable_rag: bool = False,
+        enable_compression: bool = True,
+        compression_policy: Optional[CompressionPolicy] = None,
+        model: str = "gpt-4o-mini",
     ) -> None:
         """Initialize memory manager.
 
@@ -32,6 +37,9 @@ class MemoryManager:
             persist_dir: Directory for persistent storage
             max_messages: Maximum messages in context
             enable_rag: Enable RAG (vector-based semantic search)
+            enable_compression: Enable automatic context compression
+            compression_policy: Compression configuration
+            model: LLM model name for compression
         """
         self.agent_name = agent_name
 
@@ -52,6 +60,14 @@ class MemoryManager:
             vector_dir = persist_dir / "vector_db" if persist_dir else None
             self.rag = MemoryRAG(
                 collection_name=collection_name, persist_dir=vector_dir
+            )
+
+        # Optional: Compression
+        self.enable_compression = enable_compression
+        self.context_manager: Optional[ContextManager] = None
+        if enable_compression:
+            self.context_manager = ContextManager(
+                policy=compression_policy or CompressionPolicy(), model=model
             )
 
     # Working Memory
@@ -119,16 +135,54 @@ class MemoryManager:
         """
         return self.context.get_messages(last_n=last_n)
 
-    def get_llm_context(self, last_n: Optional[int] = None) -> list[dict]:
-        """Get context in LLM API format.
+    async def get_llm_context(
+        self, last_n: Optional[int] = None, compress: bool = True
+    ) -> list[dict]:
+        """Get context in LLM API format with optional compression.
 
         Args:
             last_n: Get last N messages only
+            compress: Whether to apply compression (default: True)
 
         Returns:
-            List of message dictionaries
+            List of message dictionaries (compressed if enabled)
+
+        Example:
+            >>> context = await memory.get_llm_context(compress=True)
         """
-        return self.context.to_llm_format(last_n=last_n)
+        messages = self.context.to_llm_format(last_n=last_n)
+
+        if compress and self.context_manager:
+            # Apply compression
+            messages = await self.context_manager.compress(messages)
+
+        return messages
+
+    def get_usage_stats(self) -> dict[str, Any]:
+        """Get context usage statistics.
+
+        Returns:
+            Dict with compression stats
+
+        Example:
+            >>> stats = memory.get_usage_stats()
+            >>> print(f"Usage: {stats['usage_ratio']:.1%}")
+        """
+        if not self.context_manager:
+            return {"compression_enabled": False}
+
+        messages = self.context.to_llm_format()
+        usage = self.context_manager.get_usage(messages)
+
+        return {
+            "compression_enabled": True,
+            "total_tokens": usage.total_tokens,
+            "max_tokens": usage.max_tokens,
+            "usage_ratio": usage.usage_ratio,
+            "should_compress": usage.should_compress,
+            "prompt_tokens": usage.prompt_tokens,
+            "completion_tokens": usage.completion_tokens,
+        }
 
     def get_last_message(self, role: Optional[str] = None) -> Optional[Message]:
         """Get the last message.
