@@ -475,7 +475,7 @@ class ChatSession:
         session_file = self.session_dir / f"{session_name}.json"
 
         # Get messages from memory (in LLM format - dict)
-        messages = self.memory.get_llm_context()
+        messages = await self.memory.get_llm_context()
 
         # Save to file
         session_data = {

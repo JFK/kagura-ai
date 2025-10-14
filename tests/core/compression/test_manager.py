@@ -168,7 +168,8 @@ def test_get_usage():
 @pytest.mark.asyncio
 async def test_compress_with_system_prompt():
     """Test compression with system prompt"""
-    policy = CompressionPolicy(max_tokens=500)
+    # Use trim strategy to avoid LLM calls
+    policy = CompressionPolicy(strategy="trim", max_tokens=500)
     manager = ContextManager(policy=policy)
 
     messages = [{"role": "user", "content": "Message " * 50}] * 20
