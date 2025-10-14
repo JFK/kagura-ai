@@ -34,51 +34,73 @@ kagura = "kagura.cli.main:cli"
 kagura_testing = "kagura.testing.plugin"
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=8.3",
-    "pytest-asyncio>=0.25",
-    "pytest-cov>=6.0",
-    "pytest-timeout>=2.3",
-    "ruff>=0.8",
-    "pyright>=1.1",
-]
-docs = [
-    "mkdocs>=1.6",
-    "mkdocs-material>=9.5",
-    "pymdown-extensions>=10.0",
-]
-mcp = [
-    "mcp>=1.0.0",
-    "jsonschema>=4.20.0",
-]
-routing = [
-    "semantic-router>=0.1.11",
-]
-memory = [
-    "chromadb>=0.4.0",
-]
-multimodal = [
-    "google-generativeai>=0.8.0",
-    "pillow>=10.0.0",
-    "proto-plus<2.0.0dev",
-    "protobuf>=4.25.0,<6.0.0",
-]
-testing = [
-    "langdetect>=1.0.9",
+# ============================================
+# User-facing feature presets
+# ============================================
+ai = [
+    # Core AI features: Memory, Routing, Context Compression
+    "chromadb>=0.4.0",           # Vector storage for memory & RAG
+    "semantic-router>=0.1.11",   # Semantic routing
+    "tiktoken>=0.7.0",           # Token counting for context compression
 ]
 web = [
-    "httpx>=0.25.0",
-    "duckduckgo-search>=4.1.0",
-    "beautifulsoup4>=4.12.0",
+    # Web & Multimodal features
+    "google-generativeai>=0.8.0",  # Gemini API for multimodal
+    "pillow>=10.0.0",               # Image processing
+    "proto-plus<2.0.0dev",          # Gemini dependency
+    "protobuf>=4.25.0,<6.0.0",      # Gemini dependency
+    "httpx>=0.25.0",                # HTTP client for web scraping
+    "duckduckgo-search>=4.1.0",     # Web search
+    "beautifulsoup4>=4.12.0",       # HTML parsing
 ]
-oauth = [
+auth = [
+    # OAuth2 authentication
     "google-auth>=2.25.0",
     "google-auth-oauthlib>=1.2.0",
     "google-auth-httplib2>=0.2.0",
     "cryptography>=41.0.0",
 ]
-compression = [
-    "tiktoken>=0.7.0",
+mcp = [
+    # MCP (Model Context Protocol) integration
+    "mcp>=1.0.0",
+    "jsonschema>=4.20.0",
+]
+
+# ============================================
+# Development presets
+# ============================================
+dev = [
+    # Testing & linting tools
+    "pytest>=8.3",
+    "pytest-asyncio>=0.25",
+    "pytest-cov>=6.0",
+    "pytest-timeout>=2.3",
+    "langdetect>=1.0.9",  # For agent testing
+    "ruff>=0.8",
+    "pyright>=1.1",
+]
+docs = [
+    # Documentation building
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "pymdown-extensions>=10.0",
+]
+
+# ============================================
+# Combined presets (recommended)
+# ============================================
+full = [
+    # All user-facing features
+    "kagura-ai[ai]",
+    "kagura-ai[web]",
+    "kagura-ai[auth]",
+    "kagura-ai[mcp]",
+]
+all = [
+    # Everything including dev tools
+    "kagura-ai[full]",
+    "kagura-ai[dev]",
+    "kagura-ai[docs]",
 ]
 
 [build-system]

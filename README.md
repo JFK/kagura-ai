@@ -46,15 +46,20 @@ Kagura AI 2.0 is a complete redesign focused on simplicity and developer experie
 # Basic installation
 pip install kagura-ai
 
-# With multimodal support (images, PDFs, audio, video)
-pip install kagura-ai[multimodal]
+# With AI features (Memory, Routing, Context Compression)
+pip install kagura-ai[ai]
 
-# With web search and scraping
+# With Web & Multimodal (images, PDFs, audio, video, web search)
 pip install kagura-ai[web]
 
-# With all features
-pip install kagura-ai[multimodal,web]
+# With OAuth2 authentication
+pip install kagura-ai[auth]
+
+# With all features (recommended)
+pip install kagura-ai[full]
 ```
+
+**See [Installation Guide](https://www.kagura-ai.com/en/installation/) for detailed preset options.**
 
 ### Basic Example
 
