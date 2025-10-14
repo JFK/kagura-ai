@@ -25,8 +25,8 @@ Context compression enables efficient long-form conversations by managing token 
 ## Installation
 
 ```bash
-# Install with compression support
-pip install kagura-ai[compression]
+# Install with AI features (includes context compression)
+pip install kagura-ai[ai]
 
 # Or install all features
 pip install kagura-ai[all]

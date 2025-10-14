@@ -215,7 +215,7 @@ Semantic routing uses embedding-based similarity matching for more intelligent r
 ### Installation
 
 ```bash
-pip install kagura-ai[routing]
+pip install kagura-ai[ai]
 ```
 
 ### Basic Usage

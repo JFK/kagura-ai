@@ -5,7 +5,7 @@ Learn how to create AI agents that can search and understand multimodal content 
 ## Prerequisites
 
 - Python 3.11 or higher
-- Kagura AI installed with multimodal support: `pip install kagura-ai[multimodal]`
+- Kagura AI installed with web support: `pip install kagura-ai[web]`
 - Google API key (for Gemini API)
 - ChromaDB installed (included with multimodal extra)
 
@@ -41,16 +41,16 @@ Set your Google API key (required for processing multimodal content):
 export GOOGLE_API_KEY="your-gemini-api-key"
 ```
 
-Install Kagura AI with multimodal support:
+Install Kagura AI with web support (includes multimodal features):
 
 ```bash
-pip install kagura-ai[multimodal]
+pip install kagura-ai[web]
 ```
 
 This installs:
 - `google-generativeai` - For Gemini API (multimodal processing)
-- `chromadb` - Vector database for semantic search
-- `python-frontmatter` - For markdown with metadata
+- `chromadb` - Vector database for semantic search (included in `ai` extra)
+- `pillow` - Image processing
 
 ## Step 2: Prepare Your Content Directory
 
@@ -419,9 +419,9 @@ export GOOGLE_API_KEY="your-key"
 
 ### Issue: "ImportError: No module named 'chromadb'"
 
-**Solution:** Install with multimodal support:
+**Solution:** Install with web support (includes multimodal):
 ```bash
-pip install kagura-ai[multimodal]
+pip install kagura-ai[web]
 ```
 
 ### Issue: Index build is slow

@@ -71,10 +71,10 @@ router = AgentRouter(
 
 **Installation:**
 
-For semantic routing, install the routing extra:
+For semantic routing, install the AI extra (includes routing):
 
 ```bash
-pip install kagura-ai[routing]
+pip install kagura-ai[ai]
 ```
 
 ### Methods

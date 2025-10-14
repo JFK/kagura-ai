@@ -541,7 +541,7 @@ async def typed_workflow(
 
 ## Advanced Workflow Features
 
-Kagura v2.2.0 introduces advanced workflow capabilities for complex multi-agent orchestration.
+Kagura provides advanced workflow capabilities for complex multi-agent orchestration.
 
 ### Workflow Context Sharing
 

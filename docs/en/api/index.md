@@ -251,7 +251,7 @@ Check Kagura AI version:
 
 ```python
 import kagura
-print(kagura.__version__)  # "2.0.0-alpha.1"
+print(kagura.__version__)  # "2.5.0"
 ```
 
 Or via CLI:
