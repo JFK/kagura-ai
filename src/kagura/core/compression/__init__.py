@@ -4,7 +4,12 @@ This module provides token counting, context window management,
 message trimming, and context summarization for efficient long-form conversations.
 
 Example:
-    >>> from kagura.core.compression import TokenCounter, ContextMonitor, MessageTrimmer, ContextSummarizer
+    >>> from kagura.core.compression import (
+    ...     TokenCounter,
+    ...     ContextMonitor,
+    ...     MessageTrimmer,
+    ...     ContextSummarizer,
+    ... )
     >>> counter = TokenCounter(model="gpt-4o-mini")
     >>> monitor = ContextMonitor(counter, max_tokens=10000)
     >>> usage = monitor.check_usage(messages)
@@ -14,7 +19,9 @@ Example:
     ...     trimmed = trimmer.trim(messages, max_tokens=4000, strategy="smart")
     ...     # Option 2: Summarize messages
     ...     summarizer = ContextSummarizer(counter)
-    ...     summary = await summarizer.summarize_recursive(messages, target_tokens=1000)
+    ...     summary = await summarizer.summarize_recursive(
+    ...         messages, target_tokens=1000
+    ...     )
 """
 
 from .exceptions import CompressionError, ModelNotSupportedError, TokenCountError
