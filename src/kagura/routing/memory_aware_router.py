@@ -146,7 +146,7 @@ class MemoryAwareRouter(AgentRouter):
         """
         # === Stage 1: Recent Conversation Context ===
         # Retrieve last N messages from ContextMemory
-        recent_messages = self.memory.get_llm_context(last_n=self.context_window)
+        recent_messages = await self.memory.get_llm_context(last_n=self.context_window)
 
         # Use ContextAnalyzer to resolve pronouns and implicit references
         # This combines recent messages with current query
