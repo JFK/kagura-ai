@@ -284,7 +284,11 @@ class TokenCountError(CompressionError):
         self, message: str, model: str | None = None, text_length: int | None = None
     ) -> None:
         super().__init__(
-            message, code="COMP-001", recoverable=False, model=model, text_length=text_length
+            message,
+            code="COMP-001",
+            recoverable=False,
+            model=model,
+            text_length=text_length,
         )
 
 
