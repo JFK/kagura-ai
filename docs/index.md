@@ -1,37 +1,41 @@
 ---
-title: Kagura AI 2.0 - Python-First AI Agent Framework
-description: Convert any Python function into an AI agent with a single decorator. Built-in code execution, type-based parsing, and Pydantic support.
+title: Kagura AI v2.5.0 - Python-First AI Agent Framework
+description: Convert any Python function into an AI agent with a single decorator. Built-in memory, routing, multimodal RAG, web search, and context compression.
 keywords:
   - AI Agents
   - Python AI framework
-  - Code execution
+  - Memory Management
+  - Agent Routing
+  - Multimodal RAG
+  - Web Integration
+  - Context Compression
   - LLM integration
   - Pydantic
 author: Fumikazu Kiyota
 robots: index, follow
-og_title: Kagura AI 2.0 - Python-First AI Agent Framework
+og_title: Kagura AI v2.5.0 - Python-First AI Agent Framework
 og_type: website
 og_url: https://www.kagura-ai.com
-og_description: Convert any Python function into an AI agent with a single decorator. Built-in code execution, type-based parsing, and Pydantic support.
+og_description: Convert any Python function into an AI agent with a single decorator. Built-in memory, routing, multimodal RAG, web search, and context compression.
 og_image: assets/kagura-logo.svg
 twitter_card: summary_large_image
 twitter_site: "@kagura_ai"
 twitter_creator: "@JFK"
 ---
 
-# Kagura AI 2.0
+# Kagura AI v2.5.0
 
 ![Kagura AI Logo](assets/kagura-logo.svg)
 
-**Python-First AI Agent Framework with Code Execution**
+**Python-First AI Agent Framework with Memory, Routing, and Multimodal RAG**
 
-Kagura AI 2.0 is a modern framework that makes building AI agents as simple as writing a Python function. With a single `@agent` decorator, you can transform any async function into a powerful AI agent.
+Kagura AI v2.5.0 is a modern framework that makes building AI agents as simple as writing a Python function. With a single `@agent` decorator, you can transform any async function into a powerful AI agent with memory, routing, multimodal understanding, and web search capabilities.
 
 ---
 
 ## What is Kagura AI?
 
-Kagura AI 2.0 is a modern framework focused on developer experience and simplicity. You write agents in pure Python with familiar async/await patterns.
+Kagura AI v2.5.0 is a production-ready framework focused on developer experience and simplicity. You write agents in pure Python with familiar async/await patterns.
 
 ```python
 from kagura import agent
@@ -47,13 +51,23 @@ result = await hello("World")
 
 ## Key Features
 
+### Core Features
 - **One-Line Agent Creation**: `@agent` decorator converts functions to AI agents
 - **Jinja2 Templates**: Dynamic prompts using template syntax in docstrings
 - **Type-Based Parsing**: Automatic response conversion using Python type hints
 - **Pydantic Support**: First-class structured output with Pydantic models
 - **Code Execution**: Built-in safe Python code generation and execution
-- **Interactive REPL**: `kagura repl` for rapid prototyping
 - **Multi-LLM Support**: Works with OpenAI, Anthropic, Google, and more
+
+### v2.5.0 Advanced Features
+- **Memory Management**: Context, persistent, and RAG-based memory
+- **Agent Routing**: Intelligent agent selection with intent and semantic matching
+- **Multimodal RAG**: Index and search images, audio, video, and PDFs
+- **Web Integration**: Real-time web search and content scraping
+- **Context Compression**: Efficient token management for long conversations
+- **Interactive Chat**: Full-featured chat REPL with memory and web search
+- **Testing Framework**: Built-in testing utilities with semantic assertions
+- **Observability**: Telemetry, cost tracking, and performance monitoring
 
 ## Core Concepts
 
@@ -117,7 +131,7 @@ result = await execute_code("Calculate the factorial of 10")
 
 ## Architecture
 
-Kagura AI 2.0 follows a clean, layered architecture:
+Kagura AI v2.5.0 follows a clean, layered architecture:
 
 ```
 ┌─────────────────────────────────────┐
@@ -143,13 +157,14 @@ Kagura AI 2.0 follows a clean, layered architecture:
 
 ## Design Philosophy
 
-Kagura AI 2.0 is built on these principles:
+Kagura AI v2.5.0 is built on these principles:
 
 - **Python-First**: No external configuration files
 - **Type Safety**: Leverages Python's type system
 - **Developer Experience**: Simple API, fast iteration
 - **Composability**: Agents are just async functions
 - **Explicitness**: Clear data flow, no magic
+- **Production-Ready**: Built-in testing, monitoring, and optimization tools
 
 ## Get Started
 

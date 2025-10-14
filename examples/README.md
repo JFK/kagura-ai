@@ -1,112 +1,112 @@
-# Kagura AI 2.0 Examples
+# Kagura AI v2.5.0 Examples
 
-This directory contains comprehensive examples demonstrating all features of Kagura AI 2.0, from basic agent creation to advanced production patterns.
+This directory contains 36 comprehensive examples demonstrating all features of Kagura AI v2.5.0, from basic agent creation to advanced production patterns.
 
 ## 📂 Example Categories
 
-### 🎯 Quick Start Examples (`agents/`)
+Examples are organized into 8 categories by feature and complexity level:
 
-Basic examples for getting started with Kagura AI:
+### 01. Basic (`01_basic/`) - Getting Started
 
-- **[Simple Chat](agents/simple_chat/)** - Basic conversational agent
-- **[Data Extractor](agents/data_extractor/)** - Structured data extraction with Pydantic
-- **[Code Generator](agents/code_generator/)** - Safe Python code execution
-- **[Workflow Example](agents/workflow_example/)** - Multi-step agent composition
+Fundamental concepts and core functionality:
 
-### 🏗️ v2.2.0 Feature Examples
+- **hello_world.py** - Your first Kagura agent
+- **simple_chat.py** - Basic conversational agent
+- **pydantic_parsing.py** - Structured output with Pydantic models
+- **code_execution.py** - Safe Python code generation and execution
+- **config_usage.py** - Agent configuration and model selection
 
-#### [AgentBuilder](agent_builder/) - Fluent API for Agent Creation
-
-Learn how to use the AgentBuilder fluent API to create complex agents with integrated features.
-
-**Examples:**
-- `basic_builder.py` - Simple agents with model selection
-- `with_memory.py` - Agents with memory (context, persistent, RAG)
-- `with_tools.py` - Tool integration and function calling
-- `presets.py` - Built-in agent presets
-
-**Key Concepts:** Method chaining, memory types, tool registration, agent presets
+**Start here if you're new to Kagura AI!**
 
 ---
 
-#### [Testing](testing/) - Agent Testing Framework
+### 02. Memory (`02_memory/`) - Conversation Context
 
-Comprehensive testing strategies for non-deterministic AI agents.
+Memory management for stateful agents:
 
-**Examples:**
-- `test_basic.py` - AgentTestCase and semantic assertions
-- `test_with_mocks.py` - Mocking LLM responses for fast tests
-- `test_performance.py` - Latency, throughput, and cost testing
+- **working_memory.py** - Short-term context memory
+- **session_memory.py** - Persistent session storage
+- **persistent_memory.py** - Long-term memory with ChromaDB
+- **rag_memory.py** - Retrieval-Augmented Generation
 
-**Key Concepts:** AgentTestCase, semantic assertions, mocking, performance benchmarks
-
----
-
-#### [Observability](observability/) - Monitoring and Cost Tracking
-
-Monitor agent execution, track costs, and analyze performance.
-
-**Examples:**
-- `monitored_agent.py` - Telemetry collection and querying
-- `cost_tracking.py` - Cost analysis and optimization
-- `dashboard_demo.py` - Rich TUI dashboard features
-
-**Key Concepts:** EventStore, Dashboard, telemetry, cost tracking, CLI commands
+**Learn**: Context windows, memory persistence, semantic search
 
 ---
 
-#### [Memory-Aware Routing](memory_routing/) - Context-Aware Agent Selection
+### 03. Routing (`03_routing/`) - Agent Selection
 
-Intelligent routing with conversation context and semantic understanding.
+Intelligent routing to the right agent:
 
-**Examples:**
-- `context_routing.py` - Context-dependent query handling
-- `semantic_routing.py` - RAG-enabled semantic routing
+- **keyword_routing.py** - Intent-based keyword matching
+- **semantic_routing.py** - Embedding-based semantic routing
+- **memory_aware_routing.py** - Context-aware routing with conversation history
 
-**Key Concepts:** MemoryAwareRouter, context enhancement, pronoun resolution, semantic search
-
----
-
-#### [Advanced Workflows](advanced_workflows/) - Production Patterns
-
-Build robust, efficient workflows for production environments.
-
-**Examples:**
-- `conditional_workflow.py` - Conditional branching and routing
-- `parallel_workflow.py` - Parallel execution for performance
-- `retry_workflow.py` - Retry logic and error handling
-
-**Key Concepts:** Conditional branching, parallel execution, retry strategies, circuit breakers
+**Learn**: Multi-agent systems, dynamic agent selection, context handling
 
 ---
 
-## 📚 Learning Paths
+### 04. Multimodal (`04_multimodal/`) - Beyond Text
 
-### Path 1: Getting Started (1-2 hours)
+Working with images, audio, video, and PDFs:
 
-For developers new to Kagura AI:
+- **image_analysis.py** - Analyze images with Gemini Vision
+- **pdf_processing.py** - Extract and understand PDF documents
+- **multimodal_rag.py** - Index and search multimodal content
 
-1. [Simple Chat](agents/simple_chat/) - Understand `@agent` decorator
-2. [Data Extractor](agents/data_extractor/) - Learn structured outputs
-3. [Code Generator](agents/code_generator/) - Explore code execution
-4. [AgentBuilder Basic](agent_builder/basic_builder.py) - Try the fluent API
+**Learn**: Vision AI, document understanding, multimodal indexing
 
-### Path 2: Production Features (3-4 hours)
+---
 
-For building production-ready agents:
+### 05. Web (`05_web/`) - Internet Integration
 
-1. [AgentBuilder](agent_builder/) - All examples
-2. [Testing](testing/) - All examples
-3. [Observability](observability/) - Monitoring and cost tracking
-4. [Advanced Workflows](advanced_workflows/) - Robust patterns
+Real-time web search and content scraping:
 
-### Path 3: Advanced Features (2-3 hours)
+- **web_search.py** - Search the web for current information
+- **web_scraping.py** - Extract content from websites
+- **hybrid_rag.py** - Combine local files with web data
 
-For complex systems:
+**Learn**: Web APIs, content extraction, hybrid knowledge sources
 
-1. [Memory-Aware Routing](memory_routing/) - Context and semantic routing
-2. [Advanced Workflows](advanced_workflows/) - All examples
-3. [Observability](observability/) - Production monitoring
+---
+
+### 06. Advanced (`06_advanced/`) - Production Patterns
+
+Advanced workflows and optimization:
+
+- **workflows.py** - Multi-step agent orchestration
+- **parallel_execution.py** - Concurrent agent execution
+- **error_handling.py** - Robust error handling and retry logic
+- **caching.py** - Response caching for performance
+- **compression.py** - Context compression for long conversations
+
+**Learn**: Workflows, parallelization, error handling, optimization
+
+---
+
+### 07. Presets (`07_presets/`) - Ready-to-Use Templates
+
+Pre-configured agents and patterns:
+
+- **agent_builder.py** - AgentBuilder fluent API
+- **testing_agents.py** - Testing framework and assertions
+- **observability.py** - Monitoring and cost tracking
+- **preset_agents.py** - Common agent patterns
+
+**Learn**: AgentBuilder, testing, monitoring, best practices
+
+---
+
+### 08. Real World (`08_real_world/`) - Complete Applications
+
+Full-featured production examples:
+
+- **chatbot.py** - Complete chatbot with memory and tools
+- **code_assistant.py** - AI coding assistant
+- **research_assistant.py** - Research tool with web search
+- **document_qa.py** - Document Q&A with multimodal RAG
+- **multi_agent_system.py** - Coordinated multi-agent system
+
+**Learn**: Production architectures, feature integration, deployment patterns
 
 ---
 
@@ -122,43 +122,92 @@ For complex systems:
 2. **Set API key:**
    ```bash
    export OPENAI_API_KEY="your-key-here"
+   # or
+   export GOOGLE_API_KEY="your-key-here"
    ```
 
-3. **Optional dependencies:**
+3. **Optional extras for advanced features:**
    ```bash
-   # For RAG features
-   pip install chromadb
+   # AI features (memory, routing, compression)
+   pip install kagura-ai[ai]
 
-   # For all examples
-   pip install kagura-ai[all]
+   # Web & multimodal features
+   pip install kagura-ai[web]
+
+   # All features
+   pip install kagura-ai[full]
    ```
 
 ### Run Examples
 
 ```bash
-# Quick start examples
-cd examples/agents/simple_chat
-python agent.py
+# Basic examples
+python examples/01_basic/hello_world.py
+python examples/01_basic/simple_chat.py
 
-# AgentBuilder examples
-cd examples/agent_builder
-python basic_builder.py
+# Memory examples
+python examples/02_memory/working_memory.py
 
-# Testing examples
-pytest examples/testing/test_basic.py -v
+# Routing examples
+python examples/03_routing/keyword_routing.py
 
-# Observability examples
-cd examples/observability
-python monitored_agent.py
+# Multimodal examples (requires GOOGLE_API_KEY)
+python examples/04_multimodal/image_analysis.py
 
-# Memory routing examples
-cd examples/memory_routing
-python context_routing.py
+# Web examples
+python examples/05_web/web_search.py
 
-# Advanced workflows
-cd examples/advanced_workflows
-python conditional_workflow.py
+# Advanced examples
+python examples/06_advanced/workflows.py
+
+# Presets examples
+python examples/07_presets/agent_builder.py
+
+# Real-world examples
+python examples/08_real_world/chatbot.py
 ```
+
+---
+
+## 📚 Learning Paths
+
+### Path 1: Beginner (1-2 hours)
+
+For developers new to Kagura AI:
+
+1. **01_basic/hello_world.py** - Understand `@agent` decorator
+2. **01_basic/simple_chat.py** - Build a conversational agent
+3. **01_basic/pydantic_parsing.py** - Learn structured outputs
+4. **01_basic/code_execution.py** - Explore code generation
+
+**Goal**: Understand core concepts and build your first agents
+
+---
+
+### Path 2: Intermediate (2-3 hours)
+
+For building stateful, intelligent agents:
+
+1. **02_memory/** - All memory examples
+2. **03_routing/** - All routing examples
+3. **07_presets/agent_builder.py** - Learn the fluent API
+4. **07_presets/testing_agents.py** - Test your agents
+
+**Goal**: Build agents with memory and intelligent routing
+
+---
+
+### Path 3: Advanced (3-4 hours)
+
+For production-ready systems:
+
+1. **04_multimodal/** - Multimodal understanding
+2. **05_web/** - Web integration
+3. **06_advanced/** - Workflows and optimization
+4. **07_presets/observability.py** - Monitoring and cost tracking
+5. **08_real_world/** - Complete applications
+
+**Goal**: Build production-ready, feature-rich systems
 
 ---
 
@@ -177,47 +226,89 @@ async def my_agent(input: str) -> str:
 result = await my_agent("Hello")
 ```
 
-### 2. AgentBuilder (Recommended)
-
-```python
-from kagura import AgentBuilder
-
-agent = (
-    AgentBuilder("my_agent")
-    .with_model("gpt-4o-mini")
-    .with_memory(type="context", max_messages=50)
-    .build()
-)
-
-result = await agent("Hello")
-```
-
-### 3. Structured Output
+### 2. Agent with Memory
 
 ```python
 from kagura import agent
-from pydantic import BaseModel
 
-class Person(BaseModel):
-    name: str
-    age: int
-
-@agent(model="gpt-4o-mini")
-async def extract_person(text: str) -> Person:
-    '''Extract person from: {{ text }}'''
+@agent(
+    model="gpt-4o-mini",
+    enable_memory=True,
+    memory_scope="session"
+)
+async def chatbot(message: str, memory) -> str:
+    '''You are a helpful assistant. User says: {{ message }}'''
     pass
 ```
 
-### 4. Testing Agents
+### 3. Multimodal Agent
+
+```python
+from kagura import agent
+from pathlib import Path
+
+@agent(
+    model="gemini/gemini-1.5-flash",
+    enable_multimodal_rag=True,
+    rag_directory=Path("./docs")
+)
+async def docs_assistant(query: str, rag) -> str:
+    '''Answer questions about documentation: {{ query }}'''
+    pass
+```
+
+### 4. Web-Enabled Agent
+
+```python
+from kagura import agent
+from kagura.web import web_search
+
+async def search_tool(query: str) -> str:
+    return await web_search(query)
+
+@agent(
+    model="gpt-4o-mini",
+    tools=[search_tool]
+)
+async def researcher(topic: str) -> str:
+    '''Research {{ topic }} using web search'''
+    pass
+```
+
+### 5. Agent Routing
+
+```python
+from kagura import agent
+from kagura.routing import AgentRouter
+
+@agent
+async def coder(request: str) -> str:
+    '''Write code for: {{ request }}'''
+    pass
+
+@agent
+async def translator(text: str, lang: str) -> str:
+    '''Translate {{ text }} to {{ lang }}'''
+    pass
+
+router = AgentRouter()
+router.register(coder, intents=["code", "program", "write"])
+router.register(translator, intents=["translate", "翻訳"])
+
+# Automatic routing
+result = await router.route("Write a function to sort a list")
+```
+
+### 6. Testing Agents
 
 ```python
 import pytest
 from kagura import agent
 from kagura.testing import AgentTestCase
 
-@agent(model="gpt-4o-mini")
+@agent
 async def greeter(name: str) -> str:
-    """Greet {{ name }}"""
+    '''Greet {{ name }}'''
     pass
 
 class TestGreeter(AgentTestCase):
@@ -226,80 +317,8 @@ class TestGreeter(AgentTestCase):
     @pytest.mark.asyncio
     async def test_greeting(self):
         result = await self.agent("Alice")
-        self.assert_not_empty(result)
         self.assert_contains(result, "Alice")
-```
-
-### 5. Monitoring Agents
-
-```python
-from kagura import agent
-from kagura.observability import EventStore
-
-@agent(model="gpt-4o-mini")
-async def translator(text: str, lang: str) -> str:
-    """Translate "{{ text }}" to {{ lang }}"""
-    pass
-
-# Use agent...
-result = await translator("Hello", "French")
-
-# Check telemetry
-store = EventStore()
-executions = store.get_executions(agent_name="translator")
-print(f"Executed {len(executions)} times")
-```
-
-### 6. Memory-Aware Routing
-
-```python
-from kagura import agent
-from kagura.routing import MemoryAwareRouter
-from kagura.core.memory import MemoryManager
-
-@agent(model="gpt-4o-mini")
-async def translator(text: str, lang: str) -> str:
-    """Translate "{{ text }}" to {{ lang }}"""
-    pass
-
-memory = MemoryManager(agent_name="router")
-router = MemoryAwareRouter(memory=memory, context_window=5)
-router.register(translator, intents=["translate"])
-
-# First query
-await router.route("Translate 'hello' to French")
-
-# Context-aware follow-up
-await router.route("What about Spanish?")  # Understands context
-```
-
-### 7. Parallel Workflows
-
-```python
-import asyncio
-from kagura import agent, workflow
-
-@agent(model="gpt-4o-mini")
-async def sentiment(text: str) -> str:
-    """Analyze sentiment: {{ text }}"""
-    pass
-
-@agent(model="gpt-4o-mini")
-async def keywords(text: str) -> str:
-    """Extract keywords: {{ text }}"""
-    pass
-
-@workflow
-async def analyze(text: str) -> dict:
-    """Run parallel analysis."""
-    sentiment_result, keywords_result = await asyncio.gather(
-        sentiment(text),
-        keywords(text)
-    )
-    return {
-        "sentiment": sentiment_result,
-        "keywords": keywords_result
-    }
+        self.assert_not_empty(result)
 ```
 
 ---
@@ -309,65 +328,26 @@ async def analyze(text: str) -> dict:
 ### API References
 
 - [@agent Decorator](../docs/en/api/agent.md)
-- [AgentBuilder](../docs/en/api/builder.md)
+- [Memory Management](../docs/en/api/memory.md)
+- [Agent Routing](../docs/en/api/routing.md)
+- [Context Compression](../docs/en/api/compression.md)
 - [Testing Framework](../docs/en/api/testing.md)
 - [Observability](../docs/en/api/observability.md)
-- [Memory Management](../docs/en/api/memory.md)
-- [Routing](../docs/en/api/routing.md)
-- [Workflows](../docs/en/api/workflows.md)
 
 ### Tutorials
 
 - [Quick Start](../docs/en/quickstart.md)
-- [Installation Guide](../docs/en/installation.md)
-- [AgentBuilder Tutorial](../docs/en/tutorials/13-agent-builder.md)
-- [Testing Tutorial](../docs/en/tutorials/14-testing.md)
-- [Observability Tutorial](../docs/en/tutorials/15-observability.md)
+- [Memory Management](../docs/en/tutorials/08-memory-management.md)
+- [Agent Routing](../docs/en/tutorials/09-agent-routing.md)
+- [Multimodal RAG](../docs/en/tutorials/13-multimodal-rag.md)
+- [Testing Agents](../docs/en/tutorials/14-testing.md)
 
----
+### Guides
 
-## 🏗️ Directory Structure
-
-```
-examples/
-├── agents/                      # Quick start examples
-│   ├── simple_chat/            # Basic conversational agent
-│   ├── data_extractor/         # Structured data extraction
-│   ├── code_generator/         # Code execution
-│   └── workflow_example/       # Multi-step workflows
-│
-├── agent_builder/              # AgentBuilder fluent API
-│   ├── basic_builder.py        # Simple agent creation
-│   ├── with_memory.py          # Memory integration
-│   ├── with_tools.py           # Tool integration
-│   ├── presets.py              # Built-in presets
-│   └── README.md
-│
-├── testing/                    # Testing framework
-│   ├── test_basic.py           # Basic testing
-│   ├── test_with_mocks.py      # Mocking strategies
-│   ├── test_performance.py     # Performance testing
-│   └── README.md
-│
-├── observability/              # Monitoring and cost tracking
-│   ├── monitored_agent.py      # Telemetry collection
-│   ├── cost_tracking.py        # Cost analysis
-│   ├── dashboard_demo.py       # Dashboard features
-│   └── README.md
-│
-├── memory_routing/             # Context-aware routing
-│   ├── context_routing.py      # Contextdependent routing
-│   ├── semantic_routing.py     # RAG-enabled routing
-│   └── README.md
-│
-├── advanced_workflows/         # Production patterns
-│   ├── conditional_workflow.py # Conditional branching
-│   ├── parallel_workflow.py    # Parallel execution
-│   ├── retry_workflow.py       # Retry logic
-│   └── README.md
-│
-└── README.md                   # This file
-```
+- [Chat Multimodal](../docs/en/guides/chat-multimodal.md)
+- [Web Integration](../docs/en/guides/web-integration.md)
+- [Full-Featured Mode](../docs/en/guides/full-featured-mode.md)
+- [Context Compression](../docs/en/guides/context-compression.md)
 
 ---
 
@@ -375,125 +355,137 @@ examples/
 
 ### Development
 
-**Use AgentBuilder for complex agents:**
+**Use type hints for automatic parsing:**
 ```python
-# ✅ Recommended
-agent = (
-    AgentBuilder("my_agent")
-    .with_model("gpt-4o-mini")
-    .with_memory(type="context")
-    .with_tools([search_tool])
-    .build()
-)
+from pydantic import BaseModel
 
-# ⚠️ Basic (for simple cases only)
+class Person(BaseModel):
+    name: str
+    age: int
+
 @agent
-async def my_agent(input: str) -> str:
-    '''Process {{ input }}'''
+async def extract_person(text: str) -> Person:
+    '''Extract person from: {{ text }}'''
     pass
 ```
 
-**Enable telemetry for all agents:**
+**Enable memory for conversational agents:**
 ```python
-# Telemetry is automatic, just query it
-from kagura.observability import EventStore
-
-store = EventStore()
-stats = store.get_summary_stats()
-print(f"Success rate: {stats['completed']/stats['total_executions']:.1%}")
+@agent(enable_memory=True, memory_scope="session")
+async def chatbot(message: str, memory) -> str:
+    '''Conversational assistant'''
+    pass
 ```
 
-**Use context window for conversational agents:**
+**Use tools for external functionality:**
 ```python
-memory = MemoryManager(agent_name="chatbot")
-router = MemoryAwareRouter(memory=memory, context_window=10)
-# Keeps last 10 messages for context
+@agent(tools=[search_web, calculate, send_email])
+async def assistant(request: str) -> str:
+    '''Smart assistant with tools'''
+    pass
 ```
 
 ### Testing
 
 **Mock LLM responses for fast tests:**
 ```python
-with self.mock_llm_response("Mocked output"):
-    result = await agent("input")
-    assert result == "Mocked output"
+from kagura.testing import LLMMock
+
+with LLMMock("Mocked response"):
+    result = await agent("test input")
 ```
 
 **Use semantic assertions:**
 ```python
-# ✅ Flexible
-self.assert_contains(result, "key_term")
-
-# ❌ Brittle
-assert result == "exact output"  # Will break
+self.assert_contains(result, "keyword")
+self.assert_matches_regex(result, r"pattern")
 ```
 
 ### Production
 
 **Monitor costs:**
 ```bash
-kagura monitor cost  # Check spending
-kagura monitor stats --agent my_agent  # Agent-specific
+kagura monitor cost
+kagura monitor stats --agent my_agent
 ```
 
 **Implement retry logic:**
 ```python
-for attempt in range(3):
-    try:
-        return await agent(input)
-    except Exception:
-        if attempt == 2:
-            raise
-        await asyncio.sleep(2 ** attempt)  # Exponential backoff
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+@retry(stop=stop_after_attempt(3), wait=wait_exponential())
+async def call_agent():
+    return await agent("input")
 ```
 
-**Use parallel execution:**
+**Use context compression for long conversations:**
 ```python
-# Run independent tasks in parallel
-results = await asyncio.gather(
-    agent1(input),
-    agent2(input),
-    agent3(input)
-)
+from kagura.core.compression import ContextMonitor
+
+monitor = ContextMonitor(counter, max_tokens=10000)
+usage = monitor.check_usage(messages)
+
+if usage.should_compress:
+    # Implement compression strategy
+    pass
 ```
 
 ---
 
 ## 🛠️ CLI Commands
 
+### Chat REPL
+
+```bash
+# Basic chat
+kagura chat
+
+# With memory
+kagura chat --enable-memory
+
+# With multimodal RAG
+kagura chat --enable-multimodal --dir ./docs
+
+# With web search
+kagura chat --enable-web
+
+# Full-featured mode
+kagura chat --full --dir ./docs
+```
+
 ### Monitoring
 
 ```bash
-# Live monitoring
+# Live monitoring dashboard
 kagura monitor
 
-# View execution list
+# Execution list
 kagura monitor list
 
-# View statistics
+# Statistics
 kagura monitor stats
 
-# View costs
+# Cost tracking
 kagura monitor cost
 
-# View specific execution trace
+# Execution trace
 kagura monitor trace <execution_id>
 ```
 
 ### Testing
 
 ```bash
-# Run all tests
-pytest examples/testing/ -v
+# Run all examples
+pytest examples/ -v
 
-# Run specific test file
-pytest examples/testing/test_basic.py -v
+# Run specific category
+pytest examples/01_basic/ -v
 
-# Run with coverage
-pytest examples/testing/ --cov=kagura --cov-report=html
+# With coverage
+pytest examples/ --cov=kagura --cov-report=html
 
-# Skip slow tests
-pytest examples/testing/ -v -m "not slow"
+# Parallel execution
+pytest examples/ -n auto
 ```
 
 ---
@@ -502,58 +494,49 @@ pytest examples/testing/ -v -m "not slow"
 
 ### General
 
-**Q: Can I use these examples in production?**
-
-A: These examples are for learning. For production, add proper error handling, logging, monitoring, and testing.
-
 **Q: Which LLM providers are supported?**
 
 A: Kagura uses LiteLLM, supporting OpenAI, Anthropic, Google, Azure, Ollama, and 100+ providers.
 
-**Q: How do I switch models?**
+**Q: Do I need API keys for all examples?**
 
-A: Set the `model` parameter:
-```python
-@agent(model="gpt-4o")  # or "claude-3-5-sonnet", "gemini-pro", etc.
-async def my_agent(input: str) -> str:
-    pass
-```
+A: Most examples work with any provider (OpenAI, Anthropic). Multimodal examples require `GOOGLE_API_KEY`.
+
+**Q: Can I use these examples in production?**
+
+A: These are learning examples. For production, add proper error handling, logging, monitoring, and security measures.
 
 ### Features
 
-**Q: Do I need RAG for memory routing?**
+**Q: What's the difference between memory types?**
 
-A: No, basic context memory works without RAG. RAG enhances semantic understanding but requires ChromaDB: `pip install chromadb`
+A:
+- **Working memory**: Short-term (last N messages)
+- **Session memory**: Persistent across runs (ChromaDB)
+- **RAG memory**: Semantic search across documents
 
-**Q: How secure is code execution?**
+**Q: How do I switch between LLM providers?**
 
-A: The code executor has security constraints (no file I/O, network, dangerous imports), but use with caution in production.
-
-**Q: Can agents call other agents?**
-
-A: Yes! See [workflow_example](agents/workflow_example/) and [advanced_workflows](advanced_workflows/) for composition patterns.
-
-**Q: How much does telemetry cost?**
-
-A: Telemetry is free - it's stored locally in SQLite (`~/.kagura/telemetry.db`).
-
-### Testing
-
-**Q: Why are my tests slow?**
-
-A: Use mocks to avoid real API calls:
+A: Set the `model` parameter:
 ```python
-with self.mock_llm_response("Mocked"):
-    result = await agent("input")
+@agent(model="gpt-4o")  # OpenAI
+@agent(model="claude-3-5-sonnet")  # Anthropic
+@agent(model="gemini/gemini-1.5-flash")  # Google
 ```
 
-**Q: How do I test non-deterministic outputs?**
+**Q: Is code execution safe?**
 
-A: Use semantic assertions:
-```python
-self.assert_contains(result, "expected_term")
-self.assert_matches_regex(result, r"pattern")
-```
+A: The executor has security constraints (no file I/O, network, dangerous imports), but use with caution in production.
+
+### Installation
+
+**Q: What extras do I need for specific features?**
+
+A:
+- Memory, Routing, Compression → `pip install kagura-ai[ai]`
+- Multimodal, Web Search → `pip install kagura-ai[web]`
+- OAuth2 Authentication → `pip install kagura-ai[auth]`
+- All features → `pip install kagura-ai[full]`
 
 ---
 
@@ -565,7 +548,7 @@ Want to add more examples? See [CONTRIBUTING.md](../CONTRIBUTING.md) for guideli
 
 Each example should:
 - Have clear, runnable code
-- Include comprehensive README.md
+- Include comprehensive docstrings
 - Follow Kagura coding standards
 - Demonstrate best practices
 - Include error handling
@@ -583,10 +566,11 @@ Apache License 2.0 - see [LICENSE](../LICENSE)
 
 After exploring these examples:
 
-1. **Build your first agent** using AgentBuilder
-2. **Add tests** with AgentTestCase
-3. **Monitor performance** with observability tools
-4. **Deploy to production** with retry logic and monitoring
+1. **Build your first agent** - Start with `01_basic/`
+2. **Add memory** - Explore `02_memory/`
+3. **Enable routing** - Try `03_routing/`
+4. **Go multimodal** - Check out `04_multimodal/`
+5. **Deploy to production** - Study `08_real_world/`
 
 **Happy coding with Kagura AI! 🎉**
 
