@@ -75,6 +75,7 @@ dev = [
     "pytest-asyncio>=0.25",
     "pytest-cov>=6.0",
     "pytest-timeout>=2.3",
+    "pytest-xdist>=3.5",  # Parallel test execution
     "langdetect>=1.0.9",  # For agent testing
     "ruff>=0.8",
     "pyright>=1.1",
@@ -134,6 +135,9 @@ python_functions = ["test_*"]
 # Exclude legacy test directories
 norecursedirs = [".*", "build", "dist", "*_legacy"]
 asyncio_default_fixture_loop_scope = "function"
+# Parallel execution with pytest-xdist (optional, use with -n auto)
+# To enable: pytest -n auto
+# To disable: pytest -n 0
 markers = [
     "integration: Integration tests (deselect with '-m \"not integration\"')",
     "unit: Unit tests",
