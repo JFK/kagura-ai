@@ -1337,6 +1337,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+compression = [
+    { name = "tiktoken" },
+]
 dev = [
     { name = "pyright" },
     { name = "pytest" },
@@ -1417,6 +1420,7 @@ requires-dist = [
     { name = "rich", specifier = ">=13.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8" },
     { name = "semantic-router", marker = "extra == 'routing'", specifier = ">=0.1.11" },
+    { name = "tiktoken", marker = "extra == 'compression'", specifier = ">=0.7.0" },
 ]
 
 [[package]]
