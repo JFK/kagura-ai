@@ -25,7 +25,9 @@ Example:
 """
 
 from .exceptions import CompressionError, ModelNotSupportedError, TokenCountError
+from .manager import ContextManager
 from .monitor import ContextMonitor, ContextUsage
+from .policy import CompressionPolicy, CompressionStrategy
 from .summarizer import ContextSummarizer
 from .token_counter import TokenCounter
 from .trimmer import MessageTrimmer, TrimStrategy
@@ -37,6 +39,9 @@ __all__ = [
     "MessageTrimmer",
     "TrimStrategy",
     "ContextSummarizer",
+    "CompressionPolicy",
+    "CompressionStrategy",
+    "ContextManager",
     "CompressionError",
     "TokenCountError",
     "ModelNotSupportedError",

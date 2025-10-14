@@ -7,6 +7,7 @@ import inspect
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Optional, ParamSpec, TypeVar, overload
 
+from .compression import CompressionPolicy
 from .llm import LLMConfig, call_llm
 from .memory import MemoryManager
 from .parser import parse_response
@@ -96,6 +97,8 @@ def agent(
     enable_multimodal_rag: bool = False,
     rag_directory: Optional[Path] = None,
     rag_cache_size_mb: int = 100,
+    enable_compression: bool = True,
+    compression_policy: Optional[CompressionPolicy] = None,
     **kwargs: Any,
 ) -> Callable[P, Awaitable[T]]: ...
 
@@ -113,6 +116,8 @@ def agent(
     enable_multimodal_rag: bool = False,
     rag_directory: Optional[Path] = None,
     rag_cache_size_mb: int = 100,
+    enable_compression: bool = True,
+    compression_policy: Optional[CompressionPolicy] = None,
     **kwargs: Any,
 ) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]: ...
 
@@ -129,6 +134,8 @@ def agent(
     enable_multimodal_rag: bool = False,
     rag_directory: Optional[Path] = None,
     rag_cache_size_mb: int = 100,
+    enable_compression: bool = True,
+    compression_policy: Optional[CompressionPolicy] = None,
     **kwargs: Any,
 ) -> (
     Callable[P, Awaitable[T]]
@@ -149,6 +156,8 @@ def agent(
         rag_directory: Directory to index for RAG
             (required if enable_multimodal_rag=True)
         rag_cache_size_mb: Cache size in MB for RAG file loading
+        enable_compression: Enable automatic context compression (default: True)
+        compression_policy: Compression configuration (default: CompressionPolicy())
         **kwargs: Additional LLM parameters
 
     Returns:
@@ -162,12 +171,25 @@ def agent(
 
         result = await hello("World")
 
-        # With memory
+        # With memory (compression enabled by default)
         @agent(enable_memory=True)
         async def assistant(query: str, memory: MemoryManager) -> str:
             '''Answer: {{ query }}'''
             memory.add_message("user", query)
             return "response"
+
+        # With custom compression policy
+        @agent(
+            enable_memory=True,
+            compression_policy=CompressionPolicy(
+                strategy="smart",
+                max_tokens=4000,
+                trigger_threshold=0.8
+            )
+        )
+        async def smart_assistant(query: str, memory: MemoryManager) -> str:
+            '''Answer: {{ query }}'''
+            pass
 
         # With tools
         @agent(tools=[search_tool, calculator])
@@ -248,6 +270,9 @@ def agent(
                     agent_name=func.__name__,
                     persist_dir=persist_dir,
                     max_messages=max_messages,
+                    enable_compression=enable_compression,
+                    compression_policy=compression_policy,
+                    model=model,
                 )
                 kwargs_inner["memory"] = memory  # type: ignore
 
