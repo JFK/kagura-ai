@@ -152,68 +152,186 @@ ruff check src/
 
 ## Optional Dependencies
 
-### For OAuth2 Authentication (Advanced)
+Kagura AI provides several optional feature presets to install only what you need.
 
-To use OAuth2 authentication with Google/Gemini (advanced feature):
+### 📦 User-Facing Presets
 
-```bash
-pip install kagura-ai[oauth]
-```
+#### AI Features (`kagura-ai[ai]`)
 
-Or with uv:
+Core AI capabilities: Memory, Routing, Context Compression
 
 ```bash
-uv add "kagura-ai[oauth]"
+pip install kagura-ai[ai]
+# or
+uv add "kagura-ai[ai]"
 ```
 
-This installs:
-- `google-auth>=2.25.0` - Google authentication library
-- `google-auth-oauthlib>=1.2.0` - OAuth2 flow
-- `google-auth-httplib2>=0.2.0` - HTTP library
-- `cryptography>=41.0.0` - Credential encryption
+**Includes**:
+- `chromadb` - Vector storage for memory & RAG
+- `semantic-router` - Semantic routing
+- `tiktoken` - Token counting for context compression
+
+**Use cases**:
+- Agents with long-term memory
+- Semantic routing between agents
+- Context-aware conversation management
+
+---
+
+#### Web & Multimodal (`kagura-ai[web]`)
+
+Web search, scraping, and multimodal (image/audio/video) processing
+
+```bash
+pip install kagura-ai[web]
+# or
+uv add "kagura-ai[web]"
+```
+
+**Includes**:
+- `google-generativeai` - Gemini API for multimodal
+- `pillow` - Image processing
+- `httpx` - HTTP client
+- `duckduckgo-search` - Web search
+- `beautifulsoup4` - HTML parsing
+
+**Use cases**:
+- Web search agents
+- Image/audio/video analysis
+- Web scraping and data extraction
+
+---
+
+#### OAuth2 Authentication (`kagura-ai[auth]`)
+
+OAuth2 authentication with Google/Gemini (advanced feature)
+
+```bash
+pip install kagura-ai[auth]
+# or
+uv add "kagura-ai[auth]"
+```
+
+**Includes**:
+- `google-auth` - Google authentication library
+- `google-auth-oauthlib` - OAuth2 flow
+- `google-auth-httplib2` - HTTP library
+- `cryptography` - Credential encryption
 
 **Note**: OAuth2 is an advanced feature. For most users, **using API Keys is recommended** as it's simpler. See [OAuth2 Authentication Guide](guides/oauth2-authentication.md) for when to use OAuth2.
 
-### For MCP Integration
+---
 
-To use Kagura agents with Claude Desktop, Claude Code, and other MCP clients:
+#### MCP Integration (`kagura-ai[mcp]`)
+
+Use Kagura agents with Claude Desktop, Claude Code, and other MCP clients
 
 ```bash
 pip install kagura-ai[mcp]
-```
-
-Or with uv:
-
-```bash
+# or
 uv add "kagura-ai[mcp]"
 ```
 
-This installs:
-- `mcp>=1.0.0` - Model Context Protocol SDK
-- `jsonschema>=4.20.0` - JSON Schema validation
+**Includes**:
+- `mcp` - Model Context Protocol SDK
+- `jsonschema` - JSON Schema validation
 
 See [MCP Integration Tutorial](tutorials/06-mcp-integration.md) for setup guide.
 
-### For Development
+---
 
-Development tools are already included with `--dev` flag:
+### 🎁 Combined Presets (Recommended)
 
+#### Full Features (`kagura-ai[full]`)
+
+All user-facing features in one install
+
+```bash
+pip install kagura-ai[full]
+# or
+uv add "kagura-ai[full]"
+```
+
+**Includes**: `ai` + `web` + `auth` + `mcp`
+
+**Recommended for**: Most users who want to explore all Kagura AI capabilities
+
+---
+
+#### Everything (`kagura-ai[all]`)
+
+All features including development tools
+
+```bash
+pip install kagura-ai[all]
+# or
+uv add "kagura-ai[all]"
+```
+
+**Includes**: `full` + `dev` + `docs`
+
+**Recommended for**: Contributors and advanced users
+
+---
+
+### 🛠️ Development Presets
+
+#### Development Tools (`kagura-ai[dev]`)
+
+Testing and linting tools (included with `uv sync --dev`)
+
+```bash
+pip install kagura-ai[dev]
+# or
+uv add "kagura-ai[dev]"
+```
+
+**Includes**:
 - `pytest` - Testing framework
 - `pytest-asyncio` - Async test support
 - `pytest-cov` - Code coverage
+- `pytest-timeout` - Test timeout
+- `langdetect` - For agent testing
 - `pyright` - Type checker
 - `ruff` - Linter and formatter
 
-### For Documentation
+---
 
-To build documentation locally:
+#### Documentation Tools (`kagura-ai[docs]`)
+
+Build documentation locally
 
 ```bash
-pip install mkdocs mkdocs-material
+pip install kagura-ai[docs]
+# or
+uv add "kagura-ai[docs]"
+```
+
+**Includes**:
+- `mkdocs` - Documentation generator
+- `mkdocs-material` - Material theme
+- `pymdown-extensions` - Markdown extensions
+
+Then run:
+```bash
 mkdocs serve
 ```
 
-Then visit `http://localhost:8000`
+Visit `http://localhost:8000` to view docs.
+
+---
+
+### 📊 Installation Size Comparison
+
+| Preset | Dependencies | Approximate Size | Use Case |
+|--------|-------------|------------------|----------|
+| `base` | 8 packages | ~50 MB | Basic agents only |
+| `ai` | +3 packages | +150 MB | AI features |
+| `web` | +7 packages | +200 MB | Web & Multimodal |
+| `auth` | +4 packages | +20 MB | OAuth2 |
+| `mcp` | +2 packages | +10 MB | MCP integration |
+| `full` | +16 packages | +380 MB | All features |
+| `all` | +23 packages | +420 MB | Everything |
 
 ## Troubleshooting
 
