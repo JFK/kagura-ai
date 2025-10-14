@@ -44,8 +44,15 @@ ai_docs/
 │
 ├── analysis/                  # 調査レポート
 ├── suggestions/               # Claudeからの技術的提案
-└── fixes/                     # バグ修正の詳細記録
+├── fixes/                     # バグ修正の詳細記録
+└── archive/                   # アーカイブ（v2.5.0+）
+    ├── completed/             # 完了したRFC Phase PLAN/RESULT
+    ├── old_versions/          # 旧バージョンドキュメント
+    └── work_logs/             # 過去のWork Logs
 ```
+
+**Note**: v2.5.0以降、完了したRFC Phase PLANs/RESULTsは`archive/completed/`に移動します。
+メインRFCドキュメント（`RFC_XXX.md`）は参照用として`rfcs/`に永続的に保持されます。
 
 ---
 
@@ -223,3 +230,125 @@ Issue番号を含むファイル名で管理：
 ---
 
 **このドキュメントを読んでから作業を開始してください。不明点があれば必ず質問してください！**
+
+---
+
+## 📁 Directory Structure Guide (v2.5.0+)
+
+### Root Level Documents
+
+**Core Development Guides** (Must Read):
+- `README.md`: このファイル - ディレクトリ構造とガイド
+- `UNIFIED_ROADMAP.md`: 統合ロードマップ（v2.0～v2.5.0+、全RFC概要）
+- `NEXT_STEPS.md`: 現在のステータスと次のアクション
+- `coding_standards.md`: コーディング規約
+- `WORK_LOG_YYYY-MM-DD.md`: 最新の日次作業ログ（古いものはarchive/）
+
+**System Design**:
+- `architecture.md`: システムアーキテクチャ
+- `CONTEXT_ENGINEERING_ANALYSIS.md`: Context Engineering分析
+- `glossary.md`: 用語集
+
+**Feature Guides**:
+- `MCP_SETUP_GUIDE.md`: MCP統合ガイド
+- `MEMORY_MANAGEMENT_GUIDE.md`: メモリシステムガイド
+- `OAUTH2_TESTING_GUIDE.md`: OAuth2テストガイド
+- `github_actions_setup.md`: CI/CD設定
+
+**Project Status**:
+- `RFC_STATUS.md`: 全RFCステータス
+- `USE_CASES_AND_FUTURE.md`: ユースケースと将来計画
+- `EXAMPLES_HEALTH_CHECK_*.md`: Examplesヘルスチェック
+
+### Subdirectories
+
+**`rfcs/`** - RFC Specifications:
+- Main RFC documents (permanent): `RFC_XXX_TITLE.md`
+- 23 RFCs total (RFC-001～025, RFC-171)
+- Completed RFCs keep main document for reference
+
+**`archive/`** - Archived Documents (NEW in v2.5.0):
+- `completed/`: Phase PLANs/RESULTs after PR merge (14 files)
+- `old_versions/`: Old version docs (5 files)
+- `work_logs/`: Historical work logs (3 files)
+
+**`analysis/`** - Strategic Analysis:
+- Code execution plans
+- Feature analysis reports
+- Strategic development plans
+
+**`suggestions/`** - Technical Proposals:
+- Claude's technical suggestions
+- Improvement proposals
+
+**`fixes/`** - Bug Fix Records:
+- Detailed bug fix documentation
+- Root cause analysis
+
+---
+
+## 🗂️ File Lifecycle
+
+### RFC Documents
+
+1. **RFC Creation**: `rfcs/RFC_XXX_TITLE.md` (permanent)
+2. **Phase Planning**: `rfcs/RFC_XXX_PHASEXX_PLAN.md` (during development)
+3. **Implementation**: Development happens
+4. **Results**: `rfcs/RFC_XXX_PHASEXX_RESULTS.md` (after completion)
+5. **Archive**: Move PLAN/RESULT to `archive/completed/` (PR merged)
+6. **Keep**: Main RFC_XXX.md stays in `rfcs/` (reference)
+
+### Work Logs
+
+1. **Daily**: Create `WORK_LOG_YYYY-MM-DD.md` in root
+2. **Weekly/Monthly**: Move old logs to `archive/work_logs/`
+3. **Keep**: Latest log only in root
+
+### Version Documents
+
+1. **Planning**: `NEXT_PLAN_vX.X.X.md` during development
+2. **Release**: Version released
+3. **Archive**: Move to `archive/old_versions/`
+4. **Update**: UNIFIED_ROADMAP.md and NEXT_STEPS.md
+
+---
+
+## 🔧 Maintenance Rules
+
+### Archive Policy
+
+**Archive after PR merge**:
+- ✅ RFC_XXX_PHASEXX_PLAN.md → archive/completed/
+- ✅ RFC_XXX_PHASEXX_RESULTS.md → archive/completed/
+- ❌ RFC_XXX.md (main spec) → Keep in rfcs/
+
+**Archive after version release**:
+- ✅ NEXT_PLAN_vX.X.X.md → archive/old_versions/
+- ✅ vX.X.X_EXPLANATION.md → archive/old_versions/
+
+**Archive monthly**:
+- ✅ Old WORK_LOGs → archive/work_logs/
+- Keep latest in root
+
+### What to Keep in Root
+
+**Essential Only** (～15 files):
+- Core guides (README, ROADMAP, NEXT_STEPS, standards)
+- System design (architecture, glossary, analysis)
+- Feature guides (MCP, Memory, OAuth2)
+- Latest work log
+- Project status files
+
+---
+
+## 📊 Current Status (v2.5.0)
+
+**Root Files**: 26 files (after archive: ~15)
+**RFCs**: 32 files → 23 main RFCs + archive/
+**Total Docs**: 70+ markdown files
+**Archive**: 22 files moved (14 completed + 5 old versions + 3 work logs)
+
+---
+
+**Maintained by**: Claude Code + Human developers
+**Last Updated**: 2025-10-15 (v2.5.0 release)
