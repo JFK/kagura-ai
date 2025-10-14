@@ -11,6 +11,10 @@
         <link rel="canonical" href="https://www.kagura-ai.com/en/tutorials/12-workflows/">
       
       
+        <link rel="prev" href="../11-tools/">
+      
+      
+        <link rel="next" href="../13-agent-builder/">
       
       
       <link rel="icon" href="../../../assets/kagura-icon.svg">
@@ -18,7 +22,7 @@
     
     
       
-        <title>Workflows Tutorial - Kagura AI Documentation</title>
+        <title>Workflows - Kagura AI Documentation</title>
       
     
     
@@ -105,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Workflows Tutorial
+              Workflows
             
           </span>
         </div>
@@ -310,18 +314,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -337,7 +343,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Tutorials
@@ -528,6 +534,511 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-agent-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-chat-repl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat REPL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-are-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      What are Workflows?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Workflow
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workflow Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-sequential-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Sequential Execution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-parallel-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Parallel Execution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-conditional-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Conditional Logic
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Error Handling
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow Registry
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-document-processing-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 1: Document Processing Workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-customer-support-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 2: Customer Support Workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-data-analysis-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 3: Data Analysis Workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-4-content-creation-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 4: Content Creation Workflow
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-agents-and-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration with Agents and Tools
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration with Agents and Tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#combining-agents-and-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combining Agents and Tools
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-clear-workflow-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Clear Workflow Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-error-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Error Recovery
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-progress-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Progress Tracking
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-modular-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Modular Design
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflow-not-found-in-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow not found in registry
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-name-conflicts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow name conflicts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#asyncawait-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Async/await issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Further Reading
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-agent-builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-multimodal-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multimodal RAG
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -632,6 +1143,167 @@
   
   <span class="md-ellipsis">
     Meta Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/chat-multimodal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat Multimodal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/web-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Web Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/full-featured-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Full-Featured Mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/context-compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/hooks-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hooks Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance-caching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance - Caching
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance-parallelization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance - Parallelization
     
   </span>
   
@@ -901,12 +1573,219 @@
   
   
     <li class="md-nav__item">
+      <a href="../../api/routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../api/commands/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Custom Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hooks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
     
   </span>
   

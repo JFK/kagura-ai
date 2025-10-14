@@ -11,6 +11,10 @@
         <link rel="canonical" href="https://www.kagura-ai.com/en/tutorials/13-multimodal-rag/">
       
       
+        <link rel="prev" href="../13-agent-builder/">
+      
+      
+        <link rel="next" href="../14-testing/">
       
       
       <link rel="icon" href="../../../assets/kagura-icon.svg">
@@ -18,7 +22,7 @@
     
     
       
-        <title>Tutorial 13: Multimodal RAG - Search Images, Audio, Videos & PDFs - Kagura AI Documentation</title>
+        <title>Multimodal RAG - Kagura AI Documentation</title>
       
     
     
@@ -105,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tutorial 13: Multimodal RAG - Search Images, Audio, Videos &amp; PDFs
+              Multimodal RAG
             
           </span>
         </div>
@@ -310,18 +314,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -337,7 +343,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Tutorials
@@ -528,6 +534,661 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-agent-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-chat-repl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat REPL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-agent-builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Multimodal RAG
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multimodal RAG
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-multimodal-rag" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Multimodal RAG?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-set-up-your-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Set Up Your Environment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-prepare-your-content-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Prepare Your Content Directory
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-create-your-first-rag-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Create Your First RAG Agent
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-run-your-rag-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Run Your RAG Agent
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-behind-the-scenes" class="md-nav__link">
+    <span class="md-ellipsis">
+      How It Works: Behind the Scenes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How It Works: Behind the Scenes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#index-building" class="md-nav__link">
+    <span class="md-ellipsis">
+      Index Building
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query Time
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-advanced-usage-manual-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: Advanced Usage - Manual Search
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-building-the-index-explicitly" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 6: Building the Index Explicitly
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-7-search-by-file-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 7: Search by File Type
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-8-incremental-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 8: Incremental Updates
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rag-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      RAG Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multimodalrag-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      MultimodalRAG Options
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-9-gitignore-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 9: Gitignore Support
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example-documentation-assistant" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Example: Documentation Assistant
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Cases
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use Cases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-technical-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Technical Documentation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-meeting-notes-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Meeting Notes Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-design-system-assistant" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Design System Assistant
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Tips
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Tips">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-cache-sizing" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Cache Sizing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-concurrency-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Concurrency Control
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-incremental-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Incremental Updates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-google-api-key-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: "Google API key not found"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-importerror-no-module-named-chromadb" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: "ImportError: No module named 'chromadb'"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-index-build-is-slow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: Index build is slow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-out-of-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: Out of memory
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-concepts-learned" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Concepts Learned
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Concepts Learned">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-multimodal-rag" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Multimodal RAG
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-agent-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. @agent Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-directory-scanning" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Directory Scanning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-caching-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Caching &amp; Performance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice-exercises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Practice Exercises
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practice Exercises">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exercise-1-image-search-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exercise 1: Image Search Agent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exercise-2-code-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exercise 2: Code Documentation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exercise-3-meeting-minutes-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exercise 3: Meeting Minutes Bot
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -632,6 +1293,167 @@
   
   <span class="md-ellipsis">
     Meta Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/chat-multimodal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat Multimodal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/web-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Web Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/full-featured-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Full-Featured Mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/context-compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/hooks-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hooks Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance-caching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance - Caching
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance-parallelization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance - Parallelization
     
   </span>
   
@@ -901,12 +1723,219 @@
   
   
     <li class="md-nav__item">
+      <a href="../../api/routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../api/commands/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Custom Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hooks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
     
   </span>
   
@@ -1558,7 +2587,7 @@
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
 <li>Python 3.11 or higher</li>
-<li>Kagura AI installed with multimodal support: <code>pip install kagura-ai[multimodal]</code></li>
+<li>Kagura AI installed with web support: <code>pip install kagura-ai[web]</code></li>
 <li>Google API key (for Gemini API)</li>
 <li>ChromaDB installed (included with multimodal extra)</li>
 </ul>
@@ -1586,13 +2615,13 @@
 <p>Set your Google API key (required for processing multimodal content):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">GOOGLE_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-gemini-api-key&quot;</span>
 </code></pre></div>
-<p>Install Kagura AI with multimodal support:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>multimodal<span class="o">]</span>
+<p>Install Kagura AI with web support (includes multimodal features):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>web<span class="o">]</span>
 </code></pre></div>
 <p>This installs:
 - <code>google-generativeai</code> - For Gemini API (multimodal processing)
-- <code>chromadb</code> - Vector database for semantic search
-- <code>python-frontmatter</code> - For markdown with metadata</p>
+- <code>chromadb</code> - Vector database for semantic search (included in <code>ai</code> extra)
+- <code>pillow</code> - Image processing</p>
 <h2 id="step-2-prepare-your-content-directory">Step 2: Prepare Your Content Directory</h2>
 <p>Create a project directory with mixed content:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>mkdir<span class="w"> </span>my_project
@@ -1879,8 +2908,8 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">GOOGLE_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span>
 </code></pre></div></p>
 <h3 id="issue-importerror-no-module-named-chromadb">Issue: "ImportError: No module named 'chromadb'"</h3>
-<p><strong>Solution:</strong> Install with multimodal support:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>multimodal<span class="o">]</span>
+<p><strong>Solution:</strong> Install with web support (includes multimodal):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>web<span class="o">]</span>
 </code></pre></div></p>
 <h3 id="issue-index-build-is-slow">Issue: Index build is slow</h3>
 <p><strong>Solutions:</strong>

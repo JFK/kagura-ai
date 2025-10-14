@@ -11,6 +11,10 @@
         <link rel="canonical" href="https://www.kagura-ai.com/en/tutorials/14-testing/">
       
       
+        <link rel="prev" href="../13-multimodal-rag/">
+      
+      
+        <link rel="next" href="../15-observability/">
       
       
       <link rel="icon" href="../../../assets/kagura-icon.svg">
@@ -18,7 +22,7 @@
     
     
       
-        <title>Tutorial 14: Agent Testing - Kagura AI Documentation</title>
+        <title>Testing - Kagura AI Documentation</title>
       
     
     
@@ -105,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tutorial 14: Agent Testing
+              Testing
             
           </span>
         </div>
@@ -310,18 +314,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -337,7 +343,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Tutorials
@@ -528,6 +534,700 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-agent-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-chat-repl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat REPL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-agent-builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-multimodal-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multimodal RAG
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-challenge-of-testing-ai-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Challenge of Testing AI Agents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-basic-test-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Basic Test Setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-content-assertions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Content Assertions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Content Assertions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assert_contains" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_contains
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assert_contains_any" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_contains_any
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assert_not_contains" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_not_contains
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assert_matches_pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_matches_pattern
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-language-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Language Detection
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-llm-behavior-assertions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: LLM Behavior Assertions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 4: LLM Behavior Assertions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assert_llm_calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_llm_calls
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assert_token_usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_token_usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assert_tool_calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_tool_calls
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-performance-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: Performance Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 5: Performance Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-execution-duration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Execution Duration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-cost-budget" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Cost Budget
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-mocking-llm-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 6: Mocking LLM Responses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 6: Mocking LLM Responses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#use-case-test-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case: Test Error Handling
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-7-structured-output-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 7: Structured Output Testing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-8-mocking-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 8: Mocking Tools
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example-comprehensive-test-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Example: Comprehensive Test Suite
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-test-patterns-not-exact-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Test Patterns, Not Exact Text
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-use-mocks-for-fast-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Use Mocks for Fast Tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-test-edge-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Test Edge Cases
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-parametrize-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Parametrize Tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-testing-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Testing Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Testing Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-golden-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pattern 1: Golden Test
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-regression-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pattern 2: Regression Test
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-3-integration-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pattern 3: Integration Test
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-mistakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Mistakes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Mistakes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-testing-exact-llm-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Testing Exact LLM Output
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-not-using-mocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Not Using Mocks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-missing-pytestmarkasyncio" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Missing @pytest.mark.asyncio
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice-exercises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Practice Exercises
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practice Exercises">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exercise-1-test-translation-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exercise 1: Test Translation Agent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exercise-2-test-with-multiple-assertions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exercise 2: Test with Multiple Assertions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exercise-3-mock-tool-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exercise 3: Mock Tool Testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-concepts-learned" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Concepts Learned
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Concepts Learned">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-non-deterministic-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Non-Deterministic Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-llm-behavior-assertions" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. LLM Behavior Assertions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mocking-for-determinism" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Mocking for Determinism
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-performance-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Performance Testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -632,6 +1332,167 @@
   
   <span class="md-ellipsis">
     Meta Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/chat-multimodal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat Multimodal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/web-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Web Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/full-featured-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Full-Featured Mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/context-compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/hooks-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hooks Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance-caching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance - Caching
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance-parallelization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance - Parallelization
     
   </span>
   
@@ -901,12 +1762,219 @@
   
   
     <li class="md-nav__item">
+      <a href="../../api/routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../api/commands/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Custom Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hooks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
     
   </span>
   

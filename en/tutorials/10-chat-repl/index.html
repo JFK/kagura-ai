@@ -11,6 +11,10 @@
         <link rel="canonical" href="https://www.kagura-ai.com/en/tutorials/10-chat-repl/">
       
       
+        <link rel="prev" href="../09-agent-routing/">
+      
+      
+        <link rel="next" href="../11-tools/">
       
       
       <link rel="icon" href="../../../assets/kagura-icon.svg">
@@ -18,7 +22,7 @@
     
     
       
-        <title>Chat REPL Tutorial - Kagura AI Documentation</title>
+        <title>Chat REPL - Kagura AI Documentation</title>
       
     
     
@@ -105,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Chat REPL Tutorial
+              Chat REPL
             
           </span>
         </div>
@@ -310,18 +314,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -337,7 +343,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Tutorials
@@ -528,6 +534,406 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-agent-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Chat REPL
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat REPL
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#starting-chat-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      Starting Chat Session
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#basic-conversation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Conversation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preset-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preset Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Preset Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#translation-translate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Translation (/translate)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summarization-summarize" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summarization (/summarize)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-review-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Review (/review)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#command-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Reference
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips-tricks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tips &amp; Tricks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tips &amp; Tricks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-paste-code-directly" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Paste Code Directly
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Workflows
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#learning-a-new-concept" class="md-nav__link">
+    <span class="md-ellipsis">
+      Learning a New Concept
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slow-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Slow responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      Session not found
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Further Reading
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-agent-builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-multimodal-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multimodal RAG
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -632,6 +1038,167 @@
   
   <span class="md-ellipsis">
     Meta Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/chat-multimodal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat Multimodal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/web-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Web Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/full-featured-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Full-Featured Mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/context-compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/hooks-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hooks Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance-caching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance - Caching
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance-parallelization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance - Parallelization
     
   </span>
   
@@ -901,12 +1468,219 @@
   
   
     <li class="md-nav__item">
+      <a href="../../api/routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../api/commands/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Custom Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hooks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
     
   </span>
   

@@ -11,6 +11,10 @@
         <link rel="canonical" href="https://www.kagura-ai.com/en/tutorials/09-agent-routing/">
       
       
+        <link rel="prev" href="../08-memory-management/">
+      
+      
+        <link rel="next" href="../10-chat-repl/">
       
       
       <link rel="icon" href="../../../assets/kagura-icon.svg">
@@ -18,7 +22,7 @@
     
     
       
-        <title>Agent Routing Tutorial - Kagura AI Documentation</title>
+        <title>Agent Routing - Kagura AI Documentation</title>
       
     
     
@@ -105,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Agent Routing Tutorial
+              Agent Routing
             
           </span>
         </div>
@@ -310,18 +314,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -337,7 +343,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Tutorials
@@ -528,6 +534,649 @@
 
               
             
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-agent-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Agent Routing?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-install-kagura-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Install Kagura AI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-define-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Define Agents
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-create-router" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Create Router
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-use-automatic-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Use Automatic Routing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Usage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Basic Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#registering-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Registering Agents
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#routing-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Routing Requests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confidence-threshold" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confidence Threshold
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fallback-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fallback Agent
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multilingual-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multilingual Support
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checking-matched-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Checking Matched Agents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#semantic-routing-advanced" class="md-nav__link">
+    <span class="md-ellipsis">
+      Semantic Routing (Advanced)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Semantic Routing (Advanced)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#basic-usage_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benefits-of-semantic-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits of Semantic Routing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#intent-vs-semantic-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Intent vs Semantic Comparison
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Practical Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practical Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-customer-support-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 1: Customer Support Bot
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-development-assistant" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 2: Development Assistant
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-educational-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 3: Educational Platform
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Agents
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Managing Agents">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-registered-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      List Registered Agents
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-agent-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get Agent Information
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#no-agent-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      No Agent Found
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-fallback-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      With Fallback (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-use-specific-intent-keywords" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Use Specific Intent Keywords
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-provide-agent-descriptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Provide Agent Descriptions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-test-edge-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Test Edge Cases
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-monitor-confidence-scores" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Monitor Confidence Scores
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-always-use-fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Always Use Fallback
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-not-being-selected" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agent Not Being Selected
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fallback-always-used" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fallback Always Used
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-agents-match" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiple Agents Match
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-chat-repl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat REPL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-agent-builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-multimodal-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multimodal RAG
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -632,6 +1281,167 @@
   
   <span class="md-ellipsis">
     Meta Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/chat-multimodal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat Multimodal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/web-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Web Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/full-featured-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Full-Featured Mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/context-compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/hooks-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hooks Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance-caching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance - Caching
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance-parallelization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance - Parallelization
     
   </span>
   
@@ -901,12 +1711,219 @@
   
   
     <li class="md-nav__item">
+      <a href="../../api/routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../api/commands/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Custom Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hooks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Builder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
     
   </span>
   
@@ -1705,7 +2722,7 @@
 <h2 id="semantic-routing-advanced">Semantic Routing (Advanced)</h2>
 <p>Semantic routing uses embedding-based similarity matching for more intelligent routing. Instead of keyword matching, it understands the <strong>meaning</strong> of user queries.</p>
 <h3 id="installation">Installation</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>routing<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>ai<span class="o">]</span>
 </code></pre></div>
 <h3 id="basic-usage_1">Basic Usage</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
