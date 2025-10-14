@@ -3,8 +3,10 @@
 from typing import Awaitable, Callable, Optional, ParamSpec, TypeVar, overload
 
 from . import workflow as workflow_module
+from .cache import LLMCache
 from .decorators import agent, tool
 from .decorators import workflow as workflow_decorator
+from .llm import get_llm_cache, set_llm_cache
 from .registry import AgentRegistry, agent_registry
 from .tool_registry import ToolRegistry, tool_registry
 from .workflow_registry import WorkflowRegistry, workflow_registry
@@ -55,4 +57,8 @@ __all__ = [
     "ToolRegistry",
     "workflow_registry",
     "WorkflowRegistry",
+    # LLM Cache
+    "LLMCache",
+    "get_llm_cache",
+    "set_llm_cache",
 ]
