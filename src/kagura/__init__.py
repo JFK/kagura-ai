@@ -13,8 +13,10 @@ Example:
 """
 
 from .builder import AgentBuilder
+from .core.cache import LLMCache
 from .core.compression import CompressionPolicy, ContextManager
 from .core.decorators import agent, tool, workflow
+from .core.llm import LLMConfig, get_llm_cache, set_llm_cache
 from .core.memory import MemoryManager
 from .presets import ChatbotPreset, CodeReviewPreset, ResearchPreset
 from .version import __version__
@@ -30,5 +32,9 @@ __all__ = [
     "CompressionPolicy",
     "ContextManager",
     "MemoryManager",
+    "LLMConfig",
+    "LLMCache",
+    "get_llm_cache",
+    "set_llm_cache",
     "__version__",
 ]
