@@ -229,7 +229,7 @@ for task in project.tasks:
 
 ## Use in Claude Desktop
 
-**New in v2.1.0**: Integrate your Kagura agents with Claude Desktop!
+Integrate your Kagura agents with Claude Desktop!
 
 ### 1. Install MCP Support
 

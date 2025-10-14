@@ -47,7 +47,7 @@ kagura version
 
 **Output:**
 ```
-Kagura AI v2.0.0-alpha.1
+Kagura AI v2.5.0
 ```
 
 ### kagura repl
@@ -516,7 +516,7 @@ If REPL becomes slow or unresponsive:
 
 ## Custom Commands
 
-**New in v2.0.2**: Run custom commands defined in Markdown files.
+Run custom commands defined in Markdown files.
 
 ### kagura run
 
@@ -697,7 +697,7 @@ Tip: Create the directory with:
 
 ## MCP Commands
 
-**New in v2.1.0**: MCP (Model Context Protocol) commands for Claude Desktop integration.
+MCP (Model Context Protocol) commands for Claude Desktop integration.
 
 ### kagura mcp
 

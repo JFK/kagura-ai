@@ -167,7 +167,7 @@ Would you like me to also update the frontend to handle token refresh?
 Install both multimodal and web dependencies:
 
 ```bash
-pip install kagura-ai[multimodal,web]
+pip install kagura-ai[web]
 ```
 
 Or install all extras at once:

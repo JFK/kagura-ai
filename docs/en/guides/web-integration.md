@@ -205,7 +205,7 @@ Kagura respects robots.txt by default:
 ```python
 scraper = WebScraper(
     respect_robots_txt=True,  # Default: True
-    user_agent="KaguraAI/2.3.0",
+    user_agent="KaguraAI/2.5.0",
     rate_limit_delay=1.0  # Delay between requests (seconds)
 )
 ```
@@ -343,7 +343,7 @@ else:
 
 # Configure scraper
 scraper = WebScraper(
-    user_agent=os.getenv("USER_AGENT", "KaguraAI/2.3.0"),
+    user_agent=os.getenv("USER_AGENT", "KaguraAI/2.5.0"),
     respect_robots_txt=True,
     rate_limit_delay=float(os.getenv("WEB_RATE_LIMIT", "1.0"))
 )

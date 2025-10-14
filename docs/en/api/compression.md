@@ -353,7 +353,7 @@ class ModelNotSupportedError(CompressionError)
 Install with compression support:
 
 ```bash
-pip install kagura-ai[compression]
+pip install kagura-ai[ai]
 
 # Or install all features
 pip install kagura-ai[all]

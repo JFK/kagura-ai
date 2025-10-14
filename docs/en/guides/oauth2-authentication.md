@@ -32,7 +32,7 @@ Kagura AI supports OAuth2 authentication for **Google services only**, allowing 
 3. **Kagura AI with OAuth support** installed:
 
 ```bash
-pip install kagura-ai[oauth]
+pip install kagura-ai[auth]
 ```
 
 ## Setup Guide
