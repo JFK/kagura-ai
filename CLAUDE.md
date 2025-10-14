@@ -151,7 +151,8 @@ docs(api): update agent decorator documentation (#30)
 5. **対象Issueの内容**（完全理解）
 
 **RFC参照**:
-- `ai_docs/rfcs/RFC_*.md` - 各機能の詳細仕様（002-018）
+- `ai_docs/rfcs/RFC_*.md` - 各機能の詳細仕様（RFC-001〜024）
+- **最新**: RFC-024（Context Compression）- 🔥🔥🔥 Critical
 
 ### 絶対に変更してはいけないパス
 
@@ -285,9 +286,59 @@ async def test_async_function():
 
 ---
 
-## 🔄 5. 作業フロー（Issue駆動開発）
+## 🔄 5. 作業フロー（Issue駆動開発）⭐️ 重要
 
-### Phase 0: 準備
+### ⚠️ **必須**: GitHub Issue駆動開発
+
+**すべての開発作業は、必ずGitHub Issueから開始すること。**
+
+このプロジェクトでは、以下の厳格なフローに従います：
+
+```
+1. 計画・調査
+   ↓
+2. 要件整理・定義（RFC作成）
+   ↓
+3. 仕様準備（Implementation Plan作成）
+   ↓
+4. GitHub Issue作成 ← 必須！
+   ↓
+5. 開発開始（Issue番号必須）
+```
+
+**参考**: [Issue駆動AI開発](https://qiita.com/kiyotaman/items/70af26501e10036cb117)
+
+### Issue作成の3原則
+
+#### 1. **Output Contract（成果物契約）**
+Issueには以下を明記：
+- 実装ファイル一覧
+- テスト数・カバレッジ目標
+- ドキュメント要件
+- 作業ログ要件
+
+#### 2. **Scope Boundary（スコープ境界）**
+変更可能/禁止パスを明確に：
+```markdown
+## スコープ
+
+### 変更可能
+- `src/kagura/core/compression/` - 新規実装
+- `tests/core/compression/` - テスト
+
+### 変更禁止
+- `src/kagura_legacy/` - レガシーコード
+- `examples/` - サンプル（Phase 4まで）
+```
+
+#### 3. **Safety Mechanism（安全機構）**
+- Draft PRから開始
+- 大きな変更は複数Issueに分割
+- 重要な変更は事前承認を得る
+
+### Phase 0: 計画・要件定義（必須）
+
+**⚠️ 実装前に必ず実施すること**
 
 1. **ドキュメント確認**（必須）
    ```bash
@@ -298,14 +349,38 @@ async def test_async_function():
    cat ai_docs/coding_standards.md
    ```
 
-2. **Issue内容の完全理解**
-   - 対象Issue番号を確認
-   - 完了条件を明確化
-   - スコープ境界を確認
+2. **RFC作成**（中規模以上の機能）
+   - `ai_docs/rfcs/RFC_XXX_TITLE.md` を作成
+   - 問題定義、解決策、実装計画を記載
+   - Phase分割（Phase 1, 2, 3...）
+   - 成功指標明記
 
-3. **現在のPhase確認**
-   - `ai_docs/UNIFIED_ROADMAP.md`で現在のPhaseを確認
-   - v2.0.0, v2.1.0等、どのバージョンか把握
+3. **Implementation Plan作成**（各Phase）
+   - `ai_docs/rfcs/RFC_XXX_PHASEXX_PLAN.md` を作成
+   - Day-by-dayのタスク分解
+   - 実装コード例
+   - テスト計画
+   - ドキュメント構成
+
+4. **GitHub Issue作成**（必須）
+   - RFC・Implementation Planへのリンク
+   - 完了条件明記
+   - スコープ境界明記
+   - 優先度設定
+
+5. **Issue番号確認**
+   - 対象Issue番号を必ず控える
+   - ブランチ名・コミットメッセージにIssue番号を含める
+
+### Phase 0.5: 現在の状況確認
+
+1. **現在のPhase確認**
+   - `ai_docs/UNIFIED_ROADMAP.md`で現在のバージョンを確認
+   - `ai_docs/NEXT_STEPS.md`で直近の状況を確認
+
+2. **依存関係確認**
+   - 他のRFC/Issueとの依存関係
+   - 前提条件が満たされているか
 
 ### Phase 1: 実装
 
@@ -545,19 +620,161 @@ A: モック、フィクスチャを活用。外部API呼び出しは必ずモ�
 A: Phase 4（v2.0.0統合・テスト段階）で一括更新。今は `ai_docs/` のみ更新。
 
 ### Q: RFCの優先順位は？
-A: `ai_docs/UNIFIED_ROADMAP.md` を参照。
-- Very High: RFC-007（MCP Integration）
-- High: RFC-006, 012, 014, 016（Agent Routing）, 017（Shell Integration）, 018（Memory Management）
-- その他は Medium
+A: `ai_docs/UNIFIED_ROADMAP.md` と `ai_docs/NEXT_PLAN_v2.5.0.md` を参照。
+
+**現在（v2.5.0）の最優先**:
+- 🔥🔥🔥 **Critical**: RFC-024（Context Compression）← Production必須
+- ⭐️ High: RFC-005 Phase 3（Self-Improving Agent）
+- ⭐️ High: RFC-010拡張（Deep Observability）
+
+**完了済み（16個）**:
+- RFC-001, 002, 006, 007, 012, 013, 014, 016, 017, 018, 019, 020, 021, 022
+- RFC-005 Phase 1 & 2
+
+**未実装**:
+- RFC-003（Personal Assistant）- RFC-024後に実装可能
+- RFC-004（Voice Interface）
+- RFC-008（Plugin Marketplace）
+- RFC-009（Multi-Agent Orchestration）
+- RFC-010拡張, RFC-011, RFC-015
+
+---
+
+---
+
+## 🎓 7. Context Engineering ベストプラクティス
+
+### 概要
+
+Kagura AIは**LangChain Context Engineering**のベストプラクティスに従います。
+
+**4つの戦略**:
+1. **Write Context**: コンテキストウィンドウ外に情報保存
+2. **Select Context**: 関連情報を動的に選択・取得
+3. **Compress Context**: トークン使用量削減
+4. **Isolate Context**: コンテキストの分離
+
+**参考**: [Context Engineering Analysis](./ai_docs/CONTEXT_ENGINEERING_ANALYSIS.md)
+
+### 実装状況（2025-10-14現在）
+
+| 戦略 | 実装状況 | 主要機能 |
+|------|---------|---------|
+| Write Context | ⭐️⭐️⭐️⭐️ (80%) | MemoryManager（3層）、MemoryRAG |
+| Select Context | ⭐️⭐️⭐️ (60%) | RAG検索、Memory-Aware Routing |
+| **Compress Context** | ⭐️ (20%) | **RFC-024 Phase 1実装中** |
+| Isolate Context | ⭐️⭐️⭐️ (50%) | Multi-agent基盤、Stateful Workflows |
+
+### 必須遵守事項
+
+#### 1. Context Compression（RFC-024）
+
+**Phase 1（完了）**: Token Management
+```python
+from kagura.core.compression import TokenCounter, ContextMonitor
+
+counter = TokenCounter(model="gpt-4o-mini")
+monitor = ContextMonitor(counter, max_tokens=10000)
+
+# 使用量を監視
+usage = monitor.check_usage(messages)
+if usage.should_compress:
+    # Phase 2以降: 圧縮実行
+    pass
+```
+
+**Phase 2-4（実装予定）**: Trimming, Summarization, Integration
+
+#### 2. Memory Management（RFC-018）
+
+```python
+# ✅ Good: 明示的なメモリスコープ
+@agent(enable_memory=True, memory_scope="session")
+async def assistant(query: str, memory: MemoryManager) -> str:
+    user_prefs = await memory.recall("preferences")
+    # ...
+
+# ❌ Bad: グローバルメモリ
+global_memory = MemoryManager()  # Don't do this
+```
+
+#### 3. RAG Retrieval（RFC-018）
+
+```python
+# ✅ Good: 適切なk値とフィルタリング
+rag = MemoryRAG(agent_name="assistant")
+results = await rag.recall_semantic(
+    query,
+    k=5,  # 適切な数
+    filter={"type": "technical_doc"}
+)
+
+# ❌ Bad: 全件取得
+results = await rag.recall_semantic(query, k=1000)  # Too many
+```
+
+#### 4. Context Isolation
+
+```python
+# ✅ Good: ステートベースのワークフロー
+@workflow.stateful
+async def pipeline(state: WorkflowState) -> WorkflowState:
+    # Each step operates on isolated state
+    pass
+
+# ✅ Good: Multi-agent with isolated contexts
+from kagura import Team
+team = Team("data-pipeline")
+team.add_agent(collector)  # Isolated context
+team.add_agent(analyzer)   # Isolated context
+```
+
+### Context Compression のベストプラクティス（Phase 2以降）
+
+**実装後の推奨パターン**:
+```python
+@agent(
+    enable_memory=True,
+    compression_policy=CompressionPolicy(
+        strategy="smart",  # Preserve key events
+        max_tokens=4000,
+        trigger_threshold=0.8  # Compress at 80%
+    )
+)
+async def assistant(query: str, memory: MemoryManager) -> str:
+    # Compression is automatic
+    pass
+```
+
+**避けるべきパターン**:
+```python
+# ❌ Bad: 圧縮なし
+@agent(enable_memory=True, enable_compression=False)  # Will hit limits
+
+# ❌ Bad: 不適切な閾値
+compression_policy=CompressionPolicy(
+    trigger_threshold=0.95  # Too late!
+)
+```
 
 ---
 
 ## 📚 参考リンク
 
+### 必須ドキュメント
 - [ai_docs/README.md](./ai_docs/README.md) - AI開発ガイド
 - [ai_docs/UNIFIED_ROADMAP.md](./ai_docs/UNIFIED_ROADMAP.md) - 統合ロードマップ
 - [ai_docs/NEXT_STEPS.md](./ai_docs/NEXT_STEPS.md) - 次のアクション
+- [ai_docs/NEXT_PLAN_v2.5.0.md](./ai_docs/NEXT_PLAN_v2.5.0.md) - v2.5.0計画
 - [ai_docs/coding_standards.md](./ai_docs/coding_standards.md) - コーディング規約
+
+### Context Engineering
+- [CONTEXT_ENGINEERING_ANALYSIS.md](./ai_docs/CONTEXT_ENGINEERING_ANALYSIS.md) - LangChain分析
+- [RFC-024](./ai_docs/rfcs/RFC_024_CONTEXT_COMPRESSION.md) - Context Compression仕様
+- [LangChain Blog: Context Engineering](https://blog.langchain.com/context-engineering-for-agents/)
+
+### Issue駆動開発
+- [Issue駆動AI開発（Qiita）](https://qiita.com/kiyotaman/items/70af26501e10036cb117)
 - [.github/ISSUE_TEMPLATE/](./github/ISSUE_TEMPLATE/) - Issueテンプレート
 
 ---
