@@ -18,7 +18,18 @@ from .core.compression import CompressionPolicy, ContextManager
 from .core.decorators import agent, tool, workflow
 from .core.llm import LLMConfig, get_llm_cache, set_llm_cache
 from .core.memory import MemoryManager
-from .presets import ChatbotPreset, CodeReviewPreset, ResearchPreset
+from .presets import (
+    ChatbotPreset,
+    CodeReviewPreset,
+    ContentWriterPreset,
+    DataAnalystPreset,
+    LearningTutorPreset,
+    PersonalAssistantPreset,
+    ProjectManagerPreset,
+    ResearchPreset,
+    TechnicalSupportPreset,
+    TranslatorPreset,
+)
 from .version import __version__
 
 __all__ = [
@@ -26,9 +37,17 @@ __all__ = [
     "tool",
     "workflow",
     "AgentBuilder",
+    # Presets
     "ChatbotPreset",
     "CodeReviewPreset",
     "ResearchPreset",
+    "TranslatorPreset",
+    "DataAnalystPreset",
+    "PersonalAssistantPreset",
+    "ContentWriterPreset",
+    "TechnicalSupportPreset",
+    "LearningTutorPreset",
+    "ProjectManagerPreset",
     "CompressionPolicy",
     "ContextManager",
     "MemoryManager",
