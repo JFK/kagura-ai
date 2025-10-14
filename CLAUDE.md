@@ -254,11 +254,20 @@ kagura-ai/
 ### テストコマンド
 
 ```bash
-# 全テスト実行
+# 並列実行（推奨 - 1000+テスト用、24.6%高速化）
+pytest -n auto
+
+# 並列実行（ユニットテストのみ）
+pytest -n auto -m "not integration"
+
+# シーケンシャル実行（デフォルト、デバッグ用）
 pytest
 
-# カバレッジ付き
-pytest --cov=src/kagura --cov-report=html
+# ワーカー数指定
+pytest -n 4
+
+# カバレッジ付き（並列）
+pytest -n auto --cov=src/kagura --cov-report=html
 
 # 特定モジュール
 pytest tests/core/
@@ -272,6 +281,70 @@ pyright src/kagura/
 # リント
 ruff check src/
 ```
+
+### 並列実行のベストプラクティス
+
+**推奨される使い方**:
+```bash
+# ✅ Good: フルテストスイート（1000+テスト）
+pytest -n auto
+
+# ✅ Good: CI/CD
+pytest -n auto --cov=src/kagura --cov-report=xml
+
+# ⚠️ 注意: 小規模テスト（<200テスト）は並列実行しない
+# オーバーヘッドで逆に遅くなる可能性
+pytest tests/commands/  # シーケンシャルの方が速い
+
+# ✅ Good: デバッグ時はシーケンシャル
+pytest -n 0  # または単に pytest
+```
+
+**パフォーマンス指標**（RFC-171より）:
+- Unit tests (1,170件): 41.9s → 31.6s（24.6%高速化）
+- Integration tests (42件): 3-7分 → 39.4s（85-90%高速化）
+- Full suite: 5-10分 → ~2分（60-80%削減）
+
+### モッキング戦略（RFC-171, RFC-022より）
+
+**LLM APIのモック**:
+```python
+# tests/test_example.py
+from kagura.testing.mocking import LLMMock
+
+@pytest.mark.asyncio
+async def test_agent_with_mock():
+    """LLM APIコールをモック化"""
+    with LLMMock("Mocked response"):
+        result = await my_agent("test query")
+        assert "Mocked response" in result
+```
+
+**Gemini APIのモック（統合テスト）**:
+```python
+# tests/integration/test_multimodal.py
+from unittest.mock import AsyncMock, MagicMock, patch
+
+@pytest.fixture(autouse=True)
+def mock_gemini_loader():
+    """自動的に全テストでGemini APIをモック化"""
+    mock_instance = MagicMock()
+    mock_instance.process_file = AsyncMock(return_value={
+        "content": "Mocked content",
+        "metadata": {}
+    })
+
+    # 全てのインポートパスをパッチ
+    with patch('kagura.loaders.gemini.GeminiLoader', return_value=mock_instance), \
+         patch('kagura.core.memory.multimodal_rag.GeminiLoader', return_value=mock_instance):
+        yield mock_instance
+```
+
+**モッキングのベストプラクティス**:
+- ✅ `autouse=True` で統合テスト全体をモック化
+- ✅ 全てのインポートパスをパッチ（複数のpatch）
+- ✅ AsyncMockを使用（非同期関数用）
+- ✅ 95%のモックカバレッジを目標に（RFC-171達成）
 
 ### テスト作成の必須条件
 
@@ -594,6 +667,48 @@ gh pr ready [PR番号]
 # レビュー後、Squash merge
 gh pr merge [PR番号] --squash
 ```
+
+---
+
+## 🔧 5.5. CI/CD設定（GitHub Actions）
+
+### 依存関係インストール
+
+**現在の正しいextras**（v2.5.0）:
+| Extra | 内容 |
+|-------|------|
+| `ai` | Memory + Routing + Context Compression |
+| `web` | Multimodal + Web scraping + Search |
+| `auth` | OAuth2 authentication |
+| `mcp` | Model Context Protocol |
+| `dev` | Testing & linting tools (pytest-xdist含む) |
+| `full` | All user-facing (ai + web + auth + mcp) |
+| `all` | Everything (full + dev + docs) |
+
+**GitHub Actions ワークフローでの推奨**:
+```yaml
+# ✅ Good: 全てのextrasをインストール
+- name: Install dependencies
+  env:
+    UV_HTTP_TIMEOUT: 60
+  run: |
+    uv sync --frozen --all-extras
+
+# ❌ Bad: 個別extras指定（存在しないextrasでエラー）
+- name: Install dependencies
+  run: |
+    uv sync --extra dev --extra memory --extra routing
+    # ↑ memory, routing extrasは存在しない（aiに統合済み）
+```
+
+**旧extrasと新extrasの対応**（RFC-173より）:
+| 旧（削除済み） | 新（v2.5.0） |
+|--------------|-------------|
+| `memory` | `ai` |
+| `routing` | `ai` |
+| `multimodal` | `web` |
+| `testing` | （削除、devに統合） |
+| `oauth` | `auth` |
 
 ---
 
