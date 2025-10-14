@@ -1,4 +1,4 @@
-# Kagura AI 2.0
+# Kagura AI v2.5.0
 
 ![Kagura AI Logo](https://www.kagura-ai.com/assets/kagura-logo.svg)
 
@@ -8,9 +8,9 @@
 [![Codecov](https://img.shields.io/codecov/c/github/JFK/kagura-ai)](https://codecov.io/gh/JFK/kagura-ai)
 [![Tests](https://img.shields.io/github/actions/workflow/status/JFK/kagura-ai/test.yml?label=tests)](https://github.com/JFK/kagura-ai/actions)
 
-**Python-First AI Agent Framework with Code Execution**
+**Production-Ready AI Agent Framework with Memory, Routing, and Multimodal RAG**
 
-Kagura AI 2.0 is a complete redesign focused on simplicity and developer experience. Convert any Python function into an AI agent with a single decorator.
+Kagura AI v2.5.0 is a production-ready framework focused on simplicity and developer experience. Convert any Python function into an AI agent with a single decorator, and leverage advanced features like memory management, intelligent routing, multimodal RAG, and context compression.
 
 ---
 
@@ -28,15 +28,18 @@ Kagura AI 2.0 is a complete redesign focused on simplicity and developer experie
 - **Chat REPL**: `kagura chat` with preset agents (translate, summarize, review) ⭐️ NEW
 - **Multi-LLM Support**: Works with OpenAI, Anthropic, Google, and more via [LiteLLM](https://github.com/BerriAI/litellm)
 
-### Advanced Features
-- **Multimodal RAG**: Index and search images, PDFs, audio, video using Gemini API + ChromaDB ⭐️ NEW in v2.3.0
-- **Web Integration**: Brave Search + DuckDuckGo + web scraping for real-time information ⭐️ NEW in v2.3.0
+### Advanced Features (v2.5.0)
+- **Memory Management**: Three-tier memory system (Context/Persistent/RAG) with ChromaDB for semantic search
+- **Agent Routing**: Intelligent routing with Intent/Semantic/Memory-Aware strategies
+- **Multimodal RAG**: Index and search images, PDFs, audio, video using Gemini API + ChromaDB
+- **Web Integration**: Brave Search + DuckDuckGo + web scraping for real-time information
+- **Context Compression**: Efficient token management for long conversations (RFC-024)
 - **MCP Integration**: Use Kagura agents directly in Claude Desktop via Model Context Protocol
-- **Shell Integration**: Secure shell command execution with Git automation (`commit`, `push`, `status`, `create_pr`)
-- **Memory Management**: Three-tier memory system (Working/Context/Persistent) + RAG with ChromaDB for semantic search
-- **Agent Routing**: Intelligent routing with Keyword/LLM/Semantic strategies
+- **Shell Integration**: Secure shell command execution with Git automation
 - **Custom Commands**: Define reusable AI tasks in Markdown files with YAML frontmatter
 - **Hooks System**: Intercept and modify command execution with PreToolUse/PostToolUse hooks
+- **Testing Framework**: Built-in testing utilities with semantic assertions and mocking
+- **Observability**: Telemetry, cost tracking, and performance monitoring
 
 ## 🚀 Quick Start
 
@@ -223,9 +226,19 @@ kagura run deploy --param env=production
 - [Examples](./examples/)
 - [Contributing Guide](./CONTRIBUTING.md)
 
+## 🎯 What's New in v2.5.0
+
+New features in v2.5.0:
+- **Context Compression**: Token counting and context window management (RFC-024 Phase 1)
+- **Memory-Aware Routing**: Intelligent routing with conversation context
+- **Testing Framework**: AgentTestCase with semantic assertions
+- **Observability**: Built-in telemetry and cost tracking
+- **Performance Optimizations**: Parallel test execution (pytest-xdist), caching improvements
+- **36 Comprehensive Examples**: Organized in 8 categories from basic to real-world applications
+
 ## 🎯 What's New in 2.0
 
-Kagura AI 2.0 is a **complete redesign** from 1.x:
+Kagura AI 2.0 was a **complete redesign** from 1.x:
 
 ### Before (1.x)
 ```yaml
