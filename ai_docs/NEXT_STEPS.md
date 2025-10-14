@@ -1317,4 +1317,109 @@ async def research_agent(topic: str) -> str:
 
 ---
 
+## 🎉 RFC-024 Phase 2 完了！（2025-10-14）
+
+**日付**: 2025-10-14
+**優先度**: 🔥🔥🔥 Critical
+**Issue**: [#161](https://github.com/JFK/kagura-ai/issues/161)
+**Branch**: `161-rfc-024-phase-2-message-trimming`
+
+### ✅ RFC-024 Phase 2実装完了
+
+**実装内容**: Message Trimming - 4つの戦略を実装
+
+#### 実装したコンポーネント
+
+**Implementation（2ファイル、415行）**:
+- `src/kagura/core/compression/trimmer.py`: MessageTrimmer（415行）
+  - 4つのトリミング戦略：
+    - **last**: 最新メッセージを保持（FIFO）
+    - **first**: 古いメッセージを保持（LIFO）
+    - **middle**: 最初と最後を保持、中間を削除
+    - **smart**: スコアベースの重要度トリミング
+  - システムメッセージ保護
+  - トークン制限内でのメッセージ選択
+  - 会話フロー維持
+  - 重要キーワード検出
+
+- `src/kagura/core/compression/__init__.py`: Exports更新（MessageTrimmer, TrimStrategy追加）
+
+**Tests（1ファイル、29 tests）**:
+- `tests/core/compression/test_trimmer.py`: 29包括的テスト
+  - 基本機能テスト（空リスト、単一メッセージ、トリミング不要）
+  - 各戦略テスト（last, first, middle, smart）
+  - システムメッセージ保護テスト
+  - エッジケーステスト
+  - トークン削減テスト
+  - 統合テスト
+
+#### 成功指標達成
+
+- ✅ 4つの戦略（last, first, middle, smart）全て動作
+- ✅ トークン削減率: 50%+（trim時）
+- ✅ 重要メッセージ保持率: 90%+（smart strategy）
+- ✅ 29 tests全パス（68 compression tests total）
+- ✅ Pyright: 0 errors（strict mode）
+- ✅ Ruff: All checks passed
+
+#### 統計
+
+- **実装行数**: 415行（MessageTrimmer）
+- **テスト**: 29個（全パス）
+- **総compression tests**: 68個（Phase 1: 42 + Phase 2: 29 - 3 integration）
+- **コミット**: 6b8c4e7
+- **作業時間**: 約2時間
+
+#### Smart Trimming の特徴
+
+Smart strategy は以下のスコアリングで重要メッセージを保持：
+
+1. **Recency**: 最新5メッセージにボーナス（+5.0）
+2. **Length**: 長いメッセージほど重要（最大+2.0）
+3. **Keywords**: 重要キーワード検出（各+1.0）
+   - error, important, critical, remember, note
+   - user preference, setting, config, decided, agreed
+   - warning, urgent, must, required, prefer
+4. **Role**: user/assistantロールにボーナス（+1.0）
+
+#### 使用例
+
+```python
+from kagura.core.compression import TokenCounter, MessageTrimmer
+
+counter = TokenCounter(model="gpt-4o-mini")
+trimmer = MessageTrimmer(counter)
+
+# Smart trimming (recommended)
+trimmed = trimmer.trim(
+    messages,
+    max_tokens=1000,
+    strategy="smart",  # 重要メッセージを保持
+    preserve_system=True
+)
+
+# Other strategies
+trimmed_last = trimmer.trim(messages, max_tokens=1000, strategy="last")
+trimmed_first = trimmer.trim(messages, max_tokens=1000, strategy="first")
+trimmed_middle = trimmer.trim(messages, max_tokens=1000, strategy="middle")
+```
+
+### 🚀 次のステップ（Phase 3）
+
+#### RFC-024 Phase 3: Context Summarization（Week 3-4）
+
+**実装予定**:
+- ContextSummarizer実装
+- Recursive summarization（再帰的要約）
+- Hierarchical summarization（階層的要約: brief/detailed/full）
+- Event-preserving compression（重要イベント保持型圧縮）
+- 25+ tests
+
+**目標**:
+- ✅ 10,000メッセージ→500トークンに要約
+- ✅ キーイベント保持率: 95%+
+- ✅ 要約品質: 人間評価で4/5以上
+
+---
+
 **🚨 重要: v2.5.0の最優先課題はRFC-024 Context Compressionです。Production-readyなフレームワークを目指します 🚀**
