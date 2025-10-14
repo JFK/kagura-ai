@@ -7,6 +7,7 @@ from .cache import LLMCache
 from .decorators import agent, tool
 from .decorators import workflow as workflow_decorator
 from .llm import get_llm_cache, set_llm_cache
+from .parallel import parallel_gather, parallel_map, parallel_map_unordered
 from .registry import AgentRegistry, agent_registry
 from .tool_registry import ToolRegistry, tool_registry
 from .workflow_registry import WorkflowRegistry, workflow_registry
@@ -61,4 +62,8 @@ __all__ = [
     "LLMCache",
     "get_llm_cache",
     "set_llm_cache",
+    # Parallel Execution
+    "parallel_gather",
+    "parallel_map",
+    "parallel_map_unordered",
 ]
