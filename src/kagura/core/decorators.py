@@ -88,6 +88,7 @@ def _convert_tools_to_llm_format(tools: list[Callable]) -> list[dict[str, Any]]:
 def agent(
     fn: Callable[P, Awaitable[T]],
     *,
+    config: Optional[LLMConfig] = None,
     model: str = "gpt-4o-mini",
     temperature: float = 0.7,
     enable_memory: bool = False,
@@ -107,6 +108,7 @@ def agent(
 def agent(
     fn: None = None,
     *,
+    config: Optional[LLMConfig] = None,
     model: str = "gpt-4o-mini",
     temperature: float = 0.7,
     enable_memory: bool = False,
@@ -125,6 +127,7 @@ def agent(
 def agent(
     fn: Callable[P, Awaitable[T]] | None = None,
     *,
+    config: Optional[LLMConfig] = None,
     model: str = "gpt-4o-mini",
     temperature: float = 0.7,
     enable_memory: bool = False,
@@ -146,8 +149,9 @@ def agent(
 
     Args:
         fn: Function to convert
-        model: LLM model to use
-        temperature: Temperature for LLM
+        config: Pre-configured LLMConfig instance (overrides model/temperature)
+        model: LLM model to use (ignored if config is provided)
+        temperature: Temperature for LLM (ignored if config is provided)
         enable_memory: Enable memory management
         persist_dir: Directory for persistent memory storage
         max_messages: Maximum messages in context memory
@@ -209,8 +213,11 @@ def agent(
         # Extract template from docstring
         template_str = extract_template(func)
 
-        # Create LLM config
-        config = LLMConfig(model=model, temperature=temperature)
+        # Use provided config or create from parameters
+        llm_config = config if config is not None else LLMConfig(
+            model=model,
+            temperature=temperature
+        )
 
         # Get function signature to check for special parameters
         sig = inspect.signature(func)
@@ -272,7 +279,7 @@ def agent(
                     max_messages=max_messages,
                     enable_compression=enable_compression,
                     compression_policy=compression_policy,
-                    model=model,
+                    model=llm_config.model,
                 )
                 kwargs_inner["memory"] = memory  # type: ignore
 
@@ -374,7 +381,7 @@ def agent(
             # Call LLM with Python tool functions (renamed parameter to avoid conflict)
             response = await call_llm(
                 prompt,
-                config,
+                llm_config,
                 tool_functions=tools_list if tools_list else None,
                 **llm_kwargs,
             )
@@ -388,7 +395,7 @@ def agent(
 
         # Mark as agent for MCP discovery
         wrapper._is_agent = True  # type: ignore
-        wrapper._agent_config = config  # type: ignore
+        wrapper._agent_config = llm_config  # type: ignore
         wrapper._agent_template = template_str  # type: ignore
         wrapper._enable_memory = enable_memory  # type: ignore
 
