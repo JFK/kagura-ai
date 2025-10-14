@@ -130,12 +130,30 @@ docs(api): update agent decorator documentation (#30)
 - `main`: 安定版（PyPI公開）
 
 **開発ブランチ**:
-- `feature/PHASE-XXX-description`: 機能実装
-- `fix/issue-XXX-description`: バグ修正
+- **⚠️ 必ずGitHub IssueからブランチToを作成**
+- GitHub自動命名: `[Issue番号]-[issue-title-kebab-case]`
+- 例: `161-rfc-024-phase-2-message-trimming`
+
+**ブランチ作成方法**:
+```bash
+# GitHub CLIで作成（推奨）
+gh issue develop [Issue番号] --checkout
+
+# または GitHub Web UIで作成 → ローカルでfetch
+git fetch origin
+git checkout [ブランチ名]
+```
+
+**旧方式（非推奨）**:
+- ~~`feature/PHASE-XXX-description`~~ ← 使用しない
+- ~~`fix/issue-XXX-description`~~ ← 使用しない
+
+**理由**: GitHubのIssue-Branch連携を活用し、自動的にPRとIssueをリンク
 
 **マージ戦略**:
 - Squash mergeを使用
 - Draft PR → Ready for review → Merge
+- マージ後、Issueは自動クローズ
 
 ---
 
@@ -303,10 +321,61 @@ async def test_async_function():
    ↓
 4. GitHub Issue作成 ← 必須！
    ↓
-5. 開発開始（Issue番号必須）
+5. GitHub IssueからBranch作成 ← 必須！⭐️ NEW
+   ↓
+6. 開発開始（Issue-linked branch）
+   ↓
+7. Draft PR作成（自動Issueリンク）
+   ↓
+8. CI通過 → Ready for review → Merge
+   ↓
+9. Issue自動クローズ ✅
 ```
 
 **参考**: [Issue駆動AI開発](https://qiita.com/kiyotaman/items/70af26501e10036cb117)
+
+### GitHub Issue-Branch-PR 連携フロー（推奨）
+
+**完全な開発フロー例**:
+```bash
+# Step 1: RFC & Plan作成
+cat > ai_docs/rfcs/RFC_XXX_PHASEXX_PLAN.md <<'EOF'
+[実装計画]
+EOF
+
+# Step 2: Issue作成
+gh issue create \
+  --title "RFC-XXX Phase X: Feature Name" \
+  --body "$(cat ai_docs/rfcs/RFC_XXX_PHASEXX_PLAN.md)"
+# → Issue #XXX 作成される
+
+# Step 3: Issueからブランチ作成（重要！）
+gh issue develop XXX --checkout
+# → GitHub上でブランチ作成 + ローカルcheckout
+# → ブランチ名: XXX-rfc-xxx-phase-x-feature-name
+
+# Step 4: 実装
+# （TDD: テスト → 実装 → 型チェック・lint）
+
+# Step 5: コミット
+git add .
+git commit -m "feat(scope): implement feature (#XXX)"
+
+# Step 6: プッシュ
+git push
+# （tracking設定済みなので -u origin 不要）
+
+# Step 7: Draft PR作成
+gh pr create --draft --title "feat(scope): implement feature (#XXX)"
+# → PRが自動的にIssue #XXXとリンク
+
+# Step 8: CI通過 → Ready
+gh pr ready XXX
+
+# Step 9: マージ
+gh pr merge XXX --squash
+# → Issue #XXX も自動的にクローズ ✅
+```
 
 ### Issue作成の3原則
 
@@ -363,14 +432,67 @@ Issueには以下を明記：
    - ドキュメント構成
 
 4. **GitHub Issue作成**（必須）
+   ```bash
+   gh issue create \
+     --title "RFC-XXX Phase X: Title" \
+     --body "$(cat <<'EOF'
+   ## 概要
+   [問題と解決策]
+
+   ## 実装内容
+   [詳細な実装計画]
+
+   ## 成功指標
+   - ✅ 条件1
+   - ✅ 条件2
+
+   ## 関連ドキュメント
+   - RFC: [RFC-XXX](../ai_docs/rfcs/RFC_XXX.md)
+   - Plan: [Phase X Plan](../ai_docs/rfcs/RFC_XXX_PHASEXX_PLAN.md)
+   EOF
+   )"
+   ```
+
    - RFC・Implementation Planへのリンク
    - 完了条件明記
    - スコープ境界明記
    - 優先度設定
 
-5. **Issue番号確認**
+5. **GitHub Issueからリモートブランチ作成**（必須）⭐️ NEW
+
+   **⚠️ 重要**: ローカルでブランチを作成する前に、GitHubでIssueからブランチを作成すること
+
+   **手順**:
+   ```bash
+   # 方法1: GitHub CLI（推奨）
+   gh issue develop [Issue番号] --checkout
+   # 例: gh issue develop 161 --checkout
+   # → GitHub上でブランチ作成 + ローカルcheckout
+
+   # 方法2: GitHub Web UI
+   # 1. Issue画面の右サイドバー「Development」セクション
+   # 2. 「Create a branch」クリック
+   # 3. ブランチ名を確認・編集
+   # 4. 「Create branch」クリック
+   # 5. ローカルでfetch & checkout
+   git fetch origin
+   git checkout [作成されたブランチ名]
+   ```
+
+   **ブランチ命名規則**:
+   - GitHubが自動生成: `[Issue番号]-[Issue-title-kebab-case]`
+   - 例: `161-rfc-024-phase-2-message-trimming`
+
+   **利点**:
+   - ✅ IssueとPRが自動リンク
+   - ✅ トレーサビリティ向上
+   - ✅ プロジェクト管理が容易
+   - ✅ ブランチ名の一貫性
+
+6. **Issue番号確認**
    - 対象Issue番号を必ず控える
-   - ブランチ名・コミットメッセージにIssue番号を含める
+   - ブランチはGitHub Issue機能から作成
+   - コミットメッセージにIssue番号を含める
 
 ### Phase 0.5: 現在の状況確認
 
@@ -384,9 +506,15 @@ Issueには以下を明記：
 
 ### Phase 1: 実装
 
-1. **Feature branchを作成**
+**⚠️ ブランチは既にGitHub Issueから作成済みのはず**
+
+1. **ブランチ確認**
    ```bash
-   git checkout -b feature/PHASE-XXX-description
+   # 現在のブランチ確認
+   git branch --show-current
+   # 例: 161-rfc-024-phase-2-message-trimming
+
+   # Issue番号がブランチ名に含まれていることを確認
    ```
 
 2. **TDD（テスト駆動開発）**
@@ -402,9 +530,11 @@ Issueには以下を明記：
 
 ### Phase 2: Draft PR作成
 
+**⚠️ GitHub Issueからブランチを作成している場合、PRは自動的にIssueとリンクされます**
+
 **タイトル形式**:
 ```
-<type>(<scope>): <subject> - PHASE-XXX
+<type>(<scope>): <subject> (#issue-number)
 ```
 
 **PRテンプレート**:
@@ -428,10 +558,25 @@ Closes #XXX
 
 **必ずDraftで作成**:
 ```bash
+# GitHub Issueからブランチを作成している場合
 gh pr create --draft \
-  --title "feat(core): implement @agent decorator - PHASE-1" \
-  --body "..."
+  --title "feat(core): implement feature (#XX)"
+  # --body は省略可（Issueから自動生成される）
+
+# または詳細なボディを指定
+gh pr create --draft \
+  --title "feat(core): implement feature (#XX)" \
+  --body "$(cat <<'EOF'
+## Summary
+...
+EOF
+)"
 ```
+
+**自動リンク**:
+- GitHub Issueからブランチを作成した場合、PR作成時に自動的にIssueとリンク
+- Issue画面の「Development」セクションにPRが表示される
+- PRマージ時にIssueが自動クローズ
 
 ### Phase 3: CI確認
 
@@ -531,20 +676,28 @@ kagura repl
 ### Git操作
 
 ```bash
-# ブランチ作成
-git checkout -b feature/PHASE-XXX-description
+# ⚠️ ブランチ作成: GitHub Issueから作成（必須）
+# GitHub CLI（推奨）
+gh issue develop [Issue番号] --checkout
+# 例: gh issue develop 161 --checkout
+
+# または GitHub Web UIでブランチ作成後
+git fetch origin
+git checkout [Issue番号]-[title-kebab-case]
 
 # コミット（Conventional Commits）
 git add .
 git commit -m "feat(core): implement new feature (#XX)"
 
 # プッシュ
-git push -u origin feature/PHASE-XXX-description
+git push
+# Note: -u origin は不要（GitHub Issueから作成した場合、tracking設定済み）
 
-# Draft PR作成
+# Draft PR作成（GitHub Issueのブランチを使用している場合、自動リンク）
 gh pr create --draft \
-  --title "feat(core): implement new feature - PHASE-XXX" \
+  --title "feat(core): implement new feature (#XX)" \
   --body "Summary of changes"
+# Issueへの参照は自動的に追加される
 ```
 
 ### PyPI公開（リリース時のみ）
@@ -607,17 +760,57 @@ gh release create v2.0.0 \
 
 ## ❓ よくある質問
 
+### Q: ブランチはどう作成する？
+A: **必ずGitHub Issueから作成**してください。
+
+```bash
+# 1. まずIssue作成
+gh issue create --title "RFC-XXX Phase X: Title" --body "..."
+
+# 2. Issueからブランチ作成
+gh issue develop [Issue番号] --checkout
+
+# 3. 実装開始
+# ブランチ名は自動的に [Issue番号]-[title] になる
+```
+
+**メリット**:
+- Issue-PR-Branch が自動リンク
+- トレーサビリティ向上
+- PRマージ時にIssue自動クローズ
+
+### Q: Issue作成せずに開発してもいい？
+A: **❌ 禁止**です。すべての開発は必ずIssueから開始してください。
+
+**理由**:
+- トレーサビリティの確保
+- Output Contract（成果物契約）の明確化
+- Scope Boundary（変更範囲）の制限
+- 作業履歴の記録
+
 ### Q: レガシーコードを参考にしたい
 A: `src/kagura_legacy/` は参照可能ですが、**変更は絶対に禁止**です。新規実装では2.0の設計に従ってください。
 
 ### Q: 大きな変更をどう分割する？
-A: 機能単位でIssueとPRを分割。例: デコレータ実装 → テンプレートエンジン → 型パーサー
+A: **Phase単位でIssueを分割**してください。
+
+例（RFC-024）:
+- Issue #159: Phase 1 - Token Management
+- Issue #161: Phase 2 - Message Trimming
+- Issue #XXX: Phase 3 - Summarization
+- Issue #XXX: Phase 4 - Integration
+
+各Phaseは独立したIssue/PR/ブランチで管理。
 
 ### Q: テストが書けない機能がある
 A: モック、フィクスチャを活用。外部API呼び出しは必ずモック化。
 
 ### Q: ドキュメントはいつ書く？
-A: Phase 4（v2.0.0統合・テスト段階）で一括更新。今は `ai_docs/` のみ更新。
+A: **各Phase完了時に必ず更新**してください。
+
+- **ai_docs/**: RFC、Implementation Plan、作業ログ
+- **docs/**: APIリファレンス、ユーザーガイド
+- **README.md**: Phase 4で一括更新
 
 ### Q: RFCの優先順位は？
 A: `ai_docs/UNIFIED_ROADMAP.md` と `ai_docs/NEXT_PLAN_v2.5.0.md` を参照。
