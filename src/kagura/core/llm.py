@@ -6,6 +6,11 @@ from typing import Any, Callable, Literal, Optional
 import litellm
 from pydantic import BaseModel, Field
 
+from .cache import LLMCache
+
+# Global cache instance
+_llm_cache = LLMCache(backend="memory", default_ttl=3600)
+
 
 class LLMConfig(BaseModel):
     """LLM configuration
@@ -38,6 +43,20 @@ class LLMConfig(BaseModel):
     oauth_provider: Optional[str] = Field(
         default=None,
         description="OAuth2 provider (e.g., 'google') when auth_type='oauth2'"
+    )
+
+    # Cache configuration
+    enable_cache: bool = Field(
+        default=True,
+        description="Enable LLM response caching for faster responses and lower costs"
+    )
+    cache_ttl: int = Field(
+        default=3600,
+        description="Cache time-to-live in seconds (default: 3600 = 1 hour)"
+    )
+    cache_backend: Literal["memory", "redis"] = Field(
+        default="memory",
+        description="Cache backend: 'memory' (default) or 'redis'"
     )
 
     def get_api_key(self) -> Optional[str]:
@@ -86,10 +105,11 @@ async def call_llm(
     Call LLM with given prompt, handling tool calls if present.
 
     Supports both API key and OAuth2 authentication based on config.
+    Automatically caches responses for faster access and cost reduction.
 
     Args:
         prompt: The prompt to send
-        config: LLM configuration (includes auth settings)
+        config: LLM configuration (includes auth and cache settings)
         tool_functions: Optional list of tool functions (Python callables)
         **kwargs: Additional LiteLLM parameters (including 'tools' schema)
 
@@ -99,7 +119,26 @@ async def call_llm(
     Raises:
         ValueError: If OAuth2 configuration is invalid
         NotAuthenticatedError: If OAuth2 required but not logged in
+
+    Note:
+        - Caching is only used when tool_functions is None (no tool calls)
+        - Cache key includes prompt, model, and all kwargs for uniqueness
+        - Use config.enable_cache=False to disable caching
     """
+    # Check cache first (only if no tools and cache enabled)
+    if config.enable_cache and not tool_functions:
+        cache_key = _llm_cache._hash_key(
+            prompt,
+            config.model,
+            temperature=config.temperature,
+            max_tokens=config.max_tokens,
+            top_p=config.top_p,
+            **kwargs
+        )
+        cached_response = await _llm_cache.get(cache_key)
+        if cached_response is not None:
+            return cached_response
+
     # Build messages list
     messages: list[dict[str, Any]] = [{"role": "user", "content": prompt}]
 
@@ -207,8 +246,51 @@ async def call_llm(
             continue
 
         # No tool calls, return content
-        content = message.content
-        return content if content else ""
+        content = message.content or ""
+
+        # Cache the response (only if no tools were used)
+        if config.enable_cache and not tool_functions:
+            await _llm_cache.set(
+                cache_key,
+                content,
+                ttl=config.cache_ttl,
+                model=config.model
+            )
+
+        return content
 
     # Max iterations reached
     return "Error: Maximum tool call iterations reached"
+
+
+def get_llm_cache() -> LLMCache:
+    """Get global LLM cache instance for inspection or invalidation
+
+    Returns:
+        Global LLMCache instance
+
+    Example:
+        >>> cache = get_llm_cache()
+        >>> stats = cache.stats()
+        >>> print(f"Hit rate: {stats['hit_rate']:.1%}")
+        Hit rate: 85.3%
+
+        >>> # Invalidate cache for specific model
+        >>> await cache.invalidate("gpt-4o")
+    """
+    return _llm_cache
+
+
+def set_llm_cache(cache: LLMCache) -> None:
+    """Set custom LLM cache instance
+
+    Args:
+        cache: Custom LLMCache instance (e.g., with Redis backend)
+
+    Example:
+        >>> from kagura.core.cache import LLMCache
+        >>> custom_cache = LLMCache(max_size=5000, default_ttl=7200)
+        >>> set_llm_cache(custom_cache)
+    """
+    global _llm_cache
+    _llm_cache = cache
