@@ -9,30 +9,33 @@ import os
 # Note: Tests now use mocked Gemini API, so API keys are not required
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_gemini_loader():
-    """Mock Gemini API for multimodal tests"""
-    with patch('kagura.loaders.gemini.GeminiLoader') as mock_class:
-        # Create mock instance
-        mock_instance = MagicMock()
+    """Mock Gemini API for multimodal tests
 
-        # Mock async methods
-        mock_instance.process_file = AsyncMock(return_value={
-            "content": "Mocked file content",
-            "metadata": {"type": "text", "size": 100}
-        })
-        mock_instance.analyze_image = AsyncMock(return_value="Mocked image description")
-        mock_instance.transcribe_audio = AsyncMock(return_value="Mocked audio transcript")
-        mock_instance.analyze_video = AsyncMock(return_value="Mocked video description")
-        mock_instance.analyze_pdf = AsyncMock(return_value="Mocked PDF content")
+    autouse=True ensures this fixture runs for all tests in this file
+    """
+    # Create mock instance
+    mock_instance = MagicMock()
 
-        # Mock sync methods
-        mock_instance.__enter__ = MagicMock(return_value=mock_instance)
-        mock_instance.__exit__ = MagicMock(return_value=None)
+    # Mock async methods
+    mock_instance.process_file = AsyncMock(return_value={
+        "content": "Mocked file content",
+        "metadata": {"type": "text", "size": 100}
+    })
+    mock_instance.analyze_image = AsyncMock(return_value="Mocked image description")
+    mock_instance.transcribe_audio = AsyncMock(return_value="Mocked audio transcript")
+    mock_instance.analyze_video = AsyncMock(return_value="Mocked video description")
+    mock_instance.analyze_pdf = AsyncMock(return_value="Mocked PDF content")
 
-        # Return the mock instance when GeminiLoader() is called
-        mock_class.return_value = mock_instance
+    # Mock sync methods
+    mock_instance.__enter__ = MagicMock(return_value=mock_instance)
+    mock_instance.__exit__ = MagicMock(return_value=None)
 
+    # Patch all possible import paths
+    with patch('kagura.loaders.gemini.GeminiLoader', return_value=mock_instance), \
+         patch('kagura.core.memory.multimodal_rag.GeminiLoader', return_value=mock_instance), \
+         patch('kagura.loaders.directory.GeminiLoader', return_value=mock_instance):
         yield mock_instance
 
 
@@ -55,7 +58,7 @@ def temp_project_dir():
 
 
 @pytest.mark.asyncio
-async def test_multimodal_rag_initialization(temp_project_dir, mock_gemini_loader):
+async def test_multimodal_rag_initialization(temp_project_dir):
     """Test MultimodalRAG initialization with directory"""
     from kagura.core.memory import MultimodalRAG
 
@@ -70,7 +73,7 @@ async def test_multimodal_rag_initialization(temp_project_dir, mock_gemini_loade
 
 
 @pytest.mark.asyncio
-async def test_multimodal_rag_query(temp_project_dir, mock_gemini_loader):
+async def test_multimodal_rag_query(temp_project_dir):
     """Test MultimodalRAG query functionality"""
     from kagura.core.memory import MultimodalRAG
 
@@ -120,7 +123,7 @@ async def test_agent_with_multimodal_rag(temp_project_dir):
 
 
 @pytest.mark.asyncio
-async def test_chat_session_multimodal_initialization(mock_gemini_loader):
+async def test_chat_session_multimodal_initialization():
     """Test ChatSession initialization with multimodal enabled"""
     from kagura.chat import ChatSession
     from pathlib import Path
@@ -145,7 +148,7 @@ async def test_chat_session_multimodal_initialization(mock_gemini_loader):
 
 
 @pytest.mark.asyncio
-async def test_directory_scanner(temp_project_dir, mock_gemini_loader):
+async def test_directory_scanner(temp_project_dir):
     """Test DirectoryScanner with various file types"""
     from kagura.loaders.directory import DirectoryScanner
     from kagura.loaders.gemini import GeminiLoader
@@ -170,7 +173,7 @@ async def test_directory_scanner(temp_project_dir, mock_gemini_loader):
 
 
 @pytest.mark.asyncio
-async def test_gemini_loader_supported_types(mock_gemini_loader):
+async def test_gemini_loader_supported_types():
     """Test GeminiLoader supports multimodal file types"""
     from kagura.loaders.gemini import GeminiLoader
     from kagura.loaders.file_types import FileType

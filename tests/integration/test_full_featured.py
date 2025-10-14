@@ -9,30 +9,32 @@ import os
 # Note: Tests now use mocked Gemini API, so API keys are not required
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_gemini_loader():
-    """Mock Gemini API for full-featured tests"""
-    with patch('kagura.loaders.gemini.GeminiLoader') as mock_class:
-        # Create mock instance
-        mock_instance = MagicMock()
+    """Mock Gemini API for full-featured tests
 
-        # Mock async methods
-        mock_instance.process_file = AsyncMock(return_value={
-            "content": "Mocked file content",
-            "metadata": {"type": "text", "size": 100}
-        })
-        mock_instance.analyze_image = AsyncMock(return_value="Mocked image description")
-        mock_instance.transcribe_audio = AsyncMock(return_value="Mocked audio transcript")
-        mock_instance.analyze_video = AsyncMock(return_value="Mocked video description")
-        mock_instance.analyze_pdf = AsyncMock(return_value="Mocked PDF content")
+    autouse=True ensures this fixture runs for all tests in this file
+    """
+    # Create mock instance
+    mock_instance = MagicMock()
 
-        # Mock sync methods
-        mock_instance.__enter__ = MagicMock(return_value=mock_instance)
-        mock_instance.__exit__ = MagicMock(return_value=None)
+    # Mock async methods
+    mock_instance.process_file = AsyncMock(return_value={
+        "content": "Mocked file content",
+        "metadata": {"type": "text", "size": 100}
+    })
+    mock_instance.analyze_image = AsyncMock(return_value="Mocked image description")
+    mock_instance.transcribe_audio = AsyncMock(return_value="Mocked audio transcript")
+    mock_instance.analyze_video = AsyncMock(return_value="Mocked video description")
+    mock_instance.analyze_pdf = AsyncMock(return_value="Mocked PDF content")
 
-        # Return the mock instance when GeminiLoader() is called
-        mock_class.return_value = mock_instance
+    # Mock sync methods
+    mock_instance.__enter__ = MagicMock(return_value=mock_instance)
+    mock_instance.__exit__ = MagicMock(return_value=None)
 
+    # Patch all possible import paths
+    with patch('kagura.loaders.gemini.GeminiLoader', return_value=mock_instance), \
+         patch('kagura.core.memory.multimodal_rag.GeminiLoader', return_value=mock_instance):
         yield mock_instance
 
 
@@ -52,7 +54,7 @@ def temp_project_dir():
 
 
 @pytest.mark.asyncio
-async def test_chat_session_full_mode_initialization(temp_project_dir, mock_gemini_loader):
+async def test_chat_session_full_mode_initialization(temp_project_dir):
     """Test ChatSession with full mode (multimodal + web)"""
     from kagura.chat import ChatSession
 
@@ -70,7 +72,7 @@ async def test_chat_session_full_mode_initialization(temp_project_dir, mock_gemi
 
 
 @pytest.mark.asyncio
-async def test_full_mode_chat_with_rag_and_web(temp_project_dir, mock_gemini_loader):
+async def test_full_mode_chat_with_rag_and_web(temp_project_dir):
     """Test chat interaction with both RAG and web enabled"""
     from kagura.chat import ChatSession
 
@@ -99,7 +101,7 @@ async def test_full_mode_chat_with_rag_and_web(temp_project_dir, mock_gemini_loa
 
 
 @pytest.mark.asyncio
-async def test_full_mode_rag_context_injection(temp_project_dir, mock_gemini_loader):
+async def test_full_mode_rag_context_injection(temp_project_dir):
     """Test that RAG context is properly injected in full mode"""
     from kagura.chat import ChatSession
 
@@ -128,7 +130,7 @@ async def test_full_mode_rag_context_injection(temp_project_dir, mock_gemini_loa
 
 
 @pytest.mark.asyncio
-async def test_full_mode_web_tool_available(temp_project_dir, mock_gemini_loader):
+async def test_full_mode_web_tool_available(temp_project_dir):
     """Test that web search tool is available in full mode"""
     from kagura.chat import ChatSession
 
@@ -147,7 +149,7 @@ async def test_full_mode_web_tool_available(temp_project_dir, mock_gemini_loader
 
 
 @pytest.mark.asyncio
-async def test_full_mode_error_handling(temp_project_dir, mock_gemini_loader):
+async def test_full_mode_error_handling(temp_project_dir):
     """Test error handling in full mode"""
     from kagura.chat import ChatSession
 
@@ -167,7 +169,7 @@ async def test_full_mode_error_handling(temp_project_dir, mock_gemini_loader):
 
 
 @pytest.mark.asyncio
-async def test_full_mode_memory_persistence(temp_project_dir, mock_gemini_loader):
+async def test_full_mode_memory_persistence(temp_project_dir):
     """Test that memory is persisted across chat turns in full mode"""
     from kagura.chat import ChatSession
 
