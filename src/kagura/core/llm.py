@@ -31,6 +31,12 @@ class LLMResponse:
         """Return content as string for backward compatibility"""
         return self.content
 
+    def __eq__(self, other: object) -> bool:
+        """Support comparison with strings for backward compatibility"""
+        if isinstance(other, str):
+            return self.content == other
+        return super().__eq__(other)
+
 # Global cache instance
 _llm_cache = LLMCache(backend="memory", default_ttl=3600)
 
