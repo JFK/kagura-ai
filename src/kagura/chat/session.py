@@ -25,6 +25,7 @@ from kagura.routing import AgentRouter, NoAgentFoundError
 from .completer import KaguraCompleter
 from .display import EnhancedDisplay
 from .preset import CodeReviewAgent, SummarizeAgent, TranslateAgent
+from .utils import extract_response_content
 
 
 @agent(model="gpt-4o-mini", temperature=0.7, enable_memory=True)
@@ -394,8 +395,8 @@ class ChatSession:
         else:
             response = await chat_agent(enhanced_input, memory=self.memory)
 
-        # Extract content from LLMResponse if needed
-        response_content = str(response.content) if hasattr(response, "content") else str(response)
+        # Extract content from response
+        response_content = extract_response_content(response)
 
         # Add assistant message to memory
         self.memory.add_message("assistant", response_content)
@@ -610,13 +611,13 @@ class ChatSession:
         self.console.print(f"\n[cyan]Translating to {target_lang}...[/]")
         result = await TranslateAgent(text, target_language=target_lang)
 
-        # Display result (convert LLMResponse to string if needed)
-        result_str = str(result.content) if hasattr(result, "content") else str(result)
-        self.console.print(Panel(result_str, title="Translation", border_style="cyan"))
+        # Extract content from response
+        result_content = extract_response_content(result)
+        self.console.print(Panel(result_content, title="Translation", border_style="cyan"))
 
         # Add to memory for context
         self.memory.add_message("user", f"/translate {args}")
-        self.memory.add_message("assistant", result_str)
+        self.memory.add_message("assistant", result_content)
 
     async def preset_summarize(self, args: str) -> None:
         """
@@ -633,13 +634,13 @@ class ChatSession:
         self.console.print("\n[cyan]Summarizing...[/]")
         result = await SummarizeAgent(args)
 
-        # Display result (convert LLMResponse to string if needed)
-        result_str = str(result.content) if hasattr(result, "content") else str(result)
-        self.console.print(Panel(result_str, title="Summary", border_style="cyan"))
+        # Extract content from response
+        result_content = extract_response_content(result)
+        self.console.print(Panel(result_content, title="Summary", border_style="cyan"))
 
         # Add to memory for context
         self.memory.add_message("user", f"/summarize {args}")
-        self.memory.add_message("assistant", result_str)
+        self.memory.add_message("assistant", result_content)
 
     async def preset_review(self, args: str) -> None:
         """
@@ -679,14 +680,14 @@ class ChatSession:
         self.console.print("\n[cyan]Reviewing code...[/]")
         result = await CodeReviewAgent(code)
 
-        # Display result (convert LLMResponse to string if needed)
-        result_str = str(result.content) if hasattr(result, "content") else str(result)
+        # Extract content from response
+        result_content = extract_response_content(result)
         self.console.print("\n[bold green][Code Review][/]")
-        self.console.print(Markdown(result_str))
+        self.console.print(Markdown(result_content))
 
         # Add to memory for context
         self.memory.add_message("user", f"/review\n{code}")
-        self.memory.add_message("assistant", result_str)
+        self.memory.add_message("assistant", result_content)
 
     async def handle_agent_command(self, args: str) -> None:
         """
