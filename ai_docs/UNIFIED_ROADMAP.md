@@ -1309,3 +1309,81 @@ async def support(query: str):
 ---
 
 **🎊 本日（2025-10-15）の成果：v2.5.3, v2.5.4, v2.5.5の3つリリース完了！**
+
+---
+
+## 📋 Version 2.6.0: Chat Enhancement (Planned)
+
+**リリース目標**: 自己拡張型チャットシステムの実現
+
+**計画日**: 2025-10-15
+**予定期間**: 6週間
+
+### RFC-033: Chat Enhancement - Intelligent & Self-Expanding Chat (Planned)
+**関連Issue**: [#211](https://github.com/JFK/kagura-ai/issues/211)
+**RFC**: [RFC-033](./rfcs/RFC_033_CHAT_ENHANCEMENT.md)
+**優先度**: ⭐️⭐️ Very High
+
+#### 提案内容
+
+**Phase 1: Auto-Discovery & Selection** (Week 1)
+- AgentDiscovery: LLMベースIntent Detection
+- agent_registry/tool_registry統合
+- 自動最適選択
+- 20+ tests
+
+**Phase 2: Meta Agent Auto-Generation** (Week 2)
+- TaskAnalyzer: タスク要件分析
+- PackageManager: pip自動インストール（承認付き）
+- YouTube/CSV/Docker自動対応
+- 15+ tests
+
+**Phase 3: Agent Database** (Week 3)
+- AgentDatabase: SQLite版エージェント管理
+- バージョン管理
+- ~/.kagura/agents/に保存
+- 再利用システム
+- 10+ tests
+
+**Phase 4: UX Improvements** (Week 4)
+- Tab補完（サジェスト）
+- Ctrl+P: コマンド履歴
+- Ctrl+R: 履歴検索
+- Rich Markdown改善
+- マルチバイト文字対応
+- クリック可能リンク
+- 5+ UX tests
+
+**Phase 5: Docker Integration** (Week 5)
+- docker_run/build/list tools
+- Docker-aware agent generation
+- セキュリティ制約
+- 10+ tests
+
+**Phase 6: YouTube & Templates** (Week 6)
+- youtube_get_transcript tool
+- youtube_get_metadata tool
+- Pre-built agent templates
+- 10+ tests
+
+#### 成功指標
+
+**Core**:
+- ✅ 自動agent/tool選択（LLMベース）
+- ✅ Meta Agent自動生成
+- ✅ YouTube/CSV/Docker自動対応
+- ✅ 依存関係自動インストール（pip/Docker）
+- ✅ 生成エージェントDB管理＆再利用
+- ✅ 80+ tests全パス
+
+**UX**:
+- ✅ Tab補完、Ctrl+P履歴
+- ✅ Rich Markdown、マルチバイト対応
+- ✅ クリック可能リンク
+
+**Security**:
+- ✅ パッケージホワイトリスト
+- ✅ ユーザー承認必須
+- ✅ AST検証
+
+---
