@@ -1034,3 +1034,103 @@ async def support(query: str):
 
 **🎊 v2.5.1により、Kagura AIのコード品質がさらに向上しました！**
 
+
+---
+
+## ✅ Version 2.5.2: Code Quality (Completed - 2025-10-15)
+
+**リリース目標**: Pydantic v2移行、コード品質向上 ✅ 達成
+
+**リリース日**: 2025-10-15
+**GitHub Release**: [v2.5.2](https://github.com/JFK/kagura-ai/releases/tag/v2.5.2)
+
+### ✅ RFC-028: Pydantic v2 Config Migration (Completed - PR #203)
+**関連Issue**: [#202](https://github.com/JFK/kagura-ai/issues/202)
+**PR**: [#203](https://github.com/JFK/kagura-ai/pull/203) - ✅ Merged (2025-10-15)
+
+#### 実装完了内容
+
+**Migration**: `class Config` → `model_config = ConfigDict()`
+- **src/kagura/meta/spec.py**: AgentSpec model
+- **src/kagura/builder/config.py**: 4 builder config models
+- **src/kagura/auth/config.py**: AuthConfig model
+
+**成果**:
+- Pydantic warnings: 12 → **0**
+- Pydantic v3互換性準備
+- コード品質向上
+
+#### 成功指標（全達成！）
+
+**テスト**:
+- ✅ 1,213 passed, 15 skipped (100%)
+- ✅ 0 warnings (was 12)
+- ✅ Pyright: 0 errors, 0 warnings
+- ✅ 100% backward compatible
+
+**成果物**:
+- 変更ファイル: 3ファイル、5モデル
+- 変更行数: +351 / -20
+- RFC文書: 337行
+
+---
+
+### 🎯 v2.5.2 完了サマリー
+
+**完了したRFC**: 1個（RFC-028 - Pydantic v2 Migration）
+**マージしたPR**: 1個（#203）
+**リリース日**: 2025-10-15
+
+**主要改善**:
+- ✅ Pydantic v2 ConfigDict移行完了
+- ✅ 全deprecation warnings解消
+- ✅ コード品質向上
+
+---
+
+## 📋 Version 2.6.0: Secret & Config Management (Planned)
+
+**リリース目標**: セキュアな認証情報管理、動的LLM設定
+
+**計画日**: 2025-10-15
+**予定期間**: 8-10週間
+
+### RFC-029: Secret & Config Management System (Planned)
+**関連Issue**: [#204](https://github.com/JFK/kagura-ai/issues/204)
+**RFC**: [RFC-029](./rfcs/RFC_029_SECRET_CONFIG_MANAGEMENT.md)
+
+#### 提案内容
+
+**Phase 1-2: Secret Management** (4週間)
+- Pluggable Secret Storage（Local/SQLite/PostgreSQL/Redis/Vault）
+- SecretManager API
+- CLI: `kagura secrets add/list/delete/rotate`
+- 暗号化（Fernet）、監査ログ
+
+**Phase 3-4: Config & LLM** (4週間)
+- Hierarchical Configuration（Global/User/Project/Env）
+- ConfigManager API
+- Dynamic LLM Selection（Auto-fallback/Cost/Performance）
+- LLMConfig自動統合
+
+**Phase 5: Advanced** (2週間)
+- Key rotation automation
+- Cloud backends（AWS/GCP/Azure）
+- HashiCorp Vault統合
+
+#### 成功指標
+
+**Core**:
+- ✅ 暗号化シークレットストレージ
+- ✅ プラガブルバックエンド（5+ types）
+- ✅ 階層的設定管理
+- ✅ 動的プロバイダー選択
+
+**Security**:
+- ✅ Fernet暗号化（全バックエンド）
+- ✅ アクセス制御・監査ログ
+- ✅ キーローテーション対応
+
+---
+
+**🎊 本日（2025-10-15）の成果：v2.5.1 & v2.5.2リリース、RFC-029提案完了！**
