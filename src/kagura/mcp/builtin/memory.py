@@ -11,7 +11,7 @@ from kagura import tool
 
 
 @tool
-def memory_store(agent_name: str, key: str, value: str, scope: str = "working") -> str:
+async def memory_store(agent_name: str, key: str, value: str, scope: str = "working") -> str:
     """Store information in agent memory
 
     Args:
@@ -36,7 +36,7 @@ def memory_store(agent_name: str, key: str, value: str, scope: str = "working") 
 
 
 @tool
-def memory_recall(agent_name: str, key: str, scope: str = "working") -> str:
+async def memory_recall(agent_name: str, key: str, scope: str = "working") -> str:
     """Recall information from agent memory
 
     Args:
@@ -60,7 +60,7 @@ def memory_recall(agent_name: str, key: str, scope: str = "working") -> str:
 
 
 @tool
-def memory_search(agent_name: str, query: str, k: int = 5) -> str:
+async def memory_search(agent_name: str, query: str, k: int = 5) -> str:
     """Search agent memory using semantic RAG
 
     Args:
