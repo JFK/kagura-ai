@@ -229,12 +229,13 @@ kagura run deploy --param env=production
 ## 🎯 Recent Updates
 
 Latest features:
-- **Fast CLI Startup**: 98.7% faster (8.8s → 0.1s) with lazy loading
+- **Unified MCP Server**: All features via single Claude Desktop config (v2.5.4)
+- **15 Built-in MCP Tools**: Memory, Web, File, Observability, Meta, Multimodal
+- **Fast CLI Startup**: 98.7% faster (8.8s → 0.1s) with lazy loading (v2.5.3)
 - **Context Compression**: Token counting and context window management
 - **Memory-Aware Routing**: Intelligent routing with conversation context
 - **Testing Framework**: AgentTestCase with semantic assertions
 - **Observability**: Built-in telemetry and cost tracking
-- **Performance Optimizations**: Parallel test execution (pytest-xdist), caching improvements
 - **36 Comprehensive Examples**: Organized in 8 categories from basic to real-world applications
 
 ## 🎯 What's New in 2.0
