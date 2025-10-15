@@ -52,6 +52,8 @@ web = [
     "httpx>=0.25.0",                # HTTP client for web scraping
     "duckduckgo-search>=4.1.0",     # Web search
     "beautifulsoup4>=4.12.0",       # HTML parsing
+    "youtube-transcript-api>=0.6.0",  # YouTube transcript extraction
+    "yt-dlp>=2023.0.0",             # YouTube metadata extraction
 ]
 auth = [
     # OAuth2 authentication
