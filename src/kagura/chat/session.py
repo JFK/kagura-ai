@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Any
 
 from prompt_toolkit import PromptSession
+from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -20,7 +22,10 @@ from kagura import agent
 from kagura.core.memory import MemoryManager
 from kagura.routing import AgentRouter, NoAgentFoundError
 
+from .completer import KaguraCompleter
+from .display import EnhancedDisplay
 from .preset import CodeReviewAgent, SummarizeAgent, TranslateAgent
+from .utils import extract_response_content
 
 
 @agent(model="gpt-4o-mini", temperature=0.7, enable_memory=True)
@@ -135,10 +140,23 @@ class ChatSession:
         if self.enable_multimodal:
             self._init_multimodal_rag()
 
-        # Prompt session with history
+        # Enhanced display
+        self.display = EnhancedDisplay(self.console)
+
+        # Create keybindings
+        kb = self._create_keybindings()
+
+        # Prompt session with history, completion, and keybindings
+        # multiline=True but with custom Enter behavior:
+        # - Enter on non-empty line: newline
+        # - Enter on empty line: send
         history_file = self.session_dir / "chat_history.txt"
         self.prompt_session: PromptSession[str] = PromptSession(
-            history=FileHistory(str(history_file))
+            history=FileHistory(str(history_file)),
+            completer=KaguraCompleter(self),
+            enable_history_search=True,  # Ctrl+R
+            key_bindings=kb,
+            multiline=True,
         )
 
         # Load custom agents from ./agents directory
@@ -147,6 +165,43 @@ class ChatSession:
         if self.enable_routing:
             self.router = AgentRouter()
         self._load_custom_agents()
+
+    def _create_keybindings(self) -> KeyBindings:
+        """
+        Create custom keybindings for chat session.
+
+        Returns:
+            KeyBindings with:
+            - Enter once: New line
+            - Enter twice (empty line): Send message
+            - Ctrl+P/N: History navigation
+        """
+        kb = KeyBindings()
+
+        # Ctrl+P: Previous command (like shell)
+        @kb.add("c-p")
+        def _previous_command(event: Any) -> None:
+            event.current_buffer.history_backward()
+
+        # Ctrl+N: Next command
+        @kb.add("c-n")
+        def _next_command(event: Any) -> None:
+            event.current_buffer.history_forward()
+
+        # Enter: Check if previous line is empty, if so send, otherwise newline
+        @kb.add("enter")
+        def _enter(event: Any) -> None:
+            buffer = event.current_buffer
+            # Check if current line is empty
+            current_line = buffer.document.current_line
+            if not current_line.strip():
+                # Empty line, send message
+                buffer.validate_and_handle()
+            else:
+                # Non-empty line, insert newline
+                buffer.insert_text("\n")
+
+        return kb
 
     def _init_multimodal_rag(self) -> None:
         """Initialize MultimodalRAG."""
@@ -257,11 +312,9 @@ class ChatSession:
 
         while True:
             try:
-                # Get user input
-                user_input = await self.prompt_session.prompt_async(
-                    "\n[You] > ",
-                    # multiline=True,
-                )
+                # Get user input with formatted prompt
+                prompt_text = FormattedText([("class:prompt", "\n[You] > ")])
+                user_input = await self.prompt_session.prompt_async(prompt_text)
 
                 if not user_input.strip():
                     continue
@@ -342,12 +395,15 @@ class ChatSession:
         else:
             response = await chat_agent(enhanced_input, memory=self.memory)
 
-        # Add assistant message to memory
-        self.memory.add_message("assistant", str(response))
+        # Extract content from response
+        response_content = extract_response_content(response)
 
-        # Display response with markdown
+        # Add assistant message to memory
+        self.memory.add_message("assistant", response_content)
+
+        # Display response with enhanced formatting
         self.console.print("\n[bold green][AI][/]")
-        self.console.print(Markdown(str(response)))
+        self.display.display_response(response_content)
 
     async def handle_command(self, cmd: str) -> bool:
         """
@@ -391,6 +447,14 @@ class ChatSession:
         """Display welcome message."""
         features = []
         features.append("Type your message to chat with AI, or use commands:")
+        features.append("")
+        features.append("[dim]💡 Tips:[/]")
+        features.append("  [dim]• Enter: New line (or send on empty line)[/]")
+        features.append("  [dim]• Enter twice: Send message[/]")
+        features.append("  [dim]• Tab: Autocomplete commands[/]")
+        features.append("  [dim]• Ctrl+P/N: Navigate history[/]")
+        features.append("  [dim]• Ctrl+R: Search history[/]")
+        features.append("")
         features.append("  [cyan]/help[/]      - Show help")
         features.append("  [cyan]/translate[/] - Translate text")
         features.append("  [cyan]/summarize[/] - Summarize text")
@@ -438,6 +502,14 @@ class ChatSession:
 
 ## Chat
 - Just type your message to chat with AI
+
+## Keyboard Shortcuts
+- **Enter** - New line (or send message on empty line)
+- **Enter twice** - Send message
+- **Tab** - Autocomplete commands, agents, tools
+- **Ctrl+P** - Previous command (history backward)
+- **Ctrl+N** - Next command (history forward)
+- **Ctrl+R** - Search command history
 
 ## Preset Commands
 - `/translate <text> [to <language>]` - Translate text (default: to Japanese)
@@ -539,8 +611,15 @@ class ChatSession:
         self.console.print(f"\n[cyan]Translating to {target_lang}...[/]")
         result = await TranslateAgent(text, target_language=target_lang)
 
-        # Display result
-        self.console.print(Panel(result, title="Translation", border_style="cyan"))
+        # Extract content from response
+        result_content = extract_response_content(result)
+        self.console.print(
+            Panel(result_content, title="Translation", border_style="cyan")
+        )
+
+        # Add to memory for context
+        self.memory.add_message("user", f"/translate {args}")
+        self.memory.add_message("assistant", result_content)
 
     async def preset_summarize(self, args: str) -> None:
         """
@@ -557,8 +636,13 @@ class ChatSession:
         self.console.print("\n[cyan]Summarizing...[/]")
         result = await SummarizeAgent(args)
 
-        # Display result
-        self.console.print(Panel(result, title="Summary", border_style="cyan"))
+        # Extract content from response
+        result_content = extract_response_content(result)
+        self.console.print(Panel(result_content, title="Summary", border_style="cyan"))
+
+        # Add to memory for context
+        self.memory.add_message("user", f"/summarize {args}")
+        self.memory.add_message("assistant", result_content)
 
     async def preset_review(self, args: str) -> None:
         """
@@ -598,9 +682,14 @@ class ChatSession:
         self.console.print("\n[cyan]Reviewing code...[/]")
         result = await CodeReviewAgent(code)
 
-        # Display result
+        # Extract content from response
+        result_content = extract_response_content(result)
         self.console.print("\n[bold green][Code Review][/]")
-        self.console.print(Markdown(result))
+        self.console.print(Markdown(result_content))
+
+        # Add to memory for context
+        self.memory.add_message("user", f"/review\n{code}")
+        self.memory.add_message("assistant", result_content)
 
     async def handle_agent_command(self, args: str) -> None:
         """
