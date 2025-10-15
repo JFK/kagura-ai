@@ -186,6 +186,16 @@ class ChatSession:
         def _next_command(event: Any) -> None:
             event.current_buffer.history_forward()
 
+        # Shift+Enter: Insert newline (macOS)
+        @kb.add("s-enter")
+        def _newline_shift(event: Any) -> None:
+            event.current_buffer.insert_text("\n")
+
+        # Ctrl+Enter: Insert newline (Windows)
+        @kb.add("c-enter")
+        def _newline_ctrl(event: Any) -> None:
+            event.current_buffer.insert_text("\n")
+
         return kb
 
     def _init_multimodal_rag(self) -> None:
