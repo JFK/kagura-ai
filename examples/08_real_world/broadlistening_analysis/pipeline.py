@@ -63,6 +63,13 @@ class Opinion(BaseModel):
     properties: dict[str, str] = Field(default_factory=dict)
 
 
+class ClusterLabel(BaseModel):
+    """Label and description for a cluster"""
+
+    label: str
+    description: str
+
+
 class Cluster(BaseModel):
     """Cluster of opinions with AI-generated labels"""
 
@@ -100,7 +107,7 @@ async def opinion_extractor(comment: str) -> list[str]:
 
 
 @agent(model="gpt-4o-mini")
-async def cluster_labeler(sample_opinions: list[str]) -> dict[str, str]:
+async def cluster_labeler(sample_opinions: list[str]) -> ClusterLabel:
     """Generate label and description for a cluster of opinions
 
     You are an expert at analyzing and categorizing public opinions.
@@ -296,21 +303,21 @@ async def broadlistening_pipeline(
             label_data = await cluster_labeler(sample_texts)
         except Exception as e:
             print(f"   ⚠️  Error labeling cluster {cluster_id}: {e}")
-            label_data = {
-                "label": f"クラスタ {cluster_id}",
-                "description": "ラベル生成エラー",
-            }
+            label_data = ClusterLabel(
+                label=f"クラスタ {cluster_id}",
+                description="ラベル生成エラー",
+            )
 
         # Create Cluster object
         cluster = Cluster(
             id=f"C{cluster_id}",
-            label=label_data["label"],
-            description=label_data["description"],
+            label=label_data.label,
+            description=label_data.description,
             opinions=cluster_opinion_objects,
         )
         clusters.append(cluster)
 
-        print(f"   Cluster {cluster_id}: {label_data['label']} ({len(cluster_opinion_objects)} opinions)")
+        print(f"   Cluster {cluster_id}: {label_data.label} ({len(cluster_opinion_objects)} opinions)")
 
     # ============================================
     # Step 4: Calculate property statistics per cluster
