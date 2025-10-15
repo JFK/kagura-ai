@@ -5,6 +5,39 @@ All notable changes to Kagura AI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.5] - 2025-10-15
+
+### Added
+- **Automatic Telemetry**: @agent decorator now records execution data automatically - RFC-030 Phase 1
+  - LLMResponse: Response with usage, model, duration metadata
+  - Cost calculation: Accurate pricing for 20+ models
+  - TelemetryCollector integration: Automatic recording to EventStore
+  - No user code changes required
+
+### Features
+- LLM call tracking (tokens, cost, duration)
+- Automatic cost calculation per execution
+- EventStore integration (SQLite backend)
+- `kagura monitor` now shows real data
+
+### Changes
+- `call_llm()` returns `LLMResponse` (backward compatible via `__str__` and `__eq__`)
+- `@agent` has `enable_telemetry` parameter (default: True)
+- Automatic telemetry for all agent executions
+
+### Testing
+- 6 new telemetry tests (all passing)
+- 1,187 non-integration tests passing
+- Pyright: 0 errors
+- Ruff: All checks passed
+
+### CI Improvements
+- Excluded `tests/integration/` explicitly to avoid unmarked integration tests
+
+**References**: PR [#210](https://github.com/JFK/kagura-ai/pull/210), Issue [#205](https://github.com/JFK/kagura-ai/issues/205), [RFC-030](./ai_docs/rfcs/RFC_030_TELEMETRY_INTEGRATION.md)
+
+---
+
 ## [2.5.4] - 2025-10-15
 
 ### Added
