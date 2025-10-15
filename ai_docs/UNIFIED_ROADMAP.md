@@ -1191,4 +1191,121 @@ async def support(query: str):
 
 ---
 
-**🎊 本日（2025-10-15）の成果：v2.5.1 & v2.5.2リリース、RFC-029 & RFC-030提案完了！**
+---
+
+## ✅ Version 2.5.3: CLI Performance (Completed - 2025-10-15)
+
+**リリース目標**: CLI起動速度の劇的改善 ✅ 達成
+
+**リリース日**: 2025-10-15
+**GitHub Release**: [v2.5.3](https://github.com/JFK/kagura-ai/releases/tag/v2.5.3)
+
+### ✅ RFC-031: CLI Startup Optimization (Completed - PR #208)
+**関連Issue**: [#206](https://github.com/JFK/kagura-ai/issues/206)
+**PR**: [#208](https://github.com/JFK/kagura-ai/pull/208) - ✅ Merged (2025-10-15)
+
+#### 実装完了内容
+
+**Lazy Loading System**:
+- `LazyGroup`: Click拡張でon-demand command loading
+- Module-level lazy imports via `__getattr__` (PEP 562)
+- Smart help formatting without loading commands
+
+**Performance Results**:
+- CLI startup: **98.7% faster** (8.8s → 0.11s)
+- Import time: 99.4% faster (7.7s → 0.05s)
+- All commands: Instant help display
+
+**Testing**:
+- 14 new lazy loading tests (all passing)
+- 1,226/1,242 existing tests passing (99.2%)
+
+**Documentation**:
+- `docs/en/guides/cli-performance.md`: Performance guide
+
+---
+
+## ✅ Version 2.5.4: Unified MCP Server (Completed - 2025-10-15)
+
+**リリース目標**: 単一設定で全Kagura機能をClaude Desktopから利用 ✅ 達成
+
+**リリース日**: 2025-10-15
+**GitHub Release**: [v2.5.4](https://github.com/JFK/kagura-ai/releases/tag/v2.5.4)
+
+### ✅ RFC-032: MCP Full Feature Integration Phase 1 & 2 (Completed - PR #209)
+**関連Issue**: [#207](https://github.com/JFK/kagura-ai/issues/207)
+**PR**: [#209](https://github.com/JFK/kagura-ai/pull/209) - ✅ Merged (2025-10-15)
+
+#### 実装完了内容
+
+**MCP Server Extensions**:
+- @tool and @workflow registry support
+- Extended `list_tools()` to include all 3 registries
+- Extended `call_tool()` to route to agent/tool/workflow
+
+**Built-in MCP Tools (15 tools)**:
+- Memory: `memory_store`, `memory_recall`, `memory_search`
+- Web: `web_search`, `web_scrape`
+- File/Shell: `file_read`, `file_write`, `dir_list`, `shell_exec`
+- Routing: `route_query`
+- Observability: `telemetry_stats`, `telemetry_cost`
+- Meta: `meta_create_agent`
+- Multimodal: `multimodal_index`, `multimodal_search`
+
+**Auto-Registration**:
+- Builtin module auto-imports on `kagura mcp serve`
+- All tools automatically registered to tool_registry
+
+**Testing**:
+- 5 new MCP integration tests (all passing)
+
+**Documentation**:
+- `docs/en/guides/claude-code-mcp-setup.md`: Setup guide
+
+---
+
+## ✅ Version 2.5.5: Automatic Telemetry (Completed - 2025-10-15)
+
+**リリース目標**: @agent実行の自動テレメトリ記録 ✅ 達成
+
+**リリース日**: 2025-10-15
+**GitHub Release**: [v2.5.5](https://github.com/JFK/kagura-ai/releases/tag/v2.5.5)
+
+### ✅ RFC-030: Telemetry Integration Phase 1 (Completed - PR #210)
+**関連Issue**: [#205](https://github.com/JFK/kagura-ai/issues/205)
+**PR**: [#210](https://github.com/JFK/kagura-ai/pull/210) - ✅ Merged (2025-10-15)
+
+#### 実装完了内容
+
+**LLMResponse with Metadata**:
+- Dataclass with content, usage, model, duration
+- Tracks token usage across tool iterations
+- Backward compatible (`__str__`, `__eq__`)
+
+**Cost Calculation**:
+- `pricing.py`: Accurate pricing for 20+ models
+- `calculate_cost()`: Per-token cost calculation
+- Updated pricing as of Oct 2025
+
+**@agent Telemetry Integration**:
+- Added `enable_telemetry` parameter (default: True)
+- Automatic TelemetryCollector integration
+- Records: execution, LLM calls, costs, duration
+- No user code changes required
+
+**Testing**:
+- 6 new telemetry tests (all passing)
+- 1,187 non-integration tests passing
+- Pyright: 0 errors
+
+**CI Improvements**:
+- Excluded `tests/integration/` explicitly
+
+**動作確認**:
+- ✅ `kagura monitor list` でテレメトリデータ表示
+- ✅ 自動コスト計算
+- ✅ 実行時間追跡
+
+---
+
+**🎊 本日（2025-10-15）の成果：v2.5.3, v2.5.4, v2.5.5の3つリリース完了！**
