@@ -1235,4 +1235,50 @@ $ kagura chat --batch tasks.txt
 
 ---
 
+---
+
+## 🚀 実装アプローチ
+
+### プロトタイプ先行戦略
+
+**方針**: 完全な設計よりも、まずプロトタイプを実装して実際に使いながらブラッシュアップ
+
+#### Phase 0: Prototype (1週間) - 最優先
+
+**最小限の機能**:
+- YouTube URL検出 → 自動サマライズ
+- CSV検出 → pandas自動インストール＆分析
+- 基本的なAgent Database（ファイルベース）
+- venv分離（エージェントごと）
+
+**実装**:
+- `AgentEnvironment`: venv管理
+- `TaskDetector`: パターンマッチング検出
+- `SimpleAgentDB`: JSON/ファイルベース
+- 基本的なMeta Agent統合
+
+**除外（後で追加）**:
+- 複雑なLLM Intent Detection
+- Docker統合
+- 高度なUX（Tab補完等）
+- SQLiteバージョン管理
+
+#### ブラッシュアップ期間
+
+**Week 1**: プロトタイプ実装
+**Week 2-4**: 実際に使用＆フィードバック収集
+**Week 5-6**: フィードバック基づき改善
+
+#### 検証ポイント
+
+1. venv管理の重さ（エージェントごと vs 共有）
+2. 自動インストールの頻度（煩雑さ vs 便利さ）
+3. Agent Database構造（SQLite vs ファイル）
+4. UX機能の優先順位
+
+---
+
 **このRFCにより、kagura chatは世界最強の自己拡張型AIチャットシステムになります！**
+
+**実装戦略**: プロトタイプ優先 → 使いながら改善 → 完成度向上
+
