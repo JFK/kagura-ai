@@ -611,6 +611,10 @@ class ChatSession:
         result_str = str(result.content) if hasattr(result, "content") else str(result)
         self.console.print(Panel(result_str, title="Translation", border_style="cyan"))
 
+        # Add to memory for context
+        self.memory.add_message("user", f"/translate {args}")
+        self.memory.add_message("assistant", result_str)
+
     async def preset_summarize(self, args: str) -> None:
         """
         Summarize text using preset agent.
@@ -629,6 +633,10 @@ class ChatSession:
         # Display result (convert LLMResponse to string if needed)
         result_str = str(result.content) if hasattr(result, "content") else str(result)
         self.console.print(Panel(result_str, title="Summary", border_style="cyan"))
+
+        # Add to memory for context
+        self.memory.add_message("user", f"/summarize {args}")
+        self.memory.add_message("assistant", result_str)
 
     async def preset_review(self, args: str) -> None:
         """
@@ -672,6 +680,10 @@ class ChatSession:
         result_str = str(result.content) if hasattr(result, "content") else str(result)
         self.console.print("\n[bold green][Code Review][/]")
         self.console.print(Markdown(result_str))
+
+        # Add to memory for context
+        self.memory.add_message("user", f"/review\n{code}")
+        self.memory.add_message("assistant", result_str)
 
     async def handle_agent_command(self, args: str) -> None:
         """
