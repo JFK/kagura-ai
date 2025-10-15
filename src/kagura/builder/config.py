@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class MemoryConfig(BaseModel):
@@ -24,8 +24,7 @@ class MemoryConfig(BaseModel):
         default=None, description="Session ID for memory isolation"
     )
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class RoutingConfig(BaseModel):
@@ -39,8 +38,7 @@ class RoutingConfig(BaseModel):
         default_factory=dict, description="Route definitions"
     )
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class HooksConfig(BaseModel):
@@ -51,8 +49,7 @@ class HooksConfig(BaseModel):
         default_factory=list, description="Post-execution hooks"
     )
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class AgentConfiguration(BaseModel):
@@ -76,5 +73,4 @@ class AgentConfiguration(BaseModel):
         default_factory=dict, description="LLM context parameters"
     )
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)

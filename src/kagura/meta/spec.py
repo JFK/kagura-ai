@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AgentSpec(BaseModel):
@@ -47,10 +47,8 @@ class AgentSpec(BaseModel):
         description="Example inputs/outputs (values can be any JSON-serializable type)"
     )
 
-    class Config:
-        """Pydantic configuration"""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "translator",
                 "description": "Translate English to Japanese",
@@ -70,3 +68,4 @@ class AgentSpec(BaseModel):
                 ],
             }
         }
+    )
