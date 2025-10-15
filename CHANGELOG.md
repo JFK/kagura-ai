@@ -5,6 +5,113 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **RFC-025: Broadlistening Analysis Example** ([#198](https://github.com/JFK/kagura-ai/issues/198), PR [#199](https://github.com/JFK/kagura-ai/pull/199))
+  - Real-world example demonstrating production data analysis pipeline
+  - **Features**:
+    - Opinion extraction from public comments using LLM
+    - Hierarchical clustering (UMAP + KMeans)
+    - AI-powered cluster labeling
+    - **Property-based filtering** (gender, region, age_group, custom attributes)
+    - Interactive visualization with Plotly
+
+  - **Files Added**:
+    - `examples/pyproject.toml` - Isolated example dependencies
+    - `examples/08_real_world/broadlistening_analysis/`:
+      - `pipeline.py` (350 lines) - Main workflow combining Kagura + scikit-learn
+      - `clustering.py` (200 lines) - UMAP + KMeans utilities
+      - `filtering.py` (250 lines) - PropertyFilter class for demographic filtering
+      - `visualization.py` (150 lines) - Interactive Plotly visualizations
+      - `sample_data.csv` - 30 sample comments with properties
+      - `test_pipeline.py` - 11 test cases (100% passing)
+      - `README.md` - Comprehensive usage guide
+
+  - **PropertyFilter API**:
+    ```python
+    # Filter by single property
+    filtered = result['filter'].filter(gender="女性")
+
+    # Filter by multiple values (OR)
+    filtered = result['filter'].filter(region=["東京都", "大阪府"])
+
+    # Filter by multiple properties (AND)
+    filtered = result['filter'].filter(gender="女性", region="東京都")
+
+    # Get property distribution
+    dist = filter.get_property_distribution("gender")
+    ```
+
+  - **Installation**:
+    ```bash
+    cd examples && pip install -e ".[broadlistening]"
+    python 08_real_world/broadlistening_analysis/pipeline.py sample_data.csv
+    ```
+
+  - **Inspired by**: Talk to the City (AI Objectives Institute)
+  - **Learning Objectives**: Workflow design, LLM + traditional ML integration, property-based analysis
+
+### Fixed
+
+- **Type Safety in Examples**
+  - Fixed `cluster_labeler` return type from `dict[str, str]` to `ClusterLabel` Pydantic model
+  - Resolved parsing error: "Unsupported type for parsing: dict[str, str]"
+  - All example tests passing (11/11)
+
+### Tests
+
+- Added 11 property filtering tests (100% passing)
+- Pipeline tested end-to-end with sample data
+- All clusters labeled correctly by AI
+
+## [2.5.0] - 2025-10-14
+
+### Added
+
+- **RFC-024: Context Compression - Phase 1** ([#159](https://github.com/JFK/kagura-ai/issues/159), PR [#193](https://github.com/JFK/kagura-ai/pull/193))
+  - Token counting and context monitoring system
+  - **New modules**:
+    - `TokenCounter` - Multi-model token counting (OpenAI, Claude, Gemini)
+    - `ContextMonitor` - Usage tracking and compression triggers
+    - `UsageReport` - Detailed token usage analysis
+  - **Features**:
+    - Accurate token counting for all major LLM providers
+    - Context window limit detection (`should_compress` flag)
+    - Cost estimation per message
+    - Compression recommendations
+  - **Tests**: 30 comprehensive tests (100% coverage)
+
+### Changed
+
+- **Dependency Consolidation** ([#173](https://github.com/JFK/kagura-ai/issues/173), PR [#191](https://github.com/JFK/kagura-ai/pull/191))
+  - Merged `memory`, `routing` extras into single `ai` extra
+  - Merged `multimodal` extra into `web` extra
+  - Removed `testing` extra (integrated into `dev`)
+  - Renamed `oauth` → `auth` for clarity
+  - **New extras structure**:
+    - `ai` = Memory + Routing + Context Compression
+    - `web` = Multimodal + Web scraping + Search
+    - `auth` = OAuth2 authentication
+    - `mcp` = Model Context Protocol
+    - `full` = All user-facing (ai + web + auth + mcp)
+    - `all` = Everything (full + dev + docs)
+  - **Migration**: `pip install kagura-ai[memory,routing]` → `pip install kagura-ai[ai]`
+
+### Documentation
+
+- Updated all documentation for v2.5.0 compatibility
+- Updated installation guide with new extras structure
+- Added Context Compression API reference
+- Updated examples README.md with v2.5.0 features
+
+### Tests
+
+- Added 30 context compression tests
+- Updated CI to use `--all-extras` for comprehensive testing
+- Total project tests: 650+ (all passing)
+
 ## [2.4.0] - 2025-10-13
 
 ### Added
