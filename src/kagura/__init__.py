@@ -12,8 +12,58 @@ Example:
     result = await hello("World")
 """
 
+from typing import TYPE_CHECKING
+
 # Version (lightweight, always loaded)
 from .version import __version__
+
+# Type hints for static analysis (not executed at runtime)
+if TYPE_CHECKING:
+    from .builder import AgentBuilder
+    from .core.cache import LLMCache
+    from .core.compression import CompressionPolicy, ContextManager
+    from .core.decorators import agent, tool, workflow
+    from .core.llm import LLMConfig, get_llm_cache, set_llm_cache
+    from .core.memory import MemoryManager
+    from .exceptions import (
+        AgentNotRegisteredError,
+        AuthenticationError,
+        CodeExecutionError,
+        CompressionError,
+        ContextLimitExceededError,
+        ExecutionError,
+        InvalidCredentialsError,
+        InvalidRouterStrategyError,
+        KaguraError,
+        LLMAPIError,
+        LLMError,
+        LLMRateLimitError,
+        LLMTimeoutError,
+        ModelNotSupportedError,
+        NoAgentFoundError,
+        NotAuthenticatedError,
+        PermissionDeniedError,
+        ResourceError,
+        RoutingError,
+        SchemaValidationError,
+        SecurityError,
+        TokenCountError,
+        TokenRefreshError,
+        UserCancelledError,
+        ValidationError,
+    )
+    from .presets import (
+        ChatbotPreset,
+        CodeReviewPreset,
+        ContentWriterPreset,
+        DataAnalystPreset,
+        LearningTutorPreset,
+        PersonalAssistantPreset,
+        ProjectManagerPreset,
+        ResearchPreset,
+        TechnicalSupportPreset,
+        TranslatorPreset,
+    )
 
 # All other imports are lazy-loaded via __getattr__
 
