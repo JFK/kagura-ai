@@ -613,7 +613,9 @@ class ChatSession:
 
         # Extract content from response
         result_content = extract_response_content(result)
-        self.console.print(Panel(result_content, title="Translation", border_style="cyan"))
+        self.console.print(
+            Panel(result_content, title="Translation", border_style="cyan")
+        )
 
         # Add to memory for context
         self.memory.add_message("user", f"/translate {args}")
