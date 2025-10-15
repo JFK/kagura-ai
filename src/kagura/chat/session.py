@@ -394,12 +394,15 @@ class ChatSession:
         else:
             response = await chat_agent(enhanced_input, memory=self.memory)
 
+        # Extract content from LLMResponse if needed
+        response_content = str(response.content) if hasattr(response, "content") else str(response)
+
         # Add assistant message to memory
-        self.memory.add_message("assistant", str(response))
+        self.memory.add_message("assistant", response_content)
 
         # Display response with enhanced formatting
         self.console.print("\n[bold green][AI][/]")
-        self.display.display_response(str(response))
+        self.display.display_response(response_content)
 
     async def handle_command(self, cmd: str) -> bool:
         """
