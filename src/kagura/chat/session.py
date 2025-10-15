@@ -146,14 +146,15 @@ class ChatSession:
         kb = self._create_keybindings()
 
         # Prompt session with history, completion, and keybindings
-        # multiline=False: Enter sends, Shift+Enter (Mac) / Ctrl+Enter (Win) for newline
+        # Note: prompt_toolkit doesn't easily support custom Shift+Enter behavior
+        # So we use Ctrl+D or Meta+Enter to send instead
         history_file = self.session_dir / "chat_history.txt"
         self.prompt_session: PromptSession[str] = PromptSession(
             history=FileHistory(str(history_file)),
             completer=KaguraCompleter(self),
             enable_history_search=True,  # Ctrl+R
             key_bindings=kb,
-            multiline=False,  # Enter sends message by default
+            multiline=True,  # Enter creates newline, Meta+Enter sends
         )
 
         # Load custom agents from ./agents directory
@@ -169,9 +170,8 @@ class ChatSession:
 
         Returns:
             KeyBindings with:
-            - Enter: Send message (default)
-            - Shift+Enter: New line (macOS)
-            - Ctrl+Enter: New line (Windows)
+            - Enter: New line (multiline mode)
+            - Meta+Enter or Ctrl+D: Send message
             - Ctrl+P/N: History navigation
         """
         kb = KeyBindings()
@@ -185,16 +185,6 @@ class ChatSession:
         @kb.add("c-n")
         def _next_command(event: Any) -> None:
             event.current_buffer.history_forward()
-
-        # Shift+Enter: Insert newline (macOS)
-        @kb.add("s-enter")
-        def _newline_shift(event: Any) -> None:
-            event.current_buffer.insert_text("\n")
-
-        # Ctrl+Enter: Insert newline (Windows)
-        @kb.add("c-enter")
-        def _newline_ctrl(event: Any) -> None:
-            event.current_buffer.insert_text("\n")
 
         return kb
 
@@ -441,8 +431,8 @@ class ChatSession:
         features.append("Type your message to chat with AI, or use commands:")
         features.append("")
         features.append("[dim]💡 Tips:[/]")
-        features.append("  [dim]• Enter: Send message[/]")
-        features.append("  [dim]• Shift+Enter (Mac) or Ctrl+Enter (Win): New line[/]")
+        features.append("  [dim]• Enter: New line[/]")
+        features.append("  [dim]• Meta+Enter (Esc then Enter) or Ctrl+D: Send[/]")
         features.append("  [dim]• Tab: Autocomplete commands[/]")
         features.append("  [dim]• Ctrl+P/N: Navigate history[/]")
         features.append("  [dim]• Ctrl+R: Search history[/]")
@@ -496,8 +486,8 @@ class ChatSession:
 - Just type your message to chat with AI
 
 ## Keyboard Shortcuts
-- **Enter** - Send message
-- **Shift+Enter** (macOS) or **Ctrl+Enter** (Windows) - New line
+- **Enter** - New line (multiline mode)
+- **Meta+Enter** (Esc then Enter) or **Ctrl+D** - Send message
 - **Tab** - Autocomplete commands, agents, tools
 - **Ctrl+P** - Previous command (history backward)
 - **Ctrl+N** - Next command (history forward)
