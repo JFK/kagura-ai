@@ -11,7 +11,9 @@ from kagura import tool
 
 
 @tool
-async def memory_store(agent_name: str, key: str, value: str, scope: str = "working") -> str:
+async def memory_store(
+    agent_name: str, key: str, value: str, scope: str = "working"
+) -> str:
     """Store information in agent memory
 
     Args:
@@ -36,7 +38,9 @@ async def memory_store(agent_name: str, key: str, value: str, scope: str = "work
 
 
 @tool
-async def memory_recall(agent_name: str, key: str, scope: str = "working") -> str:
+async def memory_recall(
+    agent_name: str, key: str, scope: str = "working"
+) -> str:
     """Recall information from agent memory
 
     Args:
