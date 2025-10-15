@@ -85,10 +85,13 @@ Summary:"""
 
         summary = await call_llm(summary_prompt, self.llm_config)
 
+        # Convert to string if LLMResponse
+        summary_str = str(summary)
+
         # Check if summary is small enough
-        summary_tokens = self.counter.count_tokens(summary)
+        summary_tokens = self.counter.count_tokens(summary_str)
         if summary_tokens <= target_tokens:
-            return summary
+            return summary_str
 
         # If still too large, recursively summarize
         # Split into chunks and summarize each
@@ -290,7 +293,8 @@ Summary:"""
 
 Summary:"""
 
-        return await call_llm(prompt, self.llm_config)
+        result = await call_llm(prompt, self.llm_config)
+        return str(result)
 
     def _split_into_chunks(self, text: str, target_tokens: int) -> list[str]:
         """Split text into chunks of approximately target token size
