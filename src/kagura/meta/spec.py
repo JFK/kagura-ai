@@ -1,5 +1,7 @@
 """Agent specification models"""
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -40,8 +42,9 @@ class AgentSpec(BaseModel):
         description="Whether agent needs Python code execution capabilities",
     )
     system_prompt: str = Field(..., description="Agent system prompt")
-    examples: list[dict[str, str]] = Field(
-        default_factory=list, description="Example inputs/outputs"
+    examples: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description="Example inputs/outputs (values can be any JSON-serializable type)"
     )
 
     class Config:
@@ -61,7 +64,9 @@ class AgentSpec(BaseModel):
                     "Translate the given text from English to Japanese."
                 ),
                 "examples": [
-                    {"input": "Hello world", "output": "こんにちは世界"}
+                    {"input": "Hello world", "output": "こんにちは世界"},
+                    {"input": 5, "output": 10},
+                    {"input": [1, 2], "output": {"sum": 3}}
                 ],
             }
         }

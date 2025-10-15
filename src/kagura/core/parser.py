@@ -110,7 +110,7 @@ def parse_basic_type(text: str, target_type: type) -> Any:
     raise ValueError(f"Unsupported basic type: {target_type}")
 
 
-def parse_response(response: str, target_type: Any) -> T:
+def parse_response(response: str, target_type: type[T]) -> T:
     """
     Parse LLM response based on target type.
 
@@ -122,13 +122,19 @@ def parse_response(response: str, target_type: Any) -> T:
 
     Args:
         response: LLM response text
-        target_type: Target return type
+        target_type: Target return type class
 
     Returns:
         Parsed value of target type
 
     Raises:
         ValueError: If parsing fails
+
+    Example:
+        >>> parse_response("42", int)
+        42
+        >>> parse_response('{"name": "test"}', dict)
+        {'name': 'test'}
     """
     # Handle str directly (no parsing needed)
     if target_type is str:
