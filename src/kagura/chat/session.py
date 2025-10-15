@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Any
 
 from prompt_toolkit import PromptSession
+from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -20,6 +22,8 @@ from kagura import agent
 from kagura.core.memory import MemoryManager
 from kagura.routing import AgentRouter, NoAgentFoundError
 
+from .completer import KaguraCompleter
+from .display import EnhancedDisplay
 from .preset import CodeReviewAgent, SummarizeAgent, TranslateAgent
 
 
@@ -135,10 +139,21 @@ class ChatSession:
         if self.enable_multimodal:
             self._init_multimodal_rag()
 
-        # Prompt session with history
+        # Enhanced display
+        self.display = EnhancedDisplay(self.console)
+
+        # Create keybindings
+        kb = self._create_keybindings()
+
+        # Prompt session with history, completion, and keybindings
+        # multiline=False: Enter sends, Shift+Enter (Mac) / Ctrl+Enter (Win) for newline
         history_file = self.session_dir / "chat_history.txt"
         self.prompt_session: PromptSession[str] = PromptSession(
-            history=FileHistory(str(history_file))
+            history=FileHistory(str(history_file)),
+            completer=KaguraCompleter(self),
+            enable_history_search=True,  # Ctrl+R
+            key_bindings=kb,
+            multiline=False,  # Enter sends message by default
         )
 
         # Load custom agents from ./agents directory
@@ -147,6 +162,31 @@ class ChatSession:
         if self.enable_routing:
             self.router = AgentRouter()
         self._load_custom_agents()
+
+    def _create_keybindings(self) -> KeyBindings:
+        """
+        Create custom keybindings for chat session.
+
+        Returns:
+            KeyBindings with:
+            - Enter: Send message (default)
+            - Shift+Enter: New line (macOS)
+            - Ctrl+Enter: New line (Windows)
+            - Ctrl+P/N: History navigation
+        """
+        kb = KeyBindings()
+
+        # Ctrl+P: Previous command (like shell)
+        @kb.add("c-p")
+        def _previous_command(event: Any) -> None:
+            event.current_buffer.history_backward()
+
+        # Ctrl+N: Next command
+        @kb.add("c-n")
+        def _next_command(event: Any) -> None:
+            event.current_buffer.history_forward()
+
+        return kb
 
     def _init_multimodal_rag(self) -> None:
         """Initialize MultimodalRAG."""
@@ -257,11 +297,9 @@ class ChatSession:
 
         while True:
             try:
-                # Get user input
-                user_input = await self.prompt_session.prompt_async(
-                    "\n[You] > ",
-                    # multiline=True,
-                )
+                # Get user input with formatted prompt
+                prompt_text = FormattedText([("class:prompt", "\n[You] > ")])
+                user_input = await self.prompt_session.prompt_async(prompt_text)
 
                 if not user_input.strip():
                     continue
@@ -345,9 +383,9 @@ class ChatSession:
         # Add assistant message to memory
         self.memory.add_message("assistant", str(response))
 
-        # Display response with markdown
+        # Display response with enhanced formatting
         self.console.print("\n[bold green][AI][/]")
-        self.console.print(Markdown(str(response)))
+        self.display.display_response(str(response))
 
     async def handle_command(self, cmd: str) -> bool:
         """
@@ -391,6 +429,14 @@ class ChatSession:
         """Display welcome message."""
         features = []
         features.append("Type your message to chat with AI, or use commands:")
+        features.append("")
+        features.append("[dim]💡 Tips:[/]")
+        features.append("  [dim]• Enter: Send message[/]")
+        features.append("  [dim]• Shift+Enter (Mac) or Ctrl+Enter (Win): New line[/]")
+        features.append("  [dim]• Tab: Autocomplete commands[/]")
+        features.append("  [dim]• Ctrl+P/N: Navigate history[/]")
+        features.append("  [dim]• Ctrl+R: Search history[/]")
+        features.append("")
         features.append("  [cyan]/help[/]      - Show help")
         features.append("  [cyan]/translate[/] - Translate text")
         features.append("  [cyan]/summarize[/] - Summarize text")
@@ -438,6 +484,14 @@ class ChatSession:
 
 ## Chat
 - Just type your message to chat with AI
+
+## Keyboard Shortcuts
+- **Enter** - Send message
+- **Shift+Enter** (macOS) or **Ctrl+Enter** (Windows) - New line
+- **Tab** - Autocomplete commands, agents, tools
+- **Ctrl+P** - Previous command (history backward)
+- **Ctrl+N** - Next command (history forward)
+- **Ctrl+R** - Search command history
 
 ## Preset Commands
 - `/translate <text> [to <language>]` - Translate text (default: to Japanese)
