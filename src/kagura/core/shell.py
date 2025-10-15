@@ -17,7 +17,7 @@ class ShellExecutor:
     def __init__(
         self,
         allowed_commands: Optional[list[str]] = None,
-        blocked_commands: Optional[list[str]] = None,
+        blocked_commands: Optional[dict[str, str]] = None,
         working_dir: Optional[Path] = None,
         timeout: int = 30,
         require_confirmation: bool = False,
@@ -80,25 +80,33 @@ class ShellExecutor:
         ]
 
     @staticmethod
-    def _default_blocked() -> list[str]:
-        """Get blacklist of dangerous commands."""
-        return [
-            "sudo",
-            "su",
-            "passwd",
-            "shutdown",
-            "reboot",
-            "dd",
-            "mkfs",
-            "fdisk",
-            "parted",
-            "eval",
-            "exec",
-            "source",
-            "curl -s | sh",
-            "wget -O - | sh",
-            "rm -rf /",
-        ]
+    def _default_blocked() -> dict[str, str]:
+        """Get blacklist of dangerous commands.
+
+        Returns:
+            Dict mapping command/pattern to match type:
+            - "exact": Match command name only (first word)
+            - "pattern": Match pattern anywhere in command string
+        """
+        return {
+            # Exact command name matches
+            "sudo": "exact",
+            "su": "exact",
+            "passwd": "exact",
+            "shutdown": "exact",
+            "reboot": "exact",
+            "dd": "exact",
+            "mkfs": "exact",
+            "fdisk": "exact",
+            "parted": "exact",
+            "eval": "exact",
+            "exec": "exact",
+            "source": "exact",
+            # Pattern matches (dangerous command sequences)
+            "rm -rf /": "pattern",
+            "curl -s | sh": "pattern",
+            "wget -O - | sh": "pattern",
+        }
 
     def validate_command(self, command: str) -> bool:
         """Validate command against security policies.
@@ -119,9 +127,15 @@ class ShellExecutor:
         cmd = parts[0]
 
         # Check blacklist first (higher priority)
-        for blocked in self.blocked_commands:
-            if blocked in command:
-                raise SecurityError(f"Blocked command pattern: {blocked}")
+        for blocked_cmd, match_type in self.blocked_commands.items():
+            if match_type == "exact":
+                # Check command name only (first word after parsing)
+                if cmd == blocked_cmd:
+                    raise SecurityError(f"Blocked command: {blocked_cmd}")
+            elif match_type == "pattern":
+                # Check pattern anywhere in command string (exact substring match)
+                if blocked_cmd in command:
+                    raise SecurityError(f"Blocked command pattern: {blocked_cmd}")
 
         # Check whitelist
         if self.allowed_commands:

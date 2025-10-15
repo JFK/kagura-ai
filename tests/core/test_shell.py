@@ -55,7 +55,10 @@ class TestShellExecutor:
     async def test_validate_command_blocked(self):
         """Test command validation with blacklist."""
         # Test with empty whitelist to focus on blacklist
-        executor = ShellExecutor(allowed_commands=None, blocked_commands=["sudo", "rm -rf /"])
+        executor = ShellExecutor(
+            allowed_commands=None,
+            blocked_commands={"sudo": "exact", "rm -rf /": "pattern"}
+        )
 
         # Should raise SecurityError for blocked commands
         with pytest.raises(SecurityError, match="Blocked command"):
@@ -146,3 +149,64 @@ class TestSecurityErrors:
         """Test UserCancelledError can be raised and caught."""
         with pytest.raises(UserCancelledError):
             raise UserCancelledError("Test user cancellation")
+
+
+class TestShellExecutorSecurityPolicy:
+    """Test security policy validation with precise command matching (RFC-027)."""
+
+    @pytest.mark.asyncio
+    async def test_blocked_command_in_path_allowed(self, tmp_path):
+        """Path containing blocked command name should be allowed."""
+        # Create path with "dd" in it (common in temp paths like dnddt_test)
+        test_dir = tmp_path / "dnddt_test_directory"
+        test_dir.mkdir()
+        (test_dir / "test.py").write_text("# test")
+
+        executor = ShellExecutor(working_dir=tmp_path)
+
+        # Should not raise SecurityError - "dd" is in path, not command
+        result = await executor.exec(f'find {test_dir} -name "*.py"')
+        assert result.success
+        assert "test.py" in result.stdout
+
+    @pytest.mark.asyncio
+    async def test_blocked_command_name_rejected(self):
+        """Command 'dd' itself should be blocked."""
+        executor = ShellExecutor()
+
+        with pytest.raises(SecurityError, match="Blocked command: dd"):
+            await executor.exec("dd if=/dev/zero of=/tmp/test bs=1M count=1")
+
+    @pytest.mark.asyncio
+    async def test_dangerous_pattern_rejected(self):
+        """Dangerous patterns should be blocked."""
+        executor = ShellExecutor()
+
+        with pytest.raises(SecurityError, match="Blocked command pattern: rm -rf /"):
+            await executor.exec("rm -rf / --no-preserve-root")
+
+    @pytest.mark.asyncio
+    async def test_eval_command_blocked(self):
+        """eval command should be blocked."""
+        executor = ShellExecutor()
+
+        with pytest.raises(SecurityError, match="Blocked command: eval"):
+            await executor.exec('eval "echo malicious"')
+
+    @pytest.mark.asyncio
+    async def test_allowed_command_with_dd_in_args(self):
+        """Allowed command with 'dd' in arguments should work."""
+        executor = ShellExecutor()
+
+        # 'echo' is allowed, 'dd' appears only in arguments
+        result = await executor.exec('echo "added some text"')
+        assert result.success
+        assert "added some text" in result.stdout
+
+    @pytest.mark.asyncio
+    async def test_source_command_blocked(self):
+        """source command should be blocked."""
+        executor = ShellExecutor()
+
+        with pytest.raises(SecurityError, match="Blocked command: source"):
+            await executor.exec("source /tmp/malicious.sh")
