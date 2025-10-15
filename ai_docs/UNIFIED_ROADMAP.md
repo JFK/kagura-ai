@@ -1133,4 +1133,62 @@ async def support(query: str):
 
 ---
 
-**🎊 本日（2025-10-15）の成果：v2.5.1 & v2.5.2リリース、RFC-029提案完了！**
+## 📋 Version 2.7.0: Telemetry Integration & Observability (Planned)
+
+**リリース目標**: 完全なObservability機能実装
+
+**計画日**: 2025-10-15
+**予定期間**: 4週間
+
+### RFC-030: Telemetry Integration & Observability Enhancement (Planned)
+**関連Issue**: [#205](https://github.com/JFK/kagura-ai/issues/205)
+**RFC**: [RFC-030](./rfcs/RFC_030_TELEMETRY_INTEGRATION.md)
+**優先度**: ⭐️ High
+
+#### 提案内容
+
+**Phase 1: @agent統合** (Week 1)
+- `@agent`デコレータに自動Telemetry記録
+- LLM呼び出し自動記録
+- Tool呼び出し自動記録
+- コスト計算機能
+- 20+ tests
+
+**Phase 2: DB抽象化** (Week 2)
+- StorageAdapter抽象化
+- SQLite/PostgreSQL/MongoDB実装
+- ストレージファクトリ
+- 環境変数サポート
+- 30+ tests
+
+**Phase 3: kagura init** (Week 3)
+- `kagura init`コマンド実装
+- `.env`ファイル生成
+- 自動初期化機能
+- 15+ tests
+
+**Phase 4: Dashboard拡張** (Week 4)
+- コスト分析機能
+- エクスポート機能（CSV/JSON）
+- エージェント比較機能
+- 20+ tests
+
+#### 成功指標
+
+**Core**:
+- ✅ `@agent`デコレータで自動telemetry記録（ユーザーコード変更不要）
+- ✅ SQLite/PostgreSQL/MongoDB対応
+- ✅ `kagura init`で簡単セットアップ
+- ✅ リアルタイムダッシュボード、コスト分析、エクスポート機能
+- ✅ 100+ 新規テスト全パス
+
+**Observability**:
+- ✅ すべてのLLM呼び出し、tool呼び出し、メモリ操作を記録
+- ✅ リアルタイムモニタリング（`kagura monitor`）
+- ✅ コスト追跡・分析
+- ✅ パフォーマンス分析
+- ✅ エラートレース機能
+
+---
+
+**🎊 本日（2025-10-15）の成果：v2.5.1 & v2.5.2リリース、RFC-029 & RFC-030提案完了！**
