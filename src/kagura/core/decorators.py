@@ -100,6 +100,7 @@ def agent(
     rag_cache_size_mb: int = 100,
     enable_compression: bool = True,
     compression_policy: Optional[CompressionPolicy] = None,
+    enable_telemetry: bool = True,
     **kwargs: Any,
 ) -> Callable[P, Awaitable[T]]: ...
 
@@ -120,6 +121,7 @@ def agent(
     rag_cache_size_mb: int = 100,
     enable_compression: bool = True,
     compression_policy: Optional[CompressionPolicy] = None,
+    enable_telemetry: bool = True,
     **kwargs: Any,
 ) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]: ...
 
@@ -139,6 +141,7 @@ def agent(
     rag_cache_size_mb: int = 100,
     enable_compression: bool = True,
     compression_policy: Optional[CompressionPolicy] = None,
+    enable_telemetry: bool = True,
     **kwargs: Any,
 ) -> (
     Callable[P, Awaitable[T]]
@@ -162,6 +165,7 @@ def agent(
         rag_cache_size_mb: Cache size in MB for RAG file loading
         enable_compression: Enable automatic context compression (default: True)
         compression_policy: Compression configuration (default: CompressionPolicy())
+        enable_telemetry: Enable automatic telemetry recording (default: True)
         **kwargs: Additional LLM parameters
 
     Returns:
@@ -271,127 +275,91 @@ def agent(
             # Make kwargs mutable
             kwargs_inner = dict(kwargs_inner)  # type: ignore
 
-            # Create and inject memory if enabled
-            if enable_memory and has_memory_param:
-                memory = MemoryManager(
-                    agent_name=func.__name__,
-                    persist_dir=persist_dir,
-                    max_messages=max_messages,
-                    enable_compression=enable_compression,
-                    compression_policy=compression_policy,
-                    model=llm_config.model,
-                )
-                kwargs_inner["memory"] = memory  # type: ignore
+            # Initialize telemetry if enabled
+            telemetry_collector = None
+            if enable_telemetry:
+                from kagura.observability import get_global_telemetry
 
-            # Inject MultimodalRAG if enabled
-            if multimodal_rag is not None and has_rag_param:
-                kwargs_inner["rag"] = multimodal_rag  # type: ignore
+                telemetry = get_global_telemetry()
+                telemetry_collector = telemetry.get_collector()
 
-            # Get function signature and bind arguments
-            bound = sig.bind(*args, **kwargs_inner)
-            bound.apply_defaults()
-
-            # Render prompt with arguments (excluding special params from template)
-            exclude_from_template = {"memory", "rag"}
-            template_args = {
-                k: v
-                for k, v in bound.arguments.items()
-                if k not in exclude_from_template
-            }
-            prompt = render_prompt(template_str, **template_args)
-
-            # Add JSON format instruction for Pydantic models
-            return_type = sig.return_annotation
-            if return_type != inspect.Signature.empty:
-                from typing import Union, get_args, get_origin
-
-                from pydantic import BaseModel
-
-                # Check if return type is a Pydantic model or list[Pydantic]
-                origin = get_origin(return_type)
-                actual_type = return_type
-
-                # Handle Optional[Model] -> get the actual model type
-                if origin is Union:
-                    type_args = get_args(return_type)
-                    # Filter out None type to get actual type
-                    non_none_args = [arg for arg in type_args if arg is not type(None)]
-                    if non_none_args:
-                        actual_type = non_none_args[0]
-                        origin = get_origin(actual_type)
-
-                # Check if it's a Pydantic model
-                is_pydantic = isinstance(actual_type, type) and issubclass(
-                    actual_type, BaseModel
-                )
-
-                # Check if it's list[PydanticModel]
-                is_pydantic_list = False
-                if origin is list:
-                    list_args = get_args(actual_type)
-                    if (
-                        list_args
-                        and isinstance(list_args[0], type)
-                        and issubclass(list_args[0], BaseModel)
-                    ):
-                        is_pydantic = True
-                        is_pydantic_list = True
-                        actual_type = list_args[0]  # Get the model type
-
-                # If it's a Pydantic model, add JSON instruction
-                if is_pydantic:
-                    from pydantic import BaseModel
-
-                    # Type assertion for pyright
-                    assert isinstance(actual_type, type) and issubclass(
-                        actual_type, BaseModel
+            # Prepare telemetry kwargs (simple params only, before injection)
+            telemetry_kwargs = {}
+            if telemetry_collector:
+                try:
+                    # Only bind user-provided arguments (not special params)
+                    user_params = {
+                        k: v
+                        for k, v in sig.parameters.items()
+                        if k not in ("memory", "rag")
+                    }
+                    user_sig = sig.replace(
+                        parameters=[sig.parameters[k] for k in user_params]
                     )
-                    schema = actual_type.model_json_schema()
-                    # Get required fields and properties for better instruction
-                    properties = schema.get("properties", {})
+                    filtered_kwargs = {
+                        k: v
+                        for k, v in kwargs_inner.items()
+                        if k not in ("memory", "rag")
+                    }
+                    bound = user_sig.bind(*args, **filtered_kwargs)
+                    telemetry_kwargs = dict(bound.arguments)
+                except Exception:
+                    # If binding fails, use kwargs_inner without special params
+                    telemetry_kwargs = {
+                        k: v
+                        for k, v in kwargs_inner.items()
+                        if k not in ("memory", "rag")
+                    }
 
-                    # Build field description
-                    field_desc = ", ".join(
-                        f'"{field}" ({props.get("type", "any")})'
-                        for field, props in properties.items()
+            # Track execution with telemetry
+            if telemetry_collector:
+                async with telemetry_collector.track_execution(
+                    func.__name__, **telemetry_kwargs
+                ):
+                    result = await _execute_agent(
+                        func,
+                        args,
+                        kwargs_inner,
+                        telemetry_collector,
+                        sig,
+                        template_str,
+                        llm_config,
+                        enable_memory,
+                        has_memory_param,
+                        persist_dir,
+                        max_messages,
+                        enable_compression,
+                        compression_policy,
+                        multimodal_rag,
+                        has_rag_param,
+                        llm_tools,
+                        tools_list,
+                        kwargs,
                     )
-
-                    if is_pydantic_list:
-                        prompt += (
-                            f"\n\nIMPORTANT: Return ONLY a JSON array of objects "
-                            f"with these fields: {field_desc}. "
-                            "Do NOT include the schema definition, explanations, "
-                            "or any other text. Just the data array."
-                        )
-                    else:
-                        prompt += (
-                            f"\n\nIMPORTANT: Return ONLY a JSON object "
-                            f"with these fields: {field_desc}. "
-                            "Do NOT include the schema definition, explanations, "
-                            "or any other text. Just the data object."
-                        )
-
-            # Prepare kwargs for LLM call
-            llm_kwargs = dict(kwargs)
-
-            # Add OpenAI tools schema to kwargs for litellm.acompletion
-            if llm_tools:
-                llm_kwargs["tools"] = llm_tools
-
-            # Call LLM with Python tool functions (renamed parameter to avoid conflict)
-            response = await call_llm(
-                prompt,
-                llm_config,
-                tool_functions=tools_list if tools_list else None,
-                **llm_kwargs,
-            )
-
-            # Parse response based on return type annotation
-            return_type = sig.return_annotation
-            if return_type != inspect.Signature.empty and return_type is not str:
-                return parse_response(response, return_type)  # type: ignore
-
-            return response  # type: ignore
+                    return result  # type: ignore
+            else:
+                # No telemetry
+                result = await _execute_agent(
+                    func,
+                    args,
+                    kwargs_inner,
+                    None,
+                    sig,
+                    template_str,
+                    llm_config,
+                    enable_memory,
+                    has_memory_param,
+                    persist_dir,
+                    max_messages,
+                    enable_compression,
+                    compression_policy,
+                    multimodal_rag,
+                    has_rag_param,
+                    llm_tools,
+                    tools_list,
+                    kwargs,
+                )
+                return result  # type: ignore
 
         # Mark as agent for MCP discovery
         wrapper._is_agent = True  # type: ignore
@@ -410,6 +378,158 @@ def agent(
         return wrapper  # type: ignore
 
     return decorator if fn is None else decorator(fn)
+
+
+async def _execute_agent(
+    func: Callable,
+    args: tuple,
+    kwargs_inner: dict,
+    telemetry_collector,
+    sig: inspect.Signature,
+    template_str: str,
+    llm_config: LLMConfig,
+    enable_memory: bool,
+    has_memory_param: bool,
+    persist_dir: Optional[Path],
+    max_messages: int,
+    enable_compression: bool,
+    compression_policy: Optional[CompressionPolicy],
+    multimodal_rag,
+    has_rag_param: bool,
+    llm_tools,
+    tools_list,
+    kwargs: dict,
+):
+    """Execute agent logic with optional telemetry"""
+    # Create and inject memory if enabled
+    if enable_memory and has_memory_param:
+        memory = MemoryManager(
+            agent_name=func.__name__,
+            persist_dir=persist_dir,
+            max_messages=max_messages,
+            enable_compression=enable_compression,
+            compression_policy=compression_policy,
+            model=llm_config.model,
+        )
+        kwargs_inner["memory"] = memory  # type: ignore
+
+    # Inject MultimodalRAG if enabled
+    if multimodal_rag is not None and has_rag_param:
+        kwargs_inner["rag"] = multimodal_rag  # type: ignore
+
+    # Get function signature and bind arguments
+    bound = sig.bind(*args, **kwargs_inner)
+    bound.apply_defaults()
+
+    # Render prompt with arguments (excluding special params from template)
+    exclude_from_template = {"memory", "rag"}
+    template_args = {
+        k: v for k, v in bound.arguments.items() if k not in exclude_from_template
+    }
+    prompt = render_prompt(template_str, **template_args)
+
+    # Add JSON format instruction for Pydantic models
+    return_type = sig.return_annotation
+    if return_type != inspect.Signature.empty:
+        from typing import Union, get_args, get_origin
+
+        from pydantic import BaseModel
+
+        # Check if return type is a Pydantic model or list[Pydantic]
+        origin = get_origin(return_type)
+        actual_type = return_type
+
+        # Handle Optional[Model] -> get the actual model type
+        if origin is Union:
+            type_args = get_args(return_type)
+            # Filter out None type to get actual type
+            non_none_args = [arg for arg in type_args if arg is not type(None)]
+            if non_none_args:
+                actual_type = non_none_args[0]
+                origin = get_origin(actual_type)
+
+        # Check if it's a Pydantic model
+        is_pydantic = isinstance(actual_type, type) and issubclass(
+            actual_type, BaseModel
+        )
+
+        # Check if it's list[PydanticModel]
+        is_pydantic_list = False
+        if origin is list:
+            list_args = get_args(actual_type)
+            if (
+                list_args
+                and isinstance(list_args[0], type)
+                and issubclass(list_args[0], BaseModel)
+            ):
+                is_pydantic = True
+                is_pydantic_list = True
+                actual_type = list_args[0]  # Get the model type
+
+        # If it's a Pydantic model, add JSON instruction
+        if is_pydantic:
+            from pydantic import BaseModel
+
+            # Type assertion for pyright
+            assert isinstance(actual_type, type) and issubclass(actual_type, BaseModel)
+            schema = actual_type.model_json_schema()
+            # Get required fields and properties for better instruction
+            properties = schema.get("properties", {})
+
+            # Build field description
+            field_desc = ", ".join(
+                f'"{field}" ({props.get("type", "any")})'
+                for field, props in properties.items()
+            )
+
+            if is_pydantic_list:
+                prompt += (
+                    f"\n\nIMPORTANT: Return ONLY a JSON array of objects "
+                    f"with these fields: {field_desc}. "
+                    "Do NOT include the schema definition, explanations, "
+                    "or any other text. Just the data array."
+                )
+            else:
+                prompt += (
+                    f"\n\nIMPORTANT: Return ONLY a JSON object "
+                    f"with these fields: {field_desc}. "
+                    "Do NOT include the schema definition, explanations, "
+                    "or any other text. Just the data object."
+                )
+
+    # Prepare kwargs for LLM call
+    llm_kwargs = dict(kwargs)
+
+    # Add OpenAI tools schema to kwargs for litellm.acompletion
+    if llm_tools:
+        llm_kwargs["tools"] = llm_tools
+
+    # Call LLM with Python tool functions
+    response = await call_llm(
+        prompt,
+        llm_config,
+        tool_functions=tools_list if tools_list else None,
+        **llm_kwargs,
+    )
+
+    # Record LLM call in telemetry
+    if telemetry_collector and hasattr(response, "usage"):
+        from kagura.observability.pricing import calculate_cost
+
+        telemetry_collector.record_llm_call(
+            model=response.model,
+            prompt_tokens=response.usage.get("prompt_tokens", 0),
+            completion_tokens=response.usage.get("completion_tokens", 0),
+            duration=response.duration,
+            cost=calculate_cost(response.usage, response.model),
+        )
+
+    # Parse response based on return type annotation
+    return_type = sig.return_annotation
+    if return_type != inspect.Signature.empty and return_type is not str:
+        return parse_response(response, return_type)  # type: ignore
+
+    return response  # type: ignore
 
 
 @overload

@@ -207,15 +207,12 @@ async def call_llm(
             **filtered_kwargs,
         )
 
-        # Track usage
-        if hasattr(response, "usage") and response.usage:
-            total_usage["prompt_tokens"] += getattr(
-                response.usage, "prompt_tokens", 0
-            )
-            total_usage["completion_tokens"] += getattr(
-                response.usage, "completion_tokens", 0
-            )
-            total_usage["total_tokens"] += getattr(response.usage, "total_tokens", 0)
+        # Track usage (safely handle different response types)
+        usage = getattr(response, "usage", None)
+        if usage:
+            total_usage["prompt_tokens"] += getattr(usage, "prompt_tokens", 0)
+            total_usage["completion_tokens"] += getattr(usage, "completion_tokens", 0)
+            total_usage["total_tokens"] += getattr(usage, "total_tokens", 0)
 
         message = response.choices[0].message  # type: ignore
 
