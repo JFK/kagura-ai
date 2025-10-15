@@ -28,7 +28,7 @@ from .preset import CodeReviewAgent, SummarizeAgent, TranslateAgent
 from .utils import extract_response_content
 
 
-@agent(model="gpt-4o-mini", temperature=0.7, enable_memory=True)
+@agent(model="gpt-4o-mini", temperature=0.7, enable_memory=False)
 async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     """
     You are a helpful AI assistant. Previous conversation context is available
@@ -68,7 +68,7 @@ async def _web_search_tool(query: str) -> str:
 @agent(
     model="gpt-4o-mini",
     temperature=0.7,
-    enable_memory=True,
+    enable_memory=False,
     tools=[_web_search_tool],
 )
 async def chat_agent_with_web(user_input: str, memory: MemoryManager) -> str:
@@ -391,11 +391,30 @@ class ChatSession:
             enhanced_input = f"{user_input}\n{rag_context}"
 
         # Get AI response (use web-enabled agent if enabled)
+        # Pass memory context manually since we disabled enable_memory in decorator
         self.console.print("[dim]💬 Generating response...[/]")
+
+        # Get conversation context
+        memory_context = await self.memory.get_llm_context()
+
+        # Add current input to the context
+        full_prompt = enhanced_input
+        if memory_context:
+            # Prepend conversation history
+            context_str = "\n\n[Previous conversation]\n"
+            for msg in memory_context:
+                role = msg["role"]
+                content = msg["content"]
+                if role == "user":
+                    context_str += f"User: {content}\n"
+                elif role == "assistant":
+                    context_str += f"Assistant: {content}\n"
+            full_prompt = context_str + "\n[Current message]\n" + enhanced_input
+
         if self.enable_web:
-            response = await chat_agent_with_web(enhanced_input, memory=self.memory)
+            response = await chat_agent_with_web(full_prompt, memory=self.memory)
         else:
-            response = await chat_agent(enhanced_input, memory=self.memory)
+            response = await chat_agent(full_prompt, memory=self.memory)
 
         # Extract content from response
         response_content = extract_response_content(response)
