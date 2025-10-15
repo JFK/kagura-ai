@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AuthConfig(BaseModel):
@@ -36,8 +36,7 @@ class AuthConfig(BaseModel):
         description="OAuth2 scopes to request",
     )
 
-    class Config:
-        """Pydantic configuration"""
-
+    model_config = ConfigDict(
         # Allow arbitrary types like Path
-        arbitrary_types_allowed = True
+        arbitrary_types_allowed=True
+    )
