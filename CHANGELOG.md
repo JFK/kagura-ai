@@ -5,6 +5,37 @@ All notable changes to Kagura AI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.4] - 2025-10-15
+
+### Added
+- **Unified MCP Server**: All Kagura features via single Claude Desktop config - RFC-032
+  - MCP server now exposes @tool and @workflow (not just @agent)
+  - 15 built-in MCP tools auto-registered on serve
+
+**Built-in MCP Tools** (15 tools):
+- Memory: `memory_store`, `memory_recall`, `memory_search`
+- Web: `web_search`, `web_scrape`
+- File/Shell: `file_read`, `file_write`, `dir_list`, `shell_exec`
+- Routing: `route_query`
+- Observability: `telemetry_stats`, `telemetry_cost`
+- Meta: `meta_create_agent`
+- Multimodal: `multimodal_index`, `multimodal_search`
+
+### Changed
+- `src/kagura/mcp/server.py`: Extended to support tool_registry and workflow_registry
+- `src/kagura/cli/mcp.py`: Auto-import builtin tools on `kagura mcp serve`
+
+### Documentation
+- `docs/en/guides/claude-code-mcp-setup.md`: Claude Code integration guide
+
+### Testing
+- 5 new MCP integration tests (all passing)
+- Total tools registered: 15+ built-in tools
+
+**References**: PR [#209](https://github.com/JFK/kagura-ai/pull/209), Issue [#207](https://github.com/JFK/kagura-ai/issues/207), [RFC-032](./ai_docs/rfcs/RFC_032_MCP_FULL_FEATURE_INTEGRATION.md)
+
+---
+
 ## [2.5.3] - 2025-10-15
 
 ### Performance
