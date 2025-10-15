@@ -753,11 +753,18 @@ class ChatSession:
         try:
             result = await agent_func(input_data)
 
+            # Extract content from response
+            result_content = extract_response_content(result)
+
             # Display result
             self.console.print(
                 f"\n[bold green][{agent_name} Result][/]"
             )
-            self.console.print(Panel(str(result), border_style="green"))
+            self.console.print(Panel(result_content, border_style="green"))
+
+            # Add to memory for context
+            self.memory.add_message("user", f"/agent {agent_name} {input_data}")
+            self.memory.add_message("assistant", result_content)
 
         except Exception as e:
             self.console.print(

@@ -588,27 +588,59 @@ def tool(
         sig = inspect.signature(func)
         tool_name = name or func.__name__
 
-        @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
-            # Bind arguments to signature for validation
-            try:
-                bound = sig.bind(*args, **kwargs)
-                bound.apply_defaults()
-            except TypeError as e:
-                raise TypeError(
-                    f"Tool '{tool_name}' called with invalid arguments: {e}"
-                ) from e
+        # Check if function is async
+        is_async = inspect.iscoroutinefunction(func)
 
-            # Execute the tool function
-            result = func(*bound.args, **bound.kwargs)
+        if is_async:
+            # Async wrapper
+            @functools.wraps(func)
+            async def async_wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+                # Bind arguments to signature for validation
+                try:
+                    bound = sig.bind(*args, **kwargs)
+                    bound.apply_defaults()
+                except TypeError as e:
+                    raise TypeError(
+                        f"Tool '{tool_name}' called with invalid arguments: {e}"
+                    ) from e
 
-            # Validate return type if annotated
-            return_type = sig.return_annotation
-            if return_type != inspect.Signature.empty:
-                # TODO: Add Pydantic validation for return type
-                pass
+                # Execute the tool function
+                result = await func(*bound.args, **bound.kwargs)  # type: ignore
 
-            return result  # type: ignore
+                # Validate return type if annotated
+                return_type = sig.return_annotation
+                if return_type != inspect.Signature.empty:
+                    # TODO: Add Pydantic validation for return type
+                    pass
+
+                return result  # type: ignore
+
+            wrapper = async_wrapper  # type: ignore
+        else:
+            # Sync wrapper
+            @functools.wraps(func)
+            def sync_wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+                # Bind arguments to signature for validation
+                try:
+                    bound = sig.bind(*args, **kwargs)
+                    bound.apply_defaults()
+                except TypeError as e:
+                    raise TypeError(
+                        f"Tool '{tool_name}' called with invalid arguments: {e}"
+                    ) from e
+
+                # Execute the tool function
+                result = func(*bound.args, **bound.kwargs)
+
+                # Validate return type if annotated
+                return_type = sig.return_annotation
+                if return_type != inspect.Signature.empty:
+                    # TODO: Add Pydantic validation for return type
+                    pass
+
+                return result  # type: ignore
+
+            wrapper = sync_wrapper  # type: ignore
 
         # Mark as tool for MCP discovery
         wrapper._is_tool = True  # type: ignore
