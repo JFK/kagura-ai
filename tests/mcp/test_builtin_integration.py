@@ -1,0 +1,107 @@
+"""Tests for built-in MCP tools integration"""
+
+import pytest
+
+from kagura.mcp.server import create_mcp_server
+
+
+def test_mcp_server_includes_builtin_tools():
+    """Test that MCP server recognizes built-in tools"""
+    # Import builtin to register tools
+    import kagura.mcp.builtin  # noqa: F401
+    from kagura.core.tool_registry import tool_registry
+
+    tools = tool_registry.get_all()
+
+    # Check built-in tools are present in registry
+    assert "memory_store" in tools
+    assert "memory_recall" in tools
+    assert "file_read" in tools
+    assert "file_write" in tools
+    assert "web_search" in tools
+
+
+@pytest.mark.asyncio
+async def test_memory_store_tool():
+    """Test memory_store tool"""
+    import kagura.mcp.builtin  # noqa: F401
+    from kagura.core.tool_registry import tool_registry
+
+    tool_func = tool_registry.get("memory_store")
+    assert tool_func is not None
+
+    result = await tool_func(
+        agent_name="test", key="user_name", value="Alice", scope="session"
+    )
+
+    assert "Stored" in result
+    assert "test" in result
+
+
+@pytest.mark.asyncio
+async def test_file_read_tool():
+    """Test file_read tool"""
+    import tempfile
+    import kagura.mcp.builtin  # noqa: F401
+    from kagura.core.tool_registry import tool_registry
+
+    # Create temp file
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
+        f.write("Hello, World!")
+        temp_path = f.name
+
+    tool_func = tool_registry.get("file_read")
+    assert tool_func is not None
+
+    result = tool_func(path=temp_path)
+
+    assert "Hello, World!" in result
+
+    # Cleanup
+    import os
+
+    os.unlink(temp_path)
+
+
+def test_file_read_via_registry():
+    """Test executing file_read via tool registry"""
+    import tempfile
+    import kagura.mcp.builtin  # noqa: F401
+    from kagura.core.tool_registry import tool_registry
+
+    # Create temp file
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
+        f.write("Test content")
+        temp_path = f.name
+
+    # Get tool from registry
+    file_read_tool = tool_registry.get("file_read")
+    assert file_read_tool is not None
+
+    # Execute
+    result = file_read_tool(path=temp_path)
+
+    assert "Test content" in result
+
+    # Cleanup
+    import os
+
+    os.unlink(temp_path)
+
+
+def test_builtin_tools_auto_register():
+    """Test that builtin module has tools registered"""
+    import kagura.mcp.builtin  # noqa: F401
+    from kagura.core.tool_registry import tool_registry
+
+    tools = tool_registry.get_all()
+
+    # Check specific built-in tools are registered
+    assert "memory_store" in tools
+    assert "memory_recall" in tools
+    assert "file_read" in tools
+    assert "file_write" in tools
+    assert "web_search" in tools
+
+    # Should have at least 10 built-in tools
+    assert len(tools) >= 10

@@ -53,6 +53,16 @@ def serve(ctx: click.Context, name: str):
     if verbose:
         click.echo(f"Starting Kagura MCP server: {name}", err=True)
 
+    # Auto-register built-in tools
+    try:
+        import kagura.mcp.builtin  # noqa: F401
+
+        if verbose:
+            click.echo("Loaded built-in MCP tools", err=True)
+    except ImportError:
+        if verbose:
+            click.echo("Warning: Could not load built-in tools", err=True)
+
     # Create MCP server
     server = create_mcp_server(name)
 
