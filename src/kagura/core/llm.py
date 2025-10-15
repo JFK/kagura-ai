@@ -1,12 +1,41 @@
 """LLM integration using LiteLLM"""
 
 import json
+import time
+from dataclasses import dataclass
 from typing import Any, Callable, Literal, Optional
 
 import litellm
 from pydantic import BaseModel, Field
 
 from .cache import LLMCache
+
+
+@dataclass
+class LLMResponse:
+    """LLM response with metadata
+
+    Attributes:
+        content: Response text
+        usage: Token usage dict (prompt_tokens, completion_tokens, total_tokens)
+        model: Model name
+        duration: Response time in seconds
+    """
+
+    content: str
+    usage: dict[str, int]
+    model: str
+    duration: float
+
+    def __str__(self) -> str:
+        """Return content as string for backward compatibility"""
+        return self.content
+
+    def __eq__(self, other: object) -> bool:
+        """Support comparison with strings for backward compatibility"""
+        if isinstance(other, str):
+            return self.content == other
+        return super().__eq__(other)
 
 # Global cache instance
 _llm_cache = LLMCache(backend="memory", default_ttl=3600)
@@ -100,7 +129,7 @@ async def call_llm(
     config: LLMConfig,
     tool_functions: Optional[list[Callable]] = None,
     **kwargs: Any,
-) -> str:
+) -> str | LLMResponse:
     """
     Call LLM with given prompt, handling tool calls if present.
 
@@ -138,6 +167,12 @@ async def call_llm(
         cached_response = await _llm_cache.get(cache_key)
         if cached_response is not None:
             return cached_response
+
+    # Track timing
+    start_time = time.time()
+
+    # Track total usage across all LLM calls (for tool iterations)
+    total_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
     # Build messages list
     messages: list[dict[str, Any]] = [{"role": "user", "content": prompt}]
@@ -177,6 +212,13 @@ async def call_llm(
             top_p=config.top_p,
             **filtered_kwargs,
         )
+
+        # Track usage (safely handle different response types)
+        usage = getattr(response, "usage", None)
+        if usage:
+            total_usage["prompt_tokens"] += getattr(usage, "prompt_tokens", 0)
+            total_usage["completion_tokens"] += getattr(usage, "completion_tokens", 0)
+            total_usage["total_tokens"] += getattr(usage, "total_tokens", 0)
 
         message = response.choices[0].message  # type: ignore
 
@@ -245,22 +287,29 @@ async def call_llm(
             # Continue loop to get final response
             continue
 
-        # No tool calls, return content
+        # No tool calls, return content with metadata
         content = message.content or ""
+        duration = time.time() - start_time
 
         # Cache the response (only if no tools were used)
         if config.enable_cache and not tool_functions:
             await _llm_cache.set(
-                cache_key,
-                content,
-                ttl=config.cache_ttl,
-                model=config.model
+                cache_key, content, ttl=config.cache_ttl, model=config.model
             )
 
-        return content
+        # Return LLMResponse with metadata
+        return LLMResponse(
+            content=content, usage=total_usage, model=config.model, duration=duration
+        )
 
     # Max iterations reached
-    return "Error: Maximum tool call iterations reached"
+    duration = time.time() - start_time
+    return LLMResponse(
+        content="Error: Maximum tool call iterations reached",
+        usage=total_usage,
+        model=config.model,
+        duration=duration,
+    )
 
 
 def get_llm_cache() -> LLMCache:
@@ -294,3 +343,6 @@ def set_llm_cache(cache: LLMCache) -> None:
     """
     global _llm_cache
     _llm_cache = cache
+
+
+__all__ = ["LLMConfig", "LLMResponse", "call_llm", "get_llm_cache", "set_llm_cache"]

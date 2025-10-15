@@ -49,7 +49,7 @@ class NLSpecParser:
 
         # Use existing call_llm + parse_response
         response = await call_llm(prompt, self.config)
-        spec = parse_response(response, AgentSpec)
+        spec = parse_response(str(response), AgentSpec)
 
         # Phase 2: Detect code execution need
         spec.requires_code_execution = await self.detect_code_execution_need(
@@ -239,4 +239,4 @@ Answer with just "YES" or "NO".
 """
 
         response = await call_llm(prompt, self.config)
-        return "yes" in response.lower()
+        return "yes" in str(response).lower()

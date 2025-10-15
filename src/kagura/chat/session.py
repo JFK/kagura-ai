@@ -343,11 +343,11 @@ class ChatSession:
             response = await chat_agent(enhanced_input, memory=self.memory)
 
         # Add assistant message to memory
-        self.memory.add_message("assistant", response)
+        self.memory.add_message("assistant", str(response))
 
         # Display response with markdown
         self.console.print("\n[bold green][AI][/]")
-        self.console.print(Markdown(response))
+        self.console.print(Markdown(str(response)))
 
     async def handle_command(self, cmd: str) -> bool:
         """

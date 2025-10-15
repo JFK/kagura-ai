@@ -119,10 +119,13 @@ Fix code: [code snippet or "N/A"]
 
         response = await call_llm(analysis_prompt, self.llm_config)
 
+        # Convert to string if LLMResponse
+        response_str = str(response)
+
         # Parse LLM response
-        root_cause = self._extract_section(response, "Root cause")
-        suggested_fix = self._extract_section(response, "Suggested fix")
-        fix_code = self._extract_section(response, "Fix code")
+        root_cause = self._extract_section(response_str, "Root cause")
+        suggested_fix = self._extract_section(response_str, "Suggested fix")
+        fix_code = self._extract_section(response_str, "Fix code")
 
         return ErrorAnalysis(
             error_type=error_type,
