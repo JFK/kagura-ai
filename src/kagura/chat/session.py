@@ -593,8 +593,9 @@ class ChatSession:
         self.console.print(f"\n[cyan]Translating to {target_lang}...[/]")
         result = await TranslateAgent(text, target_language=target_lang)
 
-        # Display result
-        self.console.print(Panel(result, title="Translation", border_style="cyan"))
+        # Display result (convert LLMResponse to string if needed)
+        result_str = str(result.content) if hasattr(result, "content") else str(result)
+        self.console.print(Panel(result_str, title="Translation", border_style="cyan"))
 
     async def preset_summarize(self, args: str) -> None:
         """
@@ -611,8 +612,9 @@ class ChatSession:
         self.console.print("\n[cyan]Summarizing...[/]")
         result = await SummarizeAgent(args)
 
-        # Display result
-        self.console.print(Panel(result, title="Summary", border_style="cyan"))
+        # Display result (convert LLMResponse to string if needed)
+        result_str = str(result.content) if hasattr(result, "content") else str(result)
+        self.console.print(Panel(result_str, title="Summary", border_style="cyan"))
 
     async def preset_review(self, args: str) -> None:
         """
@@ -652,9 +654,10 @@ class ChatSession:
         self.console.print("\n[cyan]Reviewing code...[/]")
         result = await CodeReviewAgent(code)
 
-        # Display result
+        # Display result (convert LLMResponse to string if needed)
+        result_str = str(result.content) if hasattr(result, "content") else str(result)
         self.console.print("\n[bold green][Code Review][/]")
-        self.console.print(Markdown(result))
+        self.console.print(Markdown(result_str))
 
     async def handle_agent_command(self, args: str) -> None:
         """
