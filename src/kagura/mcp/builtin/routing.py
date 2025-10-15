@@ -20,13 +20,8 @@ async def route_query(query: str, router_type: str = "llm") -> str:
         Selected agent name or error
     """
     try:
-        from kagura.routing import LLMRouter  # noqa: F401
-
-        # Note: Requires agents to be registered
-        # This is a simplified version for MCP
-        return f"Router initialized: {router_type}"
-    except ImportError:
-        return (
-            "Error: Routing requires 'ai' extra. "
-            "Install with: pip install kagura-ai[ai]"
-        )
+        # Note: This is a placeholder - routing requires agents to be registered
+        # Real implementation would need AgentRouter with registered agents
+        return f"Router type '{router_type}' - requires agent registration"
+    except Exception as e:
+        return f"Error: {e}"

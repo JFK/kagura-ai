@@ -66,12 +66,11 @@ def dir_list(path: str = ".", pattern: str = "*") -> str:
 
 
 @tool
-async def shell_exec(command: str, cwd: str = ".") -> str:
+async def shell_exec(command: str) -> str:
     """Execute shell command safely
 
     Args:
         command: Shell command
-        cwd: Working directory (default: current directory)
 
     Returns:
         Command output or error message
@@ -80,7 +79,7 @@ async def shell_exec(command: str, cwd: str = ".") -> str:
         from kagura.core.shell import ShellExecutor
 
         executor = ShellExecutor()
-        result = await executor.exec(command, cwd=cwd)
+        result = await executor.exec(command)
 
         return result.stdout if result.stdout else result.stderr
     except Exception as e:

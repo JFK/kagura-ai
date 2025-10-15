@@ -36,20 +36,22 @@ async def web_search(query: str, max_results: int = 5) -> str:
 
 
 @tool
-async def web_scrape(url: str) -> str:
+async def web_scrape(url: str, selector: str = "body") -> str:
     """Scrape web page content
 
     Args:
         url: URL to scrape
+        selector: CSS selector (default: body)
 
     Returns:
         Page text content or error message
     """
     try:
-        from kagura.web import scrape
+        from kagura.web import WebScraper
 
-        content = await scrape(url)
-        return content
+        scraper = WebScraper()
+        results = await scraper.scrape(url, selector=selector)
+        return "\n".join(results)
     except ImportError:
         return (
             "Error: Web scraping requires 'web' extra. "

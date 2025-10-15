@@ -27,7 +27,7 @@ async def multimodal_index(directory: str, collection_name: str = "default") -> 
 
         rag = MultimodalRAG(directory=Path(directory), collection_name=collection_name)
 
-        await rag.index_directory()
+        await rag.build_index()
 
         return f"Indexed directory '{directory}' into collection '{collection_name}'"
     except ImportError:
@@ -40,12 +40,13 @@ async def multimodal_index(directory: str, collection_name: str = "default") -> 
 
 
 @tool
-async def multimodal_search(
-    query: str, collection_name: str = "default", k: int = 5
+def multimodal_search(
+    directory: str, query: str, collection_name: str = "default", k: int = 3
 ) -> str:
     """Search multimodal content
 
     Args:
+        directory: Directory path (required for initialization)
         query: Search query
         collection_name: RAG collection name
         k: Number of results
@@ -56,8 +57,8 @@ async def multimodal_search(
     try:
         from kagura.core.memory import MultimodalRAG
 
-        rag = MultimodalRAG(collection_name=collection_name)
-        results = await rag.query(query, k=k)
+        rag = MultimodalRAG(directory=Path(directory), collection_name=collection_name)
+        results = rag.query(query, n_results=k)
 
         return json.dumps(results, indent=2)
     except ImportError:

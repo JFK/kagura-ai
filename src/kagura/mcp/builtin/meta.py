@@ -22,8 +22,7 @@ async def meta_create_agent(description: str) -> str:
         from kagura.meta import MetaAgent
 
         meta = MetaAgent()
-        spec = await meta.create_spec(description)
-        code = meta.generate_code(spec)
+        code = await meta.generate(description)
 
         return code
     except Exception as e:
