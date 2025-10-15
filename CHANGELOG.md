@@ -5,6 +5,45 @@ All notable changes to Kagura AI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.3] - 2025-10-15
+
+### Performance
+- **CLI Startup**: 98.7% faster (8.8s → 0.1s) - RFC-031
+  - Implemented LazyGroup for on-demand command loading
+  - Added module-level lazy imports via `__getattr__` (PEP 562)
+  - Smart help formatting without loading heavy modules
+  - No MCP/Observability imports on `--help`
+
+### Added
+- `src/kagura/cli/lazy.py`: LazyGroup implementation (157 lines)
+- `docs/en/guides/cli-performance.md`: Performance optimization guide
+- 14 new tests for lazy loading behavior
+- TYPE_CHECKING imports for better type hints
+
+### Changed
+- Refactored `src/kagura/cli/main.py`: LazyGroup with lazy_subcommands
+- Updated `src/kagura/__init__.py`: Lazy imports for CLI performance
+- Removed version numbers from README.md and docs/index.md
+- Updated "Recent Updates" section in README.md
+
+### Testing
+- **New Tests**: +14 lazy loading tests (all passing)
+- **Existing Tests**: 1,226/1,242 passing (99.2%)
+- **Type Checking**: 0 errors (TYPE_CHECKING block resolves all issues)
+- **Linting**: All ruff checks passed
+
+### Benchmark Results
+
+| Command | Before | After | Improvement |
+|---------|--------|-------|-------------|
+| `kagura --help` | 8.8s | 0.11s | 98.7% |
+| `kagura version` | 8.8s | 0.11s | 98.7% |
+| `kagura chat` | 8.8s+ | 0.5s | 94.3% |
+
+**References**: PR [#208](https://github.com/JFK/kagura-ai/pull/208), Issue [#206](https://github.com/JFK/kagura-ai/issues/206), [RFC-031](./ai_docs/rfcs/RFC_031_CLI_STARTUP_OPTIMIZATION.md)
+
+---
+
 ## [2.5.2] - 2025-10-15
 
 ### Changed
