@@ -1,4 +1,4 @@
-# Kagura AI v2.5.0
+# Kagura AI
 
 ![Kagura AI Logo](https://www.kagura-ai.com/assets/kagura-logo.svg)
 
@@ -10,7 +10,7 @@
 
 **Production-Ready AI Agent Framework with Memory, Routing, and Multimodal RAG**
 
-Kagura AI v2.5.0 is a production-ready framework focused on simplicity and developer experience. Convert any Python function into an AI agent with a single decorator, and leverage advanced features like memory management, intelligent routing, multimodal RAG, and context compression.
+Kagura AI is a production-ready framework focused on simplicity and developer experience. Convert any Python function into an AI agent with a single decorator, and leverage advanced features like memory management, intelligent routing, multimodal RAG, and context compression.
 
 ---
 
@@ -28,7 +28,7 @@ Kagura AI v2.5.0 is a production-ready framework focused on simplicity and devel
 - **Chat REPL**: `kagura chat` with preset agents (translate, summarize, review) ⭐️ NEW
 - **Multi-LLM Support**: Works with OpenAI, Anthropic, Google, and more via [LiteLLM](https://github.com/BerriAI/litellm)
 
-### Advanced Features (v2.5.0)
+### Advanced Features
 - **Memory Management**: Three-tier memory system (Context/Persistent/RAG) with ChromaDB for semantic search
 - **Agent Routing**: Intelligent routing with Intent/Semantic/Memory-Aware strategies
 - **Multimodal RAG**: Index and search images, PDFs, audio, video using Gemini API + ChromaDB
@@ -226,10 +226,11 @@ kagura run deploy --param env=production
 - [Examples](./examples/)
 - [Contributing Guide](./CONTRIBUTING.md)
 
-## 🎯 What's New in v2.5.0
+## 🎯 Recent Updates
 
-New features in v2.5.0:
-- **Context Compression**: Token counting and context window management (RFC-024 Phase 1)
+Latest features:
+- **Fast CLI Startup**: 98.7% faster (8.8s → 0.1s) with lazy loading
+- **Context Compression**: Token counting and context window management
 - **Memory-Aware Routing**: Intelligent routing with conversation context
 - **Testing Framework**: AgentTestCase with semantic assertions
 - **Observability**: Built-in telemetry and cost tracking

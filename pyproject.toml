@@ -1,6 +1,6 @@
 [project]
 name = "kagura-ai"
-version = "2.5.2"
+version = "2.5.3"
 description = "Python-First AI Agent Framework with Code Execution"
 authors = [
     { name = "JFK", email = "fumikazu.kiyota@gmail.com" }

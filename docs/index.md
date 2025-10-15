@@ -1,5 +1,5 @@
 ---
-title: Kagura AI v2.5.0 - Python-First AI Agent Framework
+title: Kagura AI - Python-First AI Agent Framework
 description: Convert any Python function into an AI agent with a single decorator. Built-in memory, routing, multimodal RAG, web search, and context compression.
 keywords:
   - AI Agents
@@ -13,7 +13,7 @@ keywords:
   - Pydantic
 author: Fumikazu Kiyota
 robots: index, follow
-og_title: Kagura AI v2.5.0 - Python-First AI Agent Framework
+og_title: Kagura AI - Python-First AI Agent Framework
 og_type: website
 og_url: https://www.kagura-ai.com
 og_description: Convert any Python function into an AI agent with a single decorator. Built-in memory, routing, multimodal RAG, web search, and context compression.
@@ -23,19 +23,19 @@ twitter_site: "@kagura_ai"
 twitter_creator: "@JFK"
 ---
 
-# Kagura AI v2.5.0
+# Kagura AI
 
 ![Kagura AI Logo](assets/kagura-logo.svg)
 
 **Python-First AI Agent Framework with Memory, Routing, and Multimodal RAG**
 
-Kagura AI v2.5.0 is a modern framework that makes building AI agents as simple as writing a Python function. With a single `@agent` decorator, you can transform any async function into a powerful AI agent with memory, routing, multimodal understanding, and web search capabilities.
+Kagura AI is a modern framework that makes building AI agents as simple as writing a Python function. With a single `@agent` decorator, you can transform any async function into a powerful AI agent with memory, routing, multimodal understanding, and web search capabilities.
 
 ---
 
 ## What is Kagura AI?
 
-Kagura AI v2.5.0 is a production-ready framework focused on developer experience and simplicity. You write agents in pure Python with familiar async/await patterns.
+Kagura AI is a production-ready framework focused on developer experience and simplicity. You write agents in pure Python with familiar async/await patterns.
 
 ```python
 from kagura import agent
@@ -59,7 +59,7 @@ result = await hello("World")
 - **Code Execution**: Built-in safe Python code generation and execution
 - **Multi-LLM Support**: Works with OpenAI, Anthropic, Google, and more
 
-### v2.5.0 Advanced Features
+### Advanced Features
 - **Memory Management**: Context, persistent, and RAG-based memory
 - **Agent Routing**: Intelligent agent selection with intent and semantic matching
 - **Multimodal RAG**: Index and search images, audio, video, and PDFs
@@ -131,7 +131,7 @@ result = await execute_code("Calculate the factorial of 10")
 
 ## Architecture
 
-Kagura AI v2.5.0 follows a clean, layered architecture:
+Kagura AI follows a clean, layered architecture:
 
 ```
 ┌─────────────────────────────────────┐
@@ -157,7 +157,7 @@ Kagura AI v2.5.0 follows a clean, layered architecture:
 
 ## Design Philosophy
 
-Kagura AI v2.5.0 is built on these principles:
+Kagura AI is built on these principles:
 
 - **Python-First**: No external configuration files
 - **Type Safety**: Leverages Python's type system
