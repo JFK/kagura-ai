@@ -67,10 +67,15 @@ async def get_youtube_transcript(video_url: str, lang: str = "en") -> str:
         # Extract video ID
         video_id = extract_video_id(video_url)
 
-        # Get transcript
-        transcript_list = YouTubeTranscriptApi.get_transcript(
-            video_id, languages=[lang]
-        )
+        # Try to get transcript in requested language
+        # If not available, try auto-generated or other available languages
+        try:
+            transcript_list = YouTubeTranscriptApi.get_transcript(
+                video_id, languages=[lang]
+            )
+        except Exception:
+            # Try to get any available transcript
+            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
 
         # Combine text segments
         text = " ".join([segment["text"] for segment in transcript_list])

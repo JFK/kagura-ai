@@ -31,14 +31,18 @@ async def youtube_video_summarizer(video_url: str, language: str = "en") -> str:
 
     Instructions:
     1. First, get the video metadata to understand the context
-    2. Then, get the transcript in the specified language ({{ language }})
+    2. Then, get the transcript. Try the specified language first ({{ language }})
+       - If {{ language }} fails, the tool will automatically try other available languages
+       - This is normal for videos that only have transcripts in specific languages
     3. Analyze the transcript and metadata
     4. Provide a comprehensive summary including:
        - Video title and author
        - Main topics covered
        - Key points and takeaways
        - Duration and other relevant info
+    5. If transcript is not available at all, provide summary based on metadata only
 
     Format the summary in clear, readable markdown.
+    If the video is in Japanese, provide the summary in Japanese.
     """
     ...
