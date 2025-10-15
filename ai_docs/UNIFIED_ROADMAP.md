@@ -936,3 +936,101 @@ async def support(query: str):
 ---
 
 **🎊 v2.5.0により、Kagura AIはproduction-readyフレームワークとして完成しました！**
+
+---
+
+## ✅ Version 2.5.1: Refactoring & Bug Fixes (Completed - 2025-10-15)
+
+**リリース目標**: コード品質向上、クリティカルバグ修正 ✅ 達成
+
+**リリース日**: 2025-10-15
+**GitHub Release**: [v2.5.1](https://github.com/JFK/kagura-ai/releases/tag/v2.5.1)
+
+### ✅ RFC-027: Bug Fixes - Shell Executor & Parser (Completed - PR #201)
+**関連Issue**: [#200](https://github.com/JFK/kagura-ai/issues/200)
+**PR**: [#201](https://github.com/JFK/kagura-ai/pull/201) - ✅ Merged (2025-10-15)
+
+#### 実装完了内容
+
+**Bug 1: Shell Executor Security Policy** (Critical)
+- **問題**: ブロックコマンドチェックが過剰に厳格
+  - パス文字列全体をチェックし、`/tmp/dnddt_test/`の"dd"でブロック
+- **解決**: 精密なコマンド名マッチング
+  - `blocked_commands`: `list[str]` → `dict[str, str]`（"exact"/"pattern"）
+  - "exact": コマンド名のみチェック（第1ワード）
+  - "pattern": 危険なパターンをサブストリングチェック
+- **影響**: 4テスト失敗 → 修正
+
+**Bug 2: AgentSpec Type Validation** (Medium)
+- **問題**: `examples` フィールドが`dict[str, str]`のみ受付
+  - LLM出力の数値例（`{"input": 3, "output": 6}`）が失敗
+- **解決**: `dict[str, Any]`に変更
+- **影響**: 1テスト失敗 → 修正
+
+**Bug 3: TypeVar Usage Warning** (Low)
+- **問題**: TypeVar "T"が一度しか使われていない
+- **解決**: `parse_response(response: str, target_type: type[T]) -> T`
+- **影響**: Pyright警告 → 解消
+
+**Dependencies Upgrade**:
+- Pyright: v1.1.390 → v1.1.406
+- typing-extensions: 4.12.2 → 4.15.0
+
+#### 成功指標（全達成！）
+
+**テスト**:
+- ✅ Pass Rate: 98.4% → 100% (1,213/1,213)
+- ✅ 新規テスト: +7 (セキュリティポリシー)
+- ✅ Pyright: 0 errors, 0 warnings (was 1 warning)
+- ✅ Ruff: All checks passed
+
+**セキュリティ**:
+- ✅ 同じセキュリティレベル維持
+- ✅ 精密な検出で誤検出を削減
+- ✅ ユーザビリティ向上
+
+#### 成果物
+
+**実装ファイル**:
+- `src/kagura/core/shell.py`: 精密なコマンドブロッキング（60行変更）
+- `src/kagura/meta/spec.py`: 柔軟な型対応（11行変更）
+- `src/kagura/core/parser.py`: TypeVar修正（10行変更）
+- `tests/core/test_shell.py`: セキュリティテスト追加（66行追加）
+
+**ドキュメント**:
+- `ai_docs/rfcs/RFC_027_BUGFIX_SHELL_AND_PARSER.md`: RFC仕様（515行）
+- `ai_docs/rfcs/RFC_027_IMPLEMENTATION_PLAN.md`: 実装計画（742行）
+- `CHANGELOG.md`: 変更履歴（新規作成）
+
+**統計**:
+- **変更ファイル**: 9ファイル
+- **変更行数**: +3,296 / -29
+- **テスト**: 1,213 passed (100%)
+- **ドキュメント**: 1,257行
+
+---
+
+### 🎯 v2.5.1 完了サマリー
+
+**完了したRFC**: 1個（RFC-027 - Bug Fixes）
+**マージしたPR**: 1個（#201）
+**修正バグ**: 3個（Critical: 1, Medium: 1, Low: 1）
+**リリース日**: 2025-10-15
+
+**主要改善**:
+- ✅ Shell Executor過剰制限解消
+- ✅ AgentSpec型検証柔軟化
+- ✅ TypeVar警告解消
+- ✅ Pyright 1.1.406アップグレード
+- ✅ 100%テスト成功率達成
+
+**技術的な学び**:
+- セキュリティポリシーの精密化（exact/pattern戦略）
+- Pydantic型柔軟性（dict[str, Any]）
+- TypeVar正しい使用法（type[T]パラメータ）
+- Issue駆動開発の重要性
+
+---
+
+**🎊 v2.5.1により、Kagura AIのコード品質がさらに向上しました！**
+

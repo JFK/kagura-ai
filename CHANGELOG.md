@@ -5,6 +5,33 @@ All notable changes to Kagura AI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.2] - 2025-10-15
+
+### Changed
+- **Code Quality**: Migrated to Pydantic v2 ConfigDict pattern (RFC-028)
+  - Replaced deprecated `class Config` with `model_config = ConfigDict()`
+  - Migrated 3 files with 5 Pydantic model classes
+  - Resolved 12 deprecation warnings
+  - Pydantic v3 compatibility preparation
+
+### Files Modified
+- `src/kagura/meta/spec.py` - AgentSpec model
+- `src/kagura/builder/config.py` - 4 builder config models
+- `src/kagura/auth/config.py` - AuthConfig model
+
+### Testing
+- **Warnings**: 12 Pydantic warnings → 0
+- **Tests**: 1,213 passed, 15 skipped (100% pass rate)
+- **Type Checking**: 0 errors, 0 warnings
+- **Compatibility**: 100% backward compatible, no breaking changes
+
+### Documentation
+- RFC-028: Pydantic v2 Config Migration
+
+**References**: PR [#203](https://github.com/JFK/kagura-ai/pull/203), Issue [#202](https://github.com/JFK/kagura-ai/issues/202), [RFC-028](./ai_docs/rfcs/RFC_028_PYDANTIC_V2_MIGRATION.md)
+
+---
+
 ## [2.5.1] - 2025-10-15
 
 ### Fixed
