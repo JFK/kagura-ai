@@ -1,8 +1,9 @@
 """Gemini API loader for multimodal content processing."""
 
-import os
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+from kagura.config.env import get_google_api_key
 
 try:
     import google.generativeai as genai
@@ -58,7 +59,7 @@ class GeminiLoader:
             )
 
         self.model_name = model
-        self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
+        self.api_key = api_key or get_google_api_key()
 
         if not self.api_key:
             raise ValueError(
