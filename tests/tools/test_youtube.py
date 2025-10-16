@@ -4,7 +4,11 @@ Tests for YouTube tools
 
 import pytest
 
-from kagura.tools.youtube import extract_video_id, get_youtube_metadata, get_youtube_transcript
+from kagura.tools.youtube import (
+    extract_video_id,
+    get_youtube_metadata,
+    get_youtube_transcript,
+)
 
 
 class TestExtractVideoId:
@@ -105,3 +109,50 @@ async def test_get_youtube_metadata_real() -> None:
     assert isinstance(result, str)
     assert "title" in result.lower()
     assert "error" not in result.lower()
+
+
+@pytest.mark.asyncio
+async def test_get_youtube_transcript_no_subtitles() -> None:
+    """Test transcript tool with video without subtitles (mocked)"""
+    from unittest.mock import MagicMock, patch
+
+    # Create mock exceptions
+    class NoTranscriptFound(Exception):
+        """Mock NoTranscriptFound exception"""
+
+        pass
+
+    class TranscriptsDisabled(Exception):
+        """Mock TranscriptsDisabled exception"""
+
+        pass
+
+    # Create mock API instance (v0.6+ uses instance methods)
+    mock_api_instance = MagicMock()
+    mock_api_instance.fetch.side_effect = NoTranscriptFound("No transcripts found")
+
+    # Create mock API class that returns the instance
+    mock_api_class = MagicMock(return_value=mock_api_instance)
+
+    # Patch youtube_transcript_api module
+    mock_module = MagicMock()
+    mock_module.YouTubeTranscriptApi = mock_api_class
+    mock_module.NoTranscriptFound = NoTranscriptFound
+    mock_module.TranscriptsDisabled = TranscriptsDisabled
+
+    with patch.dict("sys.modules", {"youtube_transcript_api": mock_module}):
+        # Force reimport to use mocked module
+        import importlib
+
+        import kagura.tools.youtube
+
+        importlib.reload(kagura.tools.youtube)
+
+        url = "https://www.youtube.com/watch?v=test123"
+        result = await kagura.tools.youtube.get_youtube_transcript(url)
+
+        # Should return helpful error message
+        assert isinstance(result, str)
+        assert "Transcript not available" in result
+        assert "does not have subtitles" in result
+        assert "youtube_metadata" in result or "web_search" in result

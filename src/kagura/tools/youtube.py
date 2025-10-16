@@ -47,7 +47,7 @@ async def get_youtube_transcript(video_url: str, lang: str = "en") -> str:
         lang: Language code (default: en, ja for Japanese)
 
     Returns:
-        Video transcript text
+        Video transcript text or helpful error message
 
     Example:
         >>> transcript = await get_youtube_transcript(
@@ -56,8 +56,10 @@ async def get_youtube_transcript(video_url: str, lang: str = "en") -> str:
         ... )
     """
     try:
-        from youtube_transcript_api import (
-            YouTubeTranscriptApi,  # type: ignore[import-untyped]
+        from youtube_transcript_api import (  # type: ignore[import-untyped]
+            NoTranscriptFound,
+            TranscriptsDisabled,
+            YouTubeTranscriptApi,
         )
     except ImportError:
         return (
@@ -69,18 +71,28 @@ async def get_youtube_transcript(video_url: str, lang: str = "en") -> str:
         # Extract video ID
         video_id = extract_video_id(video_url)
 
+        # Create API instance (required for v0.6+)
+        api = YouTubeTranscriptApi()
+
         # Try to get transcript in requested language
         # If not available, try auto-generated or other available languages
         try:
-            transcript_list = YouTubeTranscriptApi.get_transcript(  # type: ignore[attr-defined]
-                video_id, languages=[lang]
-            )
-        except Exception:
+            transcript = api.fetch(video_id, languages=[lang])  # type: ignore[attr-defined]
+        except NoTranscriptFound:  # type: ignore[misc]
             # Try to get any available transcript
-            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)  # type: ignore[attr-defined]
+            try:
+                transcript = api.fetch(video_id)  # type: ignore[attr-defined]
+            except (NoTranscriptFound, TranscriptsDisabled):  # type: ignore[misc]
+                # No transcript available at all
+                return (
+                    "Transcript not available: "
+                    "This video does not have subtitles.\n\n"
+                    "💡 Tip: You can still get video information using "
+                    "youtube_metadata, or use web_search for additional context."
+                )
 
-        # Combine text segments
-        text = " ".join([segment["text"] for segment in transcript_list])
+        # Combine text segments (v0.6+ uses .text attribute)
+        text = " ".join([segment.text for segment in transcript])  # type: ignore[attr-defined]
 
         return text
 
