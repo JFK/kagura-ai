@@ -414,23 +414,54 @@ async def _url_fetch_tool(url: str) -> str:
 
 
 # Shell Execution Tool
-async def _shell_exec_tool_wrapper(command: str) -> str:
-    """Execute shell command with user confirmation.
+async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
+    """Execute shell command with user confirmation and auto-retry on failure.
 
     Args:
         command: Shell command to execute
+        user_intent: What the user is trying to accomplish (optional)
 
     Returns:
         Command output or error message
     """
     from kagura.chat.shell_tool import shell_exec_tool
 
-    # Use shell_exec_tool with auto_confirm=False (ask user)
-    # and interactive=True (TTY mode for interactive commands)
+    # Use shell_exec_tool with auto_retry enabled
     return await shell_exec_tool(
         command=command,
         auto_confirm=False,  # Ask user before executing
         interactive=True,  # Support interactive commands
+        enable_auto_retry=True,  # Auto-suggest alternatives on failure
+        user_intent=user_intent or command,  # Fallback to command itself
+    )
+
+
+async def _shell_exec_with_options_wrapper(
+    options: list[dict[str, str]]
+) -> str:
+    """Execute shell command from multiple options with user selection.
+
+    Args:
+        options: List of command options, each with:
+            - "command": The shell command to execute
+            - "description": Short description of what it does
+
+    Returns:
+        Command output or error message
+
+    Examples:
+        >>> options = [
+        ...     {"command": "pwd", "description": "current directory path"},
+        ...     {"command": "ls -la", "description": "detailed listing"},
+        ... ]
+        >>> result = await _shell_exec_with_options_wrapper(options)
+    """
+    from kagura.chat.shell_tool import shell_exec_with_options
+
+    return await shell_exec_with_options(
+        options=options,
+        auto_select=0,  # Ask user to select
+        interactive=True,
     )
 
 
@@ -497,7 +528,8 @@ async def _youtube_metadata_tool(video_url: str) -> str:
         # Code execution
         _execute_python_tool,
         # Shell execution
-        _shell_exec_tool_wrapper,
+        _shell_exec_tool_wrapper,  # Single command with auto-retry
+        _shell_exec_with_options_wrapper,  # Multiple options for user to choose
         # Web & Content
         _brave_search_tool,  # Primary search (high-quality)
         _web_search_tool,  # Fallback search (DuckDuckGo)
@@ -530,15 +562,19 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     - execute_python(code): Execute Python code safely in sandbox
 
     Shell Commands:
-    - shell_exec(command): Execute shell commands with user confirmation
-        - IMPORTANT: Execute ONLY ONE command per user request
-        - Choose the MOST appropriate single command (e.g., "ls -la")
-        - User is asked to confirm before execution
-        - Interactive mode: supports commands that ask for input (apt-get, rm -i, etc.)
-        - Security: blocks dangerous commands (sudo, rm -rf /, pipe to shell)
-        - Examples: "ls -la", "git status", "find . -name '*.py'"
-        - If you have multiple approaches, try the first one first
-        - If it fails, you can try alternative commands
+    - shell_exec(command, user_intent=""): Execute with auto-retry on failure
+        - User confirms before execution
+        - If fails, automatically suggests alternatives for user to choose
+        - Interactive mode: supports commands asking for input (apt-get, rm -i)
+        - Security: blocks dangerous commands (sudo, rm -rf /, | sh)
+        - user_intent: describe what user wants (improves error recovery)
+        - Example: shell_exec("ls -la", user_intent="show directory")
+
+    - shell_exec_with_options(options): Present multiple command choices
+        - Shows numbered list for user to select
+        - options: [{"command": "pwd", "description": "show path"}, ...]
+        - Use when you know multiple good approaches upfront
+        - Example: For "show directory", offer pwd, ls -la, tree
 
     Web & Content:
     - brave_search(query, count=5): Search the web with Brave (high-quality, primary)
