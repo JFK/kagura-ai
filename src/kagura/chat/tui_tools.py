@@ -90,14 +90,22 @@ async def shell_exec_tool_tui(command: str, user_intent: str = "") -> str:
 
                     if fixed_command and fixed_command != command:
                         # Ask to retry with fixed command
+                        dialog_text = (
+                            f"Original: {command}\n"
+                            f"Failed: {error_msg}\n\n"
+                            f"Suggested fix: {fixed_command}\n\n"
+                            f"Try this instead?"
+                        )
                         retry_confirmed = yes_no_dialog(
                             title="Try Fixed Command?",
-                            text=f"Original: {command}\nFailed: {error_msg}\n\nSuggested fix: {fixed_command}\n\nTry this instead?",
+                            text=dialog_text,
                         ).run()
 
                         if retry_confirmed:
                             # Retry (no auto-retry to prevent loops)
-                            return await shell_exec_tool_tui(fixed_command, user_intent="")
+                            return await shell_exec_tool_tui(
+                                fixed_command, user_intent=""
+                            )
 
                 except Exception as e:
                     console.print(f"[dim]Error analyzing: {e}[/]")
