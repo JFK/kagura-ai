@@ -75,11 +75,12 @@ class TwoColumnChatUI:
         self.console = Console(record=True)
 
         # Output area (read-only, scrollable)
+        # focusable=True allows text selection with mouse
         self.output_area = TextArea(
             text=self._render_welcome(),
             read_only=True,
             scrollbar=True,
-            focusable=False,
+            focusable=True,  # Allow text selection
             wrap_lines=True,
         )
 
@@ -92,12 +93,12 @@ class TwoColumnChatUI:
 
         self.input_area = Window(
             content=BufferControl(buffer=self.input_buffer),
-            height=D(min=3, max=10),  # 3-10 lines, auto-expand
+            height=D(min=1, max=10),  # 1-10 lines, auto-expand from 1 line
         )
 
         # Status bar
         status_text = (
-            " Enter×2=Send | Ctrl+P/N=History | Ctrl+C=Cancel | /exit=Quit "
+            " Enter×2=Send | Tab/Esc=Focus Input | Ctrl+P/N=History | Ctrl+C=Cancel "
         )
         self.status_bar = Window(
             content=FormattedTextControl(text=status_text),
@@ -129,6 +130,9 @@ class TwoColumnChatUI:
         # Track if user is scrolling up (disable auto-scroll)
         self.auto_scroll_enabled = True
 
+        # Set initial focus to input area (must be done after app creation)
+        layout.focus(self.input_area)
+
     def _render_welcome(self) -> str:
         """Render welcome message."""
         return """╔══════════════════════════════════════════════════════════════════╗
@@ -149,6 +153,7 @@ class TwoColumnChatUI:
 
 ⌨️  Shortcuts:
   • Enter×2 (or Ctrl+J) = Send message
+  • Tab / Esc = Focus input area (for typing after scrolling)
   • Ctrl+P/N = History navigation
   • Ctrl+C = Cancel input
   • /exit = Quit chat
@@ -202,6 +207,16 @@ class TwoColumnChatUI:
             self.input_buffer.text = ""
             self.append_output("[yellow]Input cancelled[/yellow]\n")
 
+        @kb.add("tab")  # Tab = focus input area
+        def _(event: Any) -> None:
+            """Focus input area."""
+            event.app.layout.focus(self.input_area)
+
+        @kb.add("escape")  # Escape = also focus input
+        def _(event: Any) -> None:
+            """Focus input area."""
+            event.app.layout.focus(self.input_area)
+
         return kb
 
     def _on_text_insert(self, buffer: Buffer) -> None:
@@ -213,14 +228,22 @@ class TwoColumnChatUI:
         """Append text to output area with auto-scroll.
 
         Args:
-            text: Text to append
+            text: Text to append (can include Rich markup)
         """
+        # Render Rich markup to ANSI
+        from io import StringIO
+
+        string_io = StringIO()
+        temp_console = Console(file=string_io, force_terminal=True, width=80)
+        temp_console.print(text, end="")
+        rendered_text = string_io.getvalue()
+
         # TextArea is read-only, so we need to update the text directly
         current_text = self.output_area.text
         at_bottom = self.auto_scroll_enabled
 
         # Append new text
-        self.output_area.text = current_text + text
+        self.output_area.text = current_text + rendered_text
 
         # Auto-scroll: move cursor to end if enabled
         if at_bottom:
@@ -276,6 +299,8 @@ class TwoColumnChatUI:
                 full_prompt = context_str + "\n[Current message]\n" + user_input
 
             # Get AI response
+            # Note: We use regular chat_agent, but it will fail on shell confirmations
+            # TODO: Create TUI-specific agent with _shell_exec_tool_tui
             response = await chat_agent(full_prompt, memory=self.memory)
 
             # Extract content
@@ -304,6 +329,7 @@ Commands:
 
 Shortcuts:
   Enter×2 or Ctrl+J  - Send message
+  Tab / Esc          - Focus input (after scrolling)
   Ctrl+P/N           - Navigate history
   Ctrl+C             - Cancel input
 
