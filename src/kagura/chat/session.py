@@ -863,14 +863,21 @@ class ChatSession:
         self.console.print("[dim]💬 Generating response...[/]")
 
         # DEBUG: Show available tools
-        self.console.print(
-            f"[red]🐛 DEBUG: Available tools: {len(chat_agent._tools)}[/red]",
-            file=sys.stderr,
-        )
-        for i, tool in enumerate(chat_agent._tools):
-            tool_name = tool.__name__ if hasattr(tool, '__name__') else str(tool)
+        tools = getattr(chat_agent, '_tools', None)
+        if tools:
             self.console.print(
-                f"[red]   {i+1}. {tool_name}[/red]",
+                f"[red]🐛 DEBUG: Available tools: {len(tools)}[/red]",
+                file=sys.stderr,
+            )
+            for i, tool in enumerate(tools):
+                tool_name = tool.__name__ if hasattr(tool, '__name__') else str(tool)
+                self.console.print(
+                    f"[red]   {i+1}. {tool_name}[/red]",
+                    file=sys.stderr,
+                )
+        else:
+            self.console.print(
+                "[red]🐛 DEBUG: No _tools attribute found on chat_agent[/red]",
                 file=sys.stderr,
             )
 
