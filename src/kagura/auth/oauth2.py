@@ -66,8 +66,7 @@ class OAuth2Manager:
         self.creds_file = self.config_dir / "credentials.json.enc"
         self.key_file = self.config_dir / ".key"
         self.client_secrets_file = (
-            self.config.client_secrets_path
-            or self.config_dir / "client_secrets.json"
+            self.config.client_secrets_path or self.config_dir / "client_secrets.json"
         )
 
         # Setup encryption
@@ -178,9 +177,7 @@ class OAuth2Manager:
                 logger.debug("Token refreshed successfully")
             except Exception as e:
                 logger.error(f"Token refresh failed: {e}")
-                raise TokenRefreshError(
-                    self.provider, reason=str(e)
-                ) from e
+                raise TokenRefreshError(self.provider, reason=str(e)) from e
 
         return creds
 
@@ -219,6 +216,7 @@ class OAuth2Manager:
         if creds.expiry:
             # Ensure expiry has timezone info before saving
             from datetime import timezone
+
             expiry_to_save = creds.expiry
             if expiry_to_save.tzinfo is None:
                 # If naive, assume UTC
@@ -262,6 +260,7 @@ class OAuth2Manager:
             # Restore expiry if it exists
             if expiry_str:
                 from datetime import datetime, timezone
+
                 # Parse ISO format datetime (preserves timezone from string)
                 expiry_dt = datetime.fromisoformat(expiry_str)
                 # IMPORTANT: Google auth library's _helpers.utcnow() is timezone-NAIVE
@@ -276,6 +275,4 @@ class OAuth2Manager:
 
         except Exception as e:
             logger.error(f"Failed to load credentials: {e}")
-            raise InvalidCredentialsError(
-                f"Failed to decrypt credentials: {e}"
-            ) from e
+            raise InvalidCredentialsError(f"Failed to decrypt credentials: {e}") from e

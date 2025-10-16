@@ -58,7 +58,7 @@ async def parallel_gather(*awaitables: Coroutine[Any, Any, T]) -> list[T]:
 async def parallel_map(
     func: Callable[[T], Coroutine[Any, Any, Any]],
     items: list[T],
-    max_concurrent: int = 5
+    max_concurrent: int = 5,
 ) -> list[Any]:
     """Apply async function to items in parallel with concurrency limit
 
@@ -113,7 +113,7 @@ async def parallel_map(
 async def parallel_map_unordered(
     func: Callable[[T], Coroutine[Any, Any, Any]],
     items: list[T],
-    max_concurrent: int = 5
+    max_concurrent: int = 5,
 ) -> list[Any]:
     """Apply async function to items in parallel, returning as they complete
 

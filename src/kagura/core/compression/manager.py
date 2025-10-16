@@ -36,9 +36,7 @@ class ContextManager:
         """
         self.policy = policy or CompressionPolicy()
         self.counter = TokenCounter(model=model)
-        self.monitor = ContextMonitor(
-            self.counter, max_tokens=self.policy.max_tokens
-        )
+        self.monitor = ContextMonitor(self.counter, max_tokens=self.policy.max_tokens)
         self.trimmer = MessageTrimmer(self.counter)
 
         # Initialize summarizer if enabled
@@ -115,11 +113,7 @@ class ContextManager:
             return self._compress_trim(messages, target_tokens)
 
         # Preserve recent messages
-        recent = (
-            messages[-self.policy.preserve_recent :]
-            if messages
-            else []
-        )
+        recent = messages[-self.policy.preserve_recent :] if messages else []
         to_summarize = (
             messages[: -self.policy.preserve_recent]
             if len(messages) > self.policy.preserve_recent
@@ -157,9 +151,7 @@ class ContextManager:
         if not self.summarizer:
             return self._compress_trim(messages, target_tokens)
 
-        return await self.summarizer.compress_preserve_events(
-            messages, target_tokens
-        )
+        return await self.summarizer.compress_preserve_events(messages, target_tokens)
 
     async def _compress_auto(
         self, messages: list[dict[str, Any]], target_tokens: int

@@ -87,9 +87,9 @@ class AgentTestCase:
         Raises:
             AssertionError: If none of the options found
         """
-        assert any(opt in text for opt in options), (
-            f"Expected one of {options} in text, got: {text}"
-        )
+        assert any(
+            opt in text for opt in options
+        ), f"Expected one of {options} in text, got: {text}"
 
     def assert_not_contains(self, text: str, substring: str) -> None:
         """Assert text does not contain substring.
@@ -101,9 +101,9 @@ class AgentTestCase:
         Raises:
             AssertionError: If substring found
         """
-        assert substring not in text, (
-            f"Did not expect '{substring}' in text, got: {text}"
-        )
+        assert (
+            substring not in text
+        ), f"Did not expect '{substring}' in text, got: {text}"
 
     def assert_matches_pattern(self, text: str, pattern: str) -> None:
         """Assert text matches regex pattern.
@@ -115,9 +115,9 @@ class AgentTestCase:
         Raises:
             AssertionError: If pattern doesn't match
         """
-        assert re.search(pattern, text), (
-            f"Text does not match pattern '{pattern}': {text}"
-        )
+        assert re.search(
+            pattern, text
+        ), f"Text does not match pattern '{pattern}': {text}"
 
     def assert_not_empty(self, text: str) -> None:
         """Assert text is not empty.
@@ -150,9 +150,9 @@ class AgentTestCase:
             )
 
         detected = detect(text)
-        assert detected == expected_lang, (
-            f"Expected language '{expected_lang}', got '{detected}'"
-        )
+        assert (
+            detected == expected_lang
+        ), f"Expected language '{expected_lang}', got '{detected}'"
 
     # ===== LLM Behavior Assertions =====
 
@@ -176,9 +176,9 @@ class AgentTestCase:
 
         if model is not None:
             models = [call.get("model") for call in self._llm_calls]
-            assert all(m == model for m in models), (
-                f"Expected all calls to use model '{model}', got {set(models)}"
-            )
+            assert all(
+                m == model for m in models
+            ), f"Expected all calls to use model '{model}', got {set(models)}"
 
     def assert_token_usage(
         self,
@@ -200,14 +200,14 @@ class AgentTestCase:
         )
 
         if max_tokens is not None:
-            assert total_tokens <= max_tokens, (
-                f"Token usage {total_tokens} exceeds max {max_tokens}"
-            )
+            assert (
+                total_tokens <= max_tokens
+            ), f"Token usage {total_tokens} exceeds max {max_tokens}"
 
         if min_tokens is not None:
-            assert total_tokens >= min_tokens, (
-                f"Token usage {total_tokens} below min {min_tokens}"
-            )
+            assert (
+                total_tokens >= min_tokens
+            ), f"Token usage {total_tokens} below min {min_tokens}"
 
     def assert_tool_calls(self, expected_tools: list[str]) -> None:
         """Assert specific tools were called.
@@ -220,9 +220,9 @@ class AgentTestCase:
         """
         called_tools = [call.get("name") for call in self._tool_calls]
         for tool in expected_tools:
-            assert tool in called_tools, (
-                f"Expected tool '{tool}' to be called, got {called_tools}"
-            )
+            assert (
+                tool in called_tools
+            ), f"Expected tool '{tool}' to be called, got {called_tools}"
 
     # ===== Performance Assertions =====
 
@@ -235,9 +235,9 @@ class AgentTestCase:
         Raises:
             AssertionError: If duration exceeds limit
         """
-        assert self._duration <= max_seconds, (
-            f"Execution took {self._duration:.2f}s, max {max_seconds}s"
-        )
+        assert (
+            self._duration <= max_seconds
+        ), f"Execution took {self._duration:.2f}s, max {max_seconds}s"
 
     def assert_cost(self, max_cost: float) -> None:
         """Assert execution cost is within budget.
@@ -249,9 +249,9 @@ class AgentTestCase:
             AssertionError: If cost exceeds budget
         """
         total_cost = sum(call.get("cost", 0.0) for call in self._llm_calls)
-        assert total_cost <= max_cost, (
-            f"Cost ${total_cost:.4f} exceeds max ${max_cost:.4f}"
-        )
+        assert (
+            total_cost <= max_cost
+        ), f"Cost ${total_cost:.4f} exceeds max ${max_cost:.4f}"
 
     # ===== Structured Output Assertions =====
 
@@ -265,9 +265,9 @@ class AgentTestCase:
         Raises:
             AssertionError: If result is not instance of model_class
         """
-        assert isinstance(result, model_class), (
-            f"Expected {model_class.__name__}, got {type(result).__name__}"
-        )
+        assert isinstance(
+            result, model_class
+        ), f"Expected {model_class.__name__}, got {type(result).__name__}"
 
     def assert_field_value(self, result: Any, field: str, expected: Any) -> None:
         """Assert model field has expected value.

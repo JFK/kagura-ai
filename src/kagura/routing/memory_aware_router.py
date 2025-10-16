@@ -126,9 +126,7 @@ class MemoryAwareRouter(AgentRouter):
 
         # Wait for both to complete
         results = await asyncio.gather(
-            context_task,
-            prelim_routing_task,
-            return_exceptions=True
+            context_task, prelim_routing_task, return_exceptions=True
         )
 
         enhanced_input = results[0]

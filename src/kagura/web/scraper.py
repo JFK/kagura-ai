@@ -217,9 +217,7 @@ class WebScraper:
         logger.info(f"Extracted text from {url} ({len(text)} chars)")
         return text
 
-    async def scrape(
-        self, url: str, selector: str, timeout: float = 30.0
-    ) -> list[str]:
+    async def scrape(self, url: str, selector: str, timeout: float = 30.0) -> list[str]:
         """Scrape webpage with CSS selector.
 
         Args:
@@ -254,8 +252,7 @@ class WebScraper:
         results = [elem.get_text(strip=True) for elem in elements]
 
         logger.info(
-            f"Scraped {len(results)} elements from {url} "
-            f"with selector '{selector}'"
+            f"Scraped {len(results)} elements from {url} " f"with selector '{selector}'"
         )
         return results
 

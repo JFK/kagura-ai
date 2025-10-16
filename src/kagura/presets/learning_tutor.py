@@ -26,10 +26,7 @@ class LearningTutorPreset(AgentBuilder):
     """
 
     def __init__(
-        self,
-        name: str,
-        subject: str = "General",
-        persist_dir: Optional[Path] = None
+        self, name: str, subject: str = "General", persist_dir: Optional[Path] = None
     ):
         """Initialize learning tutor preset.
 

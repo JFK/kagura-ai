@@ -86,6 +86,7 @@ class LLMMock:
 
         async def mock_acompletion(*args: Any, **kwargs: Any) -> dict[str, Any]:
             """Return mock response (async version)."""
+
             # Create a simple namespace object to hold message content
             class Message:
                 def __init__(self, content: str):

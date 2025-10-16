@@ -44,7 +44,7 @@ class AgentSpec(BaseModel):
     system_prompt: str = Field(..., description="Agent system prompt")
     examples: list[dict[str, Any]] = Field(
         default_factory=list,
-        description="Example inputs/outputs (values can be any JSON-serializable type)"
+        description="Example inputs/outputs (values can be any JSON-serializable type)",
     )
 
     model_config = ConfigDict(
@@ -64,7 +64,7 @@ class AgentSpec(BaseModel):
                 "examples": [
                     {"input": "Hello world", "output": "こんにちは世界"},
                     {"input": 5, "output": 10},
-                    {"input": [1, 2], "output": {"sum": 3}}
+                    {"input": [1, 2], "output": {"sum": 3}},
                 ],
             }
         }

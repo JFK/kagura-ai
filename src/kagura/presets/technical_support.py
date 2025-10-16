@@ -26,10 +26,7 @@ class TechnicalSupportPreset(AgentBuilder):
     """
 
     def __init__(
-        self,
-        name: str,
-        kb_dir: Optional[Path] = None,
-        enable_routing: bool = True
+        self, name: str, kb_dir: Optional[Path] = None, enable_routing: bool = True
     ):
         """Initialize technical support preset.
 

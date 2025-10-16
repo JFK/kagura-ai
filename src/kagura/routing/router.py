@@ -340,7 +340,7 @@ class AgentRouter:
             # Check for exact phrase match (highest priority)
             if intent_lower in input_lower:
                 # Multi-word phrases are strong signals
-                if ' ' in intent_lower:
+                if " " in intent_lower:
                     intent_score = 1.0  # Perfect match for phrase
                 else:
                     intent_score = 0.8  # Strong match for single word

@@ -319,9 +319,7 @@ class MessageTrimmer:
 
         return selected
 
-    def _score_message(
-        self, msg: dict[str, Any], index: int, total: int
-    ) -> float:
+    def _score_message(self, msg: dict[str, Any], index: int, total: int) -> float:
         """Score message importance
 
         Args:

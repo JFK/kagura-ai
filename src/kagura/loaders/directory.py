@@ -232,9 +232,7 @@ class DirectoryScanner:
 
         # Filter to supported file types (text + multimodal)
         supported_files = [
-            f
-            for f in files
-            if f.file_type == FileType.TEXT or f.is_multimodal
+            f for f in files if f.file_type == FileType.TEXT or f.is_multimodal
         ]
 
         # Create semaphore for concurrency control
@@ -249,9 +247,7 @@ class DirectoryScanner:
         contents = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Filter out exceptions and return successful loads
-        successful_contents = [
-            c for c in contents if isinstance(c, FileContent)
-        ]
+        successful_contents = [c for c in contents if isinstance(c, FileContent)]
 
         return successful_contents
 

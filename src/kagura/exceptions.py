@@ -256,9 +256,7 @@ class LLMTimeoutError(LLMError):
     def __init__(
         self, message: str = "LLM request timed out", timeout: float | None = None
     ) -> None:
-        super().__init__(
-            message, code="LLM-003", recoverable=True, timeout=timeout
-        )
+        super().__init__(message, code="LLM-003", recoverable=True, timeout=timeout)
         self.timeout = timeout
 
 

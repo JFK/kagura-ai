@@ -26,10 +26,7 @@ class PersonalAssistantPreset(AgentBuilder):
     """
 
     def __init__(
-        self,
-        name: str,
-        persist_dir: Optional[Path] = None,
-        enable_rag: bool = True
+        self, name: str, persist_dir: Optional[Path] = None, enable_rag: bool = True
     ):
         """Initialize personal assistant preset.
 

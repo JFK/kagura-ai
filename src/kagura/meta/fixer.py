@@ -55,9 +55,7 @@ class CodeFixer:
 
         try:
             # Attempt to apply fix
-            fixed_code = self._apply_code_patch(
-                original_code, error_analysis.fix_code
-            )
+            fixed_code = self._apply_code_patch(original_code, error_analysis.fix_code)
 
             # Validate fixed code
             is_valid = self.validator.validate(fixed_code)
@@ -119,9 +117,7 @@ class CodeFixer:
         # Future: More sophisticated patching strategies
         return original
 
-    def _replace_function(
-        self, original: str, func_name: str, new_func: str
-    ) -> str:
+    def _replace_function(self, original: str, func_name: str, new_func: str) -> str:
         """Replace function definition in code
 
         Args:

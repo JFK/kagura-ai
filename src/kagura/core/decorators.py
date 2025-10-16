@@ -218,9 +218,10 @@ def agent(
         template_str = extract_template(func)
 
         # Use provided config or create from parameters
-        llm_config = config if config is not None else LLMConfig(
-            model=model,
-            temperature=temperature
+        llm_config = (
+            config
+            if config is not None
+            else LLMConfig(model=model, temperature=temperature)
         )
 
         # Get function signature to check for special parameters
