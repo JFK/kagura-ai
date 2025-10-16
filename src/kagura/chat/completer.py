@@ -27,7 +27,8 @@ class KaguraCompleter(Completer):
         """
         self.session = session
 
-        # Slash commands (removed /translate, /summarize, /review - use natural language instead)
+        # Slash commands
+        # (removed /translate, /summarize, /review - use natural language instead)
         self.slash_commands = [
             "/help",
             "/exit",
@@ -40,7 +41,9 @@ class KaguraCompleter(Completer):
         ]
 
     def get_completions(
-        self, document: Document, complete_event: "CompleteEvent"  # type: ignore  # noqa: F821
+        self,
+        document: Document,
+        complete_event: "CompleteEvent",  # type: ignore  # noqa: F821
     ) -> Iterable[Completion]:
         """
         Get completions for the current input.
