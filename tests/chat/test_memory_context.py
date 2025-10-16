@@ -21,7 +21,6 @@ async def test_chat_memory_preserves_context(temp_session_dir: Path) -> None:
     """Test that chat memory preserves conversation context"""
     session = ChatSession(
         session_dir=temp_session_dir,
-        enable_routing=False,
     )
 
     # Add messages to memory
@@ -51,7 +50,6 @@ async def test_chat_memory_no_compression(temp_session_dir: Path) -> None:
     """Test that chat session has compression disabled"""
     session = ChatSession(
         session_dir=temp_session_dir,
-        enable_routing=False,
     )
 
     # Verify compression is disabled
@@ -64,7 +62,6 @@ async def test_chat_memory_multiple_turns(temp_session_dir: Path) -> None:
     """Test memory with multiple conversation turns"""
     session = ChatSession(
         session_dir=temp_session_dir,
-        enable_routing=False,
     )
 
     # Simulate multiple turns
