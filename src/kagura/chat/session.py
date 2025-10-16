@@ -468,8 +468,13 @@ async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
     if result and not result.startswith("❌") and not result.startswith("🛑"):
         # Success - show output directly
         console.print(f"\n[dim]{result}[/dim]\n")
-        # Return short summary to LLM (not full output)
-        return f"✓ Command executed successfully. Output shown to user ({len(result)} chars)."
+        # Return short summary to LLM - tell it NOT to repeat the output
+        return (
+            f"✓ Command '{command}' executed successfully.\n"
+            f"Output ({len(result)} chars) has been displayed to the user.\n"
+            f"DO NOT repeat or reformat the output.\n"
+            f"Simply acknowledge completion or ask if user needs anything else."
+        )
     else:
         # Error - return to LLM for handling
         return result
