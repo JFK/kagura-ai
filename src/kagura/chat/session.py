@@ -453,17 +453,26 @@ async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
     _shell_exec_already_called = True
 
     # Show command before execution (for user awareness)
-    console.print(f"[yellow]💡 Executing:[/] [cyan]{command}[/cyan]")
+    console.print(f"\n[yellow]💡 Executing:[/] [cyan]{command}[/cyan]")
 
     # Use shell_exec_tool with AUTO-APPROVE mode
-    # No user confirmation - relies on security policy only
-    return await shell_exec_tool(
+    result = await shell_exec_tool(
         command=command,
         auto_confirm=True,  # Auto-approve (no confirmation prompt)
         interactive=False,  # No TTY (simpler, more reliable)
         enable_auto_retry=False,  # Disable auto-retry (let LLM handle failures)
         user_intent=user_intent or command,
     )
+
+    # Display result immediately (don't wait for LLM processing)
+    if result and not result.startswith("❌") and not result.startswith("🛑"):
+        # Success - show output directly
+        console.print(f"\n[dim]{result}[/dim]\n")
+        # Return short summary to LLM (not full output)
+        return f"✓ Command executed successfully. Output shown to user ({len(result)} chars)."
+    else:
+        # Error - return to LLM for handling
+        return result
 
 
 async def _shell_exec_with_options_wrapper(
