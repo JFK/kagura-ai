@@ -70,9 +70,7 @@ class CompressionPolicy:
             )
 
         if self.max_tokens <= 0:
-            raise ValueError(
-                f"max_tokens must be positive, got {self.max_tokens}"
-            )
+            raise ValueError(f"max_tokens must be positive, got {self.max_tokens}")
 
         if self.preserve_recent < 0:
             raise ValueError(

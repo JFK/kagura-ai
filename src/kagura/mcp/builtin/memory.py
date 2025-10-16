@@ -38,9 +38,7 @@ async def memory_store(
 
 
 @tool
-async def memory_recall(
-    agent_name: str, key: str, scope: str = "working"
-) -> str:
+async def memory_recall(agent_name: str, key: str, scope: str = "working") -> str:
     """Recall information from agent memory
 
     Args:

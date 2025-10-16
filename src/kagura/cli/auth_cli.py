@@ -40,13 +40,9 @@ def login_command(provider: str) -> None:
         kagura auth login --provider google
     """
     try:
-        console.print(
-            f"[cyan]Starting authentication with {provider}...[/cyan]"
-        )
+        console.print(f"[cyan]Starting authentication with {provider}...[/cyan]")
         console.print()
-        console.print(
-            "[yellow]A browser window will open for authentication.[/yellow]"
-        )
+        console.print("[yellow]A browser window will open for authentication.[/yellow]")
         console.print(
             "[yellow]Please log in to your account and authorize Kagura AI.[/yellow]"
         )
@@ -61,9 +57,7 @@ def login_command(provider: str) -> None:
             f"[green]✓ Credentials saved securely to: {auth.creds_file}[/green]"
         )
         console.print()
-        console.print(
-            "You can now use Kagura AI without setting API keys!"
-        )
+        console.print("You can now use Kagura AI without setting API keys!")
 
     except FileNotFoundError as e:
         console.print(f"[red]✗ Error: {e}[/red]", style="bold")
@@ -71,9 +65,7 @@ def login_command(provider: str) -> None:
         console.print(
             "[yellow]Please follow these steps to get client_secrets.json:[/yellow]"
         )
-        console.print(
-            "  1. Go to https://console.cloud.google.com/apis/credentials"
-        )
+        console.print("  1. Go to https://console.cloud.google.com/apis/credentials")
         console.print("  2. Create OAuth 2.0 Client ID (Desktop application)")
         console.print(f"  3. Download JSON and save to: {auth.client_secrets_file}")  # type: ignore
         raise click.Abort()
@@ -84,9 +76,7 @@ def login_command(provider: str) -> None:
 
     except Exception as e:
         logger.exception("Unexpected error during login")
-        console.print(
-            f"[red]✗ Unexpected error: {e}[/red]", style="bold"
-        )
+        console.print(f"[red]✗ Unexpected error: {e}[/red]", style="bold")
         raise click.Abort()
 
 
@@ -109,15 +99,11 @@ def logout_command(provider: str) -> None:
         auth = OAuth2Manager(provider=provider)
 
         if not auth.is_authenticated():
-            console.print(
-                f"[yellow]Not authenticated with {provider}[/yellow]"
-            )
+            console.print(f"[yellow]Not authenticated with {provider}[/yellow]")
             return
 
         auth.logout()
-        console.print(
-            f"[green]✓ Successfully logged out from {provider}[/green]"
-        )
+        console.print(f"[green]✓ Successfully logged out from {provider}[/green]")
 
     except AuthenticationError as e:
         console.print(f"[red]✗ Logout failed: {e}[/red]", style="bold")
@@ -125,9 +111,7 @@ def logout_command(provider: str) -> None:
 
     except Exception as e:
         logger.exception("Unexpected error during logout")
-        console.print(
-            f"[red]✗ Unexpected error: {e}[/red]", style="bold"
-        )
+        console.print(f"[red]✗ Unexpected error: {e}[/red]", style="bold")
         raise click.Abort()
 
 
@@ -206,7 +190,5 @@ def status_command() -> None:
 
     except Exception as e:
         logger.exception("Unexpected error during status check")
-        console.print(
-            f"[red]✗ Unexpected error: {e}[/red]", style="bold"
-        )
+        console.print(f"[red]✗ Unexpected error: {e}[/red]", style="bold")
         raise click.Abort()

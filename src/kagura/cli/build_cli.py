@@ -174,9 +174,7 @@ async def _build_agent_async(
 
         # Confirm
         if interactive:
-            if not Confirm.ask(
-                "\n[bold]Generate agent code?[/bold]", default=True
-            ):
+            if not Confirm.ask("\n[bold]Generate agent code?[/bold]", default=True):
                 console.print("[yellow]Cancelled[/yellow]")
                 return
 
@@ -201,9 +199,7 @@ async def _build_agent_async(
 
         # Save
         if interactive:
-            output_str = Prompt.ask(
-                "\n[bold]Save to[/bold]", default=str(output)
-            )
+            output_str = Prompt.ask("\n[bold]Save to[/bold]", default=str(output))
             output = Path(output_str)
 
         # Save file
@@ -302,9 +298,7 @@ async def _build_agent_chat_async(
             if action == "approve":
                 break
             elif action == "refine":
-                console.print(
-                    "\n[bold]How should I modify the specification?[/bold]"
-                )
+                console.print("\n[bold]How should I modify the specification?[/bold]")
                 refinement = await session.prompt_async(">>> ")
                 description = f"{description}\n\nAdditional requirements: {refinement}"
                 continue
@@ -327,9 +321,7 @@ async def _build_agent_chat_async(
                     f"Let's try again.[/yellow]\n"
                     f"[dim]Technical details: {error_msg}[/dim]"
                 )
-                console.print(
-                    "\n[bold]Please rephrase your agent description:[/bold]"
-                )
+                console.print("\n[bold]Please rephrase your agent description:[/bold]")
                 description = await session.prompt_async(">>> ")
                 if not description:
                     console.print("[yellow]Cancelled[/yellow]")
@@ -509,9 +501,7 @@ async def _run_agent_async(
 
     except ImportError as e:
         console.print(f"[red]❌ Failed to import agent: {e}[/red]")
-        console.print(
-            "[yellow]Make sure all dependencies are installed[/yellow]"
-        )
+        console.print("[yellow]Make sure all dependencies are installed[/yellow]")
         raise click.Abort()
     except Exception as e:
         console.print(f"[red]❌ Error executing agent: {e}[/red]")

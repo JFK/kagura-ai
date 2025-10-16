@@ -26,9 +26,7 @@ from .llm import LLMConfig
 
 
 async def call_llm_stream(
-    prompt: str,
-    config: LLMConfig,
-    **kwargs: Any
+    prompt: str, config: LLMConfig, **kwargs: Any
 ) -> AsyncIterator[str]:
     """Stream LLM response token by token
 
@@ -84,7 +82,7 @@ async def call_llm_stream(
         max_tokens=config.max_tokens,
         top_p=config.top_p,
         stream=True,  # Enable streaming
-        **llm_kwargs
+        **llm_kwargs,
     )
 
     # Yield chunks as they arrive

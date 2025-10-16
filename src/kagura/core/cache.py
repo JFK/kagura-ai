@@ -94,7 +94,7 @@ class LLMCache:
         self,
         backend: Literal["memory", "redis", "disk"] = "memory",
         default_ttl: int = 3600,
-        max_size: int = 1000
+        max_size: int = 1000,
     ):
         """Initialize LLM cache
 
@@ -141,7 +141,7 @@ class LLMCache:
         data = {
             "prompt": prompt,
             "model": model,
-            **{k: v for k, v in sorted(kwargs.items())}
+            **{k: v for k, v in sorted(kwargs.items())},
         }
         hash_input = json.dumps(data, sort_keys=True).encode()
         return hashlib.sha256(hash_input).hexdigest()[:16]
@@ -178,11 +178,7 @@ class LLMCache:
         return None
 
     async def set(
-        self,
-        key: str,
-        response: Any,
-        ttl: int | None = None,
-        model: str = "unknown"
+        self, key: str, response: Any, ttl: int | None = None, model: str = "unknown"
     ) -> None:
         """Cache LLM response with LRU eviction
 
@@ -214,7 +210,7 @@ class LLMCache:
             response=response,
             created_at=datetime.now(),
             ttl=ttl or self.default_ttl,
-            model=model
+            model=model,
         )
 
     async def invalidate(self, pattern: str | None = None) -> None:
@@ -236,10 +232,7 @@ class LLMCache:
             self._cache.clear()
         else:
             # Pattern matching (simple contains)
-            keys_to_delete = [
-                k for k in self._cache.keys()
-                if pattern in k
-            ]
+            keys_to_delete = [k for k in self._cache.keys() if pattern in k]
             for key in keys_to_delete:
                 del self._cache[key]
 

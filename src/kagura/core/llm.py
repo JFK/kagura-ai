@@ -37,6 +37,7 @@ class LLMResponse:
             return self.content == other
         return super().__eq__(other)
 
+
 # Global cache instance
 _llm_cache = LLMCache(backend="memory", default_ttl=3600)
 
@@ -66,26 +67,24 @@ class LLMConfig(BaseModel):
 
     # OAuth2 authentication options
     auth_type: Literal["api_key", "oauth2"] = Field(
-        default="api_key",
-        description="Authentication type: 'api_key' or 'oauth2'"
+        default="api_key", description="Authentication type: 'api_key' or 'oauth2'"
     )
     oauth_provider: Optional[str] = Field(
         default=None,
-        description="OAuth2 provider (e.g., 'google') when auth_type='oauth2'"
+        description="OAuth2 provider (e.g., 'google') when auth_type='oauth2'",
     )
 
     # Cache configuration
     enable_cache: bool = Field(
         default=True,
-        description="Enable LLM response caching for faster responses and lower costs"
+        description="Enable LLM response caching for faster responses and lower costs",
     )
     cache_ttl: int = Field(
         default=3600,
-        description="Cache time-to-live in seconds (default: 3600 = 1 hour)"
+        description="Cache time-to-live in seconds (default: 3600 = 1 hour)",
     )
     cache_backend: Literal["memory", "redis"] = Field(
-        default="memory",
-        description="Cache backend: 'memory' (default) or 'redis'"
+        default="memory", description="Cache backend: 'memory' (default) or 'redis'"
     )
 
     def get_api_key(self) -> Optional[str]:
@@ -162,7 +161,7 @@ async def call_llm(
             temperature=config.temperature,
             max_tokens=config.max_tokens,
             top_p=config.top_p,
-            **kwargs
+            **kwargs,
         )
         cached_response = await _llm_cache.get(cache_key)
         if cached_response is not None:

@@ -56,7 +56,9 @@ async def get_youtube_transcript(video_url: str, lang: str = "en") -> str:
         ... )
     """
     try:
-        from youtube_transcript_api import YouTubeTranscriptApi  # type: ignore
+        from youtube_transcript_api import (
+            YouTubeTranscriptApi,  # type: ignore[import-untyped]
+        )
     except ImportError:
         return (
             "Error: youtube-transcript-api is required.\n"
@@ -70,12 +72,12 @@ async def get_youtube_transcript(video_url: str, lang: str = "en") -> str:
         # Try to get transcript in requested language
         # If not available, try auto-generated or other available languages
         try:
-            transcript_list = YouTubeTranscriptApi.get_transcript(
+            transcript_list = YouTubeTranscriptApi.get_transcript(  # type: ignore[attr-defined]
                 video_id, languages=[lang]
             )
         except Exception:
             # Try to get any available transcript
-            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)  # type: ignore[attr-defined]
 
         # Combine text segments
         text = " ".join([segment["text"] for segment in transcript_list])
@@ -126,6 +128,11 @@ async def get_youtube_metadata(video_url: str) -> str:
             info = ydl.extract_info(video_url, download=False)
 
             # Extract relevant metadata
+            if info is None:
+                return json.dumps(
+                    {"error": "Failed to extract video information"}, indent=2
+                )
+
             metadata: dict[str, Any] = {
                 "title": info.get("title"),
                 "channel": info.get("uploader") or info.get("channel"),

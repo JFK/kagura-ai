@@ -52,9 +52,7 @@ class ErrorAnalyzer:
             llm_config: LLM configuration for error analysis.
                        Defaults to gpt-4o-mini with temperature=0.3
         """
-        self.llm_config = llm_config or LLMConfig(
-            model="gpt-4o-mini", temperature=0.3
-        )
+        self.llm_config = llm_config or LLMConfig(model="gpt-4o-mini", temperature=0.3)
 
     async def analyze(
         self,

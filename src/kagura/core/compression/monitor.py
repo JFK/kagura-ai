@@ -40,9 +40,7 @@ class ContextMonitor:
         >>> print(f"Usage: {usage.usage_ratio:.1%}")
     """
 
-    def __init__(
-        self, token_counter: TokenCounter, max_tokens: Optional[int] = None
-    ):
+    def __init__(self, token_counter: TokenCounter, max_tokens: Optional[int] = None):
         """Initialize monitor
 
         Args:
@@ -85,7 +83,9 @@ class ContextMonitor:
             ...     print("Time to compress!")
         """
         estimate = self.counter.estimate_context_size(
-            messages, system_prompt, max_tokens=4000  # Reserve for completion
+            messages,
+            system_prompt,
+            max_tokens=4000,  # Reserve for completion
         )
 
         usage_ratio = estimate["total_tokens"] / self.max_tokens

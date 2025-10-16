@@ -220,9 +220,7 @@ class KaguraREPL:
             try:
                 # Load the module
                 module_name = agent_file.stem
-                spec = importlib.util.spec_from_file_location(
-                    module_name, agent_file
-                )
+                spec = importlib.util.spec_from_file_location(module_name, agent_file)
 
                 if spec is None or spec.loader is None:
                     continue
@@ -251,9 +249,7 @@ class KaguraREPL:
                 )
 
         if loaded_count > 0:
-            console.print(
-                f"[green]Loaded {loaded_count} agent(s)[/green]\n"
-            )
+            console.print(f"[green]Loaded {loaded_count} agent(s)[/green]\n")
             # Update tab completions with loaded agent names
             self.update_completions()
 
@@ -274,8 +270,7 @@ class KaguraREPL:
                 "[dim]Commands (/help, /exit)[/dim] = execute immediately\n"
                 "[dim]Python code + Enter[/dim] = newline\n"
                 "[dim]Empty line + Enter[/dim] = execute (IPython style)\n"
-                "[dim]Tab[/dim] = autocomplete (includes loaded agents)"
-                + agent_info,
+                "[dim]Tab[/dim] = autocomplete (includes loaded agents)" + agent_info,
                 border_style="green",
             )
         )

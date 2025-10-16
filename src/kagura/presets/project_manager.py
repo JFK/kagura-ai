@@ -26,10 +26,7 @@ class ProjectManagerPreset(AgentBuilder):
     """
 
     def __init__(
-        self,
-        name: str,
-        project: str = "Project",
-        persist_dir: Optional[Path] = None
+        self, name: str, project: str = "Project", persist_dir: Optional[Path] = None
     ):
         """Initialize project manager preset.
 

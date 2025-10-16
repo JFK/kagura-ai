@@ -42,9 +42,7 @@ class BraveSearch:
             )
         self.base_url = "https://api.search.brave.com/res/v1"
 
-    async def search(
-        self, query: str, max_results: int = 10
-    ) -> list[SearchResult]:
+    async def search(self, query: str, max_results: int = 10) -> list[SearchResult]:
         """Search the web using Brave Search API.
 
         Args:
@@ -103,9 +101,7 @@ class DuckDuckGoSearch:
         """Initialize DuckDuckGo Search client."""
         pass
 
-    async def search(
-        self, query: str, max_results: int = 10
-    ) -> list[SearchResult]:
+    async def search(self, query: str, max_results: int = 10) -> list[SearchResult]:
         """Search the web using DuckDuckGo.
 
         Args:

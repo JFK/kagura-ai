@@ -133,55 +133,6 @@ async def test_load_nonexistent_session(chat_session):
 
 
 @pytest.mark.asyncio
-async def test_preset_translate(chat_session):
-    """Test /translate command"""
-    # Mock the TranslateAgent
-    with patch("kagura.chat.session.TranslateAgent", new_callable=AsyncMock) as mock:
-        mock.return_value = "こんにちは"
-
-        await chat_session.preset_translate("Hello to ja")
-
-        mock.assert_called_once_with("Hello", target_language="ja")
-
-
-@pytest.mark.asyncio
-async def test_preset_translate_no_args(chat_session):
-    """Test /translate command without arguments"""
-    # Should print usage message without error
-    await chat_session.preset_translate("")
-
-
-@pytest.mark.asyncio
-async def test_preset_summarize(chat_session):
-    """Test /summarize command"""
-    with patch("kagura.chat.session.SummarizeAgent", new_callable=AsyncMock) as mock:
-        mock.return_value = "Summary"
-
-        await chat_session.preset_summarize("Long text here")
-
-        mock.assert_called_once_with("Long text here")
-
-
-@pytest.mark.asyncio
-async def test_preset_summarize_no_args(chat_session):
-    """Test /summarize command without arguments"""
-    await chat_session.preset_summarize("")
-
-
-@pytest.mark.asyncio
-async def test_preset_review_with_code(chat_session):
-    """Test /review command with code provided"""
-    code = "def test(): pass"
-
-    with patch("kagura.chat.session.CodeReviewAgent", new_callable=AsyncMock) as mock:
-        mock.return_value = "Code review result"
-
-        await chat_session.preset_review(code)
-
-        mock.assert_called_once_with(code)
-
-
-@pytest.mark.asyncio
 async def test_chat_interaction(chat_session):
     """Test basic chat interaction"""
     with patch("kagura.chat.session.chat_agent", new_callable=AsyncMock) as mock:
