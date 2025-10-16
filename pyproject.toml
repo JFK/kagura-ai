@@ -116,7 +116,7 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["kagura*"]
+include = ["kagura"]
 
 [tool.pyright]
 include = ["src/kagura", "tests"]
