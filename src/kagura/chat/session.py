@@ -340,8 +340,31 @@ async def _execute_python_tool(code: str) -> str:
 
 
 # Web & Content Tools
+async def _brave_search_tool(query: str, count: int = 5) -> str:
+    """Search the web using Brave Search API (high-quality results).
+
+    Args:
+        query: Search query
+        count: Number of results (default: 5)
+
+    Returns:
+        JSON with search results
+    """
+    from rich.console import Console
+
+    from kagura.tools.brave_search import brave_web_search
+
+    console = Console()
+    console.print(f"[dim]🔍 Brave Search: {query}...[/]")
+
+    result = await brave_web_search(query, count=count)
+
+    console.print("[dim]✓ Search completed[/]")
+    return result
+
+
 async def _web_search_tool(query: str) -> str:
-    """Search the web for information.
+    """Search the web for information (fallback to DuckDuckGo).
 
     Args:
         query: Search query
@@ -453,7 +476,8 @@ async def _youtube_metadata_tool(video_url: str) -> str:
         # Code execution
         _execute_python_tool,
         # Web & Content
-        _web_search_tool,
+        _brave_search_tool,  # Primary search (high-quality)
+        _web_search_tool,  # Fallback search (DuckDuckGo)
         _url_fetch_tool,
         # YouTube
         _youtube_transcript_tool,
@@ -483,7 +507,8 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     - execute_python(code): Execute Python code safely in sandbox
 
     Web & Content:
-    - web_search(query): Search the web for current information
+    - brave_search(query, count=5): Search the web with Brave (high-quality, primary)
+    - web_search(query): Search the web with DuckDuckGo (fallback)
     - url_fetch(url): Fetch and extract text from webpages
 
     YouTube:
@@ -827,7 +852,8 @@ class ChatSession:
         features.append("  [green]📝 file_write[/] - Write/modify files (auto-backup)")
         features.append("  [green]🔍 file_search[/] - Find files by pattern")
         features.append("  [green]🐍 execute_python[/] - Run Python code safely")
-        features.append("  [green]🌐 web_search[/] - Search the web")
+        features.append("  [green]🔍 brave_search[/] - Brave Search (high-quality)")
+        features.append("  [green]🌐 web_search[/] - DuckDuckGo (fallback)")
         features.append("  [green]🌐 url_fetch[/] - Fetch webpage content")
         features.append("  [green]📺 youtube_transcript[/] - Get YouTube transcripts")
         features.append("  [green]📺 youtube_metadata[/] - Get YouTube info")
