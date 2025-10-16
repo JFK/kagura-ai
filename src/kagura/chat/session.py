@@ -531,6 +531,8 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
 
     Shell Commands:
     - shell_exec(command): Execute shell commands with user confirmation
+        - IMPORTANT: Execute ONLY ONE command per user request
+        - Choose the MOST appropriate single command (e.g., "ls -la")
         - User is asked to confirm before execution
         - Interactive mode: supports commands that ask for input (apt-get, rm -i, etc.)
         - Security: blocks dangerous commands (sudo, rm -rf /, pipe to shell)
