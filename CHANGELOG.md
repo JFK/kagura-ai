@@ -5,6 +5,50 @@ All notable changes to Kagura AI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.10] - 2025-10-16
+
+### Added
+- **Auto-Approve Mode**: Shell commands now execute without manual confirmation (safer, faster)
+- **Smart Error Recovery**: Auto-suggests fixes for failed commands with user confirmation dialog
+
+### Fixed
+- **Lint Errors**: Fixed line length violations in TUI tools (Issue #252)
+- **Duplicate Prevention**: Prevents LLM from repeating failed shell commands (#242)
+- **Shell Output**: Display shell output immediately without LLM processing
+- **Debug Logging**: Removed debug logs, keeping only duplicate prevention logic
+
+### Performance
+- Faster shell command execution with auto-approve mode
+- Reduced latency by displaying output immediately
+
+**References**: Issue [#252](https://github.com/JFK/kagura-ai/issues/252), Issue [#242](https://github.com/JFK/kagura-ai/issues/242)
+
+---
+
+## [2.5.9] - 2025-10-16
+
+### Changed
+- **Classic UI Default**: Split UI moved to experimental status
+- UI improvements and stability enhancements
+
+---
+
+## [2.5.8] - 2025-10-16
+
+### Added
+- **2-Column Chat UI**: New split-panel interface
+- **Auto-Correction**: Smart command fixing on errors
+
+---
+
+## [2.5.7] - 2025-10-16
+
+### Added
+- **Interactive Shell**: Enhanced shell command execution
+- **Auto-Correction**: LLM-powered command fixes
+
+---
+
 ## [2.5.6] - 2025-10-16
 
 ### Added
