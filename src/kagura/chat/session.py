@@ -413,6 +413,27 @@ async def _url_fetch_tool(url: str) -> str:
         return f"Error fetching URL: {str(e)}"
 
 
+# Shell Execution Tool
+async def _shell_exec_tool_wrapper(command: str) -> str:
+    """Execute shell command with user confirmation.
+
+    Args:
+        command: Shell command to execute
+
+    Returns:
+        Command output or error message
+    """
+    from kagura.chat.shell_tool import shell_exec_tool
+
+    # Use shell_exec_tool with auto_confirm=False (ask user)
+    # and interactive=True (TTY mode for interactive commands)
+    return await shell_exec_tool(
+        command=command,
+        auto_confirm=False,  # Ask user before executing
+        interactive=True,  # Support interactive commands
+    )
+
+
 # YouTube Tools
 async def _youtube_transcript_tool(video_url: str, lang: str = "en") -> str:
     """Get YouTube video transcript.
@@ -475,6 +496,8 @@ async def _youtube_metadata_tool(video_url: str) -> str:
         _file_search_tool,
         # Code execution
         _execute_python_tool,
+        # Shell execution
+        _shell_exec_tool_wrapper,
         # Web & Content
         _brave_search_tool,  # Primary search (high-quality)
         _web_search_tool,  # Fallback search (DuckDuckGo)
@@ -505,6 +528,13 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
 
     Code Execution:
     - execute_python(code): Execute Python code safely in sandbox
+
+    Shell Commands:
+    - shell_exec(command): Execute shell commands with user confirmation
+        - User is asked to confirm before execution
+        - Interactive mode: supports commands that ask for input (apt-get, rm -i, etc.)
+        - Security: blocks dangerous commands (sudo, rm -rf /, pipe to shell)
+        - Examples: "ls -la", "git status", "find . -name '*.py'"
 
     Web & Content:
     - brave_search(query, count=5): Search the web with Brave (high-quality, primary)
@@ -852,6 +882,9 @@ class ChatSession:
         features.append("  [green]📝 file_write[/] - Write/modify files (auto-backup)")
         features.append("  [green]🔍 file_search[/] - Find files by pattern")
         features.append("  [green]🐍 execute_python[/] - Run Python code safely")
+        features.append(
+            "  [green]💻 shell_exec[/] - Execute shell commands (confirmation)"
+        )
         features.append("  [green]🔍 brave_search[/] - Brave Search (high-quality)")
         features.append("  [green]🌐 web_search[/] - DuckDuckGo (fallback)")
         features.append("  [green]🌐 url_fetch[/] - Fetch webpage content")
@@ -897,6 +930,8 @@ your request.
 
 **Example conversations:**
 - "Read src/main.py and explain what it does"
+- "Show me the current directory" → uses shell_exec (ls -la)
+- "Find all Python files" → uses shell_exec (find . -name "*.py")
 - "Analyze this image: diagram.png"
 - "Summarize this PDF: report.pdf"
 - "Extract audio from video.mp4 and transcribe it"
@@ -916,6 +951,12 @@ your request.
 
 ### Code Execution
 - **execute_python** - Execute Python code in a secure sandbox
+
+### Shell Commands
+- **shell_exec** - Execute shell commands with user confirmation
+  - Interactive mode for commands that ask for input
+  - Security controls (blocks dangerous commands)
+  - Examples: ls, git status, find, grep
 
 ### Web & Content
 - **web_search** - Search the web (Brave or DuckDuckGo)
