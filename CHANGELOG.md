@@ -5,6 +5,63 @@ All notable changes to Kagura AI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.6] - 2025-10-16
+
+### Added
+- **Claude Code-like Chat Experience** (RFC-033 Phase 0): Powerful interactive chat with 8 built-in tools
+  - File operations: read/write/search with multimodal support (text, image, PDF, audio, video)
+  - Code execution: Safe Python sandbox
+  - Web integration: web_search, url_fetch
+  - YouTube: transcript extraction, metadata retrieval
+  - Natural language interface (removed preset commands)
+
+- **Smart Model Selection** (RFC-034 Phase 1): Task-based model optimization for cost reduction
+  - ModelSelector class with 8 task types
+  - Prepares for 80% cost savings on search tasks (when GPT-5 available)
+  - Configurable model mappings per task type
+
+- **Monitor Enhancements**: Better observability
+  - Model name column in execution table
+  - Partial ID matching for `kagura monitor trace`
+  - Improved UX for telemetry inspection
+
+### Fixed
+- **YouTube Transcript**: Better error handling for videos without subtitles
+  - Updated to youtube-transcript-api v0.6+ (new API)
+  - Helpful error messages with fallback suggestions
+  - Specific exception handling (NoTranscriptFound, TranscriptsDisabled)
+
+### Changed
+- **CLI Simplification**: `kagura chat` flags reduced (6 → 1)
+  - Removed: `--enable-web`, `--enable-multimodal`, `--dir`, `--full`, `--no-routing`
+  - All features enabled by default
+
+- **Chat Commands**: Removed preset commands in favor of natural language
+  - Removed: `/translate`, `/summarize`, `/review`
+  - Use natural language instead (e.g., "Translate this to Japanese")
+
+### Testing
+- **New Tests**: 43+ tests added (all passing)
+  - 13 ModelSelector tests
+  - 13 chat session tool tests
+  - 6 YouTube tests
+  - 1 video processing test
+- **Total Tests**: 1,235+ passing
+- **Code Quality**: 0 pyright errors, all ruff checks passed
+
+### Performance
+- Multimodal file processing via Gemini
+- Video audio extraction with ffmpeg
+- Async tool execution
+
+**References**:
+- Chat Enhancement: PR [#223](https://github.com/JFK/kagura-ai/pull/223), Issue [#222](https://github.com/JFK/kagura-ai/issues/222), [RFC-033](./ai_docs/rfcs/RFC_033_CHAT_ENHANCEMENT.md)
+- YouTube Fix: PR [#231](https://github.com/JFK/kagura-ai/pull/231), Issue [#225](https://github.com/JFK/kagura-ai/issues/225)
+- Monitor: PR [#233](https://github.com/JFK/kagura-ai/pull/233), Issue [#226](https://github.com/JFK/kagura-ai/issues/226)
+- Model Selection: PR [#235](https://github.com/JFK/kagura-ai/pull/235), Issue [#224](https://github.com/JFK/kagura-ai/issues/224), [RFC-034](./ai_docs/rfcs/RFC_034_SMART_MODEL_SELECTION.md)
+
+---
+
 ## [2.5.5] - 2025-10-15
 
 ### Added
