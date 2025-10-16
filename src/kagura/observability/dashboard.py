@@ -408,15 +408,20 @@ class Dashboard:
         table = Table(show_header=True, header_style="bold")
         table.add_column("Time", style="dim")
         table.add_column("Agent", style="cyan")
+        table.add_column("Model", style="magenta")
         table.add_column("Status", justify="center")
         table.add_column("Duration", justify="right")
         table.add_column("Cost", justify="right", style="yellow")
         table.add_column("ID", style="dim")
 
         for exec in executions:
+            # Extract model name from first LLM call event
+            model_name = self._extract_model_name(exec)
+
             table.add_row(
                 self._format_timestamp(exec["started_at"]),
                 exec["agent_name"],
+                model_name,
                 self._format_status(exec.get("status", "unknown")),
                 f"{exec.get('duration', 0):.2f}s",
                 f"${exec.get('metrics', {}).get('total_cost', 0):.4f}",
@@ -424,6 +429,23 @@ class Dashboard:
             )
 
         return table
+
+    def _extract_model_name(self, execution: dict[str, Any]) -> str:
+        """Extract model name from execution events.
+
+        Args:
+            execution: Execution dictionary
+
+        Returns:
+            Model name or "-" if not found
+        """
+        events = execution.get("events", [])
+        for event in events:
+            if event.get("type") == "llm_call":
+                model = event.get("data", {}).get("model")
+                if model:
+                    return model
+        return "-"
 
     def _format_timestamp(self, timestamp: float) -> str:
         """Format timestamp for display."""
