@@ -24,7 +24,6 @@ from kagura.routing import AgentRouter, NoAgentFoundError
 
 from .completer import KaguraCompleter
 from .display import EnhancedDisplay
-from .preset import CodeReviewAgent, SummarizeAgent, TranslateAgent
 from .utils import extract_response_content
 
 # =============================================================================
@@ -520,10 +519,14 @@ class ChatSession:
     """
     Interactive chat session manager for Kagura AI.
 
-    Provides a REPL interface with:
-    - Natural language conversations
-    - Preset commands (/translate, /summarize, /review)
-    - Session management (/save, /load)
+    Provides a Claude Code-like REPL interface with:
+    - Natural language conversations with automatic tool detection
+    - File operations (read, write, search) with multimodal support
+    - Code execution in secure Python sandbox
+    - Web search and URL fetching
+    - YouTube video summarization
+    - Session management (/save, /load, /clear)
+    - Custom agent support
     - Rich UI with markdown rendering
     """
 
@@ -792,17 +795,21 @@ class ChatSession:
             await self.load_session(args)
         elif command == "/exit" or command == "/quit":
             return False
-        elif command == "/translate":
-            await self.preset_translate(args)
-        elif command == "/summarize":
-            await self.preset_summarize(args)
-        elif command == "/review":
-            await self.preset_review(args)
         elif command == "/agent" or command == "/agents":
             await self.handle_agent_command(args)
         else:
             self.console.print(f"[red]Unknown command: {command}[/]")
-            self.console.print("Type [bold]/help[/] for available commands")
+            self.console.print(
+                "\n[yellow]Available commands:[/]\n"
+                "  [cyan]/help[/] - Show detailed help\n"
+                "  [cyan]/clear[/] - Clear conversation history\n"
+                "  [cyan]/save[/] - Save current session\n"
+                "  [cyan]/load[/] - Load saved session\n"
+                "  [cyan]/agent[/] - Use custom agents\n"
+                "  [cyan]/exit[/] - Exit chat\n\n"
+                "[dim]💡 Tip: For translation, summarization, and code review,\n"
+                "   just ask naturally! (e.g., 'Translate this to Japanese')[/]"
+            )
 
         return True
 
@@ -814,7 +821,9 @@ class ChatSession:
         )
         features.append("")
         features.append("[bold cyan]🛠️  Available Tools (Auto-detected):[/]")
-        features.append("  [green]📄 file_read[/] - Read files (text, image, PDF, audio, video)")
+        features.append(
+            "  [green]📄 file_read[/] - Read files (text, image, PDF, audio, video)"
+        )
         features.append("  [green]📝 file_write[/] - Write/modify files (auto-backup)")
         features.append("  [green]🔍 file_search[/] - Find files by pattern")
         features.append("  [green]🐍 execute_python[/] - Run Python code safely")
@@ -824,18 +833,25 @@ class ChatSession:
         features.append("  [green]📺 youtube_metadata[/] - Get YouTube info")
         features.append("")
         features.append("[dim]💡 Just ask naturally - tools are used automatically![/]")
-        features.append("[dim]   Examples: 'Read main.py', 'Analyze image.png', 'Summarize https://...'[/]")
+        features.append(
+            "[dim]   Examples: 'Read main.py', 'Analyze image.png', 'Summarize https://...'[/]"
+        )
         features.append("")
         features.append("[bold cyan]Commands:[/]")
-        features.append("  [cyan]/help[/] - Detailed help  [cyan]/translate[/] - Translate")
-        features.append("  [cyan]/summarize[/] - Summarize  [cyan]/review[/] - Review code")
+        features.append("  [cyan]/help[/] - Show detailed help and examples")
+        features.append("  [cyan]/clear[/] - Clear conversation history")
+        features.append("  [cyan]/save[/] - Save current session for later")
+        features.append("  [cyan]/load[/] - Load a saved session")
         if self.custom_agents:
             features.append(
-                f"  [cyan]/agent[/] - Custom agents ({len(self.custom_agents)} available 🎯)"
+                f"  [cyan]/agent[/] - Use custom agents "
+                f"({len(self.custom_agents)} available 🎯)"
             )
-        features.append("  [cyan]/exit[/] - Exit")
+        features.append("  [cyan]/exit[/] - Exit chat")
         features.append("")
-        features.append("[dim]Shortcuts: Enter×2=Send, Ctrl+P/N=History, Tab=Complete[/]")
+        features.append(
+            "[dim]Shortcuts: Enter×2=Send, Ctrl+P/N=History, Tab=Complete[/]"
+        )
 
         welcome = Panel(
             "[bold green]Welcome to Kagura Chat![/]\n\n" + "\n".join(features) + "\n",
@@ -849,58 +865,105 @@ class ChatSession:
         help_text = """
 # Kagura Chat - Claude Code-like Experience
 
-## Chat
-Just type your message. The AI will automatically use the right tools.
+## 💬 Chat Naturally
+Just type your message. The AI will automatically use the right tools based on
+your request.
 
-**Examples:**
-- "Read src/main.py and explain it"
+**Example conversations:**
+- "Read src/main.py and explain what it does"
 - "Analyze this image: diagram.png"
 - "Summarize this PDF: report.pdf"
-- "Extract audio from video.mp4 and transcribe"
+- "Extract audio from video.mp4 and transcribe it"
 - "Search the web for Python best practices"
-- "Summarize https://youtube.com/watch?v=xxx"
+- "Summarize this YouTube video: https://youtube.com/watch?v=xxx"
 - "Write a test file for this function"
-- "Execute: print([x**2 for x in range(10)])"
+- "Execute this code: print([x**2 for x in range(10)])"
+- "Translate this to Japanese: Hello World"
+- "Review this code and suggest improvements"
 
-## Capabilities
+## 🛠️ Available Tools (Auto-detected)
 
 ### File Operations
-- **Read files**: Text, images, PDFs, audio, video (automatic detection)
-- **Write files**: Create/modify with automatic backups
-- **Search files**: Find files by pattern
+- **file_read** - Read any file type (text, images, PDFs, audio, video)
+- **file_write** - Write/modify files with automatic backups
+- **file_search** - Find files by name pattern
 
 ### Code Execution
-- **Python sandbox**: Execute code safely with security constraints
+- **execute_python** - Execute Python code in a secure sandbox
 
 ### Web & Content
-- **Web search**: Brave Search or DuckDuckGo
-- **URL fetching**: Extract text from webpages
-- **YouTube**: Transcript and metadata extraction
+- **web_search** - Search the web (Brave or DuckDuckGo)
+- **url_fetch** - Fetch and extract text from webpages
+
+### YouTube
+- **youtube_transcript** - Get video transcripts
+- **youtube_metadata** - Get video information (title, views, etc.)
 
 ### Multimodal Analysis (Gemini)
-- **Images**: Vision analysis
-- **PDFs**: Document analysis
-- **Audio**: Transcription
-- **Video**: Visual analysis + audio transcription
+- **Images** - Vision analysis and description
+- **PDFs** - Document analysis and summarization
+- **Audio** - Transcription to text
+- **Video** - Visual analysis + audio transcription
 
-## Keyboard Shortcuts
-- **Enter** - New line (or send on empty line)
+## ⌨️ Keyboard Shortcuts
+- **Enter** - New line (or send message on empty line)
 - **Enter twice** - Send message
 - **Tab** - Autocomplete commands
 - **Ctrl+P** - Previous command (history backward)
 - **Ctrl+N** - Next command (history forward)
-- **Ctrl+R** - Search history
+- **Ctrl+R** - Search command history
 
-## Commands
-- `/translate <text> [to <language>]` - Translate text
-- `/summarize <text>` - Summarize text
-- `/review` - Review code
-- `/agent` or `/agents` - List/use custom agents
-- `/save [name]` - Save session
-- `/load <name>` - Load session
-- `/clear` - Clear history
-- `/help` - Show this help
-- `/exit` or `/quit` - Exit chat
+## 📝 Commands
+
+### Session Management
+- `/save [name]` - Save current conversation session
+  - Example: `/save project-discussion`
+  - Sessions are saved to: ~/.kagura/sessions/
+  - Saved sessions can be loaded later with `/load`
+
+- `/load <name>` - Load a previously saved session
+  - Example: `/load project-discussion`
+  - Restores full conversation history
+
+- `/clear` - Clear conversation history
+  - Removes all messages from current session
+  - Useful for starting fresh while keeping the chat open
+
+### Custom Agents
+- `/agent` or `/agents` - List available custom agents
+- `/agent <name> <input>` - Execute a custom agent
+  - Example: `/agent data_analyzer sales.csv`
+  - Custom agents are loaded from ./agents/ directory
+
+### Other
+- `/help` - Show this help message
+- `/exit` or `/quit` - Exit the chat session
+
+## 💡 Tips
+
+### No need for special commands!
+You don't need `/translate`, `/summarize`, or `/review` anymore.
+Just ask naturally:
+- ❌ `/translate Hello to ja` → ✅ "Translate 'Hello' to Japanese"
+- ❌ `/summarize long text...` → ✅ "Summarize this text: ..."
+- ❌ `/review def foo()...` → ✅ "Review this code: def foo()..."
+
+### File operations are automatic
+- "Read README.md" → uses file_read tool
+- "Create a test file" → uses file_write tool
+- "Find all Python files" → uses file_search tool
+
+### Multimodal is built-in
+- "Analyze screenshot.png" → uses Gemini Vision
+- "What's in this PDF?" → uses Gemini document analysis
+- "Transcribe meeting.mp3" → uses Gemini audio transcription
+
+## 📊 Monitoring
+Use `kagura monitor --agent chat_session` to view:
+- Conversation history
+- Tools used
+- Token usage
+- Cost breakdown
 """
         self.console.print(Markdown(help_text))
 
@@ -963,106 +1026,6 @@ Just type your message. The AI will automatically use the right tools.
             f"[green]Session loaded: {session_data['name']} "
             f"({len(messages)} messages)[/]"
         )
-
-    async def preset_translate(self, args: str) -> None:
-        """
-        Translate text using preset agent.
-
-        Args:
-            args: "text [to language]"
-        """
-        if not args:
-            self.console.print("[red]Usage: /translate <text> [to <language>][/]")
-            return
-
-        # Parse arguments
-        parts = args.split(" to ")
-        text = parts[0].strip()
-        target_lang = parts[1].strip() if len(parts) > 1 else "ja"
-
-        # Translate
-        self.console.print(f"\n[cyan]Translating to {target_lang}...[/]")
-        result = await TranslateAgent(text, target_language=target_lang)
-
-        # Extract content from response
-        result_content = extract_response_content(result)
-        self.console.print(
-            Panel(result_content, title="Translation", border_style="cyan")
-        )
-
-        # Add to memory for context
-        self.memory.add_message("user", f"/translate {args}")
-        self.memory.add_message("assistant", result_content)
-
-    async def preset_summarize(self, args: str) -> None:
-        """
-        Summarize text using preset agent.
-
-        Args:
-            args: Text to summarize
-        """
-        if not args:
-            self.console.print("[red]Usage: /summarize <text>[/]")
-            return
-
-        # Summarize
-        self.console.print("\n[cyan]Summarizing...[/]")
-        result = await SummarizeAgent(args)
-
-        # Extract content from response
-        result_content = extract_response_content(result)
-        self.console.print(Panel(result_content, title="Summary", border_style="cyan"))
-
-        # Add to memory for context
-        self.memory.add_message("user", f"/summarize {args}")
-        self.memory.add_message("assistant", result_content)
-
-    async def preset_review(self, args: str) -> None:
-        """
-        Review code using preset agent.
-
-        Args:
-            args: Code to review (or empty to prompt for input)
-        """
-        if not args:
-            # Prompt for multiline code input
-            self.console.print(
-                "[cyan]Paste your code (press Enter twice to finish):[/]"
-            )
-            lines: list[str] = []
-            empty_count = 0
-            while True:
-                try:
-                    line = await self.prompt_session.prompt_async("")
-                    if not line:
-                        empty_count += 1
-                        if empty_count >= 2:
-                            break
-                    else:
-                        empty_count = 0
-                        lines.append(line)
-                except (KeyboardInterrupt, EOFError):
-                    break
-
-            code = "\n".join(lines)
-            if not code.strip():
-                self.console.print("[red]No code provided[/]")
-                return
-        else:
-            code = args
-
-        # Review code
-        self.console.print("\n[cyan]Reviewing code...[/]")
-        result = await CodeReviewAgent(code)
-
-        # Extract content from response
-        result_content = extract_response_content(result)
-        self.console.print("\n[bold green][Code Review][/]")
-        self.console.print(Markdown(result_content))
-
-        # Add to memory for context
-        self.memory.add_message("user", f"/review\n{code}")
-        self.memory.add_message("assistant", result_content)
 
     async def handle_agent_command(self, args: str) -> None:
         """

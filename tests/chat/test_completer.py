@@ -15,7 +15,7 @@ class TestKaguraCompleter:
     @pytest.fixture
     def session(self) -> ChatSession:
         """Create a test chat session"""
-        return ChatSession(enable_routing=False)
+        return ChatSession()
 
     @pytest.fixture
     def completer(self, session: ChatSession) -> KaguraCompleter:
@@ -46,17 +46,19 @@ class TestKaguraCompleter:
         document = Document("/")
         completions = list(completer.get_completions(document, None))  # type: ignore
 
-        # Should show all slash commands
-        assert len(completions) >= 10
+        # Should show all slash commands (8 commands after removing presets)
+        assert len(completions) >= 7
         commands = [c.text for c in completions]
         assert "/help" in commands
         assert "/exit" in commands
-        assert "/translate" in commands
+        assert "/clear" in commands
+        assert "/save" in commands
+        assert "/load" in commands
 
     def test_agent_completion(self) -> None:
         """Test completion for agent names"""
         # Create session with custom agents
-        session = ChatSession(enable_routing=False)
+        session = ChatSession()
 
         # Mock a custom agent
         async def test_agent(input: str) -> str:
@@ -95,9 +97,9 @@ class TestKaguraCompleter:
         # display_meta can be string or FormattedText
         meta = help_completion.display_meta
         if hasattr(meta, "__str__"):
-            assert "Show help" in str(meta)
+            assert "help" in str(meta).lower()
         else:
-            assert meta == "Show help"
+            assert "help" in meta.lower()
 
     def test_empty_input(self, completer: KaguraCompleter) -> None:
         """Test completion with empty input"""
@@ -112,5 +114,5 @@ class TestKaguraCompleter:
         document = Document("/")
         completions = list(completer.get_completions(document, None))  # type: ignore
 
-        # Should show all commands
-        assert len(completions) >= 10
+        # Should show all commands (8 after removing presets)
+        assert len(completions) >= 7

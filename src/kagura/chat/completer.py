@@ -27,7 +27,7 @@ class KaguraCompleter(Completer):
         """
         self.session = session
 
-        # Slash commands
+        # Slash commands (removed /translate, /summarize, /review - use natural language instead)
         self.slash_commands = [
             "/help",
             "/exit",
@@ -35,9 +35,6 @@ class KaguraCompleter(Completer):
             "/clear",
             "/save",
             "/load",
-            "/translate",
-            "/summarize",
-            "/review",
             "/agent",
             "/agents",
         ]
@@ -95,17 +92,14 @@ class KaguraCompleter(Completer):
             Command description
         """
         descriptions = {
-            "/help": "Show help",
+            "/help": "Show detailed help and examples",
             "/exit": "Exit chat",
             "/quit": "Exit chat",
             "/clear": "Clear conversation history",
-            "/save": "Save current session",
-            "/load": "Load saved session",
-            "/translate": "Translate text",
-            "/summarize": "Summarize text",
-            "/review": "Review code",
-            "/agent": "List or execute custom agents",
-            "/agents": "List or execute custom agents",
+            "/save": "Save current session for later",
+            "/load": "Load a saved session",
+            "/agent": "List or use custom agents",
+            "/agents": "List or use custom agents",
         }
         return descriptions.get(cmd, "")
 
