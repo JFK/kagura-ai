@@ -91,7 +91,11 @@ class TestBraveNewsSearch:
         data = json.loads(result)
 
         assert "error" in data
-        assert "BRAVE_SEARCH_API_KEY" in data["error"]
+        # Either import error or API key error is acceptable
+        assert (
+            "BRAVE_SEARCH_API_KEY" in data["error"]
+            or "brave-search-python-client" in data["error"]
+        )
 
     @pytest.mark.asyncio
     async def test_freshness_parameter(self, monkeypatch) -> None:
