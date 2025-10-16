@@ -285,17 +285,30 @@ class InteractiveShellTool:
 
         # Ask for confirmation
         self.console.print("[yellow]⚠️  Execute this command? [Y/n]:[/] ", end="")
+        sys.stdout.flush()  # Ensure prompt is displayed
 
         try:
-            # Use asyncio to read input without blocking
-            response = await asyncio.get_event_loop().run_in_executor(None, input)
+            # Use asyncio with timeout to read input
+            response = await asyncio.wait_for(
+                asyncio.get_event_loop().run_in_executor(None, input),
+                timeout=60.0,  # 60 seconds for user to respond
+            )
 
             # Empty response or 'y' → confirm
             # 'n' → cancel
-            return response.strip().lower() in ("", "y", "yes")
+            result = response.strip().lower() in ("", "y", "yes")
+            return result
+
+        except asyncio.TimeoutError:
+            self.console.print("\n[yellow]⏱️  Confirmation timeout (auto-cancel)[/]")
+            return False
 
         except (EOFError, KeyboardInterrupt):
             self.console.print("\n[yellow]Cancelled[/]")
+            return False
+
+        except Exception as e:
+            self.console.print(f"\n[red]Error reading confirmation: {e}[/]")
             return False
 
 
