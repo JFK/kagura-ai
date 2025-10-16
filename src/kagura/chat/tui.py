@@ -26,7 +26,7 @@ from rich.console import Console
 
 from kagura.core.memory import MemoryManager
 
-from .session import chat_agent
+from .tui_tools import chat_agent_tui
 from .utils import extract_response_content
 
 
@@ -298,10 +298,8 @@ class TwoColumnChatUI:
                         context_str += f"Assistant: {content}\n"
                 full_prompt = context_str + "\n[Current message]\n" + user_input
 
-            # Get AI response
-            # Note: We use regular chat_agent, but it will fail on shell confirmations
-            # TODO: Create TUI-specific agent with _shell_exec_tool_tui
-            response = await chat_agent(full_prompt, memory=self.memory)
+            # Get AI response using TUI-specific agent
+            response = await chat_agent_tui(full_prompt, memory=self.memory)
 
             # Extract content
             response_content = extract_response_content(response)

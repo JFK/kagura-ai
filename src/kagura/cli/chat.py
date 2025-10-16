@@ -20,8 +20,8 @@ from kagura.chat import ChatSession
 @click.option(
     "--ui",
     type=click.Choice(["classic", "split"], case_sensitive=False),
-    default="split",
-    help="UI mode: classic (single area) or split (2-column)",
+    default="classic",
+    help="UI mode: classic (stable) or split (experimental 2-column)",
     show_default=True,
 )
 def chat(model: str, ui: str) -> None:
