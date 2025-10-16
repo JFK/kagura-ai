@@ -74,6 +74,9 @@ class ShellExecutor:
             "vitest",
             # GitHub CLI
             "gh",
+            # Network tools
+            "curl",
+            "wget",
             # Others
             "echo",
             "which",
@@ -104,8 +107,8 @@ class ShellExecutor:
             "source": "exact",
             # Pattern matches (dangerous command sequences)
             "rm -rf /": "pattern",
-            "curl -s | sh": "pattern",
-            "wget -O - | sh": "pattern",
+            "| sh": "pattern",  # Piping to shell is dangerous
+            "| bash": "pattern",  # Piping to bash is dangerous
         }
 
     def validate_command(self, command: str) -> bool:
