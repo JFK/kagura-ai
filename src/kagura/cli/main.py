@@ -13,7 +13,6 @@ from .lazy import LazyGroup
 @click.group(
     cls=LazyGroup,
     lazy_subcommands={
-        "repl": ("kagura.cli.repl", "repl", "Start interactive REPL"),
         "chat": (
             "kagura.cli.chat",
             "chat",
@@ -24,7 +23,6 @@ from .lazy import LazyGroup
             "mcp",
             "MCP (Model Context Protocol) commands",
         ),
-        "run": ("kagura.cli.commands_cli", "run", "Run a custom command"),
         "monitor": (
             "kagura.cli.monitor",
             "monitor",
@@ -34,11 +32,6 @@ from .lazy import LazyGroup
             "kagura.cli.auth_cli",
             "auth_group",
             "OAuth2 authentication commands",
-        ),
-        "build": (
-            "kagura.cli.build_cli",
-            "build_group",
-            "Build agents, tools, and workflows using AI",
         ),
     },
 )

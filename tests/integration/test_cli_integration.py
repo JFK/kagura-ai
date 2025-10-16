@@ -21,7 +21,6 @@ def test_cli_help():
 
     assert result.exit_code == 0
     assert "Kagura AI" in result.output
-    assert "repl" in result.output
     assert "version" in result.output
 
 

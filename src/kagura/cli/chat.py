@@ -17,14 +17,7 @@ from kagura.chat import ChatSession
     help="LLM model to use",
     show_default=True,
 )
-@click.option(
-    "--ui",
-    type=click.Choice(["classic", "split"], case_sensitive=False),
-    default="classic",
-    help="UI mode: classic (stable) or split (experimental 2-column)",
-    show_default=True,
-)
-def chat(model: str, ui: str) -> None:
+def chat(model: str) -> None:
     """
     Start an interactive chat session with AI (Claude Code-like experience).
 
@@ -55,13 +48,5 @@ def chat(model: str, ui: str) -> None:
         [You] > Write a test file for this function
         [You] > Execute: print([x**2 for x in range(10)])
     """
-    if ui == "split":
-        # Use new 2-column UI
-        from kagura.chat.tui import TwoColumnChatUI
-
-        tui = TwoColumnChatUI(model=model)
-        tui.run()
-    else:
-        # Use classic UI
-        session = ChatSession(model=model)
-        asyncio.run(session.run())
+    session = ChatSession(model=model)
+    asyncio.run(session.run())
