@@ -862,6 +862,18 @@ class ChatSession:
         # Pass memory context manually since we disabled enable_memory in decorator
         self.console.print("[dim]💬 Generating response...[/]")
 
+        # DEBUG: Show available tools
+        self.console.print(
+            f"[red]🐛 DEBUG: Available tools: {len(chat_agent._tools)}[/red]",
+            file=sys.stderr,
+        )
+        for i, tool in enumerate(chat_agent._tools):
+            tool_name = tool.__name__ if hasattr(tool, '__name__') else str(tool)
+            self.console.print(
+                f"[red]   {i+1}. {tool_name}[/red]",
+                file=sys.stderr,
+            )
+
         # Get conversation context
         memory_context = await self.memory.get_llm_context()
 
@@ -879,8 +891,18 @@ class ChatSession:
                     context_str += f"Assistant: {content}\n"
             full_prompt = context_str + "\n[Current message]\n" + user_input
 
+        # DEBUG: Reset call counter
+        global _shell_exec_call_count
+        _shell_exec_call_count = 0
+
         # Use unified chat_agent (all tools always available)
+        self.console.print("[red]🐛 DEBUG: Calling chat_agent...[/red]", file=sys.stderr)
         response = await chat_agent(full_prompt, memory=self.memory)
+        self.console.print("[red]🐛 DEBUG: chat_agent returned[/red]", file=sys.stderr)
+        self.console.print(
+            f"[red]🐛 DEBUG: Total shell_exec calls: {_shell_exec_call_count}[/red]",
+            file=sys.stderr,
+        )
 
         # Extract content from response
         response_content = extract_response_content(response)
