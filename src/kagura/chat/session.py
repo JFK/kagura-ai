@@ -415,6 +415,7 @@ async def _url_fetch_tool(url: str) -> str:
 
 # Shell Execution Tool
 _shell_exec_call_count = 0  # Global counter for debugging
+_shell_exec_already_called = False  # Prevent multiple calls per request
 
 
 async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
@@ -427,7 +428,7 @@ async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
     Returns:
         Command output or error message
     """
-    global _shell_exec_call_count
+    global _shell_exec_call_count, _shell_exec_already_called
     _shell_exec_call_count += 1
 
     from rich.console import Console
@@ -440,6 +441,16 @@ async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
     print(f"🐛 DEBUG: shell_exec call #{_shell_exec_call_count}", file=sys.stderr)
     print(f"   Command: {command}", file=sys.stderr)
     print(f"   User intent: {user_intent}", file=sys.stderr)
+
+    # CRITICAL FIX: Only allow ONE shell_exec call per request
+    if _shell_exec_already_called:
+        print("🐛 DEBUG: BLOCKING duplicate shell_exec call", file=sys.stderr)
+        return (
+            "⚠️ Shell command already executed in this request. "
+            "Please wait for the first command to complete."
+        )
+
+    _shell_exec_already_called = True
 
     # Use shell_exec_tool with auto_retry enabled
     return await shell_exec_tool(
@@ -880,9 +891,10 @@ class ChatSession:
                     context_str += f"Assistant: {content}\n"
             full_prompt = context_str + "\n[Current message]\n" + user_input
 
-        # DEBUG: Reset call counter
-        global _shell_exec_call_count
+        # DEBUG: Reset call counter and flag
+        global _shell_exec_call_count, _shell_exec_already_called
         _shell_exec_call_count = 0
+        _shell_exec_already_called = False
 
         # Use unified chat_agent (all tools always available)
         print("🐛 DEBUG: Calling chat_agent...", file=sys.stderr)
