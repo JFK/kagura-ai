@@ -537,6 +537,8 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
         - Interactive mode: supports commands that ask for input (apt-get, rm -i, etc.)
         - Security: blocks dangerous commands (sudo, rm -rf /, pipe to shell)
         - Examples: "ls -la", "git status", "find . -name '*.py'"
+        - If you have multiple approaches, try the first one first
+        - If it fails, you can try alternative commands
 
     Web & Content:
     - brave_search(query, count=5): Search the web with Brave (high-quality, primary)
