@@ -150,10 +150,10 @@ class EventStore:
                 conn.close()
 
     def get_execution(self, execution_id: str) -> Optional[dict[str, Any]]:
-        """Get execution by ID.
+        """Get execution by ID (supports partial ID matching).
 
         Args:
-            execution_id: Execution ID
+            execution_id: Execution ID (can be partial, e.g., "exec_951c348")
 
         Returns:
             Execution dict or None if not found
@@ -162,10 +162,20 @@ class EventStore:
         conn.row_factory = sqlite3.Row
 
         try:
+            # Try exact match first
             cursor = conn.execute(
                 "SELECT * FROM executions WHERE id = ?", (execution_id,)
             )
             row = cursor.fetchone()
+
+            # If not found, try partial match (prefix)
+            if row is None:
+                cursor = conn.execute(
+                    """SELECT * FROM executions WHERE id LIKE ?
+                    ORDER BY started_at DESC LIMIT 1""",
+                    (f"{execution_id}%",),
+                )
+                row = cursor.fetchone()
 
             if row is None:
                 return None
