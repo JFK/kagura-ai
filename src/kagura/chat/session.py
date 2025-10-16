@@ -414,6 +414,9 @@ async def _url_fetch_tool(url: str) -> str:
 
 
 # Shell Execution Tool
+_shell_exec_call_count = 0  # Global counter for debugging
+
+
 async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
     """Execute shell command with user confirmation and auto-retry on failure.
 
@@ -424,7 +427,28 @@ async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
     Returns:
         Command output or error message
     """
+    global _shell_exec_call_count
+    _shell_exec_call_count += 1
+
+    from rich.console import Console
+
     from kagura.chat.shell_tool import shell_exec_tool
+
+    console = Console()
+
+    # DEBUG: Log each call
+    console.print(
+        f"[red]🐛 DEBUG: shell_exec call #{_shell_exec_call_count}[/red]",
+        file=sys.stderr,
+    )
+    console.print(
+        f"[red]   Command: {command}[/red]",
+        file=sys.stderr,
+    )
+    console.print(
+        f"[red]   User intent: {user_intent}[/red]",
+        file=sys.stderr,
+    )
 
     # Use shell_exec_tool with auto_retry enabled
     return await shell_exec_tool(
