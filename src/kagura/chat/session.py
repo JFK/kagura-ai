@@ -437,18 +437,9 @@ async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
     console = Console()
 
     # DEBUG: Log each call
-    console.print(
-        f"[red]🐛 DEBUG: shell_exec call #{_shell_exec_call_count}[/red]",
-        file=sys.stderr,
-    )
-    console.print(
-        f"[red]   Command: {command}[/red]",
-        file=sys.stderr,
-    )
-    console.print(
-        f"[red]   User intent: {user_intent}[/red]",
-        file=sys.stderr,
-    )
+    print(f"🐛 DEBUG: shell_exec call #{_shell_exec_call_count}", file=sys.stderr)
+    print(f"   Command: {command}", file=sys.stderr)
+    print(f"   User intent: {user_intent}", file=sys.stderr)
 
     # Use shell_exec_tool with auto_retry enabled
     return await shell_exec_tool(
@@ -865,21 +856,12 @@ class ChatSession:
         # DEBUG: Show available tools
         tools = getattr(chat_agent, '_tools', None)
         if tools:
-            self.console.print(
-                f"[red]🐛 DEBUG: Available tools: {len(tools)}[/red]",
-                file=sys.stderr,
-            )
+            print(f"🐛 DEBUG: Available tools: {len(tools)}", file=sys.stderr)
             for i, tool in enumerate(tools):
                 tool_name = tool.__name__ if hasattr(tool, '__name__') else str(tool)
-                self.console.print(
-                    f"[red]   {i+1}. {tool_name}[/red]",
-                    file=sys.stderr,
-                )
+                print(f"   {i+1}. {tool_name}", file=sys.stderr)
         else:
-            self.console.print(
-                "[red]🐛 DEBUG: No _tools attribute found on chat_agent[/red]",
-                file=sys.stderr,
-            )
+            print("🐛 DEBUG: No _tools attribute found on chat_agent", file=sys.stderr)
 
         # Get conversation context
         memory_context = await self.memory.get_llm_context()
@@ -903,13 +885,10 @@ class ChatSession:
         _shell_exec_call_count = 0
 
         # Use unified chat_agent (all tools always available)
-        self.console.print("[red]🐛 DEBUG: Calling chat_agent...[/red]", file=sys.stderr)
+        print("🐛 DEBUG: Calling chat_agent...", file=sys.stderr)
         response = await chat_agent(full_prompt, memory=self.memory)
-        self.console.print("[red]🐛 DEBUG: chat_agent returned[/red]", file=sys.stderr)
-        self.console.print(
-            f"[red]🐛 DEBUG: Total shell_exec calls: {_shell_exec_call_count}[/red]",
-            file=sys.stderr,
-        )
+        print("🐛 DEBUG: chat_agent returned", file=sys.stderr)
+        print(f"🐛 DEBUG: Total shell_exec calls: {_shell_exec_call_count}", file=sys.stderr)
 
         # Extract content from response
         response_content = extract_response_content(response)
