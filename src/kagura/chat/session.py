@@ -496,7 +496,9 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     - Modify/create files → use file_write (auto-backup)
     - Execute code → use execute_python
     - URLs → use url_fetch
-    - YouTube links → use youtube_transcript + youtube_metadata
+    - YouTube links → ALWAYS use both youtube_transcript AND youtube_metadata
+      - If transcript fails (not available), summarize using metadata only
+      - Suggest using web_search for additional information
     - Search requests → use web_search
 
     For videos:
@@ -811,33 +813,29 @@ class ChatSession:
             "[bold magenta]🚀 Claude Code-like Experience - All Features Enabled[/]"
         )
         features.append("")
-        features.append("[bold cyan]Capabilities:[/]")
-        features.append("  [green]✓[/] File operations (read, write, search)")
-        features.append("  [green]✓[/] Multimodal support (images, PDFs, audio, video)")
-        features.append("  [green]✓[/] Code execution (Python sandbox)")
-        features.append("  [green]✓[/] Web search (Brave/DuckDuckGo)")
-        features.append("  [green]✓[/] URL fetching and analysis")
-        features.append("  [green]✓[/] YouTube video summarization")
+        features.append("[bold cyan]🛠️  Available Tools (Auto-detected):[/]")
+        features.append("  [green]📄 file_read[/] - Read files (text, image, PDF, audio, video)")
+        features.append("  [green]📝 file_write[/] - Write/modify files (auto-backup)")
+        features.append("  [green]🔍 file_search[/] - Find files by pattern")
+        features.append("  [green]🐍 execute_python[/] - Run Python code safely")
+        features.append("  [green]🌐 web_search[/] - Search the web")
+        features.append("  [green]🌐 url_fetch[/] - Fetch webpage content")
+        features.append("  [green]📺 youtube_transcript[/] - Get YouTube transcripts")
+        features.append("  [green]📺 youtube_metadata[/] - Get YouTube info")
         features.append("")
-        features.append("Type your message to chat with AI, or use commands:")
+        features.append("[dim]💡 Just ask naturally - tools are used automatically![/]")
+        features.append("[dim]   Examples: 'Read main.py', 'Analyze image.png', 'Summarize https://...'[/]")
         features.append("")
-        features.append("[dim]💡 Tips:[/]")
-        features.append("  [dim]• Enter: New line (or send on empty line)[/]")
-        features.append("  [dim]• Enter twice: Send message[/]")
-        features.append("  [dim]• Tab: Autocomplete commands[/]")
-        features.append("  [dim]• Ctrl+P/N: Navigate history[/]")
-        features.append("  [dim]• Ctrl+R: Search history[/]")
-        features.append("")
-        features.append("  [cyan]/help[/]      - Show help")
-        features.append("  [cyan]/translate[/] - Translate text")
-        features.append("  [cyan]/summarize[/] - Summarize text")
-        features.append("  [cyan]/review[/]    - Review code")
+        features.append("[bold cyan]Commands:[/]")
+        features.append("  [cyan]/help[/] - Detailed help  [cyan]/translate[/] - Translate")
+        features.append("  [cyan]/summarize[/] - Summarize  [cyan]/review[/] - Review code")
         if self.custom_agents:
             features.append(
-                f"  [cyan]/agent[/]     - Use custom agents "
-                f"({len(self.custom_agents)} available 🎯)"
+                f"  [cyan]/agent[/] - Custom agents ({len(self.custom_agents)} available 🎯)"
             )
-        features.append("  [cyan]/exit[/]      - Exit chat")
+        features.append("  [cyan]/exit[/] - Exit")
+        features.append("")
+        features.append("[dim]Shortcuts: Enter×2=Send, Ctrl+P/N=History, Tab=Complete[/]")
 
         welcome = Panel(
             "[bold green]Welcome to Kagura Chat![/]\n\n" + "\n".join(features) + "\n",
