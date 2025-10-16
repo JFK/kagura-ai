@@ -452,13 +452,17 @@ async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
 
     _shell_exec_already_called = True
 
-    # Use shell_exec_tool with auto_retry enabled
+    # Show command before execution (for user awareness)
+    console.print(f"[yellow]💡 Executing:[/] [cyan]{command}[/cyan]")
+
+    # Use shell_exec_tool with AUTO-APPROVE mode
+    # No user confirmation - relies on security policy only
     return await shell_exec_tool(
         command=command,
-        auto_confirm=False,  # Ask user before executing
-        interactive=True,  # Support interactive commands
-        enable_auto_retry=True,  # Auto-suggest alternatives on failure
-        user_intent=user_intent or command,  # Fallback to command itself
+        auto_confirm=True,  # Auto-approve (no confirmation prompt)
+        interactive=False,  # No TTY (simpler, more reliable)
+        enable_auto_retry=False,  # Disable auto-retry (let LLM handle failures)
+        user_intent=user_intent or command,
     )
 
 
