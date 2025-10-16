@@ -414,7 +414,6 @@ async def _url_fetch_tool(url: str) -> str:
 
 
 # Shell Execution Tool
-_shell_exec_call_count = 0  # Global counter for debugging
 _shell_exec_already_called = False  # Prevent multiple calls per request
 
 
@@ -428,8 +427,7 @@ async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
     Returns:
         Command output or error message
     """
-    global _shell_exec_call_count, _shell_exec_already_called
-    _shell_exec_call_count += 1
+    global _shell_exec_already_called
 
     from rich.console import Console
 
@@ -437,14 +435,8 @@ async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
 
     console = Console()
 
-    # DEBUG: Log each call
-    print(f"🐛 DEBUG: shell_exec call #{_shell_exec_call_count}", file=sys.stderr)
-    print(f"   Command: {command}", file=sys.stderr)
-    print(f"   User intent: {user_intent}", file=sys.stderr)
-
     # CRITICAL FIX: Only allow ONE shell_exec call per request
     if _shell_exec_already_called:
-        print("🐛 DEBUG: BLOCKING duplicate shell_exec call", file=sys.stderr)
         return (
             "⚠️ Shell command already executed in this request. "
             "Please wait for the first command to complete."
@@ -882,16 +874,6 @@ class ChatSession:
         # Pass memory context manually since we disabled enable_memory in decorator
         self.console.print("[dim]💬 Generating response...[/]")
 
-        # DEBUG: Show available tools
-        tools = getattr(chat_agent, '_tools', None)
-        if tools:
-            print(f"🐛 DEBUG: Available tools: {len(tools)}", file=sys.stderr)
-            for i, tool in enumerate(tools):
-                tool_name = tool.__name__ if hasattr(tool, '__name__') else str(tool)
-                print(f"   {i+1}. {tool_name}", file=sys.stderr)
-        else:
-            print("🐛 DEBUG: No _tools attribute found on chat_agent", file=sys.stderr)
-
         # Get conversation context
         memory_context = await self.memory.get_llm_context()
 
@@ -909,16 +891,12 @@ class ChatSession:
                     context_str += f"Assistant: {content}\n"
             full_prompt = context_str + "\n[Current message]\n" + user_input
 
-        # DEBUG: Reset call counter and flag
-        global _shell_exec_call_count, _shell_exec_already_called
-        _shell_exec_call_count = 0
+        # Reset shell_exec flag for this request
+        global _shell_exec_already_called
         _shell_exec_already_called = False
 
         # Use unified chat_agent (all tools always available)
-        print("🐛 DEBUG: Calling chat_agent...", file=sys.stderr)
         response = await chat_agent(full_prompt, memory=self.memory)
-        print("🐛 DEBUG: chat_agent returned", file=sys.stderr)
-        print(f"🐛 DEBUG: Total shell_exec calls: {_shell_exec_call_count}", file=sys.stderr)
 
         # Extract content from response
         response_content = extract_response_content(response)
