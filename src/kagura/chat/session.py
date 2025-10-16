@@ -563,18 +563,20 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
 
     Shell Commands:
     - shell_exec(command, user_intent=""): Execute with auto-retry on failure
+        - CRITICAL: Call this tool ONLY ONCE per user request
+        - Choose the SINGLE MOST appropriate command
+        - DO NOT call shell_exec multiple times in one response
         - User confirms before execution
-        - If fails, automatically suggests alternatives for user to choose
+        - If fails, automatically suggests alternatives
         - Interactive mode: supports commands asking for input (apt-get, rm -i)
         - Security: blocks dangerous commands (sudo, rm -rf /, | sh)
-        - user_intent: describe what user wants (improves error recovery)
         - Example: shell_exec("ls -la", user_intent="show directory")
 
-    - shell_exec_with_options(options): Present multiple command choices
-        - Shows numbered list for user to select
-        - options: [{"command": "pwd", "description": "show path"}, ...]
-        - Use when you know multiple good approaches upfront
-        - Example: For "show directory", offer pwd, ls -la, tree
+    IMPORTANT RULE:
+    - For "show directory": Use ONLY "ls -la" (NOT pwd + ls -la + ls)
+    - For "current path": Use ONLY "pwd" (NOT pwd + ls)
+    - Execute ONE command, wait for result, then respond to user
+    - If user wants more info, they will ask in next message
 
     Web & Content:
     - brave_search(query, count=5): Search the web with Brave (high-quality, primary)
