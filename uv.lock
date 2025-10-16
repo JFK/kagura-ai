@@ -632,6 +632,15 @@ wheels = [
 ]
 
 [[package]]
+name = "defusedxml"
+version = "0.7.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0f/d5/c66da9b79e5bdb124974bfe172b4daf3c984ebd9c2a06e2b8a4dc7331c72/defusedxml-0.7.1.tar.gz", hash = "sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69", size = 75520, upload-time = "2021-03-08T10:59:26.269Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/6c/aa3f2f849e01cb6a001cd8554a88d4c77c5c1a31c95bdf1cf9301e6d9ef4/defusedxml-0.7.1-py2.py3-none-any.whl", hash = "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61", size = 25604, upload-time = "2021-03-08T10:59:24.45Z" },
+]
+
+[[package]]
 name = "distro"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1332,7 +1341,7 @@ wheels = [
 
 [[package]]
 name = "kagura-ai"
-version = "2.5.1"
+version = "2.5.5"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -1380,6 +1389,8 @@ all = [
     { name = "ruff" },
     { name = "semantic-router" },
     { name = "tiktoken" },
+    { name = "youtube-transcript-api" },
+    { name = "yt-dlp" },
 ]
 auth = [
     { name = "cryptography" },
@@ -1419,6 +1430,8 @@ full = [
     { name = "protobuf" },
     { name = "semantic-router" },
     { name = "tiktoken" },
+    { name = "youtube-transcript-api" },
+    { name = "yt-dlp" },
 ]
 mcp = [
     { name = "jsonschema" },
@@ -1432,6 +1445,8 @@ web = [
     { name = "pillow" },
     { name = "proto-plus" },
     { name = "protobuf" },
+    { name = "youtube-transcript-api" },
+    { name = "yt-dlp" },
 ]
 
 [package.metadata]
@@ -1479,6 +1494,8 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8" },
     { name = "semantic-router", marker = "extra == 'ai'", specifier = ">=0.1.11" },
     { name = "tiktoken", marker = "extra == 'ai'", specifier = ">=0.7.0" },
+    { name = "youtube-transcript-api", marker = "extra == 'web'", specifier = ">=0.6.0" },
+    { name = "yt-dlp", marker = "extra == 'web'", specifier = ">=2023.0.0" },
 ]
 provides-extras = ["ai", "web", "auth", "mcp", "dev", "docs", "full", "all"]
 
@@ -4007,6 +4024,28 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/24/fd/725b8e73ac2a50e78a4534ac43c6addf5c1c2d65380dd48a9169cc6739a9/yarl-1.20.1-cp313-cp313t-win32.whl", hash = "sha256:b121ff6a7cbd4abc28985b6028235491941b9fe8fe226e6fdc539c977ea1739d", size = 86591, upload-time = "2025-06-10T00:45:25.793Z" },
     { url = "https://files.pythonhosted.org/packages/94/c3/b2e9f38bc3e11191981d57ea08cab2166e74ea770024a646617c9cddd9f6/yarl-1.20.1-cp313-cp313t-win_amd64.whl", hash = "sha256:541d050a355bbbc27e55d906bc91cb6fe42f96c01413dd0f4ed5a5240513874f", size = 93003, upload-time = "2025-06-10T00:45:27.752Z" },
     { url = "https://files.pythonhosted.org/packages/b4/2d/2345fce04cfd4bee161bf1e7d9cdc702e3e16109021035dbb24db654a622/yarl-1.20.1-py3-none-any.whl", hash = "sha256:83b8eb083fe4683c6115795d9fc1cfaf2cbbefb19b3a1cb68f6527460f483a77", size = 46542, upload-time = "2025-06-10T00:46:07.521Z" },
+]
+
+[[package]]
+name = "youtube-transcript-api"
+version = "1.2.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "defusedxml" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/87/03/68c69b2d3e282d45cb3c07e5836a9146ff9574cde720570ffc7eb124e56b/youtube_transcript_api-1.2.3.tar.gz", hash = "sha256:76016b71b410b124892c74df24b07b052702cf3c53afb300d0a2c547c0b71b68", size = 469757, upload-time = "2025-10-13T15:57:17.532Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ef/75/a861661b73d862e323c12af96ecfb237fb4d1433e551183d4172d39d5275/youtube_transcript_api-1.2.3-py3-none-any.whl", hash = "sha256:0c1b32ea5e739f9efde8c42e3d43e67df475185af6f820109607577b83768375", size = 485140, upload-time = "2025-10-13T15:57:16.034Z" },
+]
+
+[[package]]
+name = "yt-dlp"
+version = "2025.10.14"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/03/b7/dab729345e22891e79294273bc59c5213a1ec87331f49cb82ccea2b1bc9f/yt_dlp-2025.10.14.tar.gz", hash = "sha256:b18436aa9bb6f04354fd78d31ad9eeaae8c81b6a859f07072b25c18cd6c25844", size = 3045272, upload-time = "2025-10-14T23:39:52.688Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b0/19/399c85d29bd7b366b31ede82698f7963374e5a3842ae9de0cde6514506b0/yt_dlp-2025.10.14-py3-none-any.whl", hash = "sha256:0b9da17eda1bbf48e2315130043d7993fd4ca1c5a35571f8231da1a910c9c115", size = 3248664, upload-time = "2025-10-14T23:39:49.95Z" },
 ]
 
 [[package]]
