@@ -1,9 +1,10 @@
 """Web search functionality with Brave and DuckDuckGo."""
 
 import logging
-import os
 from dataclasses import dataclass
 from typing import Optional
+
+from kagura.config.env import get_brave_search_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ class SearchResult:
 class BraveSearch:
     """Brave Search API client.
 
-    Requires BRAVE_API_KEY environment variable.
+    Requires BRAVE_SEARCH_API_KEY environment variable.
     Get API key at: https://brave.com/search/api/
     """
 
@@ -29,15 +30,15 @@ class BraveSearch:
         """Initialize Brave Search client.
 
         Args:
-            api_key: Brave API key (uses BRAVE_API_KEY env var if None)
+            api_key: Brave API key (uses BRAVE_SEARCH_API_KEY env var if None)
 
         Raises:
             ValueError: If API key not provided
         """
-        self.api_key = api_key or os.getenv("BRAVE_API_KEY")
+        self.api_key = api_key or get_brave_search_api_key()
         if not self.api_key:
             raise ValueError(
-                "Brave API key required. Set BRAVE_API_KEY environment variable "
+                "Brave API key required. Set BRAVE_SEARCH_API_KEY environment variable "
                 "or pass api_key parameter."
             )
         self.base_url = "https://api.search.brave.com/res/v1"
@@ -154,7 +155,7 @@ async def search(query: str, max_results: int = 10) -> list[SearchResult]:
     """Search the web (auto-select engine).
 
     Automatically selects search engine based on available API keys:
-    1. Brave Search (if BRAVE_API_KEY is set)
+    1. Brave Search (if BRAVE_SEARCH_API_KEY is set)
     2. DuckDuckGo (fallback, no API key needed)
 
     Args:
@@ -169,7 +170,7 @@ async def search(query: str, max_results: int = 10) -> list[SearchResult]:
         >>> for r in results:
         ...     print(f"{r.title}: {r.url}")
     """
-    if os.getenv("BRAVE_API_KEY"):
+    if get_brave_search_api_key():
         logger.info("Using Brave Search")
         engine = BraveSearch()
     else:

@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import json
-import os
 from typing import Literal
 
 from kagura import tool
+from kagura.config.env import get_brave_search_api_key
 
 
 @tool
@@ -51,7 +51,7 @@ async def brave_web_search(
         )
 
     # Check API key
-    api_key = os.getenv("BRAVE_SEARCH_API_KEY")
+    api_key = get_brave_search_api_key()
     if not api_key:
         return json.dumps(
             {
@@ -132,7 +132,7 @@ async def brave_news_search(
         )
 
     # Check API key
-    api_key = os.getenv("BRAVE_SEARCH_API_KEY")
+    api_key = get_brave_search_api_key()
     if not api_key:
         return json.dumps(
             {
