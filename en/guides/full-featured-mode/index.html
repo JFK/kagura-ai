@@ -2870,7 +2870,7 @@
 </code></pre></div></p>
 </li>
 </ol>
-<p>Without Brave key, Kagura falls back to DuckDuckGo (no API key required).</p>
+<p><strong>Required for web search functionality</strong>.</p>
 <h2 id="use-cases">Use Cases</h2>
 <h3 id="1-code-analysis-web-research">1. Code Analysis + Web Research</h3>
 <p>Analyze your code with context from latest best practices:</p>
@@ -3146,7 +3146,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="nb">echo</span><span class="w"> </span><span class="nv">$BRAVE_SEARCH_API_KEY</span>
 <a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="nb">echo</span><span class="w"> </span><span class="nv">$GEMINI_API_KEY</span>
 </code></pre></div>
-<p>Fallback is automatic (Brave → DuckDuckGo).</p>
+<p><strong>Note</strong>: BRAVE_SEARCH_API_KEY is required for web search.</p>
 <h3 id="out-of-memory">"Out of memory"</h3>
 <p>Reduce cache size or concurrent processing:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">rag</span> <span class="o">=</span> <span class="n">MultimodalRAG</span><span class="p">(</span>
