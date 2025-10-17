@@ -33,7 +33,7 @@ async def test_agent_with_config_param(monkeypatch):
 
     # Create config with caching enabled
     config = LLMConfig(
-        model="gpt-5-mini",
+        model="claude-3-5-sonnet-20241022",
         temperature=0.5,
         enable_cache=True,
         cache_ttl=1800
@@ -75,11 +75,11 @@ async def test_agent_config_overrides_model_temp(monkeypatch):
     monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_completion)
 
     # Config should override decorator parameters
-    config = LLMConfig(model="gpt-4o", temperature=0.9)
+    config = LLMConfig(model="claude-3-opus-20240229", temperature=0.9)
 
     @agent(
         config=config,
-        model="gpt-5-mini",  # Should be ignored
+        model="claude-3-5-sonnet-20241022",  # Should be ignored
         temperature=0.5      # Should be ignored
     )
     async def test_agent(query: str) -> str:
@@ -89,7 +89,7 @@ async def test_agent_config_overrides_model_temp(monkeypatch):
     await test_agent("test")
 
     # Config values should be used, not decorator params
-    assert captured_model == "gpt-4o"
+    assert captured_model == "claude-3-opus-20240229"
     assert captured_temp == 0.9
 
 
@@ -155,7 +155,7 @@ async def test_agent_config_caching_works(monkeypatch):
     monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_completion)
 
     # Enable caching in config
-    config = LLMConfig(model="gpt-5-mini", enable_cache=True)
+    config = LLMConfig(model="claude-3-5-sonnet-20241022", enable_cache=True)
 
     @agent(config=config)
     async def cached_agent(query: str) -> str:

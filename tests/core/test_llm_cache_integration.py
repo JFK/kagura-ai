@@ -60,6 +60,10 @@ def reset_cache():
     set_llm_cache(fresh_cache)
 
 
+# Note: Cache tests now use claude models to test LiteLLM backend
+# (OpenAI direct backend doesn't implement caching yet)
+
+
 class TestLLMCacheIntegration:
     """Tests for call_llm() caching integration"""
 
@@ -68,7 +72,7 @@ class TestLLMCacheIntegration:
         """Test call_llm() cache miss (first call)"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
-        config = LLMConfig(model="gpt-5-mini", enable_cache=True)
+        config = LLMConfig(model="claude-3-5-sonnet-20241022", enable_cache=True)
         result = await call_llm("test prompt", config)
 
         assert result == "test response"
@@ -84,7 +88,7 @@ class TestLLMCacheIntegration:
         """Test call_llm() cache hit (second call)"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
-        config = LLMConfig(model="gpt-5-mini", enable_cache=True)
+        config = LLMConfig(model="claude-3-5-sonnet-20241022", enable_cache=True)
 
         # First call (cache miss)
         result1 = await call_llm("cached prompt", config)
@@ -106,7 +110,7 @@ class TestLLMCacheIntegration:
         """Test caching can be disabled via config"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
-        config = LLMConfig(model="gpt-5-mini", enable_cache=False)
+        config = LLMConfig(model="claude-3-5-sonnet-20241022", enable_cache=False)
 
         # Two calls with same prompt
         result1 = await call_llm("test prompt", config)
@@ -127,7 +131,7 @@ class TestLLMCacheIntegration:
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
         config = LLMConfig(
-            model="gpt-5-mini",
+            model="claude-3-5-sonnet-20241022",
             enable_cache=True,
             cache_ttl=7200  # 2 hours
         )
@@ -162,8 +166,8 @@ class TestLLMCacheIntegration:
         """Test different kwargs create different cache keys"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
-        config1 = LLMConfig(model="gpt-5-mini", temperature=0.7)
-        config2 = LLMConfig(model="gpt-5-mini", temperature=0.9)
+        config1 = LLMConfig(model="claude-3-5-sonnet-20241022", temperature=0.7)
+        config2 = LLMConfig(model="claude-3-5-sonnet-20241022", temperature=0.9)
 
         await call_llm("test prompt", config1)
         await call_llm("test prompt", config2)
@@ -180,7 +184,7 @@ class TestLLMCacheIntegration:
         """Test cache can be invalidated"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
-        config = LLMConfig(model="gpt-5-mini")
+        config = LLMConfig(model="claude-3-5-sonnet-20241022")
 
         # Cache a response
         result1 = await call_llm("test prompt", config)
@@ -212,7 +216,7 @@ class TestLLMCacheIntegration:
         """Test cache works across multiple different calls"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
-        config = LLMConfig(model="gpt-5-mini")
+        config = LLMConfig(model="claude-3-5-sonnet-20241022")
 
         # Call 3 different prompts
         await call_llm("test prompt", config)
@@ -235,7 +239,7 @@ class TestLLMCacheIntegration:
         """Test cache stats are accurately tracked"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
-        config = LLMConfig(model="gpt-5-mini")
+        config = LLMConfig(model="claude-3-5-sonnet-20241022")
 
         # 1 miss
         await call_llm("test prompt", config)
@@ -266,7 +270,7 @@ class TestToolFunctionsCaching:
         def dummy_tool():
             return "tool result"
 
-        config = LLMConfig(model="gpt-5-mini", enable_cache=True)
+        config = LLMConfig(model="claude-3-5-sonnet-20241022", enable_cache=True)
 
         # Call with tool function
         await call_llm("test prompt", config, tool_functions=[dummy_tool])
@@ -283,7 +287,7 @@ class TestToolFunctionsCaching:
         """Test caching works when no tools are provided"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
-        config = LLMConfig(model="gpt-5-mini")
+        config = LLMConfig(model="claude-3-5-sonnet-20241022")
 
         # First call (no tools)
         result1 = await call_llm("test prompt", config, tool_functions=None)
@@ -308,8 +312,8 @@ class TestCacheKeyGeneration:
         """Test different models create different cache keys"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
-        config1 = LLMConfig(model="gpt-5-mini")
-        config2 = LLMConfig(model="gpt-4o")
+        config1 = LLMConfig(model="claude-3-5-sonnet-20241022")
+        config2 = LLMConfig(model="claude-3-opus-20240229")
 
         await call_llm("test prompt", config1)
         await call_llm("test prompt", config2)
@@ -323,7 +327,7 @@ class TestCacheKeyGeneration:
         """Test same prompt + model creates same cache key"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
-        config = LLMConfig(model="gpt-5-mini", temperature=0.7)
+        config = LLMConfig(model="claude-3-5-sonnet-20241022", temperature=0.7)
 
         await call_llm("test prompt", config)
         await call_llm("test prompt", config)
