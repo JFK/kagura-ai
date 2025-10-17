@@ -9,8 +9,7 @@ from kagura import tool
 from kagura.config.env import get_brave_search_api_key
 
 
-@tool
-async def brave_web_search(
+async def _brave_web_search_internal(
     query: str,
     count: int = 5,
     country: str = "US",
@@ -108,6 +107,28 @@ async def brave_web_search(
 
     except Exception as e:
         return json.dumps({"error": f"Search failed: {str(e)}"}, indent=2)
+
+
+@tool
+async def brave_web_search(query: str, count: int = 5) -> str:
+    """Search the web using Brave Search API.
+
+    Automatically handles language detection and regional settings.
+
+    Args:
+        query: Search query (any language)
+        count: Number of results (default: 5, max: 20)
+
+    Returns:
+        JSON string with search results
+
+    Example:
+        >>> results = await brave_web_search("Python tutorial", count=3)
+        >>> results = await brave_web_search("熊本 イベント", count=5)
+    """
+    # Use default parameters (US, en) which work for all languages
+    # Brave Search API auto-detects query language
+    return await _brave_web_search_internal(query, count)
 
 
 @tool
