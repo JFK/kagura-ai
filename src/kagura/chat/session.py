@@ -490,39 +490,7 @@ async def _brave_search_tool(
     else:
         console.print("[dim]✓ Search completed[/]")
 
-    # Format results as readable text instead of JSON
-    # LLMs understand structured text better than raw JSON
-    try:
-        parsed = json.loads(enhanced_json)
-
-        # Check for errors
-        if isinstance(parsed, dict) and "error" in parsed:
-            return f"Search failed: {parsed['error']}"
-
-        # Format as text
-        if isinstance(parsed, list) and len(parsed) > 0:
-            formatted = [f"Search results for: {query}\n"]
-
-            for i, result in enumerate(parsed, 1):
-                formatted.append(f"{i}. {result.get('title', 'No title')}")
-                formatted.append(f"   URL: {result.get('url', '')}")
-                formatted.append(f"   {result.get('description', '')}")
-
-                # Add YouTube transcript if available
-                if result.get("youtube_has_full_transcript"):
-                    preview = result.get("youtube_transcript_preview", "")
-                    duration = result.get("youtube_duration", "")
-                    formatted.append(f"   📺 Duration: {duration}")
-                    formatted.append(f"   📺 Transcript: {preview}")
-
-                formatted.append("")  # Blank line
-
-            return "\n".join(formatted)
-        else:
-            return f"No results found for: {query}"
-
-    except Exception as e:
-        return f"Error processing search results: {str(e)}"
+    return enhanced_json
 
 
 async def _analyze_image_url_tool(

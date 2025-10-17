@@ -9,12 +9,12 @@ from kagura import tool
 from kagura.config.env import get_brave_search_api_key
 
 
-async def _brave_web_search_internal(
+@tool
+async def brave_web_search(
     query: str,
     count: int = 5,
     country: str = "US",
     search_lang: str = "en",
-    ui_lang: str | None = None,
 ) -> str:
     """Search the web using Brave Search API.
 
@@ -23,7 +23,6 @@ async def _brave_web_search_internal(
         count: Number of results to return (default: 5, max: 20)
         country: Country code for results (default: "US", "JP" for Japan)
         search_lang: Search language (default: "en", "ja" for Japanese)
-        ui_lang: UI language (auto-set based on search_lang if None)
 
     Returns:
         JSON string with search results containing:
@@ -66,26 +65,12 @@ async def _brave_web_search_internal(
         # Create client
         client = BraveSearch(api_key=api_key)
 
-        # Auto-set ui_lang based on search_lang if not specified
-        if ui_lang is None:
-            ui_lang_map = {
-                "ja": "ja-JP",
-                "en": "en-US",
-                "zh": "zh-CN",
-                "ko": "ko-KR",
-                "es": "es-ES",
-                "fr": "fr-FR",
-                "de": "de-DE",
-            }
-            ui_lang = ui_lang_map.get(search_lang, "en-US")
-
         # Create search request
         request = WebSearchRequest(  # type: ignore[call-arg,arg-type]
             q=query,
             count=min(count, 20),
             country=country,  # type: ignore[arg-type]
             search_lang=search_lang,
-            ui_lang=ui_lang,  # type: ignore[arg-type]
         )
 
         # Execute search
@@ -107,28 +92,6 @@ async def _brave_web_search_internal(
 
     except Exception as e:
         return json.dumps({"error": f"Search failed: {str(e)}"}, indent=2)
-
-
-@tool
-async def brave_web_search(query: str, count: int = 5) -> str:
-    """Search the web using Brave Search API.
-
-    Automatically handles language detection and regional settings.
-
-    Args:
-        query: Search query (any language)
-        count: Number of results (default: 5, max: 20)
-
-    Returns:
-        JSON string with search results
-
-    Example:
-        >>> results = await brave_web_search("Python tutorial", count=3)
-        >>> results = await brave_web_search("熊本 イベント", count=5)
-    """
-    # Use default parameters (US, en) which work for all languages
-    # Brave Search API auto-detects query language
-    return await _brave_web_search_internal(query, count)
 
 
 @tool
