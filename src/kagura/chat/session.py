@@ -1274,10 +1274,11 @@ Use `kagura monitor --agent chat_session` to view:
                 "  • gpt-4o - Legacy (more expensive)\n"
                 "  • gpt-4o-mini - Legacy\n"
                 "  • claude-3-5-sonnet-20241022 - Anthropic Claude\n"
-                "  • gemini/gemini-1.5-pro-002 - Google Gemini\n\n"
+                "  • gemini/gemini-2.0-flash - Google Gemini (latest)\n"
+                "  • gemini/gemini-1.5-pro-latest - Google Gemini Pro\n\n"
                 "[dim]Usage: /model <model_name>[/]\n"
                 "[dim]Example: /model gpt-5[/]\n"
-                "[dim]Note: Use full model name with provider prefix[/]"
+                "[dim]Gemini example: /model gemini/gemini-2.0-flash[/]"
             )
             return
 
