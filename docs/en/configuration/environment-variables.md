@@ -62,7 +62,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 BRAVE_SEARCH_API_KEY=BSA...
 ```
 
-**Note**: If not set, Kagura will use DuckDuckGo as a fallback (no API key required).
+**Note**: This API key is required for web search functionality.
 
 ### Default Settings
 

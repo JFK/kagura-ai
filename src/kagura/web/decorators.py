@@ -50,8 +50,8 @@ def enable(
 
     Args:
         fn: Function to decorate
-        search_engine: Search engine to use ("brave", "duckduckgo", or None for auto)
-            Note: Currently ignored - auto-selection based on API key availability
+        search_engine: Currently ignored - Brave Search only
+            (requires BRAVE_SEARCH_API_KEY)
 
     Returns:
         Decorated function with web search capabilities

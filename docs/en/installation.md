@@ -192,7 +192,7 @@ uv add "kagura-ai[web]"
 - `google-generativeai` - Gemini API for multimodal
 - `pillow` - Image processing
 - `httpx` - HTTP client
-- `duckduckgo-search` - Web search
+- `brave-search-python-client` - Brave Search API
 - `beautifulsoup4` - HTML parsing
 
 **Use cases**:

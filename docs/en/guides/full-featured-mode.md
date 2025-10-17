@@ -188,7 +188,7 @@ pip install kagura-ai[all]
    export BRAVE_SEARCH_API_KEY="your-brave-key"
    ```
 
-Without Brave key, Kagura falls back to DuckDuckGo (no API key required).
+**Required for web search functionality**.
 
 ## Use Cases
 
@@ -553,7 +553,7 @@ echo $BRAVE_SEARCH_API_KEY
 echo $GEMINI_API_KEY
 ```
 
-Fallback is automatic (Brave → DuckDuckGo).
+**Note**: BRAVE_SEARCH_API_KEY is required for web search.
 
 ### "Out of memory"
 
