@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from kagura.tools.brave_search import _search_cache, brave_news_search, brave_web_search
+from kagura.tools.brave_search import brave_news_search, brave_web_search
 
 
 class TestBraveWebSearch:
@@ -147,10 +147,9 @@ class TestBraveSearchCaching:
         """Test that SEARCH_CACHE_TTL is respected"""
         monkeypatch.setenv("SEARCH_CACHE_TTL", "7200")
 
-        from kagura.tools.brave_search import _get_cache
-
         # Reset global cache
         import kagura.tools.brave_search as bs
+        from kagura.tools.brave_search import _get_cache
 
         bs._search_cache = None
 
@@ -181,8 +180,9 @@ class TestBraveSearchCaching:
         # Now call brave_web_search - should hit cache (no API key needed)
         result = await brave_web_search(test_query, count=5)
 
-        # Should return cached result
-        assert result == cached_response
+        # Should return cached result with cache indicator prefix
+        expected = f"[CACHED SEARCH RESULT - Retrieved instantly]\n\n{cached_response}"
+        assert result == expected
 
         # Verify it was a cache hit
         stats = cache.stats()
@@ -207,11 +207,13 @@ class TestBraveSearchCaching:
 
         # Get with count=5
         result5 = await brave_web_search("Python", count=5)
-        assert result5 == "5 results"
+        expected5 = "[CACHED SEARCH RESULT - Retrieved instantly]\n\n5 results"
+        assert result5 == expected5
 
         # Get with count=10
         result10 = await brave_web_search("Python", count=10)
-        assert result10 == "10 results"
+        expected10 = "[CACHED SEARCH RESULT - Retrieved instantly]\n\n10 results"
+        assert result10 == expected10
 
     @pytest.mark.asyncio
     async def test_query_normalization_in_caching(self, monkeypatch) -> None:
@@ -231,7 +233,8 @@ class TestBraveSearchCaching:
 
         # Get with normalized query - should hit cache
         result = await brave_web_search("python tutorial", count=5)
-        assert result == "Results"
+        expected = "[CACHED SEARCH RESULT - Retrieved instantly]\n\nResults"
+        assert result == expected
 
         # Should be a cache hit
         stats = cache.stats()

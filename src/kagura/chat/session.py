@@ -798,10 +798,13 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     - Search requests → use brave_search ONCE, then use results
 
     CRITICAL RULES for brave_search:
-    - Call brave_search ONLY ONCE per user question
-    - Use the results provided - do NOT call brave_search again
-    - If results are insufficient, answer with available info and say "limited results"
-    - Only search again if user explicitly requests "search for [something else]"
+    - Call brave_search ONLY ONCE per response (not multiple times in one answer)
+    - Always call brave_search when user asks a search query,
+      even if similar to past queries
+    - Search results are cached automatically - you don't need to worry
+      about repeat searches
+    - Use the results provided by the tool - do NOT interpret cache messages
+    - If results are insufficient, answer with available info
 
     For videos:
     - Default (mode="auto"): Both visual analysis + audio transcription
