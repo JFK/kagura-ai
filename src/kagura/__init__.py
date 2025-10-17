@@ -19,6 +19,18 @@ from .version import __version__
 
 # Type hints for static analysis (not executed at runtime)
 if TYPE_CHECKING:
+    from .agents import (
+        ChatbotPreset,
+        CodeReviewPreset,
+        ContentWriterPreset,
+        DataAnalystPreset,
+        LearningTutorPreset,
+        PersonalAssistantPreset,
+        ProjectManagerPreset,
+        ResearchPreset,
+        TechnicalSupportPreset,
+        TranslatorPreset,
+    )
     from .builder import AgentBuilder
     from .core.cache import LLMCache
     from .core.compression import CompressionPolicy, ContextManager
@@ -51,18 +63,6 @@ if TYPE_CHECKING:
         TokenRefreshError,
         UserCancelledError,
         ValidationError,
-    )
-    from .presets import (
-        ChatbotPreset,
-        CodeReviewPreset,
-        ContentWriterPreset,
-        DataAnalystPreset,
-        LearningTutorPreset,
-        PersonalAssistantPreset,
-        ProjectManagerPreset,
-        ResearchPreset,
-        TechnicalSupportPreset,
-        TranslatorPreset,
     )
 
 # All other imports are lazy-loaded via __getattr__
@@ -221,7 +221,7 @@ def __getattr__(name: str):
         "TechnicalSupportPreset",
         "TranslatorPreset",
     ):
-        from .presets import (
+        from .agents import (
             ChatbotPreset,
             CodeReviewPreset,
             ContentWriterPreset,
