@@ -5,6 +5,7 @@ Interactive Chat Session for Kagura AI
 import asyncio
 import importlib.util
 import json
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -403,25 +404,20 @@ async def _fetch_youtube_enhanced_data(url: str) -> dict[str, Any]:
         return {"url": url, "error": str(e)}
 
 
-async def _brave_search_tool(
-    query: str, count: int = 5, enhance_youtube: bool = True
-) -> str:
-    """Search the web using Brave Search API with YouTube enhancement.
-
-    If YouTube videos found in results, automatically fetches transcripts
-    in parallel and merges them into search results.
+async def _brave_search_tool(query: str, count: int = 5) -> str:
+    """Search the web using Brave Search API.
 
     Args:
         query: Search query
         count: Number of results (default: 5)
-        enhance_youtube: Auto-fetch YouTube transcripts (default: True)
 
     Returns:
-        JSON with search results (enhanced with transcripts if found)
-    """
-    import asyncio
-    import json
+        Formatted search results
 
+    Note:
+        YouTube enhancement temporarily disabled for simplicity.
+        Will re-enable in future update.
+    """
     from rich.console import Console
 
     from kagura.tools.brave_search import brave_web_search
@@ -429,68 +425,49 @@ async def _brave_search_tool(
     console = Console()
     console.print(f"[dim]🔍 Brave Search: {query}...[/]")
 
-    # Basic search
-    results_json = await brave_web_search(query, count=count)
+    # Call search (now returns formatted text)
+    result = await brave_web_search(query, count=count)
 
-    # YouTube enhancement disabled or simple search
-    if not enhance_youtube:
-        console.print("[dim]✓ Search completed[/]")
-        return results_json
-
-    # Extract YouTube URLs from results
-    youtube_urls = _extract_youtube_urls_from_results(results_json)
-
-    if not youtube_urls:
-        console.print("[dim]✓ Search completed (no YouTube videos)[/]")
-        return results_json
-
-    # Fetch YouTube data in parallel (top 3 only)
-    console.print(
-        f"[dim]📺 Found {len(youtube_urls)} YouTube videos, "
-        f"fetching transcripts...[/]"
-    )
-
-    youtube_tasks = [
-        _fetch_youtube_enhanced_data(url) for url in youtube_urls[:3]  # Limit to 3
-    ]
-
-    # Wait max 30 seconds for all transcripts
+    # Parse and display results with titles and URLs
     try:
-        youtube_data = await asyncio.wait_for(
-            asyncio.gather(*youtube_tasks, return_exceptions=True), timeout=30.0
-        )
-    except asyncio.TimeoutError:
-        console.print("[dim]⚠ YouTube transcript fetch timed out[/]")
-        youtube_data = []
+        # Extract title and URL pairs from formatted result
+        lines = result.split("\n")
+        results_to_display = []
 
-    # Merge transcripts into results
-    results = json.loads(results_json)
-    youtube_map = {
-        data["url"]: data for data in youtube_data if isinstance(data, dict)
-    }
+        current_title = None
+        for line in lines:
+            # Title lines (numbered, e.g., "1. Title")
+            match = re.match(r"^(\d+)\.\s+(.+)$", line)
+            if match:
+                current_title = match.group(2).strip()
+            # URL lines (indented, start with http)
+            elif current_title and line.strip().startswith("http"):
+                url = line.strip()
+                results_to_display.append((current_title, url))
+                current_title = None
 
-    for result in results:
-        url = result.get("url", "")
-        if url in youtube_map:
-            yt_data = youtube_map[url]
-            if yt_data.get("transcript"):
-                result["youtube_transcript_preview"] = yt_data["transcript"][:300]
-                result["youtube_has_full_transcript"] = True
-                result["youtube_duration"] = yt_data.get("duration", "")
+        if results_to_display:
+            console.print("\n[dim]📋 Search Results:[/]")
+            for i, (title, url) in enumerate(results_to_display, 1):
+                # Shorten title if too long
+                display_title = title if len(title) < 60 else title[:57] + "..."
+                # Shorten URL if too long
+                display_url = url if len(url) < 60 else url[:57] + "..."
+                console.print(f"  [cyan]{i}[/]. {display_title}")
+                console.print(f"     [dim]{display_url}[/]")
 
-    enhanced_json = json.dumps(results, ensure_ascii=False, indent=2)
+            console.print("")  # Blank line
+    except Exception as e:
+        # Show error for debugging
+        console.print(f"[yellow]Note: Could not parse URLs ({str(e)})[/]")
 
-    # Show how many transcripts we got
-    transcripts_count = sum(
-        1 for data in youtube_data if isinstance(data, dict) and data.get("transcript")
-    )
+    # Add note about result count to help LLM understand
+    result_count = len(results_to_display) if results_to_display else 0
+    if result_count > 0:
+        result = f"[Found {result_count} results]\n\n{result}"
 
-    if transcripts_count > 0:
-        console.print(f"[dim]✓ Search completed ({transcripts_count} transcripts)[/]")
-    else:
-        console.print("[dim]✓ Search completed[/]")
-
-    return enhanced_json
+    console.print("[dim]✓ Search completed[/]")
+    return result
 
 
 async def _analyze_image_url_tool(
@@ -797,6 +774,9 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
 
     Web & Content:
     - brave_search(query, count=5): Search the web with Brave Search
+      - CRITICAL: Call this tool ONLY ONCE per user request
+      - Use the search results provided - do NOT search again
+      - Only search again if user explicitly asks "search for X"
     - analyze_image_url(url, prompt="Analyze..."): Analyze image from URL
       - Direct URL support (no download) for jpg/png/gif/webp
       - Uses OpenAI Vision API (gpt-4o)
@@ -815,7 +795,13 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     - YouTube links → ALWAYS use both youtube_transcript AND youtube_metadata
       - If transcript fails (not available), summarize using metadata only
       - Suggest using brave_search for additional information
-    - Search requests → use brave_search
+    - Search requests → use brave_search ONCE, then use results
+
+    CRITICAL RULES for brave_search:
+    - Call brave_search ONLY ONCE per user question
+    - Use the results provided - do NOT call brave_search again
+    - If results are insufficient, answer with available info and say "limited results"
+    - Only search again if user explicitly requests "search for [something else]"
 
     For videos:
     - Default (mode="auto"): Both visual analysis + audio transcription

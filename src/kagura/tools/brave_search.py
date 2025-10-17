@@ -10,32 +10,25 @@ from kagura.config.env import get_brave_search_api_key
 
 
 @tool
-async def brave_web_search(
-    query: str,
-    count: int = 5,
-    country: str = "US",
-    search_lang: str = "en",
-) -> str:
+async def brave_web_search(query: str, count: int = 5) -> str:
     """Search the web using Brave Search API.
 
+    Automatically handles all languages. Returns formatted text results.
+
     Args:
-        query: Search query
+        query: Search query (any language)
         count: Number of results to return (default: 5, max: 20)
-        country: Country code for results (default: "US", "JP" for Japan)
-        search_lang: Search language (default: "en", "ja" for Japanese)
 
     Returns:
-        JSON string with search results containing:
-        - title: Result title
-        - url: Result URL
-        - description: Result snippet
+        Formatted text with search results
 
     Example:
         >>> results = await brave_web_search("Python programming", count=3)
-        >>> import json
-        >>> data = json.loads(results)
-        >>> print(data[0]["title"])
+        >>> results = await brave_web_search("熊本 イベント", count=5)
     """
+    # Use fixed params (US, en) - API auto-detects query language
+    country = "US"
+    search_lang = "en"
     try:
         from brave_search_python_client import (  # type: ignore[import-untyped]
             BraveSearch,
@@ -88,10 +81,29 @@ async def brave_web_search(
                     }
                 )
 
-        return json.dumps(results, ensure_ascii=False, indent=2)
+        # Format as readable text instead of JSON
+        if not results:
+            return f"No results found for: {query}"
+
+        formatted = [f"Search results for: {query}\n"]
+        for i, result in enumerate(results, 1):
+            formatted.append(f"{i}. {result['title']}")
+            formatted.append(f"   {result['url']}")
+            formatted.append(f"   {result['description']}\n")
+
+        # Add instruction to LLM
+        formatted.append("---")
+        formatted.append(
+            "IMPORTANT: These are the web search results. "
+            "Use this information to answer the user's question. "
+            "Do NOT perform additional searches unless the user explicitly "
+            "asks for more or different information."
+        )
+
+        return "\n".join(formatted)
 
     except Exception as e:
-        return json.dumps({"error": f"Search failed: {str(e)}"}, indent=2)
+        return f"Search failed: {str(e)}"
 
 
 @tool
