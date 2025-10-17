@@ -490,6 +490,17 @@ async def _brave_search_tool(
     else:
         console.print("[dim]✓ Search completed[/]")
 
+    # DEBUG: Log search results
+    import sys
+
+    print(f"\n[DEBUG] Brave Search for: {query}", file=sys.stderr)
+    print(f"[DEBUG] Result length: {len(enhanced_json)} chars", file=sys.stderr)
+    print(f"[DEBUG] First 300 chars:", file=sys.stderr)
+    print(enhanced_json[:300], file=sys.stderr)
+    print(f"[DEBUG] Has error key: {'error' in enhanced_json}", file=sys.stderr)
+    print(f"[DEBUG] Starts with [: {enhanced_json.strip().startswith('[')}", file=sys.stderr)
+    print("", file=sys.stderr)
+
     return enhanced_json
 
 
