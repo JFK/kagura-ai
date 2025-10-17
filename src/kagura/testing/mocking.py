@@ -111,7 +111,9 @@ class LLMMock:
             """Return mock response (async version)."""
             return Response(self.response)  # type: ignore
 
-        self.litellm_patcher = patch("litellm.acompletion", side_effect=mock_acompletion)
+        self.litellm_patcher = patch(
+            "litellm.acompletion", side_effect=mock_acompletion
+        )
         self.litellm_patcher.__enter__()
 
         # Mock OpenAI SDK (for gpt-* models)
