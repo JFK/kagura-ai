@@ -15,6 +15,7 @@ async def brave_web_search(
     count: int = 5,
     country: str = "US",
     search_lang: str = "en",
+    ui_lang: str | None = None,
 ) -> str:
     """Search the web using Brave Search API.
 
@@ -23,6 +24,7 @@ async def brave_web_search(
         count: Number of results to return (default: 5, max: 20)
         country: Country code for results (default: "US", "JP" for Japan)
         search_lang: Search language (default: "en", "ja" for Japanese)
+        ui_lang: UI language (auto-set based on search_lang if None)
 
     Returns:
         JSON string with search results containing:
@@ -65,12 +67,26 @@ async def brave_web_search(
         # Create client
         client = BraveSearch(api_key=api_key)
 
+        # Auto-set ui_lang based on search_lang if not specified
+        if ui_lang is None:
+            ui_lang_map = {
+                "ja": "ja-JP",
+                "en": "en-US",
+                "zh": "zh-CN",
+                "ko": "ko-KR",
+                "es": "es-ES",
+                "fr": "fr-FR",
+                "de": "de-DE",
+            }
+            ui_lang = ui_lang_map.get(search_lang, "en-US")
+
         # Create search request
         request = WebSearchRequest(  # type: ignore[call-arg,arg-type]
             q=query,
             count=min(count, 20),
             country=country,  # type: ignore[arg-type]
             search_lang=search_lang,
+            ui_lang=ui_lang,  # type: ignore[arg-type]
         )
 
         # Execute search
