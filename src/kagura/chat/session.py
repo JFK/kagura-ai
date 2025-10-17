@@ -363,28 +363,6 @@ async def _brave_search_tool(query: str, count: int = 5) -> str:
     return result
 
 
-async def _web_search_tool(query: str) -> str:
-    """Search the web for information (fallback to DuckDuckGo).
-
-    Args:
-        query: Search query
-
-    Returns:
-        Formatted search results
-    """
-    from rich.console import Console
-
-    from kagura.web.decorators import web_search
-
-    console = Console()
-    console.print(f"[dim]🌐 Searching the web for: {query}...[/]")
-
-    result = await web_search(query)
-
-    console.print("[dim]✓ Web search completed[/]")
-    return result
-
-
 async def _url_fetch_tool(url: str) -> str:
     """Fetch and extract text from a webpage.
 
@@ -567,8 +545,7 @@ async def _youtube_metadata_tool(video_url: str) -> str:
         _shell_exec_tool_wrapper,  # Single command with auto-retry
         _shell_exec_with_options_wrapper,  # Multiple options for user to choose
         # Web & Content
-        _brave_search_tool,  # Primary search (high-quality)
-        _web_search_tool,  # Fallback search (DuckDuckGo)
+        _brave_search_tool,  # Web search (Brave Search)
         _url_fetch_tool,
         # YouTube
         _youtube_transcript_tool,
@@ -615,8 +592,7 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     - If user wants more info, they will ask in next message
 
     Web & Content:
-    - brave_search(query, count=5): Search the web with Brave (high-quality, primary)
-    - web_search(query): Search the web with DuckDuckGo (fallback)
+    - brave_search(query, count=5): Search the web with Brave Search
     - url_fetch(url): Fetch and extract text from webpages
 
     YouTube:
@@ -630,8 +606,8 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     - URLs → use url_fetch
     - YouTube links → ALWAYS use both youtube_transcript AND youtube_metadata
       - If transcript fails (not available), summarize using metadata only
-      - Suggest using web_search for additional information
-    - Search requests → use web_search
+      - Suggest using brave_search for additional information
+    - Search requests → use brave_search
 
     For videos:
     - Default (mode="auto"): Both visual analysis + audio transcription
@@ -911,7 +887,6 @@ class ChatSession:
                 _shell_exec_tool_wrapper,
                 _shell_exec_with_options_wrapper,
                 _brave_search_tool,
-                _web_search_tool,
                 _url_fetch_tool,
                 _youtube_transcript_tool,
                 _youtube_metadata_tool,
@@ -993,8 +968,7 @@ class ChatSession:
         features.append(
             "  [green]💻 shell_exec[/] - Execute shell commands (confirmation)"
         )
-        features.append("  [green]🔍 brave_search[/] - Brave Search (high-quality)")
-        features.append("  [green]🌐 web_search[/] - DuckDuckGo (fallback)")
+        features.append("  [green]🔍 brave_search[/] - Web search (Brave)")
         features.append("  [green]🌐 url_fetch[/] - Fetch webpage content")
         features.append("  [green]📺 youtube_transcript[/] - Get YouTube transcripts")
         features.append("  [green]📺 youtube_metadata[/] - Get YouTube info")
@@ -1070,7 +1044,7 @@ your request.
   - Examples: ls, git status, find, grep
 
 ### Web & Content
-- **web_search** - Search the web (Brave or DuckDuckGo)
+- **brave_search** - Search the web (Brave Search)
 - **url_fetch** - Fetch and extract text from webpages
 
 ### YouTube

@@ -72,7 +72,7 @@ All file operations, web search, and multimodal analysis work automatically.
 | **Type Safety** | ❌ No | ❌ No | ❌ No | **✅ Full (pyright strict)** |
 | **Code Execution** | ⚠️ Manual | ⚠️ Limited | ❌ No | **✅ Built-in sandbox** |
 | **Memory System** | ⚠️ Manual | ⚠️ Basic | ⚠️ Basic | **✅ 3-tier (Context/Persistent/RAG)** |
-| **Web Search** | ⚠️ Plugin | ❌ No | ⚠️ Limited | **✅ Built-in (Brave + DDG)** |
+| **Web Search** | ⚠️ Plugin | ❌ No | ⚠️ Limited | **✅ Built-in (Brave Search)** |
 | **Multimodal** | ⚠️ Manual | ❌ No | ❌ No | **✅ Built-in (Gemini)** |
 | **Testing Framework** | ⚠️ Manual | ❌ No | ❌ No | **✅ Built-in (AgentTestCase)** |
 | **Interactive Chat** | ❌ No | ❌ No | ❌ No | **✅ Claude Code-like** |

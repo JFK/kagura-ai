@@ -24,11 +24,11 @@ This installs:
 - `httpx` - Async HTTP client
 - `beautifulsoup4` - HTML parsing
 - `lxml` - Fast XML/HTML parser
-- `duckduckgo-search` - DuckDuckGo search (optional)
+- `brave-search-python-client` - Brave Search API
 
-### API Key Setup (Optional)
+### API Key Setup (Required)
 
-For Brave Search (recommended for better results):
+For Brave Search:
 
 ```bash
 export BRAVE_SEARCH_API_KEY="your-brave-api-key"
@@ -36,7 +36,7 @@ export BRAVE_SEARCH_API_KEY="your-brave-api-key"
 
 Get a free API key from [Brave Search API](https://brave.com/search/api/) (2000 queries/month free).
 
-**Without API key**: Kagura automatically falls back to DuckDuckGo (no API key required).
+**Note**: Web search requires a valid BRAVE_SEARCH_API_KEY.
 
 ## Quick Start
 
@@ -126,13 +126,9 @@ Search results for: Python async best practices 2025
    Learn how to optimize asyncio applications for production...
 ```
 
-### Search Engines
+### Brave Search Engine
 
-Kagura supports multiple search engines:
-
-#### 1. Brave Search (Recommended)
-
-Best quality results, requires API key:
+Kagura uses Brave Search for web queries:
 
 ```python
 from kagura.web.search import BraveSearch
@@ -142,17 +138,6 @@ results = await search.search("query", max_results=10)
 
 for result in results:
     print(f"{result.title}: {result.url}")
-```
-
-#### 2. DuckDuckGo (Fallback)
-
-No API key required, rate limited:
-
-```python
-from kagura.web.search import DuckDuckGoSearch
-
-search = DuckDuckGoSearch()
-results = await search.search("query", max_results=10)
 ```
 
 ### Search API
@@ -167,7 +152,7 @@ for result in results:
     print(f"Title: {result.title}")
     print(f"URL: {result.url}")
     print(f"Snippet: {result.snippet}")
-    print(f"Source: {result.source}")  # "brave" or "duckduckgo"
+    print(f"Source: {result.source}")  # "brave"
     print()
 ```
 
@@ -331,15 +316,12 @@ export WEB_RATE_LIMIT=1.5
 ### Programmatic Configuration
 
 ```python
-from kagura.web.search import BraveSearch, DuckDuckGoSearch
+from kagura.web.search import BraveSearch
 from kagura.web.scraper import WebScraper
 import os
 
-# Configure search
-if os.getenv("BRAVE_SEARCH_API_KEY"):
-    search = BraveSearch(api_key=os.getenv("BRAVE_SEARCH_API_KEY"))
-else:
-    search = DuckDuckGoSearch()
+# Configure search (requires API key)
+search = BraveSearch(api_key=os.getenv("BRAVE_SEARCH_API_KEY"))
 
 # Configure scraper
 scraper = WebScraper(
