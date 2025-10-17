@@ -146,6 +146,25 @@ def _should_use_openai_direct(model: str) -> bool:
     return any(model.startswith(prefix) for prefix in openai_prefixes)
 
 
+def _should_use_gemini_direct(model: str) -> bool:
+    """Check if model should use Gemini SDK directly
+
+    Args:
+        model: Model name (e.g., "gemini/gemini-2.0-flash")
+
+    Returns:
+        True if should use Gemini SDK, False for LiteLLM
+
+    Note:
+        Gemini models benefit from direct SDK usage for:
+        - WebP/HEIC full support
+        - File API for caching/reuse
+        - Latest Gemini features
+        - Better multimodal URL handling
+    """
+    return model.startswith("gemini/")
+
+
 async def call_llm(
     prompt: str,
     config: LLMConfig,
@@ -155,9 +174,10 @@ async def call_llm(
     """
     Call LLM with given prompt, handling tool calls if present.
 
-    Uses hybrid backend:
+    Uses triple backend:
     - OpenAI models (gpt-*, o1-*, etc.) → OpenAI SDK directly
-    - Other providers (Claude, Gemini, etc.) → LiteLLM
+    - Gemini models (gemini/*) → Gemini SDK directly
+    - Other providers (Claude, etc.) → LiteLLM
 
     Supports both API key and OAuth2 authentication based on config.
     Automatically caches responses for faster access and cost reduction.
@@ -166,7 +186,7 @@ async def call_llm(
         prompt: The prompt to send
         config: LLM configuration (includes auth and cache settings)
         tool_functions: Optional list of tool functions (Python callables)
-        **kwargs: Additional parameters (OpenAI or LiteLLM specific)
+        **kwargs: Additional parameters (backend-specific)
 
     Returns:
         LLM response text
@@ -181,14 +201,20 @@ async def call_llm(
         - Use config.enable_cache=False to disable caching
         - Backend selection is automatic based on model name
     """
-    # Route to appropriate backend
+    # Route to appropriate backend (triple routing)
     if _should_use_openai_direct(config.model):
         # Use OpenAI SDK directly
         from .llm_openai import call_openai_direct
 
         return await call_openai_direct(prompt, config, tool_functions, **kwargs)
 
-    # Fall through to LiteLLM for other providers
+    elif _should_use_gemini_direct(config.model):
+        # Use Gemini SDK directly
+        from .llm_gemini import call_gemini_direct
+
+        return await call_gemini_direct(prompt, config, **kwargs)
+
+    # Fall through to LiteLLM for other providers (Claude, etc.)
     return await _call_litellm(prompt, config, tool_functions, **kwargs)
 
 

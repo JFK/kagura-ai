@@ -81,6 +81,8 @@ class LLMMock:
         self.response = response
         self.litellm_patcher: Any = None
         self.openai_patcher: Any = None
+        self.gemini_patcher: Any = None
+        self.gemini_configure_patcher: Any = None
 
     def __enter__(self) -> "LLMMock":
         """Start mocking."""
@@ -106,7 +108,12 @@ class LLMMock:
                 self.choices = [Choice(Message(content))]
                 self.usage = Usage()
 
-        # Mock LiteLLM (for non-OpenAI models)
+        # Gemini-style response (just text attribute)
+        class GeminiResponse:
+            def __init__(self, content: str):
+                self.text = content
+
+        # Mock LiteLLM (for Claude, etc.)
         async def mock_acompletion(*args: Any, **kwargs: Any) -> dict[str, Any]:
             """Return mock response (async version)."""
             return Response(self.response)  # type: ignore
@@ -128,6 +135,24 @@ class LLMMock:
         self.openai_patcher = patch("openai.AsyncOpenAI", return_value=mock_client)
         self.openai_patcher.__enter__()
 
+        # Mock Gemini SDK (for gemini/* models)
+        async def mock_gemini_generate(*args: Any, **kwargs: Any) -> GeminiResponse:
+            return GeminiResponse(self.response)
+
+        mock_gemini_model = MagicMock()
+        mock_gemini_model.generate_content_async = AsyncMock(
+            side_effect=mock_gemini_generate
+        )
+
+        self.gemini_patcher = patch(
+            "google.generativeai.GenerativeModel", return_value=mock_gemini_model
+        )
+        self.gemini_patcher.__enter__()
+
+        # Mock genai.configure (no-op)
+        self.gemini_configure_patcher = patch("google.generativeai.configure")
+        self.gemini_configure_patcher.__enter__()
+
         return self
 
     def __exit__(self, *args: Any) -> None:
@@ -136,6 +161,10 @@ class LLMMock:
             self.litellm_patcher.__exit__(*args)
         if self.openai_patcher:
             self.openai_patcher.__exit__(*args)
+        if self.gemini_patcher:
+            self.gemini_patcher.__exit__(*args)
+        if self.gemini_configure_patcher:
+            self.gemini_configure_patcher.__exit__(*args)
 
 
 class ToolMock:

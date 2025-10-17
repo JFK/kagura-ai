@@ -133,24 +133,31 @@ async def test_call_llm_with_oauth2_mock(tmp_path: Path, monkeypatch):
         mock_manager.get_token.return_value = "mock_oauth2_token"
         mock_manager_class.return_value = mock_manager
 
-        # Mock litellm.acompletion
-        with patch("kagura.core.llm.litellm.acompletion") as mock_completion:
+        # Mock Gemini SDK (since gemini/* uses Gemini direct backend now)
+        with patch("google.generativeai.GenerativeModel") as mock_model_class:
+            # Mock Gemini response
+            mock_model = MagicMock()
             mock_response = MagicMock()
-            mock_response.choices = [MagicMock()]
-            mock_response.choices[0].message.content = "Hello from Gemini!"
-            mock_response.choices[0].message.tool_calls = None
-            mock_completion.return_value = mock_response
+            mock_response.text = "Hello from Gemini!"
 
-            config = LLMConfig(
-                model="gemini/gemini-1.5-flash",
-                auth_type="oauth2",
-                oauth_provider="google"
+            from unittest.mock import AsyncMock
+
+            mock_model.generate_content_async = AsyncMock(
+                return_value=mock_response
             )
+            mock_model_class.return_value = mock_model
 
-            result = await call_llm("Test prompt", config)
+            # Mock genai.configure
+            with patch("google.generativeai.configure"):
+                config = LLMConfig(
+                    model="gemini/gemini-1.5-flash",
+                    auth_type="oauth2",
+                    oauth_provider="google",
+                )
 
-            assert result == "Hello from Gemini!"
-            # Verify OAuth2 token was used
-            call_kwargs = mock_completion.call_args[1]
-            assert call_kwargs["api_key"] == "mock_oauth2_token"
-            assert call_kwargs["model"] == "gemini/gemini-1.5-flash"
+                result = await call_llm("Test prompt", config)
+
+                assert "Hello from Gemini!" in str(result)
+                # Verify OAuth2Manager was called
+                mock_manager_class.assert_called_once_with(provider="google")
+                mock_manager.get_token.assert_called_once()

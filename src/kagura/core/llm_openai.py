@@ -213,4 +213,100 @@ async def call_openai_direct(
     )
 
 
-__all__ = ["call_openai_direct"]
+async def call_openai_vision_url(
+    image_url: str,
+    prompt: str,
+    config: LLMConfig,
+) -> LLMResponse:
+    """Analyze image from URL using OpenAI Vision API
+
+    Directly passes URL to OpenAI (no download needed).
+
+    Args:
+        image_url: Direct image URL (jpg, png, gif, webp)
+        prompt: Analysis prompt
+        config: LLM config (should use gpt-4o, gpt-5, or vision-capable model)
+
+    Returns:
+        LLMResponse with image analysis
+
+    Raises:
+        ImportError: If openai package not installed
+        ValueError: If API key not set
+        openai.OpenAIError: If API request fails
+
+    Note:
+        OpenAI Vision API supports direct URLs (no download needed).
+        Supported formats: JPEG, PNG, GIF, WebP
+    """
+    # Import OpenAI SDK
+    try:
+        from openai import AsyncOpenAI
+    except ImportError as e:
+        raise ImportError(
+            "openai package is required for Vision API. "
+            "Install with: pip install openai"
+        ) from e
+
+    # Track timing
+    import time
+
+    start_time = time.time()
+
+    # Initialize OpenAI client
+    api_key = config.get_api_key()
+    client = AsyncOpenAI(api_key=api_key) if api_key else AsyncOpenAI()
+
+    # Build Vision API request
+    # Note: gpt-5 doesn't support temperature, use default
+    api_params: dict[str, Any] = {
+        "model": config.model,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": image_url,
+                            "detail": "high",  # high/low/auto
+                        },
+                    },
+                ],
+            }
+        ],
+    }
+
+    # Add max_tokens if specified
+    if config.max_tokens:
+        api_params["max_tokens"] = config.max_tokens
+    else:
+        # Default higher limit for vision tasks
+        api_params["max_tokens"] = 4096
+
+    # Add temperature for non-gpt-5 models
+    is_gpt5 = config.model.startswith("gpt-5")
+    is_o1 = config.model.startswith("o1-")
+    if not (is_gpt5 or is_o1):
+        api_params["temperature"] = config.temperature
+
+    # Call OpenAI Vision API
+    response = await client.chat.completions.create(**api_params)
+
+    # Extract result
+    content = response.choices[0].message.content or ""
+    usage = {
+        "prompt_tokens": response.usage.prompt_tokens or 0,
+        "completion_tokens": response.usage.completion_tokens or 0,
+        "total_tokens": response.usage.total_tokens or 0,
+    }
+
+    duration = time.time() - start_time
+
+    return LLMResponse(
+        content=content, usage=usage, model=config.model, duration=duration
+    )
+
+
+__all__ = ["call_openai_direct", "call_openai_vision_url"]
