@@ -251,7 +251,7 @@ class BraveSearch:
     """Brave Search API client"""
 
     def __init__(self, api_key: str = None):
-        self.api_key = api_key or os.getenv("BRAVE_API_KEY")
+        self.api_key = api_key or os.getenv("BRAVE_SEARCH_API_KEY")
         self.base_url = "https://api.search.brave.com/res/v1"
 
     async def search(self, query: str, max_results: int = 10) -> list[SearchResult]:
@@ -296,7 +296,7 @@ class DuckDuckGoSearch:
 # 統合API
 async def search(query: str, max_results: int = 10) -> list[SearchResult]:
     """Search the web (auto-select engine)"""
-    if os.getenv("BRAVE_API_KEY"):
+    if os.getenv("BRAVE_SEARCH_API_KEY"):
         engine = BraveSearch()
     else:
         engine = DuckDuckGoSearch()
@@ -357,7 +357,7 @@ default_search_engine = "brave"
 cache_ttl = 3600  # 1 hour
 
 [web.brave]
-api_key = "${BRAVE_API_KEY}"
+api_key = "${BRAVE_SEARCH_API_KEY}"
 
 [web.scraping]
 respect_robots_txt = true

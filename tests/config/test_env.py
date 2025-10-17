@@ -2,8 +2,6 @@
 
 import warnings
 
-import pytest
-
 from kagura.config.env import (
     check_required_env_vars,
     get_anthropic_api_key,
@@ -61,47 +59,14 @@ class TestGoogleAPIKey:
 class TestBraveSearchAPIKey:
     """Tests for get_brave_search_api_key()"""
 
-    def test_get_with_new_env_var(self, monkeypatch):
-        """Test getting Brave Search API key with new variable name"""
+    def test_get_with_env_var(self, monkeypatch):
+        """Test getting Brave Search API key"""
         monkeypatch.setenv("BRAVE_SEARCH_API_KEY", "brave-test123")
-        monkeypatch.delenv("BRAVE_API_KEY", raising=False)
         assert get_brave_search_api_key() == "brave-test123"
-
-    def test_get_with_old_env_var_shows_warning(self, monkeypatch):
-        """Test that old variable name shows deprecation warning"""
-        monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
-        monkeypatch.setenv("BRAVE_API_KEY", "brave-old-test123")
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            result = get_brave_search_api_key()
-
-            # Verify result
-            assert result == "brave-old-test123"
-
-            # Verify deprecation warning was issued
-            assert len(w) == 1
-            assert issubclass(w[0].category, DeprecationWarning)
-            assert "BRAVE_API_KEY is deprecated" in str(w[0].message)
-            assert "BRAVE_SEARCH_API_KEY" in str(w[0].message)
-
-    def test_new_var_takes_precedence_over_old(self, monkeypatch):
-        """Test that new variable name takes precedence"""
-        monkeypatch.setenv("BRAVE_SEARCH_API_KEY", "brave-new-test123")
-        monkeypatch.setenv("BRAVE_API_KEY", "brave-old-test123")
-
-        # Should return new value without warning
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            result = get_brave_search_api_key()
-
-            assert result == "brave-new-test123"
-            assert len(w) == 0  # No warning when new var is used
 
     def test_get_without_env_var(self, monkeypatch):
         """Test getting Brave Search API key when not set"""
         monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
-        monkeypatch.delenv("BRAVE_API_KEY", raising=False)
         assert get_brave_search_api_key() is None
 
 
@@ -177,7 +142,6 @@ class TestListEnvVars:
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
         monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
         monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
-        monkeypatch.delenv("BRAVE_API_KEY", raising=False)
 
         result = list_env_vars()
 

@@ -24,10 +24,10 @@ async def brave_search(query: str, count: int = 5) -> str:
     """
     # This would use actual Brave Search API
     # For demo purposes, we'll simulate
-    api_key = os.getenv("BRAVE_API_KEY")
+    api_key = os.getenv("BRAVE_SEARCH_API_KEY")
 
     if not api_key:
-        return "Error: BRAVE_API_KEY not set"
+        return "Error: BRAVE_SEARCH_API_KEY not set"
 
     # In real implementation:
     # import requests
@@ -81,9 +81,9 @@ async def main():
     print("-" * 50)
 
     # Check for API key
-    if not os.getenv("BRAVE_API_KEY"):
-        print("⚠️  BRAVE_API_KEY not set")
-        print("Set it with: export BRAVE_API_KEY='your_key'")
+    if not os.getenv("BRAVE_SEARCH_API_KEY"):
+        print("⚠️  BRAVE_SEARCH_API_KEY not set")
+        print("Set it with: export BRAVE_SEARCH_API_KEY='your_key'")
         print("Get key at: https://brave.com/search/api/")
         print("\nRunning with simulated results...\n")
 

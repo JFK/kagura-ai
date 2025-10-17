@@ -185,7 +185,7 @@ pip install kagura-ai[all]
 
 2. **Brave Search** (optional, for better web results):
    ```bash
-   export BRAVE_API_KEY="your-brave-key"
+   export BRAVE_SEARCH_API_KEY="your-brave-key"
    ```
 
 Without Brave key, Kagura falls back to DuckDuckGo (no API key required).
@@ -549,7 +549,7 @@ await rag.build_index(force_rebuild=True)
 Check API keys:
 
 ```bash
-echo $BRAVE_API_KEY
+echo $BRAVE_SEARCH_API_KEY
 echo $GEMINI_API_KEY
 ```
 

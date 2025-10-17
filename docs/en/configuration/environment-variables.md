@@ -130,12 +130,12 @@ if missing:
 
 ### Brave Search API Key
 
-The old `BRAVE_API_KEY` variable is deprecated. Use `BRAVE_SEARCH_API_KEY` instead.
+The old `BRAVE_SEARCH_API_KEY` variable is deprecated. Use `BRAVE_SEARCH_API_KEY` instead.
 
 **Migration**:
 ```bash
 # Old (deprecated, but still works with warning)
-BRAVE_API_KEY=...
+BRAVE_SEARCH_API_KEY=...
 
 # New (recommended)
 BRAVE_SEARCH_API_KEY=...
@@ -146,7 +146,7 @@ BRAVE_SEARCH_API_KEY=...
 import warnings
 
 # Using old variable name will show:
-# DeprecationWarning: BRAVE_API_KEY is deprecated.
+# DeprecationWarning: BRAVE_SEARCH_API_KEY is deprecated.
 # Use BRAVE_SEARCH_API_KEY instead.
 ```
 
@@ -287,7 +287,7 @@ cat .env  # Check for typos, missing =, etc.
 - `DEFAULT_TEMPERATURE` - Default temperature (default: `0.7`)
 
 ### Deprecated
-- `BRAVE_API_KEY` - Use `BRAVE_SEARCH_API_KEY` instead
+- `BRAVE_SEARCH_API_KEY` - Use `BRAVE_SEARCH_API_KEY` instead
 
 ---
 

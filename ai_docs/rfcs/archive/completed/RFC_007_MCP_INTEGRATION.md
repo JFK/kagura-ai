@@ -504,7 +504,7 @@ args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/files
 name = "brave_search"
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-brave-search"]
-env = { BRAVE_API_KEY = "${BRAVE_API_KEY}" }
+env = { BRAVE_SEARCH_API_KEY = "${BRAVE_SEARCH_API_KEY}" }
 ```
 
 ## テスト戦略

@@ -197,7 +197,7 @@ brew install anthropics/claude/claude
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
       "env": {
-        "BRAVE_API_KEY": "YOUR_API_KEY_HERE"
+        "BRAVE_SEARCH_API_KEY": "YOUR_API_KEY_HERE"
       }
     }
   }
@@ -237,7 +237,7 @@ Web検索機能を追加：
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
       "env": {
-        "BRAVE_API_KEY": "BSA..."
+        "BRAVE_SEARCH_API_KEY": "BSA..."
       }
     }
   }
@@ -274,7 +274,7 @@ APIキーをハードコードせず、環境変数で管理：
 **macOS / Linux**:
 ```bash
 # ~/.zshrc or ~/.bashrc
-export BRAVE_API_KEY="BSA..."
+export BRAVE_SEARCH_API_KEY="BSA..."
 export GITHUB_TOKEN="ghp_..."
 ```
 
@@ -286,7 +286,7 @@ export GITHUB_TOKEN="ghp_..."
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
       "env": {
-        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+        "BRAVE_SEARCH_API_KEY": "${BRAVE_SEARCH_API_KEY}"
       }
     }
   }
@@ -375,7 +375,7 @@ args = ["-y", "@modelcontextprotocol/server-filesystem", "~/projects"]
 name = "brave_search"
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-brave-search"]
-env = { BRAVE_API_KEY = "${BRAVE_API_KEY}" }
+env = { BRAVE_SEARCH_API_KEY = "${BRAVE_SEARCH_API_KEY}" }
 ```
 
 ### 5. カスタムエージェントのMCP公開
@@ -455,7 +455,7 @@ npm cache clean --force
 
 **症状**:
 ```
-Error: BRAVE_API_KEY is not defined
+Error: BRAVE_SEARCH_API_KEY is not defined
 ```
 
 **解決方法**:
@@ -464,7 +464,7 @@ Error: BRAVE_API_KEY is not defined
 cat ~/.zshrc  # または ~/.bashrc
 
 # 2. 環境変数をエクスポート
-export BRAVE_API_KEY="your-key-here"
+export BRAVE_SEARCH_API_KEY="your-key-here"
 
 # 3. シェル再起動
 source ~/.zshrc
@@ -554,7 +554,7 @@ Claude: 記憶がありません
 ```json
 {
   "env": {
-    "BRAVE_API_KEY": "BSA1234567890abcdef"
+    "BRAVE_SEARCH_API_KEY": "BSA1234567890abcdef"
   }
 }
 ```
@@ -562,13 +562,13 @@ Claude: 記憶がありません
 **✅ 良い例**:
 ```bash
 # ~/.zshrc
-export BRAVE_API_KEY="BSA1234567890abcdef"
+export BRAVE_SEARCH_API_KEY="BSA1234567890abcdef"
 ```
 
 ```json
 {
   "env": {
-    "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+    "BRAVE_SEARCH_API_KEY": "${BRAVE_SEARCH_API_KEY}"
   }
 }
 ```
@@ -768,7 +768,7 @@ Claude:
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
       "env": {
-        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+        "BRAVE_SEARCH_API_KEY": "${BRAVE_SEARCH_API_KEY}"
       }
     },
     "kagura": {
