@@ -56,7 +56,7 @@ class AgentConfiguration(BaseModel):
     """Complete agent configuration."""
 
     name: str = Field(description="Agent name")
-    model: str = Field(default="gpt-4o-mini", description="LLM model to use")
+    model: str = Field(default="gpt-5-mini", description="LLM model to use")
     memory: Optional[MemoryConfig] = Field(
         default=None, description="Memory configuration"
     )

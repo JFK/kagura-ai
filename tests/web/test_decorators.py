@@ -107,7 +107,7 @@ class TestWebAgentIntegration:
     def test_web_enabled_agent_has_tool(self):
         """Test that @agent detects @web.enable and injects web_search tool."""
 
-        @agent(model="gpt-4o-mini")
+        @agent(model="gpt-5-mini")
         @web.enable()
         async def research_agent(topic: str) -> str:
             """Research {{ topic }} using web search."""
@@ -120,7 +120,7 @@ class TestWebAgentIntegration:
     def test_agent_without_web_enable(self):
         """Test that agents without @web.enable don't have web metadata."""
 
-        @agent(model="gpt-4o-mini")
+        @agent(model="gpt-5-mini")
         async def normal_agent(topic: str) -> str:
             """Normal agent without web"""
             pass
@@ -131,7 +131,7 @@ class TestWebAgentIntegration:
         """Test decorator order: @agent should be outer, @web.enable inner."""
 
         # Correct order: @agent on top, @web.enable below
-        @agent(model="gpt-4o-mini")
+        @agent(model="gpt-5-mini")
         @web.enable()
         async def correct_agent(topic: str) -> str:
             """Research {{ topic }}"""

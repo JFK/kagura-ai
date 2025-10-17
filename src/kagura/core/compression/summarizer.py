@@ -17,7 +17,7 @@ class ContextSummarizer:
 
     Example:
         >>> from kagura.core.compression import TokenCounter, ContextSummarizer
-        >>> counter = TokenCounter(model="gpt-4o-mini")
+        >>> counter = TokenCounter(model="gpt-5-mini")
         >>> summarizer = ContextSummarizer(counter)
         >>> messages = [
         ...     {"role": "user", "content": "Long conversation..."},
@@ -37,7 +37,7 @@ class ContextSummarizer:
         """
         self.counter = token_counter
         self.llm_config = llm_config or LLMConfig(
-            model="gpt-4o-mini",
+            model="gpt-5-mini",
             temperature=0.3,  # Low temperature for consistent summaries
         )
 

@@ -154,7 +154,7 @@ async def test_chat_session_web_initialization():
     from kagura.chat import ChatSession
 
     session = ChatSession(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         enable_web=True
     )
 
@@ -171,7 +171,7 @@ async def test_agent_with_web_search_tool():
         return f"Search results for: {query}"
 
     @agent(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         tools=[mock_search]
     )
     async def research_agent(topic: str) -> str:

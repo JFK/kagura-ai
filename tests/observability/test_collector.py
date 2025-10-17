@@ -194,7 +194,7 @@ async def test_record_llm_call_updates_metrics():
 
     async with collector.track_execution("llm_agent") as exec_id:
         collector.record_llm_call("gpt-4o", 100, 50, 1.0, 0.001)
-        collector.record_llm_call("gpt-4o-mini", 50, 25, 0.5, 0.0005)
+        collector.record_llm_call("gpt-5-mini", 50, 25, 0.5, 0.0005)
 
     execution = store.get_execution(exec_id)
     metrics = execution["metrics"]
@@ -364,7 +364,7 @@ async def test_full_execution_lifecycle():
 
         # Record LLM calls
         collector.record_llm_call("gpt-4o", 100, 50, 1.0, 0.003)
-        collector.record_llm_call("gpt-4o-mini", 50, 25, 0.5, 0.0005)
+        collector.record_llm_call("gpt-5-mini", 50, 25, 0.5, 0.0005)
 
         # Record tool calls
         collector.record_tool_call("data_loader", 0.2, source="database")

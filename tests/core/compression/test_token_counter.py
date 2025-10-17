@@ -11,12 +11,12 @@ class TestTokenCounter:
     @pytest.fixture
     def counter(self):
         """Create TokenCounter instance"""
-        return TokenCounter(model="gpt-4o-mini")
+        return TokenCounter(model="gpt-5-mini")
 
     def test_init_default_model(self):
         """Test initialization with default model"""
         counter = TokenCounter()
-        assert counter.model == "gpt-4o-mini"
+        assert counter.model == "gpt-5-mini"
         assert counter._encoder is not None
 
     def test_init_custom_model(self):
@@ -148,7 +148,7 @@ class TestTokenCounter:
 
     def test_get_model_limits_gpt4o_mini(self, counter):
         """Test getting model limits for GPT-4o-mini"""
-        limits = counter.get_model_limits("gpt-4o-mini")
+        limits = counter.get_model_limits("gpt-5-mini")
         assert limits["context_window"] == 128_000
         assert limits["max_completion"] == 16_384
 

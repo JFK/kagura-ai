@@ -27,12 +27,12 @@ class TestCacheEntry:
             response="test_response",
             created_at=datetime.now(),
             ttl=3600,
-            model="gpt-4o-mini"
+            model="gpt-5-mini"
         )
         assert entry.key == "test_key"
         assert entry.response == "test_response"
         assert entry.ttl == 3600
-        assert entry.model == "gpt-4o-mini"
+        assert entry.model == "gpt-5-mini"
 
     def test_cache_entry_not_expired(self):
         """Test cache entry is not expired within TTL"""
@@ -41,7 +41,7 @@ class TestCacheEntry:
             response="data",
             created_at=datetime.now(),
             ttl=3600,  # 1 hour
-            model="gpt-4o-mini"
+            model="gpt-5-mini"
         )
         assert not entry.is_expired
 
@@ -52,7 +52,7 @@ class TestCacheEntry:
             response="data",
             created_at=datetime.now() - timedelta(seconds=3601),  # 1 hour 1 second ago
             ttl=3600,
-            model="gpt-4o-mini"
+            model="gpt-5-mini"
         )
         assert entry.is_expired
 
@@ -64,7 +64,7 @@ class TestCacheEntry:
             response="data",
             created_at=datetime.now() - timedelta(seconds=3600),
             ttl=3600,
-            model="gpt-4o-mini"
+            model="gpt-5-mini"
         )
         # Should be expired or very close to expiration
         # Due to timing, we allow small tolerance
@@ -109,7 +109,7 @@ class TestLLMCache:
     async def test_cache_get_hit(self):
         """Test cache get returns value on hit"""
         cache = LLMCache()
-        key = cache._hash_key("test", "gpt-4o-mini")
+        key = cache._hash_key("test", "gpt-5-mini")
         await cache.set(key, "response_value")
 
         result = await cache.get(key)
@@ -183,35 +183,35 @@ class TestLLMCache:
     def test_hash_key_deterministic(self):
         """Test hash key is deterministic for same inputs"""
         cache = LLMCache()
-        key1 = cache._hash_key("prompt", "gpt-4o-mini", temperature=0.7)
-        key2 = cache._hash_key("prompt", "gpt-4o-mini", temperature=0.7)
+        key1 = cache._hash_key("prompt", "gpt-5-mini", temperature=0.7)
+        key2 = cache._hash_key("prompt", "gpt-5-mini", temperature=0.7)
         assert key1 == key2
 
     def test_hash_key_kwargs_order_independent(self):
         """Test hash key is same regardless of kwargs order"""
         cache = LLMCache()
-        key1 = cache._hash_key("prompt", "gpt-4o-mini", temp=0.7, max_tokens=100)
-        key2 = cache._hash_key("prompt", "gpt-4o-mini", max_tokens=100, temp=0.7)
+        key1 = cache._hash_key("prompt", "gpt-5-mini", temp=0.7, max_tokens=100)
+        key2 = cache._hash_key("prompt", "gpt-5-mini", max_tokens=100, temp=0.7)
         assert key1 == key2
 
     def test_hash_key_different_for_different_inputs(self):
         """Test hash key differs for different inputs"""
         cache = LLMCache()
-        key1 = cache._hash_key("prompt1", "gpt-4o-mini")
-        key2 = cache._hash_key("prompt2", "gpt-4o-mini")
+        key1 = cache._hash_key("prompt1", "gpt-5-mini")
+        key2 = cache._hash_key("prompt2", "gpt-5-mini")
         assert key1 != key2
 
     def test_hash_key_different_for_different_models(self):
         """Test hash key differs for different models"""
         cache = LLMCache()
-        key1 = cache._hash_key("prompt", "gpt-4o-mini")
+        key1 = cache._hash_key("prompt", "gpt-5-mini")
         key2 = cache._hash_key("prompt", "gpt-4o")
         assert key1 != key2
 
     def test_hash_key_length(self):
         """Test hash key is 16 characters"""
         cache = LLMCache()
-        key = cache._hash_key("test", "gpt-4o-mini")
+        key = cache._hash_key("test", "gpt-5-mini")
         assert len(key) == 16
 
     @pytest.mark.asyncio
@@ -256,7 +256,7 @@ class TestLLMCache:
     async def test_stats_hit_rate_calculation(self):
         """Test cache hit rate is calculated correctly"""
         cache = LLMCache()
-        key = cache._hash_key("test", "gpt-4o-mini")
+        key = cache._hash_key("test", "gpt-5-mini")
 
         await cache.set(key, "value")
         await cache.get(key)  # Hit

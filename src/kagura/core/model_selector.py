@@ -30,7 +30,7 @@ class ModelConfig:
     """Model configuration for specific task.
 
     Attributes:
-        model: Model identifier (e.g., "gpt-4o-mini", "gpt-5-nano")
+        model: Model identifier (e.g., "gpt-5-mini", "gpt-5-nano")
         temperature: Sampling temperature (0.0-1.0)
         max_tokens: Maximum tokens to generate (None = model default)
     """
@@ -55,20 +55,20 @@ class ModelSelector:
     Example:
         >>> selector = ModelSelector()
         >>> config = selector.select_model(TaskType.SEARCH)
-        >>> print(config.model)  # "gpt-4o-mini" (fallback if GPT-5 unavailable)
+        >>> print(config.model)  # "gpt-5-mini" (fallback if GPT-5 unavailable)
     """
 
     # Default model mappings (optimized for cost/quality)
     # Note: Using gpt-4o-mini as fallback until GPT-5 is GA
     TASK_MODELS: dict[TaskType, ModelConfig] = {
-        TaskType.SEARCH: ModelConfig("gpt-4o-mini", 0.3, 500),
-        TaskType.CLASSIFICATION: ModelConfig("gpt-4o-mini", 0.3, 100),
-        TaskType.SUMMARIZATION: ModelConfig("gpt-4o-mini", 0.5, 1000),
-        TaskType.TRANSLATION: ModelConfig("gpt-4o-mini", 0.3, 2000),
+        TaskType.SEARCH: ModelConfig("gpt-5-mini", 0.3, 500),
+        TaskType.CLASSIFICATION: ModelConfig("gpt-5-mini", 0.3, 100),
+        TaskType.SUMMARIZATION: ModelConfig("gpt-5-mini", 0.5, 1000),
+        TaskType.TRANSLATION: ModelConfig("gpt-5-mini", 0.3, 2000),
         TaskType.CODE_GENERATION: ModelConfig("gpt-4o", 0.7, 4000),
         TaskType.CODE_REVIEW: ModelConfig("gpt-4o", 0.5, 2000),
         TaskType.COMPLEX_REASONING: ModelConfig("gpt-4o", 0.7, 8000),
-        TaskType.CHAT: ModelConfig("gpt-4o-mini", 0.7, 2000),
+        TaskType.CHAT: ModelConfig("gpt-5-mini", 0.7, 2000),
     }
 
     # Future: GPT-5 models (when available)
@@ -104,7 +104,7 @@ class ModelSelector:
         Example:
             >>> selector = ModelSelector()
             >>> config = selector.select_model(TaskType.SEARCH)
-            >>> print(config.model)  # "gpt-4o-mini"
+            >>> print(config.model)  # "gpt-5-mini"
             >>> print(config.temperature)  # 0.3
         """
         return self.models.get(task_type, self.models[TaskType.CHAT])

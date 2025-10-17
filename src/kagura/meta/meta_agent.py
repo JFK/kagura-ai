@@ -23,7 +23,7 @@ class MetaAgent:
 
     def __init__(
         self,
-        model: str = "gpt-4o-mini",
+        model: str = "gpt-5-mini",
         template_dir: Optional[Path] = None,
         validate: bool = True,
     ):

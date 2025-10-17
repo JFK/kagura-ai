@@ -7,7 +7,7 @@ Part of RFC-033 Week 2: Auto-correction for shell commands.
 from kagura import agent
 
 
-@agent(model="gpt-4o-mini", temperature=0.3)
+@agent(model="gpt-5-mini", temperature=0.3)
 async def command_fixer(
     failed_command: str,
     error_message: str,

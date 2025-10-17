@@ -57,7 +57,7 @@ def enable(
         Decorated function with web search capabilities
 
     Example:
-        @agent(model="gpt-4o-mini")
+        @agent(model="gpt-5-mini")
         @web.enable()
         async def research_agent(topic: str) -> str:
             '''Research {{ topic }} using web search.

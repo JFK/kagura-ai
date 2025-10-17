@@ -23,7 +23,7 @@ class NLSpecParser:
         >>> print(spec.system_prompt)  # Generated system prompt
     """
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-5-mini"):
         """Initialize parser with LLM model
 
         Args:

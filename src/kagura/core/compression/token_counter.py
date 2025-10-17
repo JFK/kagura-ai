@@ -13,16 +13,16 @@ class TokenCounter:
     Uses tiktoken for accurate token counting across different models.
 
     Example:
-        >>> counter = TokenCounter(model="gpt-4o-mini")
+        >>> counter = TokenCounter(model="gpt-5-mini")
         >>> tokens = counter.count_tokens("Hello, world!")
         >>> print(f"Tokens: {tokens}")
     """
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-5-mini"):
         """Initialize with specific model tokenizer
 
         Args:
-            model: LLM model name (e.g., "gpt-4o-mini", "claude-3-5-sonnet")
+            model: LLM model name (e.g., "gpt-5-mini", "claude-3-5-sonnet")
         """
         self.model = model
         self._encoder = self._get_encoder(model)
@@ -191,13 +191,13 @@ class TokenCounter:
 
         Example:
             >>> counter = TokenCounter()
-            >>> limits = counter.get_model_limits("gpt-4o-mini")
+            >>> limits = counter.get_model_limits("gpt-5-mini")
             >>> assert limits["context_window"] > 0
             >>> assert limits["max_completion"] > 0
         """
         # Model limits (as of 2025)
         limits = {
-            "gpt-4o-mini": {"context_window": 128_000, "max_completion": 16_384},
+            "gpt-5-mini": {"context_window": 128_000, "max_completion": 16_384},
             "gpt-4o": {"context_window": 128_000, "max_completion": 16_384},
             "gpt-4-turbo": {"context_window": 128_000, "max_completion": 4_096},
             "gpt-4-turbo-preview": {"context_window": 128_000, "max_completion": 4_096},

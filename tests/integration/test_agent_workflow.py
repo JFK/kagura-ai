@@ -15,7 +15,7 @@ class Person(BaseModel):
 @pytest.mark.asyncio
 async def test_agent_with_template_and_parser(mock_llm_response):
     """Test @agent + template + parser integration"""
-    @agent(model="gpt-4o-mini")
+    @agent(model="gpt-5-mini")
     async def extract_person(text: str) -> Person:
         '''Extract person info from: {{ text }}'''
         pass
@@ -32,7 +32,7 @@ async def test_agent_with_template_and_parser(mock_llm_response):
 @pytest.mark.asyncio
 async def test_agent_with_multiple_parameters(mock_llm_response):
     """Test agent with multiple parameters"""
-    @agent(model="gpt-4o-mini")
+    @agent(model="gpt-5-mini")
     async def greet(name: str, time: str = "morning") -> str:
         '''Good {{ time }}, {{ name }}!'''
         pass
@@ -45,7 +45,7 @@ async def test_agent_with_multiple_parameters(mock_llm_response):
 @pytest.mark.asyncio
 async def test_agent_with_list_return(mock_llm_response):
     """Test agent returning a list"""
-    @agent(model="gpt-4o-mini")
+    @agent(model="gpt-5-mini")
     async def extract_keywords(text: str) -> list[str]:
         '''Extract keywords from: {{ text }}'''
         pass
@@ -61,7 +61,7 @@ async def test_agent_with_list_return(mock_llm_response):
 @pytest.mark.asyncio
 async def test_agent_error_handling():
     """Test agent error handling"""
-    @agent(model="gpt-4o-mini")
+    @agent(model="gpt-5-mini")
     async def failing_agent(query: str) -> str:
         '''Answer: {{ query }}'''
         pass

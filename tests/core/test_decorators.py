@@ -30,7 +30,7 @@ async def test_agent_decorator_with_params():
     with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = "Greetings, Alice!"
 
-        @agent(model="gpt-4o-mini", temperature=0.5)
+        @agent(model="gpt-5-mini", temperature=0.5)
         async def greet(name: str) -> str:
             '''Greet {{ name }}'''
             pass

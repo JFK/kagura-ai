@@ -28,7 +28,7 @@ class MemoryManager:
         enable_rag: bool = False,
         enable_compression: bool = True,
         compression_policy: Optional[CompressionPolicy] = None,
-        model: str = "gpt-4o-mini",
+        model: str = "gpt-5-mini",
     ) -> None:
         """Initialize memory manager.
 

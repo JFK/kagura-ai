@@ -15,7 +15,7 @@ class ChatbotPreset(AgentBuilder):
         >>> from kagura.agents import ChatbotPreset
         >>> chatbot = (
         ...     ChatbotPreset("my_chatbot")
-        ...     .with_model("gpt-4o-mini")
+        ...     .with_model("gpt-5-mini")
         ...     .build()
         ... )
         >>> result = await chatbot("Hello!")

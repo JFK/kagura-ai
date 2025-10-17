@@ -10,7 +10,7 @@ Example:
     ...     MessageTrimmer,
     ...     ContextSummarizer,
     ... )
-    >>> counter = TokenCounter(model="gpt-4o-mini")
+    >>> counter = TokenCounter(model="gpt-5-mini")
     >>> monitor = ContextMonitor(counter, max_tokens=10000)
     >>> usage = monitor.check_usage(messages)
     >>> if usage.should_compress:

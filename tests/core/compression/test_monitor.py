@@ -11,7 +11,7 @@ class TestContextMonitor:
     @pytest.fixture
     def counter(self):
         """Create TokenCounter instance"""
-        return TokenCounter(model="gpt-4o-mini")
+        return TokenCounter(model="gpt-5-mini")
 
     @pytest.fixture
     def monitor(self, counter):
@@ -79,7 +79,7 @@ class TestContextMonitor:
 
     def test_check_usage_should_compress_true(self):
         """Test should_compress is True when usage is high"""
-        counter = TokenCounter(model="gpt-4o-mini")
+        counter = TokenCounter(model="gpt-5-mini")
         monitor = ContextMonitor(counter, max_tokens=1000)  # Small limit
 
         messages = [{"role": "user", "content": "Long message " * 100} for _ in range(10)]
@@ -110,7 +110,7 @@ class TestContextMonitor:
     def test_different_models(self):
         """Test monitor with different models"""
         # GPT-4o-mini
-        counter1 = TokenCounter(model="gpt-4o-mini")
+        counter1 = TokenCounter(model="gpt-5-mini")
         monitor1 = ContextMonitor(counter1, max_tokens=None)
         assert monitor1.max_tokens == 124_000
 

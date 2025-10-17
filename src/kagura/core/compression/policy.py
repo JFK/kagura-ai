@@ -53,7 +53,7 @@ class CompressionPolicy:
     enable_summarization: bool = True
     """Allow LLM-based summarization (required for 'summarize' and 'smart')"""
 
-    summarization_model: str = "gpt-4o-mini"
+    summarization_model: str = "gpt-5-mini"
     """Model for summarization (should be fast and cheap)"""
 
     def __post_init__(self):

@@ -3,7 +3,7 @@
 from kagura import agent
 
 
-@agent(model="gpt-4o-mini", temperature=0.3)
+@agent(model="gpt-5-mini", temperature=0.3)
 async def TranslateAgent(text: str, target_language: str = "ja") -> str:
     """
     Translate the following text to {{ target_language }}:
