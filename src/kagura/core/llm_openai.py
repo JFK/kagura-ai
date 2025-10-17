@@ -82,15 +82,24 @@ async def call_openai_direct(
         api_params: dict[str, Any] = {
             "model": config.model,
             "messages": messages,
-            "temperature": config.temperature,
         }
+
+        # gpt-5 series only supports temperature=1.0 (default)
+        # o1 series also has temperature restrictions
+        is_gpt5 = config.model.startswith("gpt-5")
+        is_o1 = config.model.startswith("o1-")
+
+        if not (is_gpt5 or is_o1):
+            # Only add temperature for models that support it
+            api_params["temperature"] = config.temperature
 
         # Add optional parameters
         if config.max_tokens:
             api_params["max_tokens"] = config.max_tokens
 
         # Add top_p if not default (OpenAI default is 1.0)
-        if config.top_p != 1.0:
+        # Skip for gpt-5 and o1 series
+        if config.top_p != 1.0 and not (is_gpt5 or is_o1):
             api_params["top_p"] = config.top_p
 
         # Add tools schema if provided in kwargs

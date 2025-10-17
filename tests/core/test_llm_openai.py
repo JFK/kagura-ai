@@ -133,14 +133,15 @@ class TestOpenAIDirectBasic:
 
     @pytest.mark.asyncio
     async def test_call_openai_direct_with_top_p(self, mock_openai_response):
-        """Test OpenAI call with top_p parameter"""
+        """Test OpenAI call with top_p parameter (non-gpt-5 model)"""
         with patch("openai.AsyncOpenAI") as mock_client_class:
             mock_client = MagicMock()
             mock_create = AsyncMock(side_effect=mock_openai_response)
             mock_client.chat.completions.create = mock_create
             mock_client_class.return_value = mock_client
 
-            config = LLMConfig(model="gpt-5-mini", top_p=0.9)
+            # Use gpt-4o which supports top_p
+            config = LLMConfig(model="gpt-4o", top_p=0.9)
             result = await call_openai_direct("test prompt", config)
 
             assert result.content == "test response from OpenAI"
@@ -157,7 +158,8 @@ class TestOpenAIDirectBasic:
             mock_client.chat.completions.create = mock_create
             mock_client_class.return_value = mock_client
 
-            config = LLMConfig(model="gpt-5-mini", top_p=1.0)  # Default
+            # Use gpt-4o to test top_p default behavior
+            config = LLMConfig(model="gpt-4o", top_p=1.0)  # Default
             result = await call_openai_direct("test prompt", config)
 
             assert result.content == "test response from OpenAI"
@@ -421,15 +423,16 @@ class TestOpenAIDirectParameters:
 
     @pytest.mark.asyncio
     async def test_config_parameters_priority(self, mock_openai_response):
-        """Test config parameters are used correctly"""
+        """Test config parameters are used correctly (non-gpt-5 model)"""
         with patch("openai.AsyncOpenAI") as mock_client_class:
             mock_client = MagicMock()
             mock_create = AsyncMock(side_effect=mock_openai_response)
             mock_client.chat.completions.create = mock_create
             mock_client_class.return_value = mock_client
 
+            # Use gpt-4o which supports all parameters
             config = LLMConfig(
-                model="gpt-5-mini", temperature=0.9, max_tokens=500, top_p=0.95
+                model="gpt-4o", temperature=0.9, max_tokens=500, top_p=0.95
             )
             result = await call_openai_direct("test prompt", config)
 
@@ -437,7 +440,7 @@ class TestOpenAIDirectParameters:
 
             # Verify parameters
             call_kwargs = mock_create.call_args[1]
-            assert call_kwargs["model"] == "gpt-5-mini"
+            assert call_kwargs["model"] == "gpt-4o"
             assert call_kwargs["temperature"] == 0.9
             assert call_kwargs["max_tokens"] == 500
             assert call_kwargs["top_p"] == 0.95
