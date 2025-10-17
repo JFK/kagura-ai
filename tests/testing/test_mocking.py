@@ -31,16 +31,19 @@ def test_llm_mock_initialization():
     mock = LLMMock("test response")
 
     assert mock.response == "test response"
-    assert mock.patcher is None
+    assert mock.litellm_patcher is None  # Not started yet
+    assert mock.openai_patcher is None  # Not started yet
 
 
 def test_llm_mock_context():
     """Test LLMMock context manager."""
     with LLMMock("test response") as mock:
-        assert mock.patcher is not None
+        assert mock.litellm_patcher is not None  # Patching LiteLLM
+        assert mock.openai_patcher is not None  # Patching OpenAI SDK
 
-    # Patcher should be cleaned up
-    assert mock.patcher is not None  # Still exists but exited
+    # Patchers should be cleaned up
+    assert mock.litellm_patcher is not None  # Still exists but exited
+    assert mock.openai_patcher is not None  # Still exists but exited
 
 
 def test_tool_mock_initialization():
