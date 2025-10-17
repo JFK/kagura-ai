@@ -31,7 +31,7 @@ This installs:
 For Brave Search (recommended for better results):
 
 ```bash
-export BRAVE_API_KEY="your-brave-api-key"
+export BRAVE_SEARCH_API_KEY="your-brave-api-key"
 ```
 
 Get a free API key from [Brave Search API](https://brave.com/search/api/) (2000 queries/month free).
@@ -319,7 +319,7 @@ async def news_assistant(query: str) -> str:
 
 ```bash
 # Brave Search (optional)
-export BRAVE_API_KEY="your-key"
+export BRAVE_SEARCH_API_KEY="your-key"
 
 # User agent (optional)
 export USER_AGENT="MyBot/1.0"
@@ -336,8 +336,8 @@ from kagura.web.scraper import WebScraper
 import os
 
 # Configure search
-if os.getenv("BRAVE_API_KEY"):
-    search = BraveSearch(api_key=os.getenv("BRAVE_API_KEY"))
+if os.getenv("BRAVE_SEARCH_API_KEY"):
+    search = BraveSearch(api_key=os.getenv("BRAVE_SEARCH_API_KEY"))
 else:
     search = DuckDuckGoSearch()
 

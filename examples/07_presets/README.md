@@ -682,7 +682,7 @@ from kagura.presets import ChatbotPreset  # ✅ Correct import
 ### Issue: Web search not working
 **Solution:** Set API key:
 ```bash
-export BRAVE_API_KEY="your-key"
+export BRAVE_SEARCH_API_KEY="your-key"
 ```
 
 ```python

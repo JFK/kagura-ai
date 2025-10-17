@@ -47,7 +47,6 @@ class TestBraveSearch:
         """Test BraveSearch initialization with environment variable."""
         # Clear all Brave API keys first
         monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
-        monkeypatch.delenv("BRAVE_API_KEY", raising=False)
 
         # Set only the new variable
         monkeypatch.setenv("BRAVE_SEARCH_API_KEY", "env_key")
@@ -226,7 +225,6 @@ class TestSearchFunction:
         """Test search() uses Brave when API key is available."""
         # Set only new variable name
         monkeypatch.setenv("BRAVE_SEARCH_API_KEY", "test_key")
-        monkeypatch.delenv("BRAVE_API_KEY", raising=False)
 
         with patch(
             "kagura.web.search.BraveSearch.search"

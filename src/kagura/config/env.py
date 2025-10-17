@@ -95,16 +95,10 @@ def get_brave_search_api_key() -> Optional[str]:
     """
     Get Brave Search API key from environment.
 
-    Environment variables (in order of preference):
-    1. BRAVE_SEARCH_API_KEY (preferred, recommended)
-    2. BRAVE_API_KEY (deprecated, backward compatibility)
+    Environment variable: BRAVE_SEARCH_API_KEY
 
     Returns:
         API key if set, None otherwise
-
-    Deprecation:
-        BRAVE_API_KEY is deprecated. Use BRAVE_SEARCH_API_KEY instead.
-        A DeprecationWarning will be issued if the old variable is used.
 
     Example:
         >>> api_key = get_brave_search_api_key()
@@ -114,17 +108,7 @@ def get_brave_search_api_key() -> Optional[str]:
 
     See: https://brave.com/search/api/
     """
-    key = os.getenv("BRAVE_SEARCH_API_KEY")
-    if not key:
-        # Fallback to old name (with deprecation warning)
-        key = os.getenv("BRAVE_API_KEY")
-        if key:
-            warnings.warn(
-                "BRAVE_API_KEY is deprecated. Use BRAVE_SEARCH_API_KEY instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-    return key
+    return os.getenv("BRAVE_SEARCH_API_KEY")
 
 
 # ============================================

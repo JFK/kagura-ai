@@ -134,7 +134,7 @@ async def test_load_nonexistent_session(chat_session):
 
 def test_model_switching(chat_session):
     """Test /model command switches model"""
-    assert chat_session.model == "gpt-4o-mini"
+    assert chat_session.model == "gpt-5-mini"  # Default is now gpt-5-mini
 
     # Switch model
     chat_session.handle_model_command("gpt-5")

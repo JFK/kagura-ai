@@ -88,7 +88,7 @@ YouTube動画の高度な分析を行う専用エージェントを新規提案
 @tool
 async def brave_search(query: str, count: int = 5) -> str:
     """Search using Brave Search API"""
-    api_key = os.getenv("BRAVE_API_KEY")
+    api_key = os.getenv("BRAVE_SEARCH_API_KEY")
     # ... Brave API呼び出し
 ```
 
@@ -205,13 +205,13 @@ def generate_argument_diagram(main_topic: str, arguments: list[dict]) -> str:
 **利点**:
 - プライバシー重視
 - クリーンなJSON API
-- `BRAVE_API_KEY`環境変数で簡単設定
+- `BRAVE_SEARCH_API_KEY`環境変数で簡単設定
 
 **実装予定** (#232):
 ```python
 headers = {
     "Accept": "application/json",
-    "X-Subscription-Token": os.getenv("BRAVE_API_KEY")
+    "X-Subscription-Token": os.getenv("BRAVE_SEARCH_API_KEY")
 }
 ```
 
@@ -279,7 +279,7 @@ headers = {
 ## 課題・制約
 
 ### 1. Brave Search API Key
-- 環境変数 `BRAVE_API_KEY` 必須
+- 環境変数 `BRAVE_SEARCH_API_KEY` 必須
 - 無料枠の制限確認が必要
 
 ### 2. Mermaid図生成

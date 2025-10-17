@@ -209,7 +209,7 @@ pip install kagura-ai[web]
 # - lxml (XML/HTML parser)
 
 # For Brave Search (optional)
-export BRAVE_API_KEY="your-api-key"
+export BRAVE_SEARCH_API_KEY="your-api-key"
 # Get key at: https://brave.com/search/api/
 
 # For DuckDuckGo (no API key needed)
@@ -220,7 +220,7 @@ export BRAVE_API_KEY="your-api-key"
 
 ```bash
 # Set API keys (if using Brave Search)
-export BRAVE_API_KEY="your-key"
+export BRAVE_SEARCH_API_KEY="your-key"
 
 # Run examples
 python web_search.py
@@ -521,9 +521,9 @@ top_sources = await source_selector(query, search_results)
 ```python
 import os
 
-api_key = os.getenv("BRAVE_API_KEY")
+api_key = os.getenv("BRAVE_SEARCH_API_KEY")
 if not api_key:
-    print("Set BRAVE_API_KEY environment variable")
+    print("Set BRAVE_SEARCH_API_KEY environment variable")
 
 # Check rate limit
 results = await search(query, count=5)  # Start with small count
