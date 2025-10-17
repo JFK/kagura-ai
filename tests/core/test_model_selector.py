@@ -24,9 +24,9 @@ class TestModelConfig:
 
     def test_model_config_creation(self) -> None:
         """Test creating ModelConfig"""
-        config = ModelConfig(model="gpt-4o-mini", temperature=0.5, max_tokens=1000)
+        config = ModelConfig(model="gpt-5-mini", temperature=0.5, max_tokens=1000)
 
-        assert config.model == "gpt-4o-mini"
+        assert config.model == "gpt-5-mini"
         assert config.temperature == 0.5
         assert config.max_tokens == 1000
 
@@ -62,7 +62,7 @@ class TestModelSelector:
         config = selector.select_model(TaskType.SEARCH)
 
         assert isinstance(config, ModelConfig)
-        assert config.model == "gpt-4o-mini"
+        assert config.model == "gpt-5-mini"
         assert config.temperature == 0.3
         assert config.max_tokens == 500
 
@@ -80,7 +80,7 @@ class TestModelSelector:
         selector = ModelSelector()
         config = selector.select_model(TaskType.CHAT)
 
-        assert config.model == "gpt-4o-mini"
+        assert config.model == "gpt-5-mini"
         assert config.temperature == 0.7
         assert config.max_tokens == 2000
 
@@ -117,9 +117,9 @@ class TestModelSelector:
         """Test convenience methods"""
         selector = ModelSelector()
 
-        assert selector.get_model_for_search() == "gpt-4o-mini"
+        assert selector.get_model_for_search() == "gpt-5-mini"
         assert selector.get_model_for_code() == "gpt-4o"
-        assert selector.get_model_for_chat() == "gpt-4o-mini"
+        assert selector.get_model_for_chat() == "gpt-5-mini"
 
     def test_cost_optimization(self) -> None:
         """Test that search uses cheaper model than chat"""

@@ -13,7 +13,7 @@ from kagura.chat import ChatSession
 @click.option(
     "--model",
     "-m",
-    default="gpt-4o-mini",
+    default="gpt-5-mini",
     help="LLM model to use",
     show_default=True,
 )

@@ -17,12 +17,12 @@ def test_chatbot_preset_initialization():
 
 def test_chatbot_preset_configuration():
     """Test ChatbotPreset default configuration."""
-    chatbot = ChatbotPreset("test_chatbot").with_model("gpt-4o-mini")
+    chatbot = ChatbotPreset("test_chatbot").with_model("gpt-5-mini")
     agent = chatbot.build()
 
     config = agent._builder_config
     assert config.name == "test_chatbot"
-    assert config.model == "gpt-4o-mini"
+    assert config.model == "gpt-5-mini"
 
     # Verify memory configuration
     assert config.memory is not None
@@ -88,7 +88,7 @@ def test_research_preset_with_persist_dir():
     persist_dir = Path("/tmp/kagura_research")
     researcher = (
         ResearchPreset("test_researcher", persist_dir=persist_dir)
-        .with_model("gpt-4o-mini")
+        .with_model("gpt-5-mini")
     )
 
     agent = researcher.build()
@@ -134,7 +134,7 @@ def test_all_presets_are_buildable():
     ]
 
     for preset in presets:
-        agent = preset.with_model("gpt-4o-mini").build()
+        agent = preset.with_model("gpt-5-mini").build()
         assert agent is not None
         assert callable(agent)
         assert hasattr(agent, "_builder_config")
@@ -145,7 +145,7 @@ def test_presets_maintain_fluent_api():
     """Test that presets maintain fluent API chaining."""
     agent = (
         ChatbotPreset("fluent_test")
-        .with_model("gpt-4o-mini")
+        .with_model("gpt-5-mini")
         .with_context(temperature=0.7)
         .with_memory(type="persistent")  # Override preset default
         .build()

@@ -137,7 +137,7 @@ async def test_telemetry_cost_calculation(mock_llm, mock_telemetry_store):
         usage=MagicMock(prompt_tokens=1000, completion_tokens=500, total_tokens=1500),
     )
 
-    @agent(model="gpt-4o-mini")
+    @agent(model="gpt-5-mini")
     async def cost_test_agent(query: str) -> str:
         """Process {{ query }}"""
         pass

@@ -9,7 +9,7 @@ Example:
     >>> from kagura.core.streaming import call_llm_stream
     >>> from kagura import LLMConfig
     >>>
-    >>> config = LLMConfig(model="gpt-4o-mini")
+    >>> config = LLMConfig(model="gpt-5-mini")
     >>> async for chunk in call_llm_stream("Write a story", config):
     ...     print(chunk, end="", flush=True)
     Once upon a time...
@@ -47,7 +47,7 @@ async def call_llm_stream(
         Exception: If LLM API call fails
 
     Example:
-        >>> config = LLMConfig(model="gpt-4o-mini", temperature=0.7)
+        >>> config = LLMConfig(model="gpt-5-mini", temperature=0.7)
         >>>
         >>> async for chunk in call_llm_stream("Explain quantum computing", config):
         ...     print(chunk, end="", flush=True)

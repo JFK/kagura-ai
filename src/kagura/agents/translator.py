@@ -16,7 +16,7 @@ class TranslatorPreset(AgentBuilder):
         >>> from kagura.agents import TranslatorPreset
         >>> translator = (
         ...     TranslatorPreset("translator")
-        ...     .with_model("gpt-4o-mini")
+        ...     .with_model("gpt-5-mini")
         ...     .build()
         ... )
         >>> result = await translator("Translate 'hello' to Japanese")
@@ -38,5 +38,5 @@ class TranslatorPreset(AgentBuilder):
         )
 
         # Note: Caching is enabled by default in LLMConfig
-        # Users can customize via: .with_model("gpt-4o-mini")
+        # Users can customize via: .with_model("gpt-5-mini")
         self._enable_cache = enable_cache

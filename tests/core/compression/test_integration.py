@@ -18,7 +18,7 @@ class TestIntegration:
     def test_full_workflow(self):
         """Test complete token management workflow"""
         # 1. Create counter
-        counter = TokenCounter(model="gpt-4o-mini")
+        counter = TokenCounter(model="gpt-5-mini")
 
         # 2. Create monitor
         monitor = ContextMonitor(counter, max_tokens=5000)
@@ -40,7 +40,7 @@ class TestIntegration:
 
     def test_different_models(self):
         """Test with different models"""
-        models = ["gpt-4o-mini", "claude-3-5-sonnet", "gemini-1.5-flash"]
+        models = ["gpt-5-mini", "claude-3-5-sonnet", "gemini-1.5-flash"]
 
         for model in models:
             counter = TokenCounter(model=model)
@@ -55,7 +55,7 @@ class TestIntegration:
 
     def test_compression_trigger(self):
         """Test compression trigger at different thresholds"""
-        counter = TokenCounter(model="gpt-4o-mini")
+        counter = TokenCounter(model="gpt-5-mini")
         monitor = ContextMonitor(counter, max_tokens=1000)
 
         # Create messages that will exceed threshold
@@ -73,7 +73,7 @@ class TestIntegration:
         """Test token counting accuracy across models"""
         text = "The quick brown fox jumps over the lazy dog."
 
-        models = ["gpt-4o-mini", "gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro"]
+        models = ["gpt-5-mini", "gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro"]
 
         for model in models:
             counter = TokenCounter(model=model)
@@ -84,7 +84,7 @@ class TestIntegration:
 
     def test_message_overhead_calculation(self):
         """Test message overhead is correctly calculated"""
-        counter = TokenCounter(model="gpt-4o-mini")
+        counter = TokenCounter(model="gpt-5-mini")
 
         # Empty message (only overhead)
         empty_msg = [{"role": "user", "content": ""}]
@@ -100,7 +100,7 @@ class TestIntegration:
 
     def test_realistic_conversation_scenario(self):
         """Test realistic conversation scenario"""
-        counter = TokenCounter(model="gpt-4o-mini")
+        counter = TokenCounter(model="gpt-5-mini")
         monitor = ContextMonitor(counter, max_tokens=50000)
 
         # Simulate realistic conversation
@@ -135,7 +135,7 @@ class TestIntegration:
     async def test_context_manager_integration(self):
         """Test ContextManager with all components"""
         policy = CompressionPolicy(strategy="trim", max_tokens=1000)
-        manager = ContextManager(policy=policy, model="gpt-4o-mini")
+        manager = ContextManager(policy=policy, model="gpt-5-mini")
 
         # Create large message set
         messages = []
@@ -165,7 +165,7 @@ class TestIntegration:
         policy = CompressionPolicy(
             strategy="smart", max_tokens=500, preserve_recent=3
         )
-        manager = ContextManager(policy=policy, model="gpt-4o-mini")
+        manager = ContextManager(policy=policy, model="gpt-5-mini")
 
         messages = [
             {"role": "user", "content": "Normal message " * 30},
@@ -211,7 +211,7 @@ class TestIntegration:
     async def test_auto_strategy_selection(self):
         """Test auto strategy selects appropriate method"""
         policy = CompressionPolicy(strategy="auto", max_tokens=500)
-        manager = ContextManager(policy=policy, model="gpt-4o-mini")
+        manager = ContextManager(policy=policy, model="gpt-5-mini")
 
         # Few messages -> should use trim
         few_messages = [{"role": "user", "content": "Message " * 50}] * 10
@@ -223,7 +223,7 @@ class TestIntegration:
             strategy="auto", max_tokens=500, enable_summarization=False
         )
         manager_no_summary = ContextManager(
-            policy=policy_no_summary, model="gpt-4o-mini"
+            policy=policy_no_summary, model="gpt-5-mini"
         )
         many_messages = [{"role": "user", "content": "Message " * 50}] * 30
         compressed_many = await manager_no_summary.compress(many_messages)
@@ -243,7 +243,7 @@ class TestIntegration:
             preserve_recent=3,
             target_ratio=0.5,
         )
-        manager = ContextManager(policy=policy, model="gpt-4o-mini")
+        manager = ContextManager(policy=policy, model="gpt-5-mini")
 
         # Simulate realistic conversation
         messages = [{"role": "system", "content": "You are a helpful assistant."}]

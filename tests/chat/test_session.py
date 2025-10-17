@@ -27,7 +27,7 @@ def chat_session(temp_session_dir):
 
 def test_chat_session_initialization(chat_session, temp_session_dir):
     """Test ChatSession initialization"""
-    assert chat_session.model == "gpt-4o-mini"
+    assert chat_session.model == "gpt-5-mini"
     assert chat_session.session_dir == temp_session_dir
     assert chat_session.memory is not None
 

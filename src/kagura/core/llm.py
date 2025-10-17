@@ -60,7 +60,7 @@ class LLMConfig(BaseModel):
         >>> # Uses OAuth2Manager to get token automatically
     """
 
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-5-mini"
     temperature: float = 0.7
     max_tokens: Optional[int] = None
     top_p: float = 1.0

@@ -7,7 +7,7 @@ This module provides intelligent caching for LLM API calls to:
 
 Example:
     >>> cache = LLMCache(default_ttl=3600)
-    >>> key = cache._hash_key("translate hello", "gpt-4o-mini")
+    >>> key = cache._hash_key("translate hello", "gpt-5-mini")
     >>> await cache.set(key, "こんにちは")
     >>> result = await cache.get(key)
     >>> print(result)
@@ -38,7 +38,7 @@ class CacheEntry:
         ...     response="Hello",
         ...     created_at=datetime.now(),
         ...     ttl=3600,
-        ...     model="gpt-4o-mini"
+        ...     model="gpt-5-mini"
         ... )
         >>> entry.is_expired
         False
@@ -83,7 +83,7 @@ class LLMCache:
 
     Example:
         >>> cache = LLMCache(max_size=100, default_ttl=3600)
-        >>> key = cache._hash_key("Hello", "gpt-4o-mini")
+        >>> key = cache._hash_key("Hello", "gpt-5-mini")
         >>> await cache.set(key, "Response")
         >>> result = await cache.get(key)
         >>> print(cache.stats())
@@ -122,7 +122,7 @@ class LLMCache:
 
         Args:
             prompt: The LLM prompt
-            model: Model name (e.g., "gpt-4o-mini")
+            model: Model name (e.g., "gpt-5-mini")
             **kwargs: Additional parameters (temperature, max_tokens, etc.)
 
         Returns:
@@ -162,7 +162,7 @@ class LLMCache:
 
         Example:
             >>> cache = LLMCache()
-            >>> key = cache._hash_key("test", "gpt-4o-mini")
+            >>> key = cache._hash_key("test", "gpt-5-mini")
             >>> await cache.set(key, "response")
             >>> result = await cache.get(key)
             >>> assert result == "response"
@@ -250,7 +250,7 @@ class LLMCache:
 
         Example:
             >>> cache = LLMCache()
-            >>> key = cache._hash_key("test", "gpt-4o-mini")
+            >>> key = cache._hash_key("test", "gpt-5-mini")
             >>> await cache.set(key, "response")
             >>> await cache.get(key)  # Hit
             >>> await cache.get("nonexistent")  # Miss

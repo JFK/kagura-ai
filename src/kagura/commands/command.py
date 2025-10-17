@@ -28,7 +28,7 @@ class Command:
     description: str
     template: str
     allowed_tools: list[str] = field(default_factory=list)
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-5-mini"
     parameters: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
 

@@ -27,7 +27,7 @@ def store_with_data():
         # Execution 2: Failed
         try:
             async with collector.track_execution("agent_2", query="test2"):
-                collector.record_llm_call("gpt-4o-mini", 50, 25, 0.5, 0.001)
+                collector.record_llm_call("gpt-5-mini", 50, 25, 0.5, 0.001)
                 raise ValueError("Test error")
         except ValueError:
             pass

@@ -142,8 +142,8 @@ def test_assert_llm_calls_count():
 
     # Add calls
     testcase._llm_calls = [
-        {"model": "gpt-4o-mini"},
-        {"model": "gpt-4o-mini"},
+        {"model": "gpt-5-mini"},
+        {"model": "gpt-5-mini"},
     ]
     testcase.assert_llm_calls(count=2)
 
@@ -157,12 +157,12 @@ def test_assert_llm_calls_model():
     testcase = AgentTestCase()
 
     testcase._llm_calls = [
-        {"model": "gpt-4o-mini"},
-        {"model": "gpt-4o-mini"},
+        {"model": "gpt-5-mini"},
+        {"model": "gpt-5-mini"},
     ]
 
     # Correct model
-    testcase.assert_llm_calls(model="gpt-4o-mini")
+    testcase.assert_llm_calls(model="gpt-5-mini")
 
     # Wrong model
     with pytest.raises(AssertionError, match="Expected all calls to use model"):

@@ -58,7 +58,7 @@ class TestCallLLMStream:
             "kagura.core.streaming.litellm.acompletion", mock_streaming_response
         )
 
-        config = LLMConfig(model="gpt-4o-mini")
+        config = LLMConfig(model="gpt-5-mini")
         chunks = []
 
         async for chunk in call_llm_stream("test prompt", config):
@@ -75,7 +75,7 @@ class TestCallLLMStream:
             "kagura.core.streaming.litellm.acompletion", mock_streaming_response
         )
 
-        config = LLMConfig(model="gpt-4o-mini")
+        config = LLMConfig(model="gpt-5-mini")
         chunk_count = 0
 
         async for chunk in call_llm_stream("test prompt", config):
@@ -93,7 +93,7 @@ class TestCallLLMStream:
             "kagura.core.streaming.litellm.acompletion", mock_streaming_response
         )
 
-        config = LLMConfig(model="gpt-4o-mini")
+        config = LLMConfig(model="gpt-5-mini")
         full_text = await stream_to_string(call_llm_stream("test prompt", config))
 
         assert full_text == "Hello, world!"
@@ -122,7 +122,7 @@ class TestCallLLMStream:
             "kagura.core.streaming.litellm.acompletion", mock_empty_stream
         )
 
-        config = LLMConfig(model="gpt-4o-mini")
+        config = LLMConfig(model="gpt-5-mini")
         chunks = []
 
         async for chunk in call_llm_stream("test prompt", config):

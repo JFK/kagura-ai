@@ -39,7 +39,7 @@ async def parallel_gather(*awaitables: Coroutine[Any, Any, T]) -> list[T]:
         >>> # Execute 3 LLM calls in parallel
         >>> from kagura.core.llm import call_llm, LLMConfig
         >>>
-        >>> config = LLMConfig(model="gpt-4o-mini")
+        >>> config = LLMConfig(model="gpt-5-mini")
         >>> results = await parallel_gather(
         ...     call_llm("Translate 'hello' to Japanese", config),
         ...     call_llm("Translate 'hello' to French", config),

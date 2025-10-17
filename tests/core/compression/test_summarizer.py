@@ -9,7 +9,7 @@ from kagura.core.compression import ContextSummarizer, TokenCounter
 @pytest.fixture
 def counter():
     """Create TokenCounter fixture"""
-    return TokenCounter(model="gpt-4o-mini")
+    return TokenCounter(model="gpt-5-mini")
 
 
 @pytest.fixture

@@ -553,7 +553,7 @@ async def _youtube_metadata_tool(video_url: str) -> str:
 
 
 @agent(
-    model="gpt-4o-mini",
+    model="gpt-5-mini",
     temperature=0.7,
     enable_memory=False,
     tools=[
@@ -665,7 +665,7 @@ class ChatSession:
 
     def __init__(
         self,
-        model: str = "gpt-4o-mini",
+        model: str = "gpt-5-mini",
         session_dir: Path | None = None,
     ):
         """

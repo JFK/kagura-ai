@@ -110,11 +110,11 @@ class TestLLMConfigOAuth2Integration:
     def test_openai_with_api_key_config(self):
         """Test OpenAI model configuration with API key (default)"""
         config = LLMConfig(
-            model="gpt-4o-mini",
+            model="gpt-5-mini",
             temperature=0.5
         )
 
-        assert config.model == "gpt-4o-mini"
+        assert config.model == "gpt-5-mini"
         assert config.auth_type == "api_key"
         assert config.oauth_provider is None
         assert config.temperature == 0.5

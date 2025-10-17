@@ -25,7 +25,7 @@ def test_validator_valid_agent_with_decorator_call():
     code = """
 from kagura import agent
 
-@agent(model="gpt-4o-mini", temperature=0.7)
+@agent(model="gpt-5-mini", temperature=0.7)
 async def test_agent(x: str) -> str:
     '''Test agent'''
     return x

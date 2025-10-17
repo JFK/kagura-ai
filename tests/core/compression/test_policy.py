@@ -16,7 +16,7 @@ def test_policy_defaults():
     assert policy.preserve_system is True
     assert policy.target_ratio == 0.5
     assert policy.enable_summarization is True
-    assert policy.summarization_model == "gpt-4o-mini"
+    assert policy.summarization_model == "gpt-5-mini"
 
 
 def test_policy_custom_values():

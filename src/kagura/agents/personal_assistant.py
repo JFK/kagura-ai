@@ -19,7 +19,7 @@ class PersonalAssistantPreset(AgentBuilder):
         >>> from kagura.agents import PersonalAssistantPreset
         >>> assistant = (
         ...     PersonalAssistantPreset("my_assistant")
-        ...     .with_model("gpt-4o-mini")
+        ...     .with_model("gpt-5-mini")
         ...     .build()
         ... )
         >>> result = await assistant("What did we discuss yesterday?")
