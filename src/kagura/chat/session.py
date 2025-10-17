@@ -490,16 +490,19 @@ async def _brave_search_tool(
     else:
         console.print("[dim]✓ Search completed[/]")
 
-    # DEBUG: Log search results
-    import sys
+    # DEBUG: Show search results summary to console
+    try:
+        import json
 
-    print(f"\n[DEBUG] Brave Search for: {query}", file=sys.stderr)
-    print(f"[DEBUG] Result length: {len(enhanced_json)} chars", file=sys.stderr)
-    print(f"[DEBUG] First 300 chars:", file=sys.stderr)
-    print(enhanced_json[:300], file=sys.stderr)
-    print(f"[DEBUG] Has error key: {'error' in enhanced_json}", file=sys.stderr)
-    print(f"[DEBUG] Starts with [: {enhanced_json.strip().startswith('[')}", file=sys.stderr)
-    print("", file=sys.stderr)
+        parsed = json.loads(enhanced_json)
+        if isinstance(parsed, list):
+            console.print(f"[yellow]DEBUG: Found {len(parsed)} results[/]")
+            if len(parsed) > 0:
+                console.print(f"[yellow]DEBUG: First result: {parsed[0].get('title', 'N/A')[:60]}...[/]")
+        elif isinstance(parsed, dict) and "error" in parsed:
+            console.print(f"[red]DEBUG ERROR: {parsed['error'][:100]}[/]")
+    except Exception as e:
+        console.print(f"[red]DEBUG: Failed to parse results: {e}[/]")
 
     return enhanced_json
 
