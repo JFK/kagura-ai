@@ -15,9 +15,13 @@ Example:
 """
 
 import hashlib
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
+
+# Setup logger
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -178,15 +182,27 @@ class SearchCache:
             >>> assert result == "response"
         """
         key = self._hash_key(query, count)
+        normalized = self._normalize_query(query)
+
+        logger.debug(f"Cache lookup: query='{normalized}', count={count}, key={key}")
 
         if entry := self._cache.get(key):
             if not entry.is_expired:
                 self._hits += 1
+                logger.info(
+                    f"Cache HIT: '{normalized}' "
+                    f"(age: {(datetime.now() - entry.created_at).seconds}s, "
+                    f"hit_rate: {self.stats()['hit_rate']:.1%})"
+                )
                 return entry.response
             # Expired, remove from cache
+            logger.debug(f"Cache entry expired: '{normalized}'")
             del self._cache[key]
 
         self._misses += 1
+        logger.debug(
+            f"Cache MISS: '{normalized}' (hit_rate: {self.stats()['hit_rate']:.1%})"
+        )
         return None
 
     async def set(
@@ -212,20 +228,31 @@ class SearchCache:
             >>> assert await cache.get("query1") is None
         """
         key = self._hash_key(query, count)
+        normalized = self._normalize_query(query)
 
         # Evict oldest entry if at capacity
         if len(self._cache) >= self.max_size:
             oldest = min(self._cache.values(), key=lambda e: e.created_at)
+            logger.debug(
+                f"Cache full, evicting oldest: '{oldest.query}' "
+                f"(age: {(datetime.now() - oldest.created_at).seconds}s)"
+            )
             del self._cache[oldest.key]
 
         # Create new entry
+        ttl_seconds = ttl or self.default_ttl
         self._cache[key] = SearchCacheEntry(
             key=key,
-            query=self._normalize_query(query),
+            query=normalized,
             response=response,
             created_at=datetime.now(),
-            ttl=ttl or self.default_ttl,
+            ttl=ttl_seconds,
             count=count,
+        )
+
+        logger.info(
+            f"Cache SET: '{normalized}' (count={count}, ttl={ttl_seconds}s, "
+            f"size={len(self._cache)}/{self.max_size})"
         )
 
     async def invalidate(self, pattern: str | None = None) -> None:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import Literal
 
 from kagura import tool
@@ -12,6 +13,9 @@ from kagura.config.env import (
     get_search_cache_ttl,
 )
 from kagura.tools.cache import SearchCache
+
+# Setup logger
+logger = logging.getLogger(__name__)
 
 # Global search cache instance
 _search_cache: SearchCache | None = None
@@ -63,17 +67,23 @@ async def brave_web_search(query: str, count: int = 5) -> str:
     # Check cache first (if enabled)
     cache = _get_cache()
     if cache:
+        logger.debug(f"Cache enabled, checking for query: '{query}' (count={count})")
         cached_result = await cache.get(query, count)
         if cached_result:
             # Cache hit - return instantly
+            logger.info(f"Cache HIT for query: '{query}' (count={count})")
             try:
                 from rich.console import Console
 
                 console = Console()
-                console.print("[dim]✓ Cache hit (instant)[/]")
+                console.print("[green]✓ Cache hit (instant) - No API call needed[/]")
             except ImportError:
                 pass
-            return cached_result
+
+            # Add cache indicator for debugging/transparency
+            return f"[CACHED SEARCH RESULT - Retrieved instantly]\n\n{cached_result}"
+        else:
+            logger.info(f"Cache MISS for query: '{query}' (count={count})")
 
     # Cache miss or disabled - proceed with API call
     # Use fixed params (US, en) - API auto-detects query language
@@ -154,12 +164,15 @@ async def brave_web_search(query: str, count: int = 5) -> str:
 
         # Store in cache (if enabled)
         if cache:
+            logger.info(f"Caching search result for query: '{query}' (count={count})")
             await cache.set(query, result, count)
+            logger.debug(f"Cache stats: {cache.stats()}")
 
         return result
 
     except Exception as e:
         error_msg = f"Search failed: {str(e)}"
+        logger.error(f"Search error for query '{query}': {str(e)}")
         # Don't cache errors
         return error_msg
 
