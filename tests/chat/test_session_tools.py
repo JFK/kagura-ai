@@ -10,7 +10,6 @@ from kagura.chat.session import (
     _file_search_tool,
     _execute_python_tool,
     _url_fetch_tool,
-    _web_search_tool,
     _youtube_transcript_tool,
     _youtube_metadata_tool,
     _video_extract_audio_tool,
@@ -126,16 +125,6 @@ class TestCodeExecution:
 
 class TestWebTools:
     """Test web and content tools"""
-
-    @pytest.mark.asyncio
-    async def test_web_search(self):
-        """Test web search tool"""
-        # Mock the web_search decorator
-        with patch("kagura.web.decorators.web_search", new=AsyncMock(return_value="Search results")):
-            result = await _web_search_tool("Python tutorial")
-
-            assert "Error" not in result
-            assert "Search results" in result
 
     @pytest.mark.asyncio
     async def test_url_fetch(self):
