@@ -52,7 +52,7 @@ if TYPE_CHECKING:
         UserCancelledError,
         ValidationError,
     )
-    from .presets import (
+    from .agents import (
         ChatbotPreset,
         CodeReviewPreset,
         ContentWriterPreset,
@@ -221,7 +221,7 @@ def __getattr__(name: str):
         "TechnicalSupportPreset",
         "TranslatorPreset",
     ):
-        from .presets import (
+        from .agents import (
             ChatbotPreset,
             CodeReviewPreset,
             ContentWriterPreset,
