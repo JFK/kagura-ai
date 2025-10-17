@@ -5,6 +5,124 @@ All notable changes to Kagura AI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2025-10-17
+
+### ⚠️ Breaking Changes
+
+1. **Agent Storage Migration** (#261)
+   - Custom agents now stored in `~/.kagura/agents/` (was `./agents/`)
+   - No backward compatibility
+   - Migration: `cp ./agents/*.py ~/.kagura/agents/`
+
+2. **Default Model Changed** (#267)
+   - Changed from `gpt-4o-mini` to `gpt-5-mini`
+   - Better quality, 67% more expensive
+   - Migration: Use `--model gpt-4o-mini` flag if needed
+
+3. **Import Paths Changed** (#269)
+   - `kagura.presets` → `kagura.agents`
+   - Migration: `from kagura.agents import TranslatorPreset`
+
+4. **API Key Variable** (#273)
+   - `BRAVE_API_KEY` removed (use `BRAVE_SEARCH_API_KEY`)
+   - No backward compatibility
+   - Migration: `export BRAVE_SEARCH_API_KEY="..."`
+
+### Added
+
+- **Runtime Model Switching** (#268): `/model` command in chat
+  - Switch models mid-conversation
+  - Preserve conversation history
+  - Usage: `/model gpt-5`, `/model claude-3.5-sonnet`
+
+- **Unified Agents Package** (#269): All built-in agents in one place
+  - 13 agents: Code execution + 12 presets
+  - Consistent imports from `kagura.agents`
+
+- **GPT-5 Series Support**: Latest OpenAI models
+  - gpt-5, gpt-5-mini, gpt-5-nano
+  - Better quality, better pricing than GPT-4
+
+### Changed
+
+- **Default Model**: gpt-4o-mini → gpt-5-mini
+  - 2.8x more expensive but significantly better quality
+  - GPT-5 generation capabilities
+  - Better tool use and reasoning
+
+- **Agent Organization**:
+  - `src/kagura/presets/` consolidated into `src/kagura/agents/`
+  - `code_agent.py` → `code_execution.py` (consistent naming)
+  - `chat/preset.py` → `agents/translate_func.py`
+
+- **Test Structure**:
+  - `tests/presets/` → `tests/agents/test_presets.py`
+  - Removed `tests/agents_legacy/`, `tests/cli_legacy/`, `tests/core_legacy/`, `tests/integration_legacy/`
+
+### Removed
+
+- `src/kagura/presets/` directory
+- `src/kagura_legacy/` directory
+- `src/kagura/chat/preset.py`
+- `agents/README.md` (project root)
+- `BRAVE_API_KEY` backward compatibility
+- Empty `Show` file
+
+### Migration Guide
+
+#### 1. Update Agent Storage Location
+```bash
+# If you have custom agents in ./agents/
+mkdir -p ~/.kagura/agents
+cp ./agents/*.py ~/.kagura/agents/
+rm -rf ./agents  # Optional
+```
+
+#### 2. Update Import Paths
+```python
+# Before
+from kagura.presets import TranslatorPreset
+from kagura.chat.preset import TranslateAgent
+
+# After
+from kagura.agents import TranslatorPreset, TranslateAgent
+```
+
+#### 3. Update Environment Variables
+```bash
+# Before
+export BRAVE_API_KEY="BSA..."
+
+# After
+export BRAVE_SEARCH_API_KEY="BSA..."
+```
+
+#### 4. Adjust for Cost Increase (Optional)
+```bash
+# If gpt-5-mini is too expensive, use gpt-4o-mini
+kagura chat --model gpt-4o-mini
+
+# Or use /model command to switch during chat
+[You] > /model gpt-4o-mini
+```
+
+### Testing
+
+- ✅ 1,300+ tests passing
+- ✅ Pyright: 0 errors
+- ✅ Ruff: all checks passed
+- ✅ 5 new test files updated
+
+### References
+
+- Agent Storage: PR [#266](https://github.com/JFK/kagura-ai/pull/266), Issue [#261](https://github.com/JFK/kagura-ai/issues/261)
+- Presets Consolidation: PR [#270](https://github.com/JFK/kagura-ai/pull/270), Issue [#269](https://github.com/JFK/kagura-ai/issues/269)
+- Default Model: PR [#271](https://github.com/JFK/kagura-ai/pull/271), Issue [#267](https://github.com/JFK/kagura-ai/issues/267)
+- Model Switching: PR [#272](https://github.com/JFK/kagura-ai/pull/272), Issue [#268](https://github.com/JFK/kagura-ai/issues/268)
+- Cleanup: PR [#274](https://github.com/JFK/kagura-ai/pull/274), Issue [#273](https://github.com/JFK/kagura-ai/issues/273)
+
+---
+
 ## [2.5.10] - 2025-10-16
 
 ### Added
