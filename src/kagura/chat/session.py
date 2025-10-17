@@ -490,21 +490,39 @@ async def _brave_search_tool(
     else:
         console.print("[dim]✓ Search completed[/]")
 
-    # DEBUG: Show search results summary to console
+    # Format results as readable text instead of JSON
+    # LLMs understand structured text better than raw JSON
     try:
-        import json
-
         parsed = json.loads(enhanced_json)
-        if isinstance(parsed, list):
-            console.print(f"[yellow]DEBUG: Found {len(parsed)} results[/]")
-            if len(parsed) > 0:
-                console.print(f"[yellow]DEBUG: First result: {parsed[0].get('title', 'N/A')[:60]}...[/]")
-        elif isinstance(parsed, dict) and "error" in parsed:
-            console.print(f"[red]DEBUG ERROR: {parsed['error'][:100]}[/]")
-    except Exception as e:
-        console.print(f"[red]DEBUG: Failed to parse results: {e}[/]")
 
-    return enhanced_json
+        # Check for errors
+        if isinstance(parsed, dict) and "error" in parsed:
+            return f"Search failed: {parsed['error']}"
+
+        # Format as text
+        if isinstance(parsed, list) and len(parsed) > 0:
+            formatted = [f"Search results for: {query}\n"]
+
+            for i, result in enumerate(parsed, 1):
+                formatted.append(f"{i}. {result.get('title', 'No title')}")
+                formatted.append(f"   URL: {result.get('url', '')}")
+                formatted.append(f"   {result.get('description', '')}")
+
+                # Add YouTube transcript if available
+                if result.get("youtube_has_full_transcript"):
+                    preview = result.get("youtube_transcript_preview", "")
+                    duration = result.get("youtube_duration", "")
+                    formatted.append(f"   📺 Duration: {duration}")
+                    formatted.append(f"   📺 Transcript: {preview}")
+
+                formatted.append("")  # Blank line
+
+            return "\n".join(formatted)
+        else:
+            return f"No results found for: {query}"
+
+    except Exception as e:
+        return f"Error processing search results: {str(e)}"
 
 
 async def _analyze_image_url_tool(
