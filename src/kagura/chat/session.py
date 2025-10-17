@@ -750,10 +750,13 @@ class ChatSession:
         return kb
 
     def _load_custom_agents(self) -> None:
-        """Load custom agents from ./agents directory."""
-        agents_dir = Path.cwd() / "agents"
+        """Load custom agents from ~/.kagura/agents/"""
+        agents_dir = Path.home() / ".kagura" / "agents"
 
-        if not agents_dir.exists() or not agents_dir.is_dir():
+        # Create directory if not exists
+        agents_dir.mkdir(parents=True, exist_ok=True)
+
+        if not agents_dir.is_dir():
             return
 
         agent_files = list(agents_dir.glob("*.py"))
@@ -1082,7 +1085,7 @@ your request.
 - `/agent` or `/agents` - List available custom agents
 - `/agent <name> <input>` - Execute a custom agent
   - Example: `/agent data_analyzer sales.csv`
-  - Custom agents are loaded from ./agents/ directory
+  - Custom agents are loaded from ~/.kagura/agents/ directory
 
 ### Other
 - `/help` - Show this help message
@@ -1188,8 +1191,8 @@ Use `kagura monitor --agent chat_session` to view:
             if not self.custom_agents:
                 self.console.print(
                     "[yellow]No custom agents available.[/]\n"
-                    "[dim]Create agents in ./agents/ directory using:[/]\n"
-                    "[dim]  kagura build agent[/]"
+                    "[dim]Custom agents are stored in ~/.kagura/agents/[/]\n"
+                    "[dim]Create agents using natural language in chat.[/]"
                 )
                 return
 
