@@ -15,7 +15,7 @@ class ResearchPreset(AgentBuilder):
     - Longer context for detailed analysis
 
     Example:
-        >>> from kagura.presets import ResearchPreset
+        >>> from kagura.agents import ResearchPreset
         >>> researcher = (
         ...     ResearchPreset("researcher")
         ...     .with_model("gpt-4o")

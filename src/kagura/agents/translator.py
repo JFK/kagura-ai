@@ -13,7 +13,7 @@ class TranslatorPreset(AgentBuilder):
     - Optional caching for repeated translations
 
     Example:
-        >>> from kagura.presets import TranslatorPreset
+        >>> from kagura.agents import TranslatorPreset
         >>> translator = (
         ...     TranslatorPreset("translator")
         ...     .with_model("gpt-4o-mini")

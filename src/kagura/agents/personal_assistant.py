@@ -16,7 +16,7 @@ class PersonalAssistantPreset(AgentBuilder):
     - Natural, friendly tone
 
     Example:
-        >>> from kagura.presets import PersonalAssistantPreset
+        >>> from kagura.agents import PersonalAssistantPreset
         >>> assistant = (
         ...     PersonalAssistantPreset("my_assistant")
         ...     .with_model("gpt-4o-mini")

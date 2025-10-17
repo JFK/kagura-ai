@@ -1,6 +1,4 @@
-"""
-Preset agents for common tasks in Chat REPL
-"""
+"""Simple function-based translation agent (for backward compatibility)"""
 
 from kagura import agent
 
@@ -13,18 +11,6 @@ async def TranslateAgent(text: str, target_language: str = "ja") -> str:
     {{ text }}
 
     Provide only the translation, without explanations.
-    """
-    ...
-
-
-@agent(model="gpt-4o-mini", temperature=0.5)
-async def SummarizeAgent(text: str, max_sentences: int = 3) -> str:
-    """
-    Summarize the following text in {{ max_sentences }} sentences or less:
-
-    {{ text }}
-
-    Provide a concise summary.
     """
     ...
 

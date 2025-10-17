@@ -16,7 +16,7 @@ class ProjectManagerPreset(AgentBuilder):
     - Professional, organized tone
 
     Example:
-        >>> from kagura.presets import ProjectManagerPreset
+        >>> from kagura.agents import ProjectManagerPreset
         >>> pm = (
         ...     ProjectManagerPreset("pm", project="MyProject")
         ...     .with_model("gpt-4o")
