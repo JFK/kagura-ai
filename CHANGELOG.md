@@ -5,6 +5,24 @@ All notable changes to Kagura AI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] - 2025-10-17
+
+### Fixed
+
+- **GPT-5 Compatibility**: Enable `litellm.drop_params = True` for gpt-5 series support
+  - Fixes `top_p` parameter error with gpt-5-mini
+  - Auto-drops unsupported parameters for new models
+  - Allows Kagura to work with latest models without waiting for LiteLLM updates
+
+### Testing
+
+- ✅ 6/6 integration tests now passing with gpt-5-mini
+- ✅ No regressions in existing tests
+
+**Note**: This hotfix enables gpt-5-mini (default model) to work correctly.
+
+---
+
 ## [2.6.0] - 2025-10-17
 
 ### ⚠️ Breaking Changes

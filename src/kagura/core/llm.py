@@ -10,6 +10,10 @@ from pydantic import BaseModel, Field
 
 from .cache import LLMCache
 
+# Auto-drop unsupported parameters for new models (e.g., top_p for gpt-5)
+# This allows Kagura to work with latest models without waiting for LiteLLM updates
+litellm.drop_params = True
+
 
 @dataclass
 class LLMResponse:
