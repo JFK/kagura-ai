@@ -112,6 +112,62 @@ def get_brave_search_api_key() -> Optional[str]:
 
 
 # ============================================
+# Search Cache Settings
+# ============================================
+
+
+def get_search_cache_enabled() -> bool:
+    """
+    Get search cache enabled flag from environment.
+
+    Environment variable: ENABLE_SEARCH_CACHE
+
+    Returns:
+        True if caching enabled (default: True), False otherwise
+
+    Example:
+        >>> enabled = get_search_cache_enabled()
+        >>> if enabled:
+        ...     # Use search cache
+        ...     pass
+
+    Note:
+        Set to "false", "0", or "no" to disable caching.
+    """
+    value = os.getenv("ENABLE_SEARCH_CACHE", "true").lower()
+    return value not in ("false", "0", "no")
+
+
+def get_search_cache_ttl() -> int:
+    """
+    Get search cache TTL (time-to-live) from environment.
+
+    Environment variable: SEARCH_CACHE_TTL
+
+    Returns:
+        TTL in seconds (default: 3600 = 1 hour)
+
+    Example:
+        >>> ttl = get_search_cache_ttl()
+        >>> print(ttl)
+        3600
+
+    Note:
+        Invalid values will fallback to default (3600 seconds).
+    """
+    try:
+        return int(os.getenv("SEARCH_CACHE_TTL", "3600"))
+    except ValueError:
+        warnings.warn(
+            f"Invalid SEARCH_CACHE_TTL value: {os.getenv('SEARCH_CACHE_TTL')}. "
+            f"Using default: 3600 seconds",
+            UserWarning,
+            stacklevel=2,
+        )
+        return 3600
+
+
+# ============================================
 # Default Settings
 # ============================================
 
@@ -198,6 +254,8 @@ def list_env_vars() -> dict[str, Optional[str]]:
         "ANTHROPIC_API_KEY": "***" if get_anthropic_api_key() else None,
         "GOOGLE_API_KEY": "***" if get_google_api_key() else None,
         "BRAVE_SEARCH_API_KEY": "***" if get_brave_search_api_key() else None,
+        "ENABLE_SEARCH_CACHE": str(get_search_cache_enabled()),
+        "SEARCH_CACHE_TTL": str(get_search_cache_ttl()),
         "DEFAULT_MODEL": get_default_model(),
         "DEFAULT_TEMPERATURE": str(get_default_temperature()),
     }

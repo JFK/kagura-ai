@@ -6,7 +6,35 @@ import json
 from typing import Literal
 
 from kagura import tool
-from kagura.config.env import get_brave_search_api_key
+from kagura.config.env import (
+    get_brave_search_api_key,
+    get_search_cache_enabled,
+    get_search_cache_ttl,
+)
+from kagura.tools.cache import SearchCache
+
+# Global search cache instance
+_search_cache: SearchCache | None = None
+
+
+def _get_cache() -> SearchCache | None:
+    """Get or create search cache instance based on environment config
+
+    Returns:
+        SearchCache instance if caching is enabled, None otherwise
+    """
+    global _search_cache
+
+    if not get_search_cache_enabled():
+        return None
+
+    if _search_cache is None:
+        _search_cache = SearchCache(
+            default_ttl=get_search_cache_ttl(),
+            max_size=1000,
+        )
+
+    return _search_cache
 
 
 @tool
@@ -14,6 +42,7 @@ async def brave_web_search(query: str, count: int = 5) -> str:
     """Search the web using Brave Search API.
 
     Automatically handles all languages. Returns formatted text results.
+    Results are cached (if enabled) to reduce API calls and improve response times.
 
     Args:
         query: Search query (any language)
@@ -25,7 +54,28 @@ async def brave_web_search(query: str, count: int = 5) -> str:
     Example:
         >>> results = await brave_web_search("Python programming", count=3)
         >>> results = await brave_web_search("熊本 イベント", count=5)
+
+    Note:
+        Caching can be controlled via environment variables:
+        - ENABLE_SEARCH_CACHE: Enable/disable caching (default: true)
+        - SEARCH_CACHE_TTL: Cache TTL in seconds (default: 3600)
     """
+    # Check cache first (if enabled)
+    cache = _get_cache()
+    if cache:
+        cached_result = await cache.get(query, count)
+        if cached_result:
+            # Cache hit - return instantly
+            try:
+                from rich.console import Console
+
+                console = Console()
+                console.print("[dim]✓ Cache hit (instant)[/]")
+            except ImportError:
+                pass
+            return cached_result
+
+    # Cache miss or disabled - proceed with API call
     # Use fixed params (US, en) - API auto-detects query language
     country = "US"
     search_lang = "en"
@@ -100,10 +150,18 @@ async def brave_web_search(query: str, count: int = 5) -> str:
             "asks for more or different information."
         )
 
-        return "\n".join(formatted)
+        result = "\n".join(formatted)
+
+        # Store in cache (if enabled)
+        if cache:
+            await cache.set(query, result, count)
+
+        return result
 
     except Exception as e:
-        return f"Search failed: {str(e)}"
+        error_msg = f"Search failed: {str(e)}"
+        # Don't cache errors
+        return error_msg
 
 
 @tool
