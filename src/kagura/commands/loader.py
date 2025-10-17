@@ -122,7 +122,7 @@ class CommandLoader:
         allowed_tools: list[str] = (
             allowed_tools_raw if isinstance(allowed_tools_raw, list) else []
         )
-        model = str(metadata.pop("model", "gpt-4o-mini"))
+        model = str(metadata.pop("model", "gpt-5-mini"))
         parameters_raw = metadata.pop("parameters", {})
         parameters: dict[str, Any] = (
             parameters_raw if isinstance(parameters_raw, dict) else {}

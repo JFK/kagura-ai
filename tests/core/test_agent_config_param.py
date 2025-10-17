@@ -33,7 +33,7 @@ async def test_agent_with_config_param(monkeypatch):
 
     # Create config with caching enabled
     config = LLMConfig(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         temperature=0.5,
         enable_cache=True,
         cache_ttl=1800
@@ -79,7 +79,7 @@ async def test_agent_config_overrides_model_temp(monkeypatch):
 
     @agent(
         config=config,
-        model="gpt-4o-mini",  # Should be ignored
+        model="gpt-5-mini",  # Should be ignored
         temperature=0.5      # Should be ignored
     )
     async def test_agent(query: str) -> str:
@@ -155,7 +155,7 @@ async def test_agent_config_caching_works(monkeypatch):
     monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_completion)
 
     # Enable caching in config
-    config = LLMConfig(model="gpt-4o-mini", enable_cache=True)
+    config = LLMConfig(model="gpt-5-mini", enable_cache=True)
 
     @agent(config=config)
     async def cached_agent(query: str) -> str:

@@ -18,7 +18,7 @@ class MessageTrimmer:
 
     Example:
         >>> from kagura.core.compression import TokenCounter, MessageTrimmer
-        >>> counter = TokenCounter(model="gpt-4o-mini")
+        >>> counter = TokenCounter(model="gpt-5-mini")
         >>> trimmer = MessageTrimmer(counter)
         >>> messages = [
         ...     {"role": "system", "content": "You are helpful."},

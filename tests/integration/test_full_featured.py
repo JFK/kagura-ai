@@ -59,7 +59,7 @@ async def test_chat_session_full_mode_initialization(temp_project_dir):
     from kagura.chat import ChatSession
 
     session = ChatSession(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
         enable_web=True
@@ -77,7 +77,7 @@ async def test_full_mode_chat_with_rag_and_web(temp_project_dir):
     from kagura.chat import ChatSession
 
     session = ChatSession(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
         enable_web=True
@@ -106,7 +106,7 @@ async def test_full_mode_rag_context_injection(temp_project_dir):
     from kagura.chat import ChatSession
 
     session = ChatSession(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
         enable_web=True
@@ -135,7 +135,7 @@ async def test_full_mode_web_tool_available(temp_project_dir):
     from kagura.chat import ChatSession
 
     session = ChatSession(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
         enable_web=True
@@ -154,7 +154,7 @@ async def test_full_mode_error_handling(temp_project_dir):
     from kagura.chat import ChatSession
 
     session = ChatSession(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
         enable_web=True
@@ -174,7 +174,7 @@ async def test_full_mode_memory_persistence(temp_project_dir):
     from kagura.chat import ChatSession
 
     session = ChatSession(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
         enable_web=True

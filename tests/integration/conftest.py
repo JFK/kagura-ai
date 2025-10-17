@@ -29,7 +29,7 @@ async def test_agent():
     """Fixture providing a test agent"""
     from kagura import agent
 
-    @agent(model="gpt-4o-mini")
+    @agent(model="gpt-5-mini")
     async def test_func(query: str) -> str:
         '''Answer: {{ query }}'''
         pass

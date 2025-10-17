@@ -11,21 +11,21 @@ def calculate_cost(usage: dict[str, int], model: str) -> float:
 
     Args:
         usage: Dict with 'prompt_tokens' and 'completion_tokens'
-        model: Model name (e.g., "gpt-4o-mini", "claude-3-5-sonnet-20241022")
+        model: Model name (e.g., "gpt-5-mini", "claude-3-5-sonnet-20241022")
 
     Returns:
         Cost in USD
 
     Example:
         >>> usage = {"prompt_tokens": 100, "completion_tokens": 50}
-        >>> cost = calculate_cost(usage, "gpt-4o-mini")
+        >>> cost = calculate_cost(usage, "gpt-5-mini")
         >>> print(f"${cost:.4f}")  # $0.0001
     """
     # Pricing as of October 2025 (per 1M tokens)
     # Source: OpenAI, Anthropic, Google pricing pages
     pricing = {
         # OpenAI models
-        "gpt-4o-mini": {"prompt": 0.15, "completion": 0.60},
+        "gpt-5-mini": {"prompt": 0.15, "completion": 0.60},
         "gpt-4o": {"prompt": 2.50, "completion": 10.00},
         "gpt-4o-2024-11-20": {"prompt": 2.50, "completion": 10.00},
         "gpt-4-turbo": {"prompt": 10.00, "completion": 30.00},
@@ -72,11 +72,11 @@ def get_model_pricing(model: str) -> dict[str, float]:
         Dict with 'prompt' and 'completion' prices (per 1M tokens)
 
     Example:
-        >>> pricing = get_model_pricing("gpt-4o-mini")
+        >>> pricing = get_model_pricing("gpt-5-mini")
         >>> print(f"Prompt: ${pricing['prompt']}/1M tokens")
     """
     pricing = {
-        "gpt-4o-mini": {"prompt": 0.15, "completion": 0.60},
+        "gpt-5-mini": {"prompt": 0.15, "completion": 0.60},
         "gpt-4o": {"prompt": 2.50, "completion": 10.00},
         "claude-3-5-sonnet-20241022": {"prompt": 3.00, "completion": 15.00},
         "gemini-1.5-pro": {"prompt": 1.25, "completion": 5.00},

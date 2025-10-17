@@ -19,7 +19,7 @@ class TechnicalSupportPreset(AgentBuilder):
         >>> from kagura.agents import TechnicalSupportPreset
         >>> support = (
         ...     TechnicalSupportPreset("support", kb_dir=Path("./kb"))
-        ...     .with_model("gpt-4o-mini")
+        ...     .with_model("gpt-5-mini")
         ...     .build()
         ... )
         >>> result = await support("How do I reset my password?")

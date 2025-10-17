@@ -13,7 +13,7 @@ class AgentBuilder:
         >>> from kagura import AgentBuilder
         >>> agent = (
         ...     AgentBuilder("my_agent")
-        ...     .with_model("gpt-4o-mini")
+        ...     .with_model("gpt-5-mini")
         ...     .with_memory(type="rag", persist=True)
         ...     .with_tools([search_tool, calc_tool])
         ...     .build()
@@ -33,7 +33,7 @@ class AgentBuilder:
         """Set LLM model.
 
         Args:
-            model: Model identifier (e.g., "gpt-4o-mini", "claude-3-sonnet")
+            model: Model identifier (e.g., "gpt-5-mini", "claude-3-sonnet")
 
         Returns:
             Self for method chaining

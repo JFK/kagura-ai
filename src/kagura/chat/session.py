@@ -553,7 +553,7 @@ async def _youtube_metadata_tool(video_url: str) -> str:
 
 
 @agent(
-    model="gpt-4o-mini",
+    model="gpt-5-mini",
     temperature=0.7,
     enable_memory=False,
     tools=[
@@ -665,7 +665,7 @@ class ChatSession:
 
     def __init__(
         self,
-        model: str = "gpt-4o-mini",
+        model: str = "gpt-5-mini",
         session_dir: Path | None = None,
     ):
         """
@@ -898,8 +898,28 @@ class ChatSession:
         global _shell_exec_already_called
         _shell_exec_already_called = False
 
-        # Use unified chat_agent (all tools always available)
-        response = await chat_agent(full_prompt, memory=self.memory)
+        # Create chat agent with current model (dynamic)
+        current_chat_agent = agent(
+            model=self.model,  # Use current model setting
+            temperature=0.7,
+            enable_memory=False,
+            tools=[
+                _file_read_tool,
+                _file_write_tool,
+                _file_search_tool,
+                _execute_python_tool,
+                _shell_exec_tool_wrapper,
+                _shell_exec_with_options_wrapper,
+                _brave_search_tool,
+                _web_search_tool,
+                _url_fetch_tool,
+                _youtube_transcript_tool,
+                _youtube_metadata_tool,
+            ],
+        )(chat_agent)
+
+        # Use dynamically configured agent
+        response = await current_chat_agent(full_prompt, memory=self.memory)
 
         # Extract content from response
         response_content = extract_response_content(response)
@@ -933,6 +953,8 @@ class ChatSession:
             await self.save_session(args)
         elif command == "/load":
             await self.load_session(args)
+        elif command == "/model":
+            self.handle_model_command(args)
         elif command == "/exit" or command == "/quit":
             return False
         elif command == "/agent" or command == "/agents":
@@ -945,6 +967,7 @@ class ChatSession:
                 "  [cyan]/clear[/] - Clear conversation history\n"
                 "  [cyan]/save[/] - Save current session\n"
                 "  [cyan]/load[/] - Load saved session\n"
+                "  [cyan]/model[/] - Switch LLM model\n"
                 "  [cyan]/agent[/] - Use custom agents\n"
                 "  [cyan]/exit[/] - Exit chat\n\n"
                 "[dim]💡 Tip: For translation, summarization, and code review,\n"
@@ -981,11 +1004,14 @@ class ChatSession:
             "[dim]   Examples: 'Read main.py', 'Analyze image.png', 'Summarize https://...'[/]"
         )
         features.append("")
+        features.append(f"[dim]Current model: {self.model}[/]")
+        features.append("")
         features.append("[bold cyan]Commands:[/]")
         features.append("  [cyan]/help[/] - Show detailed help and examples")
         features.append("  [cyan]/clear[/] - Clear conversation history")
         features.append("  [cyan]/save[/] - Save current session for later")
         features.append("  [cyan]/load[/] - Load a saved session")
+        features.append("  [cyan]/model[/] - Switch LLM model")
         if self.custom_agents:
             features.append(
                 f"  [cyan]/agent[/] - Use custom agents "
@@ -1086,6 +1112,13 @@ your request.
 - `/agent <name> <input>` - Execute a custom agent
   - Example: `/agent data_analyzer sales.csv`
   - Custom agents are loaded from ~/.kagura/agents/ directory
+
+### Model Management
+- `/model` - Show current model and available options
+- `/model <name>` - Switch to different model
+  - Example: `/model gpt-5`
+  - Models: gpt-5, gpt-5-mini, gpt-5-nano, claude-3.5-sonnet, etc.
+  - Conversation history is preserved when switching
 
 ### Other
 - `/help` - Show this help message
@@ -1248,3 +1281,37 @@ Use `kagura monitor --agent chat_session` to view:
 
         except Exception as e:
             self.console.print(f"[red]Error executing {agent_name}: {e}[/]")
+
+    def handle_model_command(self, args: str) -> None:
+        """
+        Handle model switching command.
+
+        Args:
+            args: Model name or empty to show current model
+        """
+        if not args.strip():
+            # Show current model and available options
+            self.console.print(
+                f"[cyan]Current model:[/] [bold]{self.model}[/]\n\n"
+                "[bold]Available models:[/]\n"
+                "  • [green]gpt-5[/] - Best quality, cheaper than gpt-4o\n"
+                "  • [cyan]gpt-5-mini[/] - Balanced (recommended default)\n"
+                "  • [yellow]gpt-5-nano[/] - Fastest, cheapest\n"
+                "  • gpt-4o - Legacy (more expensive)\n"
+                "  • gpt-4o-mini - Legacy\n"
+                "  • claude-3.5-sonnet - Anthropic Claude\n"
+                "  • gemini/gemini-2.0-flash-exp - Google Gemini\n\n"
+                "[dim]Usage: /model <model_name>[/]\n"
+                "[dim]Example: /model gpt-5[/]"
+            )
+            return
+
+        new_model = args.strip()
+        old_model = self.model
+        self.model = new_model
+
+        self.console.print(
+            f"[green]✓ Model changed:[/] "
+            f"[dim]{old_model}[/] → [cyan]{new_model}[/]\n"
+            "[dim]Conversation history preserved.[/]"
+        )

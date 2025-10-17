@@ -139,7 +139,7 @@ def get_default_model() -> str:
     Environment variable: DEFAULT_MODEL
 
     Returns:
-        Model name (default: "gpt-4o-mini")
+        Model name (default: "gpt-5-mini")
 
     Example:
         >>> model = get_default_model()
@@ -153,7 +153,7 @@ def get_default_model() -> str:
 
     See: https://docs.litellm.ai/docs/providers for full list
     """
-    return os.getenv("DEFAULT_MODEL", "gpt-4o-mini")
+    return os.getenv("DEFAULT_MODEL", "gpt-5-mini")
 
 
 def get_default_temperature() -> float:

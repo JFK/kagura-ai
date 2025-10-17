@@ -20,13 +20,13 @@ class ContextManager:
         >>> from kagura.core.compression import ContextManager, CompressionPolicy
         >>> manager = ContextManager(
         ...     policy=CompressionPolicy(strategy="smart"),
-        ...     model="gpt-4o-mini"
+        ...     model="gpt-5-mini"
         ... )
         >>> compressed = await manager.compress(messages)
     """
 
     def __init__(
-        self, policy: Optional[CompressionPolicy] = None, model: str = "gpt-4o-mini"
+        self, policy: Optional[CompressionPolicy] = None, model: str = "gpt-5-mini"
     ):
         """Initialize context manager
 

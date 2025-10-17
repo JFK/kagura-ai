@@ -101,7 +101,7 @@ async def test_agent_with_multimodal_rag(temp_project_dir):
     from kagura.core.memory import MultimodalRAG
 
     @agent(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         enable_multimodal_rag=True,
         rag_directory=temp_project_dir
     )
@@ -135,7 +135,7 @@ async def test_chat_session_multimodal_initialization():
 
     try:
         session = ChatSession(
-            model="gpt-4o-mini",
+            model="gpt-5-mini",
             enable_multimodal=True,
             rag_directory=project_dir
         )

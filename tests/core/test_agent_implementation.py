@@ -29,7 +29,7 @@ async def test_agent_with_model():
     with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = "This is a summary."
 
-        @agent(model="gpt-4o-mini")
+        @agent(model="gpt-5-mini")
         async def summarize(text: str) -> str:
             '''Summarize this text: {{ text }}'''
             pass
@@ -38,7 +38,7 @@ async def test_agent_with_model():
         assert result == "This is a summary."
         # Verify config has correct model
         call_args = mock_llm.call_args
-        assert call_args[0][1].model == "gpt-4o-mini"
+        assert call_args[0][1].model == "gpt-5-mini"
 
 
 @pytest.mark.asyncio

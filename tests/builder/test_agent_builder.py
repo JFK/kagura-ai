@@ -17,7 +17,7 @@ def test_agent_builder_initialization():
 
     assert builder.name == "test_agent"
     assert builder._config.name == "test_agent"
-    assert builder._config.model == "gpt-4o-mini"  # default
+    assert builder._config.model == "gpt-5-mini"  # default
 
 
 def test_agent_builder_with_model():
@@ -140,7 +140,7 @@ def test_agent_builder_method_chaining():
 
 def test_agent_builder_build():
     """Test building an agent."""
-    builder = AgentBuilder("test_agent").with_model("gpt-4o-mini")
+    builder = AgentBuilder("test_agent").with_model("gpt-5-mini")
 
     agent = builder.build()
 
@@ -153,7 +153,7 @@ def test_agent_builder_build():
     assert agent._agent_name == "test_agent"
 
     # Verify config
-    assert agent._builder_config.model == "gpt-4o-mini"
+    assert agent._builder_config.model == "gpt-5-mini"
     assert agent._builder_config.name == "test_agent"
 
 
@@ -168,7 +168,7 @@ async def test_agent_builder_full_configuration():
 
     agent = (
         AgentBuilder("full_agent")
-        .with_model("gpt-4o-mini")
+        .with_model("gpt-5-mini")
         .with_memory(type="working", max_messages=50)
         .with_tools([test_tool])
         .with_hooks(pre=[pre_hook])
@@ -181,7 +181,7 @@ async def test_agent_builder_full_configuration():
 
     # Verify configuration
     config = agent._builder_config
-    assert config.model == "gpt-4o-mini"
+    assert config.model == "gpt-5-mini"
     assert config.memory is not None
     assert config.memory.type == "working"
     assert len(config.tools) == 1
@@ -271,7 +271,7 @@ def test_agent_builder_with_memory_integration():
 
     builder = (
         AgentBuilder("memory_agent")
-        .with_model("gpt-4o-mini")
+        .with_model("gpt-5-mini")
         .with_memory(type="context", max_messages=50)
     )
 
@@ -291,7 +291,7 @@ def test_agent_builder_with_rag_memory():
 
     builder = (
         AgentBuilder("rag_agent")
-        .with_model("gpt-4o-mini")
+        .with_model("gpt-5-mini")
         .with_memory(
             type="rag",
             enable_rag=True,
@@ -319,7 +319,7 @@ def test_agent_builder_with_tools_integration():
 
     builder = (
         AgentBuilder("tool_agent")
-        .with_model("gpt-4o-mini")
+        .with_model("gpt-5-mini")
         .with_tools([search_tool, calculator])
     )
 
@@ -342,7 +342,7 @@ def test_agent_builder_memory_and_tools_integration():
 
     builder = (
         AgentBuilder("full_agent")
-        .with_model("gpt-4o-mini")
+        .with_model("gpt-5-mini")
         .with_memory(type="working", max_messages=100)
         .with_tools([test_tool])
         .with_context(temperature=0.5)
@@ -353,7 +353,7 @@ def test_agent_builder_memory_and_tools_integration():
     # Verify all configurations
     config = agent._builder_config
     assert config.name == "full_agent"
-    assert config.model == "gpt-4o-mini"
+    assert config.model == "gpt-5-mini"
     assert config.memory is not None
     assert config.memory.type == "working"
     assert len(config.tools) == 1
@@ -378,7 +378,7 @@ def test_agent_builder_with_hooks_integration():
 
     builder = (
         AgentBuilder("hooked_agent")
-        .with_model("gpt-4o-mini")
+        .with_model("gpt-5-mini")
         .with_hooks(pre=[pre_hook], post=[post_hook])
     )
 
@@ -408,7 +408,7 @@ async def test_agent_builder_hooks_execution():
 
     builder = (
         AgentBuilder("execution_test")
-        .with_model("gpt-4o-mini")
+        .with_model("gpt-5-mini")
         .with_hooks(pre=[pre_hook], post=[post_hook])
     )
 
@@ -425,7 +425,7 @@ def test_agent_builder_with_session_id_integration():
     """Test building agent with session ID integration."""
     builder = (
         AgentBuilder("session_agent")
-        .with_model("gpt-4o-mini")
+        .with_model("gpt-5-mini")
         .with_memory(type="persistent", max_messages=50)
         .with_session_id("user_123_session_1")
     )

@@ -16,7 +16,7 @@ def test_command_creation_basic():
     assert cmd.name == "test-cmd"
     assert cmd.description == "Test command"
     assert cmd.template == "# Test\nDo something"
-    assert cmd.model == "gpt-4o-mini"  # Default
+    assert cmd.model == "gpt-5-mini"  # Default
     assert cmd.allowed_tools == []
     assert cmd.parameters == {}
 

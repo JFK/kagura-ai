@@ -116,7 +116,7 @@ class TestDefaultModel:
     def test_get_default_value(self, monkeypatch):
         """Test default value when not set"""
         monkeypatch.delenv("DEFAULT_MODEL", raising=False)
-        assert get_default_model() == "gpt-4o-mini"
+        assert get_default_model() == "gpt-5-mini"
 
 
 class TestDefaultTemperature:
@@ -168,7 +168,7 @@ class TestListEnvVars:
         assert result["GOOGLE_API_KEY"] is None
 
         # Non-sensitive values should be shown
-        assert "gpt-4o-mini" in result["DEFAULT_MODEL"]
+        assert "gpt-5-mini" in result["DEFAULT_MODEL"]
         assert "0.7" in result["DEFAULT_TEMPERATURE"]
 
     def test_list_with_no_vars_set(self, monkeypatch):
