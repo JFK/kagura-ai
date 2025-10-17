@@ -132,16 +132,34 @@ async def test_load_nonexistent_session(chat_session):
     await chat_session.load_session("nonexistent")
 
 
+def test_model_switching(chat_session):
+    """Test /model command switches model"""
+    assert chat_session.model == "gpt-4o-mini"
+
+    # Switch model
+    chat_session.handle_model_command("gpt-5")
+    assert chat_session.model == "gpt-5"
+
+    # Switch again
+    chat_session.handle_model_command("claude-3.5-sonnet")
+    assert chat_session.model == "claude-3.5-sonnet"
+
+
 @pytest.mark.asyncio
 async def test_chat_interaction(chat_session):
     """Test basic chat interaction"""
-    with patch("kagura.chat.session.chat_agent", new_callable=AsyncMock) as mock:
-        mock.return_value = "AI response"
+    # Mock the agent decorator to return our mock agent
+    async def mock_agent_func(prompt, memory):
+        return "AI response"
+
+    with patch("kagura.chat.session.agent") as mock_decorator:
+        # Make decorator return a function that returns our mock
+        mock_decorator.return_value = lambda func: mock_agent_func
 
         await chat_session.chat("Hello")
 
-        # Verify agent was called
-        assert mock.called
+        # Verify decorator was called with correct model
+        assert mock_decorator.called
 
         # Verify messages in memory
         messages = await chat_session.memory.get_llm_context()
