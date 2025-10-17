@@ -680,7 +680,9 @@ All your `@agent` functions become available as Claude tools automatically.
 
 Kagura AI is built on proven technologies:
 
-- **LLM Integration**: [LiteLLM](https://github.com/BerriAI/litellm) (100+ providers)
+- **LLM Integration**: Hybrid backend
+  - [OpenAI SDK](https://github.com/openai/openai-python) for gpt-* models (direct, fastest)
+  - [LiteLLM](https://github.com/BerriAI/litellm) for 100+ other providers
 - **Memory**: [ChromaDB](https://www.trychroma.com/) (vector storage)
 - **Routing**: [Semantic Router](https://github.com/aurelio-labs/semantic-router)
 - **Multimodal**: [Google Gemini API](https://ai.google.dev/)

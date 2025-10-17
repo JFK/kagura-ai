@@ -16,6 +16,48 @@ def mock_telemetry_store():
     return store
 
 
+@pytest.fixture(autouse=True)
+def mock_openai_sdk():
+    """Mock OpenAI SDK for all telemetry tests (default model is gpt-5-mini)"""
+    class MockMessage:
+        def __init__(self, content: str):
+            self.content = content
+            self.tool_calls = None
+
+    class MockChoice:
+        def __init__(self, content: str):
+            self.message = MockMessage(content)
+
+    class MockUsage:
+        def __init__(self):
+            self.prompt_tokens = 10
+            self.completion_tokens = 5
+            self.total_tokens = 15
+
+    class MockResponse:
+        def __init__(self, content: str):
+            self.choices = [MockChoice(content)]
+            self.usage = MockUsage()
+
+    async def mock_create(*args, **kwargs):
+        messages = kwargs.get("messages", [])
+        content = "Mocked response"
+        if messages:
+            # Extract name from prompt if possible
+            prompt_content = messages[0].get("content", "")
+            if "Alice" in prompt_content:
+                content = "Hello, Alice!"
+            elif "test" in prompt_content:
+                content = "Response"
+        return MockResponse(content)
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create = AsyncMock(side_effect=mock_create)
+
+    with patch("openai.AsyncOpenAI", return_value=mock_client):
+        yield
+
+
 @pytest.mark.asyncio
 @patch("kagura.core.llm.litellm.acompletion", new_callable=AsyncMock)
 async def test_agent_records_telemetry(mock_llm, mock_telemetry_store):
@@ -80,18 +122,21 @@ async def test_agent_telemetry_disabled(mock_llm, mock_telemetry_store):
 
 
 @pytest.mark.asyncio
-@patch("kagura.core.llm.litellm.acompletion", new_callable=AsyncMock)
-async def test_agent_records_error(mock_llm, mock_telemetry_store):
+async def test_agent_records_error(mock_telemetry_store):
     """Test that errors are recorded in telemetry"""
-    mock_llm.side_effect = Exception("API Error")
+    # Patch OpenAI SDK to raise error
+    with patch("openai.AsyncOpenAI") as mock_client_class:
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = AsyncMock(side_effect=Exception("API Error"))
+        mock_client_class.return_value = mock_client
 
-    @agent
-    async def faulty_agent(query: str) -> str:
-        """Process {{ query }}"""
-        pass
+        @agent
+        async def faulty_agent(query: str) -> str:
+            """Process {{ query }}"""
+            pass
 
-    with pytest.raises(Exception):
-        await faulty_agent("test")
+        with pytest.raises(Exception):
+            await faulty_agent("test")
 
     # Check error recorded
     executions = mock_telemetry_store.get_executions()
@@ -137,7 +182,7 @@ async def test_telemetry_cost_calculation(mock_llm, mock_telemetry_store):
         usage=MagicMock(prompt_tokens=1000, completion_tokens=500, total_tokens=1500),
     )
 
-    @agent(model="gpt-5-mini")
+    @agent(model="claude-3-5-sonnet-20241022")
     async def cost_test_agent(query: str) -> str:
         """Process {{ query }}"""
         pass
@@ -151,9 +196,9 @@ async def test_telemetry_cost_calculation(mock_llm, mock_telemetry_store):
     execution = cost_executions[0]
     assert "total_cost" in execution["metrics"]
 
-    # gpt-4o-mini pricing: $0.15/1M prompt, $0.60/1M completion
-    # 1000 * 0.15/1M + 500 * 0.60/1M = 0.00015 + 0.0003 = 0.00045
-    expected_cost = 0.00045
+    # claude-3-5-sonnet pricing: $3.00/1M prompt, $15.00/1M completion
+    # 1000 * 3.00/1M + 500 * 15.00/1M = 0.003 + 0.0075 = 0.0105
+    expected_cost = 0.0105
     assert abs(execution["metrics"]["total_cost"] - expected_cost) < 0.000001
 
 

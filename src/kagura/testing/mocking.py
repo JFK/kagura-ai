@@ -79,43 +79,63 @@ class LLMMock:
             response: Mock response to return
         """
         self.response = response
-        self.patcher: Any = None
+        self.litellm_patcher: Any = None
+        self.openai_patcher: Any = None
 
     def __enter__(self) -> "LLMMock":
         """Start mocking."""
 
+        # Create message/choice/response objects
+        class Message:
+            def __init__(self, content: str):
+                self.content = content
+                self.tool_calls = None
+
+        class Choice:
+            def __init__(self, message: Message):
+                self.message = message
+
+        class Usage:
+            def __init__(self):
+                self.prompt_tokens = 10
+                self.completion_tokens = 10
+                self.total_tokens = 20
+
+        class Response:
+            def __init__(self, content: str):
+                self.choices = [Choice(Message(content))]
+                self.usage = Usage()
+
+        # Mock LiteLLM (for non-OpenAI models)
         async def mock_acompletion(*args: Any, **kwargs: Any) -> dict[str, Any]:
             """Return mock response (async version)."""
-
-            # Create a simple namespace object to hold message content
-            class Message:
-                def __init__(self, content: str):
-                    self.content = content
-                    self.tool_calls = None
-
-            class Choice:
-                def __init__(self, message: Message):
-                    self.message = message
-
-            class Response:
-                def __init__(self, content: str):
-                    self.choices = [Choice(Message(content))]
-                    self.usage = {
-                        "prompt_tokens": 10,
-                        "completion_tokens": 10,
-                        "total_tokens": 20,
-                    }
-
             return Response(self.response)  # type: ignore
 
-        self.patcher = patch("litellm.acompletion", side_effect=mock_acompletion)
-        self.patcher.__enter__()
+        self.litellm_patcher = patch(
+            "litellm.acompletion", side_effect=mock_acompletion
+        )
+        self.litellm_patcher.__enter__()
+
+        # Mock OpenAI SDK (for gpt-* models)
+        from unittest.mock import AsyncMock
+
+        async def mock_openai_create(*args: Any, **kwargs: Any) -> Response:
+            return Response(self.response)
+
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = AsyncMock(side_effect=mock_openai_create)
+
+        self.openai_patcher = patch("openai.AsyncOpenAI", return_value=mock_client)
+        self.openai_patcher.__enter__()
+
         return self
 
     def __exit__(self, *args: Any) -> None:
         """Stop mocking."""
-        if self.patcher:
-            self.patcher.__exit__(*args)
+        if self.litellm_patcher:
+            self.litellm_patcher.__exit__(*args)
+        if self.openai_patcher:
+            self.openai_patcher.__exit__(*args)
 
 
 class ToolMock:

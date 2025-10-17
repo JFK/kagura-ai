@@ -10,8 +10,8 @@ from pydantic import BaseModel, Field
 
 from .cache import LLMCache
 
-# Auto-drop unsupported parameters for new models (e.g., top_p for gpt-5)
-# This allows Kagura to work with latest models without waiting for LiteLLM updates
+# Note: For gpt-* models, we now use OpenAI SDK directly (see llm_openai.py)
+# drop_params only needed for non-OpenAI models via LiteLLM
 litellm.drop_params = True
 
 
@@ -127,6 +127,25 @@ class LLMConfig(BaseModel):
         return None
 
 
+def _should_use_openai_direct(model: str) -> bool:
+    """Check if model should use OpenAI SDK directly
+
+    Args:
+        model: Model name (e.g., "gpt-5-mini", "claude-3-5-sonnet")
+
+    Returns:
+        True if should use OpenAI SDK, False for LiteLLM
+
+    Note:
+        OpenAI models benefit from direct SDK usage for:
+        - Latest features immediately available
+        - Better parameter compatibility
+        - OpenAI-specific optimizations
+    """
+    openai_prefixes = ["gpt-", "o1-", "o3-", "o4-", "text-embedding-"]
+    return any(model.startswith(prefix) for prefix in openai_prefixes)
+
+
 async def call_llm(
     prompt: str,
     config: LLMConfig,
@@ -136,6 +155,10 @@ async def call_llm(
     """
     Call LLM with given prompt, handling tool calls if present.
 
+    Uses hybrid backend:
+    - OpenAI models (gpt-*, o1-*, etc.) → OpenAI SDK directly
+    - Other providers (Claude, Gemini, etc.) → LiteLLM
+
     Supports both API key and OAuth2 authentication based on config.
     Automatically caches responses for faster access and cost reduction.
 
@@ -143,7 +166,7 @@ async def call_llm(
         prompt: The prompt to send
         config: LLM configuration (includes auth and cache settings)
         tool_functions: Optional list of tool functions (Python callables)
-        **kwargs: Additional LiteLLM parameters (including 'tools' schema)
+        **kwargs: Additional parameters (OpenAI or LiteLLM specific)
 
     Returns:
         LLM response text
@@ -156,8 +179,41 @@ async def call_llm(
         - Caching is only used when tool_functions is None (no tool calls)
         - Cache key includes prompt, model, and all kwargs for uniqueness
         - Use config.enable_cache=False to disable caching
+        - Backend selection is automatic based on model name
+    """
+    # Route to appropriate backend
+    if _should_use_openai_direct(config.model):
+        # Use OpenAI SDK directly
+        from .llm_openai import call_openai_direct
+
+        return await call_openai_direct(prompt, config, tool_functions, **kwargs)
+
+    # Fall through to LiteLLM for other providers
+    return await _call_litellm(prompt, config, tool_functions, **kwargs)
+
+
+async def _call_litellm(
+    prompt: str,
+    config: LLMConfig,
+    tool_functions: Optional[list[Callable]] = None,
+    **kwargs: Any,
+) -> LLMResponse:
+    """
+    Call LLM using LiteLLM (for non-OpenAI providers).
+
+    Internal function - use call_llm() instead.
+
+    Args:
+        prompt: The prompt to send
+        config: LLM configuration
+        tool_functions: Optional list of tool functions
+        **kwargs: Additional LiteLLM parameters
+
+    Returns:
+        LLMResponse with metadata
     """
     # Check cache first (only if no tools and cache enabled)
+    cache_key = ""
     if config.enable_cache and not tool_functions:
         cache_key = _llm_cache._hash_key(
             prompt,
@@ -295,7 +351,7 @@ async def call_llm(
         duration = time.time() - start_time
 
         # Cache the response (only if no tools were used)
-        if config.enable_cache and not tool_functions:
+        if config.enable_cache and not tool_functions and cache_key:
             await _llm_cache.set(
                 cache_key, content, ttl=config.cache_ttl, model=config.model
             )

@@ -1264,23 +1264,86 @@ Use `kagura monitor --agent chat_session` to view:
             args: Model name or empty to show current model
         """
         if not args.strip():
+            # Check which API keys are available
+            import os
+
+            has_openai = bool(os.getenv("OPENAI_API_KEY"))
+            has_anthropic = bool(os.getenv("ANTHROPIC_API_KEY"))
+            has_google = bool(
+                os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+            )
+
             # Show current model and available options
+            self.console.print(f"[cyan]Current model:[/] [bold]{self.model}[/]\n")
+            self.console.print("[bold]Available models:[/]\n")
+
+            # OpenAI models
+            if has_openai:
+                self.console.print("  [green]OpenAI:[/] (✓ API key set)")
+                self.console.print("  • [green]gpt-5[/] - Best quality")
+                self.console.print("  • [cyan]gpt-5-mini[/] - Balanced (default)")
+                self.console.print("  • [yellow]gpt-5-nano[/] - Fastest")
+                self.console.print("  • gpt-4o, gpt-4o-mini - Legacy\n")
+            else:
+                self.console.print(
+                    "  [dim]OpenAI:[/] [yellow](⚠ OPENAI_API_KEY not set)[/]\n"
+                )
+
+            # Anthropic models
+            if has_anthropic:
+                self.console.print("  [green]Anthropic:[/] (✓ API key set)")
+                self.console.print("  • claude-3-5-sonnet-20241022\n")
+            else:
+                self.console.print(
+                    "  [dim]Anthropic:[/] "
+                    "[yellow](⚠ ANTHROPIC_API_KEY not set)[/]\n"
+                )
+
+            # Google models
+            if has_google:
+                self.console.print("  [green]Google Gemini:[/] (✓ API key set)")
+                self.console.print("  • gemini/gemini-2.0-flash - Latest")
+                self.console.print("  • gemini/gemini-1.5-pro-latest - Pro\n")
+            else:
+                self.console.print(
+                    "  [dim]Google Gemini:[/] "
+                    "[yellow](⚠ GOOGLE_API_KEY not set)[/]\n"
+                )
+
             self.console.print(
-                f"[cyan]Current model:[/] [bold]{self.model}[/]\n\n"
-                "[bold]Available models:[/]\n"
-                "  • [green]gpt-5[/] - Best quality, cheaper than gpt-4o\n"
-                "  • [cyan]gpt-5-mini[/] - Balanced (recommended default)\n"
-                "  • [yellow]gpt-5-nano[/] - Fastest, cheapest\n"
-                "  • gpt-4o - Legacy (more expensive)\n"
-                "  • gpt-4o-mini - Legacy\n"
-                "  • claude-3.5-sonnet - Anthropic Claude\n"
-                "  • gemini/gemini-2.0-flash-exp - Google Gemini\n\n"
                 "[dim]Usage: /model <model_name>[/]\n"
-                "[dim]Example: /model gpt-5[/]"
+                "[dim]Example: /model gpt-5[/]\n"
+                "[dim]Gemini example: /model gemini/gemini-2.0-flash[/]"
             )
             return
 
         new_model = args.strip()
+
+        # Validate API key for the selected model
+        import os
+
+        model_lower = new_model.lower()
+        missing_key = None
+
+        if model_lower.startswith("gpt-") or model_lower.startswith("o1-"):
+            if not os.getenv("OPENAI_API_KEY"):
+                missing_key = "OPENAI_API_KEY"
+        elif model_lower.startswith("claude-"):
+            if not os.getenv("ANTHROPIC_API_KEY"):
+                missing_key = "ANTHROPIC_API_KEY"
+        elif model_lower.startswith("gemini/"):
+            if not (os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")):
+                missing_key = "GOOGLE_API_KEY or GEMINI_API_KEY"
+
+        if missing_key:
+            self.console.print(
+                f"[red]⚠ Error: {missing_key} not set[/]\n"
+                f"[yellow]Cannot use model '{new_model}' without API key.[/]\n\n"
+                f"[dim]Set the environment variable:[/]\n"
+                f"  export {missing_key.split(' or ')[0]}=your-api-key\n"
+            )
+            return
+
         old_model = self.model
         self.model = new_model
 
