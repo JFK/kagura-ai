@@ -340,16 +340,88 @@ async def _execute_python_tool(code: str) -> str:
 
 
 # Web & Content Tools
-async def _brave_search_tool(query: str, count: int = 5) -> str:
-    """Search the web using Brave Search API (high-quality results).
+def _extract_youtube_urls_from_results(results_json: str) -> list[str]:
+    """Extract YouTube URLs from Brave Search results
+
+    Args:
+        results_json: JSON string of search results
+
+    Returns:
+        List of YouTube URLs found in results
+    """
+    import json
+
+    try:
+        results = json.loads(results_json)
+    except Exception:
+        return []
+
+    youtube_urls = []
+    for result in results:
+        url = result.get("url", "")
+        if "youtube.com/watch" in url or "youtu.be/" in url:
+            youtube_urls.append(url)
+
+    return youtube_urls
+
+
+async def _fetch_youtube_enhanced_data(url: str) -> dict[str, Any]:
+    """Fetch YouTube metadata + transcript (safe, won't fail)
+
+    Args:
+        url: YouTube video URL
+
+    Returns:
+        Dict with url, title, duration, transcript (or error)
+    """
+    import json
+
+    from kagura.tools.youtube import get_youtube_metadata, get_youtube_transcript
+
+    try:
+        # Always fetch metadata first
+        metadata_str = await get_youtube_metadata(url)
+        metadata = json.loads(metadata_str)
+
+        # Try to get transcript (may not be available)
+        transcript = None
+        try:
+            transcript = await get_youtube_transcript(url, lang="en")
+            # Truncate to reasonable length for context
+            if len(transcript) > 2000:
+                transcript = transcript[:2000] + "... (transcript continues)"
+        except Exception:
+            pass  # Transcript not available, continue without it
+
+        return {
+            "url": url,
+            "title": metadata.get("title", "Unknown"),
+            "duration": metadata.get("duration", ""),
+            "transcript": transcript,
+        }
+    except Exception as e:
+        return {"url": url, "error": str(e)}
+
+
+async def _brave_search_tool(
+    query: str, count: int = 5, enhance_youtube: bool = True
+) -> str:
+    """Search the web using Brave Search API with YouTube enhancement.
+
+    If YouTube videos found in results, automatically fetches transcripts
+    in parallel and merges them into search results.
 
     Args:
         query: Search query
         count: Number of results (default: 5)
+        enhance_youtube: Auto-fetch YouTube transcripts (default: True)
 
     Returns:
-        JSON with search results
+        JSON with search results (enhanced with transcripts if found)
     """
+    import asyncio
+    import json
+
     from rich.console import Console
 
     from kagura.tools.brave_search import brave_web_search
@@ -357,10 +429,132 @@ async def _brave_search_tool(query: str, count: int = 5) -> str:
     console = Console()
     console.print(f"[dim]🔍 Brave Search: {query}...[/]")
 
-    result = await brave_web_search(query, count=count)
+    # Basic search
+    results_json = await brave_web_search(query, count=count)
 
-    console.print("[dim]✓ Search completed[/]")
-    return result
+    # YouTube enhancement disabled or simple search
+    if not enhance_youtube:
+        console.print("[dim]✓ Search completed[/]")
+        return results_json
+
+    # Extract YouTube URLs from results
+    youtube_urls = _extract_youtube_urls_from_results(results_json)
+
+    if not youtube_urls:
+        console.print("[dim]✓ Search completed (no YouTube videos)[/]")
+        return results_json
+
+    # Fetch YouTube data in parallel (top 3 only)
+    console.print(
+        f"[dim]📺 Found {len(youtube_urls)} YouTube videos, "
+        f"fetching transcripts...[/]"
+    )
+
+    youtube_tasks = [
+        _fetch_youtube_enhanced_data(url) for url in youtube_urls[:3]  # Limit to 3
+    ]
+
+    # Wait max 30 seconds for all transcripts
+    try:
+        youtube_data = await asyncio.wait_for(
+            asyncio.gather(*youtube_tasks, return_exceptions=True), timeout=30.0
+        )
+    except asyncio.TimeoutError:
+        console.print("[dim]⚠ YouTube transcript fetch timed out[/]")
+        youtube_data = []
+
+    # Merge transcripts into results
+    results = json.loads(results_json)
+    youtube_map = {
+        data["url"]: data for data in youtube_data if isinstance(data, dict)
+    }
+
+    for result in results:
+        url = result.get("url", "")
+        if url in youtube_map:
+            yt_data = youtube_map[url]
+            if yt_data.get("transcript"):
+                result["youtube_transcript_preview"] = yt_data["transcript"][:300]
+                result["youtube_has_full_transcript"] = True
+                result["youtube_duration"] = yt_data.get("duration", "")
+
+    enhanced_json = json.dumps(results, ensure_ascii=False, indent=2)
+
+    # Show how many transcripts we got
+    transcripts_count = sum(
+        1 for data in youtube_data if isinstance(data, dict) and data.get("transcript")
+    )
+
+    if transcripts_count > 0:
+        console.print(f"[dim]✓ Search completed ({transcripts_count} transcripts)[/]")
+    else:
+        console.print("[dim]✓ Search completed[/]")
+
+    return enhanced_json
+
+
+async def _analyze_image_url_tool(
+    url: str, prompt: str = "Analyze this image in detail."
+) -> str:
+    """Analyze image from URL using Vision API
+
+    Auto-selects:
+    - OpenAI Vision (gpt-4o) for standard formats (fast, direct URL)
+    - Future: Gemini for WebP/HEIC (download required)
+
+    Args:
+        url: Image URL
+        prompt: Analysis prompt
+
+    Returns:
+        Image analysis result
+    """
+    from rich.console import Console
+
+    from kagura.core.llm import LLMConfig
+    from kagura.core.llm_openai import call_openai_vision_url
+    from kagura.utils.media_detector import detect_media_type_from_url
+
+    console = Console()
+    console.print(f"[dim]🖼️  Analyzing image from URL: {url}...[/]")
+
+    # Detect media type
+    try:
+        media_type, mime_type = await detect_media_type_from_url(url)
+    except Exception as e:
+        return f"Error detecting media type: {str(e)}"
+
+    if media_type != "image":
+        return f"Error: URL is not an image (detected: {media_type})"
+
+    # Use OpenAI Vision for standard formats
+    if mime_type in ["image/jpeg", "image/png", "image/gif", "image/webp"]:
+        console.print("[dim]Using OpenAI Vision API (direct URL)...[/]")
+        try:
+            config = LLMConfig(model="gpt-4o")
+            result = await call_openai_vision_url(url, prompt, config)
+            console.print("[dim]✓ Analysis complete[/]")
+            return result.content
+        except Exception as e:
+            return f"Error analyzing image: {str(e)}"
+
+    # WebP/HEIC - use Gemini SDK
+    elif mime_type in ["image/webp", "image/heic", "image/heif"]:
+        console.print(f"[dim]Using Gemini SDK ({mime_type})...[/]")
+        try:
+            from kagura.core.llm_gemini import call_gemini_direct
+
+            config = LLMConfig(model="gemini/gemini-2.0-flash")
+            result = await call_gemini_direct(
+                prompt, config, media_url=url, media_type=mime_type
+            )
+            console.print("[dim]✓ Analysis complete[/]")
+            return result.content
+        except Exception as e:
+            return f"Error analyzing with Gemini: {str(e)}"
+
+    else:
+        return f"Unsupported image format: {mime_type}"
 
 
 async def _url_fetch_tool(url: str) -> str:
@@ -374,9 +568,18 @@ async def _url_fetch_tool(url: str) -> str:
     """
     from rich.console import Console
 
+    from kagura.utils.media_detector import is_image_url
     from kagura.web import WebScraper
 
     console = Console()
+
+    # If it's an image URL, suggest using analyze_image_url instead
+    if is_image_url(url):
+        return (
+            f"This appears to be an image URL: {url}\n"
+            f"Use 'analyze {url}' to get image analysis instead of text extraction."
+        )
+
     console.print(f"[dim]🌐 Fetching {url}...[/]")
 
     try:
@@ -546,6 +749,7 @@ async def _youtube_metadata_tool(video_url: str) -> str:
         _shell_exec_with_options_wrapper,  # Multiple options for user to choose
         # Web & Content
         _brave_search_tool,  # Web search (Brave Search)
+        _analyze_image_url_tool,  # Image URL analysis (OpenAI Vision)
         _url_fetch_tool,
         # YouTube
         _youtube_transcript_tool,
@@ -593,6 +797,9 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
 
     Web & Content:
     - brave_search(query, count=5): Search the web with Brave Search
+    - analyze_image_url(url, prompt="Analyze..."): Analyze image from URL
+      - Direct URL support (no download) for jpg/png/gif/webp
+      - Uses OpenAI Vision API (gpt-4o)
     - url_fetch(url): Fetch and extract text from webpages
 
     YouTube:
@@ -603,7 +810,8 @@ async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     - File paths → use file_read (supports text, images, PDFs, audio, video)
     - Modify/create files → use file_write (auto-backup)
     - Execute code → use execute_python
-    - URLs → use url_fetch
+    - Image URLs → use analyze_image_url (jpg/png/gif/webp)
+    - General URLs → use url_fetch (webpage text)
     - YouTube links → ALWAYS use both youtube_transcript AND youtube_metadata
       - If transcript fails (not available), summarize using metadata only
       - Suggest using brave_search for additional information
@@ -887,6 +1095,7 @@ class ChatSession:
                 _shell_exec_tool_wrapper,
                 _shell_exec_with_options_wrapper,
                 _brave_search_tool,
+                _analyze_image_url_tool,
                 _url_fetch_tool,
                 _youtube_transcript_tool,
                 _youtube_metadata_tool,
