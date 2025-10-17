@@ -8,9 +8,14 @@
 
 ## 🎯 Vision
 
-**Kagura AI is a Python-first AI agent framework focused on personal assistant use cases.**
+**Kagura AI is a personal AI assistant you can use today, and a Python SDK you can extend tomorrow.**
 
-We believe AI should be accessible, practical, and useful in everyday life—not just in enterprise environments. Kagura AI empowers individuals to build, customize, and use AI agents for their daily needs, from morning news briefings to recipe suggestions to event planning.
+We believe AI should be accessible, practical, and useful in everyday life—not just in enterprise environments. Kagura AI serves two audiences:
+
+1. **Personal Users**: Get instant AI assistance for daily tasks (news, weather, recipes, web research)
+2. **Developers**: Build custom AI agents with one Python decorator (`@agent`)
+
+Whether you `pip install kagura-ai && kagura chat` to start chatting, or `from kagura import agent` to build your own tools, Kagura AI adapts to your needs.
 
 ---
 
@@ -42,6 +47,13 @@ We believe AI should be accessible, practical, and useful in everyday life—not
 - **Remove Complexity**: Delete enterprise-focused features (multi-agent orchestration, workflow engines)
 - **Focus on Core**: Chat, MCP, Memory, Tools, Routing
 - **Lightweight**: Fast startup, minimal dependencies for core features
+
+### 6. Dual Identity: Tool & SDK
+- **As a Tool**: `kagura chat` - instant personal assistant, no coding required
+- **As an SDK**: `@agent` decorator - build custom agents in minutes with full type safety
+- **Seamless Flow**: Test agents in chat → Export to code → Share with community
+- **Both First-Class**: Not "SDK with a CLI bolt-on", but "Tool + SDK by design"
+- **Choose Your Path**: Use built-in tools, or extend with Python—your choice
 
 ---
 
@@ -106,62 +118,91 @@ We believe AI should be accessible, practical, and useful in everyday life—not
 
 ---
 
-## 🚀 What's New in v3.0
+## 🚀 Current State: v2.7.2 (2025-10-18)
 
-### 🆕 New Features
+### Already Available ✅
 
-1. **Personal Assistant Tools**
+**For Personal Users (No Coding Required)**:
+- **Chat Interface**: Claude Code-like experience with 8 built-in tools
+- **Web Search**: Brave Search with automatic caching (70% faster on repeat queries)
+- **YouTube Analysis**: Transcript extraction + metadata for any video
+- **Multimodal Files**: Analyze images, PDFs, audio, video files
+- **Smart Search**: Results cached automatically for instant repeat queries
+- **Runtime Flexibility**: Switch models mid-conversation (`/model gpt-5-mini`)
+- **Session Management**: Save/load conversations, clear history
+
+**For Developers (SDK Users)**:
+- **@agent Decorator**: One line to create an AI agent with full type safety
+- **Hybrid LLM Backend**: OpenAI SDK (fast) + LiteLLM (multi-provider)
+- **Memory & RAG**: ChromaDB-powered semantic search for conversation history
+- **MCP Integration**: 15 built-in tools exposed via Model Context Protocol
+- **Automatic Telemetry**: Track tokens, costs, performance automatically
+- **Testing Framework**: Mock LLM calls, parallel test execution (24-80% faster)
+- **Type Safety**: Pyright strict mode with 0 errors across 1,300+ tests
+
+**Performance & Quality**:
+- ✅ CLI startup: 0.5s (98.7% faster than v2.4)
+- ✅ Search caching: 70% response time reduction
+- ✅ 1,300+ tests passing (>90% coverage)
+- ✅ Production-ready stability
+
+---
+
+## 🔜 Coming in v3.0: Personal Assistant Focus
+
+### What's Being Added
+
+1. **Dedicated Personal Tools** (NEW)
    - `daily_news()` - Morning news briefing
    - `weather_forecast()` - Weather updates
-   - `search_recipes()` - Recipe suggestions
-   - `find_events()` - Event search
+   - `search_recipes()` - Recipe suggestions with ingredients
+   - `find_events()` - Event search by location and date
 
-2. **Meta Agent**
-   - Generate agents during chat: `/create agent <description>`
-   - Auto-save to `~/.kagura/agents/`
-   - Auto-register with AgentRouter
+2. **Enhanced Meta Agent** (Extension of RFC-005)
+   - `/create agent` command directly in chat
+   - Auto-save generated agents to `~/.kagura/agents/`
+   - Auto-registration with AgentRouter
    - Example: "Create an agent that summarizes morning news"
 
-3. **Chat Enhancements**
-   - `/stats` - Token/cost breakdown
-   - `/stats summary` - AI-generated session summary
-   - `/stats export` - Export stats to JSON/CSV
+3. **Chat Statistics** (NEW)
+   - `/stats` - Real-time token/cost breakdown
+   - `/stats summary` - AI-generated session insights
+   - `/stats export` - Export to JSON/CSV for analysis
 
-### ⚠️ Simplified
+4. **Documentation Refresh**
+   - Personal use case focus (not enterprise)
+   - 5-minute quickstart guide
+   - Real-world examples (daily briefing, recipe search, event finder)
 
-- **Observability**: Keep `kagura monitor` CLI, remove web dashboard
-- **Context Compression**: Keep Phase 1 (token management), remove Phase 2-4
-- **Agents**: Remove enterprise-focused presets, keep practical ones
+### What's Being Simplified
 
-### ❌ Removed
-
-- RFC-005 (Self-Improving Agent)
-- RFC-009 (Multi-Agent Orchestration)
-- RFC-010 (Deep Observability Dashboard)
-- RFC-015 (Advanced RAG)
-- RFC-011 (A/B Testing)
-- RFC-008 (Plugin Marketplace)
-- RFC-006 (Workflow Engine)
+- **Focus Shift**: Enterprise → Personal daily use
+- **Documentation**: Rewritten for individual users first, developers second
+- **Examples**: Practical personal workflows instead of abstract patterns
+- **Architecture**: Keep what works, remove complexity that doesn't serve personal use
 
 ---
 
 ## 📊 Success Metrics
 
-### Technical Metrics
-- ✅ Test coverage > 90% for core modules
-- ✅ Type safety: Pyright strict mode compliance
-- ✅ Startup time < 1 second
-- ✅ Memory footprint < 100MB (base install)
+### Technical Metrics (v2.7.2 Status)
+- ✅ **Test coverage > 90%** - Achieved (1,300+ tests, >90% coverage)
+- ✅ **Type safety** - Achieved (Pyright strict, 0 errors)
+- ✅ **Startup time < 1s** - Achieved (0.5s, 98.7% improvement)
+- ✅ **Memory footprint** - Achieved (lazy loading, minimal dependencies)
+- ✅ **Search performance** - Achieved (70% faster with caching)
 
-### User Metrics
-- ✅ Time to first chat: < 5 minutes
-- ✅ Agent creation time (with Meta Agent): < 2 minutes
-- ✅ Documentation clarity: New user can create custom agent in < 30 minutes
+### User Metrics (v3.0 Goals)
+- 🔲 Time to first chat: < 5 minutes (`pip install && kagura chat`)
+- 🔲 Personal tool usage: Daily news/weather/recipes work out-of-box
+- 🔲 Agent creation: < 2 minutes with enhanced `/create agent`
+- 🔲 Documentation clarity: New user creates custom agent in < 30 minutes
 
-### Community Metrics
-- ✅ Active users creating custom agents
-- ✅ Shared examples in `examples/personal_assistant/`
-- ✅ Positive feedback on simplicity and usability
+### Community Metrics (v3.0+ Goals)
+- 🔲 100+ users trying personal assistant features
+- 🔲 50+ custom agents shared in community
+- 🔲 10+ real-world personal workflows in `examples/`
+- 🔲 Positive feedback on simplicity and daily usefulness
 
 ---
 
