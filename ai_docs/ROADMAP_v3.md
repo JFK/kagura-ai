@@ -1,76 +1,107 @@
 # Kagura AI v3.0 - Implementation Roadmap
 
-**Date**: 2025-10-17
-**Target Release**: Q1 2025
+**Date**: 2025-10-18 (Updated)
+**Target Release**: Q1 2026
 **Tracking Issue**: [#285](https://github.com/JFK/kagura-ai/issues/285)
+
+---
+
+## 📍 From v2.7.2 to v3.0: The Journey
+
+### Current State: v2.7.2 (2025-10-18)
+
+Kagura AI v2.7.2 is already a **production-ready framework** with:
+
+**Core Capabilities**:
+- ✅ Claude Code-like chat interface (8 built-in tools)
+- ✅ Hybrid LLM backend (OpenAI SDK for gpt-*, LiteLLM for others)
+- ✅ Search caching (70% faster, 30-50% cost reduction)
+- ✅ Multimodal URL analysis (images, YouTube videos)
+- ✅ Memory & RAG (ChromaDB-powered semantic search)
+- ✅ MCP integration (15 built-in tools)
+- ✅ Automatic telemetry (tokens, costs, performance)
+- ✅ 1,300+ tests (>90% coverage), Pyright strict mode
+
+**What's Missing for Personal Assistant Vision?**
+- 🔲 **Dedicated personal tools** (news, weather, recipes, events)
+- 🔲 **Enhanced Meta Agent** with `/create agent` chat command
+- 🔲 **Cost visibility** via `/stats` command in chat
+- 🔲 **Personal-first documentation** (currently developer-focused)
+
+**v3.0 is not a rewrite—it's a focus shift with targeted additions.**
 
 ---
 
 ## 📋 Overview
 
-This roadmap outlines the detailed implementation plan for Kagura AI v3.0, focusing on transforming the framework into a **Personal Assistant** platform.
+This roadmap transforms Kagura AI from a "capable framework" to a "personal assistant you'd actually use daily", while maintaining its power as an SDK for developers.
 
 ---
 
 ## 🎯 Goals
 
-1. **Simplify Architecture**: Remove enterprise features, focus on personal use
-2. **Enhance Chat Experience**: Add `/stats`, Meta Agent, better UX
-3. **Personal Tools**: News, weather, recipes, events
-4. **Clean Documentation**: Rewrite for personal assistant use cases
-5. **SDK Usability**: Maintain excellent developer experience
+1. **Personal Tools**: Add ready-to-use daily tools (news, weather, recipes, events)
+2. **Enhanced Chat UX**: `/stats` for cost tracking, improved Meta Agent integration
+3. **Documentation Refresh**: Rewrite for personal assistant first, SDK second
+4. **Simplify Examples**: Real-world personal workflows, not abstract patterns
+5. **Maintain SDK Excellence**: Keep type safety, testing, developer experience
 
 ---
 
-## 📦 Phase 1: Cleanup & Foundation
+## 📦 Phase 1: Focus Shift & Light Cleanup
 
-**Duration**: Week 1
-**Priority**: 🔥 Critical
-**Status**: 🔄 Planning
+**Duration**: 1-2 weeks
+**Priority**: ⭐ Medium (most work already done in v2.7.x)
+**Status**: 🔄 30% Complete
 
-### Tasks
+**Philosophy**: Keep what works, remove only what truly adds complexity for personal users.
 
-#### 1.1 Delete Unused RFC Files
-- [ ] Delete `ai_docs/rfcs/RFC_005_*.md` (Self-Improving Agent)
-- [ ] Delete `ai_docs/rfcs/RFC_009_*.md` (Multi-Agent Orchestration)
-- [ ] Delete `ai_docs/rfcs/RFC_010_DASHBOARD_*.md` (Web Dashboard)
-- [ ] Delete `ai_docs/rfcs/RFC_015_*.md` (Advanced RAG)
-- [ ] Delete `ai_docs/rfcs/RFC_011_*.md` (A/B Testing)
-- [ ] Delete `ai_docs/rfcs/RFC_008_*.md` (Plugin Marketplace)
-- [ ] Delete `ai_docs/rfcs/RFC_006_*.md` (Workflow Engine)
+### ✅ Already Completed (v2.6.0 - v2.7.2)
 
-#### 1.2 Delete Unused Code
-- [ ] Delete `src/kagura/routing/memory_aware_router.py`
-- [ ] Delete `src/kagura/routing/context_analyzer.py`
-- [ ] Delete `src/kagura/core/compression/trimmer.py` (Phase 2)
-- [ ] Delete `src/kagura/core/compression/summarizer.py` (Phase 3)
-- [ ] Update `src/kagura/core/compression/__init__.py`
+- ✅ Agent storage moved to `~/.kagura/agents/` (#261, v2.6.0)
+- ✅ Presets consolidated into `src/kagura/agents/` (#269, v2.6.0)
+- ✅ Legacy code removed (`src/kagura_legacy/`) (#273, v2.6.0)
+- ✅ DuckDuckGo fallback removed (#277, v2.7.0)
+- ✅ Default model updated to gpt-5-mini (#267, v2.6.0)
+- ✅ `/model` command added for runtime switching (#268, v2.6.0)
 
-#### 1.3 Simplify agents/
-- [ ] Delete `src/kagura/agents/code_review.py`
-- [ ] Delete `src/kagura/agents/content_writer.py`
-- [ ] Delete `src/kagura/agents/data_analyst.py`
-- [ ] Delete `src/kagura/agents/learning_tutor.py`
-- [ ] Delete `src/kagura/agents/project_manager.py`
-- [ ] Delete `src/kagura/agents/research.py`
-- [ ] Delete `src/kagura/agents/technical_support.py`
-- [ ] Keep: `code_execution.py`, `summarizer.py`, `translate_func.py`, `personal_assistant.py`
+### 🔲 Remaining Tasks
 
-#### 1.4 Update pyproject.toml
-- [ ] Verify `extras_require` structure (already correct)
-- [ ] Update description to "Personal AI Assistant Framework"
-- [ ] Update classifiers to reflect personal use focus
+#### 1.1 Documentation Focus Shift
+- [ ] Mark enterprise RFCs as "future/optional":
+  - RFC-009 (Multi-Agent Orchestration)
+  - RFC-010 (Deep Observability Dashboard)
+  - RFC-015 (Advanced RAG)
+  - RFC-011 (A/B Testing)
+  - RFC-008 (Plugin Marketplace)
+- [ ] Keep functional RFCs:
+  - RFC-005 (Meta Agent - v2.5.0 base, v3.0 enhancement)
+  - RFC-033 (Chat Enhancement)
+  - RFC-034 (Multimodal URL)
+  - RFC-035 (Search Caching)
 
-#### 1.5 Delete Old AI Docs
-- [ ] Delete `ai_docs/UNIFIED_ROADMAP.md` (replaced by ROADMAP_v3.md)
-- [ ] Delete `ai_docs/NEXT_STEPS.md` (obsolete)
-- [ ] Delete `ai_docs/NEXT_PLAN_v2.5.0.md` (obsolete)
-- [ ] Delete `ai_docs/CONTEXT_ENGINEERING_*.md` (too complex)
+#### 1.2 Code Review (Optional - Defer to v3.1)
+- [ ] Review `src/kagura/routing/memory_aware_router.py` - Keep or simplify?
+- [ ] Review `src/kagura/core/compression/` Phase 2-4 - Mark as future?
+- [ ] Review `src/kagura/agents/` presets - Evaluate personal use relevance
+
+**Decision**: Keep all code for now, evaluate based on actual usage in v3.0.
+
+#### 1.3 pyproject.toml Polish
+- [x] Extras structure ✅ (ai, web, auth, mcp - already correct)
+- [ ] Update description: "Python-First AI Agent Framework" → "Personal AI Assistant & Python SDK"
+- [ ] Add keywords: "personal assistant", "daily tools", "chat"
+
+#### 1.4 AI Docs Cleanup (Low Priority)
+- [ ] Archive `UNIFIED_ROADMAP.md` → `UNIFIED_ROADMAP_v2.5.md` (historical reference)
+- [ ] Delete or archive `NEXT_STEPS.md`, `NEXT_PLAN_v2.5.0.md` (obsolete)
+- [ ] Keep `CONTEXT_ENGINEERING_*.md` as reference (mark as "Advanced - Not v3.0 scope")
 
 ### Success Criteria
-- ✅ Codebase reduced by ~30% (delete unused code)
-- ✅ All tests pass
-- ✅ Pyright strict mode compliance maintained
+- ✅ 30% already achieved (v2.6-2.7 cleanup)
+- 🔲 Focus shift documented (RFCs marked appropriately)
+- 🔲 pyproject.toml updated for personal assistant positioning
+- 🔲 No code deletions (keep flexibility)
 
 ---
 
@@ -134,147 +165,170 @@ async def daily_news(topic: str = "technology", count: int = 5) -> str:
 
 ---
 
-## 🤖 Phase 3: Meta Agent
+## 🤖 Phase 3: Enhanced Meta Agent
 
-**Duration**: Week 2
+**Duration**: 1-2 weeks
 **Priority**: ⭐ High
 **Status**: 🔄 Planning
+**Base**: RFC-005 (Meta Agent v1, implemented in v2.5.0)
+
+**Enhancement Goal**: Make agent creation accessible in chat, not just via `kagura build agent` CLI.
+
+### Background
+
+RFC-005 (v2.5.0) already provides:
+- ✅ `SelfImprovingMetaAgent` - Generate agents from descriptions
+- ✅ `kagura build agent` CLI command
+- ✅ AgentSpec → Python code generation
+- ✅ AST validation, error auto-fixing
+
+**What's NEW in v3.0**: Bring this power directly into `kagura chat`.
 
 ### Tasks
 
-#### 3.1 Implement agents/meta_agent.py
-- [ ] Create `src/kagura/agents/meta_agent.py`
-- [ ] Implement `meta_agent(description: str) -> str`
-- [ ] LLM generates Python code for new agent
-- [ ] Validate generated code (AST parse)
-- [ ] Save to `~/.kagura/agents/<agent_name>.py`
-- [ ] Return success message with usage instructions
-
-**Implementation**:
-```python
-from kagura import agent
-from pathlib import Path
-
-@agent(model="gpt-5-mini", temperature=0.3)
-async def meta_agent(description: str) -> str:
-    """
-    Generate a custom agent based on user description.
-
-    User request: {{ description }}
-
-    Generate Python code for an @agent-decorated function.
-    Use this template:
-    ```python
-    from kagura import agent
-    from kagura.tools import ...
-
-    @agent(model="gpt-5-mini", tools=[...])
-    async def my_agent(query: str) -> str:
-        '''{{ query }}に答える'''
-        ...
-    ```
-    """
-    ...
-```
-
-#### 3.2 Add /create agent Command
+#### 3.1 Add `/create agent` Chat Command
 - [ ] Update `src/kagura/chat/session.py`
 - [ ] Add `handle_create_command(self, args: str) -> None`
-- [ ] Call `meta_agent(args)`
-- [ ] Display generated code preview
-- [ ] Save and auto-register with AgentRouter
+- [ ] Use existing `SelfImprovingMetaAgent` from RFC-005
+- [ ] Display generated code preview in chat
+- [ ] Confirm with user before saving
+- [ ] Auto-save to `~/.kagura/agents/<agent_name>.py`
+- [ ] Auto-register with AgentRouter (already exists in session.py)
 
-#### 3.3 Add /reload agents Command
-- [ ] Update `src/kagura/chat/session.py`
-- [ ] Implement `reload_agents(self) -> None`
-- [ ] Clear current custom_agents
+**Example Flow**:
+```bash
+[You] > /create agent that summarizes morning tech news
+
+💬 Generating agent...
+✓ Agent created: tech_news_summarizer
+
+Preview:
+  @agent(model="gpt-5-mini", tools=[brave_web_search])
+  async def tech_news_summarizer(query: str) -> str:
+      """Get tech news summary for {{ query }}"""
+      ...
+
+Save to ~/.kagura/agents/tech_news_summarizer.py? (y/n)
+```
+
+#### 3.2 Add `/reload agents` Command (ALREADY EXISTS?)
+- [ ] Check if session.py already has agent reloading
+- [ ] If not, add `reload_agents()` method
+- [ ] Clear `custom_agents` dict
 - [ ] Re-run `_load_custom_agents()`
-- [ ] Display newly loaded agents
+- [ ] Display newly loaded agents count
 
-#### 3.4 Testing
-- [ ] Test Meta Agent code generation
-- [ ] Test save to `~/.kagura/agents/`
-- [ ] Test auto-registration with AgentRouter
-- [ ] Test `/create` and `/reload` commands
+#### 3.3 Testing
+- [ ] Test `/create agent` command in chat
+- [ ] Test save confirmation flow
+- [ ] Test auto-registration with router
+- [ ] Test `/reload` if new
+- [ ] Integration with existing RFC-005 code
 
 ### Success Criteria
-- ✅ Meta Agent generates valid Python code
-- ✅ Generated agents save correctly
-- ✅ AgentRouter auto-registers new agents
-- ✅ `/create` and `/reload` commands work seamlessly
+- ✅ `/create agent` works seamlessly in chat
+- ✅ Generated agents save to ~/.kagura/agents/
+- ✅ Auto-registration with AgentRouter
+- ✅ Users can create custom agents without leaving chat
+- ✅ Reuses existing RFC-005 implementation (no duplication)
 
 ---
 
-## 📊 Phase 4: Chat Enhancements
+## 📊 Phase 4: Chat Statistics & Cost Visibility
 
-**Duration**: Week 2
+**Duration**: 1 week
 **Priority**: ⭐ High
 **Status**: 🔄 Planning
+**Base**: RFC-030 (Telemetry Integration, v2.5.5 - already collecting data)
+
+**Enhancement Goal**: Surface telemetry data in chat via `/stats` command.
+
+### Background
+
+RFC-030 Phase 1 (v2.5.5) already provides:
+- ✅ `LLMResponse` with usage metadata (tokens, cost, duration)
+- ✅ Automatic telemetry collection in `@agent` decorator
+- ✅ `pricing.py` with accurate cost calculation for 20+ models
+- ✅ EventStore (SQLite backend) for telemetry data
+- ✅ `kagura monitor` CLI for viewing execution history
+
+**What's NEW in v3.0**: Real-time stats in chat session.
 
 ### Tasks
 
 #### 4.1 Implement chat/stats.py
 - [ ] Create `src/kagura/chat/stats.py`
-- [ ] Implement `SessionStats` class
-- [ ] Track LLM calls: model, tokens, cost, duration
-- [ ] Track tool calls: tool_name, count, duration
-- [ ] Method: `get_summary() -> dict`
-- [ ] Method: `export_json(path: str) -> None`
-- [ ] Method: `export_csv(path: str) -> None`
+- [ ] `SessionStats` class - wrapper around existing telemetry data
+- [ ] Query EventStore or track in-memory for current session
+- [ ] Methods:
+  - `get_summary() -> dict` - Token/cost breakdown
+  - `export_json(path: str)` - Export session stats
+  - `export_csv(path: str)` - Export for Excel/Sheets
 
-**Implementation**:
-```python
-class SessionStats:
-    def __init__(self, memory: MemoryManager):
-        self.memory = memory
-        self.llm_calls: list[dict] = []
-        self.tool_calls: list[dict] = []
-
-    def track_llm_call(self, model: str, usage: dict, duration: float):
-        cost = calculate_cost(usage, model)
-        self.llm_calls.append({...})
-
-    def get_summary(self) -> dict:
-        # Total tokens, cost, model breakdown
-        ...
-```
-
-#### 4.2 Integrate Stats into ChatSession
+#### 4.2 Integrate into ChatSession
 - [ ] Update `src/kagura/chat/session.py`
-- [ ] Add `self.stats = SessionStats(self.memory)` in `__init__`
-- [ ] Track LLM calls in `chat()` method
-- [ ] Capture `LLMResponse.usage` and `LLMResponse.duration`
+- [ ] Add `self.stats = SessionStats()` in `__init__`
+- [ ] Option 1: Track in-memory (simpler, session-scoped)
+- [ ] Option 2: Query EventStore (persistent, cross-session)
+- [ ] Capture `LLMResponse.usage` from chat agent calls
 
-#### 4.3 Add /stats Command
-- [ ] Add `handle_stats_command(self, args: str) -> None`
-- [ ] `/stats` - Display current session stats
-- [ ] `/stats summary` - AI-generated summary
-- [ ] `/stats export <path>` - Export to JSON/CSV
-- [ ] Use Rich tables for display
+#### 4.3 Add `/stats` Command
+- [ ] Add `handle_stats_command(self, args: str)` to ChatSession
+- [ ] `/stats` - Show current session summary (Rich table)
+- [ ] `/stats summary` - AI-generated insights (optional)
+- [ ] `/stats export <file>` - Export to JSON or CSV
+- [ ] Display: Total tokens, cost, model breakdown, tool usage
 
-#### 4.4 Implement AI Summary Generation
-- [ ] Create summary agent in `chat/stats.py`
-- [ ] Input: session stats + conversation history
-- [ ] Output: Human-readable summary (topics, tools used, insights)
-
-#### 4.5 Testing
-- [ ] Test SessionStats tracking
-- [ ] Test `/stats` command display
-- [ ] Test `/stats summary` generation
-- [ ] Test `/stats export` functionality
+#### 4.4 Testing
+- [ ] Test SessionStats data collection
+- [ ] Test `/stats` Rich table display
+- [ ] Test `/stats export` to JSON/CSV
+- [ ] Integration test with mock LLM calls
 
 ### Success Criteria
-- ✅ SessionStats accurately tracks all LLM calls
-- ✅ `/stats` displays clear token/cost breakdown
-- ✅ `/stats summary` provides useful insights
-- ✅ Export works in JSON and CSV formats
+- ✅ `/stats` shows accurate token/cost data
+- ✅ Export works in both JSON and CSV
+- ✅ Reuses RFC-030 telemetry infrastructure (no duplication)
+- ✅ Simple, fast, useful for cost-conscious users
+
+---
+
+---
+
+## 🤔 Why v3.0 When v2.7.2 Already Works?
+
+### The Technical Truth
+
+v2.7.2 is technically complete:
+- ✅ All core features work
+- ✅ Production-ready quality (1,300+ tests, strict typing)
+- ✅ Performance optimized (caching, lazy loading)
+- ✅ Developers can build anything with the SDK
+
+### The User Experience Gap
+
+But for **personal users** (non-developers), v2.7.2 is:
+- ⚠️ **Not obvious**: No dedicated tools for daily needs (news, weather, recipes)
+- ⚠️ **SDK-first**: Documentation assumes you'll write code
+- ⚠️ **Cost-blind**: No easy way to see how much you're spending in chat
+- ⚠️ **Generic**: No examples showing "morning briefing" or "recipe search"
+
+### What v3.0 Adds
+
+1. **Personal Tools** → Immediate usefulness for non-coders
+2. **Enhanced Meta Agent** → Create agents without leaving chat
+3. **Cost Visibility** → `/stats` shows spending in real-time
+4. **Personal-First Docs** → Quickstart assumes you just want a personal assistant
+
+**Technical changes: < 5% of codebase**
+**Philosophy shift: 100% focus on personal daily use**
 
 ---
 
 ## 📚 Phase 5: Documentation
 
-**Duration**: Week 3
-**Priority**: 🔥 Critical
+**Duration**: 2-3 weeks
+**Priority**: 🔥 Critical (defines v3.0 identity)
 **Status**: 🔄 Planning
 
 ### Tasks
