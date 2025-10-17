@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from kagura.presets import ChatbotPreset, CodeReviewPreset, ResearchPreset
+from kagura.agents import ChatbotPreset, CodeReviewPreset, ResearchPreset
 
 
 def test_chatbot_preset_initialization():

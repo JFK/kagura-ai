@@ -16,7 +16,7 @@ class LearningTutorPreset(AgentBuilder):
     - Step-by-step explanations
 
     Example:
-        >>> from kagura.presets import LearningTutorPreset
+        >>> from kagura.agents import LearningTutorPreset
         >>> tutor = (
         ...     LearningTutorPreset("math_tutor", subject="Mathematics")
         ...     .with_model("gpt-4o")

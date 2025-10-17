@@ -16,7 +16,7 @@ class TechnicalSupportPreset(AgentBuilder):
     - Professional, helpful tone
 
     Example:
-        >>> from kagura.presets import TechnicalSupportPreset
+        >>> from kagura.agents import TechnicalSupportPreset
         >>> support = (
         ...     TechnicalSupportPreset("support", kb_dir=Path("./kb"))
         ...     .with_model("gpt-4o-mini")

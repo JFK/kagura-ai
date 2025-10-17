@@ -12,7 +12,7 @@ class ChatbotPreset(AgentBuilder):
     - Optimized for multi-turn conversations
 
     Example:
-        >>> from kagura.presets import ChatbotPreset
+        >>> from kagura.agents import ChatbotPreset
         >>> chatbot = (
         ...     ChatbotPreset("my_chatbot")
         ...     .with_model("gpt-4o-mini")

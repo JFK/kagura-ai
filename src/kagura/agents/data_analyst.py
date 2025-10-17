@@ -13,7 +13,7 @@ class DataAnalystPreset(AgentBuilder):
     - Optimized for data-heavy tasks
 
     Example:
-        >>> from kagura.presets import DataAnalystPreset
+        >>> from kagura.agents import DataAnalystPreset
         >>> analyst = (
         ...     DataAnalystPreset("analyst")
         ...     .with_model("gpt-4o")

@@ -13,7 +13,7 @@ class ContentWriterPreset(AgentBuilder):
     - Caching for repeated content types
 
     Example:
-        >>> from kagura.presets import ContentWriterPreset
+        >>> from kagura.agents import ContentWriterPreset
         >>> writer = (
         ...     ContentWriterPreset("writer")
         ...     .with_model("gpt-4o")

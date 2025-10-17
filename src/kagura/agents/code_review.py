@@ -12,7 +12,7 @@ class CodeReviewPreset(AgentBuilder):
     - Optimized for technical accuracy
 
     Example:
-        >>> from kagura.presets import CodeReviewPreset
+        >>> from kagura.agents import CodeReviewPreset
         >>> reviewer = (
         ...     CodeReviewPreset("code_reviewer")
         ...     .with_model("gpt-4o")
