@@ -132,17 +132,21 @@ async def test_load_nonexistent_session(chat_session):
     await chat_session.load_session("nonexistent")
 
 
-def test_model_switching(chat_session):
+def test_model_switching(chat_session, monkeypatch):
     """Test /model command switches model"""
-    assert chat_session.model == "gpt-5-mini"  # Default is now gpt-5-mini
+    # Set API keys for test
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
 
-    # Switch model
+    assert chat_session.model == "gpt-5-mini"  # Default
+
+    # Switch to gpt-5 (same provider, should work)
     chat_session.handle_model_command("gpt-5")
     assert chat_session.model == "gpt-5"
 
-    # Switch again
-    chat_session.handle_model_command("claude-3.5-sonnet")
-    assert chat_session.model == "claude-3.5-sonnet"
+    # Switch to claude (different provider, should work with key)
+    chat_session.handle_model_command("claude-3-5-sonnet-20241022")
+    assert chat_session.model == "claude-3-5-sonnet-20241022"
 
 
 @pytest.mark.asyncio
