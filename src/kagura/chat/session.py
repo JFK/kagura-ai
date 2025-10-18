@@ -888,15 +888,9 @@ class ChatSession:
         # Load custom agents from ./agents directory (optional)
         self.custom_agents: dict[str, Any] = {}
 
-        # Initialize router with semantic matching (v3.0)
-        # Falls back to intent-based if semantic-router unavailable
-        try:
-            self.router = AgentRouter(
-                strategy="semantic", encoder="openai", confidence_threshold=0.5
-            )
-        except Exception:
-            # Fallback to intent-based if semantic routing unavailable
-            self.router = AgentRouter(strategy="intent", confidence_threshold=0.3)
+        # Initialize router with intent-based matching (v3.0)
+        # Intent-based is more reliable and doesn't require extra API calls
+        self.router = AgentRouter(strategy="intent", confidence_threshold=0.3)
 
         self._load_custom_agents()
         self._register_personal_tools()
@@ -1017,9 +1011,10 @@ class ChatSession:
                 weather_forecast,
             )
 
-            # Register daily_news with diverse sample utterances
+            # Register daily_news with intents and samples
             self.router.register(
                 daily_news,
+                intents=["news", "headlines", "latest news", "ニュース", "今日のニュース"],
                 samples=[
                     "Get me today's news",
                     "What's happening in the news?",
@@ -1034,6 +1029,7 @@ class ChatSession:
             # Register weather_forecast
             self.router.register(
                 weather_forecast,
+                intents=["weather", "forecast", "rain", "天気", "気温", "気象"],
                 samples=[
                     "What's the weather?",
                     "Weather forecast for Tokyo",
@@ -1048,6 +1044,7 @@ class ChatSession:
             # Register search_recipes
             self.router.register(
                 search_recipes,
+                intents=["recipe", "recipes", "cook", "cooking", "レシピ", "料理"],
                 samples=[
                     "Find recipes with chicken",
                     "What can I cook?",
@@ -1063,6 +1060,7 @@ class ChatSession:
             # Register find_events
             self.router.register(
                 find_events,
+                intents=["event", "events", "happening", "concerts", "イベント", "催し"],
                 samples=[
                     "What's happening this weekend?",
                     "Find events in Tokyo",
