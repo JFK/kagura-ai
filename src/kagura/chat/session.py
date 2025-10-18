@@ -1188,7 +1188,13 @@ class ChatSession:
             "[bold magenta]🚀 Claude Code-like Experience - All Features Enabled[/]"
         )
         features.append("")
-        features.append("[bold cyan]🛠️  Available Tools (Auto-detected):[/]")
+        features.append("[bold cyan]🎯 Personal Tools (v3.0 - NEW!):[/]")
+        features.append("  [green]📰 daily_news[/] - Morning news briefing")
+        features.append("  [green]🌤️  weather_forecast[/] - Weather updates")
+        features.append("  [green]🍳 search_recipes[/] - Recipe suggestions")
+        features.append("  [green]🎉 find_events[/] - Event finder")
+        features.append("")
+        features.append("[bold cyan]🛠️  Built-in Tools (Auto-detected):[/]")
         features.append(
             "  [green]📄 file_read[/] - Read files (text, image, PDF, audio, video)"
         )
@@ -1205,22 +1211,26 @@ class ChatSession:
         features.append("")
         features.append("[dim]💡 Just ask naturally - tools are used automatically![/]")
         features.append(
-            "[dim]   Examples: 'Read main.py', 'Analyze image.png', 'Summarize https://...'[/]"
+            "[dim]   Examples: 'Get tech news', 'Weather in Tokyo', "
+            "'Find recipes with chicken'[/]"
         )
         features.append("")
         features.append(f"[dim]Current model: {self.model}[/]")
         features.append("")
         features.append("[bold cyan]Commands:[/]")
         features.append("  [cyan]/help[/] - Show detailed help and examples")
+        features.append("  [cyan]/create[/] - Create custom agent (v3.0 ✨)")
+        features.append("  [cyan]/stats[/] - View token usage & costs (v3.0 ✨)")
+        features.append("  [cyan]/model[/] - Switch LLM model")
         features.append("  [cyan]/clear[/] - Clear conversation history")
         features.append("  [cyan]/save[/] - Save current session for later")
         features.append("  [cyan]/load[/] - Load a saved session")
-        features.append("  [cyan]/model[/] - Switch LLM model")
         if self.custom_agents:
             features.append(
                 f"  [cyan]/agent[/] - Use custom agents "
                 f"({len(self.custom_agents)} available 🎯)"
             )
+        features.append("  [cyan]/reload[/] - Reload custom agents (v3.0)")
         features.append("  [cyan]/exit[/] - Exit chat")
         features.append("")
         features.append(
@@ -1287,6 +1297,28 @@ your request.
 - **Audio** - Transcription to text
 - **Video** - Visual analysis + audio transcription
 
+## 🎯 Personal Tools (v3.0 - NEW!)
+
+Ready-to-use daily tools for personal assistant use:
+
+- **daily_news** - "Get me today's tech news"
+  - Latest news on any topic (technology, sports, business, etc.)
+  - Formatted with sources and links
+
+- **weather_forecast** - "What's the weather in Tokyo?"
+  - Current conditions + today/tomorrow forecast
+  - Helpful tips (umbrella, clothing recommendations)
+
+- **search_recipes** - "Find recipes with chicken and rice"
+  - Recipe search by ingredients and cuisine
+  - Cooking time, difficulty, links to full recipes
+
+- **find_events** - "Events in Kumamoto this weekend"
+  - Local event search by location and date
+  - Categories: music, sports, arts, food, festivals
+
+Just ask naturally - these are auto-detected!
+
 ## ⌨️ Keyboard Shortcuts
 - **Enter** - New line (or send message on empty line)
 - **Enter twice** - Send message
@@ -1316,6 +1348,30 @@ your request.
 - `/agent <name> <input>` - Execute a custom agent
   - Example: `/agent data_analyzer sales.csv`
   - Custom agents are loaded from ~/.kagura/agents/ directory
+
+### Agent Creation (v3.0 ✨)
+- `/create agent <description>` - Generate custom agent from natural language
+  - Example: `/create agent that summarizes morning tech news`
+  - AI generates Python code automatically
+  - Preview code before saving
+  - Auto-saved to ~/.kagura/agents/
+  - Uses latest model (gpt-5-mini by default)
+
+- `/reload` - Reload custom agents from ~/.kagura/agents/
+  - Useful after manual agent file edits
+  - Re-registers all agents with router
+
+### Statistics & Cost Tracking (v3.0 ✨)
+- `/stats` - Show session statistics
+  - Total LLM calls, tokens used
+  - Total cost in USD
+  - Model breakdown
+  - Session duration
+
+- `/stats export <file>` - Export stats to file
+  - JSON: Full details with timestamps (`/stats export stats.json`)
+  - CSV: Spreadsheet-ready format (`/stats export stats.csv`)
+  - Great for cost analysis and optimization
 
 ### Model Management
 - `/model` - Show current model and available options

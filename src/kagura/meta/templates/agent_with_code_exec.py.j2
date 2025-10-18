@@ -19,7 +19,7 @@ from kagura.web import web_search
 {% endif %}
 
 @agent(
-    model="{{ spec.model | default('gpt-4o-mini') }}",
+    model="{{ spec.model | default('gpt-5-mini') }}",
     tools=[execute_code{% for tool in tools if tool != 'execute_code' %}, {{ tool }}{% endfor %}],
     {% if spec.has_memory %}enable_memory=True,{% endif %}
 )
