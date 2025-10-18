@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from kagura.agents import ChatbotPreset, CodeReviewPreset, ResearchPreset
+from kagura.agents import ChatbotPreset
 
 
 def test_chatbot_preset_initialization():
@@ -55,82 +55,10 @@ def test_chatbot_preset_customization():
     assert config.memory.type == "context"
 
 
-def test_research_preset_initialization():
-    """Test ResearchPreset initialization."""
-    researcher = ResearchPreset("test_researcher")
-
-    assert researcher.name == "test_researcher"
-    assert researcher._config.name == "test_researcher"
-
-
-def test_research_preset_configuration():
-    """Test ResearchPreset default configuration."""
-    researcher = ResearchPreset("test_researcher").with_model("gpt-4o")
-    agent = researcher.build()
-
-    config = agent._builder_config
-    assert config.name == "test_researcher"
-    assert config.model == "gpt-4o"
-
-    # Verify RAG memory configuration
-    assert config.memory is not None
-    assert config.memory.type == "rag"
-    assert config.memory.enable_rag is True
-    assert config.memory.max_messages == 200
-
-    # Verify context configuration
-    assert config.context["temperature"] == 0.3
-    assert config.context["max_tokens"] == 2000
-
-
-def test_research_preset_with_persist_dir():
-    """Test ResearchPreset with persist directory."""
-    persist_dir = Path("/tmp/kagura_research")
-    researcher = (
-        ResearchPreset("test_researcher", persist_dir=persist_dir)
-        .with_model("gpt-5-mini")
-    )
-
-    agent = researcher.build()
-    config = agent._builder_config
-
-    assert config.memory is not None
-    assert config.memory.persist_dir == persist_dir
-
-
-def test_code_review_preset_initialization():
-    """Test CodeReviewPreset initialization."""
-    reviewer = CodeReviewPreset("test_reviewer")
-
-    assert reviewer.name == "test_reviewer"
-    assert reviewer._config.name == "test_reviewer"
-
-
-def test_code_review_preset_configuration():
-    """Test CodeReviewPreset default configuration."""
-    reviewer = CodeReviewPreset("test_reviewer").with_model("gpt-4o")
-    agent = reviewer.build()
-
-    config = agent._builder_config
-    assert config.name == "test_reviewer"
-    assert config.model == "gpt-4o"
-
-    # Verify working memory configuration
-    assert config.memory is not None
-    assert config.memory.type == "working"
-    assert config.memory.max_messages == 50
-
-    # Verify context configuration (very low temperature for code)
-    assert config.context["temperature"] == 0.1
-    assert config.context["max_tokens"] == 1500
-
-
 def test_all_presets_are_buildable():
     """Test that all presets can be built successfully."""
     presets = [
         ChatbotPreset("chatbot"),
-        ResearchPreset("researcher"),
-        CodeReviewPreset("reviewer"),
     ]
 
     for preset in presets:

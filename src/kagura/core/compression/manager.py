@@ -1,28 +1,39 @@
-"""Context compression manager - unified interface"""
+"""Context compression manager - simplified for personal use
+
+Note: In v3.0, this module provides basic compression framework.
+      Advanced features (trimming strategies, summarization) removed
+      as personal assistant conversations are typically short.
+
+      If needed in future, can be re-implemented or users can
+      implement custom compression logic.
+"""
 
 from typing import Any, Optional
 
-from kagura.core.llm import LLMConfig
-
 from .monitor import ContextMonitor, ContextUsage
 from .policy import CompressionPolicy
-from .summarizer import ContextSummarizer
 from .token_counter import TokenCounter
-from .trimmer import MessageTrimmer
 
 
 class ContextManager:
-    """Unified context compression manager
+    """Simplified context compression manager for personal use
 
-    Integrates all compression strategies (trim, summarize, smart, auto).
+    Provides token monitoring and basic compression framework.
+
+    In v3.0, advanced compression (trimming, summarization) removed.
+    Personal assistant conversations are typically short, so
+    basic monitoring is sufficient.
 
     Example:
         >>> from kagura.core.compression import ContextManager, CompressionPolicy
         >>> manager = ContextManager(
-        ...     policy=CompressionPolicy(strategy="smart"),
+        ...     policy=CompressionPolicy(strategy="off"),
         ...     model="gpt-5-mini"
         ... )
-        >>> compressed = await manager.compress(messages)
+        >>> usage = manager.get_usage(messages)
+        >>> if usage.should_compress:
+        ...     # Implement custom compression logic
+        ...     pass
     """
 
     def __init__(
@@ -31,137 +42,48 @@ class ContextManager:
         """Initialize context manager
 
         Args:
-            policy: Compression policy (default: CompressionPolicy())
-            model: LLM model name for token counting and summarization
+            policy: Compression policy (default: strategy="off")
+            model: LLM model name for token counting
         """
-        self.policy = policy or CompressionPolicy()
+        self.policy = policy or CompressionPolicy(strategy="off")
         self.counter = TokenCounter(model=model)
         self.monitor = ContextMonitor(self.counter, max_tokens=self.policy.max_tokens)
-        self.trimmer = MessageTrimmer(self.counter)
-
-        # Initialize summarizer if enabled
-        if self.policy.enable_summarization:
-            self.summarizer: Optional[ContextSummarizer] = ContextSummarizer(
-                self.counter,
-                llm_config=LLMConfig(
-                    model=self.policy.summarization_model, temperature=0.3
-                ),
-            )
-        else:
-            self.summarizer = None
 
     async def compress(
         self, messages: list[dict[str, Any]], system_prompt: str = ""
     ) -> list[dict[str, Any]]:
         """Compress messages if needed
 
+        Note: In v3.0, this is a no-op (returns original messages).
+              Advanced compression removed as personal conversations are short.
+
+              Users can implement custom compression logic if needed:
+              1. Check usage via get_usage()
+              2. Implement custom compression strategy
+              3. Return compressed messages
+
         Args:
             messages: Message history
             system_prompt: System prompt (if any)
 
         Returns:
-            Compressed messages (or original if no compression needed)
+            Original messages (no compression in v3.0)
 
         Example:
             >>> compressed = await manager.compress(messages)
-            >>> assert len(compressed) <= len(messages)
+            >>> # In v3.0, compressed == messages (no-op)
         """
         # Check if compression needed
         usage = self.monitor.check_usage(messages, system_prompt)
 
-        if not usage.should_compress:
-            # No compression needed
+        if not usage.should_compress or self.policy.strategy == "off":
+            # No compression needed or disabled
             return messages
 
-        if self.policy.strategy == "off":
-            # Compression disabled
-            return messages
-
-        # Calculate target tokens
-        target_tokens = int(self.policy.max_tokens * self.policy.target_ratio)
-
-        # Apply compression strategy
-        if self.policy.strategy == "trim":
-            return self._compress_trim(messages, target_tokens)
-        elif self.policy.strategy == "summarize":
-            return await self._compress_summarize(messages, target_tokens)
-        elif self.policy.strategy == "smart":
-            return await self._compress_smart(messages, target_tokens)
-        elif self.policy.strategy == "auto":
-            return await self._compress_auto(messages, target_tokens)
-        else:
-            # Default to trim
-            return self._compress_trim(messages, target_tokens)
-
-    def _compress_trim(
-        self, messages: list[dict[str, Any]], target_tokens: int
-    ) -> list[dict[str, Any]]:
-        """Trim-based compression (fast, no LLM)"""
-        return self.trimmer.trim(
-            messages,
-            target_tokens,
-            strategy="smart",
-            preserve_system=self.policy.preserve_system,
-        )
-
-    async def _compress_summarize(
-        self, messages: list[dict[str, Any]], target_tokens: int
-    ) -> list[dict[str, Any]]:
-        """Summarization-based compression"""
-        if not self.summarizer:
-            # Fallback to trim
-            return self._compress_trim(messages, target_tokens)
-
-        # Preserve recent messages
-        recent = messages[-self.policy.preserve_recent :] if messages else []
-        to_summarize = (
-            messages[: -self.policy.preserve_recent]
-            if len(messages) > self.policy.preserve_recent
-            else []
-        )
-
-        if not to_summarize:
-            return messages
-
-        # Calculate token budget
-        recent_tokens = self.counter.count_tokens_messages(recent)
-        summary_budget = target_tokens - recent_tokens
-
-        if summary_budget < 100:
-            # Not enough space, just trim
-            return self._compress_trim(messages, target_tokens)
-
-        # Summarize old messages
-        summary = await self.summarizer.summarize_recursive(
-            to_summarize, summary_budget
-        )
-
-        # Reconstruct
-        summary_msg = {
-            "role": "system",
-            "content": f"[Previous conversation summary] {summary}",
-        }
-
-        return [summary_msg] + recent
-
-    async def _compress_smart(
-        self, messages: list[dict[str, Any]], target_tokens: int
-    ) -> list[dict[str, Any]]:
-        """Smart compression: preserve events + summarize"""
-        if not self.summarizer:
-            return self._compress_trim(messages, target_tokens)
-
-        return await self.summarizer.compress_preserve_events(messages, target_tokens)
-
-    async def _compress_auto(
-        self, messages: list[dict[str, Any]], target_tokens: int
-    ) -> list[dict[str, Any]]:
-        """Automatically choose best strategy"""
-        # Heuristic: if many messages, use smart; if few, use trim
-        if len(messages) > 20:
-            return await self._compress_smart(messages, target_tokens)
-        else:
-            return self._compress_trim(messages, target_tokens)
+        # In v3.0: No advanced compression strategies
+        # Return original messages
+        # Users can implement custom logic by subclassing ContextManager
+        return messages
 
     def get_usage(
         self, messages: list[dict[str, Any]], system_prompt: str = ""
