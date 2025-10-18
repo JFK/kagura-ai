@@ -10,7 +10,7 @@ from kagura.core.memory import MemoryManager
 
 
 @agent(
-    model="gpt-4o-mini",
+    model="{{ spec.model | default('gpt-5-mini') }}",
     temperature=0.7,
     enable_memory=True,
     max_messages=100,
