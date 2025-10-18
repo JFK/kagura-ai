@@ -13,6 +13,11 @@ from .lazy import LazyGroup
 @click.group(
     cls=LazyGroup,
     lazy_subcommands={
+        "init": (
+            "kagura.cli.init",
+            "init",
+            "Setup user preferences (name, location, topics)",
+        ),
         "chat": (
             "kagura.cli.chat",
             "chat",

@@ -1363,10 +1363,31 @@ class ChatSession:
 
     def show_welcome(self) -> None:
         """Display welcome message."""
+        # Check if user config exists
+        try:
+            from kagura.config import get_user_config
+
+            user_config = get_user_config()
+            has_config = bool(user_config.name or user_config.location)
+        except Exception:
+            has_config = False
+
         features = []
         features.append(
             "[bold magenta]🚀 Claude Code-like Experience - All Features Enabled[/]"
         )
+
+        # Show init reminder if no config
+        if not has_config:
+            features.append("")
+            features.append(
+                "[yellow]💡 First time? Run [cyan]kagura init[/cyan] "
+                "to personalize Personal Tools![/]"
+            )
+            features.append(
+                "[dim]   (Set your name, location, preferences for better responses)[/]"
+            )
+
         features.append("")
         features.append("[bold cyan]🎯 Personal Tools (v3.0 - NEW!):[/]")
         features.append("  [green]📰 daily_news[/] - Morning news briefing")

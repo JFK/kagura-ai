@@ -8,11 +8,16 @@ from kagura.tools.brave_search import brave_web_search
 async def search_recipes(query: str) -> str:
     """Find recipes based on user query: {{ query }}
 
+    User preferences (from kagura init):
+    - Preferred cuisines: {{ user_cuisine_prefs }}
+    - Language: {{ user_language }}
+
     Extract ingredients and cuisine from the query.
 
     Instructions:
     1. Parse query to extract ingredients and cuisine
        - "chicken recipes" → chicken (any cuisine)
+    2. If no cuisine specified, prefer user's cuisines: {{ user_cuisine_prefs }}
        - "Italian pasta" → pasta (Italian cuisine)
        - "鶏肉のレシピ" → chicken
     2. Search for "[ingredients] recipe [cuisine]" or "how to cook [ingredients]"
