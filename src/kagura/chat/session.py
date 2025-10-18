@@ -1125,31 +1125,37 @@ class ChatSession:
 
                 if matches:
                     agent_func, confidence = matches[0]
-                    agent_name = agent_func.__name__
 
-                    # Show which agent was selected (with confidence)
-                    self.console.print(
-                        f"[dim]🎯 Using {agent_name} agent "
-                        f"(confidence: {confidence:.2f})[/]\n"
-                    )
+                    # Check confidence threshold
+                    if confidence >= self.router.confidence_threshold:
+                        agent_name = agent_func.__name__
 
-                    # Execute the matched agent
-                    result = await agent_func(user_input)
+                        # Show which agent was selected (with confidence)
+                        self.console.print(
+                            f"[dim]🎯 Using {agent_name} agent "
+                            f"(confidence: {confidence:.2f})[/]\n"
+                        )
 
-                    # Display result
-                    self.console.print("[bold green][AI][/]")
-                    self.console.print(Panel(str(result), border_style="green"))
+                        # Execute the matched agent
+                        result = await agent_func(user_input)
 
-                # Add to memory
-                self.memory.add_message("user", user_input)
-                self.memory.add_message("assistant", str(result))
-                return
+                        # Display result
+                        self.console.print("[bold green][AI][/]")
+                        self.console.print(Panel(str(result), border_style="green"))
+
+                        # Add to memory
+                        self.memory.add_message("user", user_input)
+                        self.memory.add_message("assistant", str(result))
+                        return
 
             except NoAgentFoundError:
                 # No matching agent, fall through to default chat
-                self.console.print(
-                    "[dim]No matching custom agent, using default chat[/]"
-                )
+                pass
+            except Exception as e:
+                # Other errors in routing
+                self.console.print(f"[dim]Routing error: {e}[/]")
+
+        # No agent match or routing failed - use default chat
 
         # Add user message to memory
         self.memory.add_message("user", user_input)
