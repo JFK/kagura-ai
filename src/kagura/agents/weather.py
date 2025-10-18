@@ -25,7 +25,7 @@ async def weather_forecast(query: str) -> str:
 
     Example output format:
     ```
-    # Weather for {{ location|title }}
+    # Weather Forecast
 
     **Current Conditions** (as of [time]):
     - Temperature: 24°C

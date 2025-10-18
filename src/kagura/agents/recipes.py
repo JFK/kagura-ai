@@ -28,7 +28,7 @@ async def search_recipes(query: str) -> str:
 
     Example output format:
     ```
-    # Recipes with {{ ingredients|title }} ({{ cuisine|title }})
+    # Recipe Suggestions
 
     1. **Chicken Teriyaki Bowl**
        Ingredients: Chicken breast, soy sauce, mirin, rice

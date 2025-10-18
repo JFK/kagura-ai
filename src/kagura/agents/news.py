@@ -24,7 +24,7 @@ async def daily_news(query: str) -> str:
 
     Example output format:
     ```
-    # Today's {{ topic|title }} News
+    # Today's Tech News
 
     1. **Article Title Here**
        Source: TechCrunch

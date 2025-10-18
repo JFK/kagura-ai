@@ -38,7 +38,7 @@ async def find_events(query: str) -> str:
 
     Example output format:
     ```
-    # Events in {{ location|title }} ({{ date|title }})
+    # Event Listings
 
     1. **Tech Conference 2025**
        📅 October 20, 2025 | 10:00 AM - 6:00 PM
