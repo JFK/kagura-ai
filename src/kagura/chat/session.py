@@ -880,6 +880,11 @@ class ChatSession:
             multiline=True,
         )
 
+        # Session statistics tracking (v3.0)
+        from .stats import SessionStats
+
+        self.stats = SessionStats()
+
         # Load custom agents from ./agents directory (optional)
         self.custom_agents: dict[str, Any] = {}
         self.router = AgentRouter()
@@ -1094,6 +1099,24 @@ class ChatSession:
         # Use dynamically configured agent
         response = await current_chat_agent(full_prompt, memory=self.memory)
 
+        # Track stats if response has usage metadata (LLMResponse)
+        # Note: response can be LLMResponse or str depending on implementation
+        if hasattr(response, "usage") and hasattr(response, "duration"):
+            from kagura.observability.pricing import calculate_cost
+
+            # Type check: ensure these are the expected types
+            usage_dict = getattr(response, "usage", {})
+            duration_val = getattr(response, "duration", 0.0)
+
+            if usage_dict and isinstance(usage_dict, dict):
+                cost = calculate_cost(usage_dict, self.model)
+                self.stats.track_call(
+                    model=self.model,
+                    usage=usage_dict,
+                    duration=float(duration_val),
+                    cost=cost,
+                )
+
         # Extract content from response
         response_content = extract_response_content(response)
 
@@ -1132,6 +1155,8 @@ class ChatSession:
             await self.handle_create_command(args)
         elif command == "/reload":
             await self.handle_reload_command()
+        elif command == "/stats":
+            await self.handle_stats_command(args)
         elif command == "/exit" or command == "/quit":
             return False
         elif command == "/agent" or command == "/agents":
@@ -1143,6 +1168,7 @@ class ChatSession:
                 "  [cyan]/help[/] - Show detailed help\n"
                 "  [cyan]/create[/] - Create custom agent (v3.0)\n"
                 "  [cyan]/reload[/] - Reload custom agents (v3.0)\n"
+                "  [cyan]/stats[/] - Show token/cost stats (v3.0)\n"
                 "  [cyan]/clear[/] - Clear conversation history\n"
                 "  [cyan]/save[/] - Save current session\n"
                 "  [cyan]/load[/] - Load saved session\n"
@@ -1653,3 +1679,85 @@ Use `kagura monitor --agent chat_session` to view:
             self.console.print(f"[green]✓ Reloaded {count} agent(s)[/]")
         else:
             self.console.print("[yellow]No custom agents found in ~/.kagura/agents/[/]")
+
+    async def handle_stats_command(self, args: str) -> None:
+        """Handle /stats command (v3.0 feature)
+
+        Display session statistics (token usage, costs).
+
+        Args:
+            args: Optional subcommand:
+                - empty: Display stats table
+                - "export <file>": Export to JSON or CSV
+        """
+        if not args.strip():
+            # Display stats table
+            from rich.table import Table
+
+            summary = self.stats.get_summary()
+
+            if summary["total_calls"] == 0:
+                self.console.print("[yellow]No LLM calls yet in this session.[/]")
+                return
+
+            # Create table
+            table = Table(title="Session Statistics", show_header=True)
+            table.add_column("Metric", style="cyan")
+            table.add_column("Value", style="green")
+
+            # Total stats
+            table.add_row("Total Calls", str(summary["total_calls"]))
+            table.add_row("Total Tokens", f"{summary['total_tokens']:,}")
+            table.add_row("Total Cost", f"${summary['total_cost']:.4f}")
+            duration_min = int(summary["duration"] // 60)
+            duration_sec = int(summary["duration"] % 60)
+            table.add_row("Session Duration", f"{duration_min}m {duration_sec}s")
+
+            self.console.print("\n")
+            self.console.print(table)
+
+            # Model breakdown
+            if summary["models"]:
+                self.console.print("\n[bold cyan]Breakdown by Model:[/]")
+                for model, stats in summary["models"].items():
+                    self.console.print(
+                        f"  • [cyan]{model}[/]: "
+                        f"{stats['calls']} calls, "
+                        f"{stats['tokens']:,} tokens, "
+                        f"${stats['cost']:.4f}"
+                    )
+
+            self.console.print(
+                "\n[dim]Tip: Use '/stats export <file>' to export to JSON or CSV[/]\n"
+            )
+
+        elif args.startswith("export "):
+            # Export stats
+            file_path = args[7:].strip()
+
+            if not file_path:
+                self.console.print(
+                    "[yellow]Usage: /stats export <file>[/]\n"
+                    "[dim]Example: /stats export stats.json or stats.csv[/]"
+                )
+                return
+
+            try:
+                if file_path.endswith(".json"):
+                    self.stats.export_json(file_path)
+                    self.console.print(f"[green]✓ Exported to {file_path}[/]")
+                elif file_path.endswith(".csv"):
+                    self.stats.export_csv(file_path)
+                    self.console.print(f"[green]✓ Exported to {file_path}[/]")
+                else:
+                    self.console.print(
+                        "[yellow]Please specify .json or .csv file extension[/]"
+                    )
+            except Exception as e:
+                self.console.print(f"[red]Error exporting stats: {e}[/]")
+
+        else:
+            self.console.print(
+                "[yellow]Unknown subcommand.[/]\n"
+                "[dim]Usage: /stats or /stats export <file>[/]"
+            )
