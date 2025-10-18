@@ -101,6 +101,7 @@ def agent(
     enable_compression: bool = True,
     compression_policy: Optional[CompressionPolicy] = None,
     enable_telemetry: bool = True,
+    stream: bool = False,
     **kwargs: Any,
 ) -> Callable[P, Awaitable[T]]: ...
 
@@ -122,6 +123,7 @@ def agent(
     enable_compression: bool = True,
     compression_policy: Optional[CompressionPolicy] = None,
     enable_telemetry: bool = True,
+    stream: bool = False,
     **kwargs: Any,
 ) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[T]]]: ...
 
@@ -142,6 +144,7 @@ def agent(
     enable_compression: bool = True,
     compression_policy: Optional[CompressionPolicy] = None,
     enable_telemetry: bool = True,
+    stream: bool = False,
     **kwargs: Any,
 ) -> (
     Callable[P, Awaitable[T]]
@@ -166,10 +169,11 @@ def agent(
         enable_compression: Enable automatic context compression (default: True)
         compression_policy: Compression configuration (default: CompressionPolicy())
         enable_telemetry: Enable automatic telemetry recording (default: True)
+        stream: Enable streaming response (adds .stream() method, default: False)
         **kwargs: Additional LLM parameters
 
     Returns:
-        Decorated async function
+        Decorated async function with optional .stream() method
 
     Example:
         @agent
@@ -211,6 +215,16 @@ def agent(
             '''Answer {{ query }} using documentation.
             Use rag.query() to search relevant content.'''
             pass
+
+        # With streaming (real-time response display)
+        @agent(stream=True)
+        async def streamer(query: str) -> str:
+            '''Answer {{ query }}'''
+            pass
+
+        # Use .stream() for real-time display
+        async for chunk in streamer.stream("Hello"):
+            print(chunk, end="", flush=True)
     """
 
     def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
@@ -361,6 +375,98 @@ def agent(
                     kwargs,
                 )
                 return result  # type: ignore
+
+        # Add .stream() method if streaming is enabled
+        if stream:
+            async def stream_method(*args: P.args, **kwargs_inner: P.kwargs):
+                """Stream response in real-time (async generator)"""
+                # Make kwargs mutable
+                kwargs_inner = dict(kwargs_inner)  # type: ignore
+
+                # Initialize telemetry if enabled
+                telemetry_collector = None
+                if enable_telemetry:
+                    from kagura.observability import get_global_telemetry
+                    telemetry = get_global_telemetry()
+                    telemetry_collector = telemetry.get_collector()
+
+                # Prepare telemetry kwargs
+                telemetry_kwargs = {}
+                if telemetry_collector:
+                    try:
+                        user_params = {
+                            k: v
+                            for k, v in sig.parameters.items()
+                            if k not in ("memory", "rag")
+                        }
+                        user_sig = sig.replace(
+                            parameters=[sig.parameters[k] for k in user_params]
+                        )
+                        filtered_kwargs = {
+                            k: v
+                            for k, v in kwargs_inner.items()
+                            if k not in ("memory", "rag")
+                        }
+                        bound = user_sig.bind(*args, **filtered_kwargs)
+                        telemetry_kwargs = dict(bound.arguments)
+                    except Exception:
+                        telemetry_kwargs = {
+                            k: v
+                            for k, v in kwargs_inner.items()
+                            if k not in ("memory", "rag")
+                        }
+
+                # Track execution with telemetry (streaming)
+                if telemetry_collector:
+                    async with telemetry_collector.track_execution(
+                        func.__name__, **telemetry_kwargs
+                    ):
+                        async for chunk in _stream_agent(
+                            func,
+                            args,
+                            kwargs_inner,
+                            telemetry_collector,
+                            sig,
+                            template_str,
+                            llm_config,
+                            enable_memory,
+                            has_memory_param,
+                            persist_dir,
+                            max_messages,
+                            enable_compression,
+                            compression_policy,
+                            multimodal_rag,
+                            has_rag_param,
+                            llm_tools,
+                            tools_list,
+                            kwargs,
+                        ):
+                            yield chunk
+                else:
+                    # No telemetry
+                    async for chunk in _stream_agent(
+                        func,
+                        args,
+                        kwargs_inner,
+                        None,
+                        sig,
+                        template_str,
+                        llm_config,
+                        enable_memory,
+                        has_memory_param,
+                        persist_dir,
+                        max_messages,
+                        enable_compression,
+                        compression_policy,
+                        multimodal_rag,
+                        has_rag_param,
+                        llm_tools,
+                        tools_list,
+                        kwargs,
+                    ):
+                        yield chunk
+
+            wrapper.stream = stream_method  # type: ignore
 
         # Mark as agent for MCP discovery
         wrapper._is_agent = True  # type: ignore
@@ -537,6 +643,79 @@ async def _execute_agent(
         return parse_response(response_str, return_type)  # type: ignore
 
     return response  # type: ignore
+
+
+async def _stream_agent(
+    func: Callable,
+    args: tuple,
+    kwargs_inner: dict,
+    telemetry_collector,
+    sig: inspect.Signature,
+    template_str: str,
+    llm_config: LLMConfig,
+    enable_memory: bool,
+    has_memory_param: bool,
+    persist_dir: Optional[Path],
+    max_messages: int,
+    enable_compression: bool,
+    compression_policy: Optional[CompressionPolicy],
+    multimodal_rag,
+    has_rag_param: bool,
+    llm_tools,
+    tools_list,
+    kwargs: dict,
+):
+    """Stream agent response in real-time (async generator)
+
+    Yields text chunks as they are generated by the LLM.
+    Note: Streaming does not support Pydantic model responses.
+    """
+    # Create and inject memory if enabled
+    if enable_memory and has_memory_param:
+        memory = MemoryManager(
+            agent_name=func.__name__,
+            persist_dir=persist_dir,
+            max_messages=max_messages,
+            enable_compression=enable_compression,
+            compression_policy=compression_policy,
+            model=llm_config.model,
+        )
+        kwargs_inner["memory"] = memory  # type: ignore
+
+    # Inject MultimodalRAG if enabled
+    if multimodal_rag is not None and has_rag_param:
+        kwargs_inner["rag"] = multimodal_rag  # type: ignore
+
+    # Get function signature and bind arguments
+    bound = sig.bind(*args, **kwargs_inner)
+    bound.apply_defaults()
+
+    # Render prompt with arguments (excluding special params from template)
+    exclude_from_template = {"memory", "rag"}
+    template_args = {
+        k: v for k, v in bound.arguments.items() if k not in exclude_from_template
+    }
+    prompt = render_prompt(template_str, **template_args)
+
+    # Prepare kwargs for LLM call
+    llm_kwargs = dict(kwargs)
+    llm_kwargs["stream"] = True  # Enable streaming
+
+    # Add OpenAI tools schema to kwargs if provided
+    if llm_tools:
+        llm_kwargs["tools"] = llm_tools
+
+    # Import streaming function
+    from .llm import stream_llm
+
+    # Stream LLM response
+    async for chunk in stream_llm(
+        prompt,
+        llm_config,
+        tool_functions=tools_list if tools_list else None,
+        **llm_kwargs,
+    ):
+        yield chunk
 
 
 @overload

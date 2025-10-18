@@ -4,7 +4,7 @@ from kagura import agent
 from kagura.tools.brave_search import brave_web_search
 
 
-@agent(model="gpt-5-mini", tools=[brave_web_search])
+@agent(model="gpt-5-nano", tools=[brave_web_search], stream=True)
 async def weather_forecast(query: str) -> str:
     """Get weather forecast based on user query: {{ query }}
 

@@ -1146,22 +1146,75 @@ class ChatSession:
                             f"[dim]🎯 Using {agent_name} agent "
                             f"(confidence: {confidence:.2f})[/]"
                         )
-                        self.console.print("[dim]  └─ 💬 Processing...[/]\n")
 
-                        # Execute the matched agent
-                        result = await agent_func(user_input)
+                        # Check if agent supports streaming
+                        if hasattr(agent_func, "stream"):
+                            # Hybrid: Tool progress prints + Live markdown streaming
+                            from rich.live import Live
 
-                        # Show completion
-                        self.console.print("[dim]  └─ ✓ Complete[/]")
+                            from kagura.core.llm_openai import set_progress_callback
 
-                        # Display result with Markdown formatting
-                        self.console.print("\n[bold green][AI][/]")
-                        self.display.display_response(str(result))
+                            # Set up progress callback for tool execution
+                            def show_progress(msg: str) -> None:
+                                """Show tool execution progress"""
+                                self.console.print(f"[dim]{msg}[/]")
 
-                        # Add to memory
-                        self.memory.add_message("user", user_input)
-                        self.memory.add_message("assistant", str(result))
-                        return
+                            set_progress_callback(show_progress)
+
+                            # Stream response with Live markdown rendering
+                            accumulated = ""
+                            first_chunk = False
+
+                            async for chunk in agent_func.stream(user_input):
+                                if not first_chunk:
+                                    # Show [AI] when streaming actually starts
+                                    self.console.print("\n[bold green][AI][/]")
+                                    first_chunk = True
+
+                                    # Start Live for markdown rendering
+                                    live = Live(
+                                        Markdown(""),
+                                        console=self.console,
+                                        refresh_per_second=10,
+                                    )
+                                    live.start()
+
+                                accumulated += chunk
+                                if first_chunk:
+                                    live.update(Markdown(accumulated))
+
+                            # Stop Live if started
+                            if first_chunk:
+                                live.stop()
+
+                            # Show completion
+                            self.console.print("\n[dim]  └─ ✓ Complete[/]")
+
+                            # Clear callback
+                            set_progress_callback(None)
+
+                            # Add to memory
+                            self.memory.add_message("user", user_input)
+                            self.memory.add_message("assistant", accumulated)
+                            return
+                        else:
+                            # Non-streaming execution
+                            self.console.print("[dim]  └─ 💬 Processing...[/]\n")
+
+                            # Execute the matched agent
+                            result = await agent_func(user_input)
+
+                            # Show completion
+                            self.console.print("[dim]  └─ ✓ Complete[/]")
+
+                            # Display result with Markdown formatting
+                            self.console.print("\n[bold green][AI][/]")
+                            self.display.display_response(str(result))
+
+                            # Add to memory
+                            self.memory.add_message("user", user_input)
+                            self.memory.add_message("assistant", str(result))
+                            return
 
             except NoAgentFoundError:
                 # No matching agent, fall through to default chat
@@ -1374,168 +1427,106 @@ class ChatSession:
     def show_help(self) -> None:
         """Display help message."""
         help_text = """
-# Kagura Chat - Claude Code-like Experience
+# Kagura Chat - Your AI Assistant
 
-## 💬 Chat Naturally
-Just type your message. The AI will automatically use the right tools based on
-your request.
+## ⚡️ Quick Start
+Just type naturally - AI auto-detects what you need:
+```
+今日のニュースは？        → daily_news (streaming ✨)
+東京の天気              → weather_forecast (streaming ✨)
+Read README.md         → file_read tool
+```
 
-**Example conversations:**
-- "Read src/main.py and explain what it does"
-- "Show me the current directory" → uses shell_exec (ls -la)
-- "Find all Python files" → uses shell_exec (find . -name "*.py")
-- "Analyze this image: diagram.png"
-- "Summarize this PDF: report.pdf"
-- "Extract audio from video.mp4 and transcribe it"
-- "Search the web for Python best practices"
-- "Summarize this YouTube video: https://youtube.com/watch?v=xxx"
-- "Write a test file for this function"
-- "Execute this code: print([x**2 for x in range(10)])"
-- "Translate this to Japanese: Hello World"
-- "Review this code and suggest improvements"
+**No commands needed** - Responses stream in real-time (no long waits!)
 
-## 🛠️ Available Tools (Auto-detected)
-
-### File Operations
-- **file_read** - Read any file type (text, images, PDFs, audio, video)
-- **file_write** - Write/modify files with automatic backups
-- **file_search** - Find files by name pattern
-
-### Code Execution
-- **execute_python** - Execute Python code in a secure sandbox
-
-### Shell Commands
-- **shell_exec** - Execute shell commands with user confirmation
-  - Interactive mode for commands that ask for input
-  - Security controls (blocks dangerous commands)
-  - Examples: ls, git status, find, grep
-
-### Web & Content
-- **brave_search** - Search the web (Brave Search)
-- **url_fetch** - Fetch and extract text from webpages
-
-### YouTube
-- **youtube_transcript** - Get video transcripts
-- **youtube_metadata** - Get video information (title, views, etc.)
-
-### Multimodal Analysis (Gemini)
-- **Images** - Vision analysis and description
-- **PDFs** - Document analysis and summarization
-- **Audio** - Transcription to text
-- **Video** - Visual analysis + audio transcription
+---
 
 ## 🎯 Personal Tools (v3.0 - NEW!)
 
-Ready-to-use daily tools for personal assistant use:
+Daily assistance with real-time streaming:
 
-- **daily_news** - "Get me today's tech news"
-  - Latest news on any topic (technology, sports, business, etc.)
-  - Formatted with sources and links
+- 📰 **"Get tech news"** → `daily_news`
+  - Latest headlines from any topic
+  - Streams results as they're generated ✨
 
-- **weather_forecast** - "What's the weather in Tokyo?"
-  - Current conditions + today/tomorrow forecast
-  - Helpful tips (umbrella, clothing recommendations)
+- 🌤️ **"Weather in Tokyo"** → `weather_forecast`
+  - Current + forecast (today/tomorrow)
+  - Tips (umbrella, clothing) ✨
 
-- **search_recipes** - "Find recipes with chicken and rice"
-  - Recipe search by ingredients and cuisine
-  - Cooking time, difficulty, links to full recipes
+- 🍳 **"Find chicken recipes"** → `search_recipes`
+  - Recipe search by ingredients/cuisine
+  - Cooking time, difficulty, links ✨
 
-- **find_events** - "Events in Kumamoto this weekend"
-  - Local event search by location and date
-  - Categories: music, sports, arts, food, festivals
+- 🎉 **"Events this weekend"** → `find_events`
+  - Local event search
+  - Music, sports, arts, food, festivals ✨
 
-Just ask naturally - these are auto-detected!
+---
 
-## ⌨️ Keyboard Shortcuts
-- **Enter** - New line (or send message on empty line)
-- **Enter twice** - Send message
-- **Tab** - Autocomplete commands
-- **Ctrl+P** - Previous command (history backward)
-- **Ctrl+N** - Next command (history forward)
-- **Ctrl+R** - Search command history
+## 🛠️ Built-in Tools (Auto-detected)
 
-## 📝 Commands
+**Files & Code**:
+- Read files: `"Read src/main.py"` (text, images, PDFs, audio, video)
+- Write files: `"Create a test file"` (auto-backup)
+- Execute code: `"Run: print('Hello')"` (secure sandbox)
+- Shell commands: `"Show directory"` → `ls -la` (auto-confirm)
 
-### Session Management
-- `/save [name]` - Save current conversation session
-  - Example: `/save project-discussion`
-  - Sessions are saved to: ~/.kagura/sessions/
-  - Saved sessions can be loaded later with `/load`
+**Web & Content**:
+- Search: `"Search for Python best practices"` (Brave Search)
+- Fetch URLs: `"Summarize https://..."` (webpage text)
+- YouTube: `"Summarize https://youtube.com/watch?v=xxx"` (transcript + metadata)
 
-- `/load <name>` - Load a previously saved session
-  - Example: `/load project-discussion`
-  - Restores full conversation history
+**Multimodal (Gemini)**:
+- Images: `"Analyze diagram.png"` (vision analysis)
+- PDFs: `"Summarize report.pdf"` (document analysis)
+- Audio: `"Transcribe meeting.mp3"` (speech-to-text)
 
-- `/clear` - Clear conversation history
-  - Removes all messages from current session
-  - Useful for starting fresh while keeping the chat open
+---
 
-### Custom Agents
-- `/agent` or `/agents` - List available custom agents
-- `/agent <name> <input>` - Execute a custom agent
-  - Example: `/agent data_analyzer sales.csv`
-  - Custom agents are loaded from ~/.kagura/agents/ directory
+## ⌨️ Commands & Shortcuts
 
-### Agent Creation (v3.0 ✨)
-- `/create agent <description>` - Generate custom agent from natural language
-  - Example: `/create agent that summarizes morning tech news`
-  - AI generates Python code automatically
-  - Preview code before saving
-  - Auto-saved to ~/.kagura/agents/
-  - Uses latest model (gpt-5-mini by default)
+**Session**:
+- `/save [name]` - Save conversation
+- `/load <name>` - Load saved session
+- `/clear` - Clear history
 
-- `/reload` - Reload custom agents from ~/.kagura/agents/
-  - Useful after manual agent file edits
-  - Re-registers all agents with router
+**Agent Management** (v3.0 ✨):
+- `/create agent <desc>` - Generate custom agent from natural language
+- `/reload` - Reload agents from ~/.kagura/agents/
+- `/agent` - List/execute custom agents
 
-### Statistics & Cost Tracking (v3.0 ✨)
-- `/stats` - Show session statistics
-  - Total LLM calls, tokens used
-  - Total cost in USD
-  - Model breakdown
-  - Session duration
+**Monitoring** (v3.0 ✨):
+- `/stats` - Token usage & costs
+- `/stats export <file>` - Export to JSON/CSV
+- `/list` - List all agents & tools
 
-- `/stats export <file>` - Export stats to file
-  - JSON: Full details with timestamps (`/stats export stats.json`)
-  - CSV: Spreadsheet-ready format (`/stats export stats.csv`)
-  - Great for cost analysis and optimization
+**Other**:
+- `/model [name]` - Switch LLM model
+- `/help` - This help
+- `/exit` - Quit
 
-### Model Management
-- `/model` - Show current model and available options
-- `/model <name>` - Switch to different model
-  - Example: `/model gpt-5`
-  - Models: gpt-5, gpt-5-mini, gpt-5-nano, claude-3.5-sonnet, etc.
-  - Conversation history is preserved when switching
+**Shortcuts**:
+- `Enter×2` - Send message
+- `Ctrl+P/N` - History navigation
+- `Ctrl+R` - Search history
+- `Tab` - Autocomplete
 
-### Other
-- `/help` - Show this help message
-- `/exit` or `/quit` - Exit the chat session
+---
 
-## 💡 Tips
+## 💡 Pro Tips
 
-### No need for special commands!
-You don't need `/translate`, `/summarize`, or `/review` anymore.
-Just ask naturally:
-- ❌ `/translate Hello to ja` → ✅ "Translate 'Hello' to Japanese"
-- ❌ `/summarize long text...` → ✅ "Summarize this text: ..."
-- ❌ `/review def foo()...` → ✅ "Review this code: def foo()..."
+✨ **Real-time streaming** - Responses appear instantly (no 30-60s waits!)
+🎯 **Auto-routing** - Personal tools are detected automatically
+📊 **Cost tracking** - Use `/stats` to monitor token usage
+🔧 **Custom agents** - Use `/create` to build your own agents
+🌐 **Multimodal** - Images, PDFs, audio, video all supported
+💾 **Session save** - `/save` to continue conversations later
 
-### File operations are automatic
-- "Read README.md" → uses file_read tool
-- "Create a test file" → uses file_write tool
-- "Find all Python files" → uses file_search tool
-
-### Multimodal is built-in
-- "Analyze screenshot.png" → uses Gemini Vision
-- "What's in this PDF?" → uses Gemini document analysis
-- "Transcribe meeting.mp3" → uses Gemini audio transcription
-
-## 📊 Monitoring
-Use `kagura monitor --agent chat_session` to view:
-- Conversation history
-- Tools used
-- Token usage
-- Cost breakdown
+**Common patterns**:
+- File ops: Just say "Read X" or "Create Y" - no special syntax
+- Translation: "Translate 'Hello' to Japanese" (not `/translate`)
+- Code review: "Review this code: ..." (not `/review`)
+- News/weather: Just ask - they're auto-detected with streaming ✨
 """
         self.console.print(Markdown(help_text))
 

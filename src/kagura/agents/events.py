@@ -4,7 +4,7 @@ from kagura import agent
 from kagura.tools.brave_search import brave_web_search
 
 
-@agent(model="gpt-5-mini", tools=[brave_web_search])
+@agent(model="gpt-5-nano", tools=[brave_web_search], stream=True)
 async def find_events(query: str) -> str:
     """Find events based on user query: {{ query }}
 
