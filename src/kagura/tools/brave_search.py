@@ -64,6 +64,13 @@ async def brave_web_search(query: str, count: int = 5) -> str:
         - ENABLE_SEARCH_CACHE: Enable/disable caching (default: true)
         - SEARCH_CACHE_TTL: Cache TTL in seconds (default: 3600)
     """
+    # Ensure count is int (LLM might pass as string)
+    if isinstance(count, str):
+        try:
+            count = int(count)
+        except ValueError:
+            count = 5  # Default fallback
+
     # Check cache first (if enabled)
     cache = _get_cache()
     if cache:

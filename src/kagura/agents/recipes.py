@@ -5,16 +5,18 @@ from kagura.tools.brave_search import brave_web_search
 
 
 @agent(model="gpt-5-mini", tools=[brave_web_search])
-async def search_recipes(ingredients: str, cuisine: str = "any") -> str:
-    """Find recipes with {{ ingredients }} ({{ cuisine }} cuisine)
+async def search_recipes(query: str) -> str:
+    """Find recipes based on user query: {{ query }}
 
-    Search for recipes and format as helpful cooking suggestions.
+    Extract ingredients and cuisine from the query.
 
     Instructions:
-    1. Search for "{{ ingredients }} recipe {{ cuisine }}" or
-       "how to cook {{ ingredients }}"
-    2. Find recipes that use the specified ingredients
-    3. Filter by cuisine type if specified (Japanese, Italian, Chinese, etc.)
+    1. Parse query to extract ingredients and cuisine
+       - "chicken recipes" → chicken (any cuisine)
+       - "Italian pasta" → pasta (Italian cuisine)
+       - "鶏肉のレシピ" → chicken
+    2. Search for "[ingredients] recipe [cuisine]" or "how to cook [ingredients]"
+    3. Filter by cuisine type if mentioned (Japanese, Italian, Chinese, etc.)
     4. Format each recipe with:
        - **Recipe Title** in bold
        - Main ingredients list (brief)
@@ -26,7 +28,7 @@ async def search_recipes(ingredients: str, cuisine: str = "any") -> str:
 
     Example output format:
     ```
-    # Recipes with {{ ingredients|title }} ({{ cuisine|title }})
+    # Recipe Suggestions
 
     1. **Chicken Teriyaki Bowl**
        Ingredients: Chicken breast, soy sauce, mirin, rice

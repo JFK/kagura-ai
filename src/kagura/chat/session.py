@@ -423,7 +423,7 @@ async def _brave_search_tool(query: str, count: int = 5) -> str:
     from kagura.tools.brave_search import brave_web_search
 
     console = Console()
-    console.print(f"[dim]🔍 Brave Search: {query}...[/]")
+    console.print(f"[dim]  └─ 🔍 Brave Search: {query}...[/]")
 
     # Call search (now returns formatted text)
     result = await brave_web_search(query, count=count)
@@ -466,7 +466,7 @@ async def _brave_search_tool(query: str, count: int = 5) -> str:
     if result_count > 0:
         result = f"[Found {result_count} results]\n\n{result}"
 
-    console.print("[dim]✓ Search completed[/]")
+    console.print("[dim]  └─ ✓ Search completed[/]")
     return result
 
 
@@ -887,8 +887,13 @@ class ChatSession:
 
         # Load custom agents from ./agents directory (optional)
         self.custom_agents: dict[str, Any] = {}
-        self.router = AgentRouter()
+
+        # Initialize router with intent-based matching (v3.0)
+        # Intent-based is more reliable and doesn't require extra API calls
+        self.router = AgentRouter(strategy="intent", confidence_threshold=0.3)
+
         self._load_custom_agents()
+        self._register_personal_tools()
 
     def _create_keybindings(self) -> KeyBindings:
         """
@@ -992,6 +997,103 @@ class ChatSession:
                 f"[green]Loaded {loaded_count} custom agent(s){routing_msg}[/green]\n"
             )
 
+    def _register_personal_tools(self) -> None:
+        """Register personal tools with semantic routing (v3.0)
+
+        Registers daily_news, weather_forecast, search_recipes, find_events
+        with sample utterances for natural language detection.
+        """
+        try:
+            from kagura.agents import (
+                daily_news,
+                find_events,
+                search_recipes,
+                weather_forecast,
+            )
+
+            # Register daily_news with intents and samples
+            self.router.register(
+                daily_news,
+                intents=[
+                    "news",
+                    "headlines",
+                    "latest news",
+                    "ニュース",
+                    "今日のニュース",
+                ],
+                samples=[
+                    "Get me today's news",
+                    "What's happening in the news?",
+                    "Show me latest headlines",
+                    "News about technology",
+                    "今日のニュースを教えて",
+                    "最新ニュースは？",
+                    "ニュースを見せて",
+                ],
+            )
+
+            # Register weather_forecast
+            self.router.register(
+                weather_forecast,
+                intents=["weather", "forecast", "rain", "天気", "気温", "気象"],
+                samples=[
+                    "What's the weather?",
+                    "Weather forecast for Tokyo",
+                    "Is it going to rain?",
+                    "How's the weather today?",
+                    "今日の天気は？",
+                    "東京の天気",
+                    "雨降る？",
+                ],
+            )
+
+            # Register search_recipes
+            self.router.register(
+                search_recipes,
+                intents=["recipe", "recipes", "cook", "cooking", "レシピ", "料理"],
+                samples=[
+                    "Find recipes with chicken",
+                    "What can I cook?",
+                    "Dinner ideas",
+                    "How to cook pasta",
+                    "Recipes for tonight",
+                    "鶏肉のレシピ",
+                    "今日の夕飯",
+                    "パスタの作り方",
+                ],
+            )
+
+            # Register find_events
+            self.router.register(
+                find_events,
+                intents=[
+                    "event",
+                    "events",
+                    "happening",
+                    "concerts",
+                    "イベント",
+                    "催し",
+                ],
+                samples=[
+                    "What's happening this weekend?",
+                    "Find events in Tokyo",
+                    "Any concerts?",
+                    "Things to do nearby",
+                    "今週末のイベント",
+                    "熊本で何かある？",
+                    "コンサート情報",
+                ],
+            )
+
+            # Show success (only in verbose mode)
+            # self.console.print(
+            #     "[dim]✓ Registered 4 personal tools with semantic routing[/]"
+            # )
+
+        except ImportError:
+            # Personal tools not available (shouldn't happen in v3.0)
+            pass
+
     async def run(self) -> None:
         """Run interactive chat loop."""
         self.show_welcome()
@@ -1026,27 +1128,49 @@ class ChatSession:
         Args:
             user_input: User message
         """
-        # Try routing to custom agent first (if enabled)
-        if self.router and self.custom_agents:
+        # Try routing to custom/personal agent first (if enabled)
+        if self.router:
             try:
-                self.console.print("[dim]🔍 Checking for matching agent...[/]")
-                result = await self.router.route(user_input)
+                # Get matched agents with confidence scores
+                matches = self.router.get_matched_agents(user_input, top_k=1)
 
-                # Found a custom agent match
-                self.console.print("[dim]✓ Using custom agent for this request[/]\n")
-                self.console.print("[bold green][AI][/]")
-                self.console.print(Panel(str(result), border_style="green"))
+                if matches:
+                    agent_func, confidence = matches[0]
 
-                # Add to memory
-                self.memory.add_message("user", user_input)
-                self.memory.add_message("assistant", str(result))
-                return
+                    # Check confidence threshold
+                    if confidence >= self.router.confidence_threshold:
+                        agent_name = agent_func.__name__
+
+                        # Show which agent was selected (with confidence)
+                        self.console.print(
+                            f"[dim]🎯 Using {agent_name} agent "
+                            f"(confidence: {confidence:.2f})[/]"
+                        )
+                        self.console.print("[dim]  └─ 💬 Processing...[/]\n")
+
+                        # Execute the matched agent
+                        result = await agent_func(user_input)
+
+                        # Show completion
+                        self.console.print("[dim]  └─ ✓ Complete[/]")
+
+                        # Display result with Markdown formatting
+                        self.console.print("\n[bold green][AI][/]")
+                        self.display.display_response(str(result))
+
+                        # Add to memory
+                        self.memory.add_message("user", user_input)
+                        self.memory.add_message("assistant", str(result))
+                        return
 
             except NoAgentFoundError:
                 # No matching agent, fall through to default chat
-                self.console.print(
-                    "[dim]No matching custom agent, using default chat[/]"
-                )
+                pass
+            except Exception as e:
+                # Other errors in routing
+                self.console.print(f"[dim]Routing error: {e}[/]")
+
+        # No agent match or routing failed - use default chat
 
         # Add user message to memory
         self.memory.add_message("user", user_input)
@@ -1157,6 +1281,8 @@ class ChatSession:
             await self.handle_reload_command()
         elif command == "/stats":
             await self.handle_stats_command(args)
+        elif command == "/list":
+            await self.handle_list_command(args)
         elif command == "/exit" or command == "/quit":
             return False
         elif command == "/agent" or command == "/agents":
@@ -1169,6 +1295,7 @@ class ChatSession:
                 "  [cyan]/create[/] - Create custom agent (v3.0)\n"
                 "  [cyan]/reload[/] - Reload custom agents (v3.0)\n"
                 "  [cyan]/stats[/] - Show token/cost stats (v3.0)\n"
+                "  [cyan]/list[/] - List agents & tools (v3.0)\n"
                 "  [cyan]/clear[/] - Clear conversation history\n"
                 "  [cyan]/save[/] - Save current session\n"
                 "  [cyan]/load[/] - Load saved session\n"
@@ -1817,3 +1944,56 @@ Use `kagura monitor --agent chat_session` to view:
                 "[yellow]Unknown subcommand.[/]\n"
                 "[dim]Usage: /stats or /stats export <file>[/]"
             )
+
+    async def handle_list_command(self, args: str) -> None:
+        """Handle /list command (v3.0 feature)
+
+        List available agents and tools.
+
+        Args:
+            args: Optional filter ("agents", "tools", or empty for all)
+        """
+        filter_type = args.strip().lower()
+
+        # Personal Tools
+        if not filter_type or filter_type == "agents":
+            self.console.print("\n[bold cyan]📋 Personal Tools (v3.0):[/]")
+            personal_tools = [
+                ("daily_news", "Morning news briefing"),
+                ("weather_forecast", "Weather updates"),
+                ("search_recipes", "Recipe suggestions"),
+                ("find_events", "Event finder"),
+            ]
+            for name, desc in personal_tools:
+                self.console.print(f"  • [cyan]{name}[/] - {desc}")
+
+        # Custom Agents
+        if (not filter_type or filter_type == "agents") and self.custom_agents:
+            self.console.print("\n[bold cyan]🎯 Custom Agents:[/]")
+            for name, agent_func in self.custom_agents.items():
+                doc = agent_func.__doc__ or "No description"
+                first_line = doc.strip().split("\n")[0]
+                self.console.print(f"  • [cyan]{name}[/] - {first_line}")
+
+        # Built-in Tools
+        if not filter_type or filter_type == "tools":
+            self.console.print("\n[bold cyan]🛠️  Built-in Tools:[/]")
+            tools = [
+                ("file_read", "Read files (text, images, PDFs, audio, video)"),
+                ("file_write", "Write/modify files"),
+                ("file_search", "Search files by pattern"),
+                ("execute_python", "Run Python code safely"),
+                ("shell_exec", "Execute shell commands"),
+                ("brave_search", "Web search (cached)"),
+                ("url_fetch", "Fetch webpage content"),
+                ("youtube_transcript", "Get YouTube transcripts"),
+            ]
+            for name, desc in tools:
+                self.console.print(f"  • [green]{name}[/] - {desc}")
+
+        self.console.print(
+            "\n[dim]💡 Just ask naturally - agents/tools are auto-detected![/]"
+        )
+        self.console.print(
+            "[dim]   Examples: 'Get news', 'Weather in Tokyo', 'Find recipes'[/]\n"
+        )

@@ -5,16 +5,18 @@ from kagura.tools.brave_search import brave_web_search
 
 
 @agent(model="gpt-5-mini", tools=[brave_web_search])
-async def find_events(
-    location: str, category: str = "any", date: str = "today"
-) -> str:
-    """Find events in {{ location }} on {{ date }} ({{ category }} category)
+async def find_events(query: str) -> str:
+    """Find events based on user query: {{ query }}
 
-    Search for local events and format as actionable information.
+    Extract location, category, and date from the query.
 
     Instructions:
-    1. Search for "{{ location }} events {{ date }}" or "things to do in {{ location }}"
-    2. Filter by category if specified:
+    1. Parse query to extract location, category, date
+       - "events in Tokyo" → Tokyo (any category, today)
+       - "concerts this weekend" → concerts (any location, weekend)
+       - "熊本のイベント" → Kumamoto
+    2. Search for "[location] events [date]" or "things to do in [location]"
+    3. Filter by category if mentioned:
        - Music/concerts
        - Sports
        - Arts/culture
@@ -36,7 +38,7 @@ async def find_events(
 
     Example output format:
     ```
-    # Events in {{ location|title }} ({{ date|title }})
+    # Event Listings
 
     1. **Tech Conference 2025**
        📅 October 20, 2025 | 10:00 AM - 6:00 PM
