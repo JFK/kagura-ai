@@ -533,6 +533,25 @@ async def _execute_agent(
     template_args = {
         k: v for k, v in bound.arguments.items() if k not in exclude_from_template
     }
+
+    # Inject user config into template (if available)
+    try:
+        from kagura.config import get_user_config
+
+        user_config = get_user_config()
+        template_args["user_name"] = user_config.name or ""
+        template_args["user_location"] = user_config.location or ""
+        template_args["user_language"] = user_config.language or "en"
+        template_args["user_news_topics"] = ", ".join(user_config.news_topics)
+        template_args["user_cuisine_prefs"] = ", ".join(user_config.cuisine_prefs)
+    except Exception:
+        # Config not available, use empty defaults
+        template_args["user_name"] = ""
+        template_args["user_location"] = ""
+        template_args["user_language"] = "en"
+        template_args["user_news_topics"] = ""
+        template_args["user_cuisine_prefs"] = ""
+
     prompt = render_prompt(template_str, **template_args)
 
     # Add JSON format instruction for Pydantic models
@@ -695,6 +714,25 @@ async def _stream_agent(
     template_args = {
         k: v for k, v in bound.arguments.items() if k not in exclude_from_template
     }
+
+    # Inject user config into template (if available)
+    try:
+        from kagura.config import get_user_config
+
+        user_config = get_user_config()
+        template_args["user_name"] = user_config.name or ""
+        template_args["user_location"] = user_config.location or ""
+        template_args["user_language"] = user_config.language or "en"
+        template_args["user_news_topics"] = ", ".join(user_config.news_topics)
+        template_args["user_cuisine_prefs"] = ", ".join(user_config.cuisine_prefs)
+    except Exception:
+        # Config not available, use empty defaults
+        template_args["user_name"] = ""
+        template_args["user_location"] = ""
+        template_args["user_language"] = "en"
+        template_args["user_news_topics"] = ""
+        template_args["user_cuisine_prefs"] = ""
+
     prompt = render_prompt(template_str, **template_args)
 
     # Prepare kwargs for LLM call

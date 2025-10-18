@@ -8,11 +8,17 @@ from kagura.tools.brave_search import brave_web_search
 async def find_events(query: str) -> str:
     """Find events based on user query: {{ query }}
 
+    User preferences (from kagura init):
+    - Default location: {{ user_location }}
+    - Language: {{ user_language }}
+
     Extract location, category, and date from the query.
 
     Instructions:
     1. Parse query to extract location, category, date
        - "events in Tokyo" → Tokyo (any category, today)
+    2. If no location specified in query, use {{ user_location }} as default
+    3. If user_location is empty, search for "events today" (general)
        - "concerts this weekend" → concerts (any location, weekend)
        - "熊本のイベント" → Kumamoto
     2. Search for "[location] events [date]" or "things to do in [location]"
