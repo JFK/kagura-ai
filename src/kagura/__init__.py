@@ -21,14 +21,7 @@ from .version import __version__
 if TYPE_CHECKING:
     from .agents import (
         ChatbotPreset,
-        CodeReviewPreset,
-        ContentWriterPreset,
-        DataAnalystPreset,
-        LearningTutorPreset,
         PersonalAssistantPreset,
-        ProjectManagerPreset,
-        ResearchPreset,
-        TechnicalSupportPreset,
         TranslatorPreset,
     )
     from .builder import AgentBuilder
@@ -208,43 +201,22 @@ def __getattr__(name: str):
         )
         return globals()[name]
 
-    # Presets
+    # Presets (personal-use only)
     if name in (
         "ChatbotPreset",
-        "CodeReviewPreset",
-        "ContentWriterPreset",
-        "DataAnalystPreset",
-        "LearningTutorPreset",
         "PersonalAssistantPreset",
-        "ProjectManagerPreset",
-        "ResearchPreset",
-        "TechnicalSupportPreset",
         "TranslatorPreset",
     ):
         from .agents import (
             ChatbotPreset,
-            CodeReviewPreset,
-            ContentWriterPreset,
-            DataAnalystPreset,
-            LearningTutorPreset,
             PersonalAssistantPreset,
-            ProjectManagerPreset,
-            ResearchPreset,
-            TechnicalSupportPreset,
             TranslatorPreset,
         )
 
         globals().update(
             {
                 "ChatbotPreset": ChatbotPreset,
-                "CodeReviewPreset": CodeReviewPreset,
-                "ContentWriterPreset": ContentWriterPreset,
-                "DataAnalystPreset": DataAnalystPreset,
-                "LearningTutorPreset": LearningTutorPreset,
                 "PersonalAssistantPreset": PersonalAssistantPreset,
-                "ProjectManagerPreset": ProjectManagerPreset,
-                "ResearchPreset": ResearchPreset,
-                "TechnicalSupportPreset": TechnicalSupportPreset,
                 "TranslatorPreset": TranslatorPreset,
             }
         )
@@ -258,17 +230,10 @@ __all__ = [
     "tool",
     "workflow",
     "AgentBuilder",
-    # Presets
+    # Presets (personal-use)
     "ChatbotPreset",
-    "CodeReviewPreset",
-    "ResearchPreset",
-    "TranslatorPreset",
-    "DataAnalystPreset",
     "PersonalAssistantPreset",
-    "ContentWriterPreset",
-    "TechnicalSupportPreset",
-    "LearningTutorPreset",
-    "ProjectManagerPreset",
+    "TranslatorPreset",
     # Configuration
     "CompressionPolicy",
     "ContextManager",
