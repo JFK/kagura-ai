@@ -5,21 +5,22 @@ from kagura.tools.brave_search import brave_web_search
 
 
 @agent(model="gpt-5-mini", tools=[brave_web_search])
-async def daily_news(topic: str = "technology", count: int = 5) -> str:
-    """Get today's latest news on {{ topic }}
+async def daily_news(query: str) -> str:
+    """Get today's latest news based on user query: {{ query }}
 
-    Search for recent news articles and format as a clean, readable summary.
+    Extract topic from the query and search for recent news articles.
 
     Instructions:
-    1. Search for "{{ topic }} news today" or "latest {{ topic }}"
-    2. Focus on articles from the past 24 hours
-    3. Format as markdown list with:
+    1. Parse the query to extract topic (e.g., "tech news" → technology)
+    2. If no specific topic, default to "technology"
+    3. Search for "[topic] news today" or "latest [topic] news"
+    4. Focus on articles from the past 24 hours
+    5. Format as markdown list with:
        - **Title** in bold
        - Source name
        - Brief 1-2 sentence summary
        - Link to full article
-    4. Return {{ count }} most relevant and recent articles
-    5. If topic is not specified, default to "technology"
+    6. Return 5-8 most relevant and recent articles
 
     Example output format:
     ```

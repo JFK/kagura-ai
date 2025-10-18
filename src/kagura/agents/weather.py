@@ -5,14 +5,15 @@ from kagura.tools.brave_search import brave_web_search
 
 
 @agent(model="gpt-5-mini", tools=[brave_web_search])
-async def weather_forecast(location: str = "current") -> str:
-    """Get weather forecast for {{ location }}
+async def weather_forecast(query: str) -> str:
+    """Get weather forecast based on user query: {{ query }}
 
-    Search for current weather and forecast information.
+    Extract location from the query and search for weather information.
 
     Instructions:
-    1. Search for "{{ location }} weather today" or "{{ location }} weather forecast"
-    2. If location is "current", try to detect user's likely location or ask
+    1. Parse query to extract location (e.g., "weather in Tokyo" → Tokyo)
+    2. If no location specified, ask user or use generic search
+    3. Search for "[location] weather today" or "[location] weather forecast"
     3. Include the following information:
        - **Current conditions**: Temperature, weather (sunny/rainy/etc.)
        - **Today's forecast**: High/low temperatures

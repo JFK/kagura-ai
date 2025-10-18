@@ -21,24 +21,15 @@ class TestDailyNews:
         assert daily_news._is_agent is True
 
     @pytest.mark.asyncio
-    async def test_daily_news_default_topic(self):
-        """Test daily_news with default topic"""
-        # This would require mocking brave_web_search
-        # For now, just verify function signature
+    async def test_daily_news_signature(self):
+        """Test daily_news has correct signature"""
         import inspect
 
         sig = inspect.signature(daily_news)
-        assert "topic" in sig.parameters
-        assert sig.parameters["topic"].default == "technology"
-
-    @pytest.mark.asyncio
-    async def test_daily_news_custom_count(self):
-        """Test daily_news accepts count parameter"""
-        import inspect
-
-        sig = inspect.signature(daily_news)
-        assert "count" in sig.parameters
-        assert sig.parameters["count"].default == 5
+        assert "query" in sig.parameters
+        # Single str parameter for router compatibility
+        params = list(sig.parameters.keys())
+        assert params == ["query"]
 
 
 class TestWeatherForecast:
@@ -57,13 +48,14 @@ class TestWeatherForecast:
         assert weather_forecast._is_agent is True
 
     @pytest.mark.asyncio
-    async def test_weather_forecast_default_location(self):
-        """Test weather_forecast with default location"""
+    async def test_weather_forecast_signature(self):
+        """Test weather_forecast has correct signature"""
         import inspect
 
         sig = inspect.signature(weather_forecast)
-        assert "location" in sig.parameters
-        assert sig.parameters["location"].default == "current"
+        assert "query" in sig.parameters
+        params = list(sig.parameters.keys())
+        assert params == ["query"]
 
 
 class TestSearchRecipes:
@@ -82,14 +74,14 @@ class TestSearchRecipes:
         assert search_recipes._is_agent is True
 
     @pytest.mark.asyncio
-    async def test_search_recipes_parameters(self):
-        """Test search_recipes accepts ingredients and cuisine"""
+    async def test_search_recipes_signature(self):
+        """Test search_recipes has correct signature"""
         import inspect
 
         sig = inspect.signature(search_recipes)
-        assert "ingredients" in sig.parameters
-        assert "cuisine" in sig.parameters
-        assert sig.parameters["cuisine"].default == "any"
+        assert "query" in sig.parameters
+        params = list(sig.parameters.keys())
+        assert params == ["query"]
 
 
 class TestFindEvents:
@@ -108,16 +100,14 @@ class TestFindEvents:
         assert find_events._is_agent is True
 
     @pytest.mark.asyncio
-    async def test_find_events_parameters(self):
-        """Test find_events accepts location, category, date"""
+    async def test_find_events_signature(self):
+        """Test find_events has correct signature"""
         import inspect
 
         sig = inspect.signature(find_events)
-        assert "location" in sig.parameters
-        assert "category" in sig.parameters
-        assert "date" in sig.parameters
-        assert sig.parameters["category"].default == "any"
-        assert sig.parameters["date"].default == "today"
+        assert "query" in sig.parameters
+        params = list(sig.parameters.keys())
+        assert params == ["query"]
 
 
 class TestPersonalToolsIntegration:
