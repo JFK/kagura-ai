@@ -1128,6 +1128,10 @@ class ChatSession:
             await self.load_session(args)
         elif command == "/model":
             self.handle_model_command(args)
+        elif command == "/create":
+            await self.handle_create_command(args)
+        elif command == "/reload":
+            await self.handle_reload_command()
         elif command == "/exit" or command == "/quit":
             return False
         elif command == "/agent" or command == "/agents":
@@ -1137,6 +1141,8 @@ class ChatSession:
             self.console.print(
                 "\n[yellow]Available commands:[/]\n"
                 "  [cyan]/help[/] - Show detailed help\n"
+                "  [cyan]/create[/] - Create custom agent (v3.0)\n"
+                "  [cyan]/reload[/] - Reload custom agents (v3.0)\n"
                 "  [cyan]/clear[/] - Clear conversation history\n"
                 "  [cyan]/save[/] - Save current session\n"
                 "  [cyan]/load[/] - Load saved session\n"
@@ -1550,3 +1556,100 @@ Use `kagura monitor --agent chat_session` to view:
             f"[dim]{old_model}[/] → [cyan]{new_model}[/]\n"
             "[dim]Conversation history preserved.[/]"
         )
+
+    async def handle_create_command(self, args: str) -> None:
+        """Handle /create agent command (v3.0 feature)
+
+        Generate custom agent from natural language description.
+
+        Args:
+            args: Agent description (e.g., "agent that summarizes tech news")
+        """
+        # Parse "agent <description>" or just "<description>"
+        description = args.strip()
+        if description.lower().startswith("agent "):
+            description = description[6:].strip()
+
+        if not description:
+            self.console.print(
+                "[yellow]Usage: /create agent <description>[/]\n"
+                "[dim]Example: /create agent that summarizes morning tech news[/]"
+            )
+            return
+
+        try:
+            # Import SelfImprovingMetaAgent (RFC-005)
+            from kagura.meta.self_improving import SelfImprovingMetaAgent
+
+            # Show progress
+            self.console.print(
+                f"\n[dim]💬 Generating agent from:[/] [cyan]{description}[/]"
+            )
+
+            # Generate agent
+            meta_agent = SelfImprovingMetaAgent(model=self.model)
+            code, errors = await meta_agent.generate_with_retry(
+                description, validate=True
+            )
+
+            # Extract agent name from code
+            import re
+
+            match = re.search(r"^async def (\w+)\(", code, re.MULTILINE)
+            agent_name = match.group(1) if match else "custom_agent"
+
+            # Show result
+            self.console.print(f"\n[green]✓ Agent created: {agent_name}[/]")
+            if errors:
+                self.console.print(
+                    f"[yellow]Note: Fixed {len(errors)} error(s) automatically[/]"
+                )
+
+            # Display code preview
+            self.console.print(Panel(code, title="Generated Code", border_style="cyan"))
+
+            # Confirm save
+            self.console.print(
+                "\n[yellow]Save to ~/.kagura/agents/? (y/n):[/] ", end=""
+            )
+            confirm = input().strip().lower()
+
+            if confirm == "y":
+                # Save to file
+                agents_dir = Path.home() / ".kagura" / "agents"
+                agents_dir.mkdir(parents=True, exist_ok=True)
+                agent_file = agents_dir / f"{agent_name}.py"
+
+                agent_file.write_text(code, encoding="utf-8")
+
+                # Reload agents
+                self._load_custom_agents()
+
+                self.console.print(
+                    f"[green]✓ Saved and loaded:[/] [cyan]{agent_name}[/]\n"
+                    f"[dim]Location: {agent_file}[/]"
+                )
+            else:
+                self.console.print("[yellow]Cancelled. Agent not saved.[/]")
+
+        except Exception as e:
+            self.console.print(f"[red]Error creating agent: {e}[/]")
+
+    async def handle_reload_command(self) -> None:
+        """Handle /reload command (v3.0 feature)
+
+        Reload custom agents from ~/.kagura/agents/
+        """
+        self.console.print("[dim]Reloading custom agents...[/]")
+
+        # Clear current agents
+        self.custom_agents.clear()
+
+        # Reload
+        self._load_custom_agents()
+
+        count = len(self.custom_agents)
+        if count > 0:
+            self.console.print(f"[green]✓ Reloaded {count} agent(s)[/]")
+        else:
+            self.console.print("[yellow]No custom agents found in ~/.kagura/agents/[/]")
