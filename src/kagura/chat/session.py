@@ -423,7 +423,7 @@ async def _brave_search_tool(query: str, count: int = 5) -> str:
     from kagura.tools.brave_search import brave_web_search
 
     console = Console()
-    console.print(f"[dim]🔍 Brave Search: {query}...[/]")
+    console.print(f"[dim]  └─ 🔍 Brave Search: {query}...[/]")
 
     # Call search (now returns formatted text)
     result = await brave_web_search(query, count=count)
@@ -466,7 +466,7 @@ async def _brave_search_tool(query: str, count: int = 5) -> str:
     if result_count > 0:
         result = f"[Found {result_count} results]\n\n{result}"
 
-    console.print("[dim]✓ Search completed[/]")
+    console.print("[dim]  └─ ✓ Search completed[/]")
     return result
 
 
@@ -1014,7 +1014,13 @@ class ChatSession:
             # Register daily_news with intents and samples
             self.router.register(
                 daily_news,
-                intents=["news", "headlines", "latest news", "ニュース", "今日のニュース"],
+                intents=[
+                    "news",
+                    "headlines",
+                    "latest news",
+                    "ニュース",
+                    "今日のニュース",
+                ],
                 samples=[
                     "Get me today's news",
                     "What's happening in the news?",
@@ -1060,7 +1066,14 @@ class ChatSession:
             # Register find_events
             self.router.register(
                 find_events,
-                intents=["event", "events", "happening", "concerts", "イベント", "催し"],
+                intents=[
+                    "event",
+                    "events",
+                    "happening",
+                    "concerts",
+                    "イベント",
+                    "催し",
+                ],
                 samples=[
                     "What's happening this weekend?",
                     "Find events in Tokyo",
@@ -1131,15 +1144,19 @@ class ChatSession:
                         # Show which agent was selected (with confidence)
                         self.console.print(
                             f"[dim]🎯 Using {agent_name} agent "
-                            f"(confidence: {confidence:.2f})[/]\n"
+                            f"(confidence: {confidence:.2f})[/]"
                         )
+                        self.console.print("[dim]  └─ 💬 Processing...[/]\n")
 
                         # Execute the matched agent
                         result = await agent_func(user_input)
 
-                        # Display result
-                        self.console.print("[bold green][AI][/]")
-                        self.console.print(Panel(str(result), border_style="green"))
+                        # Show completion
+                        self.console.print("[dim]  └─ ✓ Complete[/]")
+
+                        # Display result with Markdown formatting
+                        self.console.print("\n[bold green][AI][/]")
+                        self.display.display_response(str(result))
 
                         # Add to memory
                         self.memory.add_message("user", user_input)
