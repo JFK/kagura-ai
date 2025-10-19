@@ -1,17 +1,32 @@
 [project]
 name = "kagura-ai-examples"
-version = "2.5.0"
-description = "Real-world examples for Kagura AI"
+version = "3.0.0"
+description = "Real-world examples for Kagura AI v3.0"
 authors = [
     { name = "JFK", email = "fumikazu.kiyota@gmail.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "kagura-ai>=2.5.0",  # Main library
+    "kagura-ai>=3.0.0",  # Main library
 ]
 
 [project.optional-dependencies]
+# SDK Integration examples (NEW in v3.0)
+sdk = [
+    "fastapi>=0.104.0",       # FastAPI integration
+    "uvicorn>=0.24.0",        # ASGI server
+    "streamlit>=1.28.0",      # Dashboard framework
+    "pandas>=2.0.0",          # Data manipulation
+    "httpx>=0.25.0",          # HTTP client
+]
+
+# Personal Tools examples (NEW in v3.0)
+personal = [
+    "pandas>=2.0.0",          # Data manipulation
+    "rich>=13.0",             # Rich text formatting
+]
+
 # Broadlistening analysis example dependencies
 broadlistening = [
     "umap-learn>=0.5.5",      # Dimensionality reduction
@@ -24,6 +39,8 @@ broadlistening = [
 
 # All example dependencies
 all = [
+    "kagura-ai-examples[sdk]",
+    "kagura-ai-examples[personal]",
     "kagura-ai-examples[broadlistening]",
 ]
 
@@ -35,8 +52,18 @@ build-backend = "setuptools.build_meta"
 packages = []  # No packages, just examples
 
 [tool.pyright]
-include = ["08_real_world/broadlistening_analysis"]
-exclude = ["**/outputs", "**/__pycache__"]
+include = [
+    "01_basic",
+    "02_memory",
+    "03_routing",
+    "04_multimodal",
+    "05_web",
+    "06_advanced",
+    "08_real_world",
+    "09_sdk_integration",
+    "10_personal_tools"
+]
+exclude = ["**/outputs", "**/__pycache__", "**/test_outputs"]
 
 [tool.ruff]
 line-length = 88

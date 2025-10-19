@@ -1,15 +1,18 @@
 # Broadlistening Analysis - Public Comment Analysis Pipeline
 
-A comprehensive real-world example demonstrating Kagura AI's workflow capabilities for text analysis, combining LLM-based processing with traditional machine learning.
+A comprehensive real-world example demonstrating Kagura AI v3.0's workflow capabilities for text analysis, combining LLM-based processing with traditional machine learning.
 
 **Features**:
-- 🔍 LLM-powered opinion extraction
+- 🔍 LLM-powered opinion extraction (`@agent` decorator)
 - 🔬 Hierarchical clustering (UMAP + KMeans)
 - 🏷️ AI-generated cluster labels
 - 📊 Property-based filtering (gender, region, age group)
 - 📈 Interactive visualization (Plotly)
+- 🎯 Type-safe outputs (Pydantic v2)
 
 **Based on**: [Talk to the City](https://github.com/AIObjectives/talk-to-the-city-reports) by AI Objectives Institute
+
+**New in v3.0**: Fully rewritten with `@agent` decorator for cleaner, type-safe code.
 
 ---
 
@@ -35,12 +38,8 @@ This example showcases how to build a production-quality data analysis pipeline 
 ### Prerequisites
 
 ```bash
-# Install Kagura AI
-pip install kagura-ai
-
-# Install example dependencies
-cd examples
-pip install -e ".[broadlistening]"
+# Install broadlistening dependencies
+pip install -e "examples/[broadlistening]"
 ```
 
 **Required API Key**:
