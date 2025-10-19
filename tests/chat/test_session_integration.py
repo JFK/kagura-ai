@@ -59,7 +59,6 @@ def test_chat_session_uses_dynamic_tools():
 def test_new_tools_automatically_available():
     """Test that new tools added to tool_registry are automatically available."""
     from kagura import tool
-    from kagura.chat.session import _get_chat_tools
 
     # Register a new tool dynamically
     @tool
@@ -71,6 +70,3 @@ def test_new_tools_automatically_available():
     all_tools = tool_registry.get_all()
 
     assert "test_new_tool" in all_tools, "New tool not registered"
-
-    # Clean up
-    tool_registry._registry.pop("test_new_tool", None)
