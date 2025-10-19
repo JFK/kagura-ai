@@ -68,11 +68,15 @@ async def outline_creator(title: str, target_words: int) -> ContentOutline:
     Create detailed outline for: "{{ title }}"
     Target word count: {{ target_words }}
 
-    Return structured outline with:
-    - Title
-    - Hook
-    - Section titles (3-5 sections)
-    - Conclusion summary
+    IMPORTANT: sections must be a list of STRING titles ONLY, not objects.
+    Example: ["Introduction to Topic", "Key Concepts", "Practical Examples", "Conclusion"]
+
+    Return JSON with:
+    - title: string
+    - hook: string (opening sentence)
+    - sections: list of STRING section titles (3-5 items)
+    - conclusion: string (summary)
+    - target_word_count: integer
     """
     pass
 

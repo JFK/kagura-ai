@@ -95,11 +95,15 @@ async def source_finder(query: str, num_sources: int) -> list[dict]:
     """
     Find {{ num_sources }} sources for: {{ query }}
 
-    Use web_search tool and return list of sources with:
-    - URL
-    - Title
-    - Brief summary
-    - Relevance score (0-1)
+    Use web_search tool and return list of sources.
+
+    IMPORTANT: Return as JSON array of objects:
+    [
+        {{"url": "https://...", "title": "...", "summary": "...", "relevance_score": 0.9}},
+        {{"url": "https://...", "title": "...", "summary": "...", "relevance_score": 0.8}}
+    ]
+
+    Each object must have: url, title, summary, relevance_score fields.
     """
     pass
 
