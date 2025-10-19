@@ -1,5 +1,7 @@
 """
-YouTube integration tools for Kagura AI
+YouTube integration tools for Kagura AI (MCP Built-in)
+
+This module provides YouTube video analysis capabilities via MCP.
 """
 
 import json
@@ -88,7 +90,7 @@ async def get_youtube_transcript(video_url: str, lang: str = "en") -> str:
                     "Transcript not available: "
                     "This video does not have subtitles.\n\n"
                     "💡 Tip: You can still get video information using "
-                    "youtube_metadata, or use web_search for additional context."
+                    "get_youtube_metadata, or use web_search for additional context."
                 )
 
         # Combine text segments (v0.6+ uses .text attribute)
@@ -153,9 +155,151 @@ async def get_youtube_metadata(video_url: str) -> str:
                 "upload_date": info.get("upload_date"),
                 "description": info.get("description", "")[:500],  # First 500 chars
                 "tags": info.get("tags", [])[:10],  # First 10 tags
+                "url": video_url,  # Include original URL for Markdown link
             }
 
             return json.dumps(metadata, indent=2, ensure_ascii=False)
 
     except Exception as e:
         return json.dumps({"error": f"Failed to get metadata: {str(e)}"}, indent=2)
+
+
+@tool
+async def youtube_summarize(video_url: str, lang: str = "en") -> str:
+    """
+    Summarize YouTube video content.
+
+    Uses transcript to generate a concise summary of the video.
+
+    Args:
+        video_url: YouTube video URL
+        lang: Language code for transcript (default: en)
+
+    Returns:
+        Video summary or error message
+
+    Example:
+        >>> summary = await youtube_summarize(
+        ...     "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        ... )
+    """
+    # Get transcript
+    transcript = await get_youtube_transcript(video_url, lang)
+
+    if transcript.startswith("Error") or "Transcript not available" in transcript:
+        return transcript
+
+    # Get metadata for context
+    metadata_json = await get_youtube_metadata(video_url)
+    try:
+        metadata = json.loads(metadata_json)
+        title = metadata.get("title", "Unknown")
+        channel = metadata.get("channel", "Unknown")
+    except Exception:
+        title = "Unknown"
+        channel = "Unknown"
+
+    # Use LLM to summarize
+    try:
+        from kagura.core.llm import LLMConfig, call_llm
+
+        config = LLMConfig(model="gpt-4o-mini", temperature=0.3)
+
+        prompt = f"""Summarize this YouTube video transcript concisely (3-5 sentences).
+
+Video: {title}
+Channel: {channel}
+URL: {video_url}
+
+Transcript:
+{transcript[:3000]}  # Limit to first 3000 chars
+
+Provide:
+1. Main topic/theme
+2. Key points (2-3 bullet points)
+3. Overall takeaway
+
+Format as Markdown with the video title as a link: [{title}]({video_url})
+"""
+
+        response = await call_llm(prompt, config)
+        return str(response)
+
+    except Exception as e:
+        return (
+            f"Error summarizing video: {str(e)}\n\n"
+            "Transcript available but summary failed."
+        )
+
+
+@tool
+async def youtube_fact_check(video_url: str, claim: str, lang: str = "en") -> str:
+    """
+    Fact-check a claim made in a YouTube video.
+
+    Extracts transcript and uses web search to verify the claim.
+
+    Args:
+        video_url: YouTube video URL
+        claim: Specific claim to fact-check
+        lang: Language code for transcript (default: en)
+
+    Returns:
+        Fact-check result with verdict, evidence, and confidence
+
+    Example:
+        >>> result = await youtube_fact_check(
+        ...     "https://www.youtube.com/watch?v=XXX",
+        ...     "The Earth is flat"
+        ... )
+    """
+    # Get transcript
+    transcript = await get_youtube_transcript(video_url, lang)
+
+    if transcript.startswith("Error") or "Transcript not available" in transcript:
+        return f"Cannot fact-check: {transcript}"
+
+    # Get metadata
+    metadata_json = await get_youtube_metadata(video_url)
+    try:
+        metadata = json.loads(metadata_json)
+        title = metadata.get("title", "Unknown")
+    except Exception:
+        title = "Unknown"
+
+    # Use web search to fact-check
+    try:
+        from kagura.core.llm import LLMConfig, call_llm
+        from kagura.tools.brave_search import brave_web_search
+
+        # Search for evidence
+        search_results = await brave_web_search(claim, count=5)
+
+        # Use LLM to analyze
+        config = LLMConfig(model="gpt-4o-mini", temperature=0.2)
+
+        prompt = f"""Fact-check this claim from a YouTube video.
+
+Video: [{title}]({video_url})
+Claim: "{claim}"
+
+Video transcript excerpt:
+{transcript[:2000]}
+
+Web search results:
+{search_results}
+
+Analyze and provide:
+1. **Verdict**: TRUE / FALSE / MIXED / UNVERIFIED
+2. **Confidence**: 0-100%
+3. **Evidence**: Key supporting/contradicting facts
+4. **Summary**: Brief explanation (2-3 sentences)
+
+Format as Markdown.
+"""
+
+        response = await call_llm(prompt, config)
+        return str(response)
+
+    except Exception as e:
+        return f"Error fact-checking claim: {str(e)}"

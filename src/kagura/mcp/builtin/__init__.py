@@ -6,12 +6,15 @@ Web) via MCP for single-config Claude Desktop integration.
 
 # Auto-import all builtin tools
 from . import (
+    fact_check,  # noqa: F401
     file_ops,  # noqa: F401
+    media,  # noqa: F401
     memory,  # noqa: F401
     meta,  # noqa: F401
     observability,  # noqa: F401
     routing,  # noqa: F401
     web,  # noqa: F401
+    youtube,  # noqa: F401
 )
 
 # Multimodal is optional (requires 'web' extra)
@@ -28,4 +31,7 @@ __all__ = [
     "file_ops",
     "observability",
     "meta",
+    "youtube",
+    "media",
+    "fact_check",
 ]
