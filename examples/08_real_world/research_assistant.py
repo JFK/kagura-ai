@@ -69,7 +69,7 @@ async def extract_citations(text: str) -> str:
 
 
 # Memory for research materials
-research_memory = MemoryRAG(agent_name="research_assistant")
+research_memory = MemoryRAG(collection_name="research_assistant")
 
 # Config
 config = LLMConfig(model="gpt-4o-mini", temperature=0.7)
@@ -174,8 +174,8 @@ async def conduct_research(topic: str) -> ResearchReport:
         findings.append(analysis)
 
         # Store in memory
-        await research_memory.store(
-            content=analysis,
+        research_memory.store(
+            content=str(analysis),  # Convert LLMResponse to string
             metadata={"source": url, "topic": topic}
         )
         print(f"✓ Analyzed source {i}/{len(all_sources[:3])}")

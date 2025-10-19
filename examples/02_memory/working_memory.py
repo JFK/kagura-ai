@@ -12,7 +12,7 @@ from kagura.core.memory import MemoryManager, WorkingMemory
 
 
 # Create memory manager with working memory
-memory = MemoryManager(backend=WorkingMemory())
+memory = MemoryManager(agent_name="assistant", max_messages=10)
 
 
 @agent(enable_memory=True)

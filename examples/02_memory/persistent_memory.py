@@ -17,7 +17,9 @@ storage_path = Path("./memory_storage")
 storage_path.mkdir(exist_ok=True)
 
 persistent_memory = MemoryManager(
-    backend=PersistentMemory(storage_path=str(storage_path))
+    agent_name="note_keeper",
+    persist_dir=storage_path,
+    max_messages=100
 )
 
 

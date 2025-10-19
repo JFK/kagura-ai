@@ -12,18 +12,16 @@ from kagura.core.memory import MemoryRAG
 
 
 # Create RAG memory for semantic search
-rag_memory = MemoryRAG(agent_name="knowledge_assistant")
+rag_memory = MemoryRAG(collection_name="knowledge_assistant")
 
 
 @agent
-async def knowledge_assistant(query: str) -> str:
+async def knowledge_assistant(query: str, context: str = "") -> str:
     """
     You are a knowledgeable assistant with semantic memory.
 
     Context from memory:
-    {% for memory in memories %}
-    - {{ memory }}
-    {% endfor %}
+    {{ context }}
 
     User query: {{ query }}
 
@@ -46,7 +44,7 @@ async def store_knowledge():
     ]
 
     for fact in facts:
-        await rag_memory.store(
+        rag_memory.store(
             content=fact,
             metadata={"type": "programming_language_fact"}
         )
@@ -71,17 +69,16 @@ async def main():
 
     for query in queries:
         # Retrieve relevant memories
-        memories = await rag_memory.recall_semantic(
+        memories = rag_memory.recall(
             query=query,
-            k=2,  # Top 2 most relevant
-            filter={"type": "programming_language_fact"}
+            top_k=2  # Top 2 most relevant
         )
 
+        # Format context
+        context = "\n".join([f"- {m['content']}" for m in memories])
+
         # Pass to agent
-        response = await knowledge_assistant(
-            query,
-            memories=[m.content for m in memories]
-        )
+        response = await knowledge_assistant(query, context=context)
 
         print(f"Query: {query}")
         print(f"Retrieved {len(memories)} relevant facts")

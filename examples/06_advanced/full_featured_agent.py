@@ -74,7 +74,7 @@ config = LLMConfig(
 )
 
 # Memory manager
-memory = MemoryManager(backend=WorkingMemory())
+memory = MemoryManager(agent_name="super_assistant", max_messages=20)
 
 
 # Main agent with all features

@@ -19,8 +19,8 @@ def get_session_memory(session_id: str) -> MemoryManager:
     """Get or create memory for a session"""
     if session_id not in session_memories:
         session_memories[session_id] = MemoryManager(
-            backend=WorkingMemory(),
-            scope=f"session_{session_id}"
+            agent_name=f"session_{session_id}",
+            max_messages=50
         )
     return session_memories[session_id]
 
