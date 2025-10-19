@@ -3,7 +3,7 @@
 Version is automatically read from pyproject.toml metadata.
 """
 
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version
 
 try:
     __version__ = version("kagura-ai")
