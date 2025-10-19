@@ -24,12 +24,11 @@ from kagura.core.memory import MemoryManager
 from kagura.core.tool_registry import tool_registry
 from kagura.routing import AgentRouter, NoAgentFoundError
 
+# Import chat tools to trigger @tool registration
+from . import tools  # noqa: F401
 from .completer import KaguraCompleter
 from .display import EnhancedDisplay
 from .utils import extract_response_content
-
-# Import chat tools to trigger @tool registration
-from . import tools  # noqa: F401
 
 # =============================================================================
 # Tool Definitions for Claude Code-like Chat Experience
