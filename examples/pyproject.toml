@@ -59,9 +59,9 @@ include = [
     "04_multimodal",
     "05_web",
     "06_advanced",
-    "08_real_world",
-    "09_sdk_integration",
-    "10_personal_tools"
+    "07_real_world",
+    "08_sdk_integration",
+    "09_personal_tools"
 ]
 exclude = ["**/outputs", "**/__pycache__", "**/test_outputs"]
 

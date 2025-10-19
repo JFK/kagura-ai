@@ -141,7 +141,7 @@ python examples/06_advanced/workflows.py
 
 ---
 
-### 08. Real World (`08_real_world/`) - Complete Applications
+### 07. Real World (`07_real_world/`) - Complete Applications
 
 Full-featured production examples:
 
@@ -154,13 +154,13 @@ Full-featured production examples:
 **Learn**: Production architectures, feature integration, deployment patterns
 
 ```bash
-cd examples/08_real_world/broadlistening_analysis
+cd examples/07_real_world/broadlistening_analysis
 python pipeline.py sample_data.csv --n-clusters 5
 ```
 
 ---
 
-### 09. SDK Integration (`09_sdk_integration/`) - **NEW in v3.0** 🆕
+### 08. SDK Integration (`08_sdk_integration/`) - **NEW in v3.0** 🆕
 
 Real-world SDK integration patterns for production applications:
 
@@ -175,20 +175,20 @@ Real-world SDK integration patterns for production applications:
 
 ```bash
 # FastAPI endpoint
-uvicorn examples.09_sdk_integration.fastapi_endpoint:app --reload
+uvicorn examples.08_sdk_integration.fastapi_endpoint:app --reload
 
 # Data pipeline
-python examples/09_sdk_integration/data_pipeline.py
+python examples/08_sdk_integration/data_pipeline.py
 
 # Streamlit dashboard
-streamlit run examples/09_sdk_integration/streamlit_dashboard.py
+streamlit run examples/08_sdk_integration/streamlit_dashboard.py
 ```
 
-**See**: [09_sdk_integration/README.md](./09_sdk_integration/README.md)
+**See**: [08_sdk_integration/README.md](./08_sdk_integration/README.md)
 
 ---
 
-### 10. Personal Tools (`10_personal_tools/`) - **NEW in v3.0** 🆕
+### 09. Personal Tools (`09_personal_tools/`) - **NEW in v3.0** 🆕
 
 Personal assistant tools for daily use:
 
@@ -202,21 +202,21 @@ Personal assistant tools for daily use:
 
 ```bash
 # Daily briefing
-python examples/10_personal_tools/daily_briefing.py \
+python examples/09_personal_tools/daily_briefing.py \
     --location "San Francisco" \
     --topics "AI,startups"
 
 # Recipe finder
-python examples/10_personal_tools/recipe_finder.py \
+python examples/09_personal_tools/recipe_finder.py \
     --ingredients "chicken,rice,vegetables"
 
 # Event search
-python examples/10_personal_tools/event_search.py \
+python examples/09_personal_tools/event_search.py \
     --location "New York" \
     --weekend
 ```
 
-**See**: [10_personal_tools/README.md](./10_personal_tools/README.md)
+**See**: [09_personal_tools/README.md](./09_personal_tools/README.md)
 
 ---
 
@@ -229,7 +229,7 @@ For developers new to Kagura AI:
 1. **01_basic/hello_world.py** - Understand `@agent` decorator
 2. **01_basic/simple_chat.py** - Build a conversational agent
 3. **01_basic/pydantic_parsing.py** - Learn structured outputs
-4. **10_personal_tools/daily_briefing.py** - Use built-in tools
+4. **09_personal_tools/daily_briefing.py** - Use built-in tools
 
 **Goal**: Understand core concepts and build your first agents
 
@@ -240,9 +240,9 @@ For developers new to Kagura AI:
 For integrating Kagura AI into your applications:
 
 1. **01_basic/** - Core concepts
-2. **09_sdk_integration/fastapi_endpoint.py** - REST API
-3. **09_sdk_integration/data_pipeline.py** - ETL workflows
-4. **09_sdk_integration/streamlit_dashboard.py** - Dashboards
+2. **08_sdk_integration/fastapi_endpoint.py** - REST API
+3. **08_sdk_integration/data_pipeline.py** - ETL workflows
+4. **08_sdk_integration/streamlit_dashboard.py** - Dashboards
 
 **Goal**: Build production-ready SDK integrations
 
@@ -257,7 +257,7 @@ For production-ready systems:
 3. **04_multimodal/** - Multimodal understanding
 4. **05_web/** - Web integration
 5. **06_advanced/** - Workflows and optimization
-6. **08_real_world/broadlistening_analysis/** - Complete pipeline
+6. **07_real_world/broadlistening_analysis/** - Complete pipeline
 
 **Goal**: Build production-ready, feature-rich systems
 
@@ -559,9 +559,9 @@ After exploring these examples:
 
 1. **Build your first agent** - Start with `01_basic/`
 2. **Add tools** - Try `05_web/` for web search
-3. **Integrate into your app** - Check out `09_sdk_integration/`
-4. **Try personal tools** - Explore `10_personal_tools/`
-5. **Deploy to production** - Study `08_real_world/`
+3. **Integrate into your app** - Check out `08_sdk_integration/`
+4. **Try personal tools** - Explore `09_personal_tools/`
+5. **Deploy to production** - Study `07_real_world/`
 
 **Happy coding with Kagura AI v3.0! 🎉**
 
