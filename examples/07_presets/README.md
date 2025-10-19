@@ -67,7 +67,7 @@ Preset Approach:
 - Context awareness
 
 ```python
-from kagura.presets import ChatbotPreset
+from kagura.agents import ChatbotPreset
 
 # Create chatbot with personality
 chatbot = (
@@ -108,7 +108,7 @@ print(response)
 - Summary generation
 
 ```python
-from kagura.presets import ResearchPreset
+from kagura.agents import ResearchPreset
 
 # Create research assistant
 researcher = (
@@ -149,7 +149,7 @@ result = await researcher("Latest developments in quantum computing")
 - Security review
 
 ```python
-from kagura.presets import CodeReviewPreset
+from kagura.agents import CodeReviewPreset
 
 # Create code reviewer
 reviewer = (
@@ -198,7 +198,7 @@ feedback = await reviewer(code)
 - Formality levels
 
 ```python
-from kagura.presets import TranslatorPreset
+from kagura.agents import TranslatorPreset
 
 # Create translator
 translator = (
@@ -234,7 +234,7 @@ result = await translator("Hello, how are you?")
 - Report generation
 
 ```python
-from kagura.presets import DataAnalystPreset
+from kagura.agents import DataAnalystPreset
 
 analyst = (
     DataAnalystPreset("analyst")
@@ -266,7 +266,7 @@ Q1: $100k, Q2: $150k, Q3: $120k, Q4: $180k
 - Schedule management
 
 ```python
-from kagura.presets import PersonalAssistantPreset
+from kagura.agents import PersonalAssistantPreset
 
 assistant = (
     PersonalAssistantPreset("assistant")
@@ -290,7 +290,7 @@ await assistant("What are my pending tasks?")
 - Style adaptation
 
 ```python
-from kagura.presets import ContentWriterPreset
+from kagura.agents import ContentWriterPreset
 
 writer = (
     ContentWriterPreset("writer")
@@ -317,7 +317,7 @@ article = await writer("Write a blog post about AI in healthcare")
 - Knowledge base integration
 
 ```python
-from kagura.presets import TechnicalSupportPreset
+from kagura.agents import TechnicalSupportPreset
 
 support = (
     TechnicalSupportPreset("support_bot")
@@ -343,7 +343,7 @@ response = await support("My agent is not responding")
 - Progress tracking
 
 ```python
-from kagura.presets import LearningTutorPreset
+from kagura.agents import LearningTutorPreset
 
 tutor = (
     LearningTutorPreset("tutor")
@@ -369,7 +369,7 @@ explanation = await tutor("Explain what a function is")
 - Risk assessment
 
 ```python
-from kagura.presets import ProjectManagerPreset
+from kagura.agents import ProjectManagerPreset
 
 pm = (
     ProjectManagerPreset("pm")
@@ -434,7 +434,7 @@ python project_manager_preset.py
 
 ### Pattern 1: Basic Preset Usage
 ```python
-from kagura.presets import ChatbotPreset
+from kagura.agents import ChatbotPreset
 
 # Minimal setup
 chatbot = ChatbotPreset("bot").build()
@@ -445,7 +445,7 @@ response = await chatbot("Hello!")
 
 ### Pattern 2: Customized Preset
 ```python
-from kagura.presets import ResearchPreset
+from kagura.agents import ResearchPreset
 
 # Full customization
 researcher = (
@@ -465,7 +465,7 @@ researcher = (
 ### Pattern 3: Preset with Custom Tools
 ```python
 from kagura import tool
-from kagura.presets import DataAnalystPreset
+from kagura.agents import DataAnalystPreset
 
 @tool
 def custom_analyzer(data: str) -> str:
@@ -482,7 +482,7 @@ analyst = (
 
 ### Pattern 4: Multi-Preset System
 ```python
-from kagura.presets import ChatbotPreset, ResearchPreset
+from kagura.agents import ChatbotPreset, ResearchPreset
 from kagura.routing import AgentRouter
 
 # Create multiple presets
@@ -505,7 +505,7 @@ response = await router.route("Tell me about quantum computing")
 ✅ **Good:**
 ```python
 # Use specialized preset for task
-from kagura.presets import CodeReviewPreset
+from kagura.agents import CodeReviewPreset
 reviewer = CodeReviewPreset("reviewer").build()
 ```
 
@@ -579,7 +579,7 @@ code_reviewer = (
 
 ```python
 from kagura import AgentBuilder
-from kagura.presets import BasePreset
+from kagura.agents import BasePreset
 
 class CustomPreset(BasePreset):
     """Custom preset for specific use case"""
@@ -621,7 +621,7 @@ custom_agent = (
 
 ### Override Default Prompts
 ```python
-from kagura.presets import ChatbotPreset
+from kagura.agents import ChatbotPreset
 
 chatbot = (
     ChatbotPreset("custom_bot")
@@ -635,7 +635,7 @@ chatbot = (
 
 ### Add Multiple Tools
 ```python
-from kagura.presets import ResearchPreset
+from kagura.agents import ResearchPreset
 
 researcher = (
     ResearchPreset("researcher")
@@ -650,7 +650,7 @@ researcher = (
 
 ### Combine Features
 ```python
-from kagura.presets import PersonalAssistantPreset
+from kagura.agents import PersonalAssistantPreset
 
 assistant = (
     PersonalAssistantPreset("assistant")
@@ -676,7 +676,7 @@ pip install kagura-ai[all]
 ```
 
 ```python
-from kagura.presets import ChatbotPreset  # ✅ Correct import
+from kagura.agents import ChatbotPreset  # ✅ Correct import
 ```
 
 ### Issue: Web search not working
