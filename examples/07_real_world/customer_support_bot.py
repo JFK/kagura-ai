@@ -9,9 +9,10 @@ This example demonstrates:
 
 import asyncio
 from enum import Enum
+
+from kagura import LLMConfig, agent, tool
+from kagura.core.memory import MemoryRAG
 from pydantic import BaseModel, Field
-from kagura import agent, tool, LLMConfig
-from kagura.core.memory import MemoryManager, WorkingMemory, MemoryRAG
 
 
 # Support ticket classification
@@ -148,7 +149,7 @@ async def handle_support_request(message: str, customer_id: str):
 
     # 1. Classify ticket
     classification = await ticket_classifier(message)
-    print(f"\n[Classification]")
+    print("\n[Classification]")
     print(f"  Type: {classification.ticket_type.value}")
     print(f"  Priority: {classification.priority}")
     print(f"  Summary: {classification.summary}")
@@ -164,7 +165,7 @@ async def handle_support_request(message: str, customer_id: str):
     else:
         response = await general_support(message)
 
-    print(f"\n[Response]")
+    print("\n[Response]")
     print(response)
 
     # 3. Create ticket if high priority

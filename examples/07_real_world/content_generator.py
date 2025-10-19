@@ -9,9 +9,10 @@ This example demonstrates:
 """
 
 import asyncio
-from pydantic import BaseModel, Field
-from kagura import agent, LLMConfig
+
+from kagura import LLMConfig, agent
 from kagura.core.memory import MemoryRAG
+from pydantic import BaseModel, Field
 
 
 # Content models
@@ -68,11 +69,15 @@ async def outline_creator(title: str, target_words: int) -> ContentOutline:
     Create detailed outline for: "{{ title }}"
     Target word count: {{ target_words }}
 
-    Return structured outline with:
-    - Title
-    - Hook
-    - Section titles (3-5 sections)
-    - Conclusion summary
+    IMPORTANT: sections must be a list of STRING titles ONLY, not objects.
+    Example: ["Introduction to Topic", "Key Concepts", "Practical Examples", "Conclusion"]
+
+    Return JSON with:
+    - title: string
+    - hook: string (opening sentence)
+    - sections: list of STRING section titles (3-5 items)
+    - conclusion: string (summary)
+    - target_word_count: integer
     """
     pass
 
@@ -231,7 +236,7 @@ async def generate_article(
 def print_article(article: Article):
     """Print formatted article"""
     print(f"\n{'=' * 60}")
-    print(f"GENERATED ARTICLE")
+    print("GENERATED ARTICLE")
     print(f"{'=' * 60}")
 
     print(f"\nTitle: {article.title}")

@@ -8,8 +8,8 @@ This example demonstrates:
 
 import asyncio
 from pathlib import Path
-from kagura import agent, LLMConfig
 
+from kagura import LLMConfig, agent
 
 # Configure Gemini for multimodal
 config = LLMConfig(

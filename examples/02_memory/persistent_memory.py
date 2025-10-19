@@ -8,9 +8,9 @@ This example demonstrates:
 
 import asyncio
 from pathlib import Path
-from kagura import agent
-from kagura.core.memory import MemoryManager, PersistentMemory
 
+from kagura import agent
+from kagura.core.memory import MemoryManager
 
 # Create persistent memory with file storage
 storage_path = Path("./memory_storage")

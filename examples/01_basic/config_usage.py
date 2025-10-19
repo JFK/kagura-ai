@@ -9,8 +9,8 @@ This example demonstrates:
 
 import asyncio
 import time
-from kagura import agent, LLMConfig
 
+from kagura import LLMConfig, agent
 
 # Create config with caching enabled (default)
 cached_config = LLMConfig(

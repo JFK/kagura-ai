@@ -8,9 +8,10 @@ This example demonstrates:
 """
 
 import asyncio
-from pydantic import BaseModel, Field
-from kagura import agent, LLMConfig
+
+from kagura import LLMConfig, agent
 from kagura.core.parallel import parallel_gather
+from pydantic import BaseModel, Field
 
 
 # Review models
@@ -144,7 +145,7 @@ async def review_code(code: str, file_name: str) -> CodeReview:
     print(f"\n{'=' * 60}")
     print(f"Reviewing: {file_name}")
     print(f"{'=' * 60}")
-    print(f"\nCode:")
+    print("\nCode:")
     print(code)
     print(f"\n{'─' * 60}")
 

@@ -5,9 +5,8 @@ Run with: pytest test_pipeline.py -v
 """
 
 import pytest
-from pipeline import Comment, Opinion
 from filtering import PropertyFilter
-
+from pipeline import Comment, Opinion
 
 # ============================================
 # Filtering Tests

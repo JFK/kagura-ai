@@ -7,9 +7,9 @@ This example demonstrates:
 """
 
 import asyncio
+
 from kagura import agent
 from kagura.core.memory import MemoryRAG
-
 
 # Create RAG memory for semantic search
 rag_memory = MemoryRAG(collection_name="knowledge_assistant")

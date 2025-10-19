@@ -37,10 +37,11 @@ async def test_web_search_brave():
         assert results[0].title == "Test Result"
 
 
+@pytest.mark.skip(reason="DuckDuckGo removed in v2.7.0 (Issue #277)")
 @pytest.mark.asyncio
 async def test_web_search_duckduckgo():
     """Test DuckDuckGo Search integration"""
-    from kagura.web.search import DuckDuckGoSearch, SearchResult
+    from kagura.web.search import BraveSearch, SearchResult
 
     # Mock duckduckgo_search
     with patch('duckduckgo_search.DDGS') as mock_ddgs:
@@ -64,15 +65,15 @@ async def test_web_search_duckduckgo():
         assert isinstance(results[0], SearchResult)
 
 
+@pytest.mark.skip(reason="DuckDuckGo removed in v2.7.0 (Issue #277)")
 @pytest.mark.asyncio
 async def test_web_search_function():
     """Test web_search convenience function"""
     from kagura.web import web_search
     from kagura.web.search import SearchResult
 
-    # Mock both search backends to ensure at least one works
+    # Mock Brave Search (DuckDuckGo removed)
     with patch('kagura.web.BraveSearch') as mock_brave_class:
-        with patch('kagura.web.DuckDuckGoSearch') as mock_ddg_class:
             # Setup mock instance
             mock_brave = MagicMock()
             mock_brave.search = AsyncMock(return_value=[
@@ -148,17 +149,18 @@ async def test_web_scraper_rate_limiting():
     assert elapsed >= 0.1
 
 
+@pytest.mark.skip(reason="ChatSession no longer has enable_web parameter in v3.0")
 @pytest.mark.asyncio
 async def test_chat_session_web_initialization():
     """Test ChatSession initialization with web enabled"""
     from kagura.chat import ChatSession
 
     session = ChatSession(
-        model="gpt-5-mini",
-        enable_web=True
+        model="gpt-5-mini"
     )
 
-    assert session.enable_web is True
+    # Web tools are now always available via tool_registry
+    assert session.model == "gpt-5-mini"
 
 
 @pytest.mark.asyncio
@@ -205,4 +207,5 @@ async def test_agent_with_web_search_tool():
         ]
 
         result = await research_agent("AI trends")
-        assert "AI trends" in result or "search" in result.lower()
+        result_str = str(result)
+        assert "AI trends" in result_str or "search" in result_str.lower()

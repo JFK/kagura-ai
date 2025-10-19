@@ -7,9 +7,9 @@ This example demonstrates:
 """
 
 import asyncio
-from kagura import agent
-from kagura.core.memory import MemoryManager, WorkingMemory
 
+from kagura import agent
+from kagura.core.memory import MemoryManager
 
 # Create separate memory managers for different sessions
 session_memories: dict[str, MemoryManager] = {}

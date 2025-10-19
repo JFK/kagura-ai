@@ -9,8 +9,8 @@ This example demonstrates:
 
 import asyncio
 import time
-from kagura import agent, LLMConfig, get_llm_cache
 
+from kagura import LLMConfig, agent, get_llm_cache
 
 # Config with caching enabled
 cached_config = LLMConfig(
@@ -82,7 +82,7 @@ async def demonstrate_cache_stats():
     # Get stats
     stats = cache.stats()
 
-    print(f"\nCache Performance:")
+    print("\nCache Performance:")
     print(f"  Total requests: {stats.get('total_requests', 0)}")
     print(f"  Cache hits: {stats.get('hits', 0)}")
     print(f"  Cache misses: {stats.get('misses', 0)}")
@@ -150,11 +150,11 @@ async def demonstrate_cost_savings():
     uncached_cost = total_calls * cost_per_call
     cached_cost = unique_calls * cost_per_call
 
-    print(f"\nSimulated 100 queries:")
+    print("\nSimulated 100 queries:")
     print(f"  Unique queries: {unique_calls}")
     print(f"  Cache hits: {total_calls - unique_calls}")
     print(f"  Time: {total_time:.2f}s")
-    print(f"\nCost comparison:")
+    print("\nCost comparison:")
     print(f"  Without caching: ${uncached_cost:.4f}")
     print(f"  With caching: ${cached_cost:.4f}")
     print(f"  Savings: ${uncached_cost - cached_cost:.4f} ({(1 - cached_cost/uncached_cost)*100:.1f}%)")

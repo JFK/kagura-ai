@@ -8,10 +8,10 @@ This example demonstrates:
 """
 
 import asyncio
-from typing import Optional
-from pydantic import BaseModel, Field
-from kagura import agent, tool, LLMConfig
+
+from kagura import LLMConfig, agent, tool
 from kagura.core.memory import MemoryRAG
+from pydantic import BaseModel, Field
 
 
 # Research models
@@ -95,11 +95,15 @@ async def source_finder(query: str, num_sources: int) -> list[dict]:
     """
     Find {{ num_sources }} sources for: {{ query }}
 
-    Use web_search tool and return list of sources with:
-    - URL
-    - Title
-    - Brief summary
-    - Relevance score (0-1)
+    Use web_search tool and return list of sources.
+
+    IMPORTANT: Return as JSON array of objects:
+    [
+        {{"url": "https://...", "title": "...", "summary": "...", "relevance_score": 0.9}},
+        {{"url": "https://...", "title": "...", "summary": "...", "relevance_score": 0.8}}
+    ]
+
+    Each object must have: url, title, summary, relevance_score fields.
     """
     pass
 
@@ -208,7 +212,7 @@ async def main():
         print(f"RESEARCH REPORT: {report.topic}")
         print(f"{'=' * 60}")
 
-        print(f"\nExecutive Summary:")
+        print("\nExecutive Summary:")
         print(report.executive_summary)
 
         print(f"\nKey Findings ({len(report.key_findings)}):")

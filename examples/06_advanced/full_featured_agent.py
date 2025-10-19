@@ -11,9 +11,10 @@ This example demonstrates:
 
 import asyncio
 from pathlib import Path
+
+from kagura import LLMConfig, agent, tool
+from kagura.core.memory import MemoryManager
 from pydantic import BaseModel, Field
-from kagura import agent, tool, LLMConfig
-from kagura.core.memory import MemoryManager, WorkingMemory
 
 
 # Pydantic models for structured outputs

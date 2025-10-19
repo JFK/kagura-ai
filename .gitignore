@@ -172,3 +172,5 @@ data/
 
 # kagura
 .kagura/
+memory_storage/
+notes/

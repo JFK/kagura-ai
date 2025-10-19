@@ -8,6 +8,7 @@ This example demonstrates:
 
 import asyncio
 import os
+
 from kagura import agent, tool
 
 

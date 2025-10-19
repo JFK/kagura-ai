@@ -7,6 +7,7 @@ This example demonstrates:
 """
 
 import asyncio
+
 from kagura import agent
 
 

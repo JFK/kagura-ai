@@ -7,8 +7,9 @@ This example demonstrates:
 """
 
 import asyncio
-from pydantic import BaseModel, Field
+
 from kagura import agent
+from pydantic import BaseModel, Field
 
 
 class Person(BaseModel):
@@ -67,7 +68,7 @@ async def main():
     # Analyze sentiment
     review = "This product is amazing! It exceeded all my expectations."
     sentiment = await analyze_sentiment(review)
-    print(f"Sentiment Analysis:")
+    print("Sentiment Analysis:")
     print(f"  Sentiment: {sentiment.sentiment}")
     print(f"  Confidence: {sentiment.confidence:.1%}")
     print(f"  Reasoning: {sentiment.reasoning}")
