@@ -21,8 +21,11 @@ from rich.panel import Panel
 
 from kagura import agent
 from kagura.core.memory import MemoryManager
+from kagura.core.tool_registry import tool_registry
 from kagura.routing import AgentRouter, NoAgentFoundError
 
+# Import chat tools to trigger @tool registration
+from . import tools  # noqa: F401
 from .completer import KaguraCompleter
 from .display import EnhancedDisplay
 from .utils import extract_response_content
@@ -709,6 +712,47 @@ async def _youtube_metadata_tool(video_url: str) -> str:
 
 
 # =============================================================================
+# Get chat tools from tool_registry (RFC-036 Phase 2)
+# =============================================================================
+
+
+def _get_chat_tools() -> list:
+    """Get chat tools from tool_registry dynamically.
+
+    Returns:
+        List of tool functions for chat agent
+    """
+    # Get tools registered in kagura.chat.tools
+    all_tools = tool_registry.get_all()
+
+    # Chat-specific tools (registered via @tool in tools.py)
+    chat_tool_names = [
+        "file_read",
+        "file_write",
+        "file_search",
+        "execute_python",
+        "shell_exec",
+        "brave_search",
+        "url_fetch",
+        "analyze_image_url",
+        "youtube_transcript",
+        "youtube_metadata",
+    ]
+
+    # Get tool functions from registry
+    chat_tools = []
+    for tool_name in chat_tool_names:
+        if tool_name in all_tools:
+            chat_tools.append(all_tools[tool_name])
+
+    # Also add session-specific tools that aren't in registry yet
+    # (e.g., shell_exec_with_options)
+    chat_tools.append(_shell_exec_with_options_wrapper)
+
+    return chat_tools
+
+
+# =============================================================================
 # Unified Chat Agent with All Capabilities (Claude Code-like)
 # =============================================================================
 
@@ -717,24 +761,7 @@ async def _youtube_metadata_tool(video_url: str) -> str:
     model="gpt-5-mini",
     temperature=0.7,
     enable_memory=False,
-    tools=[
-        # File operations
-        _file_read_tool,
-        _file_write_tool,
-        _file_search_tool,
-        # Code execution
-        _execute_python_tool,
-        # Shell execution
-        _shell_exec_tool_wrapper,  # Single command with auto-retry
-        _shell_exec_with_options_wrapper,  # Multiple options for user to choose
-        # Web & Content
-        _brave_search_tool,  # Web search (Brave Search)
-        _analyze_image_url_tool,  # Image URL analysis (OpenAI Vision)
-        _url_fetch_tool,
-        # YouTube
-        _youtube_transcript_tool,
-        _youtube_metadata_tool,
-    ],
+    tools=_get_chat_tools(),  # Dynamic tool retrieval from tool_registry
 )
 async def chat_agent(user_input: str, memory: MemoryManager) -> str:
     """
@@ -1253,27 +1280,16 @@ class ChatSession:
             full_prompt = context_str + "\n[Current message]\n" + user_input
 
         # Reset shell_exec flag for this request
-        global _shell_exec_already_called
-        _shell_exec_already_called = False
+        from kagura.chat.tools import reset_shell_exec_flag
+
+        reset_shell_exec_flag()
 
         # Create chat agent with current model (dynamic)
         current_chat_agent = agent(
             model=self.model,  # Use current model setting
             temperature=0.7,
             enable_memory=False,
-            tools=[
-                _file_read_tool,
-                _file_write_tool,
-                _file_search_tool,
-                _execute_python_tool,
-                _shell_exec_tool_wrapper,
-                _shell_exec_with_options_wrapper,
-                _brave_search_tool,
-                _analyze_image_url_tool,
-                _url_fetch_tool,
-                _youtube_transcript_tool,
-                _youtube_metadata_tool,
-            ],
+            tools=_get_chat_tools(),  # Dynamic tool retrieval from tool_registry
         )(chat_agent)
 
         # Use dynamically configured agent
@@ -1399,19 +1415,16 @@ class ChatSession:
         features.append("  [green]🎉 find_events[/] - Event finder")
         features.append("")
         features.append("[bold cyan]🛠️  Built-in Tools (Auto-detected):[/]")
-        features.append(
-            "  [green]📄 file_read[/] - Read files (text, image, PDF, audio, video)"
-        )
-        features.append("  [green]📝 file_write[/] - Write/modify files (auto-backup)")
-        features.append("  [green]🔍 file_search[/] - Find files by pattern")
-        features.append("  [green]🐍 execute_python[/] - Run Python code safely")
-        features.append(
-            "  [green]💻 shell_exec[/] - Execute shell commands (confirmation)"
-        )
-        features.append("  [green]🔍 brave_search[/] - Web search (Brave)")
-        features.append("  [green]🌐 url_fetch[/] - Fetch webpage content")
-        features.append("  [green]📺 youtube_transcript[/] - Get YouTube transcripts")
-        features.append("  [green]📺 youtube_metadata[/] - Get YouTube info")
+
+        # Dynamic tool listing from tool_registry (RFC-036 Phase 3)
+        all_tools = tool_registry.get_all()
+        for tool_name, tool_func in sorted(all_tools.items()):
+            # Get description from docstring
+            doc = tool_func.__doc__ or "No description"
+            first_line = doc.strip().split("\n")[0]
+            # Truncate if too long
+            desc = first_line if len(first_line) < 60 else first_line[:57] + "..."
+            features.append(f"  [green]{tool_name}[/] - {desc}")
         features.append("")
         features.append("[dim]💡 Just ask naturally - tools are used automatically![/]")
         features.append(
@@ -1990,21 +2003,19 @@ Daily assistance with real-time streaming:
                 first_line = doc.strip().split("\n")[0]
                 self.console.print(f"  • [cyan]{name}[/] - {first_line}")
 
-        # Built-in Tools
+        # Built-in Tools (dynamic from tool_registry)
         if not filter_type or filter_type == "tools":
             self.console.print("\n[bold cyan]🛠️  Built-in Tools:[/]")
-            tools = [
-                ("file_read", "Read files (text, images, PDFs, audio, video)"),
-                ("file_write", "Write/modify files"),
-                ("file_search", "Search files by pattern"),
-                ("execute_python", "Run Python code safely"),
-                ("shell_exec", "Execute shell commands"),
-                ("brave_search", "Web search (cached)"),
-                ("url_fetch", "Fetch webpage content"),
-                ("youtube_transcript", "Get YouTube transcripts"),
-            ]
-            for name, desc in tools:
-                self.console.print(f"  • [green]{name}[/] - {desc}")
+
+            # Get tools from tool_registry dynamically (RFC-036 Phase 3)
+            all_tools = tool_registry.get_all()
+            for tool_name, tool_func in sorted(all_tools.items()):
+                # Get description from docstring
+                doc = tool_func.__doc__ or "No description"
+                first_line = doc.strip().split("\n")[0]
+                # Truncate if too long
+                desc = first_line if len(first_line) < 50 else first_line[:47] + "..."
+                self.console.print(f"  • [green]{tool_name}[/] - {desc}")
 
         self.console.print(
             "\n[dim]💡 Just ask naturally - agents/tools are auto-detected![/]"
