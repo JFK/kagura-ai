@@ -1,3 +1,12 @@
-"""Version information for Kagura AI"""
+"""Version information for Kagura AI
 
-__version__ = "2.7.2"
+Version is automatically read from pyproject.toml metadata.
+"""
+
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("kagura-ai")
+except PackageNotFoundError:
+    # Package not installed (e.g., during development)
+    __version__ = "0.0.0.dev"
