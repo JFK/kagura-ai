@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Convert any Python function into an AI agent with a single decorator. Built-in memory, routing, multimodal RAG, web search, and context compression.">
+        <meta name="description" content="Build production-ready AI agents with one decorator. Full type safety, built-in tools, comprehensive testing framework.">
       
       
         <meta name="author" content="Fumikazu Kiyota">
@@ -16,7 +16,7 @@
       
       
       
-        <link rel="next" href="en/installation/">
+        <link rel="next" href="quickstart/">
       
       
       <link rel="icon" href="assets/kagura-icon.svg">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Kagura AI - Python-First AI Agent Framework - Kagura AI Documentation</title>
+        <title>Kagura AI - Python-First AI Agent SDK - Kagura AI Documentation</title>
       
     
     
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kagura AI - Python-First AI Agent Framework
+              Kagura AI - Python-First AI Agent SDK
             
           </span>
         </div>
@@ -265,28 +265,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
+  <a href="#why-kagura-ai" class="md-nav__link">
     <span class="md-ellipsis">
-      Key Features
+      Why Kagura AI?
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Key Features">
+    <nav class="md-nav" aria-label="Why Kagura AI?">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#core-features" class="md-nav__link">
+  <a href="#for-python-developers" class="md-nav__link">
     <span class="md-ellipsis">
-      Core Features
+      For Python Developers
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#advanced-features" class="md-nav__link">
+  <a href="#vs-other-sdks" class="md-nav__link">
     <span class="md-ellipsis">
-      Advanced Features
+      vs Other SDKs
     </span>
   </a>
   
@@ -298,46 +298,145 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#core-concepts" class="md-nav__link">
+  <a href="#core-features" class="md-nav__link">
     <span class="md-ellipsis">
-      Core Concepts
+      Core Features
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Core Concepts">
+    <nav class="md-nav" aria-label="Core Features">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-agent-decorator" class="md-nav__link">
+  <a href="#sdk-essentials" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Agent Decorator
+      SDK Essentials
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-template-engine" class="md-nav__link">
+  <a href="#bonus-features" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Template Engine
+      Bonus Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-safe-structured-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type-Safe Structured Output
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-type-based-parser" class="md-nav__link">
+  <a href="#with-built-in-tools" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Type-Based Parser
+      With Built-in Tools
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-code-execution" class="md-nav__link">
+  <a href="#with-memory" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Code Execution
+      With Memory
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-World Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Real-World Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fastapi-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      FastAPI Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus-interactive-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bonus: Interactive Chat
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get Started
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Get Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-sdk-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      For SDK Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-exploration" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Exploration
     </span>
   </a>
   
@@ -358,18 +457,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#design-philosophy" class="md-nav__link">
+  <a href="#community" class="md-nav__link">
     <span class="md-ellipsis">
-      Design Philosophy
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get-started" class="md-nav__link">
-    <span class="md-ellipsis">
-      Get Started
+      Community
     </span>
   </a>
   
@@ -428,6 +518,29 @@
   
   
     <li class="md-nav__item">
+      <a href="quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start (5 min)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="en/installation/" class="md-nav__link">
         
   
@@ -451,12 +564,35 @@
   
   
     <li class="md-nav__item">
-      <a href="en/quickstart/" class="md-nav__link">
+      <a href="sdk-guide/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Quick Start
+    SDK Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chat-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat Guide (Bonus)
     
   </span>
   
@@ -497,7 +633,7 @@
   
   
   <span class="md-ellipsis">
-    Tutorials
+    SDK Tutorials
     
   </span>
   
@@ -508,7 +644,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
-            Tutorials
+            SDK Tutorials
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -524,7 +660,7 @@
   
   
   <span class="md-ellipsis">
-    Basic Agent
+    Your First Agent
     
   </span>
   
@@ -547,7 +683,7 @@
   
   
   <span class="md-ellipsis">
-    Template Engine
+    Jinja2 Templates
     
   </span>
   
@@ -570,99 +706,7 @@
   
   
   <span class="md-ellipsis">
-    Type-Based Parsing
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/tutorials/04-code-execution/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Code Execution
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/tutorials/05-repl/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Using the REPL
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/tutorials/06-mcp-integration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    MCP Integration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/tutorials/07-shell-integration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Shell Integration
+    Type-Safe Parsing
     
   </span>
   
@@ -703,58 +747,12 @@
   
   
     <li class="md-nav__item">
-      <a href="en/tutorials/09-agent-routing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Agent Routing
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/tutorials/10-chat-repl/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Chat REPL
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="en/tutorials/11-tools/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Tools
+    Custom Tools
     
   </span>
   
@@ -777,53 +775,7 @@
   
   
   <span class="md-ellipsis">
-    Workflows
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/tutorials/13-agent-builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Agent Builder
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/tutorials/13-multimodal-rag/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Multimodal RAG
+    Multi-Agent Workflows
     
   </span>
   
@@ -846,30 +798,7 @@
   
   
   <span class="md-ellipsis">
-    Testing
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/tutorials/15-observability/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Observability
+    Testing Agents
     
   </span>
   
@@ -910,7 +839,7 @@
   
   
   <span class="md-ellipsis">
-    Guides
+    Integration Guides
     
   </span>
   
@@ -921,7 +850,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
-            Guides
+            Integration Guides
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -932,12 +861,35 @@
   
   
     <li class="md-nav__item">
-      <a href="en/guides/commands-quickstart/" class="md-nav__link">
+      <a href="en/guides/web-integration/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Custom Commands
+    Web Search & Scraping
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="en/guides/claude-code-mcp-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP (Claude Desktop)
     
   </span>
   
@@ -1001,150 +953,12 @@
   
   
     <li class="md-nav__item">
-      <a href="en/guides/chat-multimodal/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Chat Multimodal
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/guides/web-integration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Web Integration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/guides/full-featured-mode/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Full-Featured Mode
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="en/guides/context-compression/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Context Compression
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/guides/hooks-guide/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Hooks Guide
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/guides/performance-caching/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Performance - Caching
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/guides/performance-parallelization/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Performance - Parallelization
     
   </span>
   
@@ -1185,7 +999,7 @@
   
   
   <span class="md-ellipsis">
-    API Reference
+    Advanced Topics
     
   </span>
   
@@ -1195,6 +1009,166 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Advanced Topics
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="en/tutorials/04-code-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code Execution
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="en/tutorials/09-agent-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent Routing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="en/tutorials/13-multimodal-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multimodal RAG
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="en/guides/performance-caching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance Caching
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="en/tutorials/15-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             API Reference
           </label>
@@ -1229,266 +1203,51 @@
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Core Decorators
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            Core Decorators
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="en/api/agent/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    @agent Decorator
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/executor/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Code Executor
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/cli/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    CLI Commands
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/auth/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Authentication
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/meta/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Meta Agent
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/mcp/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    MCP Integration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/shell/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Shell Integration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/memory/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Memory Management
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/routing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Agent Routing
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/compression/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Context Compression
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/commands/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Custom Commands
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="en/api/hooks/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Hooks
+    @agent
     
   </span>
   
@@ -1511,7 +1270,7 @@
   
   
   <span class="md-ellipsis">
-    Tools
+    @tool
     
   </span>
   
@@ -1534,7 +1293,76 @@
   
   
   <span class="md-ellipsis">
-    Workflows
+    @workflow
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_3">
+            <span class="md-nav__icon md-icon"></span>
+            Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="en/api/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory System
     
   </span>
   
@@ -1575,12 +1403,81 @@
   
   
     <li class="md-nav__item">
+      <a href="en/api/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing Framework
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="en/api/chat/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Chat
+    Chat Session
     
   </span>
   
@@ -1598,12 +1495,127 @@
   
   
     <li class="md-nav__item">
-      <a href="en/api/testing/" class="md-nav__link">
+      <a href="en/api/mcp/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Testing
+    MCP Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="en/api/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Advanced
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_5">
+            <span class="md-nav__icon md-icon"></span>
+            Advanced
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="en/api/executor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code Executor
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="en/api/compression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context Compression
     
   </span>
   
@@ -1632,6 +1644,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1681,10 +1701,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
             
   
   
@@ -1697,8 +1717,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             For Developers
           </label>
@@ -1717,29 +1737,6 @@
   
   <span class="md-ellipsis">
     How to Contribute
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING_JA.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Contributing (日本語)
     
   </span>
   
@@ -1780,28 +1777,6 @@
   
 
     
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="https://github.com/JFK/kagura-ai" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    GitHub
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -1838,28 +1813,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
+  <a href="#why-kagura-ai" class="md-nav__link">
     <span class="md-ellipsis">
-      Key Features
+      Why Kagura AI?
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Key Features">
+    <nav class="md-nav" aria-label="Why Kagura AI?">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#core-features" class="md-nav__link">
+  <a href="#for-python-developers" class="md-nav__link">
     <span class="md-ellipsis">
-      Core Features
+      For Python Developers
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#advanced-features" class="md-nav__link">
+  <a href="#vs-other-sdks" class="md-nav__link">
     <span class="md-ellipsis">
-      Advanced Features
+      vs Other SDKs
     </span>
   </a>
   
@@ -1871,46 +1846,145 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#core-concepts" class="md-nav__link">
+  <a href="#core-features" class="md-nav__link">
     <span class="md-ellipsis">
-      Core Concepts
+      Core Features
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Core Concepts">
+    <nav class="md-nav" aria-label="Core Features">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-agent-decorator" class="md-nav__link">
+  <a href="#sdk-essentials" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Agent Decorator
+      SDK Essentials
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-template-engine" class="md-nav__link">
+  <a href="#bonus-features" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Template Engine
+      Bonus Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-safe-structured-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type-Safe Structured Output
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-type-based-parser" class="md-nav__link">
+  <a href="#with-built-in-tools" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Type-Based Parser
+      With Built-in Tools
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-code-execution" class="md-nav__link">
+  <a href="#with-memory" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Code Execution
+      With Memory
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-World Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Real-World Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fastapi-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      FastAPI Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus-interactive-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bonus: Interactive Chat
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get Started
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Get Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-sdk-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      For SDK Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-exploration" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Exploration
     </span>
   </a>
   
@@ -1931,18 +2005,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#design-philosophy" class="md-nav__link">
+  <a href="#community" class="md-nav__link">
     <span class="md-ellipsis">
-      Design Philosophy
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#get-started" class="md-nav__link">
-    <span class="md-ellipsis">
-      Get Started
+      Community
     </span>
   </a>
   
@@ -1966,124 +2031,207 @@
 
 <h1 id="kagura-ai">Kagura AI</h1>
 <p><img alt="Kagura AI Logo" src="assets/kagura-logo.svg" /></p>
-<p><strong>Python-First AI Agent Framework with Memory, Routing, and Multimodal RAG</strong></p>
-<p>Kagura AI is a modern framework that makes building AI agents as simple as writing a Python function. With a single <code>@agent</code> decorator, you can transform any async function into a powerful AI agent with memory, routing, multimodal understanding, and web search capabilities.</p>
+<p><strong>Python-First AI Agent SDK</strong></p>
+<p>Build production-ready AI agents with one decorator. Full type safety, built-in tools, and comprehensive testing framework.</p>
 <hr />
 <h2 id="what-is-kagura-ai">What is Kagura AI?</h2>
-<p>Kagura AI is a production-ready framework focused on developer experience and simplicity. You write agents in pure Python with familiar async/await patterns.</p>
+<p>A Python SDK that makes building AI agents as simple as writing a function. Add one <code>@agent</code> decorator and you're done.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@agent</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">hello</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Say hello to {{ name }}&#39;&#39;&#39;</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">pass</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">hello</span><span class="p">(</span><span class="s2">&quot;World&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># &quot;Hello, World!&quot;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">translator</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ja&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Translate to {{ lang }}: {{ text }}&#39;&#39;&#39;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">translator</span><span class="p">(</span><span class="s2">&quot;Hello World&quot;</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="s2">&quot;ja&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># &quot;こんにちは世界&quot;</span>
 </code></pre></div>
-<h2 id="key-features">Key Features</h2>
-<h3 id="core-features">Core Features</h3>
+<p>No configuration files. No complex setup. Just Python.</p>
+<hr />
+<h2 id="why-kagura-ai">Why Kagura AI?</h2>
+<h3 id="for-python-developers">For Python Developers</h3>
 <ul>
-<li><strong>One-Line Agent Creation</strong>: <code>@agent</code> decorator converts functions to AI agents</li>
-<li><strong>Jinja2 Templates</strong>: Dynamic prompts using template syntax in docstrings</li>
-<li><strong>Type-Based Parsing</strong>: Automatic response conversion using Python type hints</li>
-<li><strong>Pydantic Support</strong>: First-class structured output with Pydantic models</li>
-<li><strong>Code Execution</strong>: Built-in safe Python code generation and execution</li>
-<li><strong>Multi-LLM Support</strong>: Works with OpenAI, Anthropic, Google, and more</li>
+<li><strong>One Decorator</strong>: <code>@agent</code> is all you need</li>
+<li><strong>Type-Safe</strong>: Full pyright strict mode support</li>
+<li><strong>Production-Ready</strong>: Built-in memory, tools, testing</li>
+<li><strong>Fast Integration</strong>: Add to existing apps in minutes</li>
 </ul>
-<h3 id="advanced-features">Advanced Features</h3>
+<h3 id="vs-other-sdks">vs Other SDKs</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>LangChain</th>
+<th>AutoGen</th>
+<th><strong>Kagura AI</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Setup</td>
+<td>50+ lines</td>
+<td>30+ lines</td>
+<td><strong>1 decorator</strong> ✅</td>
+</tr>
+<tr>
+<td>Type Safety</td>
+<td>❌</td>
+<td>❌</td>
+<td><strong>✅ Full</strong></td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>Manual</td>
+<td>Basic</td>
+<td><strong>✅ 3-tier</strong></td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>Manual</td>
+<td>❌</td>
+<td><strong>✅ Built-in</strong></td>
+</tr>
+<tr>
+<td>Web Search</td>
+<td>Plugin</td>
+<td>❌</td>
+<td><strong>✅ Built-in</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="core-features">Core Features</h2>
+<h3 id="sdk-essentials">SDK Essentials</h3>
 <ul>
-<li><strong>Memory Management</strong>: Context, persistent, and RAG-based memory</li>
-<li><strong>Agent Routing</strong>: Intelligent agent selection with intent and semantic matching</li>
-<li><strong>Multimodal RAG</strong>: Index and search images, audio, video, and PDFs</li>
-<li><strong>Web Integration</strong>: Real-time web search and content scraping</li>
-<li><strong>Context Compression</strong>: Efficient token management for long conversations</li>
-<li><strong>Interactive Chat</strong>: Full-featured chat REPL with memory and web search</li>
-<li><strong>Testing Framework</strong>: Built-in testing utilities with semantic assertions</li>
-<li><strong>Observability</strong>: Telemetry, cost tracking, and performance monitoring</li>
+<li>✅ <strong>@agent Decorator</strong> - One-line AI agent creation</li>
+<li>✅ <strong>Type-Safe Output</strong> - Automatic Pydantic parsing</li>
+<li>✅ <strong>Built-in Tools</strong> - Web search, file ops, code exec</li>
+<li>✅ <strong>Memory System</strong> - Context, persistent, RAG</li>
+<li>✅ <strong>Testing Framework</strong> - Test your agents easily</li>
+<li>✅ <strong>Multi-LLM</strong> - OpenAI, Anthropic, Google, 100+ more</li>
 </ul>
-<h2 id="core-concepts">Core Concepts</h2>
-<h3 id="1-agent-decorator">1. Agent Decorator</h3>
-<p>Transform any async function into an AI agent:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nd">@agent</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_agent</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Process {{ input }}&#39;&#39;&#39;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">pass</span>
-</code></pre></div>
-<p>The decorator:
-- Extracts the function signature
-- Uses the docstring as a Jinja2 template
-- Calls the LLM with rendered prompt
-- Parses the response based on return type</p>
-<h3 id="2-template-engine">2. Template Engine</h3>
-<p>Use Jinja2 templates in docstrings for dynamic prompts:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@agent</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">translator</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ja&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Translate to {{ lang }}: {{ text }}&#39;&#39;&#39;</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="k">pass</span>
-</code></pre></div>
-<h3 id="3-type-based-parser">3. Type-Based Parser</h3>
-<p>Automatic response parsing based on return type hints:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">Person</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="nd">@agent</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">extract_person</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Person</span><span class="p">:</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Extract person info from: {{ text }}&#39;&#39;&#39;</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="k">pass</span>
-</code></pre></div>
-<p>Returns a fully validated Pydantic model instance.</p>
-<h3 id="4-code-execution">4. Code Execution</h3>
-<p>Safe Python code generation and execution:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">execute_code</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">execute_code</span><span class="p">(</span><span class="s2">&quot;Calculate the factorial of 10&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Generates code, executes safely, returns result</span>
-</code></pre></div>
-<h2 id="architecture">Architecture</h2>
-<p>Kagura AI follows a clean, layered architecture:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>┌─────────────────────────────────────┐
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>│         @agent Decorator            │
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│  (Function → Agent transformation)  │
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>└───────────────┬─────────────────────┘
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>                │
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>┌───────────────▼─────────────────────┐
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>│       Template Engine (Jinja2)      │
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│    (Docstring → Rendered prompt)    │
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>└───────────────┬─────────────────────┘
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>                │
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>┌───────────────▼─────────────────────┐
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>│         LLM Layer (LiteLLM)         │
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>│   (Prompt → LLM → Raw response)     │
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>└───────────────┬─────────────────────┘
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>                │
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>┌───────────────▼─────────────────────┐
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>│    Parser (Type-based parsing)      │
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>│  (Raw response → Typed Python obj)  │
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>└─────────────────────────────────────┘
-</code></pre></div>
-<h2 id="design-philosophy">Design Philosophy</h2>
-<p>Kagura AI is built on these principles:</p>
+<h3 id="bonus-features">Bonus Features</h3>
 <ul>
-<li><strong>Python-First</strong>: No external configuration files</li>
-<li><strong>Type Safety</strong>: Leverages Python's type system</li>
-<li><strong>Developer Experience</strong>: Simple API, fast iteration</li>
-<li><strong>Composability</strong>: Agents are just async functions</li>
-<li><strong>Explicitness</strong>: Clear data flow, no magic</li>
-<li><strong>Production-Ready</strong>: Built-in testing, monitoring, and optimization tools</li>
+<li>✅ <strong>Interactive Chat</strong> - Try features without code</li>
+<li>✅ <strong>MCP Integration</strong> - Use in Claude Desktop</li>
+<li>✅ <strong>Streaming</strong> - Real-time responses</li>
+<li>✅ <strong>Cost Tracking</strong> - Monitor API usage</li>
 </ul>
+<hr />
+<h2 id="quick-examples">Quick Examples</h2>
+<h3 id="type-safe-structured-output">Type-Safe Structured Output</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">sentiment</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="nd">@agent</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Analysis</span><span class="p">:</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Analyze: {{ text }}&#39;&#39;&#39;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">analyze</span><span class="p">(</span><span class="s2">&quot;I love Python!&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">sentiment</span><span class="p">)</span>  <span class="c1"># Type-safe!</span>
+</code></pre></div>
+<h3 id="with-built-in-tools">With Built-in Tools</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;web_search&quot;</span><span class="p">])</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">researcher</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Research {{ topic }} using web_search(query) tool.&#39;&#39;&#39;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">researcher</span><span class="p">(</span><span class="s2">&quot;Python 3.13 features&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="with-memory">With Memory</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">enable_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">assistant</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Remember our conversation. User says: {{ message }}&#39;&#39;&#39;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">await</span> <span class="n">assistant</span><span class="p">(</span><span class="s2">&quot;My favorite color is blue&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">await</span> <span class="n">assistant</span><span class="p">(</span><span class="s2">&quot;What&#39;s my favorite color?&quot;</span><span class="p">)</span>  <span class="c1"># Remembers!</span>
+</code></pre></div>
+<hr />
+<h2 id="real-world-integration">Real-World Integration</h2>
+<h3 id="fastapi-example">FastAPI Example</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nd">@agent</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">support_bot</span><span class="p">(</span><span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Answer support question: {{ question }}&#39;&#39;&#39;</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/api/support&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_support</span><span class="p">(</span><span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">support_bot</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">}</span>
+</code></pre></div>
+<h3 id="data-pipeline">Data Pipeline</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;web_search&quot;</span><span class="p">])</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">data_enricher</span><span class="p">(</span><span class="n">company</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Enrich data for: {{ company }}</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="sd">    Extract: industry, size, location</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="sd">    &#39;&#39;&#39;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">enriched</span> <span class="o">=</span> <span class="k">await</span> <span class="n">data_enricher</span><span class="p">(</span><span class="s2">&quot;Anthropic&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="bonus-interactive-chat">Bonus: Interactive Chat</h2>
+<p>Want to try without writing code?</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kagura<span class="w"> </span>chat
+</code></pre></div>
+<p>Claude Code-like experience with all SDK features:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>[You] &gt; Read report.pdf and summarize
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>[AI] &gt; (Uses SDK&#39;s file_read + Gemini Vision)
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>      Key findings:
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>      1. Revenue up 23% YoY
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>      2. New market expansion
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>      3. Team doubled
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>[You] &gt; Search for industry trends
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>[AI] &gt; (Uses SDK&#39;s web_search tool)
+</code></pre></div>
+<hr />
 <h2 id="get-started">Get Started</h2>
-<p>Ready to build your first agent?</p>
+<p>Choose your path:</p>
+<h3 id="for-sdk-integration">For SDK Integration</h3>
+<ol>
+<li><a href="quickstart/">Quick Start</a> - 5-minute tutorial</li>
+<li><a href="sdk-guide/">SDK Guide</a> - Complete SDK guide</li>
+<li><a href="https://github.com/JFK/kagura-ai/tree/main/examples">Examples</a> - Code examples</li>
+</ol>
+<h3 id="for-exploration">For Exploration</h3>
+<ol>
+<li><a href="chat-guide/">Chat Guide</a> - Try interactive chat</li>
+<li><a href="en/installation/">Installation</a> - Setup guide</li>
+</ol>
+<p><a class="md-button md-button--primary" href="quickstart/">Get Started →</a></p>
+<hr />
+<h2 id="architecture">Architecture</h2>
+<p>Built on proven technologies:</p>
 <ul>
-<li><a href="en/installation/">Installation Guide</a> - Install Kagura AI</li>
-<li><a href="en/quickstart/">Quick Start Tutorial</a> - Build your first agent in 5 minutes</li>
-<li><a href="en/api/">API Reference</a> - Detailed API documentation</li>
-<li><a href="https://github.com/JFK/kagura-ai/tree/main/examples">Examples</a> - More examples and patterns</li>
+<li><strong>LLM</strong>: OpenAI SDK (direct) + LiteLLM (100+ providers)</li>
+<li><strong>Memory</strong>: ChromaDB (vector storage)</li>
+<li><strong>Validation</strong>: Pydantic v2</li>
+<li><strong>Testing</strong>: pytest + custom framework</li>
+<li><strong>Type Safety</strong>: pyright strict mode</li>
 </ul>
-<p><a class="md-button md-button--primary" href="en/installation/">Get Started →</a></p>
+<p><strong>Quality Metrics</strong>:
+- 1,300+ tests (90%+ coverage)
+- 100% typed (pyright strict)
+- Production-ready</p>
+<hr />
+<h2 id="community">Community</h2>
+<ul>
+<li><a href="https://github.com/JFK/kagura-ai">GitHub</a> - Source code &amp; issues</li>
+<li><a href="https://pypi.org/project/kagura-ai/">PyPI</a> - Package downloads</li>
+<li><a href="https://github.com/JFK/kagura-ai/tree/main/examples">Examples</a> - 30+ examples</li>
+</ul>
+<hr />
+<p><strong>Built with ❤️ for Python developers</strong></p>
 
 
 
