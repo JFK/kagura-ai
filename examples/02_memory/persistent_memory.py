@@ -72,8 +72,7 @@ async def main():
 
     # Show memory stats
     print("\nMemory Statistics:")
-    stats = await persistent_memory.stats()
-    print(f"  Total memories: {stats.get('total_memories', 0)}")
+    print(f"  Context messages: {len(persistent_memory.context.messages)}")
     print(f"  Storage path: {storage_path.absolute()}")
 
 

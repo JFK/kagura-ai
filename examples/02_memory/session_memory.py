@@ -89,8 +89,7 @@ async def main():
     # Show memory stats
     print("\n=== Memory Statistics ===")
     for session_id, memory in session_memories.items():
-        stats = await memory.stats()
-        print(f"{session_id}: {stats.get('total_memories', 0)} memories")
+        print(f"{session_id}: {len(memory.context.messages)} messages")
 
 
 if __name__ == "__main__":

@@ -77,6 +77,9 @@ async def ticket_classifier(message: str) -> TicketClassification:
     Classify this support request:
     "{{ message }}"
 
+    IMPORTANT: ticket_type must be exactly one of: "technical", "billing", "general", "urgent"
+    Do not use variations like "technical_issue" - use only the exact enum values.
+
     Return structured classification with type, priority, summary, and action.
     """
     pass

@@ -57,9 +57,7 @@ async def main():
 
     # Show memory stats
     print("\nMemory Statistics:")
-    stats = await memory.stats()
-    print(f"  Total memories: {stats.get('total_memories', 0)}")
-    print(f"  Working memory size: {stats.get('working_memory_size', 0)}")
+    print(f"  Context messages: {len(memory.context.messages)}")
 
 
 if __name__ == "__main__":

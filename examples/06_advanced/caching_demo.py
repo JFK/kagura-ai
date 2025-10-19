@@ -46,7 +46,7 @@ async def benchmark_translation():
     result1 = await translator(text, target)
     time1 = time.time() - start
     print(f"   Time: {time1:.3f}s")
-    print(f"   Result: {result1}")
+    print(f"   Result: {str(result1)}")
 
     # Second call (cache hit)
     print("\n2. Second call (cache hit):")
@@ -99,7 +99,7 @@ async def demonstrate_cache_invalidation():
     # First call
     print("\n1. First call:")
     result1 = await explainer(concept)
-    print(f"   Result: {result1[:50]}...")
+    print(f"   Result: {str(result1)[:50]}...")
 
     # Second call (cached)
     print("\n2. Second call (cached):")

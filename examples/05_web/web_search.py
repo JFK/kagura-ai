@@ -85,7 +85,9 @@ async def main():
         print("⚠️  BRAVE_SEARCH_API_KEY not set")
         print("Set it with: export BRAVE_SEARCH_API_KEY='your_key'")
         print("Get key at: https://brave.com/search/api/")
-        print("\nRunning with simulated results...\n")
+        print("\nNote: This example uses simulated search results.")
+        print("Some queries may hit 'Maximum tool iterations' due to simulation.")
+        print("With real API, results are returned directly.\n")
 
     # Answer questions using web search
     questions = [
