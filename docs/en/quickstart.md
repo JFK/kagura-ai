@@ -1,67 +1,59 @@
 # Quick Start
 
-Get started with Kagura AI 2.0 in 5 minutes.
+Get started with Kagura AI in 5 minutes.
+
+---
 
 ## Installation
 
 ```bash
-pip install kagura-ai
+pip install kagura-ai[full]
 ```
 
-or with uv:
-
-```bash
-uv add kagura-ai
-```
+---
 
 ## Set API Key
 
-Kagura AI uses LiteLLM, which supports multiple LLM providers. Set your API key:
-
 ```bash
-export OPENAI_API_KEY="your-key-here"
+export OPENAI_API_KEY=sk-...
 ```
 
-## Your First Agent
+Supports OpenAI, Anthropic, Google, and 100+ providers via LiteLLM.
 
-Create a simple conversational agent:
+---
+
+## Your First Agent (30 seconds)
 
 ```python
-# chat.py
 from kagura import agent
 
 @agent
-async def chat(message: str) -> str:
-    '''You are a friendly AI assistant. Respond to: {{ message }}'''
-    pass
+async def translator(text: str, lang: str = "ja") -> str:
+    '''Translate to {{ lang }}: {{ text }}'''
 
-# Run
-if __name__ == "__main__":
-    import asyncio
+# Use it
+import asyncio
 
-    async def main():
-        response = await chat("Hello! How are you?")
-        print(response)
+async def main():
+    result = await translator("Hello World", lang="ja")
+    print(result)  # "こんにちは世界"
 
-    asyncio.run(main())
+asyncio.run(main())
 ```
 
-Run it:
+Save as `hello.py` and run:
+
 ```bash
-python chat.py
+python hello.py
 ```
 
-**Output:**
-```
-Hello! I'm doing well, thank you for asking! How can I help you today?
-```
+That's it. One decorator, done.
 
-## Structured Output with Pydantic
+---
 
-Extract structured data using Pydantic models:
+## Type-Safe Structured Output
 
 ```python
-# extract.py
 from kagura import agent
 from pydantic import BaseModel
 
@@ -72,222 +64,121 @@ class Person(BaseModel):
 
 @agent
 async def extract_person(text: str) -> Person:
-    '''Extract person information from: {{ text }}'''
-    pass
+    '''Extract person info from: {{ text }}'''
 
 # Use it
-if __name__ == "__main__":
-    import asyncio
+async def main():
+    person = await extract_person(
+        "Alice is 30 and works as an engineer"
+    )
+    print(f"{person.name}, {person.age}, {person.occupation}")
+    # "Alice, 30, engineer"
 
-    async def main():
-        result = await extract_person(
-            "Alice is 30 years old and works as a software engineer"
-        )
-        print(f"Name: {result.name}")
-        print(f"Age: {result.age}")
-        print(f"Occupation: {result.occupation}")
-
-    asyncio.run(main())
+asyncio.run(main())
 ```
 
-**Output:**
-```
-Name: Alice
-Age: 30
-Occupation: software engineer
-```
+Fully typed. IDE autocomplete works.
 
-## Multiple Parameters
+---
 
-Use multiple parameters in your templates:
+## With Built-in Tools
 
 ```python
+@agent(tools=["web_search"])
+async def researcher(topic: str) -> str:
+    '''Research {{ topic }} using web_search(query) tool.'''
+
+# Environment variable needed:
+# export BRAVE_SEARCH_API_KEY=...
+
+async def main():
+    result = await researcher("Python 3.13 features")
+    print(result)
+
+asyncio.run(main())
+```
+
+Built-in tools: `web_search`, `web_fetch`, `file_read`, `file_write`, `execute_python`, and more.
+
+---
+
+## With Memory
+
+```python
+@agent(enable_memory=True)
+async def assistant(message: str) -> str:
+    '''Remember our conversation. User says: {{ message }}'''
+
+async def main():
+    # First message
+    await assistant("My favorite color is blue")
+
+    # Second message - remembers!
+    response = await assistant("What's my favorite color?")
+    print(response)  # "Your favorite color is blue"
+
+asyncio.run(main())
+```
+
+---
+
+## Real-World: FastAPI Integration
+
+```python
+from fastapi import FastAPI
 from kagura import agent
 
+app = FastAPI()
+
 @agent
-async def translator(text: str, target_lang: str = "ja") -> str:
-    '''Translate to {{ target_lang }}: {{ text }}'''
-    pass
+async def support_bot(question: str) -> str:
+    '''Answer customer support question: {{ question }}'''
 
-# Use with default
-result = await translator("Hello, world!")
-# Output: "こんにちは、世界！"
+@app.post("/api/support")
+async def handle_support(question: str):
+    response = await support_bot(question)
+    return {"answer": response}
 
-# Use with custom language
-result = await translator("Hello, world!", target_lang="fr")
-# Output: "Bonjour, le monde!"
+# Run with: uvicorn main:app
 ```
 
-## Code Execution
+---
 
-Generate and execute Python code:
+## Bonus: Interactive Chat
 
-```python
-from kagura.agents import execute_code
-
-result = await execute_code("Calculate the factorial of 10")
-
-if result["success"]:
-    print(f"Code:\n{result['code']}\n")
-    print(f"Result: {result['result']}")
-else:
-    print(f"Error: {result['error']}")
-```
-
-**Output:**
-```python
-Code:
-import math
-result = math.factorial(10)
-
-Result: 3628800
-```
-
-## Interactive REPL
-
-Try the interactive REPL for rapid prototyping:
+Don't want to write code yet?
 
 ```bash
-kagura repl
+kagura chat
 ```
 
-Available commands:
-- `/help` - Show available commands
-- `/agents` - List defined agents
-- `/exit` - Exit REPL
-- `/clear` - Clear screen
-
-Example REPL session:
+Try all SDK features interactively:
 
 ```
-╭──────────────────────────────────────╮
-│ Kagura AI REPL                       │
-│ Python-First AI Agent Framework      │
-│                                      │
-│ Type /help for commands, /exit to    │
-│ quit                                 │
-╰──────────────────────────────────────╯
+[You] > Read design.pdf and extract requirements
 
->>> @agent
-... async def hello(name: str) -> str:
-...     '''Say hello to {{ name }}'''
-...     pass
-...
+[AI] > (Analyzes PDF, extracts info)
 
->>> await hello("World")
-Hello, World!
+[You] > Search for best practices
 
->>> /exit
-Goodbye!
+[AI] > (Uses web search, finds resources)
 ```
 
-## List Operations
+All SDK features work automatically in chat.
 
-Return lists from agents:
-
-```python
-@agent
-async def extract_keywords(text: str) -> list[str]:
-    '''Extract keywords from: {{ text }}'''
-    pass
-
-keywords = await extract_keywords(
-    "Python is a programming language used for AI and web development"
-)
-print(keywords)
-# ['Python', 'programming language', 'AI', 'web development']
-```
-
-## Complex Data Structures
-
-Work with nested Pydantic models:
-
-```python
-from pydantic import BaseModel
-from typing import List
-
-class Task(BaseModel):
-    title: str
-    priority: int
-    completed: bool
-
-class Project(BaseModel):
-    name: str
-    tasks: List[Task]
-
-@agent
-async def plan_project(goal: str) -> Project:
-    '''Create a project plan for: {{ goal }}'''
-    pass
-
-project = await plan_project("Build a web application")
-print(f"Project: {project.name}")
-for task in project.tasks:
-    status = "✓" if task.completed else "○"
-    print(f"{status} [{task.priority}] {task.title}")
-```
-
-## Use in Claude Desktop
-
-Integrate your Kagura agents with Claude Desktop!
-
-### 1. Install MCP Support
-
-```bash
-pip install kagura-ai[mcp]
-```
-
-### 2. Create an Agent
-
-```python
-# my_agents.py
-from kagura import agent
-
-@agent
-async def analyze_code(code: str) -> str:
-    """Analyze code quality and suggest improvements"""
-    pass
-```
-
-### 3. Configure Claude Desktop
-
-Add to Claude Desktop config file:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "kagura": {
-      "command": "kagura",
-      "args": ["mcp", "serve"],
-      "env": {
-        "OPENAI_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-### 4. Use in Claude Desktop
-
-Restart Claude Desktop, and your agents are available as tools!
-
-```
-You: Can you analyze this Python code?
-
-def calc(x):
-    return x * 2 + 3
-
-Claude: [Uses kagura_analyze_code tool]
-```
-
-See [MCP Integration Tutorial](tutorials/06-mcp-integration.md) for details.
+---
 
 ## Next Steps
 
-- [MCP Integration](tutorials/06-mcp-integration.md) - Use agents in Claude Desktop
-- [API Reference](api/agent.md) - Detailed API documentation
-- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - More examples and patterns
-- [Code Executor](api/executor.md) - Deep dive into code execution
-- [REPL Guide](tutorials/05-repl.md) - Advanced REPL usage
+### SDK Integration
+- [SDK Guide](../sdk-guide.md) - Complete guide to @agent, @tool, memory
+- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - 30+ code examples
+- [API Reference](api/) - Detailed API docs
+
+### Interactive Exploration
+- [Chat Guide](../chat-guide.md) - Full chat features guide
+- [MCP Integration](tutorials/06-mcp-integration.md) - Use in Claude Desktop
+
+---
+
+**Ready to build? Start with the [SDK Guide](../sdk-guide.md)**

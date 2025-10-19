@@ -211,7 +211,7 @@ Draft状態、または長期的な構想のRFCです。
 - [Next Steps](../NEXT_STEPS.md) - 次のアクション
 - [Next Plan v2.5.0](../NEXT_PLAN_v2.5.0.md) - v2.5.0詳細計画
 - [GitHub Issues - RFC Label](https://github.com/JFK/kagura-ai/issues?q=label%3Arfc) - 全RFC Issue一覧
-- [Coding Standards](../coding_standards.md) - コーディング規約
+- [Coding Standards](../CODING_STANDARDS.md) - コーディング規約
 
 ---
 

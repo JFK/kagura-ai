@@ -459,7 +459,7 @@ chmod +x $(which kagura)
 ## Next Steps
 
 - **[API Reference](../api/mcp.md)** - MCP API documentation
-- **[CLI Reference](../api/cli.md)** - `kagura mcp` commands
+
 - **[MCP Specification](https://spec.modelcontextprotocol.io/)** - Learn more about MCP
 
 ## Example Projects

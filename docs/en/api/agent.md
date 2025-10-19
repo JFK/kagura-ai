@@ -1,6 +1,6 @@
 # @agent Decorator
 
-The `@agent` decorator is the core of Kagura AI 2.0, converting any async function into an AI agent with automatic LLM integration.
+The `@agent` decorator is the core of Kagura AI, converting any async function into an AI agent with automatic LLM integration.
 
 ## Overview
 

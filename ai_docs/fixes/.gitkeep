@@ -1,8 +1,0 @@
-# Bug Fix Records
-
-このディレクトリには、バグ修正の詳細記録を格納します。
-
-## ファイル命名規則
-`{issue-number}-{bug-name}.md`
-
-例: `789-authentication-error-fix.md`

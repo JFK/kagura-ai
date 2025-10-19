@@ -1,6 +1,6 @@
 # Kagura AI v3.0 - Vision Document
 
-**Date**: 2025-10-17
+**Date**: 2025-10-19
 **Status**: Active
 **Version**: 3.0
 
@@ -8,265 +8,151 @@
 
 ## 🎯 Vision
 
-**Kagura AI is a personal AI assistant you can use today, and a Python SDK you can extend tomorrow.**
+**Kagura AI is a Python-First AI Agent SDK - build production AI in one decorator.**
 
-We believe AI should be accessible, practical, and useful in everyday life—not just in enterprise environments. Kagura AI serves two audiences:
+We believe AI development should be simple, type-safe, and production-ready. Kagura AI serves developers who want to:
 
-1. **Personal Users**: Get instant AI assistance for daily tasks (news, weather, recipes, web research)
-2. **Developers**: Build custom AI agents with one Python decorator (`@agent`)
+1. **Integrate AI into apps**: One `@agent` decorator, full type safety
+2. **Build quickly**: No config files, just Python
+3. **Ship to production**: Built-in memory, tools, testing
 
-Whether you `pip install kagura-ai && kagura chat` to start chatting, or `from kagura import agent` to build your own tools, Kagura AI adapts to your needs.
+Whether you're building a FastAPI endpoint, data pipeline, or automation script, Kagura AI makes AI integration trivial.
+
+**Bonus**: Want to try without code? Run `kagura chat` for instant experimentation.
 
 ---
 
 ## 🌟 Core Principles
 
-### 1. Personal-First, Not Enterprise-First
-- **Target User**: Individuals using AI for personal productivity and daily life
-- **Use Cases**: News summarization, recipe search, weather updates, event finding, personal note-taking
-- **Not Focused On**: Enterprise workflows, complex orchestration, A/B testing, plugin marketplaces
+### 1. SDK-First, Chat as Bonus
 
-### 2. Conversation-Driven Development
-- **Chat as the Primary Interface**: `kagura chat` is the main way users interact with AI
-- **Meta Agent**: Users can generate new agents **during chat** conversations
-- **Validation Flow**: Test in chat → Export as SDK → Share as examples
+**Primary**: Python SDK for developers
+- Integrate into FastAPI, Streamlit, data pipelines
+- Type-safe, testable, production-ready
+- `from kagura import agent` - that's it
 
-### 3. SDK-First Architecture
-- **Easy Import**: `from kagura import agent`
-- **Minimal Boilerplate**: One decorator to create an agent
-- **Type Safety**: Full type hint support with strict mode
-- **Lazy Loading**: Fast startup, load modules on demand
+**Secondary**: Interactive Chat for exploration
+- Try SDK features without writing code
+- Prototype ideas quickly
+- Claude Code-like experience
 
-### 4. Memory & Personalization
-- **Long-Term Memory**: RAG-based semantic search for conversation history
-- **Personal Notes**: Store recipes, documents, preferences
-- **Context Compression**: Smart context management to stay within token limits
-- **Learning Over Time**: Agents adapt to user preferences
+**Why**: GitHub audience = engineers seeking SDK solutions
 
-### 5. Simplicity Over Features
-- **Remove Complexity**: Delete enterprise-focused features (multi-agent orchestration, workflow engines)
-- **Focus on Core**: Chat, MCP, Memory, Tools, Routing
-- **Lightweight**: Fast startup, minimal dependencies for core features
+### 2. One Decorator Philosophy
 
-### 6. Dual Identity: Tool & SDK
-- **As a Tool**: `kagura chat` - instant personal assistant, no coding required
-- **As an SDK**: `@agent` decorator - build custom agents in minutes with full type safety
-- **Seamless Flow**: Test agents in chat → Export to code → Share with community
-- **Both First-Class**: Not "SDK with a CLI bolt-on", but "Tool + SDK by design"
-- **Choose Your Path**: Use built-in tools, or extend with Python—your choice
-
----
-
-## 🏗️ Architecture Philosophy
-
-### Three Layers
-
-```
-┌─────────────────────────────────────┐
-│   User Layer (Personal Assistant)  │
-│   - kagura chat                     │
-│   - MCP integration                 │
-│   - Custom agents (~/.kagura)       │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│   SDK Layer (Development)           │
-│   - @agent decorator                │
-│   - Tools & Loaders                 │
-│   - Memory + RAG                    │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│   Core Layer (Foundation)           │
-│   - LLM Integration                 │
-│   - Code Executor                   │
-│   - Routing Engine                  │
-└─────────────────────────────────────┘
+```python
+@agent
+async def translator(text: str, lang: str = "ja") -> str:
+    '''Translate to {{ lang }}: {{ text }}'''
 ```
 
-### Design Decisions
+No configuration files. No complex setup. Just Python.
 
-| Decision | Rationale |
-|----------|-----------|
-| **Chat-Centric** | Most users start with chatting, not coding |
-| **agents/ Consolidation** | One place for all agents/tools (framework + user) |
-| **Memory + RAG** | Critical for personalization and long-term learning |
-| **Optional Extras** | `ai`, `web`, `auth`, `mcp` extras for advanced features |
-| **Keep monitor CLI** | Useful for debugging and cost analysis |
-| **Remove Dashboard** | Web dashboard adds complexity, CLI is sufficient |
+### 3. Full Type Safety
 
----
+- **pyright strict mode**: Zero tolerance for type errors
+- **Pydantic integration**: Structured output with validation
+- **IDE support**: Full autocomplete, type checking
 
-## 🎨 User Experience Goals
+### 4. Production-Ready Out of the Box
 
-### For End Users (Non-Developers)
-- ✅ Start chatting in < 5 minutes (`pip install kagura-ai && kagura chat`)
-- ✅ Generate custom agents **in chat** without writing code
-- ✅ Agents remember preferences and past conversations
-- ✅ Clear cost/token usage visibility (`/stats`)
+- **Memory**: 3-tier system (Context/Persistent/RAG)
+- **Tools**: Web search, file ops, code exec built-in
+- **Testing**: AgentTestCase with semantic assertions
+- **Observability**: Cost tracking, performance monitoring
 
-### For Developers (SDK Users)
-- ✅ Intuitive API: `@agent` decorator is all you need
-- ✅ Easy tool integration: `tools=[brave_search, youtube_transcript]`
-- ✅ Full type safety with Pyright strict mode
-- ✅ Comprehensive documentation with real-world examples
+### 5. Simplicity & Focus
 
-### For Power Users (MCP Integration)
-- ✅ Control chat via MCP protocol
-- ✅ Integrate with other tools (Claude Desktop, Cursor, etc.)
-- ✅ Programmatic access to all features
+**Keep**:
+- Core: @agent, @tool, @workflow
+- Memory: MemoryManager, MemoryRAG
+- Tools: Built-in tools (web, file, code)
+- Chat: Interactive experimentation
+- MCP: Claude Desktop integration
+
+**Avoid**:
+- Complex orchestration (keep simple workflows)
+- Enterprise features (multi-tenant, dashboards)
+- Plugin systems (keep focused)
 
 ---
 
-## 🚀 Current State: v2.7.2 (2025-10-18)
+## 🎯 Target Audience
 
-### Already Available ✅
+### Primary: Python Developers
 
-**For Personal Users (No Coding Required)**:
-- **Chat Interface**: Claude Code-like experience with 8 built-in tools
-- **Web Search**: Brave Search with automatic caching (70% faster on repeat queries)
-- **YouTube Analysis**: Transcript extraction + metadata for any video
-- **Multimodal Files**: Analyze images, PDFs, audio, video files
-- **Smart Search**: Results cached automatically for instant repeat queries
-- **Runtime Flexibility**: Switch models mid-conversation (`/model gpt-5-mini`)
-- **Session Management**: Save/load conversations, clear history
+**Use Cases**:
+- Web API endpoints (FastAPI, Flask)
+- Data enrichment pipelines
+- Automation scripts
+- Internal tools
 
-**For Developers (SDK Users)**:
-- **@agent Decorator**: One line to create an AI agent with full type safety
-- **Hybrid LLM Backend**: OpenAI SDK (fast) + LiteLLM (multi-provider)
-- **Memory & RAG**: ChromaDB-powered semantic search for conversation history
-- **MCP Integration**: 15 built-in tools exposed via Model Context Protocol
-- **Automatic Telemetry**: Track tokens, costs, performance automatically
-- **Testing Framework**: Mock LLM calls, parallel test execution (24-80% faster)
-- **Type Safety**: Pyright strict mode with 0 errors across 1,300+ tests
+**Needs**:
+- Type safety
+- Easy integration
+- Production-ready
+- Testable
 
-**Performance & Quality**:
-- ✅ CLI startup: 0.5s (98.7% faster than v2.4)
-- ✅ Search caching: 70% response time reduction
-- ✅ 1,300+ tests passing (>90% coverage)
-- ✅ Production-ready stability
+### Secondary: Experimenters
+
+**Use Cases**:
+- Prototyping AI ideas
+- Learning AI agent patterns
+- Quick experiments
+
+**Needs**:
+- No code required
+- Instant feedback
+- Feature-rich
 
 ---
 
-## 🔜 Coming in v3.0: Personal Assistant Focus
+## 🚀 v3.0 Goals
 
-### What's Being Added
+### Documentation
+- ✅ SDK-first README
+- ✅ Real-world integration examples
+- ✅ Chat as bonus feature
 
-1. **Dedicated Personal Tools** (NEW)
-   - `daily_news()` - Morning news briefing
-   - `weather_forecast()` - Weather updates
-   - `search_recipes()` - Recipe suggestions with ingredients
-   - `find_events()` - Event search by location and date
+### Developer Experience
+- ✅ Simplified CLAUDE.md
+- ✅ Clean ai_docs/
+- ✅ Type-safe everywhere
 
-2. **Enhanced Meta Agent** (Extension of RFC-005)
-   - `/create agent` command directly in chat
-   - Auto-save generated agents to `~/.kagura/agents/`
-   - Auto-registration with AgentRouter
-   - Example: "Create an agent that summarizes morning news"
+### Quality
+- ✅ 1,300+ tests
+- ✅ 90%+ coverage
+- ✅ Zero pyright errors
 
-3. **Chat Statistics** (NEW)
-   - `/stats` - Real-time token/cost breakdown
-   - `/stats summary` - AI-generated session insights
-   - `/stats export` - Export to JSON/CSV for analysis
+---
 
-4. **Documentation Refresh**
-   - Personal use case focus (not enterprise)
-   - 5-minute quickstart guide
-   - Real-world examples (daily briefing, recipe search, event finder)
+## 🌸 Philosophy
 
-### What's Being Simplified
+"Kagura (神楽)" embodies harmony and creativity - principles at the heart of this SDK:
 
-- **Focus Shift**: Enterprise → Personal daily use
-- **Documentation**: Rewritten for individual users first, developers second
-- **Examples**: Practical personal workflows instead of abstract patterns
-- **Architecture**: Keep what works, remove complexity that doesn't serve personal use
+- **Harmony**: Simple API that works with Python's natural patterns
+- **Creativity**: Enable developers to build AI solutions quickly
+- **Craftsmanship**: Quality over quantity, type safety over flexibility
 
 ---
 
 ## 📊 Success Metrics
 
-### Technical Metrics (v2.7.2 Status)
-- ✅ **Test coverage > 90%** - Achieved (1,300+ tests, >90% coverage)
-- ✅ **Type safety** - Achieved (Pyright strict, 0 errors)
-- ✅ **Startup time < 1s** - Achieved (0.5s, 98.7% improvement)
-- ✅ **Memory footprint** - Achieved (lazy loading, minimal dependencies)
-- ✅ **Search performance** - Achieved (70% faster with caching)
+### Technical
+- ✅ One-line agent creation
+- ✅ Full type safety (pyright strict)
+- ✅ 90%+ test coverage
+- ✅ Production-ready
 
-### User Metrics (v3.0 Goals)
-- 🔲 Time to first chat: < 5 minutes (`pip install && kagura chat`)
-- 🔲 Personal tool usage: Daily news/weather/recipes work out-of-box
-- 🔲 Agent creation: < 2 minutes with enhanced `/create agent`
-- 🔲 Documentation clarity: New user creates custom agent in < 30 minutes
-
-### Community Metrics (v3.0+ Goals)
-- 🔲 100+ users trying personal assistant features
-- 🔲 50+ custom agents shared in community
-- 🔲 10+ real-world personal workflows in `examples/`
-- 🔲 Positive feedback on simplicity and daily usefulness
+### Adoption
+- 🎯 Developers choose Kagura for SDK integration
+- 🎯 "Best Python AI SDK" reputation
+- 🎯 Active GitHub community
 
 ---
 
-## 🗺️ Roadmap
-
-### v3.0 (Foundation) - Q1 2025
-- ✅ Architecture restructure
-- ✅ Personal assistant tools
-- ✅ Meta Agent
-- ✅ Chat enhancements (/stats)
-- ✅ Documentation rewrite
-
-### v3.1 (Jupyter Integration) - Q2 2025
-- 🔲 Notebook execution support
-- 🔲 Data analysis examples
-- 🔲 Interactive visualizations
-
-### v3.2 (Calendar & Reminders) - Q2-Q3 2025
-- 🔲 Google Calendar integration (via OAuth2)
-- 🔲 Reminder system
-- 🔲 Event notifications
-
-### v4.0 (Voice Interface) - Q4 2025
-- 🔲 Whisper integration (speech-to-text)
-- 🔲 TTS integration (text-to-speech)
-- 🔲 Voice-first workflows
+**Built with ❤️ for developers who value type safety and simplicity**
 
 ---
 
-## 🤝 Community & Contribution
-
-### Contribution Philosophy
-- **Quality Over Quantity**: We value well-tested, documented contributions
-- **Personal Use Cases**: Prefer practical, real-world examples
-- **Simplicity First**: Additions should not increase complexity for beginners
-
-### How to Contribute
-1. **Share Examples**: Personal assistant workflows, custom agents
-2. **Improve Documentation**: Real-world use cases, tutorials
-3. **Report Issues**: Use GitHub Issues (with clear reproduction steps)
-4. **Propose Features**: Aligned with personal assistant vision
-
-### What We Won't Accept
-- ❌ Enterprise-only features (workflow engines, A/B testing)
-- ❌ Complex orchestration systems
-- ❌ Features that increase startup time significantly
-- ❌ Features that break simplicity for beginners
-
----
-
-## 📝 Closing Thoughts
-
-Kagura AI v3.0 is a **return to simplicity**. We're removing enterprise bloat and focusing on what matters: helping individuals use AI in their daily lives.
-
-Our goal is to make AI **accessible, practical, and personal**. Not another framework for data scientists or enterprise engineers, but a tool for anyone who wants a personal AI assistant that actually works.
-
----
-
-**Let's build a personal AI assistant framework that's actually useful in daily life!** 🚀
-
----
-
-## 🔗 Related Documents
-- [ROADMAP_v3.md](./ROADMAP_v3.md) - Detailed implementation roadmap
-- [CLAUDE.md](../CLAUDE.md) - Development guidelines
-- [RFC-003](./rfcs/RFC_003_PERSONAL_ASSISTANT.md) - Personal Assistant specification
-- [GitHub Issue #285](https://github.com/JFK/kagura-ai/issues/285) - v3.0 tracking issue
+**Last Updated**: 2025-10-19

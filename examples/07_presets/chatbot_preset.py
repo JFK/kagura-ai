@@ -7,7 +7,7 @@ This example demonstrates:
 """
 
 import asyncio
-from kagura.presets import ChatbotPreset
+from kagura.agents import ChatbotPreset
 
 
 async def main():

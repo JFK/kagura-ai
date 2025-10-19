@@ -24,71 +24,63 @@ markdown_extensions:
 
 plugins:
   - search
-#  - i18n:
-#      default_language: en
-#      languages:
-#        en: English
-#        ja: 日本語
 
 nav:
   - Home: index.md
+
   - Getting Started:
+    - Quick Start (5 min): quickstart.md
     - Installation: en/installation.md
-    - Quick Start: en/quickstart.md
-  - Tutorials:
-    - Basic Agent: en/tutorials/01-basic-agent.md
-    - Template Engine: en/tutorials/02-templates.md
-    - Type-Based Parsing: en/tutorials/03-type-parsing.md
-    - Code Execution: en/tutorials/04-code-execution.md
-    - Using the REPL: en/tutorials/05-repl.md
-    - MCP Integration: en/tutorials/06-mcp-integration.md
-    - Shell Integration: en/tutorials/07-shell-integration.md
+    - SDK Guide: sdk-guide.md
+    - Chat Guide (Bonus): chat-guide.md
+
+  - SDK Tutorials:
+    - Your First Agent: en/tutorials/01-basic-agent.md
+    - Jinja2 Templates: en/tutorials/02-templates.md
+    - Type-Safe Parsing: en/tutorials/03-type-parsing.md
     - Memory Management: en/tutorials/08-memory-management.md
-    - Agent Routing: en/tutorials/09-agent-routing.md
-    - Chat REPL: en/tutorials/10-chat-repl.md
-    - Tools: en/tutorials/11-tools.md
-    - Workflows: en/tutorials/12-workflows.md
-    - Agent Builder: en/tutorials/13-agent-builder.md
-    - Multimodal RAG: en/tutorials/13-multimodal-rag.md
-    - Testing: en/tutorials/14-testing.md
-    - Observability: en/tutorials/15-observability.md
-  - Guides:
-    - Custom Commands: en/guides/commands-quickstart.md
+    - Custom Tools: en/tutorials/11-tools.md
+    - Multi-Agent Workflows: en/tutorials/12-workflows.md
+    - Testing Agents: en/tutorials/14-testing.md
+
+  - Integration Guides:
+    - Web Search & Scraping: en/guides/web-integration.md
+    - MCP (Claude Desktop): en/guides/claude-code-mcp-setup.md
     - OAuth2 Authentication: en/guides/oauth2-authentication.md
     - Meta Agent: en/guides/meta-agent.md
-    - Chat Multimodal: en/guides/chat-multimodal.md
-    - Web Integration: en/guides/web-integration.md
-    - Full-Featured Mode: en/guides/full-featured-mode.md
     - Context Compression: en/guides/context-compression.md
-    - Hooks Guide: en/guides/hooks-guide.md
-    - Performance - Caching: en/guides/performance-caching.md
-    - Performance - Parallelization: en/guides/performance-parallelization.md
+
+  - Advanced Topics:
+    - Code Execution: en/tutorials/04-code-execution.md
+    - Agent Routing: en/tutorials/09-agent-routing.md
+    - Multimodal RAG: en/tutorials/13-multimodal-rag.md
+    - Performance Caching: en/guides/performance-caching.md
+    - Observability: en/tutorials/15-observability.md
+
   - API Reference:
     - Overview: en/api/index.md
-    - '@agent Decorator': en/api/agent.md
-    - Code Executor: en/api/executor.md
-    - CLI Commands: en/api/cli.md
-    - Authentication: en/api/auth.md
-    - Meta Agent: en/api/meta.md
-    - MCP Integration: en/api/mcp.md
-    - Shell Integration: en/api/shell.md
-    - Memory Management: en/api/memory.md
-    - Agent Routing: en/api/routing.md
-    - Context Compression: en/api/compression.md
-    - Custom Commands: en/api/commands.md
-    - Hooks: en/api/hooks.md
-    - Tools: en/api/tools.md
-    - Workflows: en/api/workflows.md
-    - Agent Builder: en/api/builder.md
-    - Chat: en/api/chat.md
-    - Testing: en/api/testing.md
-    - Observability: en/api/observability.md
+    - Core Decorators:
+      - '@agent': en/api/agent.md
+      - '@tool': en/api/tools.md
+      - '@workflow': en/api/workflows.md
+    - Features:
+      - Memory System: en/api/memory.md
+      - Agent Builder: en/api/builder.md
+      - Testing Framework: en/api/testing.md
+    - Integrations:
+      - Chat Session: en/api/chat.md
+      - MCP Integration: en/api/mcp.md
+      - Authentication: en/api/auth.md
+    - Advanced:
+      - Code Executor: en/api/executor.md
+      - Context Compression: en/api/compression.md
+      - Observability: en/api/observability.md
+
   - Examples: https://github.com/JFK/kagura-ai/tree/main/examples
+
   - For Developers:
     - How to Contribute: https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md
-    - Contributing (日本語): https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING_JA.md
     - Code of Conduct: https://github.com/JFK/kagura-ai/blob/main/CODE_OF_CONDUCT.md
-  - GitHub: https://github.com/JFK/kagura-ai
 
 extra_css:
   - assets/custom.css

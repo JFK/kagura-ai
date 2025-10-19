@@ -28,7 +28,7 @@ Each example demonstrates:
 - Pull request commenting
 
 ```python
-from kagura.presets import CodeReviewPreset
+from kagura.agents import CodeReviewPreset
 from kagura import workflow
 import asyncio
 
@@ -129,7 +129,7 @@ jobs:
 - Brand consistency
 
 ```python
-from kagura.presets import ContentWriterPreset
+from kagura.agents import ContentWriterPreset
 from kagura import workflow
 
 # Create content writer
@@ -236,7 +236,7 @@ Search           Specific  Check    Review
 - Analytics tracking
 
 ```python
-from kagura.presets import TechnicalSupportPreset
+from kagura.agents import TechnicalSupportPreset
 from kagura.routing import MemoryAwareRouter
 from kagura.core.memory import MemoryManager
 from kagura import workflow
@@ -375,7 +375,7 @@ metrics = {
 - Report generation
 
 ```python
-from kagura.presets import ResearchPreset
+from kagura.agents import ResearchPreset
 from kagura.web import search, WebScraper
 from kagura.core.memory import MultimodalRAG
 from kagura import workflow

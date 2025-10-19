@@ -8,7 +8,7 @@ This example demonstrates:
 """
 
 import asyncio
-from kagura.presets import PersonalAssistantPreset
+from kagura.agents import PersonalAssistantPreset
 
 
 async def main():

@@ -691,6 +691,6 @@ router.register(agent2, intents=["code review", "quality review"])
 
 ## See Also
 
-- [Agent Routing API Reference](../api/routing.md)
-- [Agent Decorator Guide](./01-getting-started.md)
+- [Agent Routing API Reference](https://github.com/JFK/kagura-ai/tree/main/src/kagura/routing)
+- [Agent Decorator Guide](./01-basic-agent.md)
 - [RFC-016: Agent Routing System](../../ai_docs/rfcs/RFC_016_AGENT_ROUTING.md)
