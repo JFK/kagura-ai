@@ -1,17 +1,29 @@
 """
-Chat-optimized tools with Rich UI integration
+Chat tools registered with @tool decorator for tool_registry integration.
 
-These tools provide the same functionality as MCP builtin tools,
-but with enhanced Rich Console UI for better chat experience.
+This module converts session.py's hardcoded tool functions into @tool-decorated
+functions that are automatically registered with the global tool_registry.
+
+This enables:
+- Dynamic tool discovery in ChatSession
+- MCP access to chat tools
+- Unified tool management across all interfaces
+
+Related: RFC-036 Phase 1
 """
 
 from __future__ import annotations
 
+import asyncio
+import shutil
 from pathlib import Path
+from typing import Any
 
 from rich.console import Console
 
 from kagura import tool
+from kagura.core.executor import CodeExecutor
+from kagura.loaders.file_types import FileType, detect_file_type, is_multimodal_file
 
 # =============================================================================
 # File Operation Tools
@@ -19,10 +31,10 @@ from kagura import tool
 
 
 @tool
-async def chat_file_read(
+async def file_read(
     file_path: str, prompt: str | None = None, mode: str = "auto"
 ) -> str:
-    """Read a file (text or multimodal) with Rich UI progress.
+    """Read a file (text or multimodal) and return its content.
 
     Supports:
     - Text files (.txt, .md, .py, .json, etc.): Direct reading
@@ -42,8 +54,6 @@ async def chat_file_read(
     Returns:
         File content or analysis result
     """
-    from kagura.loaders.file_types import FileType, detect_file_type, is_multimodal_file
-
     console = Console()
     path = Path(file_path)
 
@@ -80,12 +90,9 @@ async def chat_file_read(
 
             # Special handling for video
             if file_type == FileType.VIDEO:
-                # Import video helper from session
-                from kagura.chat.session import _video_extract_audio_tool
-
                 if mode == "audio":
                     # Audio extraction + transcription only
-                    audio_result = await _video_extract_audio_tool(file_path)
+                    audio_result = await _video_extract_audio(file_path)
 
                     if "Error" not in audio_result:
                         audio_path = audio_result.split(": ")[-1].strip()
@@ -112,7 +119,7 @@ async def chat_file_read(
                     results.append(f"### Visual Analysis\n{visual}")
 
                     # Audio extraction + transcription
-                    audio_result = await _video_extract_audio_tool(file_path)
+                    audio_result = await _video_extract_audio(file_path)
                     if "Error" not in audio_result:
                         audio_path = audio_result.split(": ")[-1].strip()
                         console.print("[dim]🎤 Transcribing extracted audio...[/]")
@@ -146,8 +153,8 @@ async def chat_file_read(
 
 
 @tool
-async def chat_file_write(file_path: str, content: str) -> str:
-    """Write content to a local file with Rich UI progress.
+async def file_write(file_path: str, content: str) -> str:
+    """Write content to a local file.
 
     Args:
         file_path: Path to the file to write
@@ -156,8 +163,6 @@ async def chat_file_write(file_path: str, content: str) -> str:
     Returns:
         Success message or error
     """
-    import shutil
-
     console = Console()
     console.print(f"[dim]📝 Writing to {file_path}...[/]")
 
@@ -182,8 +187,8 @@ async def chat_file_write(file_path: str, content: str) -> str:
 
 
 @tool
-async def chat_file_search(pattern: str, directory: str = ".") -> str:
-    """Search for files matching pattern with Rich UI progress.
+async def file_search(pattern: str, directory: str = ".") -> str:
+    """Search for files matching pattern.
 
     Args:
         pattern: File name pattern (supports wildcards)
@@ -216,8 +221,8 @@ async def chat_file_search(pattern: str, directory: str = ".") -> str:
 
 
 @tool
-async def chat_execute_python(code: str) -> str:
-    """Execute Python code safely with Rich UI progress.
+async def execute_python(code: str) -> str:
+    """Execute Python code safely.
 
     Args:
         code: Python code to execute
@@ -225,8 +230,6 @@ async def chat_execute_python(code: str) -> str:
     Returns:
         Execution result (stdout, stderr, or error)
     """
-    from kagura.core.executor import CodeExecutor
-
     console = Console()
     console.print("[dim]🐍 Executing Python code...[/]")
 
@@ -261,8 +264,8 @@ _shell_exec_already_called = False
 
 
 @tool
-async def chat_shell_exec(command: str, user_intent: str = "") -> str:
-    """Execute shell command with user confirmation and Rich UI.
+async def shell_exec(command: str, user_intent: str = "") -> str:
+    """Execute shell command with user confirmation and auto-retry on failure.
 
     Args:
         command: Shell command to execute
@@ -313,7 +316,6 @@ async def chat_shell_exec(command: str, user_intent: str = "") -> str:
         return result
 
 
-# Reset flag function (called from session.py)
 def reset_shell_exec_flag() -> None:
     """Reset the shell_exec flag for new request"""
     global _shell_exec_already_called
@@ -326,8 +328,8 @@ def reset_shell_exec_flag() -> None:
 
 
 @tool
-async def chat_brave_search(query: str, count: int = 5) -> str:
-    """Search the web using Brave Search API with Rich UI.
+async def brave_search(query: str, count: int = 5) -> str:
+    """Search the web using Brave Search API.
 
     Args:
         query: Search query
@@ -385,8 +387,8 @@ async def chat_brave_search(query: str, count: int = 5) -> str:
 
 
 @tool
-async def chat_url_fetch(url: str) -> str:
-    """Fetch and extract text from a webpage with Rich UI.
+async def url_fetch(url: str) -> str:
+    """Fetch and extract text from a webpage.
 
     Args:
         url: URL to fetch
@@ -421,10 +423,10 @@ async def chat_url_fetch(url: str) -> str:
 
 
 @tool
-async def chat_analyze_image_url(
+async def analyze_image_url(
     url: str, prompt: str = "Analyze this image in detail."
 ) -> str:
-    """Analyze image from URL using Vision API with Rich UI.
+    """Analyze image from URL using Vision API.
 
     Auto-selects:
     - OpenAI Vision (gpt-4o) for standard formats
@@ -484,13 +486,13 @@ async def chat_analyze_image_url(
 
 
 # =============================================================================
-# YouTube Tools (Chat-optimized wrappers)
+# YouTube Tools
 # =============================================================================
 
 
 @tool
-async def chat_youtube_transcript(video_url: str, lang: str = "en") -> str:
-    """Get YouTube video transcript with Rich UI progress.
+async def youtube_transcript(video_url: str, lang: str = "en") -> str:
+    """Get YouTube video transcript.
 
     Args:
         video_url: YouTube video URL
@@ -511,8 +513,8 @@ async def chat_youtube_transcript(video_url: str, lang: str = "en") -> str:
 
 
 @tool
-async def chat_youtube_metadata(video_url: str) -> str:
-    """Get YouTube video metadata with Rich UI progress.
+async def youtube_metadata(video_url: str) -> str:
+    """Get YouTube video metadata.
 
     Args:
         video_url: YouTube video URL
@@ -529,3 +531,73 @@ async def chat_youtube_metadata(video_url: str) -> str:
 
     console.print("[dim]✓ Metadata retrieved[/]")
     return result
+
+
+# =============================================================================
+# Helper Functions (Internal)
+# =============================================================================
+
+
+async def _video_extract_audio(
+    video_path: str, output_path: str | None = None
+) -> str:
+    """Extract audio from video file using ffmpeg (internal helper).
+
+    Args:
+        video_path: Path to video file
+        output_path: Output audio file path (default: same name .mp3)
+
+    Returns:
+        Success message with audio path or error message
+    """
+    console = Console()
+    console.print(f"[dim]🎥 Extracting audio from {video_path}...[/]")
+
+    try:
+        video = Path(video_path)
+        if not video.exists():
+            return f"Error: Video file not found: {video_path}"
+
+        # Default output path
+        if output_path is None:
+            output_path = str(video.with_suffix(".mp3"))
+
+        # Use ffmpeg to extract audio
+        cmd = [
+            "ffmpeg",
+            "-i",
+            str(video),
+            "-vn",  # No video
+            "-acodec",
+            "libmp3lame",  # MP3 codec
+            "-q:a",
+            "2",  # Quality
+            "-y",  # Overwrite
+            output_path,
+        ]
+
+        # Run ffmpeg asynchronously
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=300)
+
+        if process.returncode == 0:
+            console.print(f"[dim]✓ Audio extracted to {output_path}[/]")
+            return f"Audio extracted successfully to: {output_path}"
+        else:
+            error_msg = stderr.decode("utf-8") if stderr else "Unknown error"
+            return f"Error extracting audio: {error_msg}"
+
+    except FileNotFoundError:
+        return (
+            "Error: ffmpeg not found.\n"
+            "Install with: brew install ffmpeg (macOS) or apt install ffmpeg (Linux)"
+        )
+    except asyncio.TimeoutError:
+        return "Error: Audio extraction timed out (>5 minutes)"
+    except Exception as e:
+        return f"Error: {str(e)}"
