@@ -12,7 +12,7 @@ from kagura.config.env import (
     get_search_cache_enabled,
     get_search_cache_ttl,
 )
-from kagura.tools.cache import SearchCache
+from kagura.mcp.builtin.cache import SearchCache
 
 # Setup logger
 logger = logging.getLogger(__name__)

@@ -270,7 +270,7 @@ async def youtube_fact_check(video_url: str, claim: str, lang: str = "en") -> st
     # Use web search to fact-check
     try:
         from kagura.core.llm import LLMConfig, call_llm
-        from kagura.tools.brave_search import brave_web_search
+        from kagura.tools import brave_web_search
 
         # Search for evidence
         search_results = await brave_web_search(claim, count=5)

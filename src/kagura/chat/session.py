@@ -421,7 +421,7 @@ async def _brave_search_tool(query: str, count: int = 5) -> str:
     """
     from rich.console import Console
 
-    from kagura.tools.brave_search import brave_web_search
+    from kagura.tools import brave_web_search
 
     console = Console()
     console.print(f"[dim]  └─ 🔍 Brave Search: {query}...[/]")
