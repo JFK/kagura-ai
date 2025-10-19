@@ -370,8 +370,8 @@ export GOOGLE_API_KEY=...         # Multimodal (Gemini)
 - [Quick Start](docs/quickstart.md) - Get started in 5 minutes
 
 ### Integration
-- [MCP Integration](docs/en/guides/mcp-integration.md) - Claude Desktop setup
-- [Testing Guide](docs/en/guides/testing.md) - Test your agents
+- [MCP Integration](docs/en/guides/claude-code-mcp-setup.md) - Claude Desktop setup
+- [Testing Guide](docs/en/tutorials/14-testing.md) - Test your agents
 
 ---
 
