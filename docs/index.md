@@ -1,22 +1,20 @@
 ---
-title: Kagura AI - Python-First AI Agent Framework
-description: Convert any Python function into an AI agent with a single decorator. Built-in memory, routing, multimodal RAG, web search, and context compression.
+title: Kagura AI - Python-First AI Agent SDK
+description: Build production-ready AI agents with one decorator. Full type safety, built-in tools, comprehensive testing framework.
 keywords:
+  - AI SDK
+  - Python AI
   - AI Agents
-  - Python AI framework
-  - Memory Management
-  - Agent Routing
-  - Multimodal RAG
-  - Web Integration
-  - Context Compression
+  - Type-safe AI
   - LLM integration
   - Pydantic
+  - Production AI
 author: Fumikazu Kiyota
 robots: index, follow
-og_title: Kagura AI - Python-First AI Agent Framework
+og_title: Kagura AI - Python-First AI Agent SDK
 og_type: website
 og_url: https://www.kagura-ai.com
-og_description: Convert any Python function into an AI agent with a single decorator. Built-in memory, routing, multimodal RAG, web search, and context compression.
+og_description: Build production-ready AI agents with one decorator. Full type safety, built-in tools, comprehensive testing framework.
 og_image: assets/kagura-logo.svg
 twitter_card: summary_large_image
 twitter_site: "@kagura_ai"
@@ -27,152 +25,217 @@ twitter_creator: "@JFK"
 
 ![Kagura AI Logo](assets/kagura-logo.svg)
 
-**Python-First AI Agent Framework with Memory, Routing, and Multimodal RAG**
+**Python-First AI Agent SDK**
 
-Kagura AI is a modern framework that makes building AI agents as simple as writing a Python function. With a single `@agent` decorator, you can transform any async function into a powerful AI agent with memory, routing, multimodal understanding, and web search capabilities.
+Build production-ready AI agents with one decorator. Full type safety, built-in tools, and comprehensive testing framework.
 
 ---
 
 ## What is Kagura AI?
 
-Kagura AI is a production-ready framework focused on developer experience and simplicity. You write agents in pure Python with familiar async/await patterns.
+A Python SDK that makes building AI agents as simple as writing a function. Add one `@agent` decorator and you're done.
 
 ```python
 from kagura import agent
 
 @agent
-async def hello(name: str) -> str:
-    '''Say hello to {{ name }}'''
-    pass
-
-result = await hello("World")
-# "Hello, World!"
-```
-
-## Key Features
-
-### Core Features
-- **One-Line Agent Creation**: `@agent` decorator converts functions to AI agents
-- **Jinja2 Templates**: Dynamic prompts using template syntax in docstrings
-- **Type-Based Parsing**: Automatic response conversion using Python type hints
-- **Pydantic Support**: First-class structured output with Pydantic models
-- **Code Execution**: Built-in safe Python code generation and execution
-- **Multi-LLM Support**: Works with OpenAI, Anthropic, Google, and more
-
-### Advanced Features
-- **Memory Management**: Context, persistent, and RAG-based memory
-- **Agent Routing**: Intelligent agent selection with intent and semantic matching
-- **Multimodal RAG**: Index and search images, audio, video, and PDFs
-- **Web Integration**: Real-time web search and content scraping
-- **Context Compression**: Efficient token management for long conversations
-- **Interactive Chat**: Full-featured chat REPL with memory and web search
-- **Testing Framework**: Built-in testing utilities with semantic assertions
-- **Observability**: Telemetry, cost tracking, and performance monitoring
-
-## Core Concepts
-
-### 1. Agent Decorator
-
-Transform any async function into an AI agent:
-
-```python
-@agent
-async def my_agent(input: str) -> str:
-    '''Process {{ input }}'''
-    pass
-```
-
-The decorator:
-- Extracts the function signature
-- Uses the docstring as a Jinja2 template
-- Calls the LLM with rendered prompt
-- Parses the response based on return type
-
-### 2. Template Engine
-
-Use Jinja2 templates in docstrings for dynamic prompts:
-
-```python
-@agent
 async def translator(text: str, lang: str = "ja") -> str:
     '''Translate to {{ lang }}: {{ text }}'''
-    pass
+
+result = await translator("Hello World", lang="ja")
+# "こんにちは世界"
 ```
 
-### 3. Type-Based Parser
+No configuration files. No complex setup. Just Python.
 
-Automatic response parsing based on return type hints:
+---
+
+## Why Kagura AI?
+
+### For Python Developers
+
+- **One Decorator**: `@agent` is all you need
+- **Type-Safe**: Full pyright strict mode support
+- **Production-Ready**: Built-in memory, tools, testing
+- **Fast Integration**: Add to existing apps in minutes
+
+### vs Other SDKs
+
+| Feature | LangChain | AutoGen | **Kagura AI** |
+|---------|-----------|---------|--------------|
+| Setup | 50+ lines | 30+ lines | **1 decorator** ✅ |
+| Type Safety | ❌ | ❌ | **✅ Full** |
+| Memory | Manual | Basic | **✅ 3-tier** |
+| Testing | Manual | ❌ | **✅ Built-in** |
+| Web Search | Plugin | ❌ | **✅ Built-in** |
+
+---
+
+## Core Features
+
+### SDK Essentials
+
+- ✅ **@agent Decorator** - One-line AI agent creation
+- ✅ **Type-Safe Output** - Automatic Pydantic parsing
+- ✅ **Built-in Tools** - Web search, file ops, code exec
+- ✅ **Memory System** - Context, persistent, RAG
+- ✅ **Testing Framework** - Test your agents easily
+- ✅ **Multi-LLM** - OpenAI, Anthropic, Google, 100+ more
+
+### Bonus Features
+
+- ✅ **Interactive Chat** - Try features without code
+- ✅ **MCP Integration** - Use in Claude Desktop
+- ✅ **Streaming** - Real-time responses
+- ✅ **Cost Tracking** - Monitor API usage
+
+---
+
+## Quick Examples
+
+### Type-Safe Structured Output
 
 ```python
 from pydantic import BaseModel
 
-class Person(BaseModel):
-    name: str
-    age: int
+class Analysis(BaseModel):
+    sentiment: str
+    keywords: list[str]
+    confidence: float
 
 @agent
-async def extract_person(text: str) -> Person:
-    '''Extract person info from: {{ text }}'''
-    pass
+async def analyze(text: str) -> Analysis:
+    '''Analyze: {{ text }}'''
+
+result = await analyze("I love Python!")
+print(result.sentiment)  # Type-safe!
 ```
 
-Returns a fully validated Pydantic model instance.
-
-### 4. Code Execution
-
-Safe Python code generation and execution:
+### With Built-in Tools
 
 ```python
-from kagura.agents import execute_code
+@agent(tools=["web_search"])
+async def researcher(topic: str) -> str:
+    '''Research {{ topic }} using web_search(query) tool.'''
 
-result = await execute_code("Calculate the factorial of 10")
-# Generates code, executes safely, returns result
+result = await researcher("Python 3.13 features")
 ```
 
-## Architecture
+### With Memory
 
-Kagura AI follows a clean, layered architecture:
+```python
+@agent(enable_memory=True)
+async def assistant(message: str) -> str:
+    '''Remember our conversation. User says: {{ message }}'''
 
-```
-┌─────────────────────────────────────┐
-│         @agent Decorator            │
-│  (Function → Agent transformation)  │
-└───────────────┬─────────────────────┘
-                │
-┌───────────────▼─────────────────────┐
-│       Template Engine (Jinja2)      │
-│    (Docstring → Rendered prompt)    │
-└───────────────┬─────────────────────┘
-                │
-┌───────────────▼─────────────────────┐
-│         LLM Layer (LiteLLM)         │
-│   (Prompt → LLM → Raw response)     │
-└───────────────┬─────────────────────┘
-                │
-┌───────────────▼─────────────────────┐
-│    Parser (Type-based parsing)      │
-│  (Raw response → Typed Python obj)  │
-└─────────────────────────────────────┘
+await assistant("My favorite color is blue")
+await assistant("What's my favorite color?")  # Remembers!
 ```
 
-## Design Philosophy
+---
 
-Kagura AI is built on these principles:
+## Real-World Integration
 
-- **Python-First**: No external configuration files
-- **Type Safety**: Leverages Python's type system
-- **Developer Experience**: Simple API, fast iteration
-- **Composability**: Agents are just async functions
-- **Explicitness**: Clear data flow, no magic
-- **Production-Ready**: Built-in testing, monitoring, and optimization tools
+### FastAPI Example
+
+```python
+from fastapi import FastAPI
+from kagura import agent
+
+app = FastAPI()
+
+@agent
+async def support_bot(question: str) -> str:
+    '''Answer support question: {{ question }}'''
+
+@app.post("/api/support")
+async def handle_support(question: str):
+    response = await support_bot(question)
+    return {"answer": response}
+```
+
+### Data Pipeline
+
+```python
+@agent(tools=["web_search"])
+async def data_enricher(company: str) -> dict:
+    '''Enrich data for: {{ company }}
+
+    Extract: industry, size, location
+    '''
+
+enriched = await data_enricher("Anthropic")
+```
+
+---
+
+## Bonus: Interactive Chat
+
+Want to try without writing code?
+
+```bash
+kagura chat
+```
+
+Claude Code-like experience with all SDK features:
+
+```
+[You] > Read report.pdf and summarize
+
+[AI] > (Uses SDK's file_read + Gemini Vision)
+
+      Key findings:
+      1. Revenue up 23% YoY
+      2. New market expansion
+      3. Team doubled
+
+[You] > Search for industry trends
+
+[AI] > (Uses SDK's web_search tool)
+```
+
+---
 
 ## Get Started
 
-Ready to build your first agent?
+Choose your path:
 
-- [Installation Guide](en/installation.md) - Install Kagura AI
-- [Quick Start Tutorial](en/quickstart.md) - Build your first agent in 5 minutes
-- [API Reference](en/api/) - Detailed API documentation
-- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - More examples and patterns
+### For SDK Integration
+1. [Quick Start](quickstart.md) - 5-minute tutorial
+2. [SDK Guide](sdk-guide.md) - Complete SDK guide
+3. [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - Code examples
 
-[Get Started →](en/installation.md){: .md-button .md-button--primary }
+### For Exploration
+1. [Chat Guide](chat-guide.md) - Try interactive chat
+2. [Installation](en/installation.md) - Setup guide
+
+[Get Started →](quickstart.md){: .md-button .md-button--primary }
+
+---
+
+## Architecture
+
+Built on proven technologies:
+
+- **LLM**: OpenAI SDK (direct) + LiteLLM (100+ providers)
+- **Memory**: ChromaDB (vector storage)
+- **Validation**: Pydantic v2
+- **Testing**: pytest + custom framework
+- **Type Safety**: pyright strict mode
+
+**Quality Metrics**:
+- 1,300+ tests (90%+ coverage)
+- 100% typed (pyright strict)
+- Production-ready
+
+---
+
+## Community
+
+- [GitHub](https://github.com/JFK/kagura-ai) - Source code & issues
+- [PyPI](https://pypi.org/project/kagura-ai/) - Package downloads
+- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - 30+ examples
+
+---
+
+**Built with ❤️ for Python developers**
