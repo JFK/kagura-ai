@@ -1,12 +1,14 @@
 # API Reference
 
-Complete API documentation for Kagura AI 2.0.
+Complete API documentation for Kagura AI SDK.
 
-## Core Components
+---
 
-### [@agent Decorator](agent.md)
+## Core Decorators
 
-Convert async functions into AI agents with automatic LLM integration.
+### [@agent](agent.md)
+
+Convert async functions into AI agents.
 
 ```python
 from kagura import agent
@@ -14,261 +16,226 @@ from kagura import agent
 @agent
 async def hello(name: str) -> str:
     '''Say hello to {{ name }}'''
-    pass
 ```
 
-**Key Features:**
+**Features:**
 - One-line agent creation
 - Type-based response parsing
 - Jinja2 template support
-- Multi-LLM support via LiteLLM
+- Multi-LLM support
 
-[Read more →](agent.md)
+[Full documentation →](agent.md)
+
+---
+
+### [@tool](tools.md)
+
+Turn Python functions into agent tools.
+
+```python
+from kagura import tool
+
+@tool
+async def search_db(query: str) -> list[dict]:
+    '''Search database'''
+    return db.query(query)
+```
+
+**Features:**
+- Auto-registration to tool_registry
+- Type validation
+- Docstring-based descriptions
+
+[Full documentation →](tools.md)
+
+---
+
+### [@workflow](workflows.md)
+
+Orchestrate multi-agent workflows.
+
+```python
+from kagura import workflow
+
+@workflow.chain
+async def pipeline(data: str):
+    step1 = await agent1(data)
+    step2 = await agent2(step1)
+    return step2
+```
+
+**Features:**
+- Sequential chains
+- Parallel execution
+- Stateful workflows
+
+[Full documentation →](workflows.md)
+
+---
+
+## Features
+
+### [Memory System](memory.md)
+
+3-tier memory management for context-aware agents.
+
+```python
+@agent(enable_memory=True)
+async def assistant(message: str) -> str:
+    '''Remember conversation: {{ message }}'''
+```
+
+**Types:**
+- Context Memory: Current conversation
+- Persistent Memory: Long-term storage
+- RAG Memory: Semantic search
+
+[Full documentation →](memory.md)
+
+---
+
+### [Agent Builder](builder.md)
+
+Fluent API for building complex agents.
+
+```python
+from kagura.builder import AgentBuilder
+
+agent = (
+    AgentBuilder()
+    .with_memory()
+    .with_tools(["web_search"])
+    .build()
+)
+```
+
+[Full documentation →](builder.md)
+
+---
+
+### [Testing Framework](testing.md)
+
+Built-in testing utilities for AI agents.
+
+```python
+from kagura.testing import AgentTestCase
+
+class TestMyAgent(AgentTestCase):
+    async def test_sentiment(self):
+        result = await analyzer("I love this!")
+        self.assert_semantic_match(result, "positive")
+```
+
+[Full documentation →](testing.md)
+
+---
+
+## Integrations
+
+### [Chat Session](chat.md)
+
+Interactive chat interface (bonus feature).
+
+```python
+from kagura.chat import ChatSession
+
+session = ChatSession()
+await session.run()
+```
+
+[Full documentation →](chat.md)
+
+---
+
+### [MCP Integration](mcp.md)
+
+Use agents in Claude Desktop via Model Context Protocol.
+
+```bash
+kagura mcp serve
+```
+
+[Full documentation →](mcp.md)
+
+---
+
+### [Authentication](auth.md)
+
+OAuth2 authentication support (advanced).
+
+```python
+from kagura.auth import OAuth2Manager
+
+oauth = OAuth2Manager(provider="google")
+await oauth.authenticate()
+```
+
+[Full documentation →](auth.md)
+
+---
+
+## Advanced
 
 ### [Code Executor](executor.md)
 
-Safe Python code generation and execution.
+Deep dive into code execution engine.
+
+[Full documentation →](executor.md)
+
+---
+
+### [Context Compression](compression.md)
+
+Token management for long conversations.
 
 ```python
-from kagura.agents import execute_code
-
-result = await execute_code("Calculate factorial of 10")
-print(result["result"])  # 3628800
+@agent(enable_compression=True)
+async def assistant(message: str) -> str:
+    '''{{ message }}'''
 ```
 
-**Key Features:**
-- Natural language → Python code
-- AST-based security validation
-- Resource limits (timeout, memory)
-- Safe module whitelist
+[Full documentation →](compression.md)
 
-[Read more →](executor.md)
+---
 
-### [CLI Commands](cli.md)
+### [Observability](observability.md)
 
-Command-line interface for Kagura AI.
+Cost tracking and performance monitoring.
 
 ```bash
-# Start interactive REPL
-kagura repl
-
-# Check version
-kagura version
+kagura monitor stats
 ```
 
-**Key Features:**
-- Interactive REPL for rapid prototyping
-- Multi-line input support
-- Syntax highlighting
-- Command history
+[Full documentation →](observability.md)
 
-[Read more →](cli.md)
+---
 
-## Quick Links
+## Quick Reference
 
-- [Getting Started](../quickstart.md) - Build your first agent
-- [Tutorials](../tutorials/01-basic-agent.md) - Step-by-step guides
-- [Examples](../../examples/) - Code examples
-- [FAQ](../faq.md) - Frequently asked questions
+### Environment Variables
 
-## API Overview
-
-### Core Functions
-
-| Function | Description |
-|----------|-------------|
-| `@agent` | Convert function to AI agent |
-| `execute_code()` | Generate and execute Python code |
-
-### Configuration
-
-Agents can be configured with:
-- `model`: LLM model to use
-- `temperature`: Sampling temperature
-- `max_tokens`: Maximum response tokens
-
-Example:
-
-```python
-@agent(model="gpt-4o", temperature=0.5)
-async def my_agent(query: str) -> str:
-    '''Answer: {{ query }}'''
-    pass
-```
+| Variable | Purpose |
+|----------|---------|
+| `OPENAI_API_KEY` | OpenAI API key |
+| `ANTHROPIC_API_KEY` | Anthropic API key |
+| `GOOGLE_API_KEY` | Google API key |
+| `BRAVE_SEARCH_API_KEY` | Web search (optional) |
 
 ### Type Support
 
-Supported return types:
+| Return Type | Example |
+|-------------|---------|
+| `str` | `-> str` |
+| `int`, `float`, `bool` | `-> int` |
+| `list[T]` | `-> list[str]` |
+| `dict` | `-> dict` |
+| `BaseModel` | `-> Person` |
+| `Optional[T]` | `-> Optional[str]` |
 
-| Type | Example | Description |
-|------|---------|-------------|
-| `str` | `-> str` | Plain text response |
-| `int` | `-> int` | Integer value |
-| `float` | `-> float` | Floating point number |
-| `bool` | `-> bool` | Boolean value |
-| `list[T]` | `-> list[str]` | List of items |
-| `dict` | `-> dict` | Dictionary |
-| `BaseModel` | `-> Person` | Pydantic model |
-| `Optional[T]` | `-> Optional[str]` | Optional value |
+---
 
-### Template Syntax
+## Next Steps
 
-Agent docstrings use Jinja2 syntax:
-
-```python
-@agent
-async def greet(name: str, time: str = "morning") -> str:
-    '''
-    Good {{ time }}, {{ name }}!
-    {% if time == "evening" %}
-    Hope you had a great day.
-    {% endif %}
-    '''
-    pass
-```
-
-Supported Jinja2 features:
-- Variable interpolation: `{{ variable }}`
-- Conditionals: `{% if condition %}`
-- Loops: `{% for item in items %}`
-- Filters: `{{ text|upper }}`
-
-## Error Handling
-
-All agents can raise these exceptions:
-
-```python
-from litellm import APIError
-from pydantic import ValidationError
-
-try:
-    result = await my_agent("input")
-except APIError as e:
-    # LLM API error (auth, rate limit, etc.)
-    print(f"API error: {e}")
-except ValidationError as e:
-    # Pydantic parsing error
-    print(f"Validation error: {e}")
-except Exception as e:
-    # Other errors
-    print(f"Unexpected error: {e}")
-```
-
-## Environment Variables
-
-Kagura AI respects these environment variables:
-
-| Variable | Description |
-|----------|-------------|
-| `OPENAI_API_KEY` | OpenAI API key |
-| `ANTHROPIC_API_KEY` | Anthropic (Claude) API key |
-| `GOOGLE_API_KEY` | Google (Gemini) API key |
-| `AZURE_API_KEY` | Azure OpenAI API key |
-
-Set them before running your agents:
-
-```bash
-export OPENAI_API_KEY="your-key-here"
-python my_agent.py
-```
-
-## Best Practices
-
-### 1. Use Type Hints
-
-Always specify return types for automatic parsing:
-
-```python
-# Good
-@agent
-async def extract_keywords(text: str) -> list[str]:
-    '''Extract keywords from: {{ text }}'''
-    pass
-
-# Less good
-@agent
-async def extract_keywords(text: str):  # No return type
-    '''Extract keywords from: {{ text }}'''
-    pass
-```
-
-### 2. Clear Instructions
-
-Write explicit docstrings:
-
-```python
-# Good
-@agent
-async def summarize(text: str, max_words: int) -> str:
-    '''Summarize the following text in {{ max_words }} words or less.
-
-    Text: {{ text }}
-    '''
-    pass
-
-# Less clear
-@agent
-async def summarize(text: str, max_words: int) -> str:
-    '''Summarize {{ text }} in {{ max_words }} words'''
-    pass
-```
-
-### 3. Pydantic Models
-
-Use Pydantic for structured data:
-
-```python
-from pydantic import BaseModel, Field
-
-class Person(BaseModel):
-    name: str = Field(description="Full name")
-    age: int = Field(ge=0, le=150, description="Age in years")
-    email: str = Field(pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
-
-@agent
-async def extract_person(text: str) -> Person:
-    '''Extract person information from: {{ text }}'''
-    pass
-```
-
-### 4. Error Handling
-
-Always handle errors in production:
-
-```python
-async def safe_agent_call():
-    try:
-        result = await my_agent("input")
-        return {"success": True, "data": result}
-    except Exception as e:
-        logger.error(f"Agent failed: {e}")
-        return {"success": False, "error": str(e)}
-```
-
-## Version Information
-
-Check Kagura AI version:
-
-```python
-import kagura
-print(kagura.__version__)  # "2.5.0"
-```
-
-Or via CLI:
-
-```bash
-kagura version
-```
-
-## Support
-
-- [GitHub Issues](https://github.com/JFK/kagura-ai/issues)
-- [Discussion Forum](https://github.com/JFK/kagura-ai/discussions)
-- [Documentation](https://www.kagura-ai.com/)
-
-## Related
-
-- [Quick Start Guide](../quickstart.md)
-- [Tutorials](../tutorials/01-basic-agent.md)
-- [Examples](../../examples/)
-- [FAQ](../faq.md)
+- [Quick Start](../quickstart.md) - Get started in 5 minutes
+- [SDK Guide](../../sdk-guide.md) - Complete SDK guide
+- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - Code examples
