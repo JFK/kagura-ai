@@ -99,10 +99,12 @@ gh pr create --draft --title "..." --body "..."
 
 ### 開発前に確認
 
-1. `ai_docs/ROADMAP_v3.md` - v3.0開発ロードマップ
-2. `ai_docs/V3.0_PIVOT.md` - v3.0方針転換
-3. `ai_docs/coding_standards.md` - コーディング規約
-4. **対象Issueの内容**（必読）
+1. `ai_docs/V3.0_DEVELOPMENT.md` - v3.0開発ガイド（最重要）
+2. `ai_docs/ROADMAP_v3.md` - v3.0ロードマップ
+3. `ai_docs/V3.0_PIVOT.md` - v3.0方針（SDK-first）
+4. `ai_docs/coding_standards.md` - コーディング規約
+5. `ai_docs/DOCUMENTATION_GUIDE.md` - ドキュメント管理ルール
+6. **対象Issueの内容**（必読）
 
 ### ディレクトリ構造
 

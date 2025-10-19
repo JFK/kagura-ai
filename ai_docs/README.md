@@ -51,7 +51,8 @@ ai_docs/
 2. **ROADMAP_v3.md** - v3.0ロードマップ
 3. **V3.0_PIVOT.md** - v3.0方針（SDK-first）
 4. **coding_standards.md** - コーディング規約
-5. **対象Issueの内容**（完全理解）
+5. **DOCUMENTATION_GUIDE.md** - ドキュメント管理ルール
+6. **対象Issueの内容**（完全理解）
 
 ### v3.0開発原則
 
