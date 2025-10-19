@@ -291,7 +291,7 @@ Now that you understand basic agents, you can:
 
 1. **Learn about templates** - [Tutorial 2: Template Engine](02-templates.md)
 2. **Explore type parsing** - [Tutorial 3: Type-Based Parsing](03-type-parsing.md)
-3. **Try the REPL** - Run `kagura repl` for interactive testing
+3. **Try Interactive Chat** - Run `kagura chat` to experiment
 
 ## Practice Exercises
 

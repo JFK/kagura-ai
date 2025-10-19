@@ -30,7 +30,7 @@ kagura version
 You should see output like:
 
 ```
-Kagura AI v2.5.0
+Kagura AI v3.0
 ```
 
 ## Set API Key

@@ -28,7 +28,7 @@ At least **one LLM provider API key** is required for Kagura to work:
 
 | Variable | Provider | Get API Key | Models |
 |----------|----------|-------------|--------|
-| `OPENAI_API_KEY` | OpenAI | [platform.openai.com](https://platform.openai.com/api-keys) | gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-3.5-turbo |
+| `OPENAI_API_KEY` | OpenAI | [platform.openai.com](https://platform.openai.com/api-keys) | gpt-4o, gpt-5-mini, gpt-4-turbo, gpt-3.5-turbo |
 | `ANTHROPIC_API_KEY` | Anthropic | [console.anthropic.com](https://console.anthropic.com/) | claude-3-5-sonnet, claude-3-opus, claude-3-haiku |
 | `GOOGLE_API_KEY` | Google AI | [aistudio.google.com](https://aistudio.google.com/app/apikey) | gemini-1.5-pro, gemini-1.5-flash, gemini-pro |
 
@@ -68,7 +68,7 @@ BRAVE_SEARCH_API_KEY=BSA...
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DEFAULT_MODEL` | `gpt-4o-mini` | Default LLM model to use |
+| `DEFAULT_MODEL` | `gpt-5-mini` | Default LLM model to use |
 | `DEFAULT_TEMPERATURE` | `0.7` | Default temperature (0.0-2.0) |
 
 **Example**:
@@ -99,7 +99,7 @@ openai_key = get_openai_api_key()
 brave_key = get_brave_search_api_key()
 
 # Get defaults (returns default value if not set)
-model = get_default_model()  # "gpt-4o-mini"
+model = get_default_model()  # "gpt-5-mini"
 temperature = get_default_temperature()  # 0.7
 ```
 
@@ -116,7 +116,7 @@ print(env_vars)
 #   'ANTHROPIC_API_KEY': None,
 #   'GOOGLE_API_KEY': '***',
 #   'BRAVE_SEARCH_API_KEY': '***',
-#   'DEFAULT_MODEL': 'gpt-4o-mini',
+#   'DEFAULT_MODEL': 'gpt-5-mini',
 #   'DEFAULT_TEMPERATURE': '0.7'
 # }
 
@@ -128,27 +128,7 @@ if missing:
 
 ## Backward Compatibility
 
-### Brave Search API Key
-
-The old `BRAVE_SEARCH_API_KEY` variable is deprecated. Use `BRAVE_SEARCH_API_KEY` instead.
-
-**Migration**:
-```bash
-# Old (deprecated, but still works with warning)
-BRAVE_SEARCH_API_KEY=...
-
-# New (recommended)
-BRAVE_SEARCH_API_KEY=...
-```
-
-**Deprecation Warning**:
-```python
-import warnings
-
-# Using old variable name will show:
-# DeprecationWarning: BRAVE_SEARCH_API_KEY is deprecated.
-# Use BRAVE_SEARCH_API_KEY instead.
-```
+Kagura AI v3.0 uses `BRAVE_SEARCH_API_KEY` for web search (previously `BRAVE_API_KEY` in older versions).
 
 ## Additional Providers
 
@@ -283,13 +263,10 @@ cat .env  # Check for typos, missing =, etc.
 - `BRAVE_SEARCH_API_KEY` - Brave Search API key
 
 ### Defaults (Optional)
-- `DEFAULT_MODEL` - Default LLM model (default: `gpt-4o-mini`)
+- `DEFAULT_MODEL` - Default LLM model (default: `gpt-5-mini`)
 - `DEFAULT_TEMPERATURE` - Default temperature (default: `0.7`)
-
-### Deprecated
-- `BRAVE_SEARCH_API_KEY` - Use `BRAVE_SEARCH_API_KEY` instead
 
 ---
 
-**Last updated**: 2025-10-16
-**Version**: 2.5.10
+**Last updated**: 2025-10-19
+**Version**: v3.0

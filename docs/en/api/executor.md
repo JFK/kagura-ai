@@ -1,6 +1,6 @@
 # Code Executor
 
-The Code Executor provides safe Python code generation and execution capabilities in Kagura AI 2.0.
+The Code Executor provides safe Python code generation and execution capabilities in Kagura AI.
 
 ## Overview
 

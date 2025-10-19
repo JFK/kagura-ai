@@ -611,7 +611,7 @@ result = await execute_code(f"Process this data: {data}")
 
 ## Next Steps
 
-- [Tutorial 05: Interactive REPL](05-repl.md) - Interactive development environment
+- Interactive Chat: Try `kagura chat` for hands-on experimentation
 - [API Reference: Code Execution](../api/executor.md) - Complete executor documentation
 - [Examples: Code Generator](../../examples/agents/code_generator/) - Full example
 
