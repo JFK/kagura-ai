@@ -39,7 +39,7 @@ async def test_agent_with_multiple_parameters(mock_llm_response):
 
     with mock_llm_response("Good morning, Alice!"):
         result = await greet("Alice")
-        assert "Alice" in result
+        assert "Alice" in str(result)
 
 
 @pytest.mark.asyncio

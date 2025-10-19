@@ -119,7 +119,8 @@ async def test_agent_with_multimodal_rag(temp_project_dir):
         )
 
         result = await docs_agent("How to use this?")
-        assert "Found" in result or "results" in result
+        result_str = str(result)
+        assert "Found" in result_str or "results" in result_str
 
 
 @pytest.mark.asyncio

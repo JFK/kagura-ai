@@ -205,4 +205,5 @@ async def test_agent_with_web_search_tool():
         ]
 
         result = await research_agent("AI trends")
-        assert "AI trends" in result or "search" in result.lower()
+        result_str = str(result)
+        assert "AI trends" in result_str or "search" in result_str.lower()

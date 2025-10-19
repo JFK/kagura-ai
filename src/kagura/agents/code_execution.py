@@ -155,10 +155,13 @@ Please fix the code to address this error."""
 
         code = await code_generator(task, error_feedback or "")  # type: ignore
 
-        # Clean up code (remove markdown code blocks if present)
-        code = self._clean_code(code)
+        # Convert LLMResponse to string if needed
+        code_str = str(code)
 
-        return code
+        # Clean up code (remove markdown code blocks if present)
+        code_str = self._clean_code(code_str)
+
+        return code_str
 
     def _clean_code(self, code: str) -> str:
         """
