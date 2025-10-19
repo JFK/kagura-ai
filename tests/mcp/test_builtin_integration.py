@@ -1,20 +1,56 @@
 """Tests for built-in MCP tools integration"""
 
+import importlib
+import sys
+
 import pytest
 
-from kagura.mcp.server import create_mcp_server
 
+@pytest.fixture(autouse=True, scope="function")
+def reset_and_import_builtin():
+    """Reset tool registry and ensure builtin modules are imported before each test
 
-@pytest.fixture(autouse=True)
-def ensure_builtin_import():
-    """Ensure builtin modules are imported before each test"""
-    import kagura.mcp.builtin  # noqa: F401
+    This is necessary for parallel test execution (pytest-xdist) where each
+    worker has its own isolated registry.
+    """
+    from kagura.core.tool_registry import tool_registry
+
+    # Clear registry to ensure clean state
+    tool_registry.clear()
+
+    # Force reload of builtin modules to trigger @tool registration
+    builtin_modules = [
+        "kagura.mcp.builtin.memory",
+        "kagura.mcp.builtin.file_ops",
+        "kagura.mcp.builtin.web",
+        "kagura.mcp.builtin.youtube",
+        "kagura.mcp.builtin.media",
+        "kagura.mcp.builtin.fact_check",
+        "kagura.mcp.builtin.brave_search",
+        "kagura.mcp.builtin.cache",
+        "kagura.mcp.builtin.routing",
+        "kagura.mcp.builtin.observability",
+        "kagura.mcp.builtin.meta",
+    ]
+
+    for module_name in builtin_modules:
+        if module_name in sys.modules:
+            importlib.reload(sys.modules[module_name])
+        else:
+            importlib.import_module(module_name)
+
+    # Verify import worked
+    tools = tool_registry.get_all()
+    assert len(tools) > 0, "Builtin tools should be registered after import"
+
+    yield
+
+    # Cleanup after test
+    tool_registry.clear()
 
 
 def test_mcp_server_includes_builtin_tools():
     """Test that MCP server recognizes built-in tools"""
-    # Import builtin to register tools
-    import kagura.mcp.builtin  # noqa: F401
     from kagura.core.tool_registry import tool_registry
 
     tools = tool_registry.get_all()
