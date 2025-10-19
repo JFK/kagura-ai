@@ -1,7 +1,7 @@
 """Recipe search agent for personal assistant use."""
 
 from kagura import agent
-from kagura.tools.brave_search import brave_web_search
+from kagura.tools import brave_web_search
 
 
 @agent(model="gpt-5-nano", tools=[brave_web_search], stream=True)

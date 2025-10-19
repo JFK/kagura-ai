@@ -377,7 +377,8 @@ async def _fetch_youtube_enhanced_data(url: str) -> dict[str, Any]:
     """
     import json
 
-    from kagura.tools.youtube import get_youtube_metadata, get_youtube_transcript
+    # Use backward-compatible import (re-exported from kagura.tools)
+    from kagura.tools import get_youtube_metadata, get_youtube_transcript
 
     try:
         # Always fetch metadata first
@@ -420,7 +421,7 @@ async def _brave_search_tool(query: str, count: int = 5) -> str:
     """
     from rich.console import Console
 
-    from kagura.tools.brave_search import brave_web_search
+    from kagura.tools import brave_web_search
 
     console = Console()
     console.print(f"[dim]  └─ 🔍 Brave Search: {query}...[/]")
@@ -672,7 +673,8 @@ async def _youtube_transcript_tool(video_url: str, lang: str = "en") -> str:
     """
     from rich.console import Console
 
-    from kagura.tools.youtube import get_youtube_transcript
+    # Use backward-compatible import (re-exported from kagura.tools)
+    from kagura.tools import get_youtube_transcript
 
     console = Console()
     console.print(f"[dim]📺 Getting transcript for: {video_url}...[/]")
@@ -694,7 +696,8 @@ async def _youtube_metadata_tool(video_url: str) -> str:
     """
     from rich.console import Console
 
-    from kagura.tools.youtube import get_youtube_metadata
+    # Use backward-compatible import (re-exported from kagura.tools)
+    from kagura.tools import get_youtube_metadata
 
     console = Console()
     console.print(f"[dim]📺 Getting metadata for: {video_url}...[/]")

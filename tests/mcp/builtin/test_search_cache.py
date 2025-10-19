@@ -4,7 +4,7 @@ import asyncio
 
 import pytest
 
-from kagura.tools.cache import SearchCache
+from kagura.mcp.builtin.cache import SearchCache
 
 
 class TestSearchCache:

@@ -146,9 +146,9 @@ class TestYouTubeTools:
     @pytest.mark.asyncio
     async def test_youtube_transcript(self):
         """Test YouTube transcript tool"""
-        # Mock the get_youtube_transcript function
+        # Mock at the import location (session.py imports from kagura.tools)
         with patch(
-            "kagura.tools.youtube.get_youtube_transcript",
+            "kagura.tools.get_youtube_transcript",
             new=AsyncMock(return_value="Transcript text here"),
         ):
             result = await _youtube_transcript_tool("https://youtube.com/watch?v=test")
@@ -159,10 +159,10 @@ class TestYouTubeTools:
     @pytest.mark.asyncio
     async def test_youtube_metadata(self):
         """Test YouTube metadata tool"""
-        # Mock the get_youtube_metadata function
+        # Mock at the import location (session.py imports from kagura.tools)
         metadata = '{"title": "Test Video", "author": "Test Channel"}'
         with patch(
-            "kagura.tools.youtube.get_youtube_metadata",
+            "kagura.tools.get_youtube_metadata",
             new=AsyncMock(return_value=metadata),
         ):
             result = await _youtube_metadata_tool("https://youtube.com/watch?v=test")
