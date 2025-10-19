@@ -5,6 +5,12 @@ import pytest
 from kagura.mcp.server import create_mcp_server
 
 
+@pytest.fixture(autouse=True)
+def ensure_builtin_import():
+    """Ensure builtin modules are imported before each test"""
+    import kagura.mcp.builtin  # noqa: F401
+
+
 def test_mcp_server_includes_builtin_tools():
     """Test that MCP server recognizes built-in tools"""
     # Import builtin to register tools
