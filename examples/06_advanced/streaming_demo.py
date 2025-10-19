@@ -8,10 +8,9 @@ This example demonstrates:
 """
 
 import asyncio
-import sys
+
 from kagura import LLMConfig
 from kagura.core.streaming import call_llm_stream, stream_to_string
-
 
 config = LLMConfig(
     model="gpt-4o-mini",

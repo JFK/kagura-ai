@@ -9,9 +9,9 @@ This example demonstrates:
 
 import asyncio
 import time
-from kagura import agent, LLMConfig
-from kagura.core.parallel import parallel_gather, parallel_map
 
+from kagura import LLMConfig, agent
+from kagura.core.parallel import parallel_gather, parallel_map
 
 config = LLMConfig(
     model="gpt-4o-mini",

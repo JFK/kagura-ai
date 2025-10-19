@@ -9,9 +9,10 @@ This example demonstrates:
 """
 
 import asyncio
-from pydantic import BaseModel, Field
-from kagura import agent, LLMConfig
+
+from kagura import LLMConfig, agent
 from kagura.core.memory import MemoryRAG
+from pydantic import BaseModel, Field
 
 
 # Content models
@@ -235,7 +236,7 @@ async def generate_article(
 def print_article(article: Article):
     """Print formatted article"""
     print(f"\n{'=' * 60}")
-    print(f"GENERATED ARTICLE")
+    print("GENERATED ARTICLE")
     print(f"{'=' * 60}")
 
     print(f"\nTitle: {article.title}")

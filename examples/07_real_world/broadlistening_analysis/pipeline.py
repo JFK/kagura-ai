@@ -31,10 +31,8 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from pydantic import BaseModel, Field
-
 from kagura import agent
-
+from pydantic import BaseModel, Field
 
 # ============================================
 # Data Models
@@ -223,7 +221,7 @@ async def broadlistening_pipeline(
             if col not in ["comment-id", "comment-body"]
         ]
 
-    print(f"🔍 Starting broadlistening pipeline...")
+    print("🔍 Starting broadlistening pipeline...")
     print(f"   Comments: {len(comments_df)}")
     print(f"   Clusters: {n_clusters}")
     print(f"   Properties: {property_columns}")
@@ -345,11 +343,12 @@ async def broadlistening_pipeline(
 
     try:
         overview = await overview_generator(cluster_summaries)
+        overview_str = str(overview)  # Convert LLMResponse to string
     except Exception as e:
         print(f"   ⚠️  Error generating overview: {e}")
-        overview = "概要生成エラー"
+        overview_str = "概要生成エラー"
 
-    print(f"   ✅ Generated overview ({len(overview)} chars)")
+    print(f"   ✅ Generated overview ({len(overview_str)} chars)")
 
     # ============================================
     # Step 6: Create filter instance
@@ -368,7 +367,7 @@ async def broadlistening_pipeline(
     result = {
         "clusters": [c.model_dump() for c in clusters],
         "opinions": [op.model_dump() for op in opinions],
-        "overview": overview,
+        "overview": overview_str,
         "property_stats": overall_property_stats,
         "embeddings": embeddings.tolist(),
         "labels": cluster_labels.tolist(),
@@ -383,14 +382,14 @@ async def broadlistening_pipeline(
     # Save overview as text
     overview_path = output_dir / "overview.txt"
     with open(overview_path, "w", encoding="utf-8") as f:
-        f.write(overview)
+        f.write(overview_str)
     print(f"   ✅ Saved overview to {overview_path}")
 
     # Return result with live objects (not serialized)
     return {
         "clusters": clusters,
         "opinions": opinions,
-        "overview": overview,
+        "overview": overview_str,
         "property_stats": overall_property_stats,
         "filter": filter_instance,
         "embeddings": embeddings,
@@ -467,7 +466,7 @@ async def main():
 
     print("\n💡 Next steps:")
     print(f"   - View results: cat {args.output_dir}/overview.txt")
-    print(f"   - Filter by property: Use PropertyFilter in Python")
+    print("   - Filter by property: Use PropertyFilter in Python")
     print("   - Visualize: Run visualization.py (coming soon)")
 
 

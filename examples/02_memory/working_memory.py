@@ -7,9 +7,9 @@ This example demonstrates:
 """
 
 import asyncio
-from kagura import agent
-from kagura.core.memory import MemoryManager, WorkingMemory
 
+from kagura import agent
+from kagura.core.memory import MemoryManager
 
 # Create memory manager with working memory
 memory = MemoryManager(agent_name="assistant", max_messages=10)
@@ -36,7 +36,7 @@ async def main():
         "My name is Alice and I'm learning Python.",
         memory_manager=memory
     )
-    print(f"User: My name is Alice and I'm learning Python.")
+    print("User: My name is Alice and I'm learning Python.")
     print(f"Assistant: {response1}\n")
 
     # Second interaction - assistant remembers the name
@@ -44,7 +44,7 @@ async def main():
         "What's my name?",
         memory_manager=memory
     )
-    print(f"User: What's my name?")
+    print("User: What's my name?")
     print(f"Assistant: {response2}\n")
 
     # Third interaction - assistant remembers the topic
@@ -52,7 +52,7 @@ async def main():
         "Can you recommend some resources for what I'm learning?",
         memory_manager=memory
     )
-    print(f"User: Can you recommend some resources for what I'm learning?")
+    print("User: Can you recommend some resources for what I'm learning?")
     print(f"Assistant: {response3}\n")
 
     # Show memory stats

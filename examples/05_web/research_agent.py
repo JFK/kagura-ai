@@ -7,8 +7,9 @@ This example demonstrates:
 """
 
 import asyncio
-from pydantic import BaseModel, Field
+
 from kagura import agent, tool
+from pydantic import BaseModel, Field
 
 
 class ResearchReport(BaseModel):
@@ -103,10 +104,10 @@ async def main():
 
     print(f"\nTopic: {report.topic}")
     print(f"\nSummary:\n{report.summary}")
-    print(f"\nKey Findings:")
+    print("\nKey Findings:")
     for i, finding in enumerate(report.key_findings, 1):
         print(f"{i}. {finding}")
-    print(f"\nSources:")
+    print("\nSources:")
     for source in report.sources:
         print(f"  - {source}")
     print(f"\nConfidence: {report.confidence}")

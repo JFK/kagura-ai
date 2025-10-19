@@ -7,6 +7,7 @@ This example demonstrates:
 """
 
 import asyncio
+
 from kagura import agent
 
 
@@ -45,7 +46,7 @@ async def main():
 
     # Explain code
     explanation = await code_explainer(code)
-    print(f"Explanation:")
+    print("Explanation:")
     print(explanation)
     print()
 

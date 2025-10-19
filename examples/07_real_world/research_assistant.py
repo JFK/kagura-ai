@@ -8,10 +8,10 @@ This example demonstrates:
 """
 
 import asyncio
-from typing import Optional
-from pydantic import BaseModel, Field
-from kagura import agent, tool, LLMConfig
+
+from kagura import LLMConfig, agent, tool
 from kagura.core.memory import MemoryRAG
+from pydantic import BaseModel, Field
 
 
 # Research models
@@ -212,7 +212,7 @@ async def main():
         print(f"RESEARCH REPORT: {report.topic}")
         print(f"{'=' * 60}")
 
-        print(f"\nExecutive Summary:")
+        print("\nExecutive Summary:")
         print(report.executive_summary)
 
         print(f"\nKey Findings ({len(report.key_findings)}):")

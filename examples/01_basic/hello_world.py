@@ -7,6 +7,7 @@ This example demonstrates the most basic usage of Kagura AI:
 """
 
 import asyncio
+
 from kagura import agent
 
 

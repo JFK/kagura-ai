@@ -8,6 +8,7 @@ This example demonstrates:
 
 import asyncio
 from pathlib import Path
+
 from kagura import agent
 
 

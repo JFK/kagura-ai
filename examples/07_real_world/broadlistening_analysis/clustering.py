@@ -7,7 +7,6 @@ Based on: Talk to the City hierarchical clustering approach
 Reference: sample_repos/kouchou-ai/server/broadlistening/pipeline/steps/hierarchical_clustering.py
 """
 
-import os
 from typing import Any
 
 import numpy as np
