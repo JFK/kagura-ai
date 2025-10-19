@@ -19,8 +19,8 @@ def get_session_memory(session_id: str) -> MemoryManager:
     """Get or create memory for a session"""
     if session_id not in session_memories:
         session_memories[session_id] = MemoryManager(
-            backend=WorkingMemory(),
-            scope=f"session_{session_id}"
+            agent_name=f"session_{session_id}",
+            max_messages=50
         )
     return session_memories[session_id]
 
@@ -89,8 +89,7 @@ async def main():
     # Show memory stats
     print("\n=== Memory Statistics ===")
     for session_id, memory in session_memories.items():
-        stats = await memory.stats()
-        print(f"{session_id}: {stats.get('total_memories', 0)} memories")
+        print(f"{session_id}: {len(memory.context.messages)} messages")
 
 
 if __name__ == "__main__":

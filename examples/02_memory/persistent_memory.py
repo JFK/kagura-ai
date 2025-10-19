@@ -17,7 +17,9 @@ storage_path = Path("./memory_storage")
 storage_path.mkdir(exist_ok=True)
 
 persistent_memory = MemoryManager(
-    backend=PersistentMemory(storage_path=str(storage_path))
+    agent_name="note_keeper",
+    persist_dir=storage_path,
+    max_messages=100
 )
 
 
@@ -70,8 +72,7 @@ async def main():
 
     # Show memory stats
     print("\nMemory Statistics:")
-    stats = await persistent_memory.stats()
-    print(f"  Total memories: {stats.get('total_memories', 0)}")
+    print(f"  Context messages: {len(persistent_memory.context.messages)}")
     print(f"  Storage path: {storage_path.absolute()}")
 
 

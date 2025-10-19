@@ -46,7 +46,7 @@ class Article(BaseModel):
 config = LLMConfig(model="gpt-4o-mini", temperature=0.7)
 
 # Content memory for research
-content_research = MemoryRAG(agent_name="content_generator")
+content_research = MemoryRAG(collection_name="content_generator")
 
 
 # Content agents

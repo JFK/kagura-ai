@@ -105,6 +105,25 @@ class EventStore:
         """
         return self._memory_conn is None
 
+    def _sanitize_for_json(self, obj: Any) -> Any:
+        """Sanitize objects for JSON serialization.
+
+        Args:
+            obj: Object to sanitize
+
+        Returns:
+            JSON-serializable version of the object
+        """
+        if isinstance(obj, (str, int, float, bool, type(None))):
+            return obj
+        elif isinstance(obj, dict):
+            return {k: self._sanitize_for_json(v) for k, v in obj.items()}
+        elif isinstance(obj, (list, tuple)):
+            return [self._sanitize_for_json(item) for item in obj]
+        else:
+            # Convert non-serializable objects to string representation
+            return str(obj)
+
     async def save_execution(self, execution: dict[str, Any]) -> None:
         """Save execution record.
 
@@ -124,6 +143,11 @@ class EventStore:
         conn = self._get_connection()
 
         try:
+            # Sanitize kwargs for JSON serialization
+            kwargs_sanitized = self._sanitize_for_json(execution.get("kwargs", {}))
+            events_sanitized = self._sanitize_for_json(execution.get("events", []))
+            metrics_sanitized = self._sanitize_for_json(execution.get("metrics", {}))
+
             conn.execute(
                 """
                 INSERT INTO executions
@@ -139,9 +163,9 @@ class EventStore:
                     execution.get("duration"),
                     execution.get("status"),
                     execution.get("error"),
-                    json.dumps(execution.get("kwargs", {})),
-                    json.dumps(execution.get("events", [])),
-                    json.dumps(execution.get("metrics", {})),
+                    json.dumps(kwargs_sanitized),
+                    json.dumps(events_sanitized),
+                    json.dumps(metrics_sanitized),
                 ),
             )
             conn.commit()

@@ -12,7 +12,7 @@ from kagura.core.memory import MemoryManager, WorkingMemory
 
 
 # Create memory manager with working memory
-memory = MemoryManager(backend=WorkingMemory())
+memory = MemoryManager(agent_name="assistant", max_messages=10)
 
 
 @agent(enable_memory=True)
@@ -57,9 +57,7 @@ async def main():
 
     # Show memory stats
     print("\nMemory Statistics:")
-    stats = await memory.stats()
-    print(f"  Total memories: {stats.get('total_memories', 0)}")
-    print(f"  Working memory size: {stats.get('working_memory_size', 0)}")
+    print(f"  Context messages: {len(memory.context.messages)}")
 
 
 if __name__ == "__main__":

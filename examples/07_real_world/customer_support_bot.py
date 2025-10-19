@@ -31,19 +31,19 @@ class TicketClassification(BaseModel):
 
 
 # Knowledge base
-knowledge_base = MemoryRAG(agent_name="support_kb")
+knowledge_base = MemoryRAG(collection_name="support_kb")
 
 
 # Support tools
 @tool
 async def search_knowledge_base(query: str) -> str:
     """Search support knowledge base for solutions"""
-    results = await knowledge_base.recall_semantic(query, k=3)
+    results = knowledge_base.recall(query, top_k=3)
     if not results:
         return "No matching articles found"
 
     articles = "\n".join([
-        f"- {r.content}"
+        f"- {r.get('content', '')}"
         for r in results
     ])
     return f"Knowledge Base Results:\n{articles}"
@@ -76,6 +76,9 @@ async def ticket_classifier(message: str) -> TicketClassification:
     """
     Classify this support request:
     "{{ message }}"
+
+    IMPORTANT: ticket_type must be exactly one of: "technical", "billing", "general", "urgent"
+    Do not use variations like "technical_issue" - use only the exact enum values.
 
     Return structured classification with type, priority, summary, and action.
     """
@@ -131,7 +134,7 @@ async def initialize_knowledge_base():
     ]
 
     for article in articles:
-        await knowledge_base.store(
+        knowledge_base.store(
             content=article,
             metadata={"type": "support_article"}
         )

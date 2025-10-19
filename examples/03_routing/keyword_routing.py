@@ -1,14 +1,14 @@
 """Keyword Routing - Route queries by keywords
 
 This example demonstrates:
-- Using KeywordRouter for rule-based routing
-- Defining keyword patterns for different agents
+- Using AgentRouter with intent strategy for rule-based routing
+- Defining keyword intents for different agents
 - Fallback handling
 """
 
 import asyncio
 from kagura import agent
-from kagura.core.routing import KeywordRouter
+from kagura.routing import AgentRouter
 
 
 # Define specialized agents
@@ -43,18 +43,28 @@ async def main():
     print("Keyword Routing Demo")
     print("-" * 50)
 
-    # Create router with keyword patterns
-    router = KeywordRouter(
-        routes={
-            "weather": weather_agent,
-            "math": math_agent,
-            "general": general_agent
-        },
-        patterns={
-            "weather": ["weather", "temperature", "rain", "forecast", "sunny"],
-            "math": ["calculate", "math", "equation", "solve", "number"]
-        },
-        default_route="general"  # Fallback
+    # Create router with intent strategy (keyword-based)
+    router = AgentRouter(
+        strategy="intent",
+        fallback_agent=general_agent,
+        confidence_threshold=0.3
+    )
+
+    # Register agents with intent keywords
+    router.register(
+        weather_agent,
+        intents=["weather", "temperature", "rain", "forecast", "sunny"],
+        description="Weather specialist"
+    )
+    router.register(
+        math_agent,
+        intents=["calculate", "math", "equation", "solve", "number"],
+        description="Math specialist"
+    )
+    router.register(
+        general_agent,
+        intents=["general", "question", "help"],
+        description="General assistant"
     )
 
     # Test queries
@@ -68,12 +78,19 @@ async def main():
 
     for query in queries:
         # Route query to appropriate agent
-        selected_agent = router.route(query)
-        response = await selected_agent(query)
+        response = await router.route(query)
 
-        print(f"\nQuery: {query}")
-        print(f"Routed to: {selected_agent.__name__}")
-        print(f"Response: {response}")
+        # Get matched agents for display
+        matches = router.get_matched_agents(query, top_k=1)
+        if matches:
+            selected_name = matches[0][0].__name__
+            confidence = matches[0][1]
+            print(f"\nQuery: {query}")
+            print(f"Routed to: {selected_name} (confidence: {confidence:.2f})")
+            print(f"Response: {response}")
+        else:
+            print(f"\nQuery: {query}")
+            print(f"Response: {response}")
 
 
 if __name__ == "__main__":

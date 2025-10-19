@@ -74,7 +74,7 @@ config = LLMConfig(
 )
 
 # Memory manager
-memory = MemoryManager(backend=WorkingMemory())
+memory = MemoryManager(agent_name="super_assistant", max_messages=20)
 
 
 # Main agent with all features
@@ -143,16 +143,13 @@ async def main():
         print(f"Assistant: {response}")
 
         # Store in memory
-        await memory.store(
-            content=f"User: {user_input}\nAssistant: {response}",
-            metadata={"task_type": analysis.task_type}
-        )
+        memory.add_message("user", user_input)
+        memory.add_message("assistant", str(response))
 
     # Show final stats
     print(f"\n{'=' * 60}")
     print("Session Statistics:")
-    stats = await memory.stats()
-    print(f"  Interactions: {stats.get('total_memories', 0)}")
+    print(f"  Interactions: {len(interactions)}")
     print(f"  Notes created: {len(list(Path('./notes').glob('*.txt'))) if Path('./notes').exists() else 0}")
 
 

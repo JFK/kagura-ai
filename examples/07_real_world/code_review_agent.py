@@ -167,8 +167,11 @@ async def review_code(code: str, file_name: str) -> CodeReview:
 
     print("✓ Review complete")
 
+    # Extract quality string from LLMResponse
+    quality_str = str(quality).split(',')[0].strip() if ',' in str(quality) else str(quality).strip()
+
     # Generate summary
-    summary = f"Overall quality: {quality}. "
+    summary = f"Overall quality: {quality_str}. "
     if security_issues:
         summary += f"Found {len(security_issues)} security issues. "
     if performance_issues:
@@ -176,7 +179,7 @@ async def review_code(code: str, file_name: str) -> CodeReview:
 
     # Create review object
     review = CodeReview(
-        overall_quality=quality.split(',')[0] if ',' in quality else quality,
+        overall_quality=quality_str,
         security_issues=security_issues,
         performance_issues=performance_issues,
         style_suggestions=style_suggestions,

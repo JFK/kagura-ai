@@ -13,7 +13,7 @@ from kagura.core.memory import MemoryRAG
 
 
 # Create multimodal RAG
-rag = MemoryRAG(agent_name="multimodal_assistant")
+rag = MemoryRAG(collection_name="multimodal_assistant")
 
 
 @agent
@@ -44,7 +44,7 @@ async def store_multimodal_knowledge():
     ]
 
     for fact in text_facts:
-        await rag.store(
+        rag.store(
             content=fact,
             metadata={"type": "text", "source": "documentation"}
         )
@@ -56,7 +56,7 @@ async def store_multimodal_knowledge():
     ]
 
     for desc in image_descriptions:
-        await rag.store(
+        rag.store(
             content=desc,
             metadata={"type": "image", "source": "diagrams"}
         )
@@ -68,7 +68,7 @@ async def store_multimodal_knowledge():
     ]
 
     for summary in pdf_summaries:
-        await rag.store(
+        rag.store(
             content=summary,
             metadata={"type": "pdf", "source": "documents"}
         )
@@ -96,16 +96,17 @@ async def main():
         print(f"\nQuery: {query}")
 
         # Retrieve relevant content across all modalities
-        results = await rag.recall_semantic(query, k=3)
+        results = rag.recall(query, top_k=3)
 
         # Show what was retrieved
         print(f"Retrieved {len(results)} items:")
         for result in results:
-            content_type = result.metadata.get("type", "unknown")
-            print(f"  [{content_type}] {result.content[:60]}...")
+            content_type = result.get("metadata", {}).get("type", "unknown")
+            content = result.get("content", "")
+            print(f"  [{content_type}] {content[:60]}...")
 
         # Answer using multimodal context
-        context = [r.content for r in results]
+        context = [r.get("content", "") for r in results]
         answer = await multimodal_assistant(query, context)
         print(f"Answer: {answer}")
 

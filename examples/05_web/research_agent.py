@@ -50,7 +50,10 @@ async def research_agent(topic: str) -> ResearchReport:
     3. Analyze and synthesize findings
     4. Create structured report
 
-    Return a complete ResearchReport with all findings.
+    IMPORTANT: key_findings must be a list of STRING sentences, not objects.
+    Example: ["Finding 1 text", "Finding 2 text", "Finding 3 text"]
+
+    Return a complete ResearchReport matching the exact schema.
     """
     pass
 
