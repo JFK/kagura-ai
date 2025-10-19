@@ -412,7 +412,7 @@ User: 新しいファイルを作成します。命名規則を教えて
 
 Claude: [search_nodes でクエリ: "naming convention"]
 
-命名規則（ai_docs/coding_standards.md より）:
+命名規則（ai_docs/CODING_STANDARDS.md より）:
 - モジュール/パッケージ: snake_case (例: kagura.core.agent)
 - クラス名: PascalCase (例: AtomicAgent, LLMConfig)
 - 関数/変数: snake_case (例: create_agent)
@@ -646,7 +646,7 @@ User: 保存されている情報を確認して、不要な情報を削除し�
 - [MCP_SETUP_GUIDE.md](./MCP_SETUP_GUIDE.md) - MCP設定ガイド
 - [UNIFIED_ROADMAP.md](./UNIFIED_ROADMAP.md) - 開発ロードマップ
 - [NEXT_STEPS.md](./NEXT_STEPS.md) - 次のアクション
-- [coding_standards.md](./coding_standards.md) - コーディング規約
+- [CODING_STANDARDS.md](./CODING_STANDARDS.md) - コーディング規約
 - [MCP Memory Server GitHub](https://github.com/modelcontextprotocol/servers/tree/main/src/memory)
 
 ---

@@ -16,10 +16,10 @@ ai_docs/
 ├── ROADMAP_v3.md                # v3.0ロードマップ
 ├── VISION.md                    # プロジェクトビジョン
 │
-├── coding_standards.md          # コーディング規約
-├── architecture.md              # システムアーキテクチャ
-├── glossary.md                  # 用語集
-├── github_actions_setup.md      # CI/CD設定
+├── CODING_STANDARDS.md          # コーディング規約
+├── ARCHITECTURE.md              # システムアーキテクチャ
+├── GLOSSARY.md                  # 用語集
+├── GITHUB_ACTIONS_SETUP.md      # CI/CD設定
 ├── OPENAI_PRICING.md            # LLM価格情報
 │
 ├── rfcs/                        # RFC仕様書
@@ -50,7 +50,7 @@ ai_docs/
 1. **V3.0_DEVELOPMENT.md** ⭐️ - v3.0開発ガイド
 2. **ROADMAP_v3.md** - v3.0ロードマップ
 3. **V3.0_PIVOT.md** - v3.0方針（SDK-first）
-4. **coding_standards.md** - コーディング規約
+4. **CODING_STANDARDS.md** - コーディング規約
 5. **DOCUMENTATION_GUIDE.md** - ドキュメント管理ルール
 6. **対象Issueの内容**（完全理解）
 
@@ -84,9 +84,9 @@ ai_docs/
 ### プロジェクト基盤
 
 - **VISION.md**: プロジェクトビジョン
-- **coding_standards.md**: コーディング規約
-- **architecture.md**: システム設計
-- **glossary.md**: 用語集
+- **CODING_STANDARDS.md**: コーディング規約
+- **ARCHITECTURE.md**: システム設計
+- **GLOSSARY.md**: 用語集
 
 ### アーカイブ（参考用）
 

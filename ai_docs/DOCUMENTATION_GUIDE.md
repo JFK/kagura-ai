@@ -18,10 +18,10 @@ ai_docs/
 ├── V3.0_WORK_LOG.md             # v3.0作業ログ（現在進行中）
 ├── VISION.md                    # プロジェクトビジョン
 │
-├── coding_standards.md          # コーディング規約
-├── architecture.md              # システムアーキテクチャ
-├── glossary.md                  # 用語集
-├── github_actions_setup.md      # CI/CD設定
+├── CODING_STANDARDS.md          # コーディング規約
+├── ARCHITECTURE.md              # システムアーキテクチャ
+├── GLOSSARY.md                  # 用語集
+├── GITHUB_ACTIONS_SETUP.md      # CI/CD設定
 ├── OPENAI_PRICING.md            # LLM価格（参照用）
 ```
 

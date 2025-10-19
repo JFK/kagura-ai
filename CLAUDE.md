@@ -102,7 +102,7 @@ gh pr create --draft --title "..." --body "..."
 1. `ai_docs/V3.0_DEVELOPMENT.md` - v3.0開発ガイド（最重要）
 2. `ai_docs/ROADMAP_v3.md` - v3.0ロードマップ
 3. `ai_docs/V3.0_PIVOT.md` - v3.0方針（SDK-first）
-4. `ai_docs/coding_standards.md` - コーディング規約
+4. `ai_docs/CODING_STANDARDS.md` - コーディング規約
 5. `ai_docs/DOCUMENTATION_GUIDE.md` - ドキュメント管理ルール
 6. **対象Issueの内容**（必読）
 
@@ -222,7 +222,7 @@ gh pr merge [PR番号] --squash
 ### 必須
 - `ai_docs/ROADMAP_v3.md` - v3.0ロードマップ
 - `ai_docs/V3.0_PIVOT.md` - v3.0方針
-- `ai_docs/coding_standards.md` - コーディング規約
+- `ai_docs/CODING_STANDARDS.md` - コーディング規約
 
 ### v3.0方針
 
