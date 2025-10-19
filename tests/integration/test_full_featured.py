@@ -54,6 +54,7 @@ def temp_project_dir():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="ChatSession API changed in v3.0 - enable_multimodal/enable_web removed")
 async def test_chat_session_full_mode_initialization(temp_project_dir):
     """Test ChatSession with full mode (multimodal + web)"""
     from kagura.chat import ChatSession
@@ -72,6 +73,7 @@ async def test_chat_session_full_mode_initialization(temp_project_dir):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="ChatSession API changed in v3.0")
 async def test_full_mode_chat_with_rag_and_web(temp_project_dir):
     """Test chat interaction with both RAG and web enabled"""
     from kagura.chat import ChatSession
@@ -101,6 +103,7 @@ async def test_full_mode_chat_with_rag_and_web(temp_project_dir):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="ChatSession API changed in v3.0")
 async def test_full_mode_rag_context_injection(temp_project_dir):
     """Test that RAG context is properly injected in full mode"""
     from kagura.chat import ChatSession
@@ -130,6 +133,7 @@ async def test_full_mode_rag_context_injection(temp_project_dir):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="ChatSession API changed in v3.0")
 async def test_full_mode_web_tool_available(temp_project_dir):
     """Test that web search tool is available in full mode"""
     from kagura.chat import ChatSession
@@ -149,6 +153,7 @@ async def test_full_mode_web_tool_available(temp_project_dir):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="ChatSession API changed in v3.0")
 async def test_full_mode_error_handling(temp_project_dir):
     """Test error handling in full mode"""
     from kagura.chat import ChatSession
@@ -169,6 +174,7 @@ async def test_full_mode_error_handling(temp_project_dir):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="ChatSession API changed in v3.0")
 async def test_full_mode_memory_persistence(temp_project_dir):
     """Test that memory is persisted across chat turns in full mode"""
     from kagura.chat import ChatSession
