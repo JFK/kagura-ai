@@ -4,7 +4,7 @@ Tests for YouTube tools
 
 import pytest
 
-from kagura.tools.youtube import (
+from kagura.mcp.builtin.youtube import (
     extract_video_id,
     get_youtube_metadata,
     get_youtube_transcript,
@@ -144,12 +144,12 @@ async def test_get_youtube_transcript_no_subtitles() -> None:
         # Force reimport to use mocked module
         import importlib
 
-        import kagura.tools.youtube
+        import kagura.mcp.builtin.youtube
 
-        importlib.reload(kagura.tools.youtube)
+        importlib.reload(kagura.mcp.builtin.youtube)
 
         url = "https://www.youtube.com/watch?v=test123"
-        result = await kagura.tools.youtube.get_youtube_transcript(url)
+        result = await kagura.mcp.builtin.youtube.get_youtube_transcript(url)
 
         # Should return helpful error message
         assert isinstance(result, str)
