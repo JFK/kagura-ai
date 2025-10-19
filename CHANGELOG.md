@@ -5,6 +5,88 @@ All notable changes to Kagura AI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2025-10-19
+
+### 🎉 Major Release: SDK-First Positioning
+
+**This is a documentation-focused release** with no breaking changes to code functionality.
+
+v3.0.0 establishes Kagura AI as a **Python-First AI Agent SDK** for developers building production applications, with Interactive Chat as a bonus experimentation feature.
+
+### Changed
+
+#### Documentation Overhaul (Issue #315, PR #316)
+
+**Core Documentation**:
+- **README.md** (767 → 453 lines): Complete rewrite with SDK-first approach
+  - Real-world integration examples (FastAPI, data pipelines, automation)
+  - Chat positioned as bonus feature
+  - Clear value proposition for developers
+- **README_JA.md** (768 → 453 lines): Japanese version aligned with English
+- **CLAUDE.md** (1112 → 275 lines): Simplified to v3.0 development essentials
+  - Removed outdated RFC references
+  - Focus on Issue-driven workflow
+  - SDK-first philosophy emphasized
+
+**ai_docs/ Reorganization** (-9,000+ lines):
+- Created: `V3.0_DEVELOPMENT.md`, `DOCUMENTATION_GUIDE.md`
+- Archived: Old roadmaps, work logs, analysis
+- Updated: ARCHITECTURE.md, GLOSSARY.md, VISION.md (v3.0 SDK-first)
+- Unified: Single archive/ hierarchy (no duplication)
+- Standardized: All filenames to UPPERCASE
+
+**docs/ Streamlining** (-7,500+ lines):
+- Created: `quickstart.md`, `sdk-guide.md`, `chat-guide.md`
+- Deleted: 13 redundant tutorials/guides
+- Updated: mkdocs.yml (SDK-first navigation)
+- Fixed: All broken links, legacy v2.0 references
+
+**examples/ v2.6.0 Compatibility**:
+- Updated: `kagura.presets` → `kagura.agents`
+- Updated: `BRAVE_API_KEY` → `BRAVE_SEARCH_API_KEY`
+
+#### Metadata Updates
+
+- **pyproject.toml**:
+  - version: 2.7.2 → 3.0.0
+  - description: "Framework" → "SDK"
+  - keywords: Added SDK, type-safe, production-ready
+  - classifiers: Beta → Production/Stable
+
+### Philosophy Shift
+
+**Before**: AI Agent Framework (unclear positioning)
+**After**: Python-First AI Agent SDK (clear developer focus)
+
+**Rationale**: GitHub audience = engineers seeking SDK solutions
+
+### Statistics
+
+- **Documentation**: -9,275 lines (83% reduction)
+- **Files Changed**: 125+
+- **Files Deleted**: 24
+- **Files Archived**: 67
+
+### Benefits
+
+- ✅ Clear SDK positioning for developers
+- ✅ Chat as experimental/prototyping tool
+- ✅ All documentation v3.0 consistent
+- ✅ Production/Stable status
+- ✅ Comprehensive, focused docs
+
+### No Breaking Changes
+
+All v2.7.x code continues to work. This release is purely documentation and positioning.
+
+### References
+
+- Issue #315: v3.0 Documentation Refresh
+- PR #316: Complete documentation overhaul
+- Consolidates: #276, #265, #264
+
+---
+
 ## [2.6.1] - 2025-10-17
 
 ### Fixed

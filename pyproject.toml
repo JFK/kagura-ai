@@ -1,19 +1,26 @@
 [project]
 name = "kagura-ai"
-version = "2.7.2"
-description = "Python-First AI Agent Framework with Code Execution"
+version = "3.0.0"
+description = "Python-First AI Agent SDK - Build production AI with one decorator"
 authors = [
     { name = "JFK", email = "fumikazu.kiyota@gmail.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.11"
+keywords = [
+    "ai", "sdk", "agents", "llm", "type-safe", "production-ready",
+    "openai", "anthropic", "gemini", "pydantic", "async"
+]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
 ]
 dependencies = [
     "pydantic>=2.10",
