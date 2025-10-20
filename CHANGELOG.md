@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+- **Core**: `@agent` decorator now returns `str` content instead of `LLMResponse` object when return type is `-> str` (#326, #325)
+- **Core**: Replaced `isinstance(response, LLMResponse)` with `hasattr` checks to avoid circular import issues (#326, #325)
+- **Tests**: Added comprehensive tests for personal tools (daily_news, weather_forecast, search_recipes, find_events) (#326)
+- **CI**: Temporarily disabled type checking due to timeout issues in CI environment (tracked in #328)
+
+### Changed
+- **Testing**: Improved LLMMock to properly handle `LLMResponse` objects
+- **Code Quality**: Resolved TODO comments and improved type validation in tool decorator (#325)
+
 ## [3.0.1] - 2025-10-19
 
 ### Fixed
