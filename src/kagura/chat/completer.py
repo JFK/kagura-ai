@@ -7,6 +7,8 @@ from typing import Iterable
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.document import Document
 
+from kagura.core.tool_registry import tool_registry
+
 
 class KaguraCompleter(Completer):
     """
@@ -79,10 +81,19 @@ class KaguraCompleter(Completer):
                         suggestion, start_position=-len(text), display_meta=desc
                     )
 
-        # Tool names (!tool_name) - placeholder for future tool support
+        # Tool names (!tool_name)
         elif text.startswith("!"):
-            # TODO: Add tool registry integration when available
-            pass
+            for tool_name in tool_registry.list_names():
+                suggestion = f"!{tool_name}"
+                if suggestion.startswith(text):
+                    # Get tool function for description
+                    tool_func = tool_registry.get(tool_name)
+                    desc = ""
+                    if tool_func:
+                        desc = self._get_first_line(tool_func.__doc__)
+                    yield Completion(
+                        suggestion, start_position=-len(text), display_meta=desc
+                    )
 
     def _get_command_description(self, cmd: str) -> str:
         """

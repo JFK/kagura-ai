@@ -1,8 +1,10 @@
 """Mocking utilities for agent testing."""
 
 from contextlib import contextmanager
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator
 from unittest.mock import MagicMock, patch
+
+from kagura.core.tool_registry import tool_registry
 
 
 class LLMRecorder:
@@ -185,16 +187,35 @@ class ToolMock:
         self.tool_name = tool_name
         self.return_value = return_value
         self.mock: MagicMock = MagicMock(return_value=return_value)
+        self.original_tool: Callable[..., Any] | None = None
 
     def __enter__(self) -> "ToolMock":
         """Start mocking tool."""
-        # TODO: Implement tool registry patching
-        # For now, this is a placeholder
+        # Save original tool if it exists
+        self.original_tool = tool_registry.get(self.tool_name)
+
+        # Unregister original tool if it exists
+        if self.original_tool:
+            try:
+                tool_registry.unregister(self.tool_name)
+            except KeyError:
+                pass
+
+        # Register mock tool
+        tool_registry.register(self.tool_name, self.mock)
         return self
 
     def __exit__(self, *args: Any) -> None:
         """Stop mocking tool."""
-        pass
+        # Unregister mock tool
+        try:
+            tool_registry.unregister(self.tool_name)
+        except KeyError:
+            pass
+
+        # Restore original tool if it existed
+        if self.original_tool:
+            tool_registry.register(self.tool_name, self.original_tool)
 
 
 @contextmanager
@@ -208,6 +229,11 @@ def mock_memory(history: list[dict[str, str]]) -> Iterator[None]:
         >>> with mock_memory([{"role": "user", "content": "Hello"}]):
         ...     result = await agent("Follow-up")
     """
-    # TODO: Implement memory mocking
-    # This is a placeholder for Phase 2
+    # TODO (v3.1): Implement memory mocking
+    # This requires patching the Memory Manager to return mock history.
+    # Implementation approach:
+    #   1. Patch `kagura.core.memory.manager.MemoryManager.get_history()`
+    #   2. Return the provided `history` list
+    #   3. Optionally patch `add_message()` to track new messages
+    # This is deferred to v3.1 as it requires deeper Memory API integration.
     yield

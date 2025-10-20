@@ -115,7 +115,9 @@ def media_open_audio(path: str) -> str:
     """
     try:
         # For now, use OS default app
-        # TODO: Implement console playback (pydub, playsound, etc.) as optional
+        # TODO (v3.1): Implement console playback (pydub, playsound, etc.) as optional
+        # This would require optional dependencies: pip install kagura-ai[audio]
+        # Implementation: Use pydub + simpleaudio for cross-platform audio playback
         _open_with_os_app(path)
         return f"Successfully opened audio: {path}"
     except FileNotFoundError as e:

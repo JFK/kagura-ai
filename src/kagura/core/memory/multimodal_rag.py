@@ -245,7 +245,10 @@ class MultimodalRAG(MemoryRAG):
 
         # Load only new/modified files
         logger.info(f"Processing {len(files_to_process)} new/modified files")
-        # TODO: Implement selective loading in DirectoryScanner
+        # TODO (v3.1): Implement selective loading in DirectoryScanner
+        # This would optimize incremental updates by only processing changed files
+        # instead of rebuilding the entire index. Requires tracking file metadata
+        # (modification times, checksums) for delta detection.
         # For now, rebuild entire index
         return await self.build_index(
             max_concurrent=max_concurrent, language=language, force_rebuild=False

@@ -224,8 +224,10 @@ class AgentBuilder:
                 if config.memory and config.memory.session_id:
                     memory.set_session_id(config.memory.session_id)
 
-                # TODO: Phase 2 - Integrate routing
-                # TODO: Phase 2 - Integrate hooks
+                # TODO (v3.1): Phase 2 - Integrate routing
+                # Integration with AgentRouter for dynamic agent selection.
+                # TODO (v3.1): Phase 2 - Integrate hooks
+                # Integration with pre/post execution hooks.
 
                 # Process prompt - actual LLM call handled by @agent decorator
                 return f"{prompt}"
@@ -245,8 +247,10 @@ class AgentBuilder:
                 Returns:
                     Agent response
                 """
-                # TODO: Phase 2 - Integrate routing
-                # TODO: Phase 2 - Integrate hooks
+                # TODO (v3.1): Phase 2 - Integrate routing
+                # Integration with AgentRouter for dynamic agent selection.
+                # TODO (v3.1): Phase 2 - Integrate hooks
+                # Integration with pre/post execution hooks.
 
                 # Process prompt - actual LLM call handled by @agent decorator
                 return f"{prompt}"
