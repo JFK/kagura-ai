@@ -58,7 +58,9 @@ jobs:
           uv sync --frozen --all-extras
 
       - name: Run type checking
-        run: uv run pyright src/kagura/
+        run: |
+          source .venv/bin/activate
+          pyright src/kagura/
         timeout-minutes: 5
 
       - name: Run linting
