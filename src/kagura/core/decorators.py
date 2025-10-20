@@ -640,9 +640,6 @@ async def _execute_agent(
 
     # Record LLM call in telemetry
     if telemetry_collector:
-        # Import LLMResponse for type checking
-        from kagura.core.llm import LLMResponse
-
         if isinstance(response, LLMResponse):
             from kagura.observability.pricing import calculate_cost
 
