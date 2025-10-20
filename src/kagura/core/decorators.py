@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable, Optional, ParamSpec, TypeVar, overload
 
 from .compression import CompressionPolicy
-from .llm import LLMConfig, call_llm
+from .llm import LLMConfig, LLMResponse, call_llm
 from .memory import MemoryManager
 from .parser import parse_response
 from .prompt import extract_template, render_prompt
@@ -662,7 +662,6 @@ async def _execute_agent(
         return parse_response(response_str, return_type)  # type: ignore
 
     # If return type is str, extract content from LLMResponse
-    from kagura.core.llm import LLMResponse
     if isinstance(response, LLMResponse):
         return response.content  # type: ignore
 
