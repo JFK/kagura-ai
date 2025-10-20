@@ -7,6 +7,8 @@ import inspect
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Optional, ParamSpec, TypeVar, overload
 
+from pydantic import TypeAdapter, ValidationError
+
 from .compression import CompressionPolicy
 from .llm import LLMConfig, call_llm
 from .memory import MemoryManager
@@ -18,6 +20,35 @@ from .workflow_registry import workflow_registry
 
 P = ParamSpec("P")
 T = TypeVar("T")
+
+
+def _validate_return_value(result: Any, return_type: Any, tool_name: str) -> Any:
+    """Validate tool return value against annotated type.
+
+    Args:
+        result: The returned value from the tool
+        return_type: The annotated return type
+        tool_name: Name of the tool (for error messages)
+
+    Returns:
+        The validated result
+
+    Raises:
+        TypeError: If validation fails
+    """
+    if return_type == inspect.Signature.empty:
+        return result
+
+    try:
+        # Use Pydantic TypeAdapter for validation
+        adapter: TypeAdapter[Any] = TypeAdapter(return_type)
+        validated = adapter.validate_python(result)
+        return validated
+    except ValidationError as e:
+        raise TypeError(
+            f"Tool '{tool_name}' returned invalid type. "
+            f"Expected {return_type}, but validation failed: {e}"
+        ) from e
 
 
 def _convert_tools_to_llm_format(tools: list[Callable]) -> list[dict[str, Any]]:
@@ -827,9 +858,7 @@ def tool(
 
                 # Validate return type if annotated
                 return_type = sig.return_annotation
-                if return_type != inspect.Signature.empty:
-                    # TODO: Add Pydantic validation for return type
-                    pass
+                result = _validate_return_value(result, return_type, tool_name)
 
                 return result  # type: ignore
 
@@ -852,9 +881,7 @@ def tool(
 
                 # Validate return type if annotated
                 return_type = sig.return_annotation
-                if return_type != inspect.Signature.empty:
-                    # TODO: Add Pydantic validation for return type
-                    pass
+                result = _validate_return_value(result, return_type, tool_name)
 
                 return result  # type: ignore
 

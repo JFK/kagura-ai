@@ -215,7 +215,9 @@ class ShellExecutor:
         Returns:
             True if user confirms, False otherwise
         """
-        # TODO: Integrate with CLI/UI for better confirmation flow
+        # TODO (v3.1): Integrate with CLI/UI for better confirmation flow
+        # This could use Rich prompts or integrate with the chat interface
+        # for a more interactive confirmation experience.
         print(f"Execute command: {command}? [y/N] ", end="", flush=True)
         try:
             response = input()
