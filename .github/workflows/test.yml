@@ -60,7 +60,7 @@ jobs:
       # Temporarily skip type checking due to CI timeout issues
       # - name: Run type checking
       #   run: uv run pyright src/kagura/
-      #   timeout-minutes: 2
+      #   timeout-minutes: 5
 
       - name: Run linting
         run: uv run ruff check src/kagura/
