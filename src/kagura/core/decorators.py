@@ -661,6 +661,11 @@ async def _execute_agent(
         response_str = str(response)
         return parse_response(response_str, return_type)  # type: ignore
 
+    # If return type is str, extract content from LLMResponse
+    from kagura.core.llm import LLMResponse
+    if isinstance(response, LLMResponse):
+        return response.content  # type: ignore
+
     return response  # type: ignore
 
 
