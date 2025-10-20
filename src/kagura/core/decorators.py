@@ -640,18 +640,16 @@ async def _execute_agent(
 
     # Record LLM call in telemetry
     if telemetry_collector:
-        # Import LLMResponse for type checking
-        from kagura.core.llm import LLMResponse
-
-        if isinstance(response, LLMResponse):
+        # Check if response is LLMResponse (has content, usage, model, duration)
+        if hasattr(response, "content") and hasattr(response, "usage"):
             from kagura.observability.pricing import calculate_cost
 
             telemetry_collector.record_llm_call(
-                model=response.model,
-                prompt_tokens=response.usage.get("prompt_tokens", 0),
-                completion_tokens=response.usage.get("completion_tokens", 0),
-                duration=response.duration,
-                cost=calculate_cost(response.usage, response.model),
+                model=response.model,  # type: ignore
+                prompt_tokens=response.usage.get("prompt_tokens", 0),  # type: ignore
+                completion_tokens=response.usage.get("completion_tokens", 0),  # type: ignore
+                duration=response.duration,  # type: ignore
+                cost=calculate_cost(response.usage, response.model),  # type: ignore
             )
 
     # Parse response based on return type annotation
@@ -660,6 +658,10 @@ async def _execute_agent(
         # parse_response expects str, so convert if LLMResponse
         response_str = str(response)
         return parse_response(response_str, return_type)  # type: ignore
+
+    # If return type is str, extract content from LLMResponse
+    if hasattr(response, "content"):
+        return response.content  # type: ignore
 
     return response  # type: ignore
 
