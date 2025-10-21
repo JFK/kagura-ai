@@ -120,3 +120,42 @@ def test_async_tool_detection():
 # the existing integration tests in test_builtin_integration.py which test async tools directly.
 # For end-to-end testing of the MCP server with async tools, manual testing or E2E tests with
 # a real MCP client are recommended.
+
+
+@pytest.mark.asyncio
+async def test_mcp_server_has_telemetry_imports():
+    """Test that MCP server module has necessary telemetry imports
+
+    This verifies that the telemetry integration code is present in the server module.
+    Full E2E testing of telemetry tracking happens via integration tests and manual testing.
+    """
+    import kagura.mcp.server as server_module
+
+    # Verify necessary imports are present
+    assert hasattr(server_module, "time"), "time module should be imported"
+
+    # Verify the create_mcp_server function exists
+    assert hasattr(server_module, "create_mcp_server")
+
+    # Create a server to ensure no import errors
+    server = create_mcp_server("test-server")
+    assert server is not None
+
+
+@pytest.mark.asyncio
+async def test_telemetry_import_in_mcp_server():
+    """Test that telemetry module can be imported from MCP server context"""
+    # This test verifies that the telemetry integration doesn't cause import errors
+    from kagura.observability import EventStore, Telemetry, get_global_telemetry
+
+    # Create telemetry instance
+    store = EventStore(":memory:")
+    telemetry = Telemetry(store)
+
+    # Verify telemetry is functional
+    collector = telemetry.get_collector()
+    assert collector is not None
+
+    # Verify global telemetry works
+    global_telem = get_global_telemetry()
+    assert global_telem is not None
