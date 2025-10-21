@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.0.3] - 2025-10-21
+
 ### Fixed
 - **MCP**: Fixed parameter type conversion issues in MCP tools (#333)
   - `brave_news_search`: count parameter now accepts string input
