@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+- **MCP**: Fixed `brave_news_search` HttpUrl JSON serialization error (#333)
+  - Converted all result fields to strings before JSON serialization
+  - News search now returns valid JSON instead of serialization error
+
 ## [3.0.3] - 2025-10-21
 
 ### Fixed

@@ -137,6 +137,25 @@ class TestBraveNewsSearch:
         # Will fail due to missing key, but parameter should be accepted
         assert "error" in data
 
+    @pytest.mark.asyncio
+    async def test_json_serializable_results(self, monkeypatch) -> None:
+        """Test that news search results are JSON serializable (HttpUrl fix)"""
+        monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
+
+        result = await brave_news_search("test query")
+
+        # Result should be valid JSON string
+        assert isinstance(result, str)
+
+        # Should be parseable as JSON (no "Object of type HttpUrl is not JSON serializable" error)
+        try:
+            data = json.loads(result)
+            # Successfully parsed - either error dict or results list
+            assert isinstance(data, (dict, list))
+        except json.JSONDecodeError:
+            # Should not happen - result should always be valid JSON
+            pytest.fail("Result is not valid JSON")
+
 
 class TestBraveSearchCaching:
     """Test caching functionality for brave_web_search."""

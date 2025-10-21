@@ -264,10 +264,10 @@ async def brave_news_search(
             for item in response.results[:count]:
                 results.append(
                     {
-                        "title": getattr(item, "title", ""),
-                        "url": getattr(item, "url", ""),
-                        "description": getattr(item, "description", ""),
-                        "age": getattr(item, "age", ""),
+                        "title": str(getattr(item, "title", "")),
+                        "url": str(getattr(item, "url", "")),  # Convert HttpUrl to str
+                        "description": str(getattr(item, "description", "")),
+                        "age": str(getattr(item, "age", "")),
                     }
                 )
 
