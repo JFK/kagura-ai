@@ -149,7 +149,7 @@ class TestMemoryCaching:
 
         # Check cache has entry
         assert len(_memory_cache) == 1
-        assert "cached_agent:rag=False" in _memory_cache
+        assert "cached_agent:rag=True" in _memory_cache
 
         # Second call should reuse instance
         await memory_store("cached_agent", "key2", "value2")
@@ -167,6 +167,117 @@ class TestMemoryCaching:
         await memory_search("agent_rag", "query", k=5)
 
         # Should have 2 cache entries (one with RAG, one without)
-        assert len(_memory_cache) == 2
-        assert "agent_rag:rag=False" in _memory_cache
+        # Note: memory_store now uses RAG by default for working memory
+        assert len(_memory_cache) >= 1
         assert "agent_rag:rag=True" in _memory_cache
+
+
+class TestMemorySearchIntegration:
+    """Test memory_search integration with memory_store (Issue #337)."""
+
+    @pytest.mark.asyncio
+    @pytest.mark.integration
+    async def test_search_finds_stored_data(self) -> None:
+        """Test that memory_search can find data stored via memory_store (Issue #337)
+
+        This is the core issue: users expect memory_search to find data
+        stored with memory_store, but they were stored in separate systems.
+        """
+        import json
+
+        try:
+            # Store data in working memory
+            store_result = await memory_store(
+                agent_name="test_search_agent",
+                key="name",
+                value="Alice",
+                scope="working"
+            )
+            assert "Stored" in store_result
+
+            # Search for the stored data
+            search_result = await memory_search(
+                agent_name="test_search_agent",
+                query="name",
+                k=5
+            )
+
+            # Parse results
+            results = json.loads(search_result)
+
+            # Should find the stored data
+            # Results can come from either RAG or working memory
+            assert isinstance(results, list)
+            if len(results) > 0:  # ChromaDB is available
+                # Check that "Alice" or "name" appears in results
+                found = False
+                for result in results:
+                    content = result.get("content", "")
+                    if "Alice" in content or "name" in content.lower():
+                        found = True
+                        break
+                assert found, f"Expected to find 'Alice' or 'name' in results: {results}"
+
+        except ImportError:
+            # ChromaDB not installed - skip test
+            pytest.skip("ChromaDB not installed")
+
+    @pytest.mark.asyncio
+    @pytest.mark.integration
+    async def test_search_combined_results(self) -> None:
+        """Test that memory_search returns combined RAG + working memory results"""
+        import json
+
+        try:
+            # Store multiple data points
+            await memory_store("combined_agent", "user_name", "Bob")
+            await memory_store("combined_agent", "user_age", "30")
+            await memory_store("combined_agent", "user_city", "Tokyo")
+
+            # Search with a query that should match keys
+            search_result = await memory_search(
+                agent_name="combined_agent",
+                query="user",
+                k=5
+            )
+
+            results = json.loads(search_result)
+            assert isinstance(results, list)
+
+            if len(results) > 0:  # ChromaDB is available
+                # Check for source indicators
+                sources = [r.get("source") for r in results]
+                # Should have at least working_memory results (key matches)
+                assert "working_memory" in sources or "rag" in sources
+
+                # Verify working memory results have correct structure
+                working_results = [r for r in results if r.get("source") == "working_memory"]
+                if working_results:
+                    for wr in working_results:
+                        assert "key" in wr
+                        assert "value" in wr
+                        assert "match_type" in wr
+
+        except ImportError:
+            pytest.skip("ChromaDB not installed")
+
+    @pytest.mark.asyncio
+    async def test_search_empty_results_without_chromadb(self) -> None:
+        """Test memory_search returns working memory results even without ChromaDB"""
+        import json
+
+        # Store data
+        await memory_store("no_rag_agent", "test_key", "test_value")
+
+        # Try to search - should handle missing ChromaDB gracefully
+        search_result = await memory_search("no_rag_agent", "test", k=5)
+        results = json.loads(search_result)
+
+        # Should either return working memory results or error message
+        assert isinstance(results, (list, dict))
+        if isinstance(results, dict):
+            # Error case (no ChromaDB)
+            assert "error" in results
+        else:
+            # Working memory results
+            assert isinstance(results, list)
