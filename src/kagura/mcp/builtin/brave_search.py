@@ -207,6 +207,13 @@ async def brave_news_search(
     Example:
         >>> results = await brave_news_search("AI technology", freshness="pw")
     """
+    # Ensure count is int (LLM might pass as string)
+    if isinstance(count, str):
+        try:
+            count = int(count)
+        except ValueError:
+            count = 5  # Default fallback
+
     try:
         from brave_search_python_client import (  # type: ignore[import-untyped]
             BraveSearch,
