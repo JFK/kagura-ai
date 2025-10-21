@@ -6,6 +6,7 @@ Claude Code, Cline, and other MCP clients.
 """
 
 import inspect
+import time
 from typing import Any
 
 from mcp.server import Server  # type: ignore
@@ -134,56 +135,84 @@ def create_mcp_server(name: str = "kagura-ai") -> Server:
 
         args = arguments or {}
 
-        # Route to appropriate registry
-        try:
+        # Get telemetry collector
+        from kagura.observability import get_global_telemetry
+
+        telemetry = get_global_telemetry()
+        collector = telemetry.get_collector()
+
+        # Track execution with telemetry
+        async with collector.track_execution(f"mcp_{name}", **args):
+            # Determine tool type
             if name.startswith("kagura_tool_"):
-                # Execute @tool
-                tool_name = name.replace("kagura_tool_", "", 1)
-                tool_func = tool_registry.get(tool_name)
-                if tool_func is None:
-                    raise ValueError(f"Tool not found: {tool_name}")
-
-                # Tools can be async or sync
-                if inspect.iscoroutinefunction(tool_func):
-                    result = await tool_func(**args)
-                else:
-                    result = tool_func(**args)
-                result_text = str(result)
-
+                collector.add_tag("type", "tool")
+                item_name = name.replace("kagura_tool_", "", 1)
             elif name.startswith("kagura_workflow_"):
-                # Execute @workflow
-                workflow_name = name.replace("kagura_workflow_", "", 1)
-                workflow_func = workflow_registry.get(workflow_name)
-                if workflow_func is None:
-                    raise ValueError(f"Workflow not found: {workflow_name}")
-
-                # Workflows can be async or sync
-                if inspect.iscoroutinefunction(workflow_func):
-                    result = await workflow_func(**args)
-                else:
-                    result = workflow_func(**args)
-                result_text = str(result)
-
+                collector.add_tag("type", "workflow")
+                item_name = name.replace("kagura_workflow_", "", 1)
             else:
-                # Execute @agent
-                agent_name = name.replace("kagura_", "", 1)
-                agent_func = agent_registry.get(agent_name)
-                if agent_func is None:
-                    raise ValueError(f"Agent not found: {agent_name}")
+                collector.add_tag("type", "agent")
+                item_name = name.replace("kagura_", "", 1)
 
-                # Agents are async
-                if inspect.iscoroutinefunction(agent_func):
-                    result = await agent_func(**args)
+            collector.add_tag("item_name", item_name)
+            collector.add_tag("mcp_name", name)
+
+            # Route to appropriate registry and execute
+            start_time = time.time()
+            try:
+                if name.startswith("kagura_tool_"):
+                    # Execute @tool
+                    tool_func = tool_registry.get(item_name)
+                    if tool_func is None:
+                        raise ValueError(f"Tool not found: {item_name}")
+
+                    # Tools can be async or sync
+                    if inspect.iscoroutinefunction(tool_func):
+                        result = await tool_func(**args)
+                    else:
+                        result = tool_func(**args)
+                    result_text = str(result)
+
+                elif name.startswith("kagura_workflow_"):
+                    # Execute @workflow
+                    workflow_func = workflow_registry.get(item_name)
+                    if workflow_func is None:
+                        raise ValueError(f"Workflow not found: {item_name}")
+
+                    # Workflows can be async or sync
+                    if inspect.iscoroutinefunction(workflow_func):
+                        result = await workflow_func(**args)
+                    else:
+                        result = workflow_func(**args)
+                    result_text = str(result)
+
                 else:
-                    result = agent_func(**args)
-                result_text = str(result)
+                    # Execute @agent
+                    agent_func = agent_registry.get(item_name)
+                    if agent_func is None:
+                        raise ValueError(f"Agent not found: {item_name}")
 
-        except Exception as e:
-            # Return error as text content
-            result_text = f"Error executing '{name}': {str(e)}"
+                    # Agents are async
+                    if inspect.iscoroutinefunction(agent_func):
+                        result = await agent_func(**args)
+                    else:
+                        result = agent_func(**args)
+                    result_text = str(result)
 
-        # Return as TextContent
-        return [TextContent(type="text", text=result_text)]
+                # Record successful tool call
+                duration = time.time() - start_time
+                collector.record_tool_call(item_name, duration, **args)
+
+            except Exception as e:
+                # Record failed tool call
+                duration = time.time() - start_time
+                collector.record_tool_call(item_name, duration, error=str(e), **args)
+
+                # Return error as text content
+                result_text = f"Error executing '{name}': {str(e)}"
+
+            # Return as TextContent
+            return [TextContent(type="text", text=result_text)]
 
     return server
 
