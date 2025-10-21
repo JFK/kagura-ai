@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.0.2] - 2025-10-21
+
 ### Fixed
 - **MCP**: Fixed async tools returning coroutine objects instead of actual results via MCP server (#327)
   - Web search (brave_web_search, brave_news_search)
