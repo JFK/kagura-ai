@@ -92,7 +92,7 @@ async def memory_store(
             memory.remember(key, value)
         else:
             memory.set_temp(key, value)
-        return f"Stored '{key}' in {scope} memory for {agent_name} (RAG indexing unavailable)"
+        return f"Stored '{key}' in {scope} memory for {agent_name} (RAG unavailable)"
 
 
 @tool
