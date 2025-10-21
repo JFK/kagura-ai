@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [3.0.6] - 2025-10-21
+
+### Changed
+- **MCP**: Removed debug logging from memory tools for cleaner production output (#336)
+- **Testing**: Improved memory tools test suite with 8 comprehensive tests
+
+### Known Issues
+- **memory_search**: Does not search data from memory_store (#337)
+  - memory_store saves to WorkingMemory (in-memory dict)
+  - memory_search searches MemoryRAG (vector DB)
+  - Use memory_recall() to retrieve data stored with memory_store()
+  - Full RAG integration planned for future release
+
 ## [3.0.5] - 2025-10-21
 
 ### Fixed
