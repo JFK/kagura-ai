@@ -31,25 +31,14 @@ def _get_memory_manager(agent_name: str, enable_rag: bool = False) -> MemoryMana
     Returns:
         Cached or new MemoryManager instance
     """
-    import logging
-
     from kagura.core.memory import MemoryManager
-
-    logger = logging.getLogger(__name__)
 
     cache_key = f"{agent_name}:rag={enable_rag}"
 
     if cache_key not in _memory_cache:
-        logger.info(f"[MCP Memory] Creating NEW MemoryManager for {cache_key}")
         _memory_cache[cache_key] = MemoryManager(
             agent_name=agent_name, enable_rag=enable_rag
         )
-    else:
-        logger.info(f"[MCP Memory] Reusing CACHED MemoryManager for {cache_key}")
-
-    logger.info(
-        f"[MCP Memory] Cache status: {len(_memory_cache)} instances, keys: {list(_memory_cache.keys())}"
-    )
 
     return _memory_cache[cache_key]
 
@@ -69,26 +58,15 @@ async def memory_store(
     Returns:
         Confirmation message
     """
-    import logging
-
-    logger = logging.getLogger(__name__)
-
     # Use cached MemoryManager to ensure working memory persists
     memory = _get_memory_manager(agent_name)
 
     if scope == "persistent":
         memory.remember(key, value)
-        debug_info = "persistent storage"
     else:
         memory.set_temp(key, value)
-        # Verify storage
-        logger.info(f"[MCP Memory] Stored in working memory: {key}={value}")
-        logger.info(
-            f"[MCP Memory] Working memory now has {len(memory.working)} items: {memory.working.keys()}"
-        )
-        debug_info = f"Cache: {len(_memory_cache)} instances, Working: {len(memory.working)} items {list(memory.working.keys())}"
 
-    return f"Stored '{key}' in {scope} memory for {agent_name}\n[DEBUG: {debug_info}]"
+    return f"Stored '{key}' in {scope} memory for {agent_name}"
 
 
 @tool
@@ -103,10 +81,6 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
     Returns:
         Stored value or empty string
     """
-    import logging
-
-    logger = logging.getLogger(__name__)
-
     # Use cached MemoryManager to ensure working memory persists
     memory = _get_memory_manager(agent_name)
 
@@ -114,23 +88,12 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
         value = memory.recall(key)
     else:
         value = memory.get_temp(key)
-        # Debug logging
-        logger.info(f"[MCP Memory] Recall attempt: {key} → {value}")
-        logger.info(
-            f"[MCP Memory] Working memory has {len(memory.working)} items: {memory.working.keys()}"
-        )
-
-    # Build debug info for MCP client
-    cache_info = f"Cache: {len(_memory_cache)} instances {list(_memory_cache.keys())}"
-    working_info = f"Working: {len(memory.working)} items {list(memory.working.keys())}"
-    debug_msg = f"[DEBUG: {cache_info}, {working_info}]"
 
     # Return helpful message if value not found
     if value is None:
-        return f"No value found for key '{key}' in {scope} memory.\n{debug_msg}"
+        return f"No value found for key '{key}' in {scope} memory"
 
-    # Success - return value with debug info
-    return f"{value}\n{debug_msg}"
+    return str(value)
 
 
 @tool
