@@ -1,6 +1,6 @@
 # Kagura AI Architecture - v3.0
 
-**Last Updated**: 2025-10-19
+**Last Updated**: 2025-10-22
 **Version**: 3.0
 
 ---
@@ -57,11 +57,12 @@ Kagura AI is a **Python-First AI Agent SDK** - build production-ready AI agents 
 - Memory: 3-tier system (Context/Persistent/RAG)
 - Tools: Web search, file ops, code execution
 - Testing: AgentTestCase framework
-- MCP: Claude Desktop integration
+- MCP: Claude Desktop integration (with telemetry)
+- Observability: Automatic telemetry & cost tracking
 
 **Layer 4: Bonus Features**
 - Interactive Chat (`kagura chat`)
-- Cost tracking (`kagura monitor`)
+- Real-time monitoring (`kagura monitor`)
 - Meta Agent (`/create` command)
 
 ---
@@ -108,8 +109,12 @@ src/kagura/
 │   └── mocking.py           # LLM mocking
 │
 ├── mcp/                     # MCP integration
-│   ├── server.py            # MCP server
-│   └── schema.py            # JSON schema generation
+│   ├── server.py            # MCP server (with telemetry)
+│   ├── schema.py            # JSON schema generation
+│   └── builtin/             # Built-in MCP tools
+│       ├── memory.py        # Memory operations
+│       ├── web.py           # Web search
+│       └── observability.py # Telemetry access
 │
 ├── cli/                     # CLI commands
 │   ├── main.py              # Entry point
@@ -119,6 +124,10 @@ src/kagura/
 │
 └── observability/           # Observability
     ├── telemetry.py         # Telemetry collection
+    ├── collector.py         # Event collection
+    ├── store.py             # Event storage (SQLite)
+    ├── dashboard.py         # Rich terminal UI
+    ├── instrumentation.py   # Decorator integration
     └── pricing.py           # Cost calculation
 ```
 
@@ -286,6 +295,117 @@ async def search_db(query: str) -> list[dict]:
 - No config files
 - No complex orchestration
 - Focus on core SDK features
+
+---
+
+## MCP & Observability Integration
+
+### Overview
+
+All MCP tool executions are automatically tracked in the observability system, providing unified monitoring across SDK and MCP usage.
+
+### Architecture
+
+```
+┌─────────────────────────────────────┐
+│      MCP Server (handle_call_tool)  │
+│      - Receives tool requests       │
+│      - Routes to tool_registry      │
+└───────────────┬─────────────────────┘
+                │
+                ├─→ TelemetryCollector.track_execution()
+                │   - Wraps tool execution
+                │   - Records start/end time
+                │   - Captures errors
+                │
+                ├─→ Tool Execution
+                │   - Execute @tool function
+                │   - Collect results
+                │
+                └─→ TelemetryCollector.record_tool_call()
+                    - Store execution metadata
+                    - Save to EventStore (SQLite)
+                    - Calculate costs
+```
+
+### Data Flow
+
+```
+1. Claude Desktop → MCP Server
+   Tool request: kagura_tool_web_search(query="...")
+   ↓
+2. MCP Server → Telemetry
+   track_execution("mcp_kagura_tool_web_search")
+   ↓
+3. Tool Execution
+   web_search(query="...") → results
+   ↓
+4. Telemetry Recording
+   record_tool_call(name="web_search", duration=1.2s, ...)
+   ↓
+5. EventStore (SQLite)
+   ~/.kagura/telemetry.db
+   ↓
+6. Dashboard (kagura monitor)
+   Real-time monitoring, cost analysis
+```
+
+### Monitoring Commands
+
+```bash
+# Live monitoring (auto-refresh)
+kagura monitor
+
+# Statistics summary
+kagura monitor stats
+
+# Cost analysis
+kagura monitor cost --group-by agent
+
+# Execution trace
+kagura monitor trace <execution_id>
+
+# List recent executions
+kagura monitor list --limit 50
+```
+
+### Telemetry Data Schema
+
+**EventStore (SQLite)**:
+```sql
+CREATE TABLE executions (
+    id TEXT PRIMARY KEY,              -- exec_abc123
+    agent_name TEXT NOT NULL,         -- mcp_kagura_tool_web_search
+    started_at REAL NOT NULL,         -- Unix timestamp
+    ended_at REAL,
+    duration REAL,                    -- Seconds
+    status TEXT,                      -- completed/failed
+    error TEXT,
+    kwargs TEXT,                      -- JSON: tool arguments
+    events TEXT,                      -- JSON: [tool_call, llm_call, ...]
+    metrics TEXT                      -- JSON: {tool_calls: 1, total_cost: 0.0}
+)
+```
+
+**Event Types**:
+- `tool_call`: Tool execution (name, duration, args)
+- `llm_call`: LLM API call (model, tokens, cost)
+- `memory_operation`: Memory access (operation, duration)
+
+### Benefits
+
+1. **Unified Monitoring**: SDK and MCP usage in one place
+2. **Cost Tracking**: Automatic cost calculation per tool/agent
+3. **Performance Analysis**: Identify slow tools
+4. **Error Tracking**: Failed executions with stack traces
+5. **Usage Analytics**: Most-used tools, execution patterns
+
+### Implementation
+
+Implemented in Issue #339, PR #341:
+- `src/kagura/mcp/server.py`: Added telemetry integration to `handle_call_tool()`
+- `src/kagura/observability/`: Complete observability system
+- `src/kagura/cli/monitor.py`: Monitoring dashboard
 
 ---
 
