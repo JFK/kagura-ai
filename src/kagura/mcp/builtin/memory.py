@@ -66,33 +66,41 @@ async def memory_store(
         Working memory data is automatically indexed in RAG for semantic search.
         Use memory_search() to find data stored with this function.
     """
+    # Enable RAG for working memory to support semantic search
+    enable_rag = scope == "working"
+
     try:
-        # Enable RAG for working memory to support semantic search
-        enable_rag = scope == "working"
         memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+    except ImportError:
+        # If RAG dependencies not available, create without RAG
+        # But keep enable_rag=True for cache key consistency
+        from kagura.core.memory import MemoryManager
+        cache_key = f"{agent_name}:rag={enable_rag}"
+        if cache_key not in _memory_cache:
+            _memory_cache[cache_key] = MemoryManager(
+                agent_name=agent_name, enable_rag=False
+            )
+        memory = _memory_cache[cache_key]
 
-        if scope == "persistent":
-            memory.remember(key, value)
-        else:
-            # Store in working memory
-            memory.set_temp(key, value)
+    if scope == "persistent":
+        memory.remember(key, value)
+    else:
+        # Store in working memory
+        memory.set_temp(key, value)
 
-            # Also index in RAG for semantic search
-            if memory.rag:
+        # Also index in RAG for semantic search (if available)
+        if memory.rag:
+            try:
                 memory.store_semantic(
                     content=f"{key}: {value}",
                     metadata={"type": "working_memory", "key": key}
                 )
+            except Exception:
+                # Silently fail if RAG indexing fails
+                pass
 
-        return f"Stored '{key}' in {scope} memory for {agent_name}"
-    except ImportError:
-        # If RAG dependencies not available, just store in working memory
-        memory = _get_memory_manager(agent_name, enable_rag=False)
-        if scope == "persistent":
-            memory.remember(key, value)
-        else:
-            memory.set_temp(key, value)
-        return f"Stored '{key}' in {scope} memory for {agent_name} (RAG unavailable)"
+    rag_status = " (RAG unavailable)" if not memory.rag else ""
+    return f"Stored '{key}' in {scope} memory for {agent_name}{rag_status}"
 
 
 @tool
@@ -107,8 +115,20 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
     Returns:
         Stored value or empty string
     """
-    # Use cached MemoryManager to ensure working memory persists
-    memory = _get_memory_manager(agent_name)
+    # Use same enable_rag logic as memory_store to ensure cache hit
+    enable_rag = scope == "working"
+
+    try:
+        memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+    except ImportError:
+        # If RAG dependencies not available, get from cache with consistent key
+        from kagura.core.memory import MemoryManager
+        cache_key = f"{agent_name}:rag={enable_rag}"
+        if cache_key not in _memory_cache:
+            _memory_cache[cache_key] = MemoryManager(
+                agent_name=agent_name, enable_rag=False
+            )
+        memory = _memory_cache[cache_key]
 
     if scope == "persistent":
         value = memory.recall(key)
@@ -153,13 +173,24 @@ async def memory_search(agent_name: str, query: str, k: int = 5) -> str:
     try:
         # Use cached MemoryManager with RAG enabled
         memory = _get_memory_manager(agent_name, enable_rag=True)
+    except ImportError:
+        # If RAG dependencies not available, get from cache with consistent key
+        from kagura.core.memory import MemoryManager
+        cache_key = f"{agent_name}:rag=True"
+        if cache_key not in _memory_cache:
+            _memory_cache[cache_key] = MemoryManager(
+                agent_name=agent_name, enable_rag=False
+            )
+        memory = _memory_cache[cache_key]
 
-        # Get RAG results (semantic search)
-        rag_results = memory.recall_semantic(query, top_k=k)
-
-        # Add source indicator to RAG results
-        for result in rag_results:
-            result["source"] = "rag"
+    try:
+        # Get RAG results (semantic search) if available
+        rag_results = []
+        if memory.rag:
+            rag_results = memory.recall_semantic(query, top_k=k)
+            # Add source indicator to RAG results
+            for result in rag_results:
+                result["source"] = "rag"
 
         # Search working memory for matching keys
         working_results = []
@@ -181,12 +212,5 @@ async def memory_search(agent_name: str, query: str, k: int = 5) -> str:
 
         return json.dumps(combined_results, indent=2)
 
-    except ImportError:
-        return json.dumps(
-            {
-                "error": "MemoryRAG requires 'ai' extra. "
-                "Install with: pip install kagura-ai[ai]"
-            }
-        )
     except Exception as e:
         return json.dumps({"error": str(e)})
