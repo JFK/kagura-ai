@@ -143,8 +143,11 @@ def create_mcp_server(name: str = "kagura-ai") -> Server:
                 if tool_func is None:
                     raise ValueError(f"Tool not found: {tool_name}")
 
-                # Tools are synchronous
-                result = tool_func(**args)
+                # Tools can be async or sync
+                if inspect.iscoroutinefunction(tool_func):
+                    result = await tool_func(**args)
+                else:
+                    result = tool_func(**args)
                 result_text = str(result)
 
             elif name.startswith("kagura_workflow_"):

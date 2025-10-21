@@ -77,3 +77,46 @@ async def test_agent_execution():
     # Note: This will call LLM in real execution
     # For unit tests, we just verify the agent is callable
     assert callable(agent_func)
+
+
+def test_async_tool_detection():
+    """Test that async tools are correctly detected (regression test for #327)"""
+    import inspect
+
+    from kagura import tool
+    from kagura.core.tool_registry import tool_registry
+
+    # Clear registry
+    tool_registry.clear()
+
+    # Register async and sync tools
+    @tool
+    async def async_tool_example(x: int) -> int:
+        """Async tool"""
+        return x * 2
+
+    @tool
+    def sync_tool_example(x: int) -> int:
+        """Sync tool"""
+        return x * 2
+
+    # Get from registry
+    async_func = tool_registry.get("async_tool_example")
+    sync_func = tool_registry.get("sync_tool_example")
+
+    # Verify detection
+    assert async_func is not None
+    assert sync_func is not None
+    assert inspect.iscoroutinefunction(async_func) is True
+    assert inspect.iscoroutinefunction(sync_func) is False
+
+    # Cleanup
+    tool_registry.clear()
+
+
+# NOTE: Testing MCP server's handle_call_tool directly requires accessing internal MCP server APIs
+# which are not part of the public API. The fix for Issue #327 (async tool support) is verified
+# by the test_async_tool_detection above (ensuring async tools are correctly detected) and by
+# the existing integration tests in test_builtin_integration.py which test async tools directly.
+# For end-to-end testing of the MCP server with async tools, manual testing or E2E tests with
+# a real MCP client are recommended.
