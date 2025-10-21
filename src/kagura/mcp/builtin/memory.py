@@ -92,6 +92,7 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
     # Return helpful message if value not found
     if value is None:
         return f"No value found for key '{key}' in {scope} memory"
+
     return str(value)
 
 
