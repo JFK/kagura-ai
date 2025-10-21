@@ -3,6 +3,12 @@
 ## [Unreleased]
 
 ### Fixed
+- **MCP**: Fixed async tools returning coroutine objects instead of actual results via MCP server (#327)
+  - Web search (brave_web_search, brave_news_search)
+  - YouTube tools (get_youtube_transcript, get_youtube_metadata)
+  - Memory tools (memory_store, memory_recall, memory_search)
+  - Fact checking (fact_check_claim)
+  - Shell execution (shell_exec)
 - **Core**: `@agent` decorator now returns `str` content instead of `LLMResponse` object when return type is `-> str` (#326, #325)
 - **Core**: Replaced `isinstance(response, LLMResponse)` with `hasattr` checks to avoid circular import issues (#326, #325)
 - **Tests**: Added comprehensive tests for personal tools (daily_news, weather_forecast, search_recipes, find_events) (#326)
