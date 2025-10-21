@@ -58,7 +58,10 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
     else:
         value = memory.get_temp(key)
 
-    return str(value) if value else ""
+    # Return helpful message if value not found
+    if value is None:
+        return f"No value found for key '{key}' in {scope} memory"
+    return str(value)
 
 
 @tool
@@ -73,6 +76,13 @@ async def memory_search(agent_name: str, query: str, k: int = 5) -> str:
     Returns:
         JSON string of search results
     """
+    # Ensure k is int (LLM might pass as string)
+    if isinstance(k, str):
+        try:
+            k = int(k)
+        except ValueError:
+            k = 5  # Default fallback
+
     try:
         from kagura.core.memory import MemoryManager
 

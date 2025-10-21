@@ -106,6 +106,26 @@ class TestBraveNewsSearch:
         )
 
     @pytest.mark.asyncio
+    async def test_count_string_conversion(self, monkeypatch) -> None:
+        """Test that count parameter handles string input (regression test for #333)"""
+        monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
+
+        # Pass count as string - should be converted to int
+        result = await brave_news_search("test query", count="10")  # type: ignore[arg-type]
+
+        # The key test: no TypeError should occur
+        # Result should be either JSON error message or actual results
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+        # If it's JSON, parse it (either error or results)
+        if result.startswith("{") or result.startswith("["):
+            data = json.loads(result)
+            # Either error or valid results - both are acceptable
+            # The important thing is we didn't get TypeError from count being a string
+            assert isinstance(data, (dict, list))
+
+    @pytest.mark.asyncio
     async def test_freshness_parameter(self, monkeypatch) -> None:
         """Test that freshness parameter is accepted"""
         monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)

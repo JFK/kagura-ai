@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Fixed
+- **MCP**: Fixed parameter type conversion issues in MCP tools (#333)
+  - `brave_news_search`: count parameter now accepts string input
+  - `memory_search`: k parameter now accepts string input
+  - `multimodal_search`: k parameter now accepts string input
+  - `memory_recall`: Returns helpful message instead of empty string when key not found
+
 ## [3.0.2] - 2025-10-21
 
 ### Fixed

@@ -54,6 +54,13 @@ def multimodal_search(
     Returns:
         JSON string of search results or error
     """
+    # Ensure k is int (LLM might pass as string)
+    if isinstance(k, str):
+        try:
+            k = int(k)
+        except ValueError:
+            k = 3  # Default fallback
+
     try:
         from kagura.core.memory import MultimodalRAG
 
