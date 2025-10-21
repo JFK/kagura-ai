@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Fixed
+- **MCP**: Fixed working memory persistence across MCP tool calls (#333)
+  - Added global cache for MemoryManager instances
+  - Working memory now properly shared across memory_store/memory_recall/memory_search
+  - Each agent_name maintains a single MemoryManager instance
+  - Fixed critical bug where stored data was immediately lost after tool call
+
 ## [3.0.4] - 2025-10-21
 
 ### Fixed
