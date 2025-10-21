@@ -78,6 +78,7 @@ async def memory_store(
 
     if scope == "persistent":
         memory.remember(key, value)
+        debug_info = "persistent storage"
     else:
         memory.set_temp(key, value)
         # Verify storage
@@ -85,8 +86,9 @@ async def memory_store(
         logger.info(
             f"[MCP Memory] Working memory now has {len(memory.working)} items: {memory.working.keys()}"
         )
+        debug_info = f"Cache: {len(_memory_cache)} instances, Working: {len(memory.working)} items {list(memory.working.keys())}"
 
-    return f"Stored '{key}' in {scope} memory for {agent_name}"
+    return f"Stored '{key}' in {scope} memory for {agent_name}\n[DEBUG: {debug_info}]"
 
 
 @tool
@@ -118,10 +120,17 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
             f"[MCP Memory] Working memory has {len(memory.working)} items: {memory.working.keys()}"
         )
 
+    # Build debug info for MCP client
+    cache_info = f"Cache: {len(_memory_cache)} instances {list(_memory_cache.keys())}"
+    working_info = f"Working: {len(memory.working)} items {list(memory.working.keys())}"
+    debug_msg = f"[DEBUG: {cache_info}, {working_info}]"
+
     # Return helpful message if value not found
     if value is None:
-        return f"No value found for key '{key}' in {scope} memory. [DEBUG: Cache has {len(_memory_cache)} instances, Working memory has {len(memory.working)} keys: {list(memory.working.keys())}]"
-    return str(value)
+        return f"No value found for key '{key}' in {scope} memory.\n{debug_msg}"
+
+    # Success - return value with debug info
+    return f"{value}\n{debug_msg}"
 
 
 @tool

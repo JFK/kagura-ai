@@ -34,6 +34,8 @@ class TestMemoryStore:
         assert "Stored" in result
         assert "test_key" in result
         assert "working" in result
+        # Debug info should be included in response
+        assert "[DEBUG:" in result
 
 
 class TestMemoryRecall:
@@ -72,8 +74,9 @@ class TestMemoryRecall:
         )
 
         # Should retrieve the stored value (not "No value found")
-        assert result == "cached_value"
+        assert "cached_value" in result  # Value should be in response
         assert "No value found" not in result
+        assert "[DEBUG:" in result  # Debug info should be included
 
     @pytest.mark.asyncio
     async def test_recall_different_agents_isolated(self) -> None:
@@ -90,11 +93,11 @@ class TestMemoryRecall:
 
         # Recall for agent1 - should get agent1's value
         result1 = await memory_recall(agent_name="agent1", key="shared_key")
-        assert result1 == "value_from_agent1"
+        assert "value_from_agent1" in result1
 
         # Recall for agent2 - should get agent2's value
         result2 = await memory_recall(agent_name="agent2", key="shared_key")
-        assert result2 == "value_from_agent2"
+        assert "value_from_agent2" in result2
 
     @pytest.mark.asyncio
     async def test_multiple_keys_same_agent(self) -> None:
@@ -111,9 +114,9 @@ class TestMemoryRecall:
         age = await memory_recall(agent, "age")
         city = await memory_recall(agent, "city")
 
-        assert name == "Alice"
-        assert age == "25"
-        assert city == "Tokyo"
+        assert "Alice" in name
+        assert "25" in age
+        assert "Tokyo" in city
 
 
 class TestMemorySearch:
