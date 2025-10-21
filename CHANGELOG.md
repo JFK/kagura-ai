@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.0.5] - 2025-10-21
+
 ### Fixed
 - **MCP**: Fixed working memory persistence across MCP tool calls (#333)
   - Added global cache for MemoryManager instances
