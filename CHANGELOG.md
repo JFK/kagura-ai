@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.0.4] - 2025-10-21
+
 ### Fixed
 - **MCP**: Fixed `brave_news_search` HttpUrl JSON serialization error (#333)
   - Converted all result fields to strings before JSON serialization
