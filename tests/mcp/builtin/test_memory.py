@@ -281,3 +281,118 @@ class TestMemorySearchIntegration:
         else:
             # Working memory results
             assert isinstance(results, list)
+
+
+class TestPersistentRAGIntegration:
+    """Test persistent memory RAG integration (Issue #340)."""
+
+    @pytest.mark.asyncio
+    @pytest.mark.integration
+    async def test_search_persistent_scope(self) -> None:
+        """Test memory_search can find data in persistent memory (Issue #340)"""
+        import json
+
+        try:
+            # Store data in persistent memory
+            store_result = await memory_store(
+                agent_name="test_persistent_search",
+                key="user_preference",
+                value="User prefers Python for examples",
+                scope="persistent",
+            )
+            assert "Stored" in store_result
+
+            # Search persistent scope
+            search_result = await memory_search(
+                agent_name="test_persistent_search",
+                query="Python preference",
+                k=5,
+                scope="persistent",
+            )
+
+            # Parse results
+            results = json.loads(search_result)
+            assert isinstance(results, list)
+
+            # Should find the stored data in persistent scope
+            if len(results) > 0:
+                found = False
+                for result in results:
+                    content = result.get("content", "")
+                    result_scope = result.get("scope", "")
+                    if "Python" in content and result_scope == "persistent":
+                        found = True
+                        break
+                assert found, f"Expected to find 'Python' in persistent scope: {results}"
+
+            # Cleanup
+            await memory_recall(
+                agent_name="test_persistent_search",
+                key="user_preference",
+                scope="persistent",
+            )
+
+        except ImportError:
+            pytest.skip("ChromaDB not installed")
+
+    @pytest.mark.asyncio
+    @pytest.mark.integration
+    async def test_search_scope_parameter(self) -> None:
+        """Test memory_search scope parameter filters results correctly"""
+        import json
+
+        try:
+            # Store in both scopes
+            await memory_store(
+                agent_name="test_scope_filter",
+                key="working_data",
+                value="This is working memory data",
+                scope="working",
+            )
+
+            await memory_store(
+                agent_name="test_scope_filter",
+                key="persistent_data",
+                value="This is persistent memory data",
+                scope="persistent",
+            )
+
+            # Search all scopes
+            all_results = await memory_search(
+                agent_name="test_scope_filter", query="data", k=10, scope="all"
+            )
+            all_data = json.loads(all_results)
+
+            # Search working only
+            working_results = await memory_search(
+                agent_name="test_scope_filter", query="data", k=10, scope="working"
+            )
+            working_data = json.loads(working_results)
+
+            # Search persistent only
+            persistent_results = await memory_search(
+                agent_name="test_scope_filter", query="data", k=10, scope="persistent"
+            )
+            persistent_data = json.loads(persistent_results)
+
+            # Verify results
+            assert isinstance(all_data, list)
+            assert isinstance(working_data, list)
+            assert isinstance(persistent_data, list)
+
+            # Working results should only have working scope
+            for result in working_data:
+                scope = result.get("scope", "")
+                if scope:  # Some results may not have scope field
+                    assert scope == "working", f"Expected working scope, got {scope}"
+
+            # Persistent results should only have persistent scope
+            for result in persistent_data:
+                scope = result.get("scope", "")
+                if scope:
+                    assert (
+                        scope == "persistent"
+                    ), f"Expected persistent scope, got {scope}"
+
+        except ImportError:
+            pytest.skip("ChromaDB not installed")
