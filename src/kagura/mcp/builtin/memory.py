@@ -63,11 +63,11 @@ async def memory_store(
         Confirmation message
 
     Note:
-        Working memory data is automatically indexed in RAG for semantic search.
-        Use memory_search() to find data stored with this function.
+        Both working and persistent memory data are automatically indexed in RAG
+        for semantic search. Use memory_search() to find data stored with this function.
     """
-    # Enable RAG for working memory to support semantic search
-    enable_rag = scope == "working"
+    # Always enable RAG for both working and persistent memory
+    enable_rag = True
 
     try:
         memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
@@ -83,12 +83,13 @@ async def memory_store(
         memory = _memory_cache[cache_key]
 
     if scope == "persistent":
+        # Store in persistent memory (also indexes in persistent_rag if available)
         memory.remember(key, value)
     else:
         # Store in working memory
         memory.set_temp(key, value)
 
-        # Also index in RAG for semantic search (if available)
+        # Also index in working RAG for semantic search (if available)
         if memory.rag:
             try:
                 memory.store_semantic(
@@ -99,7 +100,12 @@ async def memory_store(
                 # Silently fail if RAG indexing fails
                 pass
 
-    rag_status = " (RAG unavailable)" if not memory.rag else ""
+    # Check RAG availability based on scope
+    rag_available = (
+        (scope == "working" and memory.rag is not None) or
+        (scope == "persistent" and memory.persistent_rag is not None)
+    )
+    rag_status = "" if rag_available else " (RAG unavailable)"
     return f"Stored '{key}' in {scope} memory for {agent_name}{rag_status}"
 
 
@@ -115,8 +121,8 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
     Returns:
         Stored value or empty string
     """
-    # Use same enable_rag logic as memory_store to ensure cache hit
-    enable_rag = scope == "working"
+    # Always enable RAG to match memory_store behavior
+    enable_rag = True
 
     try:
         memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
@@ -143,25 +149,29 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
 
 
 @tool
-async def memory_search(agent_name: str, query: str, k: int = 5) -> str:
-    """Search agent memory using semantic RAG and working memory
+async def memory_search(
+    agent_name: str, query: str, k: int = 5, scope: str = "all"
+) -> str:
+    """Search agent memory using semantic RAG and key-value memory
 
-    Searches both RAG (vector DB) for semantic matches and working memory
-    for exact or partial key matches. Results from both sources are combined
-    and returned in a unified format.
+    Searches RAG (vector DB) for semantic matches across specified scope
+    and also searches working memory for exact or partial key matches.
+    Results from both sources are combined and returned in a unified format.
 
     Args:
         agent_name: Name of the agent
         query: Search query
-        k: Number of results from RAG (working memory results are added separately)
+        k: Number of results from RAG per scope
+        scope: Memory scope to search ("working", "persistent", or "all")
 
     Returns:
-        JSON string of search results with combined RAG and working memory matches
+        JSON string of search results with combined RAG and key-value matches
 
     Note:
-        This searches data stored via memory_store() in both RAG (semantic)
-        and working memory (key-value). Results include a "source" field
-        indicating where the data came from.
+        Searches data stored via memory_store() in:
+        - RAG (semantic search across working/persistent/all)
+        - Working memory (key-value, exact/partial key matches)
+        Results include "source" and "scope" fields.
     """
     # Ensure k is int (LLM might pass as string)
     if isinstance(k, str):
@@ -184,28 +194,30 @@ async def memory_search(agent_name: str, query: str, k: int = 5) -> str:
         memory = _memory_cache[cache_key]
 
     try:
-        # Get RAG results (semantic search) if available
+        # Get RAG results (semantic search) across specified scope
         rag_results = []
-        if memory.rag:
-            rag_results = memory.recall_semantic(query, top_k=k)
+        if memory.rag or memory.persistent_rag:
+            rag_results = memory.recall_semantic(query, top_k=k, scope=scope)
             # Add source indicator to RAG results
             for result in rag_results:
                 result["source"] = "rag"
 
-        # Search working memory for matching keys
+        # Search working memory for matching keys (only if scope includes working)
         working_results = []
-        query_lower = query.lower()
-        for key in memory.working.keys():
-            # Match if query is in key name
-            if query_lower in key.lower():
-                value = memory.get_temp(key)
-                working_results.append({
-                    "content": f"{key}: {value}",
-                    "source": "working_memory",
-                    "key": key,
-                    "value": str(value),
-                    "match_type": "key_match"
-                })
+        if scope in ("all", "working"):
+            query_lower = query.lower()
+            for key in memory.working.keys():
+                # Match if query is in key name
+                if query_lower in key.lower():
+                    value = memory.get_temp(key)
+                    working_results.append({
+                        "content": f"{key}: {value}",
+                        "source": "working_memory",
+                        "scope": "working",
+                        "key": key,
+                        "value": str(value),
+                        "match_type": "key_match"
+                    })
 
         # Combine results (working memory first for exact matches, then RAG)
         combined_results = working_results + rag_results

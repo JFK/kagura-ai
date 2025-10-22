@@ -53,13 +53,21 @@ class MemoryManager:
 
         self.persistent = PersistentMemory(db_path=db_path)
 
-        # Optional: RAG
-        self.rag: Optional[MemoryRAG] = None
+        # Optional: RAG (Working and Persistent)
+        self.rag: Optional[MemoryRAG] = None  # Working memory RAG
+        self.persistent_rag: Optional[MemoryRAG] = None  # Persistent memory RAG
         if enable_rag:
             collection_name = f"kagura_{agent_name}" if agent_name else "kagura_memory"
             vector_dir = persist_dir / "vector_db" if persist_dir else None
+
+            # Working memory RAG
             self.rag = MemoryRAG(
-                collection_name=collection_name, persist_dir=vector_dir
+                collection_name=f"{collection_name}_working", persist_dir=vector_dir
+            )
+
+            # Persistent memory RAG
+            self.persistent_rag = MemoryRAG(
+                collection_name=f"{collection_name}_persistent", persist_dir=vector_dir
             )
 
         # Optional: Compression
@@ -220,7 +228,16 @@ class MemoryManager:
             value: Value to store
             metadata: Optional metadata
         """
+        # Store in SQLite
         self.persistent.store(key, value, self.agent_name, metadata)
+
+        # Also index in persistent RAG for semantic search
+        if self.persistent_rag:
+            full_metadata = metadata or {}
+            full_metadata.update({"type": "persistent_memory", "key": key})
+            value_str = value if isinstance(value, str) else str(value)
+            content = f"{key}: {value_str}"
+            self.persistent_rag.store(content, full_metadata, self.agent_name)
 
     def recall(self, key: str) -> Optional[Any]:
         """Recall persistent memory.
@@ -251,7 +268,23 @@ class MemoryManager:
         Args:
             key: Memory key to delete
         """
+        # Delete from SQLite
         self.persistent.forget(key, self.agent_name)
+
+        # Also delete from persistent RAG
+        if self.persistent_rag:
+            # Find and delete RAG entries with matching key in metadata
+            where: dict[str, Any] = {"key": key}
+            if self.agent_name:
+                where["agent_name"] = self.agent_name
+
+            try:
+                results = self.persistent_rag.collection.get(where=where)  # type: ignore
+                if results["ids"]:
+                    self.persistent_rag.collection.delete(ids=results["ids"])
+            except Exception:
+                # Silently fail if RAG deletion fails
+                pass
 
     def prune_old(self, older_than_days: int = 90) -> int:
         """Remove old memories.
@@ -331,22 +364,46 @@ class MemoryManager:
             raise ValueError("RAG not enabled. Set enable_rag=True")
         return self.rag.store(content, metadata, self.agent_name)
 
-    def recall_semantic(self, query: str, top_k: int = 5) -> list[dict[str, Any]]:
+    def recall_semantic(
+        self, query: str, top_k: int = 5, scope: str = "all"
+    ) -> list[dict[str, Any]]:
         """Semantic search for relevant memories.
 
         Args:
             query: Search query
             top_k: Number of results to return
+            scope: Memory scope to search ("working", "persistent", or "all")
 
         Returns:
-            List of memory dictionaries with content, distance, and metadata
+            List of memory dictionaries with content, distance, metadata, and scope
 
         Raises:
             ValueError: If RAG is not enabled
         """
-        if not self.rag:
+        if not self.rag and not self.persistent_rag:
             raise ValueError("RAG not enabled. Set enable_rag=True")
-        return self.rag.recall(query, top_k, self.agent_name)
+
+        results = []
+
+        # Search working memory RAG
+        if scope in ("all", "working") and self.rag:
+            working_results = self.rag.recall(query, top_k, self.agent_name)
+            for r in working_results:
+                r["scope"] = "working"
+            results.extend(working_results)
+
+        # Search persistent memory RAG
+        if scope in ("all", "persistent") and self.persistent_rag:
+            persistent_results = self.persistent_rag.recall(
+                query, top_k, self.agent_name
+            )
+            for r in persistent_results:
+                r["scope"] = "persistent"
+            results.extend(persistent_results)
+
+        # Sort by distance (lower is better) and limit to top_k
+        results.sort(key=lambda x: x["distance"])
+        return results[:top_k]
 
     def clear_all(self) -> None:
         """Clear all memory (working and context).
@@ -358,12 +415,16 @@ class MemoryManager:
 
     def __repr__(self) -> str:
         """String representation."""
-        rag_count = self.rag.count(self.agent_name) if self.rag else 0
+        working_rag_count = self.rag.count(self.agent_name) if self.rag else 0
+        persistent_rag_count = (
+            self.persistent_rag.count(self.agent_name) if self.persistent_rag else 0
+        )
         return (
             f"MemoryManager("
             f"agent={self.agent_name}, "
             f"working={len(self.working)}, "
             f"context={len(self.context)}, "
             f"persistent={self.persistent.count(self.agent_name)}, "
-            f"rag={rag_count})"
+            f"working_rag={working_rag_count}, "
+            f"persistent_rag={persistent_rag_count})"
         )
