@@ -728,6 +728,201 @@ async def test_memory_curator_auto_retention():
 | Graph traversal (NetworkX) | <50ms | BFS/DFS |
 | Memory Curator decision | <500ms | LLM caching 🆕 |
 
+### Overhead Mitigation Strategies 🆕
+
+**課題**: メモリー処理が会話の邪魔になる可能性
+
+**解決策**:
+
+1. **非同期バックグラウンド処理**
+   ```python
+   # Memory Curator is non-blocking
+   asyncio.create_task(memory_curator.analyze_and_curate(context))
+
+   # Conversation continues immediately
+   response = await agent(user_message)
+   ```
+
+2. **遅延実行 (Lazy Execution)**
+   ```python
+   # Heavy processing only when conversation pauses
+   if idle_time > threshold:
+       await memory_curator.background_optimization()
+   ```
+
+3. **キャッシング戦略**
+   ```python
+   # Frequently accessed memories cached in-memory
+   _memory_cache: dict[str, MemoryManager] = {}
+
+   # Cache hit: <1ms
+   # Cache miss: <100ms (with ChromaDB)
+   ```
+
+4. **レート制限 (Rate Limiting)**
+   ```python
+   # Limit auto-curation frequency
+   @rate_limit(max_calls=10, period=60)  # 10回/分
+   async def auto_curate():
+       ...
+   ```
+
+5. **設定可能な閾値**
+   ```python
+   memory_manager = MemoryManager(
+       enable_auto_curation=True,
+       curation_interval=300,  # 5分ごと
+       importance_threshold=3,  # 重要度3以上のみ
+       max_cache_size=1000
+   )
+   ```
+
+6. **段階的処理 (Progressive Processing)**
+   ```python
+   # Phase 1: 即座にメモリーに保存 (< 10ms)
+   await memory.store(key, value)
+
+   # Phase 2: バックグラウンドでベクトル化 (non-blocking)
+   asyncio.create_task(memory.rag.embed(value))
+
+   # Phase 3: アイドル時にグラフ関係更新
+   if idle:
+       await memory.graph.update_relationships()
+   ```
+
+**パフォーマンス目標**:
+- 会話の応答速度: 変化なし（< 1秒）
+- メモリー保存: < 10ms (ブロッキング)
+- セマンティック検索: < 100ms (必要時のみ)
+- 自動キュレーション: バックグラウンド（非ブロッキング）
+
+---
+
+## 🔌 MCP Integration 🆕
+
+### Overview
+
+**すべてのメモリー機能はMCP経由で利用可能**
+
+現在の実装: `src/kagura/mcp/builtin/memory.py`
+
+### Available MCP Tools (Current)
+
+```python
+# 1. memory_store
+kagura_memory_store(
+    agent_name: str,
+    key: str,
+    value: str,
+    scope: Literal["working", "persistent"] = "working"
+) -> str
+
+# 2. memory_recall
+kagura_memory_recall(
+    agent_name: str,
+    key: str,
+    scope: Literal["working", "persistent"] = "working"
+) -> str
+
+# 3. memory_search
+kagura_memory_search(
+    agent_name: str,
+    query: str,
+    k: int = 5
+) -> str  # JSON結果
+```
+
+### New MCP Tools (v3.1.0+)
+
+```python
+# 4. memory_search_persistent (v3.1.0)
+kagura_memory_search_persistent(
+    agent_name: str,
+    query: str,
+    k: int = 5
+) -> str
+
+# 5. memory_get_related (v3.2.0)
+kagura_memory_get_related(
+    agent_name: str,
+    key: str,
+    relationship: str = "related_to",
+    depth: int = 1
+) -> str  # JSON結果
+
+# 6. memory_find_path (v3.2.0)
+kagura_memory_find_path(
+    agent_name: str,
+    from_key: str,
+    to_key: str
+) -> str  # JSON結果
+
+# 7. memory_curate (v3.3.0)
+kagura_memory_curate(
+    agent_name: str,
+    action: Literal["analyze", "optimize", "prune"]
+) -> str  # JSON結果
+```
+
+### Usage Example (Claude Desktop)
+
+```markdown
+User: "Remember my favorite color is blue"
+
+Claude: *uses kagura_memory_store*
+```json
+{
+  "agent_name": "claude_assistant",
+  "key": "user.preferences.color",
+  "value": "blue",
+  "scope": "persistent"
+}
+```
+
+User: "What color do I like?" (30 days later)
+
+Claude: *uses kagura_memory_search_persistent*
+```json
+{
+  "agent_name": "claude_assistant",
+  "query": "favorite color",
+  "k": 3
+}
+```
+
+Result:
+```json
+[
+  {
+    "key": "user.preferences.color",
+    "value": "blue",
+    "source": "persistent_rag",
+    "score": 0.95
+  }
+]
+```
+
+Claude: "Your favorite color is blue!"
+```
+
+### Benefits
+
+1. **Claude Desktopから直接利用**
+   - 会話中にメモリー操作
+   - 長期的なコンテキスト保持
+
+2. **SDKと同じ機能**
+   - MCP経由でも完全な機能
+   - 一貫したAPI
+
+3. **テレメトリー自動追跡**
+   - すべてのMCP操作を記録
+   - `kagura monitor`で確認可能
+
+4. **マルチエージェント対応**
+   - `agent_name`で分離
+   - 異なるClaude Desktopインスタンスで共有可能
+
 ---
 
 ## 🔮 Future Enhancements
