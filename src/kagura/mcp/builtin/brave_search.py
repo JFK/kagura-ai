@@ -45,19 +45,39 @@ def _get_cache() -> SearchCache | None:
 async def brave_web_search(query: str, count: int = 5) -> str:
     """Search the web using Brave Search API.
 
+    Use this tool when:
+    - User asks for current/latest/recent information
+    - Information may have changed since knowledge cutoff
+    - Real-time data is needed (news, prices, events)
+    - Verification of facts is requested
+    - User explicitly asks to "search" or "look up" something
+
+    Do NOT use for:
+    - General knowledge questions answerable from training data
+    - Historical facts that don't change
+    - Stable information (definitions, concepts)
+    - Mathematical calculations
+    - Code generation or debugging
+
     Automatically handles all languages. Returns formatted text results.
     Results are cached (if enabled) to reduce API calls and improve response times.
 
     Args:
-        query: Search query (any language)
+        query: Search query in any language. Keep it concise (1-6 words recommended)
         count: Number of results to return (default: 5, max: 20)
 
     Returns:
         Formatted text with search results
 
     Example:
-        >>> results = await brave_web_search("Python programming", count=3)
-        >>> results = await brave_web_search("熊本 イベント", count=5)
+        # Latest information
+        query="Python 3.13 release date", count=3
+
+        # Event search (any language)
+        query="熊本 イベント 今週", count=5
+
+        # Price check
+        query="Bitcoin price", count=3
 
     Note:
         Caching can be controlled via environment variables:
@@ -192,20 +212,43 @@ async def brave_news_search(
     search_lang: str = "en",
     freshness: Literal["pd", "pw", "pm", "py"] | None = None,
 ) -> str:
-    """Search news using Brave Search API.
+    """Search recent news articles using Brave Search API.
+
+    Use this tool specifically for:
+    - Breaking news and current events
+    - Recent developments in specific topics
+    - Time-sensitive information from news sources
+    - User explicitly asks for "news" or "latest news"
+
+    Supports filtering by:
+    - Country (US, JP, UK, etc.)
+    - Language (en, ja, etc.)
+    - Freshness (last 24h, week, month, year)
 
     Args:
-        query: Search query
+        query: Search query for news articles
         count: Number of results (default: 5, max: 20)
-        country: Country code (default: "US", "JP" for Japan)
+        country: Country code (default: "US", "JP" for Japan, "GB" for UK)
         search_lang: Search language (default: "en", "ja" for Japanese)
-        freshness: Time filter - "pd" (24h), "pw" (week), "pm" (month), "py" (year)
+        freshness: Time filter:
+            - "pd" (past day / 24 hours)
+            - "pw" (past week)
+            - "pm" (past month)
+            - "py" (past year)
+            - None (all time)
 
     Returns:
-        JSON string with news results
+        JSON string with news results including title, URL, description, and age
 
     Example:
-        >>> results = await brave_news_search("AI technology", freshness="pw")
+        # Breaking news (last 24 hours)
+        query="AI regulation", freshness="pd", count=5
+
+        # Weekly tech news
+        query="tech industry", freshness="pw", country="US"
+
+        # Japanese news
+        query="東京オリンピック", country="JP", search_lang="ja"
     """
     # Ensure count is int (LLM might pass as string)
     if isinstance(count, str):
