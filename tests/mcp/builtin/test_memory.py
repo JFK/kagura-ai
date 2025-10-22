@@ -41,7 +41,9 @@ class TestMemoryRecall:
 
     @pytest.mark.asyncio
     async def test_recall_not_found_message(self) -> None:
-        """Test that recall returns helpful message when key not found (regression test for #333)"""
+        """Test that recall returns helpful message when key not found
+        (regression test for #333)
+        """
         result = await memory_recall(
             agent_name="test_agent_nonexistent",
             key="nonexistent_key",
@@ -216,7 +218,9 @@ class TestMemorySearchIntegration:
                     if "Alice" in content or "name" in content.lower():
                         found = True
                         break
-                assert found, f"Expected to find 'Alice' or 'name' in results: {results}"
+                assert found, (
+                    f"Expected to find 'Alice' or 'name' in results: {results}"
+                )
 
         except ImportError:
             # ChromaDB not installed - skip test
@@ -251,7 +255,9 @@ class TestMemorySearchIntegration:
                 assert "working_memory" in sources or "rag" in sources
 
                 # Verify working memory results have correct structure
-                working_results = [r for r in results if r.get("source") == "working_memory"]
+                working_results = [
+                    r for r in results if r.get("source") == "working_memory"
+                ]
                 if working_results:
                     for wr in working_results:
                         assert "key" in wr
@@ -323,7 +329,9 @@ class TestPersistentRAGIntegration:
                     if "Python" in content and result_scope == "persistent":
                         found = True
                         break
-                assert found, f"Expected to find 'Python' in persistent scope: {results}"
+                assert found, (
+                    f"Expected to find 'Python' in persistent scope: {results}"
+                )
 
             # Cleanup
             await memory_recall(
@@ -396,3 +404,131 @@ class TestPersistentRAGIntegration:
 
         except ImportError:
             pytest.skip("ChromaDB not installed")
+
+
+class TestMemoryList:
+    """Test memory_list tool."""
+
+    @pytest.mark.asyncio
+    async def test_list_empty_memories(self) -> None:
+        """Test memory_list with no stored memories"""
+        import json
+
+        from kagura.mcp.builtin.memory import memory_list
+
+        result = await memory_list(agent_name="empty_agent", scope="working")
+        data = json.loads(result)
+
+        assert data["agent_name"] == "empty_agent"
+        assert data["scope"] == "working"
+        assert data["count"] == 0
+        assert data["memories"] == []
+
+    @pytest.mark.asyncio
+    async def test_list_working_memories(self) -> None:
+        """Test memory_list with working memory"""
+        import json
+
+        from kagura.mcp.builtin.memory import memory_list
+
+        # Store some working memories
+        await memory_store("test_list_agent", "key1", "value1", scope="working")
+        await memory_store("test_list_agent", "key2", "value2", scope="working")
+
+        # List them
+        result = await memory_list(agent_name="test_list_agent", scope="working")
+        data = json.loads(result)
+
+        assert data["agent_name"] == "test_list_agent"
+        assert data["scope"] == "working"
+        assert data["count"] == 2
+        assert len(data["memories"]) == 2
+
+        # Check that both keys are present
+        keys = {m["key"] for m in data["memories"]}
+        assert "key1" in keys
+        assert "key2" in keys
+
+    @pytest.mark.asyncio
+    async def test_list_persistent_memories(self) -> None:
+        """Test memory_list with persistent memory"""
+        import json
+
+        from kagura.mcp.builtin.memory import memory_list
+
+        # Store some persistent memories
+        await memory_store(
+            "test_list_persistent", "pkey1", "pvalue1", scope="persistent"
+        )
+        await memory_store(
+            "test_list_persistent", "pkey2", "pvalue2", scope="persistent"
+        )
+
+        # List them
+        result = await memory_list(
+            agent_name="test_list_persistent", scope="persistent"
+        )
+        data = json.loads(result)
+
+        assert data["agent_name"] == "test_list_persistent"
+        assert data["scope"] == "persistent"
+        assert data["count"] == 2
+        assert len(data["memories"]) == 2
+
+        # Check structure
+        for mem in data["memories"]:
+            assert "key" in mem
+            assert "value" in mem
+            assert "scope" in mem
+            assert mem["scope"] == "persistent"
+            assert "created_at" in mem
+            assert "updated_at" in mem
+
+    @pytest.mark.asyncio
+    async def test_list_with_limit(self) -> None:
+        """Test memory_list respects limit parameter"""
+        import json
+
+        from kagura.mcp.builtin.memory import memory_list
+
+        # Store many working memories
+        for i in range(10):
+            await memory_store("test_limit_agent", f"key{i}", f"value{i}")
+
+        # List with limit=5
+        result = await memory_list(
+            agent_name="test_limit_agent", scope="working", limit=5
+        )
+        data = json.loads(result)
+
+        assert data["count"] <= 5
+        assert len(data["memories"]) <= 5
+
+    @pytest.mark.asyncio
+    async def test_list_isolates_by_agent_name(self) -> None:
+        """Test memory_list only shows memories for specified agent"""
+        import json
+
+        from kagura.mcp.builtin.memory import memory_list
+
+        # Store for different agents
+        await memory_store("agent_a", "key_a", "value_a")
+        await memory_store("agent_b", "key_b", "value_b")
+
+        # List for agent_a
+        result_a = await memory_list(agent_name="agent_a", scope="working")
+        data_a = json.loads(result_a)
+
+        # Should only see agent_a's memory
+        keys_a = {m["key"] for m in data_a["memories"]}
+        assert "key_a" in keys_a
+        assert "key_b" not in keys_a
+
+        # List for agent_b
+        result_b = await memory_list(agent_name="agent_b", scope="working")
+        data_b = json.loads(result_b)
+
+        # Should only see agent_b's memory
+        keys_b = {m["key"] for m in data_b["memories"]}
+        assert "key_b" in keys_b
+        assert "key_a" not in keys_b
