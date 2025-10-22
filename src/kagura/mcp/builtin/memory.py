@@ -49,15 +49,30 @@ async def memory_store(
 ) -> str:
     """Store information in agent memory
 
-    Stores data in the specified memory scope. When storing in working memory,
-    the data is also automatically indexed in RAG (vector DB) for semantic search,
-    making it discoverable via memory_search().
+    Stores data in the specified memory scope. Use this tool when:
+    - User explicitly asks to 'remember' or 'save' something
+    - Important context needs to be preserved
+    - User preferences or settings should be stored
+
+    💡 IMPORTANT: agent_name determines memory sharing behavior:
+    - agent_name="global": Shared across ALL chat threads
+      (for user preferences, global facts)
+    - agent_name="thread_specific": Isolated per thread
+      (for conversation-specific context)
+
+    Examples:
+        # Global memory (accessible from all threads)
+        agent_name="global", key="user_language", value="Japanese"
+
+        # Thread-specific memory (only this conversation)
+        agent_name="thread_chat_123", key="current_topic", value="Python tutorial"
 
     Args:
-        agent_name: Name of the agent
-        key: Memory key
+        agent_name: Agent identifier (use "global" for cross-thread sharing)
+        key: Memory key for retrieval
         value: Information to store
-        scope: Memory scope (working/persistent)
+        scope: Memory scope - "persistent" (disk, survives restart)
+            or "working" (in-memory)
 
     Returns:
         Confirmation message
@@ -113,13 +128,29 @@ async def memory_store(
 async def memory_recall(agent_name: str, key: str, scope: str = "working") -> str:
     """Recall information from agent memory
 
+    Retrieve previously stored information. Use this tool when:
+    - User asks 'do you remember...'
+    - Need to access previously saved context or preferences
+    - Continuing a previous conversation or task
+
+    💡 IMPORTANT: Use the SAME agent_name as when storing:
+    - agent_name="global": Retrieve globally shared memories
+    - agent_name="thread_specific": Retrieve thread-specific memories
+
+    Examples:
+        # Retrieve global memory
+        agent_name="global", key="user_language"
+
+        # Retrieve thread-specific memory
+        agent_name="thread_chat_123", key="current_topic"
+
     Args:
-        agent_name: Name of the agent
-        key: Memory key
+        agent_name: Agent identifier (must match the one used in memory_store)
+        key: Memory key to retrieve
         scope: Memory scope (working/persistent)
 
     Returns:
-        Stored value or empty string
+        Stored value or "No value found" message
     """
     # Always enable RAG to match memory_store behavior
     enable_rag = True
@@ -154,13 +185,26 @@ async def memory_search(
 ) -> str:
     """Search agent memory using semantic RAG and key-value memory
 
-    Searches RAG (vector DB) for semantic matches across specified scope
-    and also searches working memory for exact or partial key matches.
-    Results from both sources are combined and returned in a unified format.
+    Search stored memories using semantic similarity and keyword matching.
+    Use this tool when:
+    - User asks about topics discussed before but doesn't specify exact key
+    - Need to find related memories without exact match
+    - Exploring what has been remembered about a topic
+
+    💡 IMPORTANT: Searches are scoped by agent_name:
+    - agent_name="global": Search globally shared memories
+    - agent_name="thread_specific": Search thread-specific memories
+
+    Examples:
+        # Search global memory
+        agent_name="global", query="user preferences"
+
+        # Search thread memory
+        agent_name="thread_chat_123", query="topics we discussed"
 
     Args:
-        agent_name: Name of the agent
-        query: Search query
+        agent_name: Agent identifier (determines which memory space to search)
+        query: Search query (semantic and keyword matching)
         k: Number of results from RAG per scope
         scope: Memory scope to search ("working", "persistent", or "all")
 
@@ -223,6 +267,99 @@ async def memory_search(
         combined_results = working_results + rag_results
 
         return json.dumps(combined_results, indent=2)
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+@tool
+async def memory_list(
+    agent_name: str, scope: str = "persistent", limit: int = 50
+) -> str:
+    """List all stored memories for debugging and exploration
+
+    List all memories stored for the specified agent. Use this tool when:
+    - User asks "what do you remember about me?"
+    - Debugging memory issues
+    - Exploring what has been stored
+
+    💡 IMPORTANT: Lists memories for specific agent_name:
+    - agent_name="global": List globally shared memories
+    - agent_name="thread_specific": List thread-specific memories
+
+    Examples:
+        # List global memories
+        agent_name="global", scope="persistent"
+
+        # List thread-specific working memory
+        agent_name="thread_chat_123", scope="working"
+
+    Args:
+        agent_name: Agent identifier
+        scope: Memory scope (working/persistent)
+        limit: Maximum number of entries to return (default: 50)
+
+    Returns:
+        JSON list of stored memories with keys, values, and metadata
+    """
+    # Always enable RAG to match other memory tools
+    enable_rag = True
+
+    try:
+        memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+    except ImportError:
+        # If RAG dependencies not available, get from cache with consistent key
+        from kagura.core.memory import MemoryManager
+
+        cache_key = f"{agent_name}:rag={enable_rag}"
+        if cache_key not in _memory_cache:
+            _memory_cache[cache_key] = MemoryManager(
+                agent_name=agent_name, enable_rag=False
+            )
+        memory = _memory_cache[cache_key]
+
+    try:
+        results = []
+
+        if scope == "persistent":
+            # Get all persistent memories for this agent
+            memories = memory.persistent.search("%", agent_name, limit=limit)
+            for mem in memories:
+                results.append(
+                    {
+                        "key": mem["key"],
+                        "value": mem["value"],
+                        "scope": "persistent",
+                        "created_at": mem.get("created_at"),
+                        "updated_at": mem.get("updated_at"),
+                        "metadata": mem.get("metadata"),
+                    }
+                )
+        else:  # working
+            # Get all working memory keys
+            for key in memory.working.keys():
+                value = memory.get_temp(key)
+                results.append(
+                    {
+                        "key": key,
+                        "value": str(value),
+                        "scope": "working",
+                        "metadata": None,
+                    }
+                )
+
+            # Limit results
+            results = results[:limit]
+
+        return json.dumps(
+            {
+                "agent_name": agent_name,
+                "scope": scope,
+                "count": len(results),
+                "memories": results,
+            },
+            indent=2,
+        )
 
     except Exception as e:
         return json.dumps({"error": str(e)})
