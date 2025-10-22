@@ -21,7 +21,8 @@ The main interface for memory operations.
 MemoryManager(
     agent_name: Optional[str] = None,
     persist_dir: Optional[Path] = None,
-    max_messages: int = 100
+    max_messages: int = 100,
+    enable_rag: Optional[bool] = None
 )
 ```
 
@@ -30,6 +31,10 @@ MemoryManager(
 - `agent_name`: Optional agent name for scoping persistent memory
 - `persist_dir`: Directory for persistent storage (default: `~/.kagura`)
 - `max_messages`: Maximum messages to keep in context
+- `enable_rag`: Enable RAG (semantic search) with ChromaDB
+  - `None` (default): Auto-detect - enables if chromadb is available
+  - `True`: Explicitly enable RAG (requires chromadb)
+  - `False`: Explicitly disable RAG
 
 ### Working Memory Methods
 
@@ -549,19 +554,29 @@ print(f"Assistant memories: {agent_memories}")
 
 ### MemoryManager Integration
 
-Use RAG with MemoryManager by setting `enable_rag=True`:
+RAG is automatically enabled in MemoryManager when chromadb is available:
 
 ```python
 from kagura.core.memory import MemoryManager
 
-# Initialize with RAG enabled
+# Auto-detect (enables RAG if chromadb is installed)
+memory = MemoryManager(agent_name="my_agent")
+
+# Explicitly enable RAG
 memory = MemoryManager(
     agent_name="my_agent",
-    enable_rag=True
+    enable_rag=True  # Requires chromadb
 )
 
-# Store semantically
-memory.add_message("user", "Python is great for AI development")
+# Explicitly disable RAG
+memory = MemoryManager(
+    agent_name="my_agent",
+    enable_rag=False  # No RAG, even if chromadb is available
+)
+
+# Store semantically (works if RAG is enabled)
+if memory.rag:
+    memory.store_semantic("Python is great for AI development")
 
 # Semantic recall
 results = memory.recall_semantic("Tell me about Python", top_k=3)
@@ -569,7 +584,7 @@ for result in results:
     print(result['content'])
 ```
 
-**Note:** When `enable_rag=True`, MemoryManager automatically stores conversation messages in the RAG vector database for semantic retrieval.
+**Note:** When RAG is enabled (auto-detected or explicitly set to `True`), MemoryManager provides both working and persistent RAG capabilities for semantic retrieval.
 
 ### Complete RAG Example
 

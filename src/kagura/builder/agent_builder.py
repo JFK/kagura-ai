@@ -46,7 +46,7 @@ class AgentBuilder:
         type: str = "working",
         persist_dir: Optional[Path] = None,
         max_messages: int = 100,
-        enable_rag: bool = False,
+        enable_rag: Optional[bool] = None,
     ) -> "AgentBuilder":
         """Configure memory system.
 
@@ -54,7 +54,9 @@ class AgentBuilder:
             type: Memory type - "working", "context", "persistent", "rag"
             persist_dir: Directory for persistent storage
             max_messages: Maximum number of messages to store
-            enable_rag: Enable RAG (semantic search) with ChromaDB
+            enable_rag: Enable RAG (semantic search) with ChromaDB.
+                If None (default), automatically enables if chromadb is available.
+                Set to True/False to override auto-detection.
 
         Returns:
             Self for method chaining

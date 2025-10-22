@@ -159,3 +159,67 @@ def test_memory_rag_import_error():
 
     with pytest.raises(ImportError, match="ChromaDB not installed"):
         MemoryRAG()
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not CHROMADB_AVAILABLE, reason="ChromaDB not installed")
+def test_memory_manager_auto_detect_rag_enabled(tmp_path):
+    """Test MemoryManager auto-detects and enables RAG when chromadb is available"""
+    # When enable_rag is None (default), should auto-enable if chromadb available
+    memory = MemoryManager(agent_name="test_auto", persist_dir=tmp_path)
+
+    # Should have RAG enabled automatically
+    assert memory.rag is not None, "Working RAG should be auto-enabled"
+    assert memory.persistent_rag is not None, "Persistent RAG should be auto-enabled"
+
+    # Verify RAG functionality works
+    content_hash = memory.store_semantic("Auto-detect test")
+    assert isinstance(content_hash, str)
+
+    results = memory.recall_semantic("auto-detect", top_k=1)
+    assert len(results) > 0
+
+    # Cleanup
+    memory.rag.delete_all("test_auto")
+    memory.persistent_rag.delete_all("test_auto")
+
+
+@pytest.mark.integration
+def test_memory_manager_auto_detect_rag_disabled(tmp_path):
+    """Test MemoryManager auto-detects and disables RAG when chromadb is unavailable"""
+    if CHROMADB_AVAILABLE:
+        pytest.skip("ChromaDB is available, cannot test auto-disable")
+
+    # When enable_rag is None and chromadb not available, should auto-disable
+    memory = MemoryManager(agent_name="test_auto", persist_dir=tmp_path)
+
+    # Should have RAG disabled automatically
+    assert memory.rag is None, "Working RAG should be auto-disabled"
+    assert memory.persistent_rag is None, "Persistent RAG should be auto-disabled"
+
+    # Should raise error when trying to use RAG
+    with pytest.raises(ValueError, match="RAG not enabled"):
+        memory.store_semantic("Test")
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not CHROMADB_AVAILABLE, reason="ChromaDB not installed")
+def test_memory_manager_explicit_override(tmp_path):
+    """Test explicit enable_rag values override auto-detection"""
+    # Explicit False should disable RAG even when chromadb is available
+    memory_disabled = MemoryManager(
+        agent_name="test_explicit_false", persist_dir=tmp_path, enable_rag=False
+    )
+    assert memory_disabled.rag is None
+    assert memory_disabled.persistent_rag is None
+
+    # Explicit True should enable RAG (and fail if chromadb not available)
+    memory_enabled = MemoryManager(
+        agent_name="test_explicit_true", persist_dir=tmp_path, enable_rag=True
+    )
+    assert memory_enabled.rag is not None
+    assert memory_enabled.persistent_rag is not None
+
+    # Cleanup
+    memory_enabled.rag.delete_all("test_explicit_true")
+    memory_enabled.persistent_rag.delete_all("test_explicit_true")

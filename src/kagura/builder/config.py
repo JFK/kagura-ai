@@ -19,7 +19,10 @@ class MemoryConfig(BaseModel):
     max_messages: int = Field(
         default=100, description="Maximum number of messages to store"
     )
-    enable_rag: bool = Field(default=False, description="Enable RAG (semantic search)")
+    enable_rag: Optional[bool] = Field(
+        default=None,
+        description="Enable RAG. None = auto-detect chromadb availability",
+    )
     session_id: Optional[str] = Field(
         default=None, description="Session ID for memory isolation"
     )
