@@ -57,10 +57,9 @@ jobs:
         run: |
           uv sync --frozen --all-extras
 
-      # Temporarily skip type checking due to CI timeout issues
-      # - name: Run type checking
-      #   run: uv run pyright src/kagura/
-      #   timeout-minutes: 5
+      - name: Run type checking
+        run: uv run pyright
+        timeout-minutes: 3
 
       - name: Run linting
         run: uv run ruff check src/kagura/
