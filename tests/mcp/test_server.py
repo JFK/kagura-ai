@@ -159,3 +159,96 @@ async def test_telemetry_import_in_mcp_server():
     # Verify global telemetry works
     global_telem = get_global_telemetry()
     assert global_telem is not None
+
+
+@pytest.mark.asyncio
+async def test_memory_tools_with_telemetry():
+    """Test that memory tools work with telemetry (regression test for Issue #344)
+
+    Memory tools (memory_store, memory_recall, memory_search) have an 'agent_name'
+    parameter, which was causing a conflict with track_execution's agent_name parameter.
+    This test verifies the fix works correctly.
+    """
+    from kagura.mcp.builtin.memory import _memory_cache, memory_recall, memory_store
+    from kagura.observability import get_global_telemetry
+
+    # Clear memory cache
+    _memory_cache.clear()
+
+    # Get telemetry collector
+    telemetry = get_global_telemetry()
+    collector = telemetry.get_collector()
+
+    # Simulate MCP server calling memory_store with telemetry tracking
+    # This is what happens inside handle_call_tool()
+    args = {
+        "agent_name": "test_agent",
+        "key": "test_key",
+        "value": "test_value",
+        "scope": "working",
+    }
+
+    # Remove agent_name from args (the fix from Issue #344)
+    tracking_args = {k: v for k, v in args.items() if k != "agent_name"}
+
+    # Track execution (no "multiple values" error expected)
+    async with collector.track_execution(
+        "mcp_kagura_tool_memory_store", **tracking_args
+    ):
+        result = await memory_store(**args)
+        assert "Stored" in result
+
+    # Verify memory_recall also works
+    async with collector.track_execution(
+        "mcp_kagura_tool_memory_recall", **tracking_args
+    ):
+        result = await memory_recall(
+            agent_name="test_agent", key="test_key", scope="working"
+        )
+        assert result == "test_value"
+
+    # Cleanup
+    _memory_cache.clear()
+
+
+@pytest.mark.asyncio
+async def test_telemetry_tracks_memory_operations():
+    """Test that telemetry correctly records memory operations (Issue #344)"""
+    from kagura.mcp.builtin.memory import _memory_cache, memory_store
+    from kagura.observability import EventStore, Telemetry
+
+    # Clear memory cache
+    _memory_cache.clear()
+
+    # Create fresh telemetry instance
+    store = EventStore(":memory:")
+    telemetry = Telemetry(store)
+    collector = telemetry.get_collector()
+
+    # Execute memory operation with telemetry
+    args = {
+        "agent_name": "tracked_agent",
+        "key": "tracked_key",
+        "value": "tracked_value",
+    }
+    tracking_args = {k: v for k, v in args.items() if k != "agent_name"}
+
+    async with collector.track_execution("mcp_memory_store", **tracking_args):
+        await memory_store(**args)
+
+    # Verify telemetry recorded the execution
+    executions = store.get_executions()
+    assert len(executions) > 0
+
+    # Verify correct agent_name (should be mcp_memory_store)
+    last_execution = executions[-1]
+    assert last_execution["agent_name"] == "mcp_memory_store"
+    assert last_execution["status"] == "completed"
+
+    # Verify kwargs don't contain agent_name (it was filtered out)
+    assert "agent_name" not in last_execution["kwargs"]
+    assert "key" in last_execution["kwargs"]
+    assert "value" in last_execution["kwargs"]
+
+    # Cleanup
+    _memory_cache.clear()
