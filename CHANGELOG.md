@@ -2,6 +2,47 @@
 
 ## [Unreleased]
 
+## [3.0.8] - 2025-10-23
+
+### Added
+- **MCP**: New `memory_list` tool for debugging and exploring stored memories (#358)
+  - List all working or persistent memories for an agent
+  - Supports limit parameter to control result count
+  - Returns JSON with keys, values, and metadata
+  - Helps users verify what's actually stored and troubleshoot memory issues
+
+### Changed
+- **Memory**: `enable_rag` now auto-detects chromadb availability (#354, #356)
+  - Default changed from `False` to `None` (auto-detect)
+  - Automatically enables RAG when chromadb is installed
+  - Explicit `True`/`False` values override auto-detection
+  - Better UX - users don't need to manually enable RAG
+  - Consistent behavior between SDK and MCP usage
+
+- **MCP**: Enhanced tool descriptions for better LLM decision making (#355, #357, #358, #359)
+  - Memory tools: Added agent_name guidance for cross-thread sharing
+    - agent_name="global" for shared memories across chat threads
+    - agent_name="thread_specific" for isolated per-thread memories
+  - Web search tools: Added "Use this tool when" / "Do NOT use for" sections
+    - brave_web_search: Guidance on latest info vs general knowledge
+    - brave_news_search: Enhanced freshness parameter explanations
+    - fact_check_claim: Clear verification use cases
+  - File operations: Enhanced with usage scenarios and examples
+    - file_read, file_write, dir_list with detailed guidance
+  - YouTube tools: Added content type guidance
+    - youtube_summarize, youtube_fact_check with appropriate use cases
+  - Helps LLMs make better decisions on when to use each tool
+
+### Fixed
+- **MCP**: Fixed `memory_list` TypeError with working scope (#360, #361)
+  - Added missing type conversion for limit parameter
+  - Now correctly handles limit passed as string from LLM
+  - All scopes (working/persistent) now work reliably
+
+- **Memory**: Fixed metadata mutation bug in `remember()` method (#356)
+  - Original metadata dict is no longer modified when RAG is enabled
+  - Uses metadata.copy() before adding RAG-specific fields
+
 ## [3.0.7] - 2025-10-22
 
 ### Added
