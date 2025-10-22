@@ -302,6 +302,13 @@ async def memory_list(
     Returns:
         JSON list of stored memories with keys, values, and metadata
     """
+    # Ensure limit is int (LLM might pass as string)
+    if isinstance(limit, str):
+        try:
+            limit = int(limit)
+        except ValueError:
+            limit = 50  # Default fallback
+
     # Always enable RAG to match other memory tools
     enable_rag = True
 
