@@ -141,8 +141,12 @@ def create_mcp_server(name: str = "kagura-ai") -> Server:
         telemetry = get_global_telemetry()
         collector = telemetry.get_collector()
 
+        # Remove agent_name from args to avoid conflict
+        # Memory tools have agent_name parameter, causing duplication
+        tracking_args = {k: v for k, v in args.items() if k != "agent_name"}
+
         # Track execution with telemetry
-        async with collector.track_execution(f"mcp_{name}", **args):
+        async with collector.track_execution(f"mcp_{name}", **tracking_args):
             # Determine tool type
             if name.startswith("kagura_tool_"):
                 collector.add_tag("type", "tool")
@@ -201,12 +205,14 @@ def create_mcp_server(name: str = "kagura-ai") -> Server:
 
                 # Record successful tool call
                 duration = time.time() - start_time
-                collector.record_tool_call(item_name, duration, **args)
+                collector.record_tool_call(item_name, duration, **tracking_args)
 
             except Exception as e:
                 # Record failed tool call
                 duration = time.time() - start_time
-                collector.record_tool_call(item_name, duration, error=str(e), **args)
+                collector.record_tool_call(
+                    item_name, duration, error=str(e), **tracking_args
+                )
 
                 # Return error as text content
                 result_text = f"Error executing '{name}': {str(e)}"
