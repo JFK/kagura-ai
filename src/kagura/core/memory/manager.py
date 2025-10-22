@@ -244,7 +244,8 @@ class MemoryManager:
 
         # Also index in persistent RAG for semantic search
         if self.persistent_rag:
-            full_metadata = metadata or {}
+            # Create a copy to avoid modifying the original metadata dict
+            full_metadata = metadata.copy() if metadata else {}
             full_metadata.update({"type": "persistent_memory", "key": key})
             value_str = value if isinstance(value, str) else str(value)
             content = f"{key}: {value_str}"
