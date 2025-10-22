@@ -10,10 +10,15 @@ from kagura.agents.translate_func import CodeReviewAgent, TranslateAgent
 async def test_translate_agent():
     """Test TranslateAgent basic functionality"""
     result = await TranslateAgent("Hello World", target_language="ja")
-    # Agent returns LLMResponse object
-    assert hasattr(result, 'content')
-    assert isinstance(result.content, str)
-    assert len(result.content) > 0
+    # Agent can return str (-> str annotation) or LLMResponse
+    if isinstance(result, str):
+        # Direct string response (-> str annotation)
+        assert len(result) > 0
+    else:
+        # LLMResponse object
+        assert hasattr(result, "content")
+        assert isinstance(result.content, str)
+        assert len(result.content) > 0
 
 
 @pytest.mark.integration
@@ -21,9 +26,15 @@ async def test_translate_agent():
 async def test_translate_agent_default_language():
     """Test TranslateAgent with default language (Japanese)"""
     result = await TranslateAgent("Good morning")
-    assert hasattr(result, 'content')
-    assert isinstance(result.content, str)
-    assert len(result.content) > 0
+    # Agent can return str (-> str annotation) or LLMResponse
+    if isinstance(result, str):
+        # Direct string response (-> str annotation)
+        assert len(result) > 0
+    else:
+        # LLMResponse object
+        assert hasattr(result, "content")
+        assert isinstance(result.content, str)
+        assert len(result.content) > 0
 
 
 @pytest.mark.integration
@@ -38,10 +49,17 @@ async def test_summarize_agent():
         "that maximize its chance of achieving its goals."
     )
     result = await SummarizeAgent(long_text, max_sentences=2)
-    assert hasattr(result, 'content')
-    assert isinstance(result.content, str)
-    assert len(result.content) > 0
-    assert len(result.content) < len(long_text)
+    # Agent can return str (-> str annotation) or LLMResponse
+    if isinstance(result, str):
+        # Direct string response (-> str annotation)
+        assert len(result) > 0
+        assert len(result) < len(long_text)
+    else:
+        # LLMResponse object
+        assert hasattr(result, "content")
+        assert isinstance(result.content, str)
+        assert len(result.content) > 0
+        assert len(result.content) < len(long_text)
 
 
 @pytest.mark.integration
@@ -53,9 +71,15 @@ def add(a, b):
     return a + b
 """
     result = await CodeReviewAgent(code, language="python")
-    assert hasattr(result, 'content')
-    assert isinstance(result.content, str)
-    assert len(result.content) > 0
+    # Agent can return str (-> str annotation) or LLMResponse
+    if isinstance(result, str):
+        # Direct string response (-> str annotation)
+        assert len(result) > 0
+    else:
+        # LLMResponse object
+        assert hasattr(result, "content")
+        assert isinstance(result.content, str)
+        assert len(result.content) > 0
 
 
 @pytest.mark.integration
@@ -67,6 +91,13 @@ def divide(a, b):
     return a / b
 """
     result = await CodeReviewAgent(code)
-    assert hasattr(result, 'content')
-    # Should detect potential division by zero
-    assert len(result.content) > 0
+    # Agent can return str (-> str annotation) or LLMResponse
+    if isinstance(result, str):
+        # Direct string response (-> str annotation)
+        # Should detect potential division by zero
+        assert len(result) > 0
+    else:
+        # LLMResponse object
+        assert hasattr(result, "content")
+        # Should detect potential division by zero
+        assert len(result.content) > 0
