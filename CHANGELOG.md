@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [3.0.7] - 2025-10-22
+
+### Added
+- **Memory**: Persistent memory now supports RAG (semantic) search (#340, #353)
+  - Dual RAG system: separate ChromaDB collections for working and persistent memory
+  - Auto-indexing when storing persistent data with `remember()`
+  - New `scope` parameter for `recall_semantic()` and `memory_search()` ("working", "persistent", "all")
+  - Semantic search for user preferences, facts, and long-term knowledge
+  - Resolves #337 (memory_search now finds memory_store data in persistent scope)
+  - 9 new integration tests for persistent RAG functionality
+
 ### Fixed
 - **MCP**: Fixed telemetry agent_name conflict in memory tools (#344, #349)
   - Memory tools (memory_store, memory_recall, memory_search) now work correctly with telemetry tracking
@@ -16,6 +27,15 @@
   - Updated pyright to 1.1.406 (from 1.1.390)
   - CI type checking now completes in ~2 minutes (previously timed out at 2min)
   - Type safety restored in CI pipeline
+
+### Changed
+- **Documentation**: Updated for recent core changes (#329, #352)
+  - CHANGELOG.md updated with all recent fixes
+  - V3.0_DEVELOPMENT.md enhanced with integration test patterns and CI best practices
+  - Added WORK_LOG_2025-10-22.md for historical context
+- **MCP**: Memory tools now always enable RAG for both working and persistent scopes (#353)
+  - Better user experience with consistent semantic search availability
+  - Resolves "RAG unavailable" messages when storing persistent data
 
 ## [3.0.6] - 2025-10-21
 
