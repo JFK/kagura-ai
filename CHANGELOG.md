@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Fixed
+- **MCP**: Fixed telemetry agent_name conflict in memory tools (#344, #349)
+  - Memory tools (memory_store, memory_recall, memory_search) now work correctly with telemetry tracking
+  - Removed duplicate agent_name parameter when calling track_execution()
+  - No impact on other tools (they don't have agent_name parameter)
+- **Tests**: Fixed integration test failures in preset agents (#335, #350)
+  - Tests now handle both str and LLMResponse return types
+  - Updated 5 tests for agents with `-> str` annotation (TranslateAgent, CodeReviewAgent, SummarizeAgent)
+  - Tests align with v3.0.2 behavior where `-> str` returns plain strings
+- **CI**: Re-enabled type checking in test workflow (#328, #351)
+  - Fixed pyrightconfig.json to include entire src/kagura directory
+  - Updated pyright to 1.1.406 (from 1.1.390)
+  - CI type checking now completes in ~2 minutes (previously timed out at 2min)
+  - Type safety restored in CI pipeline
+
 ## [3.0.6] - 2025-10-21
 
 ### Changed
