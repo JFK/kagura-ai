@@ -45,6 +45,7 @@ Claude: [Lists all 15+ built-in tools]
 - `kagura_tool_memory_store` - Store information
 - `kagura_tool_memory_recall` - Recall stored information
 - `kagura_tool_memory_search` - Semantic search in memory
+- `kagura_tool_memory_list` - List all stored memories (debugging)
 
 ### Web Operations
 - `kagura_tool_web_search` - Search the web
