@@ -25,7 +25,7 @@ class MemoryManager:
         agent_name: Optional[str] = None,
         persist_dir: Optional[Path] = None,
         max_messages: int = 100,
-        enable_rag: bool = False,
+        enable_rag: Optional[bool] = None,
         enable_compression: bool = True,
         compression_policy: Optional[CompressionPolicy] = None,
         model: str = "gpt-5-mini",
@@ -36,7 +36,9 @@ class MemoryManager:
             agent_name: Optional agent name for scoping
             persist_dir: Directory for persistent storage
             max_messages: Maximum messages in context
-            enable_rag: Enable RAG (vector-based semantic search)
+            enable_rag: Enable RAG (vector-based semantic search).
+                If None (default), automatically enables if chromadb is available.
+                Set to True/False to override auto-detection.
             enable_compression: Enable automatic context compression
             compression_policy: Compression configuration
             model: LLM model name for compression
@@ -52,6 +54,15 @@ class MemoryManager:
             db_path = persist_dir / "memory.db"
 
         self.persistent = PersistentMemory(db_path=db_path)
+
+        # Auto-detect chromadb availability if enable_rag is None
+        if enable_rag is None:
+            try:
+                import chromadb  # noqa: F401
+
+                enable_rag = True
+            except ImportError:
+                enable_rag = False
 
         # Optional: RAG (Working and Persistent)
         self.rag: Optional[MemoryRAG] = None  # Working memory RAG
@@ -233,7 +244,8 @@ class MemoryManager:
 
         # Also index in persistent RAG for semantic search
         if self.persistent_rag:
-            full_metadata = metadata or {}
+            # Create a copy to avoid modifying the original metadata dict
+            full_metadata = metadata.copy() if metadata else {}
             full_metadata.update({"type": "persistent_memory", "key": key})
             value_str = value if isinstance(value, str) else str(value)
             content = f"{key}: {value_str}"
