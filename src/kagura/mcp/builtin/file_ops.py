@@ -13,14 +13,36 @@ from kagura import tool
 
 @tool
 def file_read(path: str, encoding: str = "utf-8") -> str:
-    """Read file content
+    """Read the content of a text file from the local filesystem.
+
+    Use this tool when:
+    - User mentions a specific file by name
+    - Need to analyze or process existing file content
+    - User asks to 'read', 'check', 'open', or 'show' a file
+    - Reviewing configuration files or logs
+    - Examining code or documentation
+
+    Do NOT use for:
+    - Creating new files (use file_write)
+    - Searching for files (use dir_list first)
+    - Binary files (images, videos, etc.)
 
     Args:
-        path: File path
-        encoding: File encoding (default: utf-8)
+        path: File path (absolute or relative to working directory)
+        encoding: File encoding (default: utf-8, use 'utf-16', 'latin-1' if needed)
 
     Returns:
-        File content
+        File content as string
+
+    Example:
+        # Read configuration
+        path="config.json"
+
+        # Read with specific encoding
+        path="data.csv", encoding="utf-8"
+
+        # Read from absolute path
+        path="/home/user/notes.txt"
     """
     try:
         return Path(path).read_text(encoding=encoding)
@@ -30,15 +52,36 @@ def file_read(path: str, encoding: str = "utf-8") -> str:
 
 @tool
 def file_write(path: str, content: str, encoding: str = "utf-8") -> str:
-    """Write content to file
+    """Write or save content to a file on the local filesystem.
+
+    Use this tool when:
+    - User asks to save, write, or create a file
+    - Generated content (code, text, data) needs to be persisted
+    - User wants to export results to a file
+    - Creating configuration or script files
+    - Saving analysis results
+
+    Do NOT use for:
+    - Reading files (use file_read)
+    - Appending to files (overwrites existing content)
 
     Args:
-        path: File path
-        content: Content to write
+        path: File path (creates new file or overwrites existing)
+        content: Content to write to the file
         encoding: File encoding (default: utf-8)
 
     Returns:
-        Confirmation message
+        Confirmation message with character count
+
+    Example:
+        # Save generated code
+        path="script.py", content="print('Hello')"
+
+        # Create configuration
+        path="config.json", content='{"key": "value"}'
+
+        # Save to absolute path
+        path="/home/user/output.txt", content="Analysis results..."
     """
     try:
         Path(path).write_text(content, encoding=encoding)
@@ -49,14 +92,40 @@ def file_write(path: str, content: str, encoding: str = "utf-8") -> str:
 
 @tool
 def dir_list(path: str = ".", pattern: str = "*") -> str:
-    """List directory contents
+    """List files and directories in a specified path.
+
+    Use this tool when:
+    - User asks 'what files are in...'
+    - Need to explore directory structure
+    - Looking for files matching a pattern
+    - User wants to see available files before reading
+    - Checking if a file exists
+
+    Supports glob patterns for filtering (e.g., '*.txt', '*.py', '**/*.json').
 
     Args:
-        path: Directory path (default: current directory)
-        pattern: Glob pattern (default: *)
+        path: Directory path (default: "." for current directory)
+        pattern: Glob pattern to filter files:
+            - "*" (all files in directory)
+            - "*.txt" (all .txt files)
+            - "*.{py,js}" (all .py and .js files)
+            - "**/*.md" (all .md files recursively)
 
     Returns:
-        JSON string of file list
+        JSON array of relative file paths (sorted alphabetically)
+
+    Example:
+        # List all files in current directory
+        path=".", pattern="*"
+
+        # List Python files
+        path="src", pattern="*.py"
+
+        # List all markdown files recursively
+        path="docs", pattern="**/*.md"
+
+        # List specific pattern
+        path="/home/user/projects", pattern="*.{json,yaml}"
     """
     try:
         files = [str(f.relative_to(path)) for f in Path(path).glob(pattern)]

@@ -11,24 +11,42 @@ from kagura import tool
 
 @tool
 async def fact_check_claim(claim: str, sources: list[str] | None = None) -> str:
-    """Fact-check a claim using web search.
+    """Verify the accuracy of a specific claim using multiple web sources.
+
+    Use this tool when:
+    - User explicitly asks to fact-check a statement
+    - A claim seems dubious and needs verification
+    - Multiple sources are needed to confirm information
+    - User asks "is this true?" or "verify this"
+    - Checking controversial or disputed information
+
+    Do NOT use for:
+    - Simple factual questions (use brave_web_search instead)
+    - Personal opinions or subjective matters
+    - Future predictions
+    - Questions with no factual answer
 
     Searches for evidence from multiple sources and provides
     a verdict with confidence level.
 
     Args:
-        claim: The claim to fact-check
+        claim: The specific claim to fact-check (be precise and clear)
         sources: Optional list of source URLs for additional verification
 
     Returns:
-        Fact-check result with verdict, confidence, evidence, and summary
+        Fact-check result with verdict (TRUE/FALSE/MIXED/UNVERIFIED),
+        confidence level, evidence, and summary
 
     Example:
-        >>> result = await fact_check_claim(
-        ...     "The Earth is flat",
-        ...     sources=["https://example.com/article"]
-        ... )
-        >>> print(result)
+        # Verify a factual claim
+        claim="The Earth revolves around the Sun"
+
+        # Check a disputed claim
+        claim="Coffee prevents cancer"
+
+        # With additional sources
+        claim="Python 3.12 was released in 2023",
+        sources=["https://www.python.org/downloads/"]
     """
     try:
         from kagura.core.llm import LLMConfig, call_llm

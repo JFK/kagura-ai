@@ -166,22 +166,46 @@ async def get_youtube_metadata(video_url: str) -> str:
 
 @tool
 async def youtube_summarize(video_url: str, lang: str = "en") -> str:
-    """
-    Summarize YouTube video content.
+    """Generate a summary of a YouTube video's content using its transcript.
 
-    Uses transcript to generate a concise summary of the video.
+    Use this tool when:
+    - User provides a YouTube URL and asks for summary
+    - User asks 'what is this video about'
+    - Need to understand video content without watching
+    - User wants key points from a long video
+    - Reviewing educational or informational content
+
+    Do NOT use for:
+    - Videos without transcripts (will fail)
+    - Live streams (transcripts may be incomplete)
+    - Music videos or content without meaningful speech
+
+    Automatically fetches transcript and creates structured summary.
 
     Args:
-        video_url: YouTube video URL
-        lang: Language code for transcript (default: en)
+        video_url: YouTube video URL (full URL or youtu.be short link)
+        lang: Language code for transcript:
+            - "en" (English, default)
+            - "ja" (Japanese)
+            - "es" (Spanish)
+            - "fr" (French)
+            - etc.
 
     Returns:
-        Video summary or error message
+        Markdown-formatted summary with:
+        - Main topic/theme
+        - Key points (2-3 bullet points)
+        - Overall takeaway
 
     Example:
-        >>> summary = await youtube_summarize(
-        ...     "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        ... )
+        # Summarize English video
+        video_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+        # Summarize Japanese video
+        video_url="https://youtu.be/abcdefg", lang="ja"
+
+        # Educational content
+        video_url="https://www.youtube.com/watch?v=xyz123"
     """
     # Get transcript
     transcript = await get_youtube_transcript(video_url, lang)
@@ -234,15 +258,26 @@ Format as Markdown with the video title as a link: [{title}]({video_url})
 
 @tool
 async def youtube_fact_check(video_url: str, claim: str, lang: str = "en") -> str:
-    """
-    Fact-check a claim made in a YouTube video.
+    """Verify a specific claim made in a YouTube video against web sources.
+
+    Use this tool when:
+    - User questions the accuracy of information in a video
+    - A video makes a specific factual claim that needs verification
+    - User explicitly asks to fact-check video content
+    - Checking controversial or disputed statements in videos
+    - User asks "is what they said in the video true?"
+
+    Do NOT use for:
+    - Summarizing videos (use youtube_summarize)
+    - Checking opinions or subjective content
+    - Videos without transcripts
 
     Extracts transcript and uses web search to verify the claim.
 
     Args:
         video_url: YouTube video URL
-        claim: Specific claim to fact-check
-        lang: Language code for transcript (default: en)
+        claim: Specific claim to fact-check (be precise and quote if possible)
+        lang: Language code for transcript (default: "en", use "ja" for Japanese)
 
     Returns:
         Fact-check result with verdict, evidence, and confidence
