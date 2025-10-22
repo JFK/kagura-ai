@@ -89,7 +89,7 @@ dev = [
     "pytest-xdist>=3.5",  # Parallel test execution
     "langdetect>=1.0.9",  # For agent testing
     "ruff>=0.8",
-    "pyright>=1.1",
+    "pyright>=1.1.406",  # Updated for better performance
 ]
 docs = [
     # Documentation building

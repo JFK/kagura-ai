@@ -1,7 +1,8 @@
 {
   "venvPath": "./.venv",
   "venv": ".",
-  "include": ["src/kagura/core", "src/kagura/cli"],
+  "include": ["src/kagura"],
+  "exclude": ["**/__pycache__", "**/*.pyc", "**/node_modules"],
   "reportMissingImports": true,
   "reportOptionalSubscript": false,
   "reportGeneralTypeIssues": true,
