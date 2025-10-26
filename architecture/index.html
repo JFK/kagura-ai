@@ -6,11 +6,17 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="Universal AI Memory Platform - MCP-native memory for all your AIs">
+      
       
       
         <link rel="canonical" href="https://www.kagura-ai.com/architecture/">
       
       
+        <link rel="prev" href="../memory-export/">
+      
+      
+        <link rel="next" href="../api-reference/">
       
       
       <link rel="icon" href="../assets/kagura-icon.svg">
@@ -18,7 +24,7 @@
     
     
       
-        <title>Architecture - Kagura v4.0 - Kagura AI Documentation</title>
+        <title>Architecture Overview - Kagura AI Documentation</title>
       
     
     
@@ -79,6 +85,10 @@
       
     </div>
     
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
     
       
 
@@ -105,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture - Kagura v4.0
+              Architecture Overview
             
           </span>
         </div>
@@ -260,81 +270,58 @@
   
   
     <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start (10 min)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP Setup (Claude Desktop)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../quickstart/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Quick Start (5 min)
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/installation/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
     Installation
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../sdk-guide/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    SDK Guide
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../chat-guide/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Chat Guide (Bonus)
     
   </span>
   
@@ -356,18 +343,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -375,7 +364,7 @@
   
   
   <span class="md-ellipsis">
-    SDK Tutorials
+    User Guides
     
   </span>
   
@@ -383,10 +372,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
-            SDK Tutorials
+            User Guides
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -397,12 +386,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../en/tutorials/01-basic-agent/" class="md-nav__link">
+      <a href="../mcp-http-setup/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Your First Agent
+    MCP over HTTP/SSE (ChatGPT)
     
   </span>
   
@@ -420,12 +409,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../en/tutorials/02-templates/" class="md-nav__link">
+      <a href="../self-hosting/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Jinja2 Templates
+    Self-Hosting Guide
     
   </span>
   
@@ -443,12 +432,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../en/tutorials/03-type-parsing/" class="md-nav__link">
+      <a href="../memory-export/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Type-Safe Parsing
+    Memory Export/Import
     
   </span>
   
@@ -463,89 +452,389 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../en/tutorials/08-memory-management/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Architecture Overview
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
-    Memory Management
+    Architecture Overview
     
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/tutorials/11-tools/" class="md-nav__link">
+      
         
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
-  <span class="md-ellipsis">
-    Custom Tools
+  
     
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#high-level-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ High-Level Overview
+    </span>
+  </a>
   
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-c-architecture-remote-mcp-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      🆕 Phase C Architecture (Remote MCP Server)
+    </span>
+  </a>
   
-    <li class="md-nav__item">
-      <a href="../en/tutorials/12-workflows/" class="md-nav__link">
+    <nav class="md-nav" aria-label="🆕 Phase C Architecture (Remote MCP Server)">
+      <ul class="md-nav__list">
         
+          <li class="md-nav__item">
+  <a href="#remote-access-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote Access Flow
+    </span>
+  </a>
   
-  
-  <span class="md-ellipsis">
-    Multi-Agent Workflows
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/tutorials/14-testing/" class="md-nav__link">
+</li>
         
+          <li class="md-nav__item">
+  <a href="#security-layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Layers
+    </span>
+  </a>
   
+</li>
+        
+      </ul>
+    </nav>
   
-  <span class="md-ellipsis">
-    Testing Agents
-    
-  </span>
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#component-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      📦 Component Details
+    </span>
+  </a>
   
-
-      </a>
+    <nav class="md-nav" aria-label="📦 Component Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mcp-server-srckaguramcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. MCP Server (src/kagura/mcp/)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-memory-manager-srckaguracorememory" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Memory Manager (src/kagura/core/memory/)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-graph-memory-srckaguracoregraph" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Graph Memory (src/kagura/core/graph/)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-rest-api-srckaguraapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. REST API (src/kagura/api/)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔄 Data Flow
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 Data Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memory-store-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Store Flow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-recall-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Recall Flow
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔐 Security Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔐 Security Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#authentication-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentication Flow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tool-filtering-remote-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tool Filtering (Remote Context)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      💾 Data Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="💾 Data Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memory-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Record
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graph-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graph Node
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graph-edge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graph Edge
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Deployment Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Deployment Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#local-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      Local Development
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#production-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Production Deployment
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exportimport-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔄 Export/Import System
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 Export/Import System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#export-format-jsonl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Export Format (JSONL)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      📐 Design Principles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📐 Design Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mcp-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. MCP-First
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-multi-user-from-day-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Multi-User from Day 1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-security-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Security by Default
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-data-portability" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Data Portability
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-fail-safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Fail-Safe
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 Related Documentation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -581,7 +870,7 @@
   
   
   <span class="md-ellipsis">
-    Integration Guides
+    API Reference
     
   </span>
   
@@ -591,326 +880,6 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
-            <span class="md-nav__icon md-icon"></span>
-            Integration Guides
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/guides/web-integration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Web Search & Scraping
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/guides/claude-code-mcp-setup/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    MCP (Claude Desktop)
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/guides/oauth2-authentication/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    OAuth2 Authentication
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/guides/meta-agent/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Meta Agent
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/guides/context-compression/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Context Compression
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Advanced Topics
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
-            <span class="md-nav__icon md-icon"></span>
-            Advanced Topics
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/tutorials/04-code-execution/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Code Execution
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/tutorials/09-agent-routing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Agent Routing
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/tutorials/13-multimodal-rag/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Multimodal RAG
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/guides/performance-caching/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Performance Caching
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/tutorials/15-observability/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Observability
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    API Reference
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             API Reference
           </label>
@@ -923,73 +892,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../en/api/" class="md-nav__link">
+      <a href="../api-reference/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Overview
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Core Decorators
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_2">
-            <span class="md-nav__icon md-icon"></span>
-            Core Decorators
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/agent/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    @agent
+    REST API & MCP Tools
     
   </span>
   
@@ -1007,393 +915,17 @@
   
   
     <li class="md-nav__item">
-      <a href="../en/api/tools/" class="md-nav__link">
+      <a href="../api/reference.yaml" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    @tool
+    OpenAPI Specification
     
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/workflows/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    @workflow
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Features
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_3">
-            <span class="md-nav__icon md-icon"></span>
-            Features
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/memory/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Memory System
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Agent Builder
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/testing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Testing Framework
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Integrations
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_4">
-            <span class="md-nav__icon md-icon"></span>
-            Integrations
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/chat/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Chat Session
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/mcp/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    MCP Integration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/auth/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Authentication
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Advanced
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_5">
-            <span class="md-nav__icon md-icon"></span>
-            Advanced
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/executor/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Code Executor
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/compression/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Context Compression
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../en/api/observability/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Observability
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1443,10 +975,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
@@ -1459,8 +991,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             For Developers
           </label>
@@ -1555,112 +1087,79 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#phase-c-architecture-remote-mcp-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      🆕 Phase C Architecture (Remote MCP Server)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🆕 Phase C Architecture (Remote MCP Server)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#remote-access-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote Access Flow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Layers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#component-details" class="md-nav__link">
     <span class="md-ellipsis">
-      🧩 Component Details
+      📦 Component Details
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🧩 Component Details">
+    <nav class="md-nav" aria-label="📦 Component Details">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-mcp-server" class="md-nav__link">
+  <a href="#1-mcp-server-srckaguramcp" class="md-nav__link">
     <span class="md-ellipsis">
-      1. MCP Server
+      1. MCP Server (src/kagura/mcp/)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-memory-manager" class="md-nav__link">
+  <a href="#2-memory-manager-srckaguracorememory" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Memory Manager
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. Memory Manager">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-working-memory" class="md-nav__link">
-    <span class="md-ellipsis">
-      a) Working Memory
+      2. Memory Manager (src/kagura/core/memory/)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#b-context-memory" class="md-nav__link">
+  <a href="#3-graph-memory-srckaguracoregraph" class="md-nav__link">
     <span class="md-ellipsis">
-      b) Context Memory
+      3. Graph Memory (src/kagura/core/graph/)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#c-persistent-memory" class="md-nav__link">
+  <a href="#4-rest-api-srckaguraapi" class="md-nav__link">
     <span class="md-ellipsis">
-      c) Persistent Memory
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-rag-semantic-search" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. RAG (Semantic Search)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. RAG (Semantic Search)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#working-rag" class="md-nav__link">
-    <span class="md-ellipsis">
-      Working RAG
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#persistent-rag" class="md-nav__link">
-    <span class="md-ellipsis">
-      Persistent RAG
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-rest-api-v40-new" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. REST API (v4.0 New)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-graph-memory-phase-b" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. Graph Memory (Phase B)
+      4. REST API (src/kagura/api/)
     </span>
   </a>
   
@@ -1674,110 +1173,26 @@
         <li class="md-nav__item">
   <a href="#data-flow" class="md-nav__link">
     <span class="md-ellipsis">
-      📊 Data Flow
+      🔄 Data Flow
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="📊 Data Flow">
+    <nav class="md-nav" aria-label="🔄 Data Flow">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#memory-storage-flow" class="md-nav__link">
+  <a href="#memory-store-flow" class="md-nav__link">
     <span class="md-ellipsis">
-      Memory Storage Flow
+      Memory Store Flow
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#semantic-recall-flow" class="md-nav__link">
+  <a href="#memory-recall-flow" class="md-nav__link">
     <span class="md-ellipsis">
-      Semantic Recall Flow
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#storage-details" class="md-nav__link">
-    <span class="md-ellipsis">
-      💾 Storage Details
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="💾 Storage Details">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sqlite-schema-persistent-memory" class="md-nav__link">
-    <span class="md-ellipsis">
-      SQLite Schema (Persistent Memory)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#chromadb-collections" class="md-nav__link">
-    <span class="md-ellipsis">
-      ChromaDB Collections
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#request-flow-rest-api" class="md-nav__link">
-    <span class="md-ellipsis">
-      🔄 Request Flow (REST API)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#deployment-options" class="md-nav__link">
-    <span class="md-ellipsis">
-      🚀 Deployment Options
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🚀 Deployment Options">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#local-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      Local Development
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#self-hosted-v410" class="md-nav__link">
-    <span class="md-ellipsis">
-      Self-Hosted (v4.1.0+)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cloud-v420" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cloud (v4.2.0+)
+      Memory Recall Flow
     </span>
   </a>
   
@@ -1799,27 +1214,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#v400a0current" class="md-nav__link">
+  <a href="#authentication-flow" class="md-nav__link">
     <span class="md-ellipsis">
-      v4.0.0a0(Current)
+      Authentication Flow
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#v410-planned" class="md-nav__link">
+  <a href="#tool-filtering-remote-context" class="md-nav__link">
     <span class="md-ellipsis">
-      v4.1.0 (Planned)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#v420-planned" class="md-nav__link">
-    <span class="md-ellipsis">
-      v4.2.0 (Planned)
+      Tool Filtering (Remote Context)
     </span>
   </a>
   
@@ -1831,28 +1237,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scalability" class="md-nav__link">
+  <a href="#data-model" class="md-nav__link">
     <span class="md-ellipsis">
-      📈 Scalability
+      💾 Data Model
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="📈 Scalability">
+    <nav class="md-nav" aria-label="💾 Data Model">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#current-v40" class="md-nav__link">
+  <a href="#memory-record" class="md-nav__link">
     <span class="md-ellipsis">
-      Current (v4.0)
+      Memory Record
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#future-v41" class="md-nav__link">
+  <a href="#graph-node" class="md-nav__link">
     <span class="md-ellipsis">
-      Future (v4.1+)
+      Graph Node
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graph-edge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graph Edge
     </span>
   </a>
   
@@ -1864,28 +1279,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#integration-points" class="md-nav__link">
+  <a href="#deployment-architecture" class="md-nav__link">
     <span class="md-ellipsis">
-      🔗 Integration Points
+      📊 Deployment Architecture
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🔗 Integration Points">
+    <nav class="md-nav" aria-label="📊 Deployment Architecture">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#mcp-clients" class="md-nav__link">
+  <a href="#local-development" class="md-nav__link">
     <span class="md-ellipsis">
-      MCP Clients
+      Local Development
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#external-services-phase-c" class="md-nav__link">
+  <a href="#production-deployment" class="md-nav__link">
     <span class="md-ellipsis">
-      External Services (Phase C)
+      Production Deployment
     </span>
   </a>
   
@@ -1897,37 +1312,19 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#phase-roadmap" class="md-nav__link">
+  <a href="#exportimport-system" class="md-nav__link">
     <span class="md-ellipsis">
-      🆕 Phase Roadmap
+      🔄 Export/Import System
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🆕 Phase Roadmap">
+    <nav class="md-nav" aria-label="🔄 Export/Import System">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-a-current-v400a0" class="md-nav__link">
+  <a href="#export-format-jsonl" class="md-nav__link">
     <span class="md-ellipsis">
-      Phase A (Current - v4.0.0a0
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-b-v400" class="md-nav__link">
-    <span class="md-ellipsis">
-      Phase B (v4.0.0)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-c-v410" class="md-nav__link">
-    <span class="md-ellipsis">
-      Phase C (v4.1.0)
+      Export Format (JSONL)
     </span>
   </a>
   
@@ -1939,9 +1336,69 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#related" class="md-nav__link">
+  <a href="#design-principles" class="md-nav__link">
     <span class="md-ellipsis">
-      🔗 Related
+      📐 Design Principles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📐 Design Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mcp-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. MCP-First
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-multi-user-from-day-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Multi-User from Day 1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-security-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Security by Default
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-data-portability" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Data Portability
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-fail-safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Fail-Safe
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 Related Documentation
     </span>
   </a>
   
@@ -1967,387 +1424,333 @@
 <blockquote>
 <p><strong>Universal AI Memory Platform - System Design</strong></p>
 </blockquote>
-<p>This document describes the architecture of Kagura v4.0.</p>
+<p>This document describes the architecture of Kagura v4.0 after Phase C completion.</p>
 <hr />
 <h2 id="high-level-overview">🏗️ High-Level Overview</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────┐
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                    AI Platforms (MCP Clients)               │
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│        Claude Desktop • ChatGPT • Gemini • Cursor           │
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│                 Cline • Custom Agents                       │
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└────────────────────────┬────────────────────────────────────┘
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                         │
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                    MCP Protocol
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                         │
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>┌────────────────────────▼────────────────────────────────────┐
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│                  Kagura MCP Server                          │
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│            (src/kagura/mcp/server.py)                       │
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│                                                             │
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│  Tools:                                                     │
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│  • memory_store, memory_recall, memory_search               │
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│  • memory_list, memory_feedback, memory_delete              │
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│  • web_search, youtube_transcript, file_ops, etc.           │
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>└────────────────────────┬────────────────────────────────────┘
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>                         │
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>              Internal Python API
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>                         │
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>┌────────────────────────▼────────────────────────────────────┐
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│                  Memory Manager                             │
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│           (src/kagura/core/memory/manager.py)               │
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│                                                             │
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│  ┌─────────────┬────────────────┬─────────────────┐       │
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│  │  Working    │   Context      │   Persistent    │       │
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│  │  Memory     │   Memory       │   Memory        │       │
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│  │ (In-Memory) │  (Messages)    │   (SQLite)      │       │
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│  └─────────────┴────────────────┴─────────────────┘       │
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│                                                             │
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│  ┌──────────────────────────────────────────────┐         │
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│  │  RAG (Retrieval-Augmented Generation)         │         │
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│  │  • Working RAG (ChromaDB)                     │         │
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>│  │  • Persistent RAG (ChromaDB)                  │         │
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>│  │  • Semantic search, Vector similarity         │         │
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>│  └──────────────────────────────────────────────┘         │
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>│                                                             │
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>│  🆕 Phase B (Coming):                                      │
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>│  ┌──────────────────────────────────────────────┐         │
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>│  │  Graph Memory (NetworkX)                      │         │
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>│  │  • Relationships between memories             │         │
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>│  │  • AI-User interaction history                │         │
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>│  └──────────────────────────────────────────────┘         │
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>└─────────────────────────────────────────────────────────────┘
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>                         │
-<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>                    Storage Layer
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>                         │
-<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>┌────────────────────────▼────────────────────────────────────┐
-<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>│                     Storage                                  │
-<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>│                                                             │
-<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>│  • SQLite - Persistent key-value memory                     │
-<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>│  • ChromaDB - Vector embeddings for semantic search         │
-<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>│  • Local files - Graph persistence (Phase B)                │
-<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>│                                                             │
-<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>│  🔮 Future (v4.1+):                                        │
-<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>│  • PostgreSQL + pgvector - Production deployment            │
-<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>│  • Redis - Caching &amp; job queue                              │
-<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>│  • S3-compatible - Multimodal attachments                   │
-<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>└─────────────────────────────────────────────────────────────┘
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                  AI Platforms (MCP Clients)                     │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│      Claude Desktop • ChatGPT • Gemini • Cursor • Cline         │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>└──────┬────────────────────────────────────────────────┬─────────┘
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>       │ stdio (local)                    HTTP/SSE (remote)│
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>       │                                                   │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>┌──────▼─────────────┐                    ┌──────────────▼────────┐
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  MCP Server        │                    │  MCP over HTTP/SSE    │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  (Local)           │                    │  (/mcp endpoint)      │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│                    │                    │                       │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│  All 31 tools ✅   │                    │  24 safe tools only   │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│  File ops ✅       │                    │  File ops ❌          │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│  Shell exec ✅     │                    │  Shell exec ❌        │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>└──────┬─────────────┘                    └──────────────┬────────┘
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>       │                                                   │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>       │              Internal Python API                  │
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>       └───────────────────────┬───────────────────────────┘
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>                               │
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>          ┌────────────────────▼─────────────────────┐
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>          │         Memory Manager                   │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>          │   (src/kagura/core/memory/manager.py)    │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>          │                                          │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>          │  ┌──────────┬───────────┬─────────────┐ │
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>          │  │ Working  │ Context   │ Persistent  │ │
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>          │  │ Memory   │ Memory    │ Memory      │ │
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>          │  │(In-Mem)  │(Messages) │(SQLite)     │ │
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>          │  └──────────┴───────────┴─────────────┘ │
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>          │                                          │
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>          │  ┌────────────────────────────────────┐ │
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>          │  │  RAG (ChromaDB)                    │ │
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>          │  │  • Working RAG                     │ │
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>          │  │  • Persistent RAG                  │ │
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>          │  │  • Semantic search                 │ │
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>          │  └────────────────────────────────────┘ │
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>          │                                          │
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>          │  ┌────────────────────────────────────┐ │
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>          │  │  Graph Memory (NetworkX)           │ │
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>          │  │  • Relationships                   │ │
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>          │  │  • Interaction history             │ │
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>          │  │  • User patterns                   │ │
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>          │  └────────────────────────────────────┘ │
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>          └────────────────┬─────────────────────────┘
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>                           │
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>                  ┌────────▼────────┐
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>                  │    Storage      │
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>                  │  • SQLite       │
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>                  │  • ChromaDB     │
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>                  │  • Pickle files │
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>                  └─────────────────┘
 </code></pre></div>
 <hr />
-<h2 id="component-details">🧩 Component Details</h2>
-<h3 id="1-mcp-server">1. MCP Server</h3>
-<p><strong>Location</strong>: <code>src/kagura/mcp/server.py</code></p>
-<p><strong>Responsibilities</strong>:
-- Expose tools via MCP protocol
-- Handle stdio communication with MCP clients
-- Route tool calls to appropriate handlers</p>
-<p><strong>Tools Categories</strong>:
-- <strong>Memory</strong>: 6 tools (store, recall, search, list, feedback, delete)
-- <strong>Web</strong>: 2 tools (web_search, brave_search)
-- <strong>Files</strong>: 3 tools (read, write, list)
-- <strong>YouTube</strong>: 2 tools (transcript, metadata)
-- <strong>Multimodal</strong>: 2 tools (vision, audio)
-- <strong>Other</strong>: 13 tools (routing, fact-check, etc.)</p>
-<p><strong>Total</strong>: 28 MCP tools</p>
+<h2 id="phase-c-architecture-remote-mcp-server">🆕 Phase C Architecture (Remote MCP Server)</h2>
+<h3 id="remote-access-flow">Remote Access Flow</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ChatGPT                         Your Server
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>┌─────────┐                     ┌──────────────┐
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│ ChatGPT │  HTTPS/SSE          │    Caddy     │
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│Connector├────────────────────►│ (Port 443)   │
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>└─────────┘                     └──────┬───────┘
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>                                       │
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>                               ┌───────▼───────┐
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>                               │  Kagura API   │
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>                               │  (Port 8080)  │
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>                               │               │
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>                               │  /mcp         │◄─ HTTP/SSE
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>                               │  /api/v1/*    │◄─ REST
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>                               └───────┬───────┘
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>                                       │
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>                              ┌────────▼────────┐
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>                              │ Memory Manager  │
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>                              │  + Graph        │
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>                              └────────┬────────┘
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>                                       │
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>                              ┌────────▼────────┐
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>                              │ PostgreSQL      │
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                              │ + pgvector      │
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                              └─────────────────┘
+</code></pre></div>
+<h3 id="security-layers">Security Layers</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>1. API Key Authentication
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>   ├─ SHA256 hashed storage
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>   ├─ Optional expiration
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>   └─ Audit trail (last_used_at)
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>2. Tool Access Control
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>   ├─ Local context: All 31 tools ✅
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>   ├─ Remote context: 24 safe tools only
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>   └─ Dangerous tools filtered:
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>      • file_read, file_write
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>      • shell_exec
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>      • media_open_*
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>3. Network Security
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>   ├─ Caddy reverse proxy
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>   ├─ Automatic HTTPS (Let&#39;s Encrypt)
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>   ├─ CORS configuration
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>   └─ Security headers (HSTS, XSS)
+</code></pre></div>
 <hr />
-<h3 id="2-memory-manager">2. Memory Manager</h3>
-<p><strong>Location</strong>: <code>src/kagura/core/memory/manager.py</code></p>
-<p><strong>3-Tier Memory System</strong>:</p>
-<h4 id="a-working-memory">a) Working Memory</h4>
-<ul>
-<li><strong>Type</strong>: In-memory dictionary</li>
-<li><strong>Lifetime</strong>: Session only</li>
-<li><strong>Use case</strong>: Temporary variables, conversation context</li>
-<li><strong>Implementation</strong>: <code>WorkingMemory</code> class</li>
-</ul>
-<h4 id="b-context-memory">b) Context Memory</h4>
-<ul>
-<li><strong>Type</strong>: Message history</li>
-<li><strong>Lifetime</strong>: Session or saved session</li>
-<li><strong>Use case</strong>: Conversation history for LLM context</li>
-<li><strong>Implementation</strong>: <code>ContextMemory</code> class</li>
-<li><strong>Features</strong>: Compression, token counting</li>
-</ul>
-<h4 id="c-persistent-memory">c) Persistent Memory</h4>
-<ul>
-<li><strong>Type</strong>: SQLite database</li>
-<li><strong>Lifetime</strong>: Permanent</li>
-<li><strong>Use case</strong>: User preferences, long-term knowledge</li>
-<li><strong>Implementation</strong>: <code>PersistentMemory</code> class</li>
-</ul>
+<h2 id="component-details">📦 Component Details</h2>
+<h3 id="1-mcp-server-srckaguramcp">1. MCP Server (src/kagura/mcp/)</h3>
+<p><strong>stdio Transport</strong> (local):
+- <strong>File</strong>: <code>src/kagura/cli/mcp.py</code>
+- <strong>Command</strong>: <code>kagura mcp serve</code>
+- <strong>Context</strong>: <code>local</code> (all tools available)
+- <strong>Clients</strong>: Claude Desktop, Cursor, Cline</p>
+<p><strong>HTTP/SSE Transport</strong> (remote):
+- <strong>File</strong>: <code>src/kagura/api/routes/mcp_transport.py</code>
+- <strong>Endpoint</strong>: <code>/mcp</code>
+- <strong>Context</strong>: <code>remote</code> (safe tools only)
+- <strong>Clients</strong>: ChatGPT Connector, web browsers</p>
+<p><strong>Tool Permissions</strong>:
+- <strong>File</strong>: <code>src/kagura/mcp/permissions.py</code>
+- <strong>Logic</strong>: <code>is_tool_allowed(tool_name, context)</code>
+- <strong>Default</strong>: Deny unknown tools (fail-safe)</p>
 <hr />
-<h3 id="3-rag-semantic-search">3. RAG (Semantic Search)</h3>
-<p><strong>Location</strong>: <code>src/kagura/core/memory/rag.py</code></p>
-<p><strong>Dual RAG System</strong>:</p>
-<h4 id="working-rag">Working RAG</h4>
-<ul>
-<li><strong>Collection</strong>: <code>kagura_{agent_name}_working</code></li>
-<li><strong>Purpose</strong>: Semantic search in temporary memory</li>
-<li><strong>Storage</strong>: ChromaDB (in-memory or persisted)</li>
-</ul>
-<h4 id="persistent-rag">Persistent RAG</h4>
-<ul>
-<li><strong>Collection</strong>: <code>kagura_{agent_name}_persistent</code></li>
-<li><strong>Purpose</strong>: Semantic search in long-term memory</li>
-<li><strong>Storage</strong>: ChromaDB (persisted to disk)</li>
-</ul>
-<p><strong>How it works</strong>:
-1. Content → Embedding (OpenAI text-embedding-3-small)
-2. Store embedding in ChromaDB
-3. Query → Query embedding
-4. Cosine similarity search
-5. Return top-k results with distance scores</p>
+<h3 id="2-memory-manager-srckaguracorememory">2. Memory Manager (src/kagura/core/memory/)</h3>
+<p><strong>Components</strong>:
+- <code>manager.py</code> - Main coordinator
+- <code>working.py</code> - In-memory temporary storage
+- <code>persistent.py</code> - SQLite-based long-term storage
+- <code>rag.py</code> - ChromaDB vector search
+- <code>export.py</code> - JSONL export/import</p>
+<p><strong>Storage Scopes</strong>:
+- <strong>Working</strong>: Session-only, cleared after use
+- <strong>Persistent</strong>: Survives restarts, SQLite storage
+- <strong>Both</strong>: Indexed in RAG for semantic search</p>
 <hr />
-<h3 id="4-rest-api-v40-new">4. REST API (v4.0 New)</h3>
-<p><strong>Location</strong>: <code>src/kagura/api/server.py</code></p>
+<h3 id="3-graph-memory-srckaguracoregraph">3. Graph Memory (src/kagura/core/graph/)</h3>
+<p><strong>Implementation</strong>: NetworkX-based</p>
+<p><strong>Node Types</strong>:
+- <code>user</code> - User profiles
+- <code>topic</code> - Discussion topics
+- <code>memory</code> - Memory references
+- <code>interaction</code> - AI-User interactions</p>
+<p><strong>Edge Types</strong>:
+- <code>related_to</code> - Related memories
+- <code>depends_on</code> - Dependencies
+- <code>learned_from</code> - Learning relationships
+- <code>works_on</code> - User activities</p>
+<p><strong>Storage</strong>: Pickle files (<code>~/.kagura/graph.pkl</code>)</p>
+<hr />
+<h3 id="4-rest-api-srckaguraapi">4. REST API (src/kagura/api/)</h3>
 <p><strong>Framework</strong>: FastAPI</p>
 <p><strong>Endpoints</strong>:
 - <code>/api/v1/memory</code> - Memory CRUD
+- <code>/api/v1/recall</code> - Semantic search
 - <code>/api/v1/search</code> - Full-text search
-- <code>/api/v1/recall</code> - Semantic recall
+- <code>/api/v1/graph/*</code> - Graph operations
 - <code>/api/v1/health</code> - Health check
-- <code>/api/v1/metrics</code> - System metrics</p>
-<p><strong>Dependency Injection</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># src/kagura/api/dependencies.py</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_memory_manager</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">MemoryManager</span><span class="p">:</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="c1"># Returns shared MemoryManager instance</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="c1"># Enables state persistence across requests</span>
-</code></pre></div></p>
+- <code>/api/v1/metrics</code> - System metrics
+- <code>/mcp</code> - MCP over HTTP/SSE ⭐ NEW</p>
+<p><strong>Authentication</strong>:
+- <strong>File</strong>: <code>src/kagura/api/auth.py</code>
+- <strong>Method</strong>: Bearer token (API keys)
+- <strong>Storage</strong>: SQLite (<code>~/.kagura/api_keys.db</code>)
+- <strong>Hashing</strong>: SHA256</p>
 <hr />
-<h3 id="5-graph-memory-phase-b">5. Graph Memory (Phase B)</h3>
-<p><strong>Location</strong>: <code>src/kagura/core/graph/memory.py</code> (Coming in Phase B)</p>
-<p><strong>Node Types</strong>:
-- <code>memory</code>: Memory nodes
-- <code>user</code>: User nodes
-- <code>topic</code>: Topic nodes
-- <code>interaction</code>: AI-User interaction nodes</p>
-<p><strong>Edge Types</strong>:
-- <code>related_to</code>: Semantic relationship
-- <code>depends_on</code>: Dependency relationship
-- <code>learned_from</code>: Learning path
-- <code>influences</code>: Influence relationship
-- <code>works_on</code>: Project/task relationship</p>
-<p><strong>Use Cases</strong>:
-- Find related memories (multi-hop traversal)
-- Track AI-User interaction history ("Vibe Coding")
-- Discover learning paths
-- Understand user's knowledge graph</p>
-<hr />
-<h2 id="data-flow">📊 Data Flow</h2>
-<h3 id="memory-storage-flow">Memory Storage Flow</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>1. AI Agent (Claude) calls memory_store via MCP
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>   ↓
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>2. MCP Server receives tool call
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>   ↓
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>3. Calls MemoryManager.remember() or set_temp()
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>   ↓
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>4. If persistent:
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>   a) Store in SQLite (key-value)
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>   b) Generate embedding
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>   c) Store in ChromaDB (vector)
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>   d) Convert metadata (ChromaDB constraints)
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>   ↓
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>5. Return confirmation to AI
+<h2 id="data-flow">🔄 Data Flow</h2>
+<h3 id="memory-store-flow">Memory Store Flow</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>1. MCP Client (Claude/ChatGPT)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>   └─► MCP Tool Call: memory_store(...)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>2. MCP Server (stdio or HTTP/SSE)
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>   └─► Route to tool_registry
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>3. Built-in Tool (src/kagura/mcp/builtin/memory.py)
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>   └─► Call MemoryManager.store()
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>4. Memory Manager
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>   ├─► Working memory (if scope=&quot;working&quot;)
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>   ├─► Persistent memory (if scope=&quot;persistent&quot;)
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>   └─► RAG indexing (both scopes)
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>5. Storage
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>   ├─► SQLite (persistent)
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>   ├─► ChromaDB (vectors)
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>   └─► In-memory dict (working)
 </code></pre></div>
-<h3 id="semantic-recall-flow">Semantic Recall Flow</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>1. AI Agent calls memory_recall via MCP
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>   ↓
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>2. MCP Server receives tool call
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>   ↓
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>3. Calls MemoryManager.recall_semantic(query, k=5)
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>   ↓
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>4. Generate query embedding
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>   ↓
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>5. ChromaDB cosine similarity search
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>   ↓
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>6. Retrieve top-k results with distances
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>   ↓
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>7. Convert distance to similarity (1 - distance/2)
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>   ↓
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>8. Return results to AI (JSON)
+<h3 id="memory-recall-flow">Memory Recall Flow</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>1. MCP Tool Call: memory_recall(query=&quot;Python tips&quot;, k=5)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>2. Memory Manager
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>   └─► Query RAG (vector similarity)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>3. RAG Search
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>   ├─► Embed query (text-embedding-3-small)
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>   ├─► Search ChromaDB collections
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>   └─► Return top-k results
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>4. Return to client
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>   └─► Formatted results with scores
 </code></pre></div>
-<hr />
-<h2 id="storage-details">💾 Storage Details</h2>
-<h3 id="sqlite-schema-persistent-memory">SQLite Schema (Persistent Memory)</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">memories</span><span class="w"> </span><span class="p">(</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="n">AUTOINCREMENT</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">key</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">value</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">agent_name</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">metadata</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span><span class="w">  </span><span class="c1">-- JSON string</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="k">UNIQUE</span><span class="p">(</span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="n">agent_name</span><span class="p">)</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="p">);</span>
-</code></pre></div>
-<h3 id="chromadb-collections">ChromaDB Collections</h3>
-<p><strong>Working Memory RAG</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  <span class="s2">&quot;collection_name&quot;</span><span class="p">:</span> <span class="s2">&quot;kagura_</span><span class="si">{agent_name}</span><span class="s2">_working&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;working_memory&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># JSON array string</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="s2">&quot;importance&quot;</span><span class="p">:</span> <span class="nb">float</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>  <span class="p">}</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="p">}</span>
-</code></pre></div></p>
-<p><strong>Persistent Memory RAG</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  <span class="s2">&quot;collection_name&quot;</span><span class="p">:</span> <span class="s2">&quot;kagura_</span><span class="si">{agent_name}</span><span class="s2">_persistent&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;persistent_memory&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># JSON array string</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="s2">&quot;importance&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="s2">&quot;created_at&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="s2">&quot;updated_at&quot;</span><span class="p">:</span> <span class="nb">str</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>  <span class="p">}</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="p">}</span>
-</code></pre></div></p>
-<p><strong>Metadata Constraints</strong>:
-- ChromaDB only accepts: <code>str</code>, <code>int</code>, <code>float</code>, <code>bool</code>, <code>None</code>
-- Lists/dicts → JSON strings
-- Transparent encoding/decoding in API layer</p>
-<hr />
-<h2 id="request-flow-rest-api">🔄 Request Flow (REST API)</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>1. HTTP Request
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>   ↓
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>2. FastAPI route (e.g., routes/memory.py)
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>   ↓
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>3. Dependency injection: get_memory_manager()
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>   ↓
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>4. Business logic (CRUD operations)
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>   ↓
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>5. Encode metadata (lists → JSON strings)
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>   ↓
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>6. Call MemoryManager methods
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>   ↓
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>7. Decode metadata (JSON strings → lists)
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>   ↓
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>8. Return HTTP Response (Pydantic model)
-</code></pre></div>
-<hr />
-<h2 id="deployment-options">🚀 Deployment Options</h2>
-<h3 id="local-development">Local Development</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Option 1: Direct Python</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>uvicorn<span class="w"> </span>kagura.api.server:app<span class="w"> </span>--reload
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Option 2: Docker Compose</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
-</code></pre></div>
-<p><strong>Services</strong>:
-- API server (port 8080)
-- PostgreSQL + pgvector (Phase A: optional)
-- Redis (Phase A: optional)</p>
-<h3 id="self-hosted-v410">Self-Hosted (v4.1.0+)</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># docker-compose.prod.yml</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nt">services</span><span class="p">:</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pgvector/pgvector:pg16</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="nt">redis</span><span class="p">:</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:7-alpine</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span><span class="nt">api</span><span class="p">:</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">      </span><span class="nt">DATABASE_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres://...</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="nt">nginx</span><span class="p">:</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx:alpine</span>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;443:443&quot;</span>
-</code></pre></div>
-<h3 id="cloud-v420">Cloud (v4.2.0+)</h3>
-<ul>
-<li>Managed SaaS</li>
-<li>Multi-tenant architecture</li>
-<li>Row-Level Security (RLS)</li>
-<li>BYOK (Bring Your Own Key)</li>
-</ul>
 <hr />
 <h2 id="security-architecture">🔐 Security Architecture</h2>
-<h3 id="v400a0current">v4.0.0a0(Current)</h3>
+<h3 id="authentication-flow">Authentication Flow</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>1. Client Request
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>   └─► Authorization: Bearer kagura_abc123...
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>2. API Gateway (/mcp or /api/v1/*)
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>   └─► Extract Bearer token
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>3. API Key Manager (src/kagura/api/auth.py)
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>   ├─► Hash provided key (SHA256)
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>   ├─► Query api_keys.db
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>   ├─► Check expiration &amp; revocation
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>   └─► Extract user_id
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>4. Request Processing
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>   └─► Use authenticated user_id for memory operations
+</code></pre></div>
+<h3 id="tool-filtering-remote-context">Tool Filtering (Remote Context)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>1. create_mcp_server(context=&quot;remote&quot;)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>2. handle_list_tools()
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>   ├─► Get all registered tools (31 total)
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>   ├─► Filter by TOOL_PERMISSIONS
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>   └─► Return safe tools only (24)
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>3. Client sees:
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>   ✅ memory_* tools
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>   ✅ web_* tools
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>   ❌ file_* tools (blocked)
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>   ❌ shell_exec (blocked)
+</code></pre></div>
+<hr />
+<h2 id="data-model">💾 Data Model</h2>
+<h3 id="memory-record">Memory Record</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>                  <span class="c1"># Unique identifier</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>                <span class="c1"># Stored data (JSON serializable)</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>              <span class="c1"># Owner (v4.0+)</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="s2">&quot;agent_name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>           <span class="c1"># Agent scope</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="s2">&quot;working|persistent&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>           <span class="c1"># Categorization</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="s2">&quot;importance&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>         <span class="c1"># 0.0-1.0</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="s2">&quot;created_at&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="s2">&quot;updated_at&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>   <span class="c1"># Additional metadata</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="graph-node">Graph Node</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>                   <span class="c1"># Node identifier</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>                 <span class="c1"># Node type (user, topic, memory, interaction)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>      <span class="c1"># Node attributes</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="graph-edge">Graph Edge</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="s2">&quot;src&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>                  <span class="c1"># Source node ID</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="s2">&quot;dst&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>                  <span class="c1"># Destination node ID</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>                 <span class="c1"># Relationship type</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>             <span class="c1"># 0.0-1.0</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="deployment-architecture">📊 Deployment Architecture</h2>
+<h3 id="local-development">Local Development</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Developer Machine
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>├── SQLite (~/.kagura/memory.db)
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>├── ChromaDB (~/.kagura/chromadb/)
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>├── Graph pickle (~/.kagura/graph.pkl)
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>└── API Keys (~/.kagura/api_keys.db)
+</code></pre></div>
+<h3 id="production-deployment">Production Deployment</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Docker Stack (docker-compose.prod.yml)
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>┌─────────────────────────────────────────┐
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>│            Caddy (Port 443)             │
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>│     Automatic HTTPS, Reverse Proxy      │
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>└──────────────────┬──────────────────────┘
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>                   │
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>┌──────────────────▼──────────────────────┐
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>│       Kagura API (Port 8080)            │
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>│    FastAPI + MCP over HTTP/SSE          │
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>└──────┬──────────────────────┬───────────┘
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>       │                      │
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>┌──────▼──────────┐   ┌──────▼──────────┐
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>│   PostgreSQL    │   │     Redis       │
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>│   + pgvector    │   │   (Caching)     │
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>└─────────────────┘   └─────────────────┘
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>Volumes:
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>├── postgres_data  - Database persistence
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>├── redis_data     - Redis persistence
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>├── kagura_data    - Memory exports, etc.
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>└── caddy_data     - SSL certificates
+</code></pre></div>
+<hr />
+<h2 id="exportimport-system">🔄 Export/Import System</h2>
+<h3 id="export-format-jsonl">Export Format (JSONL)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>backup/
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>├── memories.jsonl      # All memory records
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>├── graph.jsonl         # Graph nodes &amp; edges
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>└── metadata.json       # Export metadata
+</code></pre></div>
+<p><strong>Example record</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>{&quot;type&quot;:&quot;memory&quot;,&quot;scope&quot;:&quot;persistent&quot;,&quot;key&quot;:&quot;python_tips&quot;,&quot;value&quot;:&quot;Use type hints&quot;,&quot;user_id&quot;:&quot;jfk&quot;,&quot;agent_name&quot;:&quot;global&quot;,&quot;tags&quot;:[&quot;python&quot;],&quot;importance&quot;:0.8,&quot;exported_at&quot;:&quot;2025-10-27T10:00:00Z&quot;}
+</code></pre></div></p>
+<hr />
+<h2 id="design-principles">📐 Design Principles</h2>
+<h3 id="1-mcp-first">1. MCP-First</h3>
+<p>All functionality exposed via MCP tools first, then REST API.</p>
+<h3 id="2-multi-user-from-day-1">2. Multi-User from Day 1</h3>
+<p>All operations scoped by <code>user_id</code> (Phase C foundation).</p>
+<h3 id="3-security-by-default">3. Security by Default</h3>
+<p>Remote access auto-filtered for safety.</p>
+<h3 id="4-data-portability">4. Data Portability</h3>
+<p>Complete export/import in human-readable JSONL.</p>
+<h3 id="5-fail-safe">5. Fail-Safe</h3>
+<p>Unknown tools denied by default in remote context.</p>
+<hr />
+<h2 id="related-documentation">🔗 Related Documentation</h2>
 <ul>
-<li><strong>Authentication</strong>: None (localhost only)</li>
-<li><strong>Authorization</strong>: None</li>
-<li><strong>Encryption</strong>: None (local deployment)</li>
-</ul>
-<h3 id="v410-planned">v4.1.0 (Planned)</h3>
-<ul>
-<li><strong>Authentication</strong>: API Key</li>
-<li><strong>Authorization</strong>: Per-key permissions</li>
-<li><strong>Encryption</strong>: TLS in transit</li>
-</ul>
-<h3 id="v420-planned">v4.2.0 (Planned)</h3>
-<ul>
-<li><strong>Authentication</strong>: OAuth2 + JWT</li>
-<li><strong>Authorization</strong>: RBAC (Role-Based Access Control)</li>
-<li><strong>Encryption</strong>: At rest + in transit, BYOK</li>
+<li><a href="../getting-started/">Getting Started</a></li>
+<li><a href="../mcp-setup/">MCP Setup Guide</a></li>
+<li><a href="../mcp-http-setup/">MCP over HTTP/SSE</a></li>
+<li><a href="../self-hosting/">Self-Hosting Guide</a></li>
+<li><a href="../api-reference/">API Reference</a></li>
 </ul>
 <hr />
-<h2 id="scalability">📈 Scalability</h2>
-<h3 id="current-v40">Current (v4.0)</h3>
-<ul>
-<li><strong>Memory capacity</strong>: Limited by disk space</li>
-<li><strong>Concurrent users</strong>: Single user (localhost)</li>
-<li><strong>Performance</strong>: ChromaDB scales to ~1M vectors</li>
-</ul>
-<h3 id="future-v41">Future (v4.1+)</h3>
-<ul>
-<li><strong>Memory capacity</strong>: Unlimited (cloud storage)</li>
-<li><strong>Concurrent users</strong>: Multi-tenant</li>
-<li><strong>Performance</strong>: pgvector + Redis caching</li>
-</ul>
-<p><strong>Benchmarks</strong> (v4.0, local):
-- Recall@5 accuracy: 0.89
-- p95 latency: 82ms
-- Storage: 45MB for 10K memories</p>
-<hr />
-<h2 id="integration-points">🔗 Integration Points</h2>
-<h3 id="mcp-clients">MCP Clients</h3>
-<ul>
-<li><strong>Claude Desktop</strong>: Native MCP support</li>
-<li><strong>Cursor</strong>: MCP support (coming)</li>
-<li><strong>Cline</strong>: VS Code extension with MCP</li>
-<li><strong>Custom agents</strong>: Use MCP SDK</li>
-</ul>
-<h3 id="external-services-phase-c">External Services (Phase C)</h3>
-<p><strong>Connectors</strong> (v4.1.0+):
-- GitHub: Repository indexing
-- Google Calendar: Event indexing
-- Local Files: Directory watching</p>
-<hr />
-<h2 id="phase-roadmap">🆕 Phase Roadmap</h2>
-<h3 id="phase-a-current-v400a0">Phase A (Current - v4.0.0a0</h3>
-<ul>
-<li>✅ FastAPI REST API</li>
-<li>✅ MCP Tools v1.0 (6 memory tools)</li>
-<li>✅ MCP CLI Management</li>
-<li>✅ MemoryManager integration</li>
-<li>✅ Docker Compose setup</li>
-</ul>
-<h3 id="phase-b-v400">Phase B (v4.0.0)</h3>
-<ul>
-<li>🔄 GraphMemory (NetworkX)</li>
-<li>🔄 Consolidation (short → long-term)</li>
-<li>🔄 Export/Import (JSONL)</li>
-<li>🔄 Multimodal DB schema</li>
-</ul>
-<h3 id="phase-c-v410">Phase C (v4.1.0)</h3>
-<ul>
-<li>🔮 Self-hosted API</li>
-<li>🔮 Multimodal MVP</li>
-<li>🔮 Connectors</li>
-<li>🔮 Consumer App</li>
-</ul>
-<hr />
-<h2 id="related">🔗 Related</h2>
-<ul>
-<li><a href="../getting-started/">Getting Started</a> - Setup guide</li>
-<li><a href="../mcp-setup/">MCP Setup</a> - Claude Desktop integration</li>
-<li><a href="../api-reference/">API Reference</a> - REST API docs</li>
-<li><a href="../ai_docs/V4.0_STRATEGIC_PIVOT.md">V4.0 Strategic Pivot</a> - Strategy</li>
-<li><a href="../ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md">V4.0 Roadmap</a> - Detailed plan</li>
-</ul>
-<hr />
-<p><strong>Version</strong>: 4.0.0a
-<strong>Last updated</strong>: 2025-10-26</p>
+<p><strong>Last Updated</strong>: 2025-10-27
+<strong>Version</strong>: 4.0.0
+<strong>Phase</strong>: C Complete</p>
 
 
 
@@ -2367,6 +1770,12 @@
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -2395,6 +1804,14 @@
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
     </a>
   
+    
+    
+    
+    
+    <a href="https://pypi.org/project/kagura-ai/" target="_blank" rel="noopener" title="PyPI Package" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
 </div>
       
     </div>
@@ -2409,7 +1826,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy", "navigation.instant", "navigation.tracking", "navigation.top"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
