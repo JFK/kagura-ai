@@ -1,12 +1,10 @@
 """Tests for code executor"""
+
+
 import pytest
-import asyncio
+
 from kagura.core.executor import (
     CodeExecutor,
-    SecurityError,
-    ExecutionResult,
-    ALLOWED_IMPORTS,
-    DISALLOWED_NAMES
 )
 
 
@@ -334,7 +332,9 @@ result = "should not reach here"
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="This test causes pytest-asyncio event loop cleanup to hang - known issue")
+@pytest.mark.skip(
+    reason="This test causes pytest-asyncio event loop cleanup to hang - known issue"
+)
 async def test_infinite_loop_timeout():
     """Test timeout on infinite loop"""
     executor = CodeExecutor(timeout=1.0)
@@ -419,7 +419,7 @@ result = {x: x**2 for x in range(5)}
 @pytest.mark.asyncio
 async def test_custom_allowed_imports():
     """Test custom allowed imports"""
-    executor = CodeExecutor(allowed_imports={'math'})
+    executor = CodeExecutor(allowed_imports={"math"})
 
     # Math should work
     result = await executor.execute("""
@@ -458,5 +458,5 @@ result = calculate_stats(data)
 """)
 
     assert result.success is True
-    assert result.result['mean'] == 3.0
-    assert result.result['median'] == 3
+    assert result.result["mean"] == 3.0
+    assert result.result["median"] == 3

@@ -4,8 +4,6 @@ import platform
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from kagura.mcp.builtin.media import (
     media_open_audio,
     media_open_image,

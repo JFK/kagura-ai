@@ -1,11 +1,10 @@
 """Tests for code execution agent"""
+
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
-from kagura.agents.code_execution import (
-    CodeExecutionAgent,
-    execute_code,
-    CodeResult
-)
+
+from kagura.agents.code_execution import CodeExecutionAgent, CodeResult, execute_code
 
 
 @pytest.mark.asyncio
@@ -13,7 +12,7 @@ async def test_code_agent_simple_task():
     """Test code agent with simple arithmetic task"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
         # Mock the code generator to return simple code
         async def mock_generator(task_desc: str, feedback: str = ""):
             return "result = 2 + 2"
@@ -33,7 +32,8 @@ async def test_code_agent_with_math():
     """Test code agent with math module"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return """import math
 result = math.sqrt(16)"""
@@ -51,7 +51,8 @@ async def test_code_agent_with_function():
     """Test code agent with function definition"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return """def fibonacci(n):
     if n <= 1:
@@ -73,7 +74,8 @@ async def test_code_agent_clean_markdown():
     """Test code cleaning removes markdown"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return """```python
 result = 42
@@ -93,7 +95,8 @@ async def test_code_agent_error_handling():
     """Test code agent handles execution errors"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return "result = 1 / 0"  # Will cause ZeroDivisionError
 
@@ -111,7 +114,8 @@ async def test_code_agent_security_error():
     """Test code agent handles security violations"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return "import os\nresult = os.getcwd()"
 
@@ -130,7 +134,8 @@ async def test_code_agent_with_retry_success():
 
     call_count = 0
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             nonlocal call_count
             call_count += 1
@@ -157,7 +162,8 @@ async def test_code_agent_with_retry_max_attempts():
 
     call_count = 0
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             nonlocal call_count
             call_count += 1
@@ -177,7 +183,8 @@ async def test_code_agent_stdout_capture():
     """Test code agent captures stdout"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return """print("Hello, World!")
 result = 42"""
@@ -194,7 +201,8 @@ result = 42"""
 @pytest.mark.asyncio
 async def test_execute_code_convenience_function():
     """Test execute_code convenience function"""
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return "result = 100"
 
@@ -213,7 +221,8 @@ async def test_code_agent_list_operations():
     """Test code agent with list operations"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return """numbers = [1, 2, 3, 4, 5]
 result = sum(numbers)"""
@@ -231,11 +240,12 @@ async def test_code_agent_json_parsing():
     """Test code agent with JSON parsing"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
-            return '''import json
+            return """import json
 data = '{"name": "Alice", "age": 30}'
-result = json.loads(data)'''
+result = json.loads(data)"""
 
         mock_agent_decorator.return_value = lambda fn: mock_generator
 
@@ -250,7 +260,8 @@ async def test_code_agent_statistics():
     """Test code agent with statistics module"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return """import statistics
 data = [1, 2, 3, 4, 5]
@@ -272,7 +283,7 @@ async def test_code_result_model():
         code="result = 42",
         success=True,
         result=42,
-        execution_time=0.001
+        execution_time=0.001,
     )
 
     assert result.task == "Test task"
@@ -289,7 +300,8 @@ async def test_code_agent_custom_timeout():
     """Test code agent with custom timeout"""
     agent = CodeExecutionAgent(timeout=1.0)
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return """import time
 time.sleep(5)
@@ -308,7 +320,8 @@ async def test_code_agent_complex_task():
     """Test code agent with complex multi-step task"""
     agent = CodeExecutionAgent()
 
-    with patch('kagura.agents.code_execution.agent') as mock_agent_decorator:
+    with patch("kagura.agents.code_execution.agent") as mock_agent_decorator:
+
         async def mock_generator(task_desc: str, feedback: str = ""):
             return """import statistics
 
@@ -327,8 +340,8 @@ result = calculate_stats(data)"""
         result = await agent.execute("Calculate statistics for 1-10")
 
         assert result.success is True
-        assert 'mean' in result.result
-        assert 'median' in result.result
-        assert 'stdev' in result.result
-        assert result.result['mean'] == 5.5
-        assert result.result['median'] == 5.5
+        assert "mean" in result.result
+        assert "median" in result.result
+        assert "stdev" in result.result
+        assert result.result["mean"] == 5.5
+        assert result.result["median"] == 5.5

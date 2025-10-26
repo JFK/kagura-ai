@@ -1,6 +1,8 @@
 """Test version - minimal test for SETUP-001"""
+
 import tomllib
 from pathlib import Path
+
 from kagura import __version__
 
 

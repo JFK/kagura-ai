@@ -1,13 +1,10 @@
 """Tests for Gemini loader."""
 
-import os
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from kagura.loaders.gemini import GEMINI_AVAILABLE
-
 
 # Skip all tests if Gemini is not available
 pytestmark = pytest.mark.skipif(

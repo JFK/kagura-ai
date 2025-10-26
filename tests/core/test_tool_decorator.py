@@ -1,4 +1,5 @@
 """Tests for @tool decorator"""
+
 import pytest
 
 from kagura import tool

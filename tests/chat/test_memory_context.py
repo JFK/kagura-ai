@@ -2,9 +2,10 @@
 Tests for chat memory context functionality
 """
 
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
+import pytest
 
 from kagura.chat.session import ChatSession
 

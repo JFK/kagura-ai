@@ -50,9 +50,7 @@ class TestKaguraError:
 
     def test_error_with_details(self):
         """Test error with additional details"""
-        error = KaguraError(
-            "Test error", code="TEST-001", provider="test", status=500
-        )
+        error = KaguraError("Test error", code="TEST-001", provider="test", status=500)
         assert error.details == {"provider": "test", "status": 500}
 
     def test_error_recoverable(self):
@@ -137,9 +135,7 @@ class TestLLMErrors:
 
     def test_llm_api_error_not_recoverable(self):
         """Test LLM API error with non-recoverable status code"""
-        error = LLMAPIError(
-            "Invalid request", provider="openai", status_code=400
-        )
+        error = LLMAPIError("Invalid request", provider="openai", status_code=400)
         assert error.recoverable is False
 
     def test_llm_rate_limit_error(self):
@@ -169,7 +165,9 @@ class TestCompressionErrors:
 
     def test_model_not_supported_error(self):
         """Test ModelNotSupportedError"""
-        error = ModelNotSupportedError("unknown-model", supported_models=["gpt-4", "gpt-3.5"])
+        error = ModelNotSupportedError(
+            "unknown-model", supported_models=["gpt-4", "gpt-3.5"]
+        )
         assert error.code == "COMP-002"
         assert "unknown-model" in str(error)
         assert "gpt-4" in str(error)

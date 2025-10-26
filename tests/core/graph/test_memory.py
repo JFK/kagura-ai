@@ -3,11 +3,9 @@
 Issue #345: GraphDB integration for AI-User relationship memory
 """
 
-import pickle
 import tempfile
 from pathlib import Path
 
-import networkx as nx
 import pytest
 
 from kagura.core.graph import GraphMemory
@@ -174,9 +172,7 @@ class TestGraphQuery:
 
     def test_get_related_with_filter(self, graph_with_data: GraphMemory) -> None:
         """Test get_related with relationship filter."""
-        related = graph_with_data.get_related(
-            "mem_001", depth=1, rel_type="related_to"
-        )
+        related = graph_with_data.get_related("mem_001", depth=1, rel_type="related_to")
 
         assert len(related) > 0
 
@@ -215,9 +211,7 @@ class TestInteractionRecording:
         edge_data = graph_memory.graph.edges[interaction_id, "user_001"]
         assert edge_data["type"] == "learned_from"
 
-    def test_record_interaction_with_metadata(
-        self, graph_memory: GraphMemory
-    ) -> None:
+    def test_record_interaction_with_metadata(self, graph_memory: GraphMemory) -> None:
         """Test recording interaction with metadata."""
         metadata = {"project": "kagura", "session_id": "sess_123"}
         interaction_id = graph_memory.record_interaction(
@@ -307,9 +301,7 @@ class TestUserPattern:
         assert interaction_1 in interaction_ids
         assert interaction_2 in interaction_ids
 
-    def test_get_user_interactions_with_limit(
-        self, graph_memory: GraphMemory
-    ) -> None:
+    def test_get_user_interactions_with_limit(self, graph_memory: GraphMemory) -> None:
         """Test getting user interactions with limit."""
         user_id = "user_001"
 
@@ -410,9 +402,7 @@ class TestUserPattern:
 
         assert pattern["most_discussed_topic"] == "topic_python"
 
-    def test_analyze_user_pattern_nonexistent(
-        self, graph_memory: GraphMemory
-    ) -> None:
+    def test_analyze_user_pattern_nonexistent(self, graph_memory: GraphMemory) -> None:
         """Test pattern analysis for non-existent user."""
         pattern = graph_memory.analyze_user_pattern("nonexistent_user")
 
@@ -471,8 +461,14 @@ class TestPersistence:
 
             # Load into new instance
             loaded_graph = GraphMemory(persist_path=persist_path)
-            assert loaded_graph.graph.number_of_nodes() == graph_with_data.graph.number_of_nodes()
-            assert loaded_graph.graph.number_of_edges() == graph_with_data.graph.number_of_edges()
+            assert (
+                loaded_graph.graph.number_of_nodes()
+                == graph_with_data.graph.number_of_nodes()
+            )
+            assert (
+                loaded_graph.graph.number_of_edges()
+                == graph_with_data.graph.number_of_edges()
+            )
 
             # Verify data integrity
             assert loaded_graph.graph.has_node("mem_001")

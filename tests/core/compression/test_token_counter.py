@@ -2,7 +2,7 @@
 
 import pytest
 
-from kagura.core.compression import TokenCountError, TokenCounter
+from kagura.core.compression import TokenCounter
 
 
 class TestTokenCounter:

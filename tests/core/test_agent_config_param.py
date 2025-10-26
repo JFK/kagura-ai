@@ -36,7 +36,7 @@ async def test_agent_with_config_param(monkeypatch):
         model="claude-3-5-sonnet-20241022",
         temperature=0.5,
         enable_cache=True,
-        cache_ttl=1800
+        cache_ttl=1800,
     )
 
     @agent(config=config)
@@ -80,7 +80,7 @@ async def test_agent_config_overrides_model_temp(monkeypatch):
     @agent(
         config=config,
         model="claude-3-5-sonnet-20241022",  # Should be ignored
-        temperature=0.5      # Should be ignored
+        temperature=0.5,  # Should be ignored
     )
     async def test_agent(query: str) -> str:
         """Answer {{ query }}"""

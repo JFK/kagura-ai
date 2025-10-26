@@ -1,7 +1,10 @@
 """Tests for type-based response parser"""
-import pytest
+
 from typing import Optional
+
+import pytest
 from pydantic import BaseModel
+
 from kagura.core.parser import (
     extract_json,
     parse_basic_type,
@@ -169,14 +172,14 @@ def test_parse_response_list_str_from_json():
 
 def test_parse_response_list_int_from_json():
     """Test parsing list[int] from JSON"""
-    response = '[1, 2, 3, 4, 5]'
+    response = "[1, 2, 3, 4, 5]"
     result = parse_response(response, list[int])
     assert result == [1, 2, 3, 4, 5]
 
 
 def test_parse_response_list_str_from_text():
     """Test parsing list[str] from comma-separated text"""
-    response = 'apple, banana, cherry'
+    response = "apple, banana, cherry"
     result = parse_response(response, list[str])
     assert "apple" in result
     assert "banana" in result
@@ -185,7 +188,7 @@ def test_parse_response_list_str_from_text():
 
 def test_parse_response_list_str_from_newlines():
     """Test parsing list[str] from newline-separated text"""
-    response = 'apple\nbanana\ncherry'
+    response = "apple\nbanana\ncherry"
     result = parse_response(response, list[str])
     assert "apple" in result
     assert "banana" in result
@@ -235,14 +238,15 @@ def test_parse_response_optional_pydantic():
 async def test_agent_with_int_return_type():
     """Test @agent with int return type"""
     from unittest.mock import AsyncMock, patch
+
     from kagura import agent
 
-    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+    with patch("kagura.core.decorators.call_llm", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = "The count is 42"
 
         @agent
         async def count_words(text: str) -> int:
-            '''Count words in: {{ text }}'''
+            """Count words in: {{ text }}"""
             pass
 
         result = await count_words("hello world")
@@ -254,14 +258,15 @@ async def test_agent_with_int_return_type():
 async def test_agent_with_pydantic_return_type():
     """Test @agent with Pydantic model return type"""
     from unittest.mock import AsyncMock, patch
+
     from kagura import agent
 
-    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+    with patch("kagura.core.decorators.call_llm", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = '{"name": "Alice", "age": 30}'
 
         @agent
         async def extract_person(text: str) -> Person:
-            '''Extract person from: {{ text }}'''
+            """Extract person from: {{ text }}"""
             pass
 
         result = await extract_person("Alice is 30 years old")
@@ -274,14 +279,15 @@ async def test_agent_with_pydantic_return_type():
 async def test_agent_with_list_return_type():
     """Test @agent with list return type"""
     from unittest.mock import AsyncMock, patch
+
     from kagura import agent
 
-    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+    with patch("kagura.core.decorators.call_llm", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = '["apple", "banana", "cherry"]'
 
         @agent
         async def extract_items(text: str) -> list[str]:
-            '''Extract items from: {{ text }}'''
+            """Extract items from: {{ text }}"""
             pass
 
         result = await extract_items("I like apple, banana, and cherry")
@@ -295,14 +301,15 @@ async def test_agent_with_list_return_type():
 async def test_agent_with_str_return_type():
     """Test @agent with str return type (no parsing)"""
     from unittest.mock import AsyncMock, patch
+
     from kagura import agent
 
-    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+    with patch("kagura.core.decorators.call_llm", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = "Hello, World!"
 
         @agent
         async def greet(name: str) -> str:
-            '''Say hello to {{ name }}'''
+            """Say hello to {{ name }}"""
             pass
 
         result = await greet("World")
@@ -314,14 +321,15 @@ async def test_agent_with_str_return_type():
 async def test_agent_with_optional_return_type():
     """Test @agent with Optional return type"""
     from unittest.mock import AsyncMock, patch
+
     from kagura import agent
 
-    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+    with patch("kagura.core.decorators.call_llm", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = '{"name": "Alice", "age": 30}'
 
         @agent
         async def maybe_extract(text: str) -> Optional[Person]:
-            '''Try to extract person from: {{ text }}'''
+            """Try to extract person from: {{ text }}"""
             pass
 
         result = await maybe_extract("Alice is 30")

@@ -1,4 +1,5 @@
 """Tests for MCP Server"""
+
 import pytest
 
 from kagura import agent
@@ -26,6 +27,7 @@ async def test_create_mcp_server():
 @pytest.mark.asyncio
 async def test_agent_registration():
     """Test that agents are registered automatically"""
+
     @agent
     async def test_agent(query: str) -> str:
         """Test agent for query"""
@@ -38,6 +40,7 @@ async def test_agent_registration():
 @pytest.mark.asyncio
 async def test_agent_has_metadata():
     """Test that decorated agents have MCP metadata"""
+
     @agent
     async def test_agent(query: str) -> str:
         """Test agent for query"""
@@ -51,6 +54,7 @@ async def test_agent_has_metadata():
 @pytest.mark.asyncio
 async def test_schema_generation_for_agent():
     """Test JSON schema generation for agents"""
+
     @agent
     async def echo_agent(message: str, count: int = 1) -> str:
         """Echo the message"""
@@ -68,6 +72,7 @@ async def test_schema_generation_for_agent():
 @pytest.mark.asyncio
 async def test_agent_execution():
     """Test executing a registered agent"""
+
     @agent
     async def simple_agent(text: str) -> str:
         """Return uppercase: {{ text }}"""

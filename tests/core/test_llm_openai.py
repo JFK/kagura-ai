@@ -9,8 +9,9 @@ Tests cover:
 - Parameter passing
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from kagura.core.llm import LLMConfig, LLMResponse, _should_use_openai_direct
 from kagura.core.llm_openai import call_openai_direct
@@ -150,7 +151,9 @@ class TestOpenAIDirectBasic:
             assert call_kwargs["top_p"] == 0.9
 
     @pytest.mark.asyncio
-    async def test_call_openai_direct_default_top_p_not_sent(self, mock_openai_response):
+    async def test_call_openai_direct_default_top_p_not_sent(
+        self, mock_openai_response
+    ):
         """Test default top_p (1.0) is not sent to API"""
         with patch("openai.AsyncOpenAI") as mock_client_class:
             mock_client = MagicMock()
@@ -496,7 +499,9 @@ class TestOpenAIDirectIntegration:
         async def mock_litellm_completion(*args, **kwargs):
             return MockLiteLLMResponse()
 
-        monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_litellm_completion)
+        monkeypatch.setattr(
+            "kagura.core.llm.litellm.acompletion", mock_litellm_completion
+        )
 
         config = LLMConfig(model="claude-3-5-sonnet-20241022")
         result = await call_llm("test prompt", config)

@@ -1,6 +1,7 @@
 """Tests for ChatSession"""
+
 import json
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -152,6 +153,7 @@ def test_model_switching(chat_session, monkeypatch):
 @pytest.mark.asyncio
 async def test_chat_interaction(chat_session):
     """Test basic chat interaction"""
+
     # Mock the agent decorator to return our mock agent
     async def mock_agent_func(prompt, memory):
         return "AI response"

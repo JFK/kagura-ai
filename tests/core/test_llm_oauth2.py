@@ -45,7 +45,7 @@ class TestLLMConfigOAuth2:
             config = LLMConfig(
                 auth_type="oauth2",
                 oauth_provider="google",
-                model="gemini/gemini-1.5-flash"
+                model="gemini/gemini-1.5-flash",
             )
 
             token = config.get_api_key()
@@ -60,7 +60,7 @@ class TestLLMConfigOAuth2:
             model="gemini/gemini-1.5-flash",
             auth_type="oauth2",
             oauth_provider="google",
-            temperature=0.5
+            temperature=0.5,
         )
 
         assert config.model == "gemini/gemini-1.5-flash"
@@ -79,10 +79,7 @@ class TestLLMConfigOAuth2:
             mock_manager.get_token.side_effect = NotAuthenticatedError("google")
             mock_manager_class.return_value = mock_manager
 
-            config = LLMConfig(
-                auth_type="oauth2",
-                oauth_provider="google"
-            )
+            config = LLMConfig(auth_type="oauth2", oauth_provider="google")
 
             with pytest.raises(NotAuthenticatedError):
                 config.get_api_key()
@@ -98,7 +95,7 @@ class TestLLMConfigOAuth2Integration:
             auth_type="oauth2",
             oauth_provider="google",
             temperature=0.7,
-            max_tokens=1000
+            max_tokens=1000,
         )
 
         assert config.model == "gemini/gemini-1.5-flash"
@@ -109,10 +106,7 @@ class TestLLMConfigOAuth2Integration:
 
     def test_openai_with_api_key_config(self):
         """Test OpenAI model configuration with API key (default)"""
-        config = LLMConfig(
-            model="gpt-5-mini",
-            temperature=0.5
-        )
+        config = LLMConfig(model="gpt-5-mini", temperature=0.5)
 
         assert config.model == "gpt-5-mini"
         assert config.auth_type == "api_key"
@@ -142,9 +136,7 @@ async def test_call_llm_with_oauth2_mock(tmp_path: Path, monkeypatch):
 
             from unittest.mock import AsyncMock
 
-            mock_model.generate_content_async = AsyncMock(
-                return_value=mock_response
-            )
+            mock_model.generate_content_async = AsyncMock(return_value=mock_response)
             mock_model_class.return_value = mock_model
 
             # Mock genai.configure

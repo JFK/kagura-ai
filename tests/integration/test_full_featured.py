@@ -1,10 +1,11 @@
 """Integration tests for full-featured mode (multimodal + web)"""
-import pytest
-from pathlib import Path
-from unittest.mock import patch, AsyncMock, MagicMock
-import tempfile
+
 import shutil
-import os
+import tempfile
+from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # Note: Tests now use mocked Gemini API, so API keys are not required
 
@@ -19,10 +20,12 @@ def mock_gemini_loader():
     mock_instance = MagicMock()
 
     # Mock async methods
-    mock_instance.process_file = AsyncMock(return_value={
-        "content": "Mocked file content",
-        "metadata": {"type": "text", "size": 100}
-    })
+    mock_instance.process_file = AsyncMock(
+        return_value={
+            "content": "Mocked file content",
+            "metadata": {"type": "text", "size": 100},
+        }
+    )
     mock_instance.analyze_image = AsyncMock(return_value="Mocked image description")
     mock_instance.transcribe_audio = AsyncMock(return_value="Mocked audio transcript")
     mock_instance.analyze_video = AsyncMock(return_value="Mocked video description")
@@ -33,8 +36,12 @@ def mock_gemini_loader():
     mock_instance.__exit__ = MagicMock(return_value=None)
 
     # Patch all possible import paths
-    with patch('kagura.loaders.gemini.GeminiLoader', return_value=mock_instance), \
-         patch('kagura.core.memory.multimodal_rag.GeminiLoader', return_value=mock_instance):
+    with (
+        patch("kagura.loaders.gemini.GeminiLoader", return_value=mock_instance),
+        patch(
+            "kagura.core.memory.multimodal_rag.GeminiLoader", return_value=mock_instance
+        ),
+    ):
         yield mock_instance
 
 
@@ -54,7 +61,9 @@ def temp_project_dir():
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="ChatSession API changed in v3.0 - enable_multimodal/enable_web removed")
+@pytest.mark.skip(
+    reason="ChatSession API changed in v3.0 - enable_multimodal/enable_web removed"
+)
 async def test_chat_session_full_mode_initialization(temp_project_dir):
     """Test ChatSession with full mode (multimodal + web)"""
     from kagura.chat import ChatSession
@@ -63,7 +72,7 @@ async def test_chat_session_full_mode_initialization(temp_project_dir):
         model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
-        enable_web=True
+        enable_web=True,
     )
 
     assert session.enable_multimodal is True
@@ -82,18 +91,16 @@ async def test_full_mode_chat_with_rag_and_web(temp_project_dir):
         model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
-        enable_web=True
+        enable_web=True,
     )
 
     # Mock LLM response
-    with patch('litellm.acompletion', new_callable=AsyncMock) as mock_llm:
+    with patch("litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_message = MagicMock(
             content="Based on local files and web search: AI is growing",
-            tool_calls=None
+            tool_calls=None,
         )
-        mock_llm.return_value = MagicMock(
-            choices=[MagicMock(message=mock_message)]
-        )
+        mock_llm.return_value = MagicMock(choices=[MagicMock(message=mock_message)])
 
         # Simulate chat
         await session.chat("What are the AI trends?")
@@ -112,18 +119,13 @@ async def test_full_mode_rag_context_injection(temp_project_dir):
         model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
-        enable_web=True
+        enable_web=True,
     )
 
     # Mock LLM to capture the prompt
-    with patch('litellm.acompletion', new_callable=AsyncMock) as mock_llm:
-        mock_message = MagicMock(
-            content="Response with context",
-            tool_calls=None
-        )
-        mock_llm.return_value = MagicMock(
-            choices=[MagicMock(message=mock_message)]
-        )
+    with patch("litellm.acompletion", new_callable=AsyncMock) as mock_llm:
+        mock_message = MagicMock(content="Response with context", tool_calls=None)
+        mock_llm.return_value = MagicMock(choices=[MagicMock(message=mock_message)])
 
         await session.chat("Tell me about AI")
 
@@ -142,14 +144,14 @@ async def test_full_mode_web_tool_available(temp_project_dir):
         model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
-        enable_web=True
+        enable_web=True,
     )
 
     # Check that web-enabled agent is used
     from kagura.chat.session import chat_agent_with_web
 
     # Verify the agent has web search tool
-    assert hasattr(chat_agent_with_web, '_agent_config')
+    assert hasattr(chat_agent_with_web, "_agent_config")
 
 
 @pytest.mark.asyncio
@@ -162,11 +164,11 @@ async def test_full_mode_error_handling(temp_project_dir):
         model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
-        enable_web=True
+        enable_web=True,
     )
 
     # Mock LLM to raise error
-    with patch('litellm.acompletion', side_effect=Exception("API Error")):
+    with patch("litellm.acompletion", side_effect=Exception("API Error")):
         with pytest.raises(Exception) as exc_info:
             await session.chat("Test query")
 
@@ -183,14 +185,12 @@ async def test_full_mode_memory_persistence(temp_project_dir):
         model="gpt-5-mini",
         enable_multimodal=True,
         rag_directory=temp_project_dir,
-        enable_web=True
+        enable_web=True,
     )
 
-    with patch('litellm.acompletion', new_callable=AsyncMock) as mock_llm:
+    with patch("litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_message = MagicMock(content="Response", tool_calls=None)
-        mock_llm.return_value = MagicMock(
-            choices=[MagicMock(message=mock_message)]
-        )
+        mock_llm.return_value = MagicMock(choices=[MagicMock(message=mock_message)])
 
         # First message
         await session.chat("First question")

@@ -70,9 +70,7 @@ class TestMultimodalRAGInit:
 
     def test_init_multimodal_not_available(self, temp_project_dir: Path):
         """Test initialization when multimodal support not available."""
-        with patch(
-            "kagura.core.memory.multimodal_rag.MULTIMODAL_AVAILABLE", False
-        ):
+        with patch("kagura.core.memory.multimodal_rag.MULTIMODAL_AVAILABLE", False):
             with pytest.raises(
                 ImportError,
                 match="Multimodal support requires google-generativeai",
@@ -296,9 +294,7 @@ class TestMultimodalRAGQuery:
     """Tests for query method."""
 
     @pytest.mark.asyncio
-    async def test_query_basic(
-        self, temp_project_dir: Path, mock_gemini, mock_scanner
-    ):
+    async def test_query_basic(self, temp_project_dir: Path, mock_gemini, mock_scanner):
         """Test basic query."""
         mock_scanner_instance = Mock()
         mock_scanner.return_value = mock_scanner_instance

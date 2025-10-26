@@ -7,7 +7,6 @@ import pytest
 
 from kagura.observability import EventStore
 
-
 # ===== Initialization Tests =====
 
 

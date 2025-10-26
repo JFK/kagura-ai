@@ -170,9 +170,7 @@ class TestLoaderCacheBasicOperations:
 class TestLoaderCacheValidation:
     """Tests for cache validation."""
 
-    def test_get_invalidates_modified_file(
-        self, sample_content: FileContent
-    ):
+    def test_get_invalidates_modified_file(self, sample_content: FileContent):
         """Test that modified files are invalidated."""
         cache = LoaderCache()
         path = sample_content.path
@@ -204,9 +202,7 @@ class TestLoaderCacheValidation:
         result = cache.get(path)
         assert result is None
 
-    def test_get_invalidates_deleted_file(
-        self, sample_content: FileContent
-    ):
+    def test_get_invalidates_deleted_file(self, sample_content: FileContent):
         """Test that deleted files are invalidated."""
         cache = LoaderCache()
         path = sample_content.path
@@ -248,9 +244,7 @@ class TestLoaderCacheStatistics:
         assert stats.hits == 0
         assert stats.misses == 1
 
-    def test_mixed_hits_and_misses(
-        self, sample_content: FileContent, tmp_path: Path
-    ):
+    def test_mixed_hits_and_misses(self, sample_content: FileContent, tmp_path: Path):
         """Test mixed hits and misses."""
         cache = LoaderCache()
         path = sample_content.path

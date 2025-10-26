@@ -1,20 +1,23 @@
 """Tests for prompt template engine"""
+
 import pytest
-from jinja2 import TemplateSyntaxError, UndefinedError
+from jinja2 import UndefinedError
+
 from kagura.core.prompt import (
     extract_template,
-    render_prompt,
-    validate_template,
-    filter_truncate,
     filter_format_code,
     filter_list_items,
+    filter_truncate,
+    render_prompt,
+    validate_template,
 )
 
 
 def test_extract_template():
     """Test template extraction from docstring"""
+
     def sample_func():
-        '''This is a template with {{ variable }}'''
+        """This is a template with {{ variable }}"""
         pass
 
     template = extract_template(sample_func)
@@ -23,6 +26,7 @@ def test_extract_template():
 
 def test_extract_template_no_docstring():
     """Test error when function has no docstring"""
+
     def no_doc():
         pass
 
@@ -201,7 +205,7 @@ def test_render_complex_template():
             "count": 100,
         },
         has_code=True,
-        code="print('test')"
+        code="print('test')",
     )
 
     assert "Analysis of User Data:" in result
@@ -221,7 +225,7 @@ def test_trim_blocks():
     """
     result = render_prompt(template, items=["a", "b"])
     # Should not have excessive blank lines
-    lines = [line for line in result.split('\n') if line.strip()]
+    lines = [line for line in result.split("\n") if line.strip()]
     assert len(lines) == 2
     assert "a" in lines[0]
     assert "b" in lines[1]

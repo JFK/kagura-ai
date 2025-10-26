@@ -1,6 +1,5 @@
 """Tests for Search & Recall endpoints (v4.0 REST API)."""
 
-import pytest
 from fastapi.testclient import TestClient
 
 from kagura.api.server import app

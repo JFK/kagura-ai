@@ -1,4 +1,5 @@
 """Tests for @workflow decorator"""
+
 import pytest
 
 from kagura import workflow
@@ -44,9 +45,7 @@ async def test_workflow_decorator_keyword_args():
     """Test @workflow with keyword arguments"""
 
     @workflow
-    async def calculate_workflow(
-        x: float, y: float, operation: str = "add"
-    ) -> float:
+    async def calculate_workflow(x: float, y: float, operation: str = "add") -> float:
         """Calculate based on operation"""
         if operation == "add":
             return x + y

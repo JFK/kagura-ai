@@ -139,11 +139,7 @@ class TestCallLLMStream:
             "kagura.core.streaming.litellm.acompletion", mock_streaming_response
         )
 
-        config = LLMConfig(
-            model="gpt-4o",
-            temperature=0.9,
-            max_tokens=500
-        )
+        config = LLMConfig(model="gpt-4o", temperature=0.9, max_tokens=500)
 
         chunks = []
         async for chunk in call_llm_stream("test prompt", config):
@@ -181,7 +177,7 @@ class TestCallLLMStream:
             model="claude-3-5-sonnet-20241022",
             temperature=0.5,
             max_tokens=1000,
-            top_p=0.9
+            top_p=0.9,
         )
 
         async for chunk in call_llm_stream("test", config):

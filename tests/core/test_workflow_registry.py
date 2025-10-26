@@ -1,4 +1,5 @@
 """Tests for workflow registry"""
+
 import pytest
 
 from kagura.core.workflow_registry import WorkflowRegistry, workflow_registry

@@ -217,8 +217,7 @@ Count: {{ count }}
 
         executor = CommandExecutor(enable_inline=False)  # Disable inline for simplicity
         result = executor.render(
-            command,
-            {"filename": "test.txt", "user": "Alice", "count": 3}
+            command, {"filename": "test.txt", "user": "Alice", "count": 3}
         )
 
         assert "# Analysis for test.txt" in result
@@ -262,8 +261,7 @@ Files: {% for file in files %}{{ file }} {% endfor %}
 
         executor = CommandExecutor(enable_inline=False)
         result = executor.render(
-            command,
-            {"verbose": True, "files": ["a.txt", "b.txt", "c.txt"]}
+            command, {"verbose": True, "files": ["a.txt", "b.txt", "c.txt"]}
         )
 
         assert "Verbose mode enabled" in result

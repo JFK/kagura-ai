@@ -210,9 +210,7 @@ class TestDirectoryScannerLoadFile:
             await scanner.load_file(image_path)
 
     @pytest.mark.asyncio
-    async def test_load_multimodal_with_gemini(
-        self, temp_dir: Path, mock_gemini
-    ):
+    async def test_load_multimodal_with_gemini(self, temp_dir: Path, mock_gemini):
         """Test loading multimodal file with GeminiLoader."""
         scanner = DirectoryScanner(directory=temp_dir, gemini=mock_gemini)
         image_path = temp_dir / "images" / "photo.png"
@@ -225,14 +223,10 @@ class TestDirectoryScannerLoadFile:
         assert content.content == "Mocked Gemini response"
 
         # Verify gemini was called
-        mock_gemini.process_file.assert_called_once_with(
-            image_path, None, "en"
-        )
+        mock_gemini.process_file.assert_called_once_with(image_path, None, "en")
 
     @pytest.mark.asyncio
-    async def test_load_file_with_language(
-        self, temp_dir: Path, mock_gemini
-    ):
+    async def test_load_file_with_language(self, temp_dir: Path, mock_gemini):
         """Test loading file with custom language."""
         scanner = DirectoryScanner(directory=temp_dir, gemini=mock_gemini)
         image_path = temp_dir / "images" / "photo.png"
@@ -240,9 +234,7 @@ class TestDirectoryScannerLoadFile:
         await scanner.load_file(image_path, language="ja")
 
         # Verify language was passed to gemini
-        mock_gemini.process_file.assert_called_once_with(
-            image_path, None, "ja"
-        )
+        mock_gemini.process_file.assert_called_once_with(image_path, None, "ja")
 
 
 class TestDirectoryScannerLoadAll:
@@ -278,9 +270,7 @@ class TestDirectoryScannerLoadAll:
         assert mock_gemini.process_file.call_count >= 2  # 2 images
 
     @pytest.mark.asyncio
-    async def test_load_all_concurrency_limit(
-        self, temp_dir: Path, mock_gemini
-    ):
+    async def test_load_all_concurrency_limit(self, temp_dir: Path, mock_gemini):
         """Test that concurrency limit is respected."""
         scanner = DirectoryScanner(
             directory=temp_dir, gemini=mock_gemini, respect_gitignore=True

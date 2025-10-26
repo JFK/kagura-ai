@@ -1,9 +1,7 @@
 """Tests for mocking utilities."""
 
-import pytest
 
 from kagura.testing.mocking import LLMMock, LLMRecorder, ToolMock
-from kagura.testing.utils import Timer
 
 
 def test_llm_recorder_initialization():

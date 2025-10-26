@@ -1,6 +1,8 @@
 """Integration tests for web integration"""
+
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
 
 
 @pytest.mark.asyncio
@@ -9,7 +11,7 @@ async def test_web_search_brave():
     from kagura.web.search import BraveSearch, SearchResult
 
     # Mock API response
-    with patch('httpx.AsyncClient') as mock_client:
+    with patch("httpx.AsyncClient") as mock_client:
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "web": {
@@ -17,7 +19,7 @@ async def test_web_search_brave():
                     {
                         "title": "Test Result",
                         "url": "https://example.com",
-                        "description": "Test description"
+                        "description": "Test description",
                     }
                 ]
             }
@@ -41,17 +43,17 @@ async def test_web_search_brave():
 @pytest.mark.asyncio
 async def test_web_search_duckduckgo():
     """Test DuckDuckGo Search integration"""
-    from kagura.web.search import BraveSearch, SearchResult
+    from kagura.web.search import SearchResult
 
     # Mock duckduckgo_search
-    with patch('duckduckgo_search.DDGS') as mock_ddgs:
+    with patch("duckduckgo_search.DDGS") as mock_ddgs:
         # Mock context manager
         mock_instance = MagicMock()
         mock_instance.text.return_value = [
             {
                 "title": "Test Result",
                 "href": "https://example.com",
-                "body": "Test description"
+                "body": "Test description",
             }
         ]
         mock_ddgs.return_value.__enter__.return_value = mock_instance
@@ -73,23 +75,30 @@ async def test_web_search_function():
     from kagura.web.search import SearchResult
 
     # Mock Brave Search (DuckDuckGo removed)
-    with patch('kagura.web.BraveSearch') as mock_brave_class:
-            # Setup mock instance
-            mock_brave = MagicMock()
-            mock_brave.search = AsyncMock(return_value=[
-                SearchResult(title="Result", url="https://example.com", snippet="Desc", source="brave")
-            ])
-            mock_brave_class.return_value = mock_brave
+    with patch("kagura.web.BraveSearch") as mock_brave_class:
+        # Setup mock instance
+        mock_brave = MagicMock()
+        mock_brave.search = AsyncMock(
+            return_value=[
+                SearchResult(
+                    title="Result",
+                    url="https://example.com",
+                    snippet="Desc",
+                    source="brave",
+                )
+            ]
+        )
+        mock_brave_class.return_value = mock_brave
 
-            mock_ddg = MagicMock()
-            mock_ddg.search = AsyncMock(return_value=[])
-            mock_ddg_class.return_value = mock_ddg
+        mock_ddg = MagicMock()
+        mock_ddg.search = AsyncMock(return_value=[])
+        mock_ddg_class.return_value = mock_ddg
 
-            result = await web_search("test query")
+        result = await web_search("test query")
 
-            assert isinstance(result, str)
-            # Should contain either the result or a message about the query
-            assert len(result) > 0
+        assert isinstance(result, str)
+        # Should contain either the result or a message about the query
+        assert len(result) > 0
 
 
 @pytest.mark.asyncio
@@ -97,7 +106,7 @@ async def test_web_scraper_fetch():
     """Test WebScraper fetch functionality"""
     from kagura.web.scraper import WebScraper
 
-    with patch('httpx.AsyncClient') as mock_client:
+    with patch("httpx.AsyncClient") as mock_client:
         mock_response = MagicMock()
         mock_response.text = "<html><body>Test content</body></html>"
         mock_response.raise_for_status = MagicMock()
@@ -117,7 +126,7 @@ async def test_web_scraper_fetch_text():
     """Test WebScraper fetch_text with HTML parsing"""
     from kagura.web.scraper import WebScraper
 
-    with patch('httpx.AsyncClient') as mock_client:
+    with patch("httpx.AsyncClient") as mock_client:
         mock_response = MagicMock()
         mock_response.text = "<html><body><p>Test paragraph</p></body></html>"
         mock_response.raise_for_status = MagicMock()
@@ -135,8 +144,9 @@ async def test_web_scraper_fetch_text():
 @pytest.mark.asyncio
 async def test_web_scraper_rate_limiting():
     """Test WebScraper rate limiting"""
-    from kagura.web.scraper import RateLimiter
     import time
+
+    from kagura.web.scraper import RateLimiter
 
     limiter = RateLimiter(min_delay=0.1)
 
@@ -155,33 +165,33 @@ async def test_chat_session_web_initialization():
     """Test ChatSession initialization with web enabled"""
     from kagura.chat import ChatSession
 
-    session = ChatSession(
-        model="gpt-5-mini"
-    )
+    session = ChatSession(model="gpt-5-mini")
 
     # Web tools are now always available via tool_registry
     assert session.model == "gpt-5-mini"
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="v3.0 SDK feature - deprecated in v4.0 (Issue #374)")
 async def test_agent_with_web_search_tool():
-    """Test @agent with web search tool"""
+    """Test @agent with web search tool
+
+    NOTE: This tests v3.0 SDK @agent decorator with tools functionality.
+    Will be removed in Issue #374 (Deprecate Chat CLI & SDK Examples).
+    """
     from kagura import agent
 
     async def mock_search(query: str) -> str:
         """Mock web search tool"""
         return f"Search results for: {query}"
 
-    @agent(
-        model="gpt-5-mini",
-        tools=[mock_search]
-    )
+    @agent(model="gpt-5-mini", tools=[mock_search])
     async def research_agent(topic: str) -> str:
         """Research {{ topic }} using web search"""
         pass
 
     # Mock LLM to call the tool
-    with patch('litellm.acompletion', new_callable=AsyncMock) as mock_llm:
+    with patch("litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         # First call: LLM wants to use tool
         mock_message1 = MagicMock(
             content=None,
@@ -189,21 +199,19 @@ async def test_agent_with_web_search_tool():
                 MagicMock(
                     id="call_1",
                     function=MagicMock(
-                        name="mock_search",
-                        arguments='{"query": "AI trends"}'
-                    )
+                        name="mock_search", arguments='{"query": "AI trends"}'
+                    ),
                 )
-            ]
+            ],
         )
         # Second call: LLM returns final response
         mock_message2 = MagicMock(
-            content="Based on search: AI trends are growing",
-            tool_calls=None
+            content="Based on search: AI trends are growing", tool_calls=None
         )
 
         mock_llm.side_effect = [
             MagicMock(choices=[MagicMock(message=mock_message1)]),
-            MagicMock(choices=[MagicMock(message=mock_message2)])
+            MagicMock(choices=[MagicMock(message=mock_message2)]),
         ]
 
         result = await research_agent("AI trends")

@@ -32,9 +32,7 @@ class TestAuthLoginCommand:
         monkeypatch.setenv("HOME", str(tmp_path))
 
         with patch.object(OAuth2Manager, "login") as mock_login:
-            result = cli_runner.invoke(
-                auth_group, ["login", "--provider", "google"]
-            )
+            result = cli_runner.invoke(auth_group, ["login", "--provider", "google"])
 
             assert result.exit_code == 0
             assert "successful" in result.output.lower()
@@ -51,9 +49,7 @@ class TestAuthLoginCommand:
             "login",
             side_effect=FileNotFoundError("client_secrets.json not found"),
         ):
-            result = cli_runner.invoke(
-                auth_group, ["login", "--provider", "google"]
-            )
+            result = cli_runner.invoke(auth_group, ["login", "--provider", "google"])
 
             assert result.exit_code != 0
             assert "error" in result.output.lower()
@@ -69,9 +65,7 @@ class TestAuthLoginCommand:
             "login",
             side_effect=AuthenticationError("Authentication failed"),
         ):
-            result = cli_runner.invoke(
-                auth_group, ["login", "--provider", "google"]
-            )
+            result = cli_runner.invoke(auth_group, ["login", "--provider", "google"])
 
             assert result.exit_code != 0
             assert "failed" in result.output.lower()
@@ -106,9 +100,7 @@ class TestAuthLogoutCommand:
         auth = OAuth2Manager()
         auth._save_credentials(mock_credentials)
 
-        result = cli_runner.invoke(
-            auth_group, ["logout", "--provider", "google"]
-        )
+        result = cli_runner.invoke(auth_group, ["logout", "--provider", "google"])
 
         assert result.exit_code == 0
         assert "logged out" in result.output.lower()
@@ -119,9 +111,7 @@ class TestAuthLogoutCommand:
         """Test logout when not authenticated"""
         monkeypatch.setenv("HOME", str(tmp_path))
 
-        result = cli_runner.invoke(
-            auth_group, ["logout", "--provider", "google"]
-        )
+        result = cli_runner.invoke(auth_group, ["logout", "--provider", "google"])
 
         assert result.exit_code == 0
         assert "not authenticated" in result.output.lower()
@@ -178,7 +168,10 @@ class TestAuthStatusCommand:
         assert result.exit_code == 0
         # Check for status being displayed (either authenticated or expiry shown)
         assert "google" in result.output.lower()
-        assert ("authenticated" in result.output.lower() or "expiry" in result.output.lower())
+        assert (
+            "authenticated" in result.output.lower()
+            or "expiry" in result.output.lower()
+        )
 
     def test_status_shows_expiry(
         self,

@@ -39,9 +39,7 @@ class TestKaguraCompleter:
         # Should still show /help
         assert any(c.text == "/help" for c in completions)
 
-    def test_slash_command_multiple_matches(
-        self, completer: KaguraCompleter
-    ) -> None:
+    def test_slash_command_multiple_matches(self, completer: KaguraCompleter) -> None:
         """Test multiple matches for slash commands"""
         document = Document("/")
         completions = list(completer.get_completions(document, None))  # type: ignore
@@ -77,9 +75,7 @@ class TestKaguraCompleter:
         assert len(completions) > 0
         assert any(c.text == "@test_agent" for c in completions)
 
-    def test_no_completion_for_regular_text(
-        self, completer: KaguraCompleter
-    ) -> None:
+    def test_no_completion_for_regular_text(self, completer: KaguraCompleter) -> None:
         """Test that regular text doesn't trigger completion"""
         document = Document("hello world")
         completions = list(completer.get_completions(document, None))  # type: ignore

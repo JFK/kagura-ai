@@ -1,6 +1,5 @@
 """Tests for ModelSelector."""
 
-
 from kagura.core.model_selector import ModelConfig, ModelSelector, TaskType
 
 
