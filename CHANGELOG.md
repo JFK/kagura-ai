@@ -46,6 +46,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Connection diagnostics with health checks
   - 7 new CLI tests
 
+- **Memory Export/Import**: JSONL-based backup and migration (#378, Week 3)
+  - `MemoryExporter` for exporting memories and graph data
+  - `MemoryImporter` for importing from backup
+  - JSONL format for human-readable exports
+  - CLI commands: `kagura memory export`, `kagura memory import`
+  - Support for working memory, persistent memory, and graph data
+  - Metadata tracking (exported_at, user_id, stats)
+  - 6 tests with roundtrip validation
+
 ### 🔄 Changed
 
 - **GraphMemory**: Made `ai_platform` parameter optional in `record_interaction` (#381)
