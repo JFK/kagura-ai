@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from kagura.core.compression import CompressionPolicy, ContextManager
+from kagura.core.graph import GraphMemory
 
 from .context import ContextMemory, Message
 from .persistent import PersistentMemory
@@ -26,6 +27,7 @@ class MemoryManager:
         persist_dir: Optional[Path] = None,
         max_messages: int = 100,
         enable_rag: Optional[bool] = None,
+        enable_graph: bool = True,
         enable_compression: bool = True,
         compression_policy: Optional[CompressionPolicy] = None,
         model: str = "gpt-5-mini",
@@ -39,6 +41,8 @@ class MemoryManager:
             enable_rag: Enable RAG (vector-based semantic search).
                 If None (default), automatically enables if chromadb is available.
                 Set to True/False to override auto-detection.
+            enable_graph: Enable graph memory for relationships (default: True).
+                Requires networkx package.
             enable_compression: Enable automatic context compression
             compression_policy: Compression configuration
             model: LLM model name for compression
@@ -88,6 +92,16 @@ class MemoryManager:
             self.context_manager = ContextManager(
                 policy=compression_policy or CompressionPolicy(), model=model
             )
+
+        # Optional: Graph Memory (Phase B - Issue #345)
+        self.graph: Optional[GraphMemory] = None
+        if enable_graph:
+            try:
+                graph_path = persist_dir / "graph.pkl" if persist_dir else None
+                self.graph = GraphMemory(persist_path=graph_path)
+            except ImportError:
+                # NetworkX not installed, disable graph
+                self.graph = None
 
     # Working Memory
     def set_temp(self, key: str, value: Any) -> None:

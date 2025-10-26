@@ -1,5 +1,5 @@
 """API route modules."""
 
-from kagura.api.routes import memory, search, system
+from kagura.api.routes import graph, memory, search, system
 
-__all__ = ["memory", "search", "system"]
+__all__ = ["graph", "memory", "search", "system"]
