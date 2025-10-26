@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deleted: `tests/agents/test_personal_tools.py` (39 tests)
   - Rationale: v4.0 is MCP-first. Personal tools don't align with Universal Memory Platform strategy
 
+- **SDK Examples**: Removed v3.0 SDK integration examples (#374)
+  - Deleted: `examples/08_sdk_integration/` directory (FastAPI, Streamlit, data pipeline, email automation)
+  - Updated: `examples/README.md` - Removed section 08 and SDK references
+  - Rationale: v4.0 focuses on MCP tools and REST API, not Python SDK integration patterns
+
 ### 🐛 Fixed
 
 - **GraphMemory**: Fixed `memory_get_related` type conversion error when `depth` parameter is sent as string by MCP clients (#379)
