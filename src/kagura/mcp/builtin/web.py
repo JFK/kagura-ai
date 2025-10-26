@@ -6,6 +6,7 @@ Exposes Kagura's web search and scraping features via MCP.
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 
 from kagura import tool
 
@@ -25,7 +26,11 @@ async def web_search(query: str, max_results: int = 5) -> str:
         from kagura.web import search
 
         results = await search(query, max_results=max_results)
-        return json.dumps(results, indent=2)
+
+        # Convert SearchResult dataclass objects to dictionaries
+        results_dict = [asdict(result) for result in results]
+
+        return json.dumps(results_dict, indent=2, ensure_ascii=False)
     except ImportError:
         return json.dumps(
             {
