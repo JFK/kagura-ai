@@ -286,7 +286,8 @@ def install(ctx: click.Context, server_name: str):
     # Check if already configured
     if config.is_configured_in_claude_desktop(server_name):
         console.print(
-            f"[yellow]Kagura is already configured in Claude Desktop as '{server_name}'[/yellow]"
+            f"[yellow]Kagura is already configured in Claude Desktop "
+            f"as '{server_name}'[/yellow]"
         )
         if not click.confirm("Overwrite existing configuration?"):
             console.print("[dim]Installation cancelled.[/dim]")
@@ -338,7 +339,8 @@ def uninstall(ctx: click.Context, server_name: str):
 
     if not config.is_configured_in_claude_desktop(server_name):
         console.print(
-            f"[yellow]Kagura '{server_name}' is not configured in Claude Desktop[/yellow]"
+            f"[yellow]Kagura '{server_name}' is not configured "
+            f"in Claude Desktop[/yellow]"
         )
         return
 

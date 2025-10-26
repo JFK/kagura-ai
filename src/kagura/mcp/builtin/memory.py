@@ -68,10 +68,12 @@ async def memory_store(
 
     Examples:
         # Global memory (accessible from all threads)
-        agent_name="global", key="user_language", value="Japanese", tags='["preferences"]'
+        agent_name="global", key="user_language", value="Japanese",
+        tags='["preferences"]'
 
         # Thread-specific memory (only this conversation)
-        agent_name="thread_chat_123", key="current_topic", value="Python tutorial", importance=0.8
+        agent_name="thread_chat_123", key="current_topic",
+        value="Python tutorial", importance=0.8
 
     Args:
         agent_name: Agent identifier (use "global" for cross-thread sharing)
@@ -81,7 +83,8 @@ async def memory_store(
             or "working" (in-memory)
         tags: JSON array string of tags (e.g., '["python", "coding"]')
         importance: Importance score (0.0-1.0, default 0.5)
-        metadata: JSON object string of additional metadata (e.g., '{"project": "kagura"}')
+        metadata: JSON object string of additional metadata
+            (e.g., '{"project": "kagura"}')
 
     Returns:
         Confirmation message
