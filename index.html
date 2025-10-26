@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Build production-ready AI agents with one decorator. Full type safety, built-in tools, comprehensive testing framework.">
+        <meta name="description" content="Own your memory. Bring it to every AI. MCP-native memory for Claude, ChatGPT, Gemini, and all your AI platforms.">
       
       
         <meta name="author" content="Fumikazu Kiyota">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Kagura AI - Python-First AI Agent SDK - Kagura AI Documentation</title>
+        <title>Kagura AI - Universal AI Memory Platform - Kagura AI Documentation</title>
       
     
     
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kagura AI - Python-First AI Agent SDK
+              Kagura AI - Universal AI Memory Platform
             
           </span>
         </div>
@@ -260,9 +260,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-is-kagura-ai" class="md-nav__link">
+  <a href="#what-is-kagura-ai-v40" class="md-nav__link">
     <span class="md-ellipsis">
-      What is Kagura AI?
+      What is Kagura AI v4.0?
     </span>
   </a>
   
@@ -279,18 +279,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#for-python-developers" class="md-nav__link">
+  <a href="#for-individuals" class="md-nav__link">
     <span class="md-ellipsis">
-      For Python Developers
+      For Individuals
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#vs-other-sdks" class="md-nav__link">
+  <a href="#for-developers" class="md-nav__link">
     <span class="md-ellipsis">
-      vs Other SDKs
+      For Developers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-teams-coming-soon" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Teams (Coming Soon)
     </span>
   </a>
   
@@ -312,18 +321,36 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sdk-essentials" class="md-nav__link">
+  <a href="#1-universal-memory" class="md-nav__link">
     <span class="md-ellipsis">
-      SDK Essentials
+      1. Universal Memory
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#bonus-features" class="md-nav__link">
+  <a href="#2-mcp-integration" class="md-nav__link">
     <span class="md-ellipsis">
-      Bonus Features
+      2. MCP Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-knowledge-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Knowledge Graph
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-complete-data-portability" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Complete Data Portability
     </span>
   </a>
   
@@ -335,37 +362,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-examples" class="md-nav__link">
+  <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
-      Quick Examples
+      Quick Start
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Quick Examples">
+    <nav class="md-nav" aria-label="Quick Start">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#type-safe-structured-output" class="md-nav__link">
+  <a href="#option-1-claude-desktop-user" class="md-nav__link">
     <span class="md-ellipsis">
-      Type-Safe Structured Output
+      Option 1: Claude Desktop User
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#with-built-in-tools" class="md-nav__link">
+  <a href="#option-2-chatgpt-user" class="md-nav__link">
     <span class="md-ellipsis">
-      With Built-in Tools
+      Option 2: ChatGPT User
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#with-memory" class="md-nav__link">
+  <a href="#option-3-self-hosted-production" class="md-nav__link">
     <span class="md-ellipsis">
-      With Memory
+      Option 3: Self-Hosted Production
     </span>
   </a>
   
@@ -377,84 +404,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#real-world-integration" class="md-nav__link">
+  <a href="#available-tools-mcp" class="md-nav__link">
     <span class="md-ellipsis">
-      Real-World Integration
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Real-World Integration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fastapi-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      FastAPI Example
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#data-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data Pipeline
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bonus-interactive-chat" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bonus: Interactive Chat
+      Available Tools (MCP)
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#get-started" class="md-nav__link">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
-      Get Started
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Get Started">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#for-sdk-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      For SDK Integration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#for-exploration" class="md-nav__link">
-    <span class="md-ellipsis">
-      For Exploration
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      Architecture
+      Documentation
     </span>
   </a>
   
@@ -464,6 +425,15 @@
   <a href="#community" class="md-nav__link">
     <span class="md-ellipsis">
       Community
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-v400-phase-c-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status: v4.0.0 (Phase C Complete)
     </span>
   </a>
   
@@ -959,9 +929,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-is-kagura-ai" class="md-nav__link">
+  <a href="#what-is-kagura-ai-v40" class="md-nav__link">
     <span class="md-ellipsis">
-      What is Kagura AI?
+      What is Kagura AI v4.0?
     </span>
   </a>
   
@@ -978,18 +948,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#for-python-developers" class="md-nav__link">
+  <a href="#for-individuals" class="md-nav__link">
     <span class="md-ellipsis">
-      For Python Developers
+      For Individuals
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#vs-other-sdks" class="md-nav__link">
+  <a href="#for-developers" class="md-nav__link">
     <span class="md-ellipsis">
-      vs Other SDKs
+      For Developers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-teams-coming-soon" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Teams (Coming Soon)
     </span>
   </a>
   
@@ -1011,18 +990,36 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sdk-essentials" class="md-nav__link">
+  <a href="#1-universal-memory" class="md-nav__link">
     <span class="md-ellipsis">
-      SDK Essentials
+      1. Universal Memory
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#bonus-features" class="md-nav__link">
+  <a href="#2-mcp-integration" class="md-nav__link">
     <span class="md-ellipsis">
-      Bonus Features
+      2. MCP Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-knowledge-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Knowledge Graph
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-complete-data-portability" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Complete Data Portability
     </span>
   </a>
   
@@ -1034,37 +1031,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-examples" class="md-nav__link">
+  <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
-      Quick Examples
+      Quick Start
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Quick Examples">
+    <nav class="md-nav" aria-label="Quick Start">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#type-safe-structured-output" class="md-nav__link">
+  <a href="#option-1-claude-desktop-user" class="md-nav__link">
     <span class="md-ellipsis">
-      Type-Safe Structured Output
+      Option 1: Claude Desktop User
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#with-built-in-tools" class="md-nav__link">
+  <a href="#option-2-chatgpt-user" class="md-nav__link">
     <span class="md-ellipsis">
-      With Built-in Tools
+      Option 2: ChatGPT User
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#with-memory" class="md-nav__link">
+  <a href="#option-3-self-hosted-production" class="md-nav__link">
     <span class="md-ellipsis">
-      With Memory
+      Option 3: Self-Hosted Production
     </span>
   </a>
   
@@ -1076,84 +1073,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#real-world-integration" class="md-nav__link">
+  <a href="#available-tools-mcp" class="md-nav__link">
     <span class="md-ellipsis">
-      Real-World Integration
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Real-World Integration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fastapi-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      FastAPI Example
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#data-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data Pipeline
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bonus-interactive-chat" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bonus: Interactive Chat
+      Available Tools (MCP)
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#get-started" class="md-nav__link">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
-      Get Started
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Get Started">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#for-sdk-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      For SDK Integration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#for-exploration" class="md-nav__link">
-    <span class="md-ellipsis">
-      For Exploration
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      Architecture
+      Documentation
     </span>
   </a>
   
@@ -1163,6 +1094,15 @@
   <a href="#community" class="md-nav__link">
     <span class="md-ellipsis">
       Community
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-v400-phase-c-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status: v4.0.0 (Phase C Complete)
     </span>
   </a>
   
@@ -1186,207 +1126,153 @@
 
 <h1 id="kagura-ai">Kagura AI</h1>
 <p><img alt="Kagura AI Logo" src="assets/kagura-logo.svg" /></p>
-<p><strong>Python-First AI Agent SDK</strong></p>
-<p>Build production-ready AI agents with one decorator. Full type safety, built-in tools, and comprehensive testing framework.</p>
+<p><strong>Universal AI Memory Platform</strong></p>
+<blockquote>
+<p>Own your memory. Bring it to every AI.</p>
+</blockquote>
+<p>MCP-native memory infrastructure that connects Claude Desktop, ChatGPT, Gemini, and all your AI platforms with shared context and memory.</p>
 <hr />
-<h2 id="what-is-kagura-ai">What is Kagura AI?</h2>
-<p>A Python SDK that makes building AI agents as simple as writing a function. Add one <code>@agent</code> decorator and you're done.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@agent</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">translator</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ja&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Translate to {{ lang }}: {{ text }}&#39;&#39;&#39;</span>
+<h2 id="what-is-kagura-ai-v40">What is Kagura AI v4.0?</h2>
+<p>A universal memory layer that makes every AI remember your preferences, context, and history across all platforms.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Morning: ChatGPT helps you plan your day
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>         ↓ (remembers your preferences)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Afternoon: Claude Desktop writes code with you
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>           ↓ (knows your coding style)
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">translator</span><span class="p">(</span><span class="s2">&quot;Hello World&quot;</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="s2">&quot;ja&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># &quot;こんにちは世界&quot;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>Evening: Gemini analyzes your documents
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>         ↓ (recalls your project context)
 </code></pre></div>
-<p>No configuration files. No complex setup. Just Python.</p>
+<p><strong>One memory. Every AI.</strong></p>
 <hr />
 <h2 id="why-kagura-ai">Why Kagura AI?</h2>
-<h3 id="for-python-developers">For Python Developers</h3>
+<h3 id="for-individuals">For Individuals</h3>
 <ul>
-<li><strong>One Decorator</strong>: <code>@agent</code> is all you need</li>
-<li><strong>Type-Safe</strong>: Full pyright strict mode support</li>
-<li><strong>Production-Ready</strong>: Built-in memory, tools, testing</li>
-<li><strong>Fast Integration</strong>: Add to existing apps in minutes</li>
+<li>🔒 <strong>Privacy-first</strong>: Local storage or self-hosted</li>
+<li>🚫 <strong>No vendor lock-in</strong>: Complete data export anytime</li>
+<li>🧠 <strong>Smart recall</strong>: Vector search + Knowledge graph</li>
+<li>🌐 <strong>Universal</strong>: Works with Claude, ChatGPT, Gemini, Cursor, Cline</li>
 </ul>
-<h3 id="vs-other-sdks">vs Other SDKs</h3>
-<table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>LangChain</th>
-<th>AutoGen</th>
-<th><strong>Kagura AI</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Setup</td>
-<td>50+ lines</td>
-<td>30+ lines</td>
-<td><strong>1 decorator</strong> ✅</td>
-</tr>
-<tr>
-<td>Type Safety</td>
-<td>❌</td>
-<td>❌</td>
-<td><strong>✅ Full</strong></td>
-</tr>
-<tr>
-<td>Memory</td>
-<td>Manual</td>
-<td>Basic</td>
-<td><strong>✅ 3-tier</strong></td>
-</tr>
-<tr>
-<td>Testing</td>
-<td>Manual</td>
-<td>❌</td>
-<td><strong>✅ Built-in</strong></td>
-</tr>
-<tr>
-<td>Web Search</td>
-<td>Plugin</td>
-<td>❌</td>
-<td><strong>✅ Built-in</strong></td>
-</tr>
-</tbody>
-</table>
+<h3 id="for-developers">For Developers</h3>
+<ul>
+<li>💻 <strong>MCP-native</strong>: 31 tools via Model Context Protocol</li>
+<li>🔌 <strong>Easy integration</strong>: <code>kagura mcp install</code> for Claude Desktop</li>
+<li>🛠️ <strong>REST API</strong>: FastAPI server with OpenAPI</li>
+<li>📦 <strong>Production-ready</strong>: Docker, authentication, monitoring</li>
+</ul>
+<h3 id="for-teams-coming-soon">For Teams (Coming Soon)</h3>
+<ul>
+<li>👥 <strong>Shared knowledge</strong>: Team-wide memory</li>
+<li>🔐 <strong>Enterprise features</strong>: SSO, BYOK, audit logs</li>
+<li>📈 <strong>Analytics</strong>: Track team AI usage patterns</li>
+</ul>
 <hr />
 <h2 id="core-features">Core Features</h2>
-<h3 id="sdk-essentials">SDK Essentials</h3>
-<ul>
-<li>✅ <strong>@agent Decorator</strong> - One-line AI agent creation</li>
-<li>✅ <strong>Type-Safe Output</strong> - Automatic Pydantic parsing</li>
-<li>✅ <strong>Built-in Tools</strong> - Web search, file ops, code exec</li>
-<li>✅ <strong>Memory System</strong> - Context, persistent, RAG</li>
-<li>✅ <strong>Testing Framework</strong> - Test your agents easily</li>
-<li>✅ <strong>Multi-LLM</strong> - OpenAI, Anthropic, Google, 100+ more</li>
-</ul>
-<h3 id="bonus-features">Bonus Features</h3>
-<ul>
-<li>✅ <strong>Interactive Chat</strong> - Try features without code</li>
-<li>✅ <strong>MCP Integration</strong> - Use in Claude Desktop</li>
-<li>✅ <strong>Streaming</strong> - Real-time responses</li>
-<li>✅ <strong>Cost Tracking</strong> - Monitor API usage</li>
-</ul>
-<hr />
-<h2 id="quick-examples">Quick Examples</h2>
-<h3 id="type-safe-structured-output">Type-Safe Structured Output</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">sentiment</span><span class="p">:</span> <span class="nb">str</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="nd">@agent</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Analysis</span><span class="p">:</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Analyze: {{ text }}&#39;&#39;&#39;</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">analyze</span><span class="p">(</span><span class="s2">&quot;I love Python!&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">sentiment</span><span class="p">)</span>  <span class="c1"># Type-safe!</span>
+<h3 id="1-universal-memory">1. Universal Memory</h3>
+<p>Store once, access from any AI:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Via MCP tool (works in Claude Desktop, ChatGPT, etc.)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">memory_store</span><span class="p">(</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;jfk&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">key</span><span class="o">=</span><span class="s2">&quot;coding_style&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">value</span><span class="o">=</span><span class="s2">&quot;Always use type hints in Python&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;persistent&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">tags</span><span class="o">=</span><span class="s1">&#39;[&quot;python&quot;, &quot;best-practices&quot;]&#39;</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">)</span>
 </code></pre></div>
-<h3 id="with-built-in-tools">With Built-in Tools</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;web_search&quot;</span><span class="p">])</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">researcher</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Research {{ topic }} using web_search(query) tool.&#39;&#39;&#39;</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">researcher</span><span class="p">(</span><span class="s2">&quot;Python 3.13 features&quot;</span><span class="p">)</span>
-</code></pre></div>
-<h3 id="with-memory">With Memory</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">enable_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">assistant</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Remember our conversation. User says: {{ message }}&#39;&#39;&#39;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">await</span> <span class="n">assistant</span><span class="p">(</span><span class="s2">&quot;My favorite color is blue&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">await</span> <span class="n">assistant</span><span class="p">(</span><span class="s2">&quot;What&#39;s my favorite color?&quot;</span><span class="p">)</span>  <span class="c1"># Remembers!</span>
-</code></pre></div>
-<hr />
-<h2 id="real-world-integration">Real-World Integration</h2>
-<h3 id="fastapi-example">FastAPI Example</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent</span>
+<h3 id="2-mcp-integration">2. MCP Integration</h3>
+<p><strong>Claude Desktop</strong> (local, all 31 tools):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>install<span class="w">  </span><span class="c1"># Auto-configure</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># All tools available: memory, files, web, shell, etc.</span>
+</code></pre></div></p>
+<p><strong>ChatGPT Connector</strong> (remote, 24 safe tools):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># Connect ChatGPT to http://localhost:8080/mcp</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Safe tools only (no file ops, no shell)</span>
+</code></pre></div></p>
+<h3 id="3-knowledge-graph">3. Knowledge Graph</h3>
+<p>Track relationships and patterns:
+- AI-User interaction history
+- Memory relationships
+- Learning patterns analysis
+- Topic clustering</p>
+<h3 id="4-complete-data-portability">4. Complete Data Portability</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Export everything</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>kagura<span class="w"> </span>memory<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--output<span class="w"> </span>./backup
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nd">@agent</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">support_bot</span><span class="p">(</span><span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Answer support question: {{ question }}&#39;&#39;&#39;</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/api/support&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_support</span><span class="p">(</span><span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">support_bot</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">}</span>
-</code></pre></div>
-<h3 id="data-pipeline">Data Pipeline</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nd">@agent</span><span class="p">(</span><span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;web_search&quot;</span><span class="p">])</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">data_enricher</span><span class="p">(</span><span class="n">company</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Enrich data for: {{ company }}</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="sd">    Extract: industry, size, location</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="sd">    &#39;&#39;&#39;</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">enriched</span> <span class="o">=</span> <span class="k">await</span> <span class="n">data_enricher</span><span class="p">(</span><span class="s2">&quot;Anthropic&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Import anywhere</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>kagura<span class="w"> </span>memory<span class="w"> </span>import<span class="w"> </span>--input<span class="w"> </span>./backup
 </code></pre></div>
 <hr />
-<h2 id="bonus-interactive-chat">Bonus: Interactive Chat</h2>
-<p>Want to try without writing code?</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kagura<span class="w"> </span>chat
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="option-1-claude-desktop-user">Option 1: Claude Desktop User</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>full<span class="o">]</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>install
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Restart Claude Desktop - Done!</span>
 </code></pre></div>
-<p>Claude Code-like experience with all SDK features:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>[You] &gt; Read report.pdf and summarize
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>[AI] &gt; (Uses SDK&#39;s file_read + Gemini Vision)
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>      Key findings:
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>      1. Revenue up 23% YoY
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>      2. New market expansion
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>      3. Team doubled
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>[You] &gt; Search for industry trends
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>[AI] &gt; (Uses SDK&#39;s web_search tool)
+<p><a href="mcp-setup/">Claude Desktop Setup →</a></p>
+<h3 id="option-2-chatgpt-user">Option 2: ChatGPT User</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1"># Configure ChatGPT Connector: http://localhost:8080/mcp</span>
 </code></pre></div>
+<p><a href="mcp-http-setup/">ChatGPT Connector Setup →</a></p>
+<h3 id="option-3-self-hosted-production">Option 3: Self-Hosted Production</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/JFK/kagura-ai.git
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nb">cd</span><span class="w"> </span>kagura-ai
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>cp<span class="w"> </span>.env.example<span class="w"> </span>.env<span class="w">  </span><span class="c1"># Configure DOMAIN, POSTGRES_PASSWORD</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.prod.yml<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+<p><a href="self-hosting/">Self-Hosting Guide →</a></p>
 <hr />
-<h2 id="get-started">Get Started</h2>
-<p>Choose your path:</p>
-<h3 id="for-sdk-integration">For SDK Integration</h3>
-<ol>
-<li><a href="quickstart/">Quick Start</a> - 5-minute tutorial</li>
-<li><a href="sdk-guide.md">SDK Guide</a> - Complete SDK guide</li>
-<li><a href="https://github.com/JFK/kagura-ai/tree/main/examples">Examples</a> - Code examples</li>
-</ol>
-<h3 id="for-exploration">For Exploration</h3>
-<ol>
-<li><a href="chat-guide.md">Chat Guide</a> - Try interactive chat</li>
-<li><a href="en/installation/">Installation</a> - Setup guide</li>
-</ol>
-<p><a class="md-button md-button--primary" href="quickstart/">Get Started →</a></p>
+<h2 id="available-tools-mcp">Available Tools (MCP)</h2>
+<p><strong>Memory</strong> (6 tools):
+- memory_store, memory_recall, memory_search
+- memory_list, memory_delete, memory_feedback</p>
+<p><strong>Graph</strong> (3 tools):
+- memory_record_interaction
+- memory_get_related
+- memory_get_user_pattern</p>
+<p><strong>Web/API</strong> (10+ tools):
+- web_search, web_scrape
+- youtube_summarize, get_youtube_transcript
+- brave_web_search, fact_check_claim</p>
+<p><strong>File Operations</strong> (local only):
+- file_read, file_write, dir_list</p>
+<p><strong>System</strong>:
+- shell_exec (local only)
+- telemetry_stats, telemetry_cost</p>
 <hr />
-<h2 id="architecture">Architecture</h2>
-<p>Built on proven technologies:</p>
+<h2 id="documentation">Documentation</h2>
 <ul>
-<li><strong>LLM</strong>: OpenAI SDK (direct) + LiteLLM (100+ providers)</li>
-<li><strong>Memory</strong>: ChromaDB (vector storage)</li>
-<li><strong>Validation</strong>: Pydantic v2</li>
-<li><strong>Testing</strong>: pytest + custom framework</li>
-<li><strong>Type Safety</strong>: pyright strict mode</li>
+<li><a href="getting-started/">Getting Started</a> - 10-minute setup</li>
+<li><a href="api-reference/">API Reference</a> - REST API + MCP tools</li>
+<li><a href="architecture/">Architecture</a> - System design</li>
+<li><a href="self-hosting/">Self-Hosting</a> - Production deployment</li>
+<li><a href="memory-export/">Memory Export/Import</a> - Backup guide</li>
 </ul>
-<p><strong>Quality Metrics</strong>:
-- 1,300+ tests (90%+ coverage)
-- 100% typed (pyright strict)
-- Production-ready</p>
 <hr />
 <h2 id="community">Community</h2>
 <ul>
 <li><a href="https://github.com/JFK/kagura-ai">GitHub</a> - Source code &amp; issues</li>
 <li><a href="https://pypi.org/project/kagura-ai/">PyPI</a> - Package downloads</li>
-<li><a href="https://github.com/JFK/kagura-ai/tree/main/examples">Examples</a> - 30+ examples</li>
+<li><a href="https://github.com/JFK/kagura-ai/tree/main/examples">Examples</a> - Usage examples</li>
 </ul>
 <hr />
-<p><strong>Built with ❤️ for Python developers</strong></p>
+<h2 id="status-v400-phase-c-complete">Status: v4.0.0 (Phase C Complete)</h2>
+<p><strong>Recently Completed</strong>:
+- ✅ Phase A: MCP-First Foundation
+- ✅ Phase B: Graph Memory
+- ✅ Phase C: Remote MCP Server + Export/Import</p>
+<p><strong>Features</strong>:
+- ✅ 31 MCP tools
+- ✅ REST API (FastAPI)
+- ✅ MCP over HTTP/SSE (ChatGPT Connector)
+- ✅ API Key authentication
+- ✅ Memory export/import (JSONL)
+- ✅ Production Docker setup</p>
+<p><strong>Coming Next</strong>: v4.0.0 stable release</p>
+<hr />
+<p><strong>Built with ❤️ for universal AI memory</strong></p>
 
 
 
