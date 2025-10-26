@@ -1,20 +1,20 @@
 ---
-title: Kagura AI - Python-First AI Agent SDK
-description: Build production-ready AI agents with one decorator. Full type safety, built-in tools, comprehensive testing framework.
+title: Kagura AI - Universal AI Memory Platform
+description: Own your memory. Bring it to every AI. MCP-native memory for Claude, ChatGPT, Gemini, and all your AI platforms.
 keywords:
-  - AI SDK
-  - Python AI
-  - AI Agents
-  - Type-safe AI
-  - LLM integration
-  - Pydantic
-  - Production AI
+  - Universal Memory
+  - AI Memory
+  - MCP Protocol
+  - ChatGPT Connector
+  - Claude Desktop
+  - Self-hosted AI
+  - Memory Platform
 author: Fumikazu Kiyota
 robots: index, follow
-og_title: Kagura AI - Python-First AI Agent SDK
+og_title: Kagura AI - Universal AI Memory Platform
 og_type: website
 og_url: https://www.kagura-ai.com
-og_description: Build production-ready AI agents with one decorator. Full type safety, built-in tools, comprehensive testing framework.
+og_description: Own your memory. Bring it to every AI. MCP-native universal memory for all your AI platforms.
 og_image: assets/kagura-logo.svg
 twitter_card: summary_large_image
 twitter_site: "@kagura_ai"
@@ -25,208 +25,176 @@ twitter_creator: "@JFK"
 
 ![Kagura AI Logo](assets/kagura-logo.svg)
 
-**Python-First AI Agent SDK**
+**Universal AI Memory Platform**
 
-Build production-ready AI agents with one decorator. Full type safety, built-in tools, and comprehensive testing framework.
+> Own your memory. Bring it to every AI.
+
+MCP-native memory infrastructure that connects Claude Desktop, ChatGPT, Gemini, and all your AI platforms with shared context and memory.
 
 ---
 
-## What is Kagura AI?
+## What is Kagura AI v4.0?
 
-A Python SDK that makes building AI agents as simple as writing a function. Add one `@agent` decorator and you're done.
+A universal memory layer that makes every AI remember your preferences, context, and history across all platforms.
 
-```python
-from kagura import agent
+```
+Morning: ChatGPT helps you plan your day
+         ↓ (remembers your preferences)
 
-@agent
-async def translator(text: str, lang: str = "ja") -> str:
-    '''Translate to {{ lang }}: {{ text }}'''
+Afternoon: Claude Desktop writes code with you
+           ↓ (knows your coding style)
 
-result = await translator("Hello World", lang="ja")
-# "こんにちは世界"
+Evening: Gemini analyzes your documents
+         ↓ (recalls your project context)
 ```
 
-No configuration files. No complex setup. Just Python.
+**One memory. Every AI.**
 
 ---
 
 ## Why Kagura AI?
 
-### For Python Developers
+### For Individuals
 
-- **One Decorator**: `@agent` is all you need
-- **Type-Safe**: Full pyright strict mode support
-- **Production-Ready**: Built-in memory, tools, testing
-- **Fast Integration**: Add to existing apps in minutes
+- 🔒 **Privacy-first**: Local storage or self-hosted
+- 🚫 **No vendor lock-in**: Complete data export anytime
+- 🧠 **Smart recall**: Vector search + Knowledge graph
+- 🌐 **Universal**: Works with Claude, ChatGPT, Gemini, Cursor, Cline
 
-### vs Other SDKs
+### For Developers
 
-| Feature | LangChain | AutoGen | **Kagura AI** |
-|---------|-----------|---------|--------------|
-| Setup | 50+ lines | 30+ lines | **1 decorator** ✅ |
-| Type Safety | ❌ | ❌ | **✅ Full** |
-| Memory | Manual | Basic | **✅ 3-tier** |
-| Testing | Manual | ❌ | **✅ Built-in** |
-| Web Search | Plugin | ❌ | **✅ Built-in** |
+- 💻 **MCP-native**: 31 tools via Model Context Protocol
+- 🔌 **Easy integration**: `kagura mcp install` for Claude Desktop
+- 🛠️ **REST API**: FastAPI server with OpenAPI
+- 📦 **Production-ready**: Docker, authentication, monitoring
+
+### For Teams (Coming Soon)
+
+- 👥 **Shared knowledge**: Team-wide memory
+- 🔐 **Enterprise features**: SSO, BYOK, audit logs
+- 📈 **Analytics**: Track team AI usage patterns
 
 ---
 
 ## Core Features
 
-### SDK Essentials
+### 1. Universal Memory
 
-- ✅ **@agent Decorator** - One-line AI agent creation
-- ✅ **Type-Safe Output** - Automatic Pydantic parsing
-- ✅ **Built-in Tools** - Web search, file ops, code exec
-- ✅ **Memory System** - Context, persistent, RAG
-- ✅ **Testing Framework** - Test your agents easily
-- ✅ **Multi-LLM** - OpenAI, Anthropic, Google, 100+ more
-
-### Bonus Features
-
-- ✅ **Interactive Chat** - Try features without code
-- ✅ **MCP Integration** - Use in Claude Desktop
-- ✅ **Streaming** - Real-time responses
-- ✅ **Cost Tracking** - Monitor API usage
-
----
-
-## Quick Examples
-
-### Type-Safe Structured Output
+Store once, access from any AI:
 
 ```python
-from pydantic import BaseModel
-
-class Analysis(BaseModel):
-    sentiment: str
-    keywords: list[str]
-    confidence: float
-
-@agent
-async def analyze(text: str) -> Analysis:
-    '''Analyze: {{ text }}'''
-
-result = await analyze("I love Python!")
-print(result.sentiment)  # Type-safe!
+# Via MCP tool (works in Claude Desktop, ChatGPT, etc.)
+memory_store(
+    user_id="jfk",
+    agent_name="global",
+    key="coding_style",
+    value="Always use type hints in Python",
+    scope="persistent",
+    tags='["python", "best-practices"]'
+)
 ```
 
-### With Built-in Tools
+### 2. MCP Integration
 
-```python
-@agent(tools=["web_search"])
-async def researcher(topic: str) -> str:
-    '''Research {{ topic }} using web_search(query) tool.'''
-
-result = await researcher("Python 3.13 features")
+**Claude Desktop** (local, all 31 tools):
+```bash
+kagura mcp install  # Auto-configure
+# All tools available: memory, files, web, shell, etc.
 ```
 
-### With Memory
-
-```python
-@agent(enable_memory=True)
-async def assistant(message: str) -> str:
-    '''Remember our conversation. User says: {{ message }}'''
-
-await assistant("My favorite color is blue")
-await assistant("What's my favorite color?")  # Remembers!
+**ChatGPT Connector** (remote, 24 safe tools):
+```bash
+docker compose up -d
+# Connect ChatGPT to http://localhost:8080/mcp
+# Safe tools only (no file ops, no shell)
 ```
 
----
+### 3. Knowledge Graph
 
-## Real-World Integration
+Track relationships and patterns:
+- AI-User interaction history
+- Memory relationships
+- Learning patterns analysis
+- Topic clustering
 
-### FastAPI Example
-
-```python
-from fastapi import FastAPI
-from kagura import agent
-
-app = FastAPI()
-
-@agent
-async def support_bot(question: str) -> str:
-    '''Answer support question: {{ question }}'''
-
-@app.post("/api/support")
-async def handle_support(question: str):
-    response = await support_bot(question)
-    return {"answer": response}
-```
-
-### Data Pipeline
-
-```python
-@agent(tools=["web_search"])
-async def data_enricher(company: str) -> dict:
-    '''Enrich data for: {{ company }}
-
-    Extract: industry, size, location
-    '''
-
-enriched = await data_enricher("Anthropic")
-```
-
----
-
-## Bonus: Interactive Chat
-
-Want to try without writing code?
+### 4. Complete Data Portability
 
 ```bash
-kagura chat
-```
+# Export everything
+kagura memory export --output ./backup
 
-Claude Code-like experience with all SDK features:
-
-```
-[You] > Read report.pdf and summarize
-
-[AI] > (Uses SDK's file_read + Gemini Vision)
-
-      Key findings:
-      1. Revenue up 23% YoY
-      2. New market expansion
-      3. Team doubled
-
-[You] > Search for industry trends
-
-[AI] > (Uses SDK's web_search tool)
+# Import anywhere
+kagura memory import --input ./backup
 ```
 
 ---
 
-## Get Started
+## Quick Start
 
-Choose your path:
+### Option 1: Claude Desktop User
 
-### For SDK Integration
-1. [Quick Start](quickstart.md) - 5-minute tutorial
-2. [SDK Guide](sdk-guide.md) - Complete SDK guide
-3. [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - Code examples
+```bash
+pip install kagura-ai[full]
+kagura mcp install
+# Restart Claude Desktop - Done!
+```
 
-### For Exploration
-1. [Chat Guide](chat-guide.md) - Try interactive chat
-2. [Installation](en/installation.md) - Setup guide
+[Claude Desktop Setup →](mcp-setup.md)
 
-[Get Started →](quickstart.md){: .md-button .md-button--primary }
+### Option 2: ChatGPT User
+
+```bash
+docker compose up -d
+# Configure ChatGPT Connector: http://localhost:8080/mcp
+```
+
+[ChatGPT Connector Setup →](mcp-http-setup.md)
+
+### Option 3: Self-Hosted Production
+
+```bash
+git clone https://github.com/JFK/kagura-ai.git
+cd kagura-ai
+cp .env.example .env  # Configure DOMAIN, POSTGRES_PASSWORD
+docker compose -f docker-compose.prod.yml up -d
+```
+
+[Self-Hosting Guide →](self-hosting.md)
 
 ---
 
-## Architecture
+## Available Tools (MCP)
 
-Built on proven technologies:
+**Memory** (6 tools):
+- memory_store, memory_recall, memory_search
+- memory_list, memory_delete, memory_feedback
 
-- **LLM**: OpenAI SDK (direct) + LiteLLM (100+ providers)
-- **Memory**: ChromaDB (vector storage)
-- **Validation**: Pydantic v2
-- **Testing**: pytest + custom framework
-- **Type Safety**: pyright strict mode
+**Graph** (3 tools):
+- memory_record_interaction
+- memory_get_related
+- memory_get_user_pattern
 
-**Quality Metrics**:
-- 1,300+ tests (90%+ coverage)
-- 100% typed (pyright strict)
-- Production-ready
+**Web/API** (10+ tools):
+- web_search, web_scrape
+- youtube_summarize, get_youtube_transcript
+- brave_web_search, fact_check_claim
+
+**File Operations** (local only):
+- file_read, file_write, dir_list
+
+**System**:
+- shell_exec (local only)
+- telemetry_stats, telemetry_cost
+
+---
+
+## Documentation
+
+- [Getting Started](getting-started.md) - 10-minute setup
+- [API Reference](api-reference.md) - REST API + MCP tools
+- [Architecture](architecture.md) - System design
+- [Self-Hosting](self-hosting.md) - Production deployment
+- [Memory Export/Import](memory-export.md) - Backup guide
 
 ---
 
@@ -234,8 +202,27 @@ Built on proven technologies:
 
 - [GitHub](https://github.com/JFK/kagura-ai) - Source code & issues
 - [PyPI](https://pypi.org/project/kagura-ai/) - Package downloads
-- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - 30+ examples
+- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - Usage examples
 
 ---
 
-**Built with ❤️ for Python developers**
+## Status: v4.0.0 (Phase C Complete)
+
+**Recently Completed**:
+- ✅ Phase A: MCP-First Foundation
+- ✅ Phase B: Graph Memory
+- ✅ Phase C: Remote MCP Server + Export/Import
+
+**Features**:
+- ✅ 31 MCP tools
+- ✅ REST API (FastAPI)
+- ✅ MCP over HTTP/SSE (ChatGPT Connector)
+- ✅ API Key authentication
+- ✅ Memory export/import (JSONL)
+- ✅ Production Docker setup
+
+**Coming Next**: v4.0.0 stable release
+
+---
+
+**Built with ❤️ for universal AI memory**
