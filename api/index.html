@@ -678,9 +678,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#live-api-documentation" class="md-nav__link">
+  <a href="#1-redocly-documentation-recommended" class="md-nav__link">
     <span class="md-ellipsis">
-      Live API Documentation
+      1. Redocly Documentation (Recommended) ⭐
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-live-api-documentation-server-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Live API Documentation (Server Required)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-openapi-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. OpenAPI YAML
     </span>
   </a>
   
@@ -1083,9 +1101,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#live-api-documentation" class="md-nav__link">
+  <a href="#1-redocly-documentation-recommended" class="md-nav__link">
     <span class="md-ellipsis">
-      Live API Documentation
+      1. Redocly Documentation (Recommended) ⭐
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-live-api-documentation-server-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Live API Documentation (Server Required)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-openapi-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. OpenAPI YAML
     </span>
   </a>
   
@@ -1307,16 +1343,28 @@
 <strong>API Version</strong>: 4.0.0</p>
 <hr />
 <h2 id="interactive-documentation">🔗 Interactive Documentation</h2>
-<h3 id="live-api-documentation">Live API Documentation</h3>
-<p>When running the Kagura API server, you can access interactive documentation:</p>
+<h3 id="1-redocly-documentation-recommended">1. Redocly Documentation (Recommended) ⭐</h3>
+<p><strong>Static HTML</strong>: <a href="index.html">index.html</a>
+- Beautiful, interactive API explorer
+- Generated from <code>reference.yaml</code> using Redocly
+- No server required - open in browser
+- <strong>Build</strong>: <code>make build_docs</code></p>
+<h3 id="2-live-api-documentation-server-required">2. Live API Documentation (Server Required)</h3>
+<p>When running the Kagura API server:</p>
 <p><strong>Swagger UI</strong>: <a href="http://localhost:8080/docs">http://localhost:8080/docs</a>
 - Interactive API testing
 - Try endpoints directly from browser
-- See request/response examples</p>
+- See request/response examples
+- Execute requests with authentication</p>
 <p><strong>ReDoc</strong>: <a href="http://localhost:8080/redoc">http://localhost:8080/redoc</a>
 - Clean, readable API documentation
 - Search functionality
 - Code samples</p>
+<h3 id="3-openapi-yaml">3. OpenAPI YAML</h3>
+<p><strong>Spec File</strong>: <a href="reference.yaml">reference.yaml</a>
+- Source of truth for API specification
+- Use for client SDK generation
+- Import into Postman, Insomnia, etc.</p>
 <hr />
 <h2 id="openapi-specification-file">📄 OpenAPI Specification File</h2>
 <p><strong>File</strong>: <a href="reference.yaml"><code>reference.yaml</code></a></p>
