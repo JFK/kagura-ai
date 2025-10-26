@@ -68,11 +68,14 @@ MemoryManager (v4.0+)
     └─ MemoryImporter: バックアップからの復元
 ```
 
-### Memory Management Agent 🆕
+### Memory Management Agent 🔜
 
-**新コンセプト**: AIがメモリー管理を自律的に行うエージェント
+**Status**: 🔜 **Future Concept** (Phase D以降の構想)
+
+**コンセプト**: AIがメモリー管理を自律的に行うエージェント
 
 ```python
+# 将来の実装例（Phase D+）
 @agent
 async def memory_curator(
     user_id: str,
@@ -90,38 +93,66 @@ async def memory_curator(
     pass
 ```
 
-**機能**:
+**計画中の機能** (Phase D+):
 1. **Smart Retention**: 重要な情報を自動判定して保存
 2. **Auto-Pruning**: 不要な情報を自動削除（ユーザー負担ゼロ）
 3. **Relationship Discovery**: AI自身が関連性を発見してグラフ構築
 4. **Context Curation**: 最適なコンテキストを自動選択
 
----
-
-## 🗺️ Implementation Roadmap
-
-### Phase 0: Foundation (v3.0.0 - v3.0.6) ✅
-
-**Status**: Completed
-
-**Features**:
-- Working Memory (一時メモリ)
-- Context Memory (会話履歴)
-- Persistent Memory (SQLite)
-- Memory RAG (working only - ChromaDB)
-
-**Limitations**:
-- ❌ Persistent memoryでRAG検索不可
-- ❌ メモリー間の関係性管理なし
-- ❌ AIがメモリー管理を自動化できない
+**Note**: 現在（v4.0 Phase C）では手動export/importのみ実装済み
 
 ---
 
-### Phase 1: Persistent RAG (v3.1.0) 🔄
+## 🗺️ Implementation Status (v4.0)
 
-**Issue**: [#340](https://github.com/JFK/kagura-ai/issues/340)
-**Status**: In Planning
-**ETA**: 3-4 days after #344
+### ✅ Phase A: MCP-First Foundation (Complete - Oct 2025)
+
+**Status**: ✅ Completed
+
+**Implemented**:
+- ✅ Working Memory (in-memory dict)
+- ✅ Context Memory (conversation history)
+- ✅ Persistent Memory (SQLite)
+- ✅ Memory RAG (working + persistent - ChromaDB)
+- ✅ REST API (FastAPI)
+- ✅ MCP Tools (31 tools)
+
+**Issue**: [#364](https://github.com/JFK/kagura-ai/issues/364)
+
+---
+
+### ✅ Phase B: GraphMemory (Complete - Oct 2025)
+
+**Status**: ✅ Completed
+
+**Implemented**:
+- ✅ GraphMemory (NetworkX-based)
+- ✅ Node/Edge management
+- ✅ Interaction tracking (`record_interaction`)
+- ✅ Pattern analysis (`analyze_user_pattern`)
+- ✅ Multi-hop graph traversal
+
+**Issue**: [#345](https://github.com/JFK/kagura-ai/issues/345)
+
+---
+
+### ✅ Phase C: Remote MCP + Export/Import (Complete - Oct 2025)
+
+**Status**: ✅ Completed
+
+**Implemented**:
+- ✅ Universal Memory Foundation (`user_id` support)
+- ✅ MCP over HTTP/SSE (`/mcp` endpoint)
+- ✅ API Key authentication (SHA256 hashing)
+- ✅ Tool access control (remote security filtering)
+- ✅ Memory Export/Import (JSONL format)
+- ✅ Production Docker setup (Caddy + PostgreSQL)
+
+**Issues**: [#382](https://github.com/JFK/kagura-ai/issues/382), [#378](https://github.com/JFK/kagura-ai/issues/378)
+
+---
+
+### 🔜 Phase D+: Memory Curator & Auto-Consolidation (Future)
 
 **Features**:
 - `persistent_rag: MemoryRAG` 追加
