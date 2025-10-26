@@ -1,452 +1,385 @@
-# Kagura AI
+# Kagura AI - ユニバーサルAIメモリープラットフォーム
 
+> **あなたのメモリーを所有し、すべてのAIで共有する**
+
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python versions](https://img.shields.io/pypi/pyversions/kagura-ai.svg)](https://pypi.org/project/kagura-ai/)
 [![PyPI version](https://img.shields.io/pypi/v/kagura-ai.svg)](https://pypi.org/project/kagura-ai/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/kagura-ai)](https://pypi.org/project/kagura-ai/)
-[![Codecov](https://img.shields.io/codecov/c/github/JFK/kagura-ai)](https://codecov.io/gh/JFK/kagura-ai)
-[![Tests](https://img.shields.io/github/actions/workflow/status/JFK/kagura-ai/test.yml?label=tests)](https://github.com/JFK/kagura-ai/actions)
+[![Downloads](https://img.shields.io/pypi/dm/kagura-ai.svg)](https://pypi.org/project/kagura-ai/)
+[![Protocol: MCP](https://img.shields.io/badge/protocol-MCP-blue.svg)](https://modelcontextprotocol.io/)
+[![Status](https://img.shields.io/badge/status-beta-yellow.svg)]()
 
-> **Python-First AI Agent SDK**
+**Kagura** は、あなたの**コンテキストと記憶**を、Claude/ChatGPT/Gemini/各種AIエージェントから**横断参照**できるようにする、オープンソースの **MCP対応メモリ基盤**です。
 
-本番環境対応のAIエージェントを1つのデコレータで構築。完全な型安全性、内蔵ツール、包括的なテストフレームワーク。
+[English README](README.md) | 日本語
+
+---
+
+## 💡 課題
+
+あなたのAI会話は**プラットフォーム間で分散**しています。
+
+```
+朝: ChatGPTが1日の計画を手伝う
+昼: Claude Desktopでコードを書く
+夜: Geminiがドキュメントを分析
+```
+
+**でも、AIはお互いを覚えていない。** 毎回ゼロから。
+
+プラットフォームを切り替える = **最初からやり直し**。
+
+---
+
+## ✨ 解決策
+
+**Kagura**: すべてのAIを**つなぐ**ユニバーサルメモリーレイヤー。
+
+```
+┌──────────────────────────────────┐
+│   すべてのAIプラットフォーム     │
+│   Claude • ChatGPT • Gemini      │
+│   Cursor • Cline • Custom Agents │
+└────────────┬─────────────────────┘
+             │ (MCPプロトコル)
+     ┌───────▼────────────────┐
+     │   Kagura Memory Hub    │
+     │   統一されたメモリー   │
+     └───────┬────────────────┘
+             │
+    ┌────────▼─────────┐
+    │  あなたのデータ  │
+    │  (ローカル/クラウド) │
+    └──────────────────┘
+```
+
+**すべてのAI**に以下へのアクセスを提供：
+- ✅ ナレッジベース
+- ✅ 会話履歴
+- ✅ コーディングパターン（「Vibe Coding」）
+- ✅ 学習の軌跡
+
+**1つのメモリー。すべてのAI。**
+
+---
+
+## 🎯 なぜKagura?
+
+### 個人向け
+- 🔒 **プライバシー第一**: ローカル保存、セルフホスト、またはクラウド（選択可能）
+- 🚫 **ベンダーロックインなし**: いつでも完全なデータエクスポート
+- 🧠 **スマート検索**: ベクトル検索 + ナレッジグラフ
+- 📊 **インサイト**: 学習パターンの可視化
+
+### 開発者向け
+- 💻 **「Vibe Coding」メモリー**: コーディングパターン追跡、GitHub統合
+- 🔌 **MCP-native**: Claude Desktop、Cursor、Cline等で動作
+- 🛠️ **拡張可能**: Python SDKでカスタムコネクター
+- 📦 **本番環境対応**: Docker、API、完全なテストカバレッジ
+
+### チーム向け（v4.2予定）
+- 👥 **共有ナレッジ**: チーム全体のメモリー
+- 🔐 **エンタープライズ機能**: SSO、BYOK、監査ログ
+- 📈 **分析**: チームのAI利用パターン追跡
+
+---
+
+## ✅ v4.0 ステータス - Phase A/B/C 完了
+
+**現在**: v4.0.0 (安定版に向けて) - ユニバーサルAIメモリープラットフォーム
+
+**動作中の機能**:
+- ✅ REST API (FastAPI + OpenAPI)
+- ✅ Docker Compose setup (PostgreSQL + pgvector, Redis)
+- ✅ MCP Tools v1.0 (31ツール)
+- ✅ GraphMemory (NetworkXベースのナレッジグラフ)
+- ✅ MCP Tool Management (`kagura mcp doctor`, `kagura mcp tools`, `kagura mcp install`)
+- ✅ **NEW**: MCP over HTTP/SSE (ChatGPT Connector対応)
+- ✅ **NEW**: API Key認証とCLI管理
+- ✅ **NEW**: ツールアクセス制御（リモートセキュリティフィルタ）
+- ✅ **NEW**: メモリーエクスポート/インポート（JSONL形式）
+- ✅ **NEW**: Caddyリバースプロキシを使った本番Docker setup
+
+**最近完了**:
+- ✅ **Phase A**: MCP-First Foundation ([Issue #364](https://github.com/JFK/kagura-ai/issues/364))
+- ✅ **Phase B**: GraphMemory - ユーザーパターン分析 ([Issue #345](https://github.com/JFK/kagura-ai/issues/345))
+- ✅ **Phase C**: Remote MCP Server + Export/Import ([Issue #378](https://github.com/JFK/kagura-ai/issues/378))
+  - Week 1-2: Remote MCP Server (HTTP/SSE、認証、セキュリティ)
+  - Week 3: Memory Export/Import (JSONLバックアップ/移行)
+  - Week 4: 本番デプロイメント & ドキュメント
+
+**次の予定**:
+- 🔄 **v4.0.0 stable release** (Q1 2026): 最終テストとドキュメント
+- 🔄 **Phase D** (Q2 2026): Multimodal MVP (画像、音声、動画)
+- 🔄 **Phase E** (Q3 2026): Consumer App (iOS/Android/Desktop)
+- 🔄 **Phase F** (Q4 2026): Cloud SaaS + Enterprise機能
+
+---
+
+## 🚀 クイックスタート
+
+### オプション1: v4.0 Docker（推奨）
 
 ```bash
+# リポジトリをクローン
+git clone https://github.com/JFK/kagura-ai.git
+cd kagura-ai
+
+# サービス起動
+docker compose up -d
+
+# 確認
+curl http://localhost:8080/api/v1/health
+```
+
+**API Docs**: http://localhost:8080/docs
+
+### オプション2: Claude Desktopと統合（v4.0.0）
+
+```bash
+# Kaguraインストール
 pip install kagura-ai[full]
+
+# Claude Desktopを自動設定
+kagura mcp install
+
+# MCPサーバー起動
+kagura mcp serve
 ```
 
----
+**参照**: [MCP Setup Guide](docs/mcp-setup.md)
 
-## ⚡ クイックスタート（30秒）
-
-```python
-from kagura import agent
-
-@agent
-async def translator(text: str, lang: str = "ja") -> str:
-    '''{{ text }}を{{ lang }}に翻訳'''
-
-result = await translator("Hello World", lang="ja")
-print(result)  # "こんにちは世界"
-```
-
-以上です。デコレータ1つ、型ヒント、完了。
-
----
-
-## 🎯 なぜKagura AI？
-
-### Python開発者向けに設計
-
-| 必要な機能 | 他のSDK | Kagura AI |
-|-----------|---------|-----------|
-| **シンプルなAPI** | 50行以上の設定 | **デコレータ1つ** ✅ |
-| **型安全性** | 実行時エラー | **pyright strict** ✅ |
-| **メモリシステム** | 手動セットアップ | **内蔵** ✅ |
-| **Web検索** | 外部プラグイン | **内蔵** ✅ |
-| **コード実行** | 安全でない | **サンドボックス化** ✅ |
-| **テスト** | DIY | **フレームワーク内蔵** ✅ |
-
-### 本番環境向け設計
-
-```python
-from kagura import agent
-from pydantic import BaseModel
-
-class Analysis(BaseModel):
-    sentiment: str
-    keywords: list[str]
-    confidence: float
-
-@agent(enable_memory=True, tools=["web_search"])
-async def analyzer(text: str) -> Analysis:
-    '''{{ text }}の感情分析とキーワード抽出
-
-    最新情報が必要ならweb_search(query)を使用
-    '''
-
-# 型安全、メモリ有効、Web接続
-result = await analyzer("最新のAIトレンド")
-print(result.sentiment)  # IDEの自動補完が効く！
-```
-
----
-
-## 🚀 主な機能
-
-### 1. 1行でエージェント作成
-
-```python
-@agent
-async def summarizer(text: str) -> str:
-    '''3つのポイントで要約: {{ text }}'''
-```
-
-### 2. 型安全な構造化出力
-
-```python
-from pydantic import BaseModel
-
-class Report(BaseModel):
-    summary: str
-    action_items: list[str]
-
-@agent
-async def meeting_analyzer(transcript: str) -> Report:
-    '''会議分析: {{ transcript }}'''
-
-report = await meeting_analyzer("...")
-for item in report.action_items:  # 完全な型付き！
-    print(f"TODO: {item}")
-```
-
-### 3. 内蔵ツール
-
-```python
-@agent(tools=["web_search", "web_fetch"])
-async def researcher(topic: str) -> str:
-    '''{{ topic }}を調査:
-    - web_search(query): Brave Search API
-    - web_fetch(url): Webページ取得
-    '''
-```
-
-内蔵ツール: ファイル操作、Web検索、コード実行、YouTube データなど。
-
-### 4. メモリ管理
-
-```python
-@agent(enable_memory=True)
-async def assistant(message: str) -> str:
-    '''会話を記憶します
-
-    ユーザー: {{ message }}'''
-
-# 複数ターンの会話でコンテキスト保持
-await assistant("好きな色は青です")
-await assistant("私の好きな色は？")  # 記憶している！
-```
-
-### 5. カスタムツール
-
-```python
-from kagura import tool, agent
-
-@tool
-async def search_database(query: str) -> list[dict]:
-    '''内部データベース検索'''
-    return db.query(query)
-
-@agent(tools=[search_database])
-async def data_agent(question: str) -> str:
-    '''データベースで回答: {{ question }}'''
-```
-
-### 6. マルチLLMサポート
-
-```python
-# OpenAI
-@agent(model="gpt-4o")
-async def translator(text: str) -> str: ...
-
-# Anthropic
-@agent(model="claude-3-5-sonnet-20241022")
-async def writer(prompt: str) -> str: ...
-
-# Google
-@agent(model="gemini/gemini-2.0-flash")
-async def analyzer(text: str) -> str: ...
-```
-
-LiteLLM統合で100以上のモデルをサポート。
-
----
-
-## 💼 実世界のユースケース
-
-### SDK統合例
-
-#### Webアプリケーション（FastAPI）
-
-```python
-from fastapi import FastAPI
-from kagura import agent
-
-app = FastAPI()
-
-@agent
-async def support_bot(question: str) -> str:
-    '''カスタマーサポートの質問に回答: {{ question }}'''
-
-@app.post("/api/support")
-async def handle_support(question: str):
-    response = await support_bot(question)
-    return {"answer": response}
-```
-
-#### データパイプライン
-
-```python
-from kagura import agent
-
-@agent(tools=["web_search"])
-async def data_enricher(company_name: str) -> dict:
-    '''{{ company_name }}のデータ補完
-
-    手順:
-    1. Web検索で会社情報を収集
-    2. 業界、規模、所在地、説明を抽出
-    3. 構造化データとして返す
-    '''
-
-# ETLパイプラインで使用
-enriched = await data_enricher("Anthropic")
-```
-
-#### 自動化スクリプト
-
-```python
-from kagura import agent, workflow
-
-@agent
-async def email_classifier(email: str) -> str:
-    '''メール分類: urgent/important/spam
-
-    Email: {{ email }}'''
-
-@workflow.chain
-async def inbox_automation(emails: list[str]):
-    for email in emails:
-        category = await email_classifier(email)
-        # カテゴリに基づいてルーティング
-```
-
----
-
-## 🎨 高度な機能
-
-### マルチモーダル分析
-
-```python
-@agent
-async def image_analyzer(image_path: str, question: str) -> str:
-    '''画像を分析して回答: {{ question }}
-
-    画像: {{ image_path }}'''
-
-result = await image_analyzer("chart.png", "トレンドは？")
-# Gemini Vision APIを自動使用
-```
-
-### ドキュメントRAG
-
-```python
-from kagura.core.memory import MemoryRAG
-
-@agent(enable_memory=True)
-async def doc_qa(question: str) -> str:
-    '''インデックス済みドキュメントから回答
-
-    rag_search(query)で関連情報を検索
-    '''
-
-# 一度インデックス
-rag = MemoryRAG()
-await rag.index_directory("./docs")
-
-# いつでもクエリ
-answer = await doc_qa("Q3レポートに売上について何が書いてある？")
-```
-
-### エージェントテスト
-
-```python
-from kagura.testing import AgentTestCase
-
-class TestMyAgent(AgentTestCase):
-    async def test_translation(self):
-        result = await translator("Hello", lang="ja")
-
-        # セマンティックアサーション（LLM搭載）
-        self.assert_semantic_match(
-            result,
-            "日本語の挨拶"
-        )
-```
-
-### コスト追跡
-
-```python
-from kagura.observability import track_cost
-
-@agent
-@track_cost
-async def expensive_agent(query: str) -> str:
-    '''複雑な分析: {{ query }}'''
-
-# 自動コスト追跡
-# 表示: kagura monitor stats
-```
-
----
-
-## 🎮 ボーナス: 対話型チャット
-
-コードを書かずに試したい？
+### オプション3: セルフホスト本番環境（v4.0.0）⭐ NEW
 
 ```bash
-kagura chat
+# クローンと設定
+git clone https://github.com/JFK/kagura-ai.git
+cd kagura-ai
+cp .env.example .env
+nano .env  # DOMAINとPOSTGRES_PASSWORDを設定
+
+# 本番サービス起動
+docker compose -f docker-compose.prod.yml up -d
+
+# API key生成
+docker compose -f docker-compose.prod.yml exec api \
+  kagura api create-key --name "production"
+
+# HTTPSでアクセス
+curl https://your-domain.com/api/v1/health
 ```
 
-すべての機能を内蔵したClaude Code風の体験：
+**参照**: [Self-Hosting Guide](docs/self-hosting.md)
 
-```
-[You] > report.pdfを読んで要約して
+### オプション4: ChatGPT Connector（v4.0.0）⭐ NEW
 
-[AI] > (Gemini VisionでPDF分析)
+ChatGPTをKaguraメモリーに接続：
 
-      主な発見:
-      1. 売上が前年比23%増
-      2. 新市場拡大成功
-      3. エンジニアチーム倍増
+1. Kagura APIを起動（ローカルまたはリモート）
+2. ChatGPTでDeveloper Modeを有効化
+3. コネクターを追加：
+   - **URL**: `https://your-domain.com/mcp`
+   - **Auth**: Bearer token (オプション)
 
-[You] > 類似レポートを検索
-
-[AI] > (Brave Searchで関連コンテンツ検索)
-
-[You] > 比較チャートを作成
-
-[AI] > (Pythonコード記述、サンドボックスで実行、チャート表示)
-```
-
-ファイル操作、Web検索、コード実行、マルチモーダル分析がすべて自動で動作。
+**参照**: [MCP over HTTP/SSE Guide](docs/mcp-http-setup.md)
 
 ---
 
-## 📦 インストール
+## 🧩 主要機能（v4.0）
 
-### 基本
+### 1. **ユニバーサルメモリーAPI**（✅ Phase A完了）
 
-```bash
-pip install kagura-ai
+```python
+from kagura.core.memory import MemoryManager
+
+memory = MemoryManager(user_id="jfk", agent_name="global")
+
+# 保存
+memory.persistent.store(
+    key="python_best_practices",
+    value="関数シグネチャには必ず型ヒントを使う",
+    user_id="jfk",
+    metadata={"tags": ["python", "coding"], "importance": 0.9}
+)
+
+# 検索（セマンティック）
+results = await memory.rag.search(
+    query="Pythonの関数はどう書くべき？",
+    k=5
+)
 ```
 
-### 全機能（推奨）
+**MCPツール**:
+- `memory_store` - メモリー保存
+- `memory_recall` - セマンティック検索
+- `memory_search` - 全文検索 + セマンティック
 
-```bash
-pip install kagura-ai[full]  # メモリ + Web + マルチモーダル + 認証 + MCP
+---
+
+### 2. **GraphMemory - ナレッジグラフ**（✅ Phase B完了）
+
+```python
+# AIとの交流を記録
+await memory.graph.record_interaction(
+    user_id="jfk",
+    query="非同期関数の書き方は？",
+    response="async def を使って...",
+    metadata={"topic": "python", "skill": "intermediate"}
+)
+
+# ユーザーパターン分析
+pattern = await memory.graph.analyze_user_pattern(user_id="jfk")
+# → {"topics": {"python": 45, "docker": 20}, "learning_trajectory": [...]}
 ```
 
-### 必要なものだけ
+**MCPツール**:
+- `memory_record_interaction` - 交流記録
+- `memory_get_user_pattern` - パターン分析
+- `memory_get_related` - 関連メモリー取得
 
-```bash
-pip install kagura-ai[ai]    # メモリ + ルーティング + コンテキスト圧縮
-pip install kagura-ai[web]   # Web検索 + マルチモーダル
-pip install kagura-ai[auth]  # OAuth2
-pip install kagura-ai[mcp]   # Claude Desktop統合
+---
+
+### 3. **Remote MCP Server**（✅ Phase C完了）⭐ NEW
+
+**ChatGPT Connectorサポート**:
+```
+ChatGPT → HTTP/SSE → Kagura API (/mcp) → Memory
 ```
 
-### 環境設定
+**セキュリティ機能**:
+- ✅ API Key認証（SHA256ハッシュ）
+- ✅ ツールフィルタリング（file操作、shell実行をリモートでブロック）
+- ✅ user_id分離
+- ✅ Automatic HTTPS (Caddy + Let's Encrypt)
+
+**CLIコマンド**:
+```bash
+# API Key管理
+kagura api create-key --name "my-key"
+kagura api list-keys
+kagura api revoke-key --name "my-key"
+
+# リモート接続
+kagura mcp connect --api-base https://my-server.com --api-key xxx
+kagura mcp test-remote
+```
+
+---
+
+### 4. **メモリーエクスポート/インポート**（✅ Phase C完了）⭐ NEW
 
 ```bash
-# 最低1つのLLM APIキーが必要
-export OPENAI_API_KEY=sk-...
+# バックアップ
+kagura memory export --output ./backup
 
-# オプション機能
-export BRAVE_SEARCH_API_KEY=...  # Web検索
-export GOOGLE_API_KEY=...         # マルチモーダル（Gemini）
+# 復元
+kagura memory import --input ./backup
 ```
+
+**JSONL形式**: 人間が読める、完全なデータポータビリティ
+
+**用途**:
+- バックアップ
+- マシン移行
+- GDPRデータエクスポート
+- プラットフォーム間移行
 
 ---
 
 ## 📚 ドキュメント
 
-### 開発者向け（SDK）
-- [APIリファレンス](docs/api/) - 全デコレータ、クラス、関数
-- [SDKガイド](docs/sdk-guide.md) - @agent, @tool, memory, workflows
-- [サンプル](./examples/) - 30以上のコード例
-
-### ユーザー向け（Chat）
-- [Chatガイド](docs/chat-guide.md) - 対話型チャット機能
-- [クイックスタート](docs/quickstart.md) - 5分で開始
-
-### 統合
-- [MCP統合](docs/en/guides/claude-code-mcp-setup.md) - Claude Desktopセットアップ
-- [テストガイド](docs/en/tutorials/14-testing.md) - エージェントのテスト
+- [Getting Started](docs/getting-started.md) - 10分セットアップ
+- [MCP Setup (Claude Desktop)](docs/mcp-setup.md)
+- [MCP over HTTP/SSE (ChatGPT)](docs/mcp-http-setup.md)
+- [Self-Hosting Guide](docs/self-hosting.md) - 本番デプロイメント
+- [Memory Export/Import](docs/memory-export.md)
+- [API Reference](docs/api-reference.md)
+- [Architecture](docs/architecture.md)
 
 ---
 
-## 🏗️ アーキテクチャ
+## 🛠️ 利用可能なツール（MCP）
 
-実績のある技術で構築:
+**メモリー** (6ツール):
+- memory_store, memory_recall, memory_search
+- memory_list, memory_delete, memory_feedback
 
-- **LLM**: OpenAI SDK（直接）+ LiteLLM（100以上のプロバイダー）
-- **メモリ**: ChromaDB（ベクトルストレージ）
-- **バリデーション**: Pydantic v2
-- **テスト**: pytest + カスタムフレームワーク
-- **型安全性**: pyright strictモード
+**グラフ** (3ツール):
+- memory_record_interaction
+- memory_get_related
+- memory_get_user_pattern
 
-**品質指標**:
-- 1,300以上のテスト（90%以上のカバレッジ）
-- 100%型付け
-- 本番環境対応
+**Web/API** (10+ツール):
+- web_search, web_scrape
+- youtube_summarize, get_youtube_transcript
+- brave_web_search, fact_check_claim
 
----
+**ファイル操作** (ローカルのみ):
+- file_read, file_write, dir_list
 
-## 🔧 開発
-
-```bash
-# セットアップ
-git clone https://github.com/JFK/kagura-ai.git
-cd kagura-ai
-uv sync --all-extras
-
-# テスト
-pytest -n auto
-
-# 型チェック
-pyright src/kagura/
-
-# リント
-ruff check src/
-```
-
-詳細は[CONTRIBUTING.md](./CONTRIBUTING.md)参照。
+**システム**:
+- shell_exec (ローカルのみ)
+- telemetry_stats, telemetry_cost
 
 ---
 
-## 🗺️ ロードマップ
+## 🔐 セキュリティ
 
-### 最近リリース（v2.7.x）
-- ✅ ストリーミングサポート（90%高速化）
-- ✅ ユーザー設定システム（`kagura init`）
-- ✅ Personal tools（ニュース、天気、レシピ、イベント）
-- ✅ MCP完全統合（15内蔵ツール）
-- ✅ コンテキスト圧縮（10,000メッセージ対応）
+### ローカル vs リモート
 
-### v3.0実装予定
-- 🔄 ドキュメント刷新（SDK-first）
-- 🔄 Meta Agent強化（Chat内`/create`）
-- 🔄 コスト可視化（Chat内`/stats`）
+**ローカル** (`kagura mcp serve` - Claude Desktop):
+- ✅ 全31ツール利用可能
+- ✅ ファイル操作、Shell実行可能
+- ✅ 完全な機能
 
-### 将来（v3.1+）
-- 🔮 自動検出とインテント認識
-- 🔮 音声インターフェース
-- 🔮 Google Workspace統合
+**リモート** (`/mcp` HTTP/SSE - ChatGPT Connector):
+- ✅ 24の安全なツールのみ
+- ❌ ファイル操作ブロック（セキュリティ）
+- ❌ Shell実行ブロック（セキュリティ）
+- ✅ API Key認証
 
 ---
 
-## 📄 ライセンス
+## 📊 開発状況
 
-Apache License 2.0 - [LICENSE](./LICENSE)参照
+**Phase完了**:
+- ✅ **Phase A** (Oct 2025): MCP-First Foundation
+- ✅ **Phase B** (Oct 2025): GraphMemory
+- ✅ **Phase C** (Oct 2025): Remote MCP Server + Export/Import
+
+**統計**:
+- 📝 +6,100 lines (Phase C)
+- 🧪 1,451+ tests passing
+- 📚 5 new documentation guides
+- 🐳 Production Docker setup
+
+**品質**:
+- ✅ Type-safe (pyright strict)
+- ✅ 90%+ test coverage
+- ✅ Production-ready
+- ✅ Security-hardened
 
 ---
 
-## 🌸 名前の由来
+## 💬 コミュニティ
 
-「神楽（かぐら）」は日本の伝統芸能で、調和と創造性を体現 - このSDKの核心原理です。
+- [GitHub](https://github.com/JFK/kagura-ai) - ソースコード & Issues
+- [PyPI](https://pypi.org/project/kagura-ai/) - パッケージダウンロード
+- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - 使用例
+- [Discussions](https://github.com/JFK/kagura-ai/discussions) - ディスカッション
 
 ---
 
-**型安全なAIを求める開発者のために ❤️**
+## 🔗 関連リンク
 
-[GitHub](https://github.com/JFK/kagura-ai) • [PyPI](https://pypi.org/project/kagura-ai/) • [ドキュメント](https://www.kagura-ai.com/)
+- [Documentation](https://www.kagura-ai.com/) - 完全ドキュメント
+- [MCP Protocol](https://modelcontextprotocol.io/) - Model Context Protocol
+- [Roadmap](ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md) - 実装ロードマップ
+
+---
+
+**ライセンス**: Apache 2.0
+**バージョン**: 4.0.0 (Phase C Complete)
+**ステータス**: Beta - v4.0.0 stable準備中
+
+**すべてのAIのためのユニバーサルメモリーで構築 ❤️**
