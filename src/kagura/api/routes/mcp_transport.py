@@ -4,22 +4,32 @@ Implements MCP Streamable HTTP transport (2025-03-26 spec) for:
 - ChatGPT Connectors (https://developers.openai.com/apps-sdk/deploy/connect-chatgpt/)
 - Other HTTP-based MCP clients
 
-Endpoint: POST/GET /mcp
+Endpoint: POST/GET/DELETE /mcp
+
+Note: This module provides an ASGI app that should be mounted in server.py
 """
 
-from typing import Any
+from __future__ import annotations
 
-from fastapi import APIRouter, Header, Request
-from fastapi.responses import StreamingResponse
+import asyncio
+import logging
+
 from mcp.server import Server
-from mcp.server.sse import SseServerTransport
+from mcp.server.streamable_http import StreamableHTTPServerTransport
+from starlette.types import Receive, Scope, Send
 
 from kagura.mcp.server import create_mcp_server
 
-router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # Global MCP server instance (shared across requests)
 _mcp_server: Server | None = None
+
+# Global MCP transport instance (manages HTTP/SSE communication)
+_mcp_transport: StreamableHTTPServerTransport | None = None
+
+# Background task for MCP server
+_server_task: asyncio.Task | None = None
 
 
 def get_mcp_server() -> Server:
@@ -31,25 +41,92 @@ def get_mcp_server() -> Server:
     global _mcp_server
 
     if _mcp_server is None:
-        _mcp_server = create_mcp_server(name="kagura-api")
+        # Auto-register built-in MCP tools
+        try:
+            import kagura.mcp.builtin  # noqa: F401
+
+            logger.info("Loaded built-in MCP tools for HTTP transport")
+        except ImportError:
+            logger.warning("Could not load built-in MCP tools")
+
+        _mcp_server = create_mcp_server(name="kagura-api-http")
+        logger.info("Created MCP server instance for HTTP transport")
 
     return _mcp_server
 
 
-@router.post("/mcp")
-@router.get("/mcp")
-async def mcp_endpoint(
-    request: Request,
-    x_user_id: str | None = Header(None),
-    authorization: str | None = Header(None),
-) -> Any:
-    """MCP over HTTP/SSE endpoint.
+async def _start_mcp_server():
+    """Start MCP server background task.
 
-    Supports both POST (JSON-RPC requests) and GET (SSE streaming).
+    Should be called during application startup.
+    """
+    global _server_task, _mcp_transport
 
-    Authentication:
-        - X-User-ID header: User identifier (optional, default="default_user")
-        - Authorization header: Bearer {api_key} (Phase C.2, optional for now)
+    if _server_task is not None:
+        logger.warning("MCP server task already running")
+        return
+
+    if _mcp_transport is None:
+        logger.error("Transport not initialized before starting server")
+        return
+
+    server = get_mcp_server()
+
+    async def run_mcp_server():
+        """Background task to run MCP server with transport."""
+        try:
+            logger.info("Starting MCP server background task")
+            assert _mcp_transport is not None
+            # Connect server to transport
+            async with _mcp_transport.connect() as (
+                read_stream,
+                write_stream,
+            ):
+                await server.run(
+                    read_stream,
+                    write_stream,
+                    server.create_initialization_options(),
+                )
+        except asyncio.CancelledError:
+            logger.info("MCP server task cancelled")
+            raise
+        except Exception as e:
+            logger.error(f"MCP server error: {e}", exc_info=True)
+
+    # Create task - runs in background
+    _server_task = asyncio.create_task(run_mcp_server())
+    logger.info("MCP server background task started")
+
+
+def get_mcp_transport() -> StreamableHTTPServerTransport:
+    """Get or create shared MCP transport instance.
+
+    Returns:
+        Shared StreamableHTTPServerTransport instance
+    """
+    global _mcp_transport
+
+    if _mcp_transport is None:
+        # Create transport (no session ID = server generates one)
+        _mcp_transport = StreamableHTTPServerTransport(
+            mcp_session_id=None,  # Auto-generate session ID
+            is_json_response_enabled=True,  # Support JSON responses
+        )
+        logger.info("Created MCP HTTP transport instance")
+
+        # Note: Background task must be started from async context
+        # Call _start_mcp_server() from app lifespan or first request
+
+    return _mcp_transport
+
+
+async def mcp_asgi_app(scope: Scope, receive: Receive, send: Send) -> None:
+    """ASGI app for MCP over HTTP/SSE.
+
+    Supports:
+    - GET: SSE streaming (server → client messages)
+    - POST: JSON-RPC requests (client → server messages)
+    - DELETE: Session termination
 
     ChatGPT Connector Setup:
         1. Enable Developer Mode in ChatGPT settings
@@ -59,66 +136,40 @@ async def mcp_endpoint(
            - URL: https://your-server.com/mcp
            - Description: Universal AI Memory Platform
 
-    Args:
-        request: FastAPI request object
-        x_user_id: User ID from header (optional)
-        authorization: API key from header (optional, future)
-
-    Returns:
-        StreamingResponse (SSE) or JSONResponse
-
-    Raises:
-        HTTPException: If authentication fails or invalid request
-
     Note:
         For local development, use ngrok to expose this endpoint:
         ```bash
         ngrok http 8000
         # Use https://xxxxx.ngrok.app/mcp in ChatGPT
         ```
+
+    Implementation:
+        Uses MCP SDK's StreamableHTTPServerTransport for protocol handling.
+        The transport manages sessions, SSE streaming, and JSON-RPC processing.
+
+    Args:
+        scope: ASGI scope dict
+        receive: ASGI receive callable
+        send: ASGI send callable
     """
-    # Extract user_id (default to "default_user")
-    _user_id = x_user_id or "default_user"  # TODO: Use in Task 2 (auth)
+    global _server_task
 
-    # TODO: API Key authentication (Phase C Task 2)
-    # if authorization:
-    #     api_key = authorization.replace("Bearer ", "")
-    #     if not verify_api_key(api_key):
-    #         raise HTTPException(status_code=401, detail="Invalid API key")
+    # Get or create transport
+    transport = get_mcp_transport()
 
-    # Get MCP server
-    _server = get_mcp_server()  # TODO: Use in request handling
+    # Start background server task if not already running
+    if _server_task is None:
+        logger.info("Starting MCP server task (first request)")
+        await _start_mcp_server()
 
-    # Create SSE transport
-    # TODO: Switch to StreamableHTTPTransport when available in SDK
-    _transport = SseServerTransport(endpoint="/mcp")  # TODO: Use in SSE setup
+        # Wait briefly for server to initialize
+        # The connect() context manager needs time to set up
+        await asyncio.sleep(0.1)  # 100ms should be enough
 
-    # Handle request based on method
-    if request.method == "POST":
-        # JSON-RPC request
-        body = await request.json()
+    # Log request
+    method = scope.get("method", "UNKNOWN")
+    path = scope.get("path", "")
+    logger.info(f"MCP request: {method} {path}")
 
-        # TODO: Process JSON-RPC request via MCP server
-        # This requires integrating with MCP server's request handling
-
-        return {
-            "jsonrpc": "2.0",
-            "id": body.get("id"),
-            "result": {"status": "not_implemented", "message": "Phase C Task 1 WIP"},
-        }
-
-    else:  # GET
-        # SSE streaming
-        async def event_generator():
-            """Generate SSE events for MCP streaming."""
-            # TODO: Implement SSE event streaming
-            yield "data: {}\n\n"
-
-        return StreamingResponse(
-            event_generator(),
-            media_type="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "X-Accel-Buffering": "no",  # Disable nginx buffering
-            },
-        )
+    # Delegate to transport's handle_request()
+    await transport.handle_request(scope, receive, send)

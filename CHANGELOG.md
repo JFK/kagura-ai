@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ✨ Added
+
+- **MCP over HTTP/SSE**: New `/mcp` endpoint for ChatGPT Connectors (#378, Phase C Task 1)
+  - GET `/mcp` - SSE streaming (server → client messages)
+  - POST `/mcp` - JSON-RPC requests (client → server messages)
+  - DELETE `/mcp` - Session termination
+  - Uses MCP SDK's `StreamableHTTPServerTransport` for protocol handling
+  - Auto-registers all built-in MCP tools (memory, graph, etc.)
+  - Background task manages MCP server lifecycle
+  - Documentation: `docs/mcp-http-setup.md`
+
 ### 🔄 Changed
 
 - **GraphMemory**: Made `ai_platform` parameter optional in `record_interaction` (#381)
