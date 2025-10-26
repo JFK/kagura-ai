@@ -1,177 +1,297 @@
-# Kagura AI 用語集 - v3.0
+# Kagura AI 用語集 - v4.0
 
-**Last Updated**: 2025-10-19
-**Version**: v3.0
+**Last Updated**: 2025-10-27
+**Version**: v4.0
 
-Kagura AI v3.0で使用される用語・略語の定義集。
+Kagura AI v4.0で使用される用語・略語の定義集。
 
 ---
 
 ## コア概念
 
-### SDK (Software Development Kit)
-Kagura AIの主要な位置づけ。Python開発者が既存アプリに組み込むライブラリ。
+### Universal Memory
+v4.0の中核概念。すべてのAIプラットフォーム（Claude、ChatGPT、Gemini等）で共有できるメモリー・コンテキスト。
 
-**用途**: FastAPI、データパイプライン、自動化スクリプト等への統合
+**特徴**:
+- プラットフォーム横断
+- ローカル/セルフホスト/クラウド対応
+- MCP-native
 
-### Agent (エージェント)
-`@agent`デコレータで定義されたPython関数。LLMを呼び出し、型ヒントに基づいて自動的にレスポンスをパースする。
+### MCP (Model Context Protocol)
+Anthropic提唱のプロトコル。AIとツールの標準的な連携方式。
 
-```python
-@agent
-async def translator(text: str, lang: str = "ja") -> str:
-    '''Translate to {{ lang }}: {{ text }}'''
-```
+**Kagura v4.0での役割**:
+- 主要インターフェース（MCP-First）
+- Claude Desktop、ChatGPT、Cursor等で利用可能
+- stdio transport（ローカル）とHTTP/SSE transport（リモート）
 
-### Tool (ツール)
-`@tool`デコレータで定義された関数。エージェントが使用できる機能（Web検索、ファイル操作等）。
+### MCP-First
+v4.0の設計哲学。すべての機能をまずMCPツールとして公開し、その後REST APIで補完。
 
-```python
-@tool
-async def search_db(query: str) -> list[dict]:
-    '''Search database'''
-    return db.query(query)
-```
-
-### tool_registry
-全ツールの統一管理システム。Chat、MCP、SDKのどのインターフェースからも同じツールが利用可能。
-
-### Prompt Template
-エージェント関数のdocstring内で使用されるJinja2テンプレート。
-
-```python
-'''Translate to {{ lang }}: {{ text }}'''
-```
-
-### Type-Based Parsing
-関数の戻り値型ヒントに基づいて、LLMレスポンスを自動パースする機能。
-
-**対応型**: str, int, float, bool, list[T], dict, Pydantic models
+**変更点**:
+- v3.0: SDK-First（Python統合がメイン）
+- v4.0: MCP-First（プラットフォーム横断がメイン）
 
 ---
 
-## v3.0機能
+## メモリーシステム
 
-### Interactive Chat (対話型チャット)
-`kagura chat`コマンドで起動するClaude Code風の対話環境。SDKの全機能を試せるボーナス機能。
+### user_id
+v4.0で導入されたユーザー識別子。全てのメモリー操作で必須。
 
-**Note**: v3.0ではChatはボーナス機能として位置づけ（メインはSDK統合）
+**目的**: マルチユーザーサポート、データ分離、リモートアクセスの基盤
 
-### Personal Tools
-ChatやSDKで利用できる日常ツール（daily_news、weather_forecast、search_recipes、find_events）。
+### agent_name
+メモリーのスコープを定義する識別子。
 
-### Meta Agent
-Chat内で`/create agent <description>`でカスタムエージェントを生成する機能。
+**使い分け**:
+- `"global"` - 全スレッド共有（ユーザー設定等）
+- `"thread_xxx"` - スレッド固有（会話コンテキスト等）
 
-### `/stats` Command
-Chat内でトークン使用量とコストを表示するコマンド。
+### Working Memory
+セッション中のみ有効な一時メモリー。In-memory辞書。
+
+### Persistent Memory
+SQLiteに保存される永続メモリー。再起動後も保持。
+
+### Graph Memory
+NetworkXベースの知識グラフ。メモリー間の関係性、AIとユーザーのインタラクション履歴を記録。
+
+**Phase B** (Oct 2025) で実装。
+
+### Memory Scope
+メモリーの保存先：`"working"` (一時) or `"persistent"` (永続)
+
+---
+
+## Remote MCP Server (Phase C)
+
+### HTTP/SSE Transport
+MCP over HTTP/Server-Sent Eventsによるリモートアクセス。
+
+**Endpoint**: `/mcp`
+
+**用途**: ChatGPT Connector、リモートアクセス
+
+### Local Context vs Remote Context
+ツールアクセス制御の2つのコンテキスト。
+
+**Local** (`kagura mcp serve`):
+- 全31ツール利用可能
+- File操作、Shell実行可能
+- Claude Desktop、stdio接続
+
+**Remote** (`/mcp` HTTP/SSE):
+- 24の安全なツールのみ
+- File操作、Shell実行はブロック
+- ChatGPT Connector、HTTP接続
+
+### Tool Permissions
+ツールごとのアクセス制御設定。
+
+**File**: `src/kagura/mcp/permissions.py`
+
+**分類**:
+- `remote: true` - リモートアクセス可（memory_*, web_*等）
+- `remote: false` - ローカルのみ（file_*, shell_exec等）
+
+### API Key
+リモートアクセス用の認証トークン。
+
+**形式**: `kagura_<random_32_bytes>`
+
+**保存**: SHA256ハッシュでSQLiteに保存
+
+**管理**: `kagura api create-key`, `list-keys`, `revoke-key`
+
+---
+
+## Export/Import (Phase C Week 3)
+
+### JSONL Format
+JSON Lines形式。1行1レコードの人間可読フォーマット。
+
+**用途**: メモリーのバックアップ、マイグレーション、GDPR対応
+
+**ファイル**:
+- `memories.jsonl` - メモリーレコード
+- `graph.jsonl` - グラフノード・エッジ
+- `metadata.json` - エクスポートメタデータ
+
+### MemoryExporter / MemoryImporter
+Export/Import機能のコアクラス。
+
+**CLI**: `kagura memory export`, `kagura memory import`
+
+### Roundtrip Validation
+Export → Import で100%データ保全が保証されること。
+
+---
+
+## Production Deployment (Phase C Week 4)
+
+### docker-compose.prod.yml
+本番環境用のDocker Compose設定。
+
+**スタック**:
+- PostgreSQL + pgvector
+- Redis
+- Kagura API
+- Caddy (reverse proxy)
+
+### Caddy
+Go製のリバースプロキシ。Let's Encryptによる自動HTTPS取得。
+
+**特徴**:
+- 設定ファイルがシンプル（Caddyfile）
+- HTTP/2、HTTP/3対応
+- SSE streaming対応
+
+### Health Check
+サービス正常性確認。
+
+**Endpoint**: `/api/v1/health`
+
+**Docker**: `healthcheck` directive
 
 ---
 
 ## 技術用語
 
-### Pydantic v2
-Pythonのデータバリデーションライブラリ。Kagura AIでは型パーサーとデータ検証に使用。
+### FastAPI
+Python Web framework。Kagura API serverの実装に使用。
 
-### LiteLLM
-複数のLLMプロバイダ（OpenAI、Anthropic、Google等）を統一的に扱うライブラリ。
+**特徴**:
+- 自動OpenAPI生成
+- 非同期サポート
+- 型ヒントベース
 
-**Kagura AIのLLM統合**:
-- OpenAI SDK: gpt-*, o1-* (直接、最速)
-- Gemini SDK: gemini/* (直接、multimodal)
-- LiteLLM: その他100+プロバイダ
+### StreamableHTTPServerTransport
+MCP SDKのHTTP/SSE transport実装クラス。
 
-### Jinja2
-Pythonテンプレートエンジン。プロンプト内で変数埋め込み、ループ、条件分岐に使用。
+**用途**: `/mcp` endpointの実装
+
+### SQLite
+軽量なRDBMS。Persistent Memory、API Key保存に使用。
+
+**ファイル**:
+- `~/.kagura/memory.db` - メモリー
+- `~/.kagura/api_keys.db` - API keys
 
 ### ChromaDB
 ベクトルデータベース。Memory RAG、セマンティック検索に使用。
 
-### MCP (Model Context Protocol)
-Anthropic提唱のプロトコル。Claude DesktopでKaguraエージェントを使用可能に。
+### NetworkX
+Pythonグラフライブラリ。Graph Memoryの実装に使用。
+
+### Pydantic v2
+データバリデーションライブラリ。FastAPI、型パースで使用。
+
+### LiteLLM
+複数LLMプロバイダの統一インターフェース。
 
 ---
 
 ## 開発ツール
 
 ### pyright
-Microsoft製の型チェッカー。Kagura AIは`--strict`モードで100%型安全性を保証。
+Microsoft製の型チェッカー。`--strict`モードで100%型安全性。
 
 ### ruff
-高速なPythonリンター・フォーマッター。
+高速Pythonリンター・フォーマッター。
 
 ### pytest
-Pythonテストフレームワーク。非同期テスト（`@pytest.mark.asyncio`）に対応。
-
-### pytest-xdist
-pytestの並列実行プラグイン。テストを60-80%高速化。
+テストフレームワーク。非同期テスト対応。
 
 ### uv
-高速パッケージマネージャ。pip/poetryの代替。
+高速パッケージマネージャ。pip代替。
+
+### Docker Compose
+複数コンテナのオーケストレーション。開発・本番環境構築。
 
 ---
 
 ## プロジェクト固有用語
 
 ### Kagura (神楽)
-日本の伝統芸能。調和と創造性を象徴し、本SDKの設計思想の源泉。
+日本の伝統芸能。調和と創造性を象徴。
 
-### SDK-First
-v3.0の設計哲学。Python SDKとしての統合を主目的とし、Chatは試用・実験用のボーナス機能として位置づけ。
+### MCP-First
+v4.0の設計哲学。全機能をMCPツールで提供し、プラットフォーム横断を実現。
 
-**理由**: GitHub = エンジニア向けプラットフォーム
-
-### Python-First Design
-設定ファイル不要、Pythonコードのみでエージェントを定義する設計。
-
-**特徴**:
-- 型安全性（pyright strict）
-- IDE補完
-- リファクタリング容易
-- バージョン管理
+**v3.0からの変化**:
+- v3.0: SDK-First（Python統合）
+- v4.0: MCP-First（プラットフォーム横断）
 
 ### Issue-Driven Development
-GitHub Issueを起点とした開発フロー。全ての変更はIssueから始まる。
+GitHub Issueを起点とした開発フロー。
 
 ```
 Issue作成 → Branch作成 → 実装 → Draft PR → CI → Merge
 ```
 
 ### Conventional Commits
-コミットメッセージの標準形式。
+コミットメッセージ標準形式。
 
 ```
 <type>(<scope>): <subject> (#issue-number)
 
-feat(core): implement feature (#XX)
-fix(chat): fix bug (#XX)
-docs(readme): update (#XX)
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
 ```
+
+**Type**: feat, fix, refactor, test, docs, chore
 
 ---
 
-## CLI Commands
+## CLI Commands (v4.0)
 
-### kagura chat
-対話型チャットを起動（Claude Code風）。
+### MCP Management
 
-### kagura init
-ユーザー設定をインタラクティブに設定（名前、場所、好み等）。
+- `kagura mcp serve` - MCP server起動（stdio、全ツール）
+- `kagura mcp install` - Claude Desktop自動設定
+- `kagura mcp tools` - 利用可能ツール一覧
+- `kagura mcp doctor` - 診断実行
+- `kagura mcp connect` - リモート接続設定
+- `kagura mcp test-remote` - リモート接続テスト
 
-### kagura mcp serve
-MCPサーバーを起動（Claude Desktop統合用）。
+### API Key Management
 
-### kagura monitor stats
-テレメトリデータ表示（実行回数、トークン、コスト）。
+- `kagura api create-key` - API key生成
+- `kagura api list-keys` - Key一覧
+- `kagura api revoke-key` - Key無効化
+- `kagura api delete-key` - Key削除
 
-### Chat Commands (kagura chat内)
+### Memory Management
 
-- `/help` - ヘルプ表示
-- `/model <name>` - モデル切り替え
-- `/create agent <desc>` - カスタムエージェント生成
-- `/stats` - トークン・コスト表示
-- `/save`, `/load` - セッション保存・読込
-- `/exit` - 終了
+- `kagura memory export` - JSONL export
+- `kagura memory import` - JSONL import
+
+### System
+
+- `kagura --version` - バージョン表示
+- `kagura init` - 初期設定（v3.0互換）
+
+---
+
+## Phase（開発フェーズ）
+
+### Phase A (✅ Oct 2025)
+MCP-First Foundation - REST API、MCP Tools v1.0
+
+### Phase B (✅ Oct 2025)
+GraphMemory - ユーザーパターン分析
+
+### Phase C (✅ Oct 2025)
+Remote MCP Server + Export/Import
+
+**Week 1-2**: Remote MCP Server（HTTP/SSE、認証、セキュリティ）
+**Week 3**: Memory Export/Import（JSONL）
+**Week 4**: Production Deployment（Docker、Caddy）
+
+### Phase D-F (🔜 2026)
+Multimodal MVP、Consumer App、Cloud SaaS
 
 ---
 
@@ -179,49 +299,33 @@ MCPサーバーを起動（Claude Desktop統合用）。
 
 | 略語 | 正式名称 | 説明 |
 |------|---------|------|
-| **LLM** | Large Language Model | 大規模言語モデル (GPT-4, Claude, Gemini等) |
-| **SDK** | Software Development Kit | ソフトウェア開発キット |
-| **API** | Application Programming Interface | アプリケーション プログラミング インターフェース |
-| **CLI** | Command Line Interface | コマンドライン インターフェース |
-| **MCP** | Model Context Protocol | Anthropic提唱のプロトコル |
+| **MCP** | Model Context Protocol | AI-ツール連携プロトコル |
+| **SSE** | Server-Sent Events | HTTP streaming技術 |
+| **JSONL** | JSON Lines | 1行1レコードのJSON形式 |
 | **RAG** | Retrieval-Augmented Generation | 検索拡張生成 |
-| **AST** | Abstract Syntax Tree | 抽象構文木 |
-| **TDD** | Test-Driven Development | テスト駆動開発 |
-| **CI/CD** | Continuous Integration/Delivery | 継続的インテグレーション/デリバリー |
-| **PR** | Pull Request | プルリクエスト |
-| **RFC** | Request for Comments | 技術仕様提案 |
+| **LLM** | Large Language Model | 大規模言語モデル |
+| **API** | Application Programming Interface | HTTP API |
+| **CLI** | Command Line Interface | コマンドライン |
+| **GDPR** | General Data Protection Regulation | EU個人データ保護規則 |
+| **SHA256** | Secure Hash Algorithm 256 | ハッシュ関数 |
+| **SSL/TLS** | Secure Sockets Layer / Transport Layer Security | 暗号化通信 |
+| **HTTPS** | HTTP Secure | SSL/TLS over HTTP |
+| **CORS** | Cross-Origin Resource Sharing | オリジン間リソース共有 |
 
 ---
 
-## ディレクトリ略語
+## ディレクトリ構造
 
 | パス | 説明 |
 |------|------|
-| `src/kagura/` | ソースコード |
+| `src/kagura/core/` | コアロジック（Memory、Graph） |
+| `src/kagura/api/` | REST API（FastAPI） |
+| `src/kagura/mcp/` | MCP Server & Tools |
+| `src/kagura/cli/` | CLI commands |
 | `tests/` | テストコード |
 | `docs/` | ユーザードキュメント |
-| `ai_docs/` | AI開発ドキュメント |
-| `examples/` | SDK使用例 |
-| `.github/workflows/` | CI/CD設定 |
-
----
-
-## v3.0キーフレーズ
-
-### "Python-First AI Agent SDK"
-v3.0の正式名称。Pythonコードのみでエージェント構築、SDKとして統合。
-
-### "SDK-first, Chat as bonus"
-v3.0の設計哲学。SDK統合がメイン、Chatは試用・実験用。
-
-### "One Decorator"
-`@agent`デコレータ1つでAIエージェント作成。
-
-### "Type-Safe"
-pyright strict modeによる100%型安全性。
-
-### "Production-Ready"
-Memory、Tools、Testing等が標準装備。
+| `ai_docs/` | AI開発ドキュメント（内部用） |
+| `examples/` | 使用例 |
 
 ---
 
@@ -232,18 +336,19 @@ Memory、Tools、Testing等が標準装備。
 - [PyPI](https://pypi.org/project/kagura-ai/)
 - [Documentation](https://www.kagura-ai.com/)
 
-### 依存ライブラリ
+### 主要依存ライブラリ
+- [FastAPI](https://fastapi.tiangolo.com/)
 - [Pydantic v2](https://docs.pydantic.dev/)
-- [LiteLLM](https://docs.litellm.ai/)
-- [Jinja2](https://jinja.palletsprojects.com/)
-- [Click](https://click.palletsprojects.com/)
-- [Rich](https://rich.readthedocs.io/)
+- [MCP SDK](https://modelcontextprotocol.io/)
+- [NetworkX](https://networkx.org/)
 - [ChromaDB](https://www.trychroma.com/)
+- [LiteLLM](https://docs.litellm.ai/)
 
 ### プロトコル
 - [Model Context Protocol](https://modelcontextprotocol.io/)
 - [Conventional Commits](https://www.conventionalcommits.org/)
+- [OpenAPI Specification](https://swagger.io/specification/)
 
 ---
 
-**Last Updated**: 2025-10-19 (v3.0)
+**Last Updated**: 2025-10-27 (v4.0 - Phase C Complete)
