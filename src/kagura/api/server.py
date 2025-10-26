@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from kagura.api import models
-from kagura.api.routes import memory, search, system
+from kagura.api.routes import graph, memory, search, system
 
 # FastAPI app
 app = FastAPI(
@@ -34,6 +34,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(memory.router, prefix="/api/v1/memory", tags=["memory"])
+app.include_router(graph.router, prefix="/api/v1/graph", tags=["graph"])
 app.include_router(search.router, prefix="/api/v1", tags=["search"])
 app.include_router(system.router, prefix="/api/v1", tags=["system"])
 

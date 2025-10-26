@@ -158,6 +158,76 @@ class MetricsResponse(BaseModel):
     uptime_seconds: float
 
 
+# Graph Memory (Issue #345)
+class InteractionCreate(BaseModel):
+    """Create AI-User interaction request."""
+
+    user_id: str = Field(..., description="User identifier")
+    ai_platform: str = Field(..., description="AI platform (claude, chatgpt, etc.)")
+    query: str = Field(..., description="User's query")
+    response: str = Field(..., description="AI's response")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Additional metadata"
+    )
+
+
+class InteractionResponse(BaseModel):
+    """Interaction creation response."""
+
+    interaction_id: str
+    user_id: str
+    ai_platform: str
+    message: str
+
+
+class RelatedNodesRequest(BaseModel):
+    """Get related nodes request."""
+
+    depth: int = Field(default=2, ge=1, le=5, description="Traversal depth")
+    rel_type: str | None = Field(
+        None,
+        description=(
+            "Filter by relationship type "
+            "(related_to, depends_on, learned_from, influences, works_on)"
+        ),
+    )
+
+
+class GraphNode(BaseModel):
+    """Graph node representation."""
+
+    id: str
+    type: str
+    data: dict[str, Any] = Field(default_factory=dict)
+
+
+class RelatedNodesResponse(BaseModel):
+    """Related nodes response."""
+
+    node_id: str
+    depth: int
+    rel_type: str | None
+    related_count: int
+    related_nodes: list[GraphNode]
+
+
+class UserPattern(BaseModel):
+    """User interaction pattern analysis."""
+
+    total_interactions: int
+    topics: list[str]
+    avg_interactions_per_topic: float
+    most_discussed_topic: str | None
+    platforms: dict[str, int]
+
+
+class UserPatternResponse(BaseModel):
+    """User pattern analysis response."""
+
+    user_id: str
+    pattern: UserPattern
+
+
 # Error
 class ErrorResponse(BaseModel):
     """Error response."""
