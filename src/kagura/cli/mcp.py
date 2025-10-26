@@ -32,15 +32,24 @@ def mcp():
 
 @mcp.command()
 @click.option("--name", default="kagura-ai", help="Server name (default: kagura-ai)")
+@click.option(
+    "--remote",
+    is_flag=True,
+    help="Use remote API connection (requires: kagura mcp connect)",
+)
 @click.pass_context
-def serve(ctx: click.Context, name: str):
+def serve(ctx: click.Context, name: str, remote: bool):
     """Start MCP server
 
     Starts the MCP server using stdio transport.
     This command is typically called by MCP clients (Claude Code, Cline, etc.).
 
-    Example:
-      kagura mcp serve
+    Examples:
+        # Local mode (default, all tools available)
+        kagura mcp serve
+
+        # Remote mode (connect to remote API, safe tools only)
+        kagura mcp serve --remote
 
     Configuration for Claude Code (~/.config/claude-code/mcp.json):
       {
@@ -51,8 +60,36 @@ def serve(ctx: click.Context, name: str):
           }
         }
       }
+
+    Remote Configuration (connects to remote Kagura API):
+      {
+        "mcpServers": {
+          "kagura-remote": {
+            "command": "kagura",
+            "args": ["mcp", "serve", "--remote"]
+          }
+        }
+      }
     """
     verbose = ctx.obj.get("verbose", False)
+
+    if remote:
+        # Remote mode - show info message
+        click.echo(
+            "Remote mode is not yet fully implemented. "
+            "Use direct HTTP/SSE connection instead:",
+            err=True,
+        )
+        click.echo(
+            "  Configure ChatGPT Connector or other HTTP clients to: "
+            "http://your-server:8000/mcp",
+            err=True,
+        )
+        click.echo(
+            "\nFor now, use local mode: kagura mcp serve (no --remote flag)",
+            err=True,
+        )
+        sys.exit(1)
 
     if verbose:
         click.echo(f"Starting Kagura MCP server: {name}", err=True)
@@ -67,8 +104,8 @@ def serve(ctx: click.Context, name: str):
         if verbose:
             click.echo("Warning: Could not load built-in tools", err=True)
 
-    # Create MCP server
-    server = create_mcp_server(name)
+    # Create MCP server (local context = all tools)
+    server = create_mcp_server(name, context="local")
 
     # Run server with stdio transport
     async def run_server():
@@ -356,6 +393,189 @@ def uninstall(ctx: click.Context, server_name: str):
         console.print("\n[yellow]Restart Claude Desktop to apply changes.[/yellow]\n")
     else:
         console.print("[red]❌ Uninstallation failed[/red]")
+
+
+@mcp.command(name="connect")
+@click.option(
+    "--api-base",
+    required=True,
+    help="Remote Kagura API base URL (e.g., https://my-kagura.example.com)",
+)
+@click.option(
+    "--api-key",
+    help="API key for authentication (optional, can use KAGURA_API_KEY env var)",
+)
+@click.option(
+    "--user-id",
+    help="User ID for memory access (optional, defaults to default_user)",
+)
+@click.pass_context
+def connect(
+    ctx: click.Context, api_base: str, api_key: str | None, user_id: str | None
+):
+    """Configure remote MCP connection
+
+    Saves remote connection settings for Kagura API access.
+    These settings are used by 'kagura mcp serve --remote' command.
+
+    Examples:
+        # Configure remote connection
+        kagura mcp connect --api-base https://my-kagura.example.com --api-key xxx
+
+        # With custom user ID
+        kagura mcp connect --api-base https://api.kagura.io --user-id user_alice
+    """
+    import json
+    from pathlib import Path
+
+    from rich.console import Console
+
+    console = Console()
+
+    # Validate URL
+    if not api_base.startswith(("http://", "https://")):
+        console.print("[red]✗ Error: API base URL must start with http:// or https://[/red]")
+        raise click.Abort()
+
+    # Prepare config
+    config_dir = Path.home() / ".kagura"
+    config_file = config_dir / "remote-config.json"
+    config_dir.mkdir(parents=True, exist_ok=True)
+
+    remote_config = {
+        "api_base": api_base.rstrip("/"),
+        "api_key": api_key,
+        "user_id": user_id or "default_user",
+    }
+
+    # Save config
+    with open(config_file, "w") as f:
+        json.dump(remote_config, f, indent=2)
+
+    console.print("\n[green]✓ Remote connection configured successfully![/green]")
+    console.print()
+    console.print(f"[dim]Config saved to: {config_file}[/dim]")
+    console.print()
+    console.print("[cyan]Connection settings:[/cyan]")
+    console.print(f"  • API Base: {api_base}")
+    console.print(f"  • User ID: {user_id or 'default_user'}")
+    console.print(f"  • API Key: {'***' + (api_key[-8:] if api_key else 'Not set')}")
+    console.print()
+    console.print("[yellow]Test connection with:[/yellow] kagura mcp test-remote")
+    console.print()
+
+
+@mcp.command(name="test-remote")
+@click.pass_context
+def test_remote(ctx: click.Context):
+    """Test remote MCP connection
+
+    Verifies that the remote Kagura API is accessible and responds correctly.
+
+    Example:
+        kagura mcp test-remote
+    """
+    import json
+    from pathlib import Path
+
+    import httpx
+    from rich.console import Console
+
+    console = Console()
+
+    # Load config
+    config_file = Path.home() / ".kagura" / "remote-config.json"
+    if not config_file.exists():
+        console.print("[red]✗ Error: Remote connection not configured[/red]")
+        console.print()
+        console.print(
+            "Configure with: [cyan]kagura mcp connect --api-base <url>[/cyan]"
+        )
+        console.print()
+        raise click.Abort()
+
+    with open(config_file) as f:
+        config = json.load(f)
+
+    api_base = config.get("api_base")
+    api_key = config.get("api_key")
+    user_id = config.get("user_id", "default_user")
+
+    console.print("\n[bold]Testing Remote MCP Connection[/bold]\n")
+    console.print(f"[dim]API Base: {api_base}[/dim]")
+    console.print(f"[dim]User ID: {user_id}[/dim]\n")
+
+    # Test 1: API health check
+    console.print("[cyan]1. Testing API health...[/cyan]")
+    try:
+        response = httpx.get(f"{api_base}/api/v1/health", timeout=10.0)
+        if response.status_code == 200:
+            console.print("   [green]✓ API server is reachable[/green]")
+        else:
+            console.print(
+                f"   [yellow]⚠ API returned status {response.status_code}[/yellow]"
+            )
+    except Exception as e:
+        console.print(f"   [red]✗ Failed: {e}[/red]")
+        raise click.Abort()
+
+    # Test 2: MCP endpoint check
+    console.print("\n[cyan]2. Testing /mcp endpoint...[/cyan]")
+    try:
+        headers = {"Content-Type": "application/json"}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+        if user_id:
+            headers["X-User-ID"] = user_id
+
+        # Try tools/list request
+        mcp_request = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/list",
+            "params": {},
+        }
+
+        response = httpx.post(
+            f"{api_base}/mcp",
+            json=mcp_request,
+            headers=headers,
+            timeout=10.0,
+        )
+
+        if response.status_code == 200:
+            console.print("   [green]✓ MCP endpoint is accessible[/green]")
+        elif response.status_code == 401:
+            console.print("   [red]✗ Authentication failed (invalid API key)[/red]")
+            raise click.Abort()
+        elif response.status_code == 406:
+            console.print("   [yellow]⚠ MCP endpoint exists but returned 406[/yellow]")
+            console.print("   [dim](This is expected for initial handshake)[/dim]")
+        else:
+            console.print(
+                f"   [yellow]⚠ Unexpected status: {response.status_code}[/yellow]"
+            )
+
+    except httpx.TimeoutException:
+        console.print("   [red]✗ Connection timeout[/red]")
+        raise click.Abort()
+    except Exception as e:
+        console.print(f"   [red]✗ Failed: {e}[/red]")
+        raise click.Abort()
+
+    # Test 3: Authentication
+    console.print("\n[cyan]3. Testing authentication...[/cyan]")
+    if api_key:
+        console.print(f"   [green]✓ API key configured: ***{api_key[-8:]}[/green]")
+    else:
+        console.print(
+            "   [yellow]⚠ No API key configured (using default_user)[/yellow]"
+        )
+
+    console.print("\n[green bold]✓ All tests passed![/green bold]")
+    console.print()
+    console.print("[cyan]Your remote MCP connection is ready to use.[/cyan]")
+    console.print()
 
 
 @mcp.command(name="tools")

@@ -291,6 +291,56 @@ curl -X POST http://localhost:8000/mcp \
 
 ---
 
+## 🔌 Remote Connection Management (Phase C Task 4 ✅)
+
+Kagura provides CLI commands to configure and test remote MCP connections.
+
+### Configure Remote Connection
+
+```bash
+# Configure connection to remote Kagura API
+kagura mcp connect \
+  --api-base https://my-kagura.example.com \
+  --api-key kagura_abc123xyz789...
+
+# With custom user ID
+kagura mcp connect \
+  --api-base https://api.kagura.io \
+  --api-key kagura_xyz... \
+  --user-id user_alice
+```
+
+**Config saved to**: `~/.kagura/remote-config.json`
+
+### Test Remote Connection
+
+```bash
+# Verify remote connection works
+kagura mcp test-remote
+
+# Output:
+# Testing Remote MCP Connection
+#
+# 1. Testing API health...
+#    ✓ API server is reachable
+#
+# 2. Testing /mcp endpoint...
+#    ✓ MCP endpoint is accessible
+#
+# 3. Testing authentication...
+#    ✓ API key configured: ***xyz789
+#
+# ✓ All tests passed!
+```
+
+### Usage Notes
+
+- **`kagura mcp serve --remote`** is planned for future releases (stdio → HTTP proxy)
+- For now, use **direct HTTP/SSE** connection from ChatGPT Connector
+- The `connect` and `test-remote` commands help manage remote credentials
+
+---
+
 ## 🌐 Production Deployment
 
 ### Docker Compose

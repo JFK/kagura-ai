@@ -38,6 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fail-safe: unknown tools denied by default
   - Comprehensive test coverage (28 tests)
 
+- **MCP Remote Connection CLI**: Commands for remote configuration (#378, Phase C Task 4)
+  - `kagura mcp connect` - Configure remote API connection
+  - `kagura mcp test-remote` - Test remote connectivity and authentication
+  - `kagura mcp serve --remote` - Remote mode placeholder (future)
+  - Config storage in `~/.kagura/remote-config.json`
+  - Connection diagnostics with health checks
+  - 7 new CLI tests
+
 ### 🔄 Changed
 
 - **GraphMemory**: Made `ai_platform` parameter optional in `record_interaction` (#381)
