@@ -708,7 +708,7 @@ async def memory_delete(agent_name: str, key: str, scope: str = "persistent") ->
 async def memory_get_related(
     agent_name: str,
     node_id: str,
-    depth: int = 2,
+    depth: int | str = 2,
     rel_type: str | None = None,
 ) -> str:
     """Get related nodes from graph memory
@@ -716,6 +716,12 @@ async def memory_get_related(
     Retrieves nodes related to the specified node through graph traversal.
     Useful for discovering connections and relationships between memories,
     users, topics, and interactions.
+
+    🔍 USE WHEN:
+    - Discovering connections between memories
+    - Finding related topics or users
+    - Exploring knowledge graph relationships
+    - Building context from related information
 
     Args:
         agent_name: Agent identifier (use "global" for cross-thread sharing)
@@ -727,7 +733,7 @@ async def memory_get_related(
     Returns:
         JSON string with related nodes list
 
-    Example:
+    💡 EXAMPLE:
         # Find memories related to "python_tips"
         memory_get_related(agent_name="global", node_id="mem_python_tips",
                           depth=2)
@@ -735,6 +741,15 @@ async def memory_get_related(
         # Find topics a user has interacted with
         memory_get_related(agent_name="global", node_id="user_001",
                           depth=1, rel_type="learned_from")
+
+    📊 RETURNS:
+        {
+          "node_id": "starting_node",
+          "depth": 2,
+          "rel_type": "related_to" or null,
+          "related_count": 5,
+          "related_nodes": [...]
+        }
 
     Note:
         Requires enable_graph=True in MemoryManager (enabled by default).
@@ -754,10 +769,19 @@ async def memory_get_related(
             indent=2,
         )
 
+    # Convert depth to int (MCP clients may send as string)
+    try:
+        depth_int = int(depth) if isinstance(depth, str) else depth
+    except (ValueError, TypeError):
+        return json.dumps(
+            {"error": f"Invalid depth value: {depth}. Must be an integer."},
+            indent=2,
+        )
+
     # Get related nodes
     try:
         related = memory.graph.get_related(
-            node_id=node_id, depth=depth, rel_type=rel_type
+            node_id=node_id, depth=depth_int, rel_type=rel_type
         )
 
         return json.dumps(
@@ -771,9 +795,7 @@ async def memory_get_related(
             indent=2,
         )
     except Exception as e:
-        return json.dumps(
-            {"error": f"Failed to get related nodes: {str(e)}"}, indent=2
-        )
+        return json.dumps({"error": f"Failed to get related nodes: {str(e)}"}, indent=2)
 
 
 @tool
@@ -791,6 +813,18 @@ async def memory_record_interaction(
     enabling pattern analysis and personalization. Use this to build a
     history of interactions for learning user preferences and habits.
 
+    🔍 USE WHEN:
+    - Recording conversation turns for pattern analysis
+    - Building user interaction history
+    - Enabling cross-platform memory (same user, different AI tools)
+    - Tracking topic discussions over time
+
+    💡 TIP: Include "topic" in metadata to enable topic analysis
+        metadata='{"topic": "python", "project": "kagura"}'
+
+    This allows memory_get_user_pattern to discover discussed topics and
+    build a knowledge graph of user interests.
+
     Args:
         agent_name: Agent identifier (use "global" for cross-thread sharing)
         user_id: User identifier (e.g., "user_001", email, username)
@@ -798,21 +832,28 @@ async def memory_record_interaction(
         query: User's query/message
         response: AI's response
         metadata: JSON object string with additional data
-            (e.g., '{"project": "kagura", "session_id": "sess_123"}')
+            (e.g., '{"project": "kagura", "topic": "python", "session_id": "sess_123"}')
 
     Returns:
         JSON string with interaction ID and confirmation
 
-    Example:
-        # Record a Python-related interaction
+    💡 EXAMPLE:
+        # Record a Python-related interaction with topic
         memory_record_interaction(
             agent_name="global",
             user_id="user_jfk",
             ai_platform="claude",
             query="How to use FastAPI?",
             response="FastAPI is a modern web framework...",
-            metadata='{"project": "kagura", "topic": "python"}'
+            metadata='{"topic": "python", "project": "kagura"}'
         )
+
+    📊 RETURNS:
+        {
+          "interaction_id": "interaction_abc123",
+          "user_id": "user_jfk",
+          "message": "Interaction recorded successfully"
+        }
 
     Note:
         Requires enable_graph=True in MemoryManager (enabled by default).
@@ -876,7 +917,13 @@ async def memory_get_user_pattern(
 
     Analyzes a user's interaction history to discover patterns, interests,
     and preferences. Returns statistics about topics, platforms, and
-    interaction frequency.
+    interaction frequency across all AI tools.
+
+    🔍 USE WHEN:
+    - Understanding user's interests and discussion patterns
+    - Personalizing responses based on past interactions
+    - Discovering which topics the user discusses most
+    - Analyzing cross-platform usage (Claude vs ChatGPT, etc.)
 
     Args:
         agent_name: Agent identifier (use "global" for cross-thread sharing)
@@ -890,16 +937,25 @@ async def memory_get_user_pattern(
         - most_discussed_topic: Most frequently discussed topic
         - platforms: Platform usage statistics (e.g., {"claude": 30})
 
-    Example:
+    💡 EXAMPLE:
         # Analyze user's patterns
         memory_get_user_pattern(agent_name="global", user_id="user_jfk")
-        # Returns: {
-        #   "total_interactions": 42,
-        #   "topics": ["python", "fastapi", "asyncio"],
-        #   "avg_interactions_per_topic": 14.0,
-        #   "most_discussed_topic": "python",
-        #   "platforms": {"claude": 30, "chatgpt": 12}
-        # }
+
+    📊 RETURNS:
+        {
+          "user_id": "user_jfk",
+          "pattern": {
+            "total_interactions": 42,
+            "topics": ["python", "fastapi", "asyncio"],
+            "avg_interactions_per_topic": 14.0,
+            "most_discussed_topic": "python",
+            "platforms": {"claude": 30, "chatgpt": 12}
+          }
+        }
+
+    💡 TIP: To get meaningful topic analysis, record interactions with
+        "topic" in metadata:
+        metadata='{"topic": "python"}'
 
     Note:
         Requires enable_graph=True in MemoryManager (enabled by default).

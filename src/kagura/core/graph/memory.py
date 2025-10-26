@@ -212,9 +212,7 @@ class GraphMemory:
         result = self.query_graph([node_id], hops=depth, rel_filters=rel_filters)
 
         # Exclude the seed node itself
-        related_nodes = [
-            node for node in result["nodes"] if node["id"] != node_id
-        ]
+        related_nodes = [node for node in result["nodes"] if node["id"] != node_id]
 
         return related_nodes
 
@@ -233,7 +231,7 @@ class GraphMemory:
             ai_platform: AI platform name (e.g., "claude", "chatgpt")
             query: User's query
             response: AI's response
-            metadata: Additional metadata (e.g., session_id, project)
+            metadata: Additional metadata (e.g., session_id, project, topic)
 
         Returns:
             Interaction node ID
@@ -244,18 +242,23 @@ class GraphMemory:
             ...     ai_platform="claude",
             ...     query="How to use FastAPI?",
             ...     response="FastAPI is...",
-            ...     metadata={"project": "kagura", "session_id": "sess_123"}
+            ...     metadata={"project": "kagura", "topic": "python"}
             ... )
+
+        Note:
+            If metadata contains "topic", a topic node will be created and
+            linked to both the interaction and the user for pattern analysis.
         """
         # Create interaction node
         interaction_id = f"interaction_{uuid.uuid4().hex[:8]}"
+        meta_dict = metadata or {}
         interaction_data = {
             "user_id": user_id,
             "ai_platform": ai_platform,
             "query": query,
             "response": response,
             "timestamp": datetime.now().isoformat(),
-            **(metadata or {}),
+            **meta_dict,
         }
 
         self.add_node(interaction_id, "interaction", interaction_data)
@@ -265,6 +268,22 @@ class GraphMemory:
             self.add_node(user_id, "user", {"user_id": user_id})
 
         self.add_edge(interaction_id, user_id, "learned_from", weight=1.0)
+
+        # Extract and link topic if provided in metadata
+        if "topic" in meta_dict:
+            topic_name = meta_dict["topic"]
+            topic_id = f"topic_{topic_name}"
+
+            # Create topic node if doesn't exist
+            if not self.graph.has_node(topic_id):
+                self.add_node(topic_id, "topic", {"name": topic_name})
+
+            # Link interaction to topic
+            self.add_edge(interaction_id, topic_id, "related_to", weight=1.0)
+
+            # Link user to topic (for pattern analysis)
+            if not self.graph.has_edge(user_id, topic_id):
+                self.add_edge(user_id, topic_id, "works_on", weight=1.0)
 
         return interaction_id
 
@@ -446,9 +465,7 @@ class GraphMemory:
                 interactions.append(interaction_dict)
 
         # Sort by timestamp (newest first)
-        interactions.sort(
-            key=lambda x: x.get("timestamp", ""), reverse=True
-        )
+        interactions.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
 
         # Apply limit if specified
         if limit is not None:
@@ -514,7 +531,8 @@ class GraphMemory:
         most_discussed_topic = None
         if topic_interaction_count:
             most_discussed_topic = max(
-                topic_interaction_count, key=topic_interaction_count.get  # type: ignore[arg-type]
+                topic_interaction_count,
+                key=topic_interaction_count.get,  # type: ignore[arg-type]
             )
 
         return {
