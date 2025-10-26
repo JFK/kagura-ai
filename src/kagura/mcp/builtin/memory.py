@@ -402,8 +402,12 @@ async def memory_list(
                     }
                 )
         else:  # working
-            # Get all working memory keys
+            # Get all working memory keys (exclude internal _meta_ keys)
             for key in memory.working.keys():
+                # Skip internal metadata keys
+                if key.startswith("_meta_"):
+                    continue
+
                 value = memory.get_temp(key)
                 results.append(
                     {
