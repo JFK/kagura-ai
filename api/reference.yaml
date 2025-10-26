@@ -1,0 +1,623 @@
+openapi: 3.1.0
+
+info:
+  title: Kagura Memory API
+  version: 4.0.0a
+  description: |
+    # Universal AI Memory & Context Platform
+
+    **Kagura** is an MCP-native memory platform that connects all your AI agents.
+
+    ## Features
+    - 🧠 **Universal Memory**: Store and recall memories across all AI platforms
+    - 🔍 **Semantic Search**: Vector-based similarity search
+    - 🕸️ **Knowledge Graph**: Relationship tracking between memories (v4.0.0+)
+    - 📊 **Vibe Coding History**: Track AI-assisted coding journey
+    - 🔒 **Privacy-First**: Local or self-hosted deployment
+
+    ## Authentication
+    - **Local**: No authentication required (localhost only)
+    - **Self-hosted**: API Key authentication (v4.1.0+)
+    - **Cloud**: OAuth2 + JWT (v4.2.0+)
+
+  contact:
+    name: Kagura AI
+    url: https://github.com/JFK/kagura-ai
+
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://api.kagura-ai.com
+    description: Production server (v4.2.0+)
+
+tags:
+  - name: memory
+    description: Memory CRUD operations
+  - name: search
+    description: Search and recall operations
+  - name: system
+    description: System health and metrics
+
+paths:
+  /:
+    get:
+      summary: Root endpoint
+      description: API information and status
+      operationId: getRoot
+      tags:
+        - system
+      responses:
+        '200':
+          description: API information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RootResponse'
+
+  /api/v1/memory:
+    post:
+      summary: Create memory
+      description: Store a new memory with metadata
+      operationId: createMemory
+      tags:
+        - memory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryCreate'
+      responses:
+        '201':
+          description: Memory created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryResponse'
+        '409':
+          description: Memory key already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      summary: List memories
+      description: List memories with pagination and optional filtering
+      operationId: listMemories
+      tags:
+        - memory
+      parameters:
+        - name: scope
+          in: query
+          description: Filter by scope
+          schema:
+            type: string
+            enum: [working, persistent]
+        - name: page
+          in: query
+          description: Page number (1-indexed)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: List of memories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryListResponse'
+
+  /api/v1/memory/{key}:
+    get:
+      summary: Get memory
+      description: Retrieve a memory by key
+      operationId: getMemory
+      tags:
+        - memory
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Memory key
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Memory details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryResponse'
+        '404':
+          description: Memory not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update memory
+      description: Update an existing memory
+      operationId: updateMemory
+      tags:
+        - memory
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Memory key
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryUpdate'
+      responses:
+        '200':
+          description: Memory updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryResponse'
+        '404':
+          description: Memory not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete memory
+      description: Delete a memory by key
+      operationId: deleteMemory
+      tags:
+        - memory
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Memory key
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Memory deleted successfully
+        '404':
+          description: Memory not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/search:
+    post:
+      summary: Search memories
+      description: Full-text and semantic search across memories
+      operationId: searchMemories
+      tags:
+        - search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /api/v1/recall:
+    post:
+      summary: Recall memories
+      description: Semantic recall using vector similarity
+      operationId: recallMemories
+      tags:
+        - search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecallRequest'
+      responses:
+        '200':
+          description: Recall results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecallResponse'
+
+  /api/v1/health:
+    get:
+      summary: Health check
+      description: Check API and service health
+      operationId: healthCheck
+      tags:
+        - system
+      responses:
+        '200':
+          description: Health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/v1/metrics:
+    get:
+      summary: System metrics
+      description: Get system metrics (memory count, storage size, etc.)
+      operationId: getMetrics
+      tags:
+        - system
+      responses:
+        '200':
+          description: System metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+
+components:
+  schemas:
+    RootResponse:
+      type: object
+      required:
+        - name
+        - version
+        - status
+        - docs
+        - description
+      properties:
+        name:
+          type: string
+          example: Kagura Memory API
+        version:
+          type: string
+          example: 4.0.0a
+        status:
+          type: string
+          example: active
+        docs:
+          type: string
+          example: /docs
+        description:
+          type: string
+          example: Universal AI Memory & Context Platform (MCP-native)
+
+    MemoryCreate:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+          description: Unique memory key
+          example: python_best_practices
+        value:
+          type: string
+          description: Memory content
+          example: Always use type hints for function signatures
+        scope:
+          type: string
+          enum: [working, persistent]
+          default: working
+          description: Memory scope
+        tags:
+          type: array
+          items:
+            type: string
+          default: []
+          description: Tags for categorization
+          example: [python, coding]
+        importance:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.5
+          description: Importance score (0-1)
+        metadata:
+          type: object
+          additionalProperties: true
+          default: {}
+          description: Additional metadata
+
+    MemoryUpdate:
+      type: object
+      properties:
+        value:
+          type: string
+          description: Updated memory content
+        tags:
+          type: array
+          items:
+            type: string
+          description: Updated tags
+        importance:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Updated importance
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Updated metadata
+
+    MemoryResponse:
+      type: object
+      required:
+        - key
+        - value
+        - scope
+        - tags
+        - importance
+        - metadata
+        - created_at
+        - updated_at
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        scope:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        importance:
+          type: number
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    MemoryListResponse:
+      type: object
+      required:
+        - memories
+        - total
+        - page
+        - page_size
+      properties:
+        memories:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemoryResponse'
+        total:
+          type: integer
+          description: Total number of memories
+        page:
+          type: integer
+          description: Current page number
+        page_size:
+          type: integer
+          description: Number of items per page
+
+    SearchRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: Search query
+          example: python type hints
+        scope:
+          type: string
+          enum: [working, persistent, all]
+          default: all
+          description: Search scope
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          description: Max results
+        filter_tags:
+          type: array
+          items:
+            type: string
+          description: Filter by tags (AND logic)
+
+    SearchResult:
+      type: object
+      required:
+        - key
+        - value
+        - scope
+        - tags
+        - score
+        - metadata
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        scope:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        score:
+          type: number
+          description: Relevance score
+        metadata:
+          type: object
+          additionalProperties: true
+
+    SearchResponse:
+      type: object
+      required:
+        - results
+        - total
+        - query
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        total:
+          type: integer
+        query:
+          type: string
+
+    RecallRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: Query text for semantic search
+          example: How should I write Python functions?
+        k:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 5
+          description: Number of results
+        scope:
+          type: string
+          enum: [working, persistent, all]
+          default: all
+          description: Search scope
+        include_graph:
+          type: boolean
+          default: false
+          description: Include graph-related memories (v4.0.0+)
+
+    RecallResult:
+      type: object
+      required:
+        - key
+        - value
+        - scope
+        - similarity
+        - tags
+        - metadata
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        scope:
+          type: string
+        similarity:
+          type: number
+          description: Semantic similarity score (0-1)
+        tags:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+          additionalProperties: true
+
+    RecallResponse:
+      type: object
+      required:
+        - results
+        - query
+        - k
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecallResult'
+        query:
+          type: string
+        k:
+          type: integer
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - services
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        services:
+          type: object
+          additionalProperties:
+            type: string
+          description: Service statuses (api, database, cache, etc.)
+          example:
+            api: healthy
+            database: healthy
+            cache: healthy
+            vector_db: healthy
+
+    MetricsResponse:
+      type: object
+      required:
+        - memory_count
+        - storage_size_mb
+        - uptime_seconds
+      properties:
+        memory_count:
+          type: integer
+          description: Total number of memories
+        storage_size_mb:
+          type: number
+          description: Storage size in megabytes
+        cache_hit_rate:
+          type: number
+          nullable: true
+          description: Cache hit rate (0-1)
+        api_requests_total:
+          type: integer
+          nullable: true
+          description: Total API requests
+        uptime_seconds:
+          type: number
+          description: API uptime in seconds
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - status_code
+      properties:
+        error:
+          type: string
+          description: Error message
+        status_code:
+          type: integer
+          description: HTTP status code
+        detail:
+          type: string
+          nullable: true
+          description: Detailed error information
