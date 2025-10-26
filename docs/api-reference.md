@@ -10,10 +10,12 @@ This document provides comprehensive reference for Kagura's APIs.
 
 1. [REST API](#rest-api)
    - [Memory Operations](#memory-operations)
+   - [Graph Memory Operations](#graph-memory-operations)
    - [Search & Recall](#search--recall)
    - [System](#system)
 2. [MCP Tools](#mcp-tools)
    - [Memory Tools](#memory-tools)
+   - [Graph Tools](#graph-tools)
 
 ---
 
@@ -283,6 +285,155 @@ Semantic recall using vector similarity.
 
 ---
 
+## Graph Memory Operations
+
+**Note**: Requires GraphMemory enabled (`enable_graph=True` in MemoryManager, default in v4.0.0+)
+
+### POST /api/v1/graph/interactions
+
+Record AI-User interaction in knowledge graph.
+
+**Request**:
+```json
+{
+  "user_id": "user_jfk",
+  "ai_platform": "claude",
+  "query": "How to use FastAPI?",
+  "response": "FastAPI is a modern web framework...",
+  "metadata": {
+    "project": "kagura",
+    "session_id": "sess_123"
+  }
+}
+```
+
+**Response** (201 Created):
+```json
+{
+  "interaction_id": "interaction_a1b2c3d4",
+  "user_id": "user_jfk",
+  "ai_platform": "claude",
+  "message": "Interaction recorded successfully"
+}
+```
+
+**Parameters**:
+- `user_id` (string, required): User identifier
+- `ai_platform` (string, required): AI platform (claude, chatgpt, gemini, etc.)
+- `query` (string, required): User's query
+- `response` (string, required): AI's response
+- `metadata` (object): Additional metadata (project, session_id, etc.)
+
+**Use Cases**:
+- Building AI-User interaction history
+- Enabling personalization based on past conversations
+- Tracking which AI platforms user prefers
+
+**Errors**:
+- `503 Service Unavailable`: GraphMemory not available
+- `500 Internal Server Error`: Failed to record interaction
+
+---
+
+### GET /api/v1/graph/{node_id}/related
+
+Get related nodes via graph traversal.
+
+**Request**:
+```bash
+GET /api/v1/graph/mem_001/related?depth=2&rel_type=related_to
+```
+
+**Response** (200 OK):
+```json
+{
+  "node_id": "mem_001",
+  "depth": 2,
+  "rel_type": "related_to",
+  "related_count": 3,
+  "related_nodes": [
+    {
+      "id": "topic_python",
+      "type": "topic",
+      "data": {"name": "Python"}
+    },
+    {
+      "id": "mem_002",
+      "type": "memory",
+      "data": {"key": "fastapi_guide"}
+    }
+  ]
+}
+```
+
+**Parameters**:
+- `node_id` (path, required): Starting node ID
+- `depth` (query): Traversal depth (1-5, default: 2)
+- `rel_type` (query): Filter by relationship type
+  - `related_to`: Semantic relationship
+  - `depends_on`: Dependency
+  - `learned_from`: Learning source
+  - `influences`: Influence
+  - `works_on`: Project/task
+
+**Use Cases**:
+- Discovering related memories
+- Finding connections between topics
+- Exploring knowledge graph
+
+**Errors**:
+- `503 Service Unavailable`: GraphMemory not available
+- `500 Internal Server Error`: Failed to get related nodes
+
+---
+
+### GET /api/v1/graph/users/{user_id}/pattern
+
+Analyze user's interaction patterns.
+
+**Request**:
+```bash
+GET /api/v1/graph/users/user_jfk/pattern
+```
+
+**Response** (200 OK):
+```json
+{
+  "user_id": "user_jfk",
+  "pattern": {
+    "total_interactions": 42,
+    "topics": ["python", "fastapi", "asyncio"],
+    "avg_interactions_per_topic": 14.0,
+    "most_discussed_topic": "python",
+    "platforms": {
+      "claude": 30,
+      "chatgpt": 12
+    }
+  }
+}
+```
+
+**Parameters**:
+- `user_id` (path, required): User identifier
+
+**Response Fields**:
+- `total_interactions`: Number of recorded interactions
+- `topics`: List of topics user has discussed
+- `avg_interactions_per_topic`: Average interactions per topic
+- `most_discussed_topic`: Most frequently discussed topic
+- `platforms`: Platform usage statistics
+
+**Use Cases**:
+- Understanding user preferences
+- Personalizing AI responses
+- Analyzing user behavior patterns
+
+**Errors**:
+- `503 Service Unavailable`: GraphMemory not available
+- `500 Internal Server Error`: Failed to analyze pattern
+
+---
+
 ## System
 
 ### GET /api/v1/health
@@ -537,6 +688,117 @@ Delete memory permanently.
 - Deletes from both key-value storage and RAG
 - GDPR-compliant (complete deletion)
 - Audit logging (TODO: Phase B)
+
+---
+
+## Graph Tools
+
+**Note**: Requires GraphMemory enabled (`enable_graph=True`, default in v4.0.0+)
+
+### memory_get_related
+
+Get related nodes from graph memory.
+
+**Parameters**:
+```python
+{
+  "agent_name": "global",
+  "node_id": "mem_001",      # Starting node ID
+  "depth": 2,                # Traversal depth (1-5)
+  "rel_type": "related_to"   # Optional: relationship filter
+}
+```
+
+**Returns** (JSON):
+```json
+{
+  "node_id": "mem_001",
+  "depth": 2,
+  "rel_type": "related_to",
+  "related_count": 3,
+  "related_nodes": [
+    {
+      "id": "topic_python",
+      "type": "topic",
+      "data": {"name": "Python"},
+      "created_at": "2025-10-26T10:00:00Z"
+    }
+  ]
+}
+```
+
+**Relationship Types**:
+- `related_to`: Semantic relationship
+- `depends_on`: Dependency relationship
+- `learned_from`: Learning source
+- `influences`: Influence relationship
+- `works_on`: Project/task relationship
+
+---
+
+### memory_record_interaction
+
+Record AI-User interaction in graph.
+
+**Parameters**:
+```python
+{
+  "agent_name": "global",
+  "user_id": "user_jfk",
+  "ai_platform": "claude",
+  "query": "How to use FastAPI?",
+  "response": "FastAPI is a modern web framework...",
+  "metadata": '{"project": "kagura", "session_id": "sess_123"}'
+}
+```
+
+**Returns** (JSON):
+```json
+{
+  "status": "recorded",
+  "interaction_id": "interaction_a1b2c3d4",
+  "user_id": "user_jfk",
+  "ai_platform": "claude",
+  "message": "Interaction recorded successfully"
+}
+```
+
+**Usage by AI**:
+> Claude automatically records significant interactions for personalization.
+
+---
+
+### memory_get_user_pattern
+
+Analyze user's interaction patterns.
+
+**Parameters**:
+```python
+{
+  "agent_name": "global",
+  "user_id": "user_jfk"
+}
+```
+
+**Returns** (JSON):
+```json
+{
+  "user_id": "user_jfk",
+  "pattern": {
+    "total_interactions": 42,
+    "topics": ["python", "fastapi", "asyncio"],
+    "avg_interactions_per_topic": 14.0,
+    "most_discussed_topic": "python",
+    "platforms": {
+      "claude": 30,
+      "chatgpt": 12
+    }
+  }
+}
+```
+
+**Usage by AI**:
+> Claude analyzes user patterns to understand preferences and personalize responses.
 
 ---
 
