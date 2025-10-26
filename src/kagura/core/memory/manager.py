@@ -460,7 +460,7 @@ class MemoryManager:
             f"agent={self.agent_name}, "
             f"working={len(self.working)}, "
             f"context={len(self.context)}, "
-            f"persistent={self.persistent.count(self.agent_name)}, "
+            f"persistent={self.persistent.count(self.user_id, self.agent_name)}, "
             f"working_rag={working_rag_count}, "
             f"persistent_rag={persistent_rag_count})"
         )

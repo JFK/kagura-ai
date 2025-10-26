@@ -137,9 +137,12 @@ class MemoryRAG:
             'Python is a programming language'
         """
         # Build metadata filter for user and agent scoping
-        where: "Where | None" = {"user_id": user_id}
+        # ChromaDB requires $and for multiple conditions
+        where: "Where | None" = None
         if agent_name:
-            where["agent_name"] = agent_name
+            where = {"$and": [{"user_id": user_id}, {"agent_name": agent_name}]}
+        else:
+            where = {"user_id": user_id}
 
         # Query ChromaDB collection
         # Returns: {"documents": [[...]], "distances": [[...]], "metadatas": [[...]]}

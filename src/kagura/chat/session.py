@@ -886,6 +886,7 @@ class ChatSession:
         # Create memory manager
         # Disable compression for chat to preserve full conversation context
         self.memory = MemoryManager(
+            user_id="system",
             agent_name="chat_session",
             persist_dir=self.session_dir / "memory",
             enable_compression=False,  # Keep full context for natural conversation
