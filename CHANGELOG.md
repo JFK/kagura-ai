@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.0.0-alpha0] - 2025-10-26
+## [4.0.0a0] - 2025-10-26
 
 ### 🎯 Strategic Pivot
 
@@ -71,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - MCP-first approach
   - Roadmap updated (v4.0 → v4.2)
 - **pyproject.toml**:
-  - Version: 3.0.8 → 4.0.0-alpha0
+  - Version: 3.0.8 → 4.0.0a0
   - Description: Memory platform focus
   - Keywords: memory, mcp, context, knowledge-graph
   - Dependencies: Added FastAPI, uvicorn, psycopg2, redis, networkx

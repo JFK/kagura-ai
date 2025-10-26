@@ -96,7 +96,7 @@ Give **every AI** access to:
 - 5 Core MCP Tools (store/recall/search/feedback/delete)
 - MCP Tool Management (`kagura mcp doctor`, `kagura mcp install`)
 - Production Docker setup
-- v4.0.0-alpha release
+- v4.0.0a0release
 
 **See**: [Phase A Issue #364](https://github.com/JFK/kagura-ai/issues/364)
 
@@ -294,7 +294,7 @@ uvicorn kagura.api.server:app --reload
 - Chat interface（MCP testing）
 - 15+ built-in MCP tools
 
-### 🔄 v4.0.0-alpha（Phase A - Week 1-4）
+### 🔄 v4.0.0a0Phase A - Week 1-4）
 - **REST API**（FastAPI + OpenAPI）✅ In Progress
 - **5 Core MCP Tools**（store/recall/search/feedback/delete）
 - **MCP Tool Management**（doctor, install）
@@ -346,7 +346,7 @@ uvicorn kagura.api.server:app --reload
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 **Active Development**:
-- Phase A（v4.0.0-alpha）: [Issue #364](https://github.com/JFK/kagura-ai/issues/364)
+- Phase A（v4.0.0a0: [Issue #364](https://github.com/JFK/kagura-ai/issues/364)
 - Phase B（GraphMemory）: [Issue #365](https://github.com/JFK/kagura-ai/issues/365)
 - Neural Memory Research: [Issue #348](https://github.com/JFK/kagura-ai/issues/348)
 
@@ -419,5 +419,5 @@ Just as Kagura connects humans with the divine, Kagura AI connects you with all 
 
 ---
 
-*v4.0.0-alpha - Phase A in progress*
+*v4.0.0a0- Phase A in progress*
 *Last updated: 2025-10-26*

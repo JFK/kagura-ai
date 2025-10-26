@@ -27,7 +27,7 @@ This document provides comprehensive reference for Kagura's APIs.
 
 ### Authentication
 
-- **v4.0.0-alpha**: No authentication (localhost only)
+- **v4.0.0a0*: No authentication (localhost only)
 - **v4.1.0+**: API Key authentication
 - **v4.2.0+**: OAuth2 + JWT
 
@@ -623,5 +623,5 @@ Tags enable:
 
 ---
 
-**Version**: 4.0.0-alpha
+**Version**: 4.0.0a
 **Last updated**: 2025-10-26

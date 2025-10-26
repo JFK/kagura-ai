@@ -231,5 +231,5 @@ This removes the configuration but **does not delete your stored memories**.
 
 ---
 
-**Version**: 4.0.0-alpha
+**Version**: 4.0.0a
 **Last updated**: 2025-10-26

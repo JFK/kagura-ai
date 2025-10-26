@@ -360,7 +360,7 @@ services:
 
 ## 🔐 Security Architecture
 
-### v4.0.0-alpha (Current)
+### v4.0.0a0(Current)
 
 - **Authentication**: None (localhost only)
 - **Authorization**: None
@@ -421,7 +421,7 @@ services:
 
 ## 🆕 Phase Roadmap
 
-### Phase A (Current - v4.0.0-alpha)
+### Phase A (Current - v4.0.0a0
 - ✅ FastAPI REST API
 - ✅ MCP Tools v1.0 (6 memory tools)
 - ✅ MCP CLI Management
@@ -452,5 +452,5 @@ services:
 
 ---
 
-**Version**: 4.0.0-alpha
+**Version**: 4.0.0a
 **Last updated**: 2025-10-26

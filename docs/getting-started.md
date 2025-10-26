@@ -261,5 +261,5 @@ results = memory.recall_semantic("IDE preferences", top_k=5)
 
 ---
 
-**Version**: 4.0.0-alpha
+**Version**: 4.0.0a
 **Last updated**: 2025-10-26

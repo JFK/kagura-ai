@@ -2,7 +2,7 @@ openapi: 3.1.0
 
 info:
   title: Kagura Memory API
-  version: 4.0.0-alpha
+  version: 4.0.0a
   description: |
     # Universal AI Memory & Context Platform
 
@@ -293,7 +293,7 @@ components:
           example: Kagura Memory API
         version:
           type: string
-          example: 4.0.0-alpha
+          example: 4.0.0a
         status:
           type: string
           example: active
