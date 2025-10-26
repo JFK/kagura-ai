@@ -702,3 +702,234 @@ async def memory_delete(agent_name: str, key: str, scope: str = "persistent") ->
             },
             indent=2,
         )
+
+
+@tool
+async def memory_get_related(
+    agent_name: str,
+    node_id: str,
+    depth: int = 2,
+    rel_type: str | None = None,
+) -> str:
+    """Get related nodes from graph memory
+
+    Retrieves nodes related to the specified node through graph traversal.
+    Useful for discovering connections and relationships between memories,
+    users, topics, and interactions.
+
+    Args:
+        agent_name: Agent identifier (use "global" for cross-thread sharing)
+        node_id: Starting node ID to find related nodes from
+        depth: Traversal depth (number of hops, default: 2)
+        rel_type: Filter by relationship type (related_to, depends_on,
+            learned_from, influences, works_on). None = all types
+
+    Returns:
+        JSON string with related nodes list
+
+    Example:
+        # Find memories related to "python_tips"
+        memory_get_related(agent_name="global", node_id="mem_python_tips",
+                          depth=2)
+
+        # Find topics a user has interacted with
+        memory_get_related(agent_name="global", node_id="user_001",
+                          depth=1, rel_type="learned_from")
+
+    Note:
+        Requires enable_graph=True in MemoryManager (enabled by default).
+        Returns empty list if GraphMemory is not available.
+    """
+    enable_rag = True
+    memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+
+    # Check if graph is available
+    if not memory.graph:
+        return json.dumps(
+            {
+                "error": "GraphMemory not available",
+                "message": "Graph memory is disabled or NetworkX not installed",
+                "related_nodes": [],
+            },
+            indent=2,
+        )
+
+    # Get related nodes
+    try:
+        related = memory.graph.get_related(
+            node_id=node_id, depth=depth, rel_type=rel_type
+        )
+
+        return json.dumps(
+            {
+                "node_id": node_id,
+                "depth": depth,
+                "rel_type": rel_type,
+                "related_count": len(related),
+                "related_nodes": related,
+            },
+            indent=2,
+        )
+    except Exception as e:
+        return json.dumps(
+            {"error": f"Failed to get related nodes: {str(e)}"}, indent=2
+        )
+
+
+@tool
+async def memory_record_interaction(
+    agent_name: str,
+    user_id: str,
+    ai_platform: str,
+    query: str,
+    response: str,
+    metadata: str = "{}",
+) -> str:
+    """Record AI-User interaction in graph memory
+
+    Stores a conversation turn between user and AI in the knowledge graph,
+    enabling pattern analysis and personalization. Use this to build a
+    history of interactions for learning user preferences and habits.
+
+    Args:
+        agent_name: Agent identifier (use "global" for cross-thread sharing)
+        user_id: User identifier (e.g., "user_001", email, username)
+        ai_platform: AI platform name (e.g., "claude", "chatgpt", "gemini")
+        query: User's query/message
+        response: AI's response
+        metadata: JSON object string with additional data
+            (e.g., '{"project": "kagura", "session_id": "sess_123"}')
+
+    Returns:
+        JSON string with interaction ID and confirmation
+
+    Example:
+        # Record a Python-related interaction
+        memory_record_interaction(
+            agent_name="global",
+            user_id="user_jfk",
+            ai_platform="claude",
+            query="How to use FastAPI?",
+            response="FastAPI is a modern web framework...",
+            metadata='{"project": "kagura", "topic": "python"}'
+        )
+
+    Note:
+        Requires enable_graph=True in MemoryManager (enabled by default).
+        The interaction is linked to the user node and can be analyzed later.
+    """
+    enable_rag = True
+    memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+
+    # Check if graph is available
+    if not memory.graph:
+        return json.dumps(
+            {
+                "error": "GraphMemory not available",
+                "message": "Graph memory is disabled or NetworkX not installed",
+            },
+            indent=2,
+        )
+
+    # Parse metadata
+    try:
+        metadata_dict = json.loads(metadata)
+    except json.JSONDecodeError:
+        return json.dumps({"error": "Invalid JSON in metadata parameter"}, indent=2)
+
+    # Record interaction
+    try:
+        interaction_id = memory.graph.record_interaction(
+            user_id=user_id,
+            ai_platform=ai_platform,
+            query=query,
+            response=response,
+            metadata=metadata_dict,
+        )
+
+        # Persist graph if persist_path is set
+        if memory.graph.persist_path:
+            memory.graph.persist()
+
+        return json.dumps(
+            {
+                "status": "recorded",
+                "interaction_id": interaction_id,
+                "user_id": user_id,
+                "ai_platform": ai_platform,
+                "message": "Interaction recorded successfully",
+            },
+            indent=2,
+        )
+    except Exception as e:
+        return json.dumps(
+            {"error": f"Failed to record interaction: {str(e)}"}, indent=2
+        )
+
+
+@tool
+async def memory_get_user_pattern(
+    agent_name: str,
+    user_id: str,
+) -> str:
+    """Analyze user's interaction patterns and interests
+
+    Analyzes a user's interaction history to discover patterns, interests,
+    and preferences. Returns statistics about topics, platforms, and
+    interaction frequency.
+
+    Args:
+        agent_name: Agent identifier (use "global" for cross-thread sharing)
+        user_id: User identifier to analyze
+
+    Returns:
+        JSON string with user pattern analysis including:
+        - total_interactions: Number of recorded interactions
+        - topics: List of topics user has discussed
+        - avg_interactions_per_topic: Average interactions per topic
+        - most_discussed_topic: Most frequently discussed topic
+        - platforms: Platform usage statistics (e.g., {"claude": 30})
+
+    Example:
+        # Analyze user's patterns
+        memory_get_user_pattern(agent_name="global", user_id="user_jfk")
+        # Returns: {
+        #   "total_interactions": 42,
+        #   "topics": ["python", "fastapi", "asyncio"],
+        #   "avg_interactions_per_topic": 14.0,
+        #   "most_discussed_topic": "python",
+        #   "platforms": {"claude": 30, "chatgpt": 12}
+        # }
+
+    Note:
+        Requires enable_graph=True in MemoryManager (enabled by default).
+        User must have recorded interactions via memory_record_interaction.
+    """
+    enable_rag = True
+    memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+
+    # Check if graph is available
+    if not memory.graph:
+        return json.dumps(
+            {
+                "error": "GraphMemory not available",
+                "message": "Graph memory is disabled or NetworkX not installed",
+            },
+            indent=2,
+        )
+
+    # Analyze user pattern
+    try:
+        pattern = memory.graph.analyze_user_pattern(user_id)
+
+        return json.dumps(
+            {
+                "user_id": user_id,
+                "pattern": pattern,
+            },
+            indent=2,
+        )
+    except Exception as e:
+        return json.dumps(
+            {"error": f"Failed to analyze user pattern: {str(e)}"}, indent=2
+        )

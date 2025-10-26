@@ -4,7 +4,10 @@ import pytest
 
 from kagura.mcp.builtin.memory import (
     _memory_cache,
+    memory_get_related,
+    memory_get_user_pattern,
     memory_recall,
+    memory_record_interaction,
     memory_search,
     memory_store,
 )
@@ -532,3 +535,225 @@ class TestMemoryList:
         keys_b = {m["key"] for m in data_b["memories"]}
         assert "key_b" in keys_b
         assert "key_a" not in keys_b
+
+
+class TestMemoryGraphTools:
+    """Test Graph Memory MCP tools (Issue #345)."""
+
+    @pytest.mark.asyncio
+    async def test_record_interaction(self) -> None:
+        """Test memory_record_interaction tool."""
+        import json
+
+        result = await memory_record_interaction(
+            agent_name="test_graph_agent",
+            user_id="user_test",
+            ai_platform="claude",
+            query="How to use FastAPI?",
+            response="FastAPI is a modern web framework...",
+            metadata='{"project": "kagura"}',
+        )
+
+        data = json.loads(result)
+        assert data["status"] == "recorded"
+        assert data["user_id"] == "user_test"
+        assert data["ai_platform"] == "claude"
+        assert "interaction_id" in data
+
+    @pytest.mark.asyncio
+    async def test_record_interaction_invalid_metadata(self) -> None:
+        """Test memory_record_interaction with invalid metadata JSON."""
+        import json
+
+        result = await memory_record_interaction(
+            agent_name="test_graph_agent",
+            user_id="user_test",
+            ai_platform="claude",
+            query="Test query",
+            response="Test response",
+            metadata="invalid json",
+        )
+
+        data = json.loads(result)
+        assert "error" in data
+        assert "Invalid JSON" in data["error"]
+
+    @pytest.mark.asyncio
+    async def test_record_multiple_interactions(self) -> None:
+        """Test recording multiple interactions for same user."""
+        import json
+
+        result1 = await memory_record_interaction(
+            agent_name="test_graph_agent",
+            user_id="user_multi",
+            ai_platform="claude",
+            query="Query 1",
+            response="Response 1",
+        )
+
+        result2 = await memory_record_interaction(
+            agent_name="test_graph_agent",
+            user_id="user_multi",
+            ai_platform="chatgpt",
+            query="Query 2",
+            response="Response 2",
+        )
+
+        data1 = json.loads(result1)
+        data2 = json.loads(result2)
+
+        assert data1["status"] == "recorded"
+        assert data2["status"] == "recorded"
+        assert data1["interaction_id"] != data2["interaction_id"]
+
+    @pytest.mark.asyncio
+    async def test_get_related(self) -> None:
+        """Test memory_get_related tool."""
+        import json
+
+        # First record an interaction
+        result_record = await memory_record_interaction(
+            agent_name="test_related_agent",
+            user_id="user_related",
+            ai_platform="claude",
+            query="Test query",
+            response="Test response",
+        )
+
+        record_data = json.loads(result_record)
+        interaction_id = record_data["interaction_id"]
+
+        # Get related nodes
+        result = await memory_get_related(
+            agent_name="test_related_agent",
+            node_id=interaction_id,
+            depth=1,
+        )
+
+        data = json.loads(result)
+        assert data["node_id"] == interaction_id
+        assert data["depth"] == 1
+        assert "related_nodes" in data
+        assert data["related_count"] >= 0
+
+    @pytest.mark.asyncio
+    async def test_get_related_with_filter(self) -> None:
+        """Test memory_get_related with relationship filter."""
+        import json
+
+        # Record interaction
+        result_record = await memory_record_interaction(
+            agent_name="test_filter_agent",
+            user_id="user_filter",
+            ai_platform="claude",
+            query="Test query",
+            response="Test response",
+        )
+
+        record_data = json.loads(result_record)
+        interaction_id = record_data["interaction_id"]
+
+        # Get related with filter
+        result = await memory_get_related(
+            agent_name="test_filter_agent",
+            node_id=interaction_id,
+            depth=1,
+            rel_type="learned_from",
+        )
+
+        data = json.loads(result)
+        assert data["rel_type"] == "learned_from"
+        assert "related_nodes" in data
+
+    @pytest.mark.asyncio
+    async def test_get_related_nonexistent_node(self) -> None:
+        """Test memory_get_related with non-existent node."""
+        import json
+
+        result = await memory_get_related(
+            agent_name="test_graph_agent",
+            node_id="nonexistent_node",
+            depth=1,
+        )
+
+        data = json.loads(result)
+        assert "related_nodes" in data
+        assert data["related_count"] == 0
+
+    @pytest.mark.asyncio
+    async def test_get_user_pattern(self) -> None:
+        """Test memory_get_user_pattern tool."""
+        import json
+
+        user_id = "user_pattern_test"
+
+        # Record multiple interactions
+        for i in range(3):
+            await memory_record_interaction(
+                agent_name="test_pattern_agent",
+                user_id=user_id,
+                ai_platform="claude",
+                query=f"Query {i}",
+                response=f"Response {i}",
+            )
+
+        # Get user pattern
+        result = await memory_get_user_pattern(
+            agent_name="test_pattern_agent",
+            user_id=user_id,
+        )
+
+        data = json.loads(result)
+        assert data["user_id"] == user_id
+        assert "pattern" in data
+
+        pattern = data["pattern"]
+        assert pattern["total_interactions"] == 3
+        assert "topics" in pattern
+        assert "platforms" in pattern
+        assert pattern["platforms"]["claude"] == 3
+
+    @pytest.mark.asyncio
+    async def test_get_user_pattern_nonexistent_user(self) -> None:
+        """Test memory_get_user_pattern with non-existent user."""
+        import json
+
+        result = await memory_get_user_pattern(
+            agent_name="test_graph_agent",
+            user_id="nonexistent_user",
+        )
+
+        data = json.loads(result)
+        assert data["user_id"] == "nonexistent_user"
+
+        pattern = data["pattern"]
+        assert pattern["total_interactions"] == 0
+        assert pattern["topics"] == []
+        assert pattern["platforms"] == {}
+
+    @pytest.mark.asyncio
+    async def test_graph_disabled(self) -> None:
+        """Test graph tools when GraphMemory is disabled."""
+        import json
+
+        from kagura.core.memory import MemoryManager
+
+        # Create memory manager with graph disabled
+        _memory_cache["test_no_graph_agent:rag=True"] = MemoryManager(
+            agent_name="test_no_graph_agent",
+            enable_rag=True,
+            enable_graph=False,
+        )
+
+        # Try to record interaction
+        result = await memory_record_interaction(
+            agent_name="test_no_graph_agent",
+            user_id="user_no_graph",
+            ai_platform="claude",
+            query="Test",
+            response="Test",
+        )
+
+        data = json.loads(result)
+        assert "error" in data
+        assert "GraphMemory not available" in data["error"]

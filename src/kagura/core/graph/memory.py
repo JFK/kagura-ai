@@ -385,6 +385,146 @@ class GraphMemory:
 
         return {"nodes": nodes, "edges": edges}
 
+    def get_user_topics(self, user_id: str) -> list[dict[str, Any]]:
+        """Get topics associated with a user.
+
+        Args:
+            user_id: User identifier
+
+        Returns:
+            List of topic nodes associated with the user
+
+        Example:
+            >>> topics = graph.get_user_topics("user_001")
+            >>> # Returns topic nodes connected via interactions
+        """
+        if not self.graph.has_node(user_id):
+            return []
+
+        topics = []
+        # Find all interactions from this user
+        for predecessor in self.graph.predecessors(user_id):
+            pred_data = self.graph.nodes[predecessor]
+            if pred_data.get("type") == "interaction":
+                # Find topics connected to this interaction
+                for neighbor in self.graph.successors(predecessor):
+                    if neighbor == user_id:
+                        continue
+                    neighbor_data = self.graph.nodes[neighbor]
+                    if neighbor_data.get("type") == "topic":
+                        topic_dict = dict(neighbor_data)
+                        topic_dict["id"] = neighbor
+                        topics.append(topic_dict)
+
+        return topics
+
+    def get_user_interactions(
+        self, user_id: str, limit: Optional[int] = None
+    ) -> list[dict[str, Any]]:
+        """Get interaction history for a user.
+
+        Args:
+            user_id: User identifier
+            limit: Maximum number of interactions to return (None = all)
+
+        Returns:
+            List of interaction nodes, sorted by timestamp (newest first)
+
+        Example:
+            >>> interactions = graph.get_user_interactions("user_001", limit=10)
+        """
+        if not self.graph.has_node(user_id):
+            return []
+
+        interactions = []
+        # Find all interactions connected to this user
+        for predecessor in self.graph.predecessors(user_id):
+            pred_data = self.graph.nodes[predecessor]
+            if pred_data.get("type") == "interaction":
+                interaction_dict = dict(pred_data)
+                interaction_dict["id"] = predecessor
+                interactions.append(interaction_dict)
+
+        # Sort by timestamp (newest first)
+        interactions.sort(
+            key=lambda x: x.get("timestamp", ""), reverse=True
+        )
+
+        # Apply limit if specified
+        if limit is not None:
+            interactions = interactions[:limit]
+
+        return interactions
+
+    def analyze_user_pattern(self, user_id: str) -> dict[str, Any]:
+        """Analyze user's interaction patterns and interests.
+
+        Args:
+            user_id: User identifier
+
+        Returns:
+            Analysis dict with statistics and patterns
+
+        Example:
+            >>> pattern = graph.analyze_user_pattern("user_001")
+            >>> # Returns: {
+            >>> #   "total_interactions": 42,
+            >>> #   "topics": ["python", "fastapi"],
+            >>> #   "avg_interactions_per_topic": 3.5,
+            >>> #   "most_discussed_topic": "python",
+            >>> #   "platforms": {"claude": 30, "chatgpt": 12}
+            >>> # }
+        """
+        if not self.graph.has_node(user_id):
+            return {
+                "total_interactions": 0,
+                "topics": [],
+                "avg_interactions_per_topic": 0.0,
+                "most_discussed_topic": None,
+                "platforms": {},
+            }
+
+        # Get all interactions
+        interactions = self.get_user_interactions(user_id)
+        total_interactions = len(interactions)
+
+        # Count platforms
+        platforms: dict[str, int] = {}
+        for interaction in interactions:
+            platform = interaction.get("ai_platform", "unknown")
+            platforms[platform] = platforms.get(platform, 0) + 1
+
+        # Get topics
+        topics_list = self.get_user_topics(user_id)
+        unique_topics = list({t.get("id") for t in topics_list})
+
+        # Calculate average interactions per topic
+        avg_interactions_per_topic = (
+            total_interactions / len(unique_topics) if unique_topics else 0.0
+        )
+
+        # Find most discussed topic (topic with most interactions)
+        topic_interaction_count: dict[str, int] = {}
+        for topic in topics_list:
+            topic_id = topic.get("id", "")
+            topic_interaction_count[topic_id] = (
+                topic_interaction_count.get(topic_id, 0) + 1
+            )
+
+        most_discussed_topic = None
+        if topic_interaction_count:
+            most_discussed_topic = max(
+                topic_interaction_count, key=topic_interaction_count.get  # type: ignore[arg-type]
+            )
+
+        return {
+            "total_interactions": total_interactions,
+            "topics": unique_topics,
+            "avg_interactions_per_topic": round(avg_interactions_per_topic, 2),
+            "most_discussed_topic": most_discussed_topic,
+            "platforms": platforms,
+        }
+
     def clear(self) -> None:
         """Clear all nodes and edges from graph."""
         self.graph.clear()
