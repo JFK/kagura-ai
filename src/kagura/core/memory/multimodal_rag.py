@@ -166,8 +166,11 @@ class MultimodalRAG(MemoryRAG):
                 }
 
                 # Store in ChromaDB
+                # Note: user_id should be provided by caller context
+                # For now, use "default_user" (will be fixed in caller methods)
                 self.store(
                     content=content.content,
+                    user_id="default_user",  # TODO: Pass from indexing context
                     metadata=metadata,
                 )
 
@@ -257,6 +260,7 @@ class MultimodalRAG(MemoryRAG):
     def query(
         self,
         query_text: str,
+        user_id: str = "default_user",
         n_results: int = 5,
         file_type: Optional[FileType] = None,
     ) -> list[dict[str, Any]]:
@@ -264,6 +268,7 @@ class MultimodalRAG(MemoryRAG):
 
         Args:
             query_text: Search query
+            user_id: User identifier (defaults to "default_user" for backward compat)
             n_results: Number of results to return
             file_type: Optional file type filter
 
@@ -272,12 +277,12 @@ class MultimodalRAG(MemoryRAG):
 
         Example:
             >>> # Search all content
-            >>> results = rag.query("authentication flow")
+            >>> results = rag.query("authentication flow", user_id="jfk")
             >>> # Search only images
-            >>> results = rag.query("diagram", file_type=FileType.IMAGE)
+            >>> results = rag.query("diagram", user_id="jfk", file_type=FileType.IMAGE)
         """
         # Use parent recall method
-        results = self.recall(query=query_text, top_k=n_results)
+        results = self.recall(query=query_text, user_id=user_id, top_k=n_results)
 
         # Filter by file type if specified
         if file_type:

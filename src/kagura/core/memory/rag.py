@@ -69,6 +69,7 @@ class MemoryRAG:
     def store(
         self,
         content: str,
+        user_id: str,
         metadata: Optional[dict[str, Any]] = None,
         agent_name: Optional[str] = None,
     ) -> str:
@@ -76,16 +77,19 @@ class MemoryRAG:
 
         Args:
             content: Content to store
+            user_id: User identifier (memory owner)
             metadata: Optional metadata
             agent_name: Optional agent name for scoping
 
         Returns:
             Content hash (unique ID)
         """
-        # Generate unique ID from content hash
-        content_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
+        # Generate unique ID from content hash + user_id for uniqueness
+        unique_str = f"{user_id}:{content}"
+        content_hash = hashlib.sha256(unique_str.encode()).hexdigest()[:16]
 
         full_metadata = metadata or {}
+        full_metadata["user_id"] = user_id
         if agent_name:
             full_metadata["agent_name"] = agent_name
 
@@ -98,7 +102,11 @@ class MemoryRAG:
         return content_hash
 
     def recall(
-        self, query: str, top_k: int = 5, agent_name: Optional[str] = None
+        self,
+        query: str,
+        user_id: str,
+        top_k: int = 5,
+        agent_name: Optional[str] = None,
     ) -> list[dict[str, Any]]:
         """Semantic search for memories using vector similarity.
 
@@ -107,6 +115,7 @@ class MemoryRAG:
 
         Args:
             query: Search query (will be embedded automatically by ChromaDB)
+            user_id: User identifier (filter by memory owner)
             top_k: Number of results to return (sorted by similarity)
             agent_name: Optional agent name filter (for agent-scoped search)
 
@@ -122,15 +131,15 @@ class MemoryRAG:
             to 2.0 (opposite).
 
         Example:
-            >>> rag.store("Python is a programming language", agent_name="assistant")
-            >>> results = rag.recall("What is Python?", top_k=1)
+            >>> rag.store("Python is a programming language", user_id="jfk")
+            >>> results = rag.recall("What is Python?", user_id="jfk", top_k=1)
             >>> print(results[0]["content"])
             'Python is a programming language'
-            >>> print(results[0]["distance"])  # e.g., 0.34 (close match)
-            0.34
         """
-        # Build metadata filter for agent-scoped search
-        where: "Where | None" = {"agent_name": agent_name} if agent_name else None
+        # Build metadata filter for user and agent scoping
+        where: "Where | None" = {"user_id": user_id}
+        if agent_name:
+            where["agent_name"] = agent_name
 
         # Query ChromaDB collection
         # Returns: {"documents": [[...]], "distances": [[...]], "metadatas": [[...]]}

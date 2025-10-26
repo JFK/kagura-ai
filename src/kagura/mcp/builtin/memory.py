@@ -18,13 +18,16 @@ if TYPE_CHECKING:
 _memory_cache: dict[str, MemoryManager] = {}
 
 
-def _get_memory_manager(agent_name: str, enable_rag: bool = False) -> MemoryManager:
+def _get_memory_manager(
+    user_id: str, agent_name: str, enable_rag: bool = False
+) -> MemoryManager:
     """Get or create cached MemoryManager instance
 
     Ensures the same MemoryManager instance is reused across MCP tool calls
-    for the same agent_name, allowing working memory to persist.
+    for the same user_id + agent_name combination, allowing working memory to persist.
 
     Args:
+        user_id: User identifier (memory owner)
         agent_name: Name of the agent
         enable_rag: Whether to enable RAG (semantic search)
 
@@ -33,11 +36,11 @@ def _get_memory_manager(agent_name: str, enable_rag: bool = False) -> MemoryMana
     """
     from kagura.core.memory import MemoryManager
 
-    cache_key = f"{agent_name}:rag={enable_rag}"
+    cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
 
     if cache_key not in _memory_cache:
         _memory_cache[cache_key] = MemoryManager(
-            agent_name=agent_name, enable_rag=enable_rag
+            user_id=user_id, agent_name=agent_name, enable_rag=enable_rag
         )
 
     return _memory_cache[cache_key]
@@ -45,6 +48,7 @@ def _get_memory_manager(agent_name: str, enable_rag: bool = False) -> MemoryMana
 
 @tool
 async def memory_store(
+    user_id: str,
     agent_name: str,
     key: str,
     value: str,
@@ -60,11 +64,12 @@ async def memory_store(
     - Important context needs to be preserved
     - User preferences or settings should be stored
 
-    💡 IMPORTANT: agent_name determines memory sharing behavior:
-    - agent_name="global": Shared across ALL chat threads
-      (for user preferences, global facts)
-    - agent_name="thread_specific": Isolated per thread
-      (for conversation-specific context)
+    💡 IMPORTANT: Memory ownership model (v4.0)
+    - user_id: WHO owns this memory (e.g., "user_jfk", email, username)
+    - agent_name: WHERE to store ("global" = all threads, "thread_X" = specific)
+
+    🌐 CROSS-PLATFORM: All memories are tied to user_id, enabling
+        true Universal Memory across Claude, ChatGPT, Gemini, etc.
 
     Examples:
         # Global memory (accessible from all threads)

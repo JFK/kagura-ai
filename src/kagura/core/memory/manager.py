@@ -23,6 +23,7 @@ class MemoryManager:
 
     def __init__(
         self,
+        user_id: str,
         agent_name: Optional[str] = None,
         persist_dir: Optional[Path] = None,
         max_messages: int = 100,
@@ -35,6 +36,7 @@ class MemoryManager:
         """Initialize memory manager.
 
         Args:
+            user_id: User identifier (memory owner) - REQUIRED
             agent_name: Optional agent name for scoping
             persist_dir: Directory for persistent storage
             max_messages: Maximum messages in context
@@ -47,6 +49,7 @@ class MemoryManager:
             compression_policy: Compression configuration
             model: LLM model name for compression
         """
+        self.user_id = user_id
         self.agent_name = agent_name
 
         # Initialize memory types
@@ -254,7 +257,7 @@ class MemoryManager:
             metadata: Optional metadata
         """
         # Store in SQLite
-        self.persistent.store(key, value, self.agent_name, metadata)
+        self.persistent.store(key, value, self.user_id, self.agent_name, metadata)
 
         # Also index in persistent RAG for semantic search
         if self.persistent_rag:
@@ -263,7 +266,9 @@ class MemoryManager:
             full_metadata.update({"type": "persistent_memory", "key": key})
             value_str = value if isinstance(value, str) else str(value)
             content = f"{key}: {value_str}"
-            self.persistent_rag.store(content, full_metadata, self.agent_name)
+            self.persistent_rag.store(
+                content, self.user_id, full_metadata, self.agent_name
+            )
 
     def recall(self, key: str) -> Optional[Any]:
         """Recall persistent memory.
@@ -274,7 +279,7 @@ class MemoryManager:
         Returns:
             Stored value or None
         """
-        return self.persistent.recall(key, self.agent_name)
+        return self.persistent.recall(key, self.user_id, self.agent_name)
 
     def search_memory(self, query: str, limit: int = 10) -> list[dict[str, Any]]:
         """Search persistent memory.
@@ -286,7 +291,7 @@ class MemoryManager:
         Returns:
             List of memory dictionaries
         """
-        return self.persistent.search(query, self.agent_name, limit)
+        return self.persistent.search(query, self.user_id, self.agent_name, limit)
 
     def forget(self, key: str) -> None:
         """Delete persistent memory.
@@ -295,7 +300,7 @@ class MemoryManager:
             key: Memory key to delete
         """
         # Delete from SQLite
-        self.persistent.forget(key, self.agent_name)
+        self.persistent.forget(key, self.user_id, self.agent_name)
 
         # Also delete from persistent RAG
         if self.persistent_rag:
@@ -337,6 +342,7 @@ class MemoryManager:
         self.persistent.store(
             key=f"session:{session_name}",
             value=session_data,
+            user_id=self.user_id,
             agent_name=self.agent_name,
             metadata={"type": "session"},
         )
@@ -351,7 +357,9 @@ class MemoryManager:
             True if session was loaded successfully
         """
         session_data = self.persistent.recall(
-            key=f"session:{session_name}", agent_name=self.agent_name
+            key=f"session:{session_name}",
+            user_id=self.user_id,
+            agent_name=self.agent_name,
         )
 
         if not session_data:
@@ -388,7 +396,7 @@ class MemoryManager:
         """
         if not self.rag:
             raise ValueError("RAG not enabled. Set enable_rag=True")
-        return self.rag.store(content, metadata, self.agent_name)
+        return self.rag.store(content, self.user_id, metadata, self.agent_name)
 
     def recall_semantic(
         self, query: str, top_k: int = 5, scope: str = "all"
@@ -413,7 +421,9 @@ class MemoryManager:
 
         # Search working memory RAG
         if scope in ("all", "working") and self.rag:
-            working_results = self.rag.recall(query, top_k, self.agent_name)
+            working_results = self.rag.recall(
+                query, self.user_id, top_k, self.agent_name
+            )
             for r in working_results:
                 r["scope"] = "working"
             results.extend(working_results)
@@ -421,7 +431,7 @@ class MemoryManager:
         # Search persistent memory RAG
         if scope in ("all", "persistent") and self.persistent_rag:
             persistent_results = self.persistent_rag.recall(
-                query, top_k, self.agent_name
+                query, self.user_id, top_k, self.agent_name
             )
             for r in persistent_results:
                 r["scope"] = "persistent"

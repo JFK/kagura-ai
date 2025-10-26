@@ -31,6 +31,7 @@ class PersistentMemory:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     key TEXT NOT NULL,
                     value TEXT NOT NULL,
+                    user_id TEXT NOT NULL DEFAULT 'default_user',
                     agent_name TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -42,11 +43,30 @@ class PersistentMemory:
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_key_agent ON memories(key, agent_name)"
             )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_user ON memories(user_id)")
+            conn.execute(
+                """CREATE INDEX IF NOT EXISTS idx_user_agent
+                   ON memories(user_id, agent_name)"""
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_user_key ON memories(user_id, key)"
+            )
+
+            # Migration: Add user_id column to existing tables
+            try:
+                conn.execute(
+                    """ALTER TABLE memories ADD COLUMN user_id TEXT
+                       NOT NULL DEFAULT 'default_user'"""
+                )
+            except sqlite3.OperationalError:
+                # Column already exists
+                pass
 
     def store(
         self,
         key: str,
         value: Any,
+        user_id: str,
         agent_name: Optional[str] = None,
         metadata: Optional[dict] = None,
     ) -> None:
@@ -55,6 +75,7 @@ class PersistentMemory:
         Args:
             key: Memory key
             value: Value to store (will be JSON serialized)
+            user_id: User identifier (memory owner)
             agent_name: Optional agent name for scoping
             metadata: Optional metadata
         """
@@ -62,13 +83,14 @@ class PersistentMemory:
         metadata_json = json.dumps(metadata) if metadata else None
 
         with sqlite3.connect(self.db_path) as conn:
-            # Check if exists
+            # Check if exists (user_id + key + agent_name combination)
             cursor = conn.execute(
                 """
                 SELECT id FROM memories
-                WHERE key = ? AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))
+                WHERE key = ? AND user_id = ?
+                  AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))
                 """,
-                (key, agent_name, agent_name),
+                (key, user_id, agent_name, agent_name),
             )
             existing = cursor.fetchone()
 
@@ -86,17 +108,20 @@ class PersistentMemory:
                 # Insert
                 conn.execute(
                     """
-                    INSERT INTO memories (key, value, agent_name, metadata)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO memories (key, value, user_id, agent_name, metadata)
+                    VALUES (?, ?, ?, ?, ?)
                     """,
-                    (key, value_json, agent_name, metadata_json),
+                    (key, value_json, user_id, agent_name, metadata_json),
                 )
 
-    def recall(self, key: str, agent_name: Optional[str] = None) -> Optional[Any]:
+    def recall(
+        self, key: str, user_id: str, agent_name: Optional[str] = None
+    ) -> Optional[Any]:
         """Retrieve persistent memory.
 
         Args:
             key: Memory key
+            user_id: User identifier (memory owner)
             agent_name: Optional agent name for scoping
 
         Returns:
@@ -106,11 +131,12 @@ class PersistentMemory:
             cursor = conn.execute(
                 """
                 SELECT value FROM memories
-                WHERE key = ? AND (agent_name = ? OR agent_name IS NULL)
+                WHERE key = ? AND user_id = ?
+                  AND (agent_name = ? OR agent_name IS NULL)
                 ORDER BY updated_at DESC
                 LIMIT 1
                 """,
-                (key, agent_name),
+                (key, user_id, agent_name),
             )
 
             row = cursor.fetchone()
@@ -120,12 +146,17 @@ class PersistentMemory:
         return None
 
     def search(
-        self, query: str, agent_name: Optional[str] = None, limit: int = 10
+        self,
+        query: str,
+        user_id: str,
+        agent_name: Optional[str] = None,
+        limit: int = 10,
     ) -> list[dict[str, Any]]:
         """Search memories by key pattern.
 
         Args:
             query: Search pattern (SQL LIKE pattern)
+            user_id: User identifier (filter by owner)
             agent_name: Optional agent name filter
             limit: Maximum results
 
@@ -137,12 +168,12 @@ class PersistentMemory:
                 """
                 SELECT key, value, created_at, updated_at, metadata
                 FROM memories
-                WHERE key LIKE ?
+                WHERE key LIKE ? AND user_id = ?
                   AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))
                 ORDER BY updated_at DESC
                 LIMIT ?
                 """,
-                (f"%{query}%", agent_name, agent_name, limit),
+                (f"%{query}%", user_id, agent_name, agent_name, limit),
             )
 
             results = []
@@ -159,34 +190,63 @@ class PersistentMemory:
 
             return results
 
-    def forget(self, key: str, agent_name: Optional[str] = None) -> None:
+    def forget(self, key: str, user_id: str, agent_name: Optional[str] = None) -> None:
         """Delete memory.
 
         Args:
             key: Memory key to delete
+            user_id: User identifier (memory owner)
             agent_name: Optional agent name for scoping
         """
         with sqlite3.connect(self.db_path) as conn:
             if agent_name:
                 conn.execute(
-                    "DELETE FROM memories WHERE key = ? AND agent_name = ?",
-                    (key, agent_name),
+                    """DELETE FROM memories
+                       WHERE key = ? AND user_id = ? AND agent_name = ?""",
+                    (key, user_id, agent_name),
                 )
             else:
-                conn.execute("DELETE FROM memories WHERE key = ?", (key,))
+                conn.execute(
+                    "DELETE FROM memories WHERE key = ? AND user_id = ?",
+                    (key, user_id),
+                )
 
-    def prune(self, older_than_days: int = 90, agent_name: Optional[str] = None) -> int:
+    def prune(
+        self,
+        older_than_days: int = 90,
+        user_id: Optional[str] = None,
+        agent_name: Optional[str] = None,
+    ) -> int:
         """Remove old memories.
 
         Args:
             older_than_days: Delete memories older than this many days
+            user_id: Optional user identifier filter (None = all users)
             agent_name: Optional agent name filter
 
         Returns:
             Number of deleted memories
         """
         with sqlite3.connect(self.db_path) as conn:
-            if agent_name:
+            if user_id and agent_name:
+                cursor = conn.execute(
+                    """
+                    DELETE FROM memories
+                    WHERE updated_at < datetime('now', '-' || ? || ' days')
+                    AND user_id = ? AND agent_name = ?
+                    """,
+                    (older_than_days, user_id, agent_name),
+                )
+            elif user_id:
+                cursor = conn.execute(
+                    """
+                    DELETE FROM memories
+                    WHERE updated_at < datetime('now', '-' || ? || ' days')
+                    AND user_id = ?
+                    """,
+                    (older_than_days, user_id),
+                )
+            elif agent_name:
                 cursor = conn.execute(
                     """
                     DELETE FROM memories
@@ -205,17 +265,30 @@ class PersistentMemory:
                 )
             return cursor.rowcount
 
-    def count(self, agent_name: Optional[str] = None) -> int:
+    def count(
+        self, user_id: Optional[str] = None, agent_name: Optional[str] = None
+    ) -> int:
         """Count stored memories.
 
         Args:
+            user_id: Optional user identifier filter (None = all users)
             agent_name: Optional agent name filter
 
         Returns:
             Number of memories
         """
         with sqlite3.connect(self.db_path) as conn:
-            if agent_name:
+            if user_id and agent_name:
+                cursor = conn.execute(
+                    """SELECT COUNT(*) FROM memories
+                       WHERE user_id = ? AND agent_name = ?""",
+                    (user_id, agent_name),
+                )
+            elif user_id:
+                cursor = conn.execute(
+                    "SELECT COUNT(*) FROM memories WHERE user_id = ?", (user_id,)
+                )
+            elif agent_name:
                 cursor = conn.execute(
                     "SELECT COUNT(*) FROM memories WHERE agent_name = ?",
                     (agent_name,),
