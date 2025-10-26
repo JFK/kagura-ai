@@ -1,5 +1,6 @@
 site_name: Kagura AI Documentation
 site_url: https://www.kagura-ai.com
+site_description: Universal AI Memory Platform - MCP-native memory for all your AIs
 
 docs_dir: 'docs'
 
@@ -13,6 +14,9 @@ theme:
   favicon: assets/kagura-icon.svg
   features:
     - content.code.copy
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
   footer:
     social: true
 
@@ -20,7 +24,11 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - attr_list
+  - admonition
+  - pymdownx.details
 
 plugins:
   - search
@@ -29,52 +37,19 @@ nav:
   - Home: index.md
 
   - Getting Started:
-    - Quick Start (5 min): quickstart.md
-    - Installation: en/installation.md
-    - SDK Guide: sdk-guide.md
-    - Chat Guide (Bonus): chat-guide.md
+    - Quick Start (10 min): getting-started.md
+    - MCP Setup (Claude Desktop): mcp-setup.md
+    - Installation: quickstart.md
 
-  - SDK Tutorials:
-    - Your First Agent: en/tutorials/01-basic-agent.md
-    - Jinja2 Templates: en/tutorials/02-templates.md
-    - Type-Safe Parsing: en/tutorials/03-type-parsing.md
-    - Memory Management: en/tutorials/08-memory-management.md
-    - Custom Tools: en/tutorials/11-tools.md
-    - Multi-Agent Workflows: en/tutorials/12-workflows.md
-    - Testing Agents: en/tutorials/14-testing.md
-
-  - Integration Guides:
-    - Web Search & Scraping: en/guides/web-integration.md
-    - MCP (Claude Desktop): en/guides/claude-code-mcp-setup.md
-    - OAuth2 Authentication: en/guides/oauth2-authentication.md
-    - Meta Agent: en/guides/meta-agent.md
-    - Context Compression: en/guides/context-compression.md
-
-  - Advanced Topics:
-    - Code Execution: en/tutorials/04-code-execution.md
-    - Agent Routing: en/tutorials/09-agent-routing.md
-    - Multimodal RAG: en/tutorials/13-multimodal-rag.md
-    - Performance Caching: en/guides/performance-caching.md
-    - Observability: en/tutorials/15-observability.md
+  - User Guides:
+    - MCP over HTTP/SSE (ChatGPT): mcp-http-setup.md
+    - Self-Hosting Guide: self-hosting.md
+    - Memory Export/Import: memory-export.md
+    - Architecture Overview: architecture.md
 
   - API Reference:
-    - Overview: en/api/index.md
-    - Core Decorators:
-      - '@agent': en/api/agent.md
-      - '@tool': en/api/tools.md
-      - '@workflow': en/api/workflows.md
-    - Features:
-      - Memory System: en/api/memory.md
-      - Agent Builder: en/api/builder.md
-      - Testing Framework: en/api/testing.md
-    - Integrations:
-      - Chat Session: en/api/chat.md
-      - MCP Integration: en/api/mcp.md
-      - Authentication: en/api/auth.md
-    - Advanced:
-      - Code Executor: en/api/executor.md
-      - Context Compression: en/api/compression.md
-      - Observability: en/api/observability.md
+    - REST API & MCP Tools: api-reference.md
+    - OpenAPI Specification: api/reference.yaml
 
   - Examples: https://github.com/JFK/kagura-ai/tree/main/examples
 
@@ -89,8 +64,12 @@ extra_javascript:
   - assets/custom.js
 
 extra:
-  favicon: assets/kagura-icon.svg
+  version:
+    provider: mike
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/JFK/kagura-ai
       name: GitHub Repository
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/kagura-ai/
+      name: PyPI Package
