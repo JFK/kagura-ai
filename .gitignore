@@ -177,3 +177,8 @@ data/
 .kagura/
 memory_storage/
 notes/
+
+# API documentation build output
+docs/api/*.html
+docs/api/*.css
+docs/api/*.js

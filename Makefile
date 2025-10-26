@@ -16,6 +16,10 @@ help:
 	@echo "  make ruff         Run code formatting using ruff"
 	@echo "  make build        Build the package"
 	@echo "  make clean        Clean build artifacts"
+	@echo ""
+	@echo "API Documentation:"
+	@echo "  make build_docs   Build API docs with Redocly"
+	@echo "  make serve_docs   Preview API docs locally (http://127.0.0.1:8080)"
 
 .PHONY: venv
 venv:
@@ -69,3 +73,16 @@ docs:
 	$(VENV_DIR)/bin/pip install mkdocs mkdocs-material
 	$(VENV_DIR)/bin/mkdocs build
 	@echo "Done. Documentation is in site/"
+
+.PHONY: build_docs
+build_docs:
+	@echo "Installing api doc tools"
+	@echo "npm i -g @redocly/cli@latest"
+	@echo "See https://redocly.com/docs/cli/installation/#install-globally"
+	@echo "Building API docs"
+	npx @redocly/cli build-docs docs/api/reference.yaml --output docs/api/index.html
+
+.PHONY: serve_docs
+serve_docs:
+	@echo "Serving API docs at http://127.0.0.1:8080"
+	npx @redocly/cli preview-docs docs/api/reference.yaml
