@@ -2,6 +2,8 @@
 
 AI開発者向けの開発ガイド。v4.0: Universal AI Memory Platform
 
+**Phase C Complete** (Oct 2025) - Remote MCP Server + Export/Import ✅
+
 ---
 
 ## 📋 プロジェクト概要
@@ -13,6 +15,7 @@ AI開発者向けの開発ガイド。v4.0: Universal AI Memory Platform
 - **目標**: すべてのAIプラットフォーム（Claude, ChatGPT, Gemini等）で共有できるメモリー・コンテキスト管理
 - **アプローチ**: MCP-native + REST API
 - **特徴**: ローカル/セルフホスト/クラウド対応
+- **現状**: Phase A/B/C完了、v4.0.0 stable準備中
 
 ### 技術スタック
 
@@ -103,19 +106,31 @@ gh pr merge [PR番号] --squash
 ```
 kagura-ai/
 ├── src/kagura/
-│   ├── core/              # Memory, Graph, LLM
+│   ├── core/              # Memory, Graph
+│   │   ├── memory/        # Memory Manager (4-tier)
+│   │   └── graph/         # GraphMemory (NetworkX)
 │   ├── api/               # REST API (FastAPI)
+│   │   ├── auth.py        # API Key authentication (Phase C)
+│   │   └── routes/        # /mcp, /api/v1/*
 │   ├── mcp/               # MCP Server & Tools
+│   │   ├── permissions.py # Tool access control (Phase C)
+│   │   └── builtin/       # 31 MCP tools
 │   ├── cli/               # CLI commands
-│   └── tools/             # Built-in tools
+│   │   ├── mcp.py         # MCP commands
+│   │   ├── api_cli.py     # API key mgmt (Phase C)
+│   │   └── memory_cli.py  # Export/import (Phase C)
+│   └── tools/             # Optional tools
 │
-├── tests/                 # テスト
+├── tests/                 # テスト (1,451+ passing)
 ├── docs/                  # ユーザードキュメント
 ├── ai_docs/               # 開発ドキュメント
 ├── examples/              # 使用例
 │
+├── docker-compose.yml           # 開発環境
+├── docker-compose.prod.yml      # 本番環境 (Phase C)
+├── Caddyfile                    # HTTPS reverse proxy (Phase C)
 ├── pyproject.toml
-├── CLAUDE.md              # このファイル
+├── CLAUDE.md                    # このファイル
 └── README.md
 ```
 
