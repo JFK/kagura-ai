@@ -21,7 +21,6 @@ from .version import __version__
 if TYPE_CHECKING:
     from .agents import (
         ChatbotPreset,
-        PersonalAssistantPreset,
         TranslatorPreset,
     )
     from .builder import AgentBuilder
@@ -204,19 +203,16 @@ def __getattr__(name: str):
     # Presets (personal-use only)
     if name in (
         "ChatbotPreset",
-        "PersonalAssistantPreset",
         "TranslatorPreset",
     ):
         from .agents import (
             ChatbotPreset,
-            PersonalAssistantPreset,
             TranslatorPreset,
         )
 
         globals().update(
             {
                 "ChatbotPreset": ChatbotPreset,
-                "PersonalAssistantPreset": PersonalAssistantPreset,
                 "TranslatorPreset": TranslatorPreset,
             }
         )
@@ -232,7 +228,6 @@ __all__ = [
     "AgentBuilder",
     # Presets (personal-use)
     "ChatbotPreset",
-    "PersonalAssistantPreset",
     "TranslatorPreset",
     # Configuration
     "CompressionPolicy",

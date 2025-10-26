@@ -1031,99 +1031,11 @@ class ChatSession:
     def _register_personal_tools(self) -> None:
         """Register personal tools with semantic routing (v3.0)
 
-        Registers daily_news, weather_forecast, search_recipes, find_events
-        with sample utterances for natural language detection.
+        NOTE: Personal tools removed in v4.0 (#373).
+        This method is kept for backward compatibility but does nothing.
         """
-        try:
-            from kagura.agents import (
-                daily_news,
-                find_events,
-                search_recipes,
-                weather_forecast,
-            )
-
-            # Register daily_news with intents and samples
-            self.router.register(
-                daily_news,
-                intents=[
-                    "news",
-                    "headlines",
-                    "latest news",
-                    "ニュース",
-                    "今日のニュース",
-                ],
-                samples=[
-                    "Get me today's news",
-                    "What's happening in the news?",
-                    "Show me latest headlines",
-                    "News about technology",
-                    "今日のニュースを教えて",
-                    "最新ニュースは？",
-                    "ニュースを見せて",
-                ],
-            )
-
-            # Register weather_forecast
-            self.router.register(
-                weather_forecast,
-                intents=["weather", "forecast", "rain", "天気", "気温", "気象"],
-                samples=[
-                    "What's the weather?",
-                    "Weather forecast for Tokyo",
-                    "Is it going to rain?",
-                    "How's the weather today?",
-                    "今日の天気は？",
-                    "東京の天気",
-                    "雨降る？",
-                ],
-            )
-
-            # Register search_recipes
-            self.router.register(
-                search_recipes,
-                intents=["recipe", "recipes", "cook", "cooking", "レシピ", "料理"],
-                samples=[
-                    "Find recipes with chicken",
-                    "What can I cook?",
-                    "Dinner ideas",
-                    "How to cook pasta",
-                    "Recipes for tonight",
-                    "鶏肉のレシピ",
-                    "今日の夕飯",
-                    "パスタの作り方",
-                ],
-            )
-
-            # Register find_events
-            self.router.register(
-                find_events,
-                intents=[
-                    "event",
-                    "events",
-                    "happening",
-                    "concerts",
-                    "イベント",
-                    "催し",
-                ],
-                samples=[
-                    "What's happening this weekend?",
-                    "Find events in Tokyo",
-                    "Any concerts?",
-                    "Things to do nearby",
-                    "今週末のイベント",
-                    "熊本で何かある？",
-                    "コンサート情報",
-                ],
-            )
-
-            # Show success (only in verbose mode)
-            # self.console.print(
-            #     "[dim]✓ Registered 4 personal tools with semantic routing[/]"
-            # )
-
-        except ImportError:
-            # Personal tools not available (shouldn't happen in v3.0)
-            pass
+        # Personal tools removed in v4.0 - no-op for backward compatibility
+        pass
 
     async def run(self) -> None:
         """Run interactive chat loop."""
