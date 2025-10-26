@@ -20,6 +20,7 @@ def mcp():
 
     Manage MCP server and integration with Claude Desktop, Cline, etc.
 
+    \b
     Examples:
       kagura mcp serve           Start MCP server
       kagura mcp list            List available agents
