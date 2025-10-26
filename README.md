@@ -81,26 +81,36 @@ Give **every AI** access to:
 
 ---
 
-## ✅ v4.0 Status - Phase A/B Complete
+## ✅ v4.0 Status - Phase A/B/C Complete
 
-**Current**: v4.0.0a0 - Universal AI Memory Platform with GraphMemory
+**Current**: v4.0.0 (approaching stable) - Universal AI Memory Platform
 
 **What's Working**:
-- ✅ v3.0 SDK & Chat（previous release）
+- ✅ v3.0 SDK & Chat (previous release)
 - ✅ v4.0 REST API (FastAPI + OpenAPI)
 - ✅ Docker Compose setup (PostgreSQL + pgvector, Redis)
-- ✅ MCP Tools v1.0 (28 tools total)
+- ✅ MCP Tools v1.0 (31 tools total)
 - ✅ GraphMemory (NetworkX-based knowledge graph)
 - ✅ MCP Tool Management (`kagura mcp doctor`, `kagura mcp tools`, `kagura mcp install`)
+- ✅ **NEW**: MCP over HTTP/SSE (ChatGPT Connector support)
+- ✅ **NEW**: API Key authentication with CLI management
+- ✅ **NEW**: Tool access control (remote security filtering)
+- ✅ **NEW**: Memory export/import (JSONL format)
+- ✅ **NEW**: Production Docker setup with Caddy reverse proxy
 
 **Recently Completed**:
 - ✅ **Phase A**: MCP-First Foundation ([Issue #364](https://github.com/JFK/kagura-ai/issues/364))
 - ✅ **Phase B**: GraphMemory - User Pattern Analysis ([Issue #345](https://github.com/JFK/kagura-ai/issues/345))
+- ✅ **Phase C**: Remote MCP Server + Export/Import ([Issue #378](https://github.com/JFK/kagura-ai/issues/378))
+  - Week 1-2: Remote MCP Server (HTTP/SSE, Auth, Security)
+  - Week 3: Memory Export/Import (JSONL backup/migration)
+  - Week 4: Production deployment & documentation
 
 **Coming Next**:
-- 🔄 **Phase C** (Q2 2026): Self-hosted API + Multimodal MVP
-- 🔄 **Phase D** (Q3 2026): Consumer App (iOS/Android/Desktop)
-- 🔄 **Phase E** (Q4 2026): Cloud SaaS + Enterprise features
+- 🔄 **v4.0.0 stable release** (Q1 2026): Final testing and documentation
+- 🔄 **Phase D** (Q2 2026): Multimodal MVP (images, audio, video)
+- 🔄 **Phase E** (Q3 2026): Consumer App (iOS/Android/Desktop)
+- 🔄 **Phase F** (Q4 2026): Cloud SaaS + Enterprise features
 
 ---
 
@@ -137,7 +147,7 @@ curl http://localhost:8080/api/v1/health
 
 **API Docs**: http://localhost:8080/docs
 
-### Option 3: MCP with Claude Desktop（v4.0.0a0）
+### Option 3: MCP with Claude Desktop (v4.0.0)
 
 ```bash
 # Install Kagura
@@ -151,6 +161,40 @@ kagura mcp serve
 ```
 
 **See**: [MCP Setup Guide](docs/mcp-setup.md)
+
+### Option 4: Self-Hosted Production (v4.0.0) ⭐ NEW
+
+```bash
+# Clone and configure
+git clone https://github.com/JFK/kagura-ai.git
+cd kagura-ai
+cp .env.example .env
+nano .env  # Set DOMAIN and POSTGRES_PASSWORD
+
+# Start production services
+docker compose -f docker-compose.prod.yml up -d
+
+# Generate API key
+docker compose -f docker-compose.prod.yml exec api \
+  kagura api create-key --name "production"
+
+# Access via HTTPS
+curl https://your-domain.com/api/v1/health
+```
+
+**See**: [Self-Hosting Guide](docs/self-hosting.md)
+
+### Option 5: ChatGPT Connector (v4.0.0) ⭐ NEW
+
+Connect ChatGPT to your Kagura memory:
+
+1. Start Kagura API (local or remote)
+2. Enable Developer Mode in ChatGPT
+3. Add connector:
+   - **URL**: `https://your-domain.com/mcp`
+   - **Auth**: Bearer token (optional)
+
+**See**: [MCP over HTTP/SSE Guide](docs/mcp-http-setup.md)
 
 ---
 

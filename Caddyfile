@@ -1,0 +1,62 @@
+# Caddyfile for Kagura AI Production
+#
+# Automatic HTTPS with Let's Encrypt
+# HTTP/2 and HTTP/3 support
+# Reverse proxy to Kagura API
+
+{$DOMAIN:localhost} {
+    # Automatic HTTPS via Let's Encrypt
+    # (disabled for localhost, enable for production domain)
+
+    # Enable compression
+    encode gzip
+
+    # Rate limiting (optional)
+    # rate_limit {
+    #     zone static_zone {
+    #         key {remote_host}
+    #         events 100
+    #         window 1m
+    #     }
+    # }
+
+    # Reverse proxy to Kagura API
+    reverse_proxy /api/* api:8080
+    reverse_proxy /mcp api:8080 {
+        # SSE support (disable buffering)
+        flush_interval -1
+
+        # WebSocket support (if needed)
+        transport http {
+            versions h1.1 h2c
+        }
+    }
+    reverse_proxy /docs api:8080
+    reverse_proxy /redoc api:8080
+    reverse_proxy / api:8080
+
+    # Security headers
+    header {
+        # HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+        # XSS Protection
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+
+        # Remove server header
+        -Server
+    }
+
+    # Access log
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+
+    # Error log
+    handle_errors {
+        respond "{err.status_code} {err.status_text}"
+    }
+}
