@@ -19,9 +19,6 @@ pip install -e "examples/[all]"
 # SDK Integration (FastAPI, Streamlit, etc.)
 pip install -e "examples/[sdk]"
 
-# Personal Tools (news, weather, recipes, events)
-pip install -e "examples/[personal]"
-
 # Broadlistening Analysis (UMAP, scikit-learn, Plotly)
 pip install -e "examples/[broadlistening]"
 ```
@@ -33,7 +30,6 @@ pip install -e "examples/[broadlistening]"
 export OPENAI_API_KEY=sk-...
 
 # Optional features
-export BRAVE_SEARCH_API_KEY=...  # Web search (for personal tools)
 export GOOGLE_API_KEY=...         # Multimodal (Gemini)
 ```
 
@@ -188,38 +184,6 @@ streamlit run examples/08_sdk_integration/streamlit_dashboard.py
 
 ---
 
-### 09. Personal Tools (`09_personal_tools/`) - **NEW in v3.0** 🆕
-
-Personal assistant tools for daily use:
-
-- **daily_briefing.py** - Morning briefing with news + weather
-- **recipe_finder.py** - Find recipes by ingredients/cuisine
-- **event_search.py** - Discover local events and activities
-
-**Learn**: Built-in personal tools (news, weather, recipes, events)
-
-**Dependencies**: `pip install -e "examples/[personal]"` (optional)
-
-```bash
-# Daily briefing
-python examples/09_personal_tools/daily_briefing.py \
-    --location "San Francisco" \
-    --topics "AI,startups"
-
-# Recipe finder
-python examples/09_personal_tools/recipe_finder.py \
-    --ingredients "chicken,rice,vegetables"
-
-# Event search
-python examples/09_personal_tools/event_search.py \
-    --location "New York" \
-    --weekend
-```
-
-**See**: [09_personal_tools/README.md](./09_personal_tools/README.md)
-
----
-
 ## 🚀 Quick Start Paths
 
 ### Path 1: Beginner (1-2 hours)
@@ -229,7 +193,7 @@ For developers new to Kagura AI:
 1. **01_basic/hello_world.py** - Understand `@agent` decorator
 2. **01_basic/simple_chat.py** - Build a conversational agent
 3. **01_basic/pydantic_parsing.py** - Learn structured outputs
-4. **09_personal_tools/daily_briefing.py** - Use built-in tools
+4. **02_memory/working_memory.py** - Memory management basics
 
 **Goal**: Understand core concepts and build your first agents
 
@@ -345,21 +309,6 @@ tasks = [enrich_company(name) for name in companies]
 profiles = await asyncio.gather(*tasks)
 
 df = pd.DataFrame(profiles)
-```
-
-### Pattern 6: Personal Tools
-
-```python
-from kagura.agents import daily_news, weather_forecast
-
-# Get morning briefing
-weather, news = await asyncio.gather(
-    weather_forecast("Tokyo"),
-    daily_news("technology", count=5)
-)
-
-print(f"Weather: {weather}")
-print(f"News: {news}")
 ```
 
 ---
@@ -510,7 +459,6 @@ A: Examples demonstrate core patterns. For production, add proper error handling
 
 A:
 - **SDK Integration** - FastAPI, Streamlit, data pipelines (09_sdk_integration/)
-- **Personal Tools** - Built-in news, weather, recipes, events (10_personal_tools/)
 - **Streamlined Examples** - Legacy code removed, focus on SDK-first
 
 **Q: What's the difference between memory types?**
@@ -560,10 +508,9 @@ After exploring these examples:
 1. **Build your first agent** - Start with `01_basic/`
 2. **Add tools** - Try `05_web/` for web search
 3. **Integrate into your app** - Check out `08_sdk_integration/`
-4. **Try personal tools** - Explore `09_personal_tools/`
-5. **Deploy to production** - Study `07_real_world/`
+4. **Deploy to production** - Study `07_real_world/`
 
-**Happy coding with Kagura AI v3.0! 🎉**
+**Happy coding with Kagura AI v4.0! 🎉**
 
 ---
 

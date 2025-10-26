@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🗑️ Removed
+
+- **Personal Tools**: Removed v3.0 legacy personal assistant tools (#373)
+  - Deleted: `news.py`, `weather.py`, `recipes.py`, `events.py`, `personal_assistant.py`
+  - Deleted: `examples/09_personal_tools/` directory
+  - Deleted: `tests/agents/test_personal_tools.py` (39 tests)
+  - Rationale: v4.0 is MCP-first. Personal tools don't align with Universal Memory Platform strategy
+
 ### 🐛 Fixed
 
 - **GraphMemory**: Fixed `memory_get_related` type conversion error when `depth` parameter is sent as string by MCP clients (#379)
