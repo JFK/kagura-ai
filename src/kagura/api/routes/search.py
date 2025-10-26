@@ -127,7 +127,7 @@ async def recall_memories(
         rag_results = memory.recall_semantic(
             query=request.query, top_k=request.k, scope=request.scope
         )
-    except ValueError as e:
+    except ValueError:
         # RAG not enabled
         return {
             "results": [],
@@ -152,7 +152,8 @@ async def recall_memories(
         user_metadata = {
             k: v
             for k, v in metadata_dict.items()
-            if k not in ("tags", "importance", "created_at", "updated_at", "type", "key")
+            if k
+            not in ("tags", "importance", "created_at", "updated_at", "type", "key")
         }
 
         # Calculate similarity from distance (ChromaDB uses cosine distance)

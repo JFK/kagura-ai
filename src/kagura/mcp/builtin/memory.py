@@ -51,7 +51,7 @@ async def memory_store(
     scope: str = "working",
     tags: str = "[]",
     importance: float = 0.5,
-    metadata: str = "{}"
+    metadata: str = "{}",
 ) -> str:
     """Store information in agent memory
 
@@ -99,6 +99,7 @@ async def memory_store(
         # If RAG dependencies not available, create without RAG
         # But keep enable_rag=True for cache key consistency
         from kagura.core.memory import MemoryManager
+
         cache_key = f"{agent_name}:rag={enable_rag}"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
@@ -125,6 +126,7 @@ async def memory_store(
 
     # Prepare full metadata
     from datetime import datetime
+
     now = datetime.now()
     full_metadata = {
         **metadata_dict,
@@ -159,20 +161,16 @@ async def memory_store(
                     "type": "working_memory",
                     "key": key,
                     "tags": json.dumps(tags_list),  # ChromaDB compatibility
-                    "importance": importance
+                    "importance": importance,
                 }
-                memory.store_semantic(
-                    content=f"{key}: {value}",
-                    metadata=rag_metadata
-                )
+                memory.store_semantic(content=f"{key}: {value}", metadata=rag_metadata)
             except Exception:
                 # Silently fail if RAG indexing fails
                 pass
 
     # Check RAG availability based on scope
-    rag_available = (
-        (scope == "working" and memory.rag is not None) or
-        (scope == "persistent" and memory.persistent_rag is not None)
+    rag_available = (scope == "working" and memory.rag is not None) or (
+        scope == "persistent" and memory.persistent_rag is not None
     )
     rag_status = "" if rag_available else " (RAG unavailable)"
     return f"Stored '{key}' in {scope} memory for {agent_name}{rag_status}"
@@ -214,6 +212,7 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
     except ImportError:
         # If RAG dependencies not available, get from cache with consistent key
         from kagura.core.memory import MemoryManager
+
         cache_key = f"{agent_name}:rag={enable_rag}"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
@@ -284,6 +283,7 @@ async def memory_search(
     except ImportError:
         # If RAG dependencies not available, get from cache with consistent key
         from kagura.core.memory import MemoryManager
+
         cache_key = f"{agent_name}:rag=True"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
@@ -308,14 +308,16 @@ async def memory_search(
                 # Match if query is in key name
                 if query_lower in key.lower():
                     value = memory.get_temp(key)
-                    working_results.append({
-                        "content": f"{key}: {value}",
-                        "source": "working_memory",
-                        "scope": "working",
-                        "key": key,
-                        "value": str(value),
-                        "match_type": "key_match"
-                    })
+                    working_results.append(
+                        {
+                            "content": f"{key}: {value}",
+                            "source": "working_memory",
+                            "scope": "working",
+                            "key": key,
+                            "value": str(value),
+                            "match_type": "key_match",
+                        }
+                    )
 
         # Combine results (working memory first for exact matches, then RAG)
         combined_results = working_results + rag_results
@@ -432,7 +434,7 @@ async def memory_feedback(
     key: str,
     label: str,
     weight: float = 1.0,
-    scope: str = "persistent"
+    scope: str = "persistent",
 ) -> str:
     """Provide feedback on memory usefulness
 
@@ -472,7 +474,9 @@ async def memory_feedback(
     """
     # Validate inputs
     if label not in ("useful", "irrelevant", "outdated"):
-        return json.dumps({"error": f"Invalid label: {label}. Use: useful, irrelevant, or outdated"})
+        return json.dumps(
+            {"error": f"Invalid label: {label}. Use: useful, irrelevant, or outdated"}
+        )
 
     try:
         weight = float(weight)
@@ -486,6 +490,7 @@ async def memory_feedback(
         memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
     except ImportError:
         from kagura.core.memory import MemoryManager
+
         cache_key = f"{agent_name}:rag={enable_rag}"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
@@ -509,6 +514,7 @@ async def memory_feedback(
 
         # Decode metadata if JSON strings
         import json as json_lib
+
         if isinstance(metadata_dict.get("tags"), str):
             try:
                 metadata_dict["tags"] = json_lib.loads(metadata_dict["tags"])
@@ -544,17 +550,20 @@ async def memory_feedback(
         memory.forget(key)
         memory.remember(key, value, chromadb_metadata)
 
-        return json.dumps({
-            "status": "success",
-            "key": key,
-            "label": label,
-            "weight": weight,
-            "importance": {
-                "previous": current_importance,
-                "current": new_importance,
-                "delta": new_importance - current_importance
-            }
-        }, indent=2)
+        return json.dumps(
+            {
+                "status": "success",
+                "key": key,
+                "label": label,
+                "weight": weight,
+                "importance": {
+                    "previous": current_importance,
+                    "current": new_importance,
+                    "delta": new_importance - current_importance,
+                },
+            },
+            indent=2,
+        )
     else:
         # Working memory feedback - update metadata
         value = memory.get_temp(key)
@@ -573,23 +582,24 @@ async def memory_feedback(
         metadata_dict["importance"] = new_importance
         memory.set_temp(f"_meta_{key}", metadata_dict)
 
-        return json.dumps({
-            "status": "success",
-            "key": key,
-            "label": label,
-            "weight": weight,
-            "importance": {
-                "previous": current_importance,
-                "current": new_importance,
-                "delta": new_importance - current_importance
-            }
-        }, indent=2)
+        return json.dumps(
+            {
+                "status": "success",
+                "key": key,
+                "label": label,
+                "weight": weight,
+                "importance": {
+                    "previous": current_importance,
+                    "current": new_importance,
+                    "delta": new_importance - current_importance,
+                },
+            },
+            indent=2,
+        )
 
 
 @tool
-async def memory_delete(
-    agent_name: str, key: str, scope: str = "persistent"
-) -> str:
+async def memory_delete(agent_name: str, key: str, scope: str = "persistent") -> str:
     """Delete a memory with audit logging
 
     Permanently delete a memory from storage. Use this tool when:
@@ -624,6 +634,7 @@ async def memory_delete(
         memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
     except ImportError:
         from kagura.core.memory import MemoryManager
+
         cache_key = f"{agent_name}:rag={enable_rag}"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
@@ -643,14 +654,17 @@ async def memory_delete(
         # TODO: Log deletion for audit (Phase B or later)
         # audit_log.record_deletion(agent_name, key, scope, timestamp)
 
-        return json.dumps({
-            "status": "deleted",
-            "key": key,
-            "scope": scope,
-            "agent_name": agent_name,
-            "message": f"Memory '{key}' deleted from {scope} memory",
-            "audit": "Deletion logged"  # TODO: Implement actual audit logging
-        }, indent=2)
+        return json.dumps(
+            {
+                "status": "deleted",
+                "key": key,
+                "scope": scope,
+                "agent_name": agent_name,
+                "message": f"Memory '{key}' deleted from {scope} memory",
+                "audit": "Deletion logged",  # TODO: Implement actual audit logging
+            },
+            indent=2,
+        )
     else:  # working
         if not memory.has_temp(key):
             return json.dumps({"error": f"Memory '{key}' not found in {scope} memory"})
@@ -662,19 +676,22 @@ async def memory_delete(
         # Delete from working RAG if indexed
         if memory.rag:
             try:
-                where_filter = {"key": key}
+                where_filter: dict[str, str] = {"key": key}
                 if agent_name:
                     where_filter["agent_name"] = agent_name
-                results = memory.rag.collection.get(where=where_filter)
+                results = memory.rag.collection.get(where=where_filter)  # type: ignore[arg-type]
                 if results["ids"]:
                     memory.rag.collection.delete(ids=results["ids"])
             except Exception:
                 pass  # Silently fail
 
-        return json.dumps({
-            "status": "deleted",
-            "key": key,
-            "scope": scope,
-            "agent_name": agent_name,
-            "message": f"Memory '{key}' deleted from {scope} memory"
-        }, indent=2)
+        return json.dumps(
+            {
+                "status": "deleted",
+                "key": key,
+                "scope": scope,
+                "agent_name": agent_name,
+                "message": f"Memory '{key}' deleted from {scope} memory",
+            },
+            indent=2,
+        )

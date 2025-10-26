@@ -224,9 +224,7 @@ async def update_memory(
     updated_value = request.value if request.value is not None else existing["value"]
     updated_tags = request.tags if request.tags is not None else existing["tags"]
     updated_importance = (
-        request.importance
-        if request.importance is not None
-        else existing["importance"]
+        request.importance if request.importance is not None else existing["importance"]
     )
     updated_metadata = (
         request.metadata if request.metadata is not None else existing["metadata"]

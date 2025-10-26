@@ -6,6 +6,7 @@ Provides commands to start MCP server and manage MCP integration.
 
 import asyncio
 import sys
+from typing import Any
 
 import click
 from mcp.server.stdio import stdio_server  # type: ignore
@@ -183,7 +184,11 @@ def doctor(ctx: click.Context, api_url: str):
         if mem_status.get("status") == "healthy"
         else _get_details_str(mem_status)
     )
-    table.add_row("Memory Manager", f"{status_icon} {mem_status.get('status', 'unknown')}", details[:50])
+    table.add_row(
+        "Memory Manager",
+        f"{status_icon} {mem_status.get('status', 'unknown')}",
+        details[:50],
+    )
 
     # Claude Desktop
     claude_status = results.get("claude_desktop", {})
@@ -203,22 +208,30 @@ def doctor(ctx: click.Context, api_url: str):
         else _get_details_str(storage_status)
     )
     table.add_row(
-        "Storage", f"{status_icon} {storage_status.get('status', 'unknown')}", details[:50]
+        "Storage",
+        f"{status_icon} {storage_status.get('status', 'unknown')}",
+        details[:50],
     )
 
     console.print(table)
 
     # Overall status
     overall = results.get("overall", "unknown")
-    console.print(f"\n[bold]Overall Status:[/bold] {_get_status_icon(overall)} {overall}\n")
+    console.print(
+        f"\n[bold]Overall Status:[/bold] {_get_status_icon(overall)} {overall}\n"
+    )
 
     # Recommendations
     if overall != "healthy":
         console.print("[bold yellow]Recommendations:[/bold yellow]")
         if api_status.get("status") == "unreachable":
-            console.print("  • Start API server: [cyan]uvicorn kagura.api.server:app[/cyan]")
+            console.print(
+                "  • Start API server: [cyan]uvicorn kagura.api.server:app[/cyan]"
+            )
         if claude_status.get("status") == "not_configured":
-            console.print("  • Configure Claude Desktop: [cyan]kagura mcp install[/cyan]")
+            console.print(
+                "  • Configure Claude Desktop: [cyan]kagura mcp install[/cyan]"
+            )
         if mem_status.get("status") == "error":
             console.print("  • Initialize RAG: [cyan]kagura init --rag[/cyan]")
         if storage_status.get("status") in ("warning", "critical"):
@@ -280,7 +293,7 @@ def install(ctx: click.Context, server_name: str):
             return
 
     # Add to Claude Desktop config
-    console.print(f"\n[bold]Installing Kagura MCP to Claude Desktop...[/bold]")
+    console.print("\n[bold]Installing Kagura MCP to Claude Desktop...[/bold]")
 
     # Determine kagura command path
     import shutil
@@ -290,20 +303,18 @@ def install(ctx: click.Context, server_name: str):
     success = config.add_to_claude_desktop(server_name, kagura_command)
 
     if success:
-        console.print(f"[green]✅ Successfully installed![/green]\n")
-        console.print(f"[bold]Configuration:[/bold]")
+        console.print("[green]✅ Successfully installed![/green]\n")
+        console.print("[bold]Configuration:[/bold]")
         console.print(f"  Server name: {server_name}")
         console.print(f"  Command: {kagura_command} mcp serve")
         console.print(f"  Config file: {config.claude_config_path}")
-        console.print(
-            f"\n[bold yellow]Next steps:[/bold yellow]"
-        )
+        console.print("\n[bold yellow]Next steps:[/bold yellow]")
         console.print("  1. Restart Claude Desktop")
         console.print("  2. Start a new conversation")
         console.print("  3. Try: 'Remember that I prefer Python'")
         console.print()
     else:
-        console.print(f"[red]❌ Installation failed[/red]")
+        console.print("[red]❌ Installation failed[/red]")
         console.print(f"Check permissions for: {config.claude_config_path}")
 
 
@@ -342,7 +353,7 @@ def uninstall(ctx: click.Context, server_name: str):
         console.print(f"Config file: {config.claude_config_path}")
         console.print("\n[yellow]Restart Claude Desktop to apply changes.[/yellow]\n")
     else:
-        console.print(f"[red]❌ Uninstallation failed[/red]")
+        console.print("[red]❌ Uninstallation failed[/red]")
 
 
 @mcp.command(name="tools")
