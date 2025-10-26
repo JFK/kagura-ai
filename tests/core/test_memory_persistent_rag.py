@@ -13,7 +13,7 @@ class TestPersistentRAG:
     async def test_persistent_rag_initialization(self) -> None:
         """Test that persistent_rag is created when enable_rag=True"""
         try:
-            memory = MemoryManager(agent_name="test_persistent", enable_rag=True)
+            memory = MemoryManager(user_id="test_user", agent_name="test_persistent", enable_rag=True)
 
             # Both RAG instances should be created
             assert memory.rag is not None, "Working RAG should be initialized"
@@ -34,7 +34,7 @@ class TestPersistentRAG:
     async def test_remember_indexes_in_persistent_rag(self) -> None:
         """Test that remember() indexes data in persistent RAG"""
         try:
-            memory = MemoryManager(agent_name="test_remember", enable_rag=True)
+            memory = MemoryManager(user_id="test_user", agent_name="test_remember", enable_rag=True)
 
             # Store in persistent memory
             memory.remember("project_deadline", "kagura-ai deadline: December 2025")
@@ -70,7 +70,7 @@ class TestPersistentRAG:
     async def test_recall_semantic_scope_working(self) -> None:
         """Test recall_semantic with scope='working'"""
         try:
-            memory = MemoryManager(agent_name="test_scope_working", enable_rag=True)
+            memory = MemoryManager(user_id="test_user", agent_name="test_scope_working", enable_rag=True)
 
             # Store in both scopes
             memory.set_temp("temp_fact", "This is temporary data")
@@ -106,7 +106,7 @@ class TestPersistentRAG:
     async def test_recall_semantic_scope_persistent(self) -> None:
         """Test recall_semantic with scope='persistent'"""
         try:
-            memory = MemoryManager(agent_name="test_scope_persistent", enable_rag=True)
+            memory = MemoryManager(user_id="test_user", agent_name="test_scope_persistent", enable_rag=True)
 
             # Store in both scopes
             memory.set_temp("temp_fact", "This is temporary data")
@@ -139,7 +139,7 @@ class TestPersistentRAG:
     async def test_recall_semantic_scope_all(self) -> None:
         """Test recall_semantic with scope='all' (default)"""
         try:
-            memory = MemoryManager(agent_name="test_scope_all", enable_rag=True)
+            memory = MemoryManager(user_id="test_user", agent_name="test_scope_all", enable_rag=True)
 
             # Store in both scopes
             memory.set_temp("temp_fact", "This is temporary data")
@@ -173,7 +173,7 @@ class TestPersistentRAG:
     async def test_forget_deletes_from_rag(self) -> None:
         """Test that forget() deletes from both SQLite and RAG"""
         try:
-            memory = MemoryManager(agent_name="test_forget", enable_rag=True)
+            memory = MemoryManager(user_id="test_user", agent_name="test_forget", enable_rag=True)
 
             # Store data
             memory.remember("to_forget", "This data will be deleted")
@@ -206,7 +206,7 @@ class TestPersistentRAG:
     async def test_memory_manager_repr_with_persistent_rag(self) -> None:
         """Test __repr__ includes persistent_rag count"""
         try:
-            memory = MemoryManager(agent_name="test_repr", enable_rag=True)
+            memory = MemoryManager(user_id="test_user", agent_name="test_repr", enable_rag=True)
 
             # Store some data
             memory.remember("key1", "value1")

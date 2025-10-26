@@ -38,6 +38,18 @@ class PersistentMemory:
                     metadata TEXT
                 )
             """)
+
+            # Migration: Add user_id column to existing tables (before creating indexes)
+            try:
+                conn.execute(
+                    """ALTER TABLE memories ADD COLUMN user_id TEXT
+                       NOT NULL DEFAULT 'default_user'"""
+                )
+            except sqlite3.OperationalError:
+                # Column already exists
+                pass
+
+            # Create indexes (after ensuring user_id column exists)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_key ON memories(key)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_agent ON memories(agent_name)")
             conn.execute(
@@ -51,16 +63,6 @@ class PersistentMemory:
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_user_key ON memories(user_id, key)"
             )
-
-            # Migration: Add user_id column to existing tables
-            try:
-                conn.execute(
-                    """ALTER TABLE memories ADD COLUMN user_id TEXT
-                       NOT NULL DEFAULT 'default_user'"""
-                )
-            except sqlite3.OperationalError:
-                # Column already exists
-                pass
 
     def store(
         self,

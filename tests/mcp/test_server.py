@@ -187,14 +187,17 @@ async def test_memory_tools_with_telemetry():
     # Simulate MCP server calling memory_store with telemetry tracking
     # This is what happens inside handle_call_tool()
     args = {
+        "user_id": "test_user",
         "agent_name": "test_agent",
         "key": "test_key",
         "value": "test_value",
         "scope": "working",
     }
 
-    # Remove agent_name from args (the fix from Issue #344)
-    tracking_args = {k: v for k, v in args.items() if k != "agent_name"}
+    # Remove agent_name and user_id from args (the fix from Issue #344)
+    tracking_args = {
+        k: v for k, v in args.items() if k not in ("agent_name", "user_id")
+    }
 
     # Track execution (no "multiple values" error expected)
     async with collector.track_execution(
@@ -208,7 +211,7 @@ async def test_memory_tools_with_telemetry():
         "mcp_kagura_tool_memory_recall", **tracking_args
     ):
         result = await memory_recall(
-            agent_name="test_agent", key="test_key", scope="working"
+            user_id="test_user", agent_name="test_agent", key="test_key", scope="working"
         )
         assert result == "test_value"
 
@@ -232,11 +235,14 @@ async def test_telemetry_tracks_memory_operations():
 
     # Execute memory operation with telemetry
     args = {
+        "user_id": "test_user",
         "agent_name": "tracked_agent",
         "key": "tracked_key",
         "value": "tracked_value",
     }
-    tracking_args = {k: v for k, v in args.items() if k != "agent_name"}
+    tracking_args = {
+        k: v for k, v in args.items() if k not in ("agent_name", "user_id")
+    }
 
     async with collector.track_execution("mcp_memory_store", **tracking_args):
         await memory_store(**args)
@@ -250,8 +256,9 @@ async def test_telemetry_tracks_memory_operations():
     assert last_execution["agent_name"] == "mcp_memory_store"
     assert last_execution["status"] == "completed"
 
-    # Verify kwargs don't contain agent_name (it was filtered out)
+    # Verify kwargs don't contain agent_name or user_id (they were filtered out)
     assert "agent_name" not in last_execution["kwargs"]
+    assert "user_id" not in last_execution["kwargs"]
     assert "key" in last_execution["kwargs"]
     assert "value" in last_execution["kwargs"]
 
