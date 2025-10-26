@@ -50,6 +50,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MCP config management (`src/kagura/mcp/config.py`)
 - MCP diagnostics (`src/kagura/mcp/diagnostics.py`)
 
+#### GraphMemory Integration (Phase B, Issue #345)
+- **GraphMemory Core** (`src/kagura/core/graph/memory.py`)
+  - NetworkX-based knowledge graph for relationships
+  - Node types: memory, user, topic, interaction
+  - Edge types: related_to, depends_on, learned_from, influences, works_on
+  - Multi-hop graph traversal with relationship filtering
+  - User pattern analysis methods:
+    - `get_user_topics()` - Get topics associated with a user
+    - `get_user_interactions()` - Get user interaction history
+    - `analyze_user_pattern()` - Analyze patterns (topics, platforms, frequency)
+  - Graph persistence (pickle format)
+  - Auto-load on initialization
+
+- **MCP Tools for Graph** (3 new tools)
+  - `memory_get_related(node_id, depth, rel_type)` - Get related nodes via graph traversal
+  - `memory_record_interaction(user_id, ai_platform, query, response, metadata)` - Record AI-User interactions
+  - `memory_get_user_pattern(user_id)` - Analyze user interaction patterns
+
+- **REST API for Graph** (3 new endpoints)
+  - `POST /api/v1/graph/interactions` - Record AI-User interaction
+  - `GET /api/v1/graph/{node_id}/related` - Get related nodes (supports depth, rel_type filtering)
+  - `GET /api/v1/graph/users/{user_id}/pattern` - Analyze user patterns
+  - Pydantic models for type-safe requests/responses
+  - OpenAPI documentation support
+
+- **MemoryManager Integration**
+  - `enable_graph=True` by default (auto-enables GraphMemory)
+  - Auto-detects NetworkX availability (graceful degradation)
+  - Graph persistence path: `{persist_dir}/graph.pkl`
+  - Integrated with existing 3-tier memory system
+
+- **Dependencies**
+  - Added `networkx>=3.0` to `ai` extras (~1.5MB)
+
 #### Docker & Infrastructure
 - Docker Compose setup (PostgreSQL + pgvector, Redis, API server)
 - Dockerfile for API server
@@ -92,16 +126,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic JSON decoding on retrieve
   - Transparent to API users
 
+- **web_search MCP tool** - JSON serialization error (Issue #345)
+  - Fixed `SearchResult` dataclass serialization
+  - Added `asdict()` conversion before JSON serialization
+  - Added `ensure_ascii=False` for proper Japanese character support
+  - Added comprehensive unit tests (5 tests) to prevent regression
+
 ### ⚠️ Breaking Changes
 
 None - v4.0 is developed on separate branch (`364-featv40-phase-a-mcp-first-foundation`)
 
 v3.0 remains stable on `main` branch.
 
+### 🧪 Tests
+
+**GraphMemory & MCP Tools** (Issue #345):
+- GraphMemory unit tests: 40 tests (100% coverage)
+  - Node/edge operations, graph queries, persistence
+  - User pattern analysis, interaction recording
+- MCP Tools integration tests: 27 tests
+  - memory graph tools: 9 tests
+  - web_search: 5 tests (dataclass serialization validation)
+  - file_ops: 17 tests (file I/O, permissions, encoding)
+  - routing: 5 tests (placeholder validation)
+- **Total**: 76 tests added, all passing
+- Type-safe (pyright strict), lint-clean (ruff)
+
 ### 🚧 In Progress
 
-#### Phase B (Coming in v4.0.0 stable)
-- GraphMemory integration (Issue #345, #365)
+#### Phase B (Remaining for v4.0.0 stable)
 - Memory consolidation (short → long-term)
 - Export/Import (JSONL format)
 - Multimodal database schema
@@ -111,22 +164,24 @@ v3.0 remains stable on `main` branch.
 - Multimodal MVP (attachments + derived texts)
 - Connectors (GitHub, Calendar, Files)
 - Consumer App (Flutter)
+- Remote MCP Server support (Issue #368)
 
 ### 📊 Statistics
 
-**Phase A Metrics**:
-- **Files changed**: 30+
-- **Lines added**: 5,000+
-- **New modules**: 7
-- **API endpoints**: 10
-- **MCP tools**: 28 (6 memory tools)
+**Phase A + B Metrics**:
+- **Files changed**: 45+ (Phase A: 30, Phase B: 15)
+- **Lines added**: 7,331+ (Phase A: 5,000, Phase B: 2,331)
+- **New modules**: 8 (Phase A: 7, Phase B: 1 graph module)
+- **API endpoints**: 13 (Phase A: 10, Phase B: 3 graph endpoints)
+- **MCP tools**: 31 (Phase A: 28, Phase B: +3 graph tools)
 - **CLI commands**: 6 (4 new)
 - **Documentation pages**: 7
+- **Tests**: 76+ GraphMemory/MCP tests
 
 **Git Stats**:
-- **Commits**: 6 (Phase A Week 1-4)
-- **PR**: #366 (Draft)
-- **Issues**: #364 (Phase A), #365 (Phase B)
+- **Commits**: 11 (Phase A: 6, Phase B: 5)
+- **PRs**: #366 (Phase A, merged), #367 (Phase B, merged)
+- **Issues**: #364 (Phase A), #345 (Phase B, closed), #368 (Remote MCP Server)
 
 ---
 
