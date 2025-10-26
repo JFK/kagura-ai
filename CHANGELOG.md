@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔄 Changed
+
+- **GraphMemory**: Made `ai_platform` parameter optional in `record_interaction` (#381)
+  - New signature: `record_interaction(user_id, query, response, metadata)`
+  - `ai_platform` moved to metadata (optional)
+  - MCP tool: `ai_platform` parameter now optional with default=""
+  - REST API: `InteractionCreate.ai_platform` is now `str | None`
+  - Backward compatible: `analyze_user_pattern` supports both old and new formats
+  - Rationale: Aligns with v4.0 Universal Memory principle ("Own your memory, bring it to every AI")
+
 ---
 
 ## [4.0.0] - 2025-10-26

@@ -189,9 +189,9 @@ class TestInteractionRecording:
         """Test recording a basic interaction."""
         interaction_id = graph_memory.record_interaction(
             user_id="user_001",
-            ai_platform="claude",
             query="How to use FastAPI?",
             response="FastAPI is a modern web framework...",
+            metadata={"ai_platform": "claude"},
         )
 
         # Check interaction node created
@@ -213,10 +213,9 @@ class TestInteractionRecording:
 
     def test_record_interaction_with_metadata(self, graph_memory: GraphMemory) -> None:
         """Test recording interaction with metadata."""
-        metadata = {"project": "kagura", "session_id": "sess_123"}
+        metadata = {"project": "kagura", "session_id": "sess_123", "ai_platform": "chatgpt"}
         interaction_id = graph_memory.record_interaction(
             user_id="user_002",
-            ai_platform="chatgpt",
             query="Test query",
             response="Test response",
             metadata=metadata,
@@ -230,16 +229,15 @@ class TestInteractionRecording:
         """Test recording multiple interactions for same user."""
         interaction_1 = graph_memory.record_interaction(
             user_id="user_001",
-            ai_platform="claude",
             query="Query 1",
             response="Response 1",
         )
 
         interaction_2 = graph_memory.record_interaction(
             user_id="user_001",
-            ai_platform="claude",
             query="Query 2",
             response="Response 2",
+            metadata={"ai_platform": "claude"},
         )
 
         # Both interactions should be linked to same user
@@ -256,9 +254,9 @@ class TestUserPattern:
         user_id = "user_001"
         interaction_id = graph_memory.record_interaction(
             user_id=user_id,
-            ai_platform="claude",
             query="Python question",
             response="Python answer",
+            metadata={"ai_platform": "claude"},
         )
 
         # Create topic and link to interaction
@@ -282,16 +280,16 @@ class TestUserPattern:
         # Record multiple interactions
         interaction_1 = graph_memory.record_interaction(
             user_id=user_id,
-            ai_platform="claude",
             query="Query 1",
             response="Response 1",
+            metadata={"ai_platform": "claude"},
         )
 
         interaction_2 = graph_memory.record_interaction(
             user_id=user_id,
-            ai_platform="claude",
             query="Query 2",
             response="Response 2",
+            metadata={"ai_platform": "claude"},
         )
 
         interactions = graph_memory.get_user_interactions(user_id)
@@ -309,9 +307,9 @@ class TestUserPattern:
         for i in range(5):
             graph_memory.record_interaction(
                 user_id=user_id,
-                ai_platform="claude",
                 query=f"Query {i}",
                 response=f"Response {i}",
+                metadata={"ai_platform": "claude"},
             )
 
         interactions = graph_memory.get_user_interactions(user_id, limit=3)
@@ -325,9 +323,9 @@ class TestUserPattern:
         for i in range(3):
             graph_memory.record_interaction(
                 user_id=user_id,
-                ai_platform="claude",
                 query=f"Query {i}",
                 response=f"Response {i}",
+                metadata={"ai_platform": "claude"},
             )
 
         interactions = graph_memory.get_user_interactions(user_id)
@@ -343,16 +341,16 @@ class TestUserPattern:
         # Record interactions
         interaction_1 = graph_memory.record_interaction(
             user_id=user_id,
-            ai_platform="claude",
             query="Python question",
             response="Python answer",
+            metadata={"ai_platform": "claude"},
         )
 
         interaction_2 = graph_memory.record_interaction(
             user_id=user_id,
-            ai_platform="chatgpt",
             query="JavaScript question",
             response="JavaScript answer",
+            metadata={"ai_platform": "chatgpt"},
         )
 
         # Add topics
@@ -380,9 +378,9 @@ class TestUserPattern:
         for i in range(3):
             interaction_id = graph_memory.record_interaction(
                 user_id=user_id,
-                ai_platform="claude",
                 query=f"Python question {i}",
                 response=f"Python answer {i}",
+                metadata={"ai_platform": "claude"},
             )
             if i == 0:
                 graph_memory.add_node("topic_python", "topic", {"name": "Python"})
@@ -391,9 +389,9 @@ class TestUserPattern:
         # Create 1 JavaScript interaction
         interaction_id = graph_memory.record_interaction(
             user_id=user_id,
-            ai_platform="claude",
             query="JS question",
             response="JS answer",
+            metadata={"ai_platform": "claude"},
         )
         graph_memory.add_node("topic_js", "topic", {"name": "JavaScript"})
         graph_memory.add_edge(interaction_id, "topic_js", "related_to")

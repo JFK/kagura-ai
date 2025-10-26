@@ -51,12 +51,16 @@ async def record_interaction(
 
     # Record interaction
     try:
+        # Merge ai_platform into metadata if provided (backward compatibility)
+        meta = request.metadata or {}
+        if request.ai_platform:
+            meta["ai_platform"] = request.ai_platform
+
         interaction_id = memory.graph.record_interaction(
             user_id=request.user_id,
-            ai_platform=request.ai_platform,
             query=request.query,
             response=request.response,
-            metadata=request.metadata or {},
+            metadata=meta,
         )
 
         # Persist graph if persist_path is set
@@ -66,7 +70,7 @@ async def record_interaction(
         return {
             "interaction_id": interaction_id,
             "user_id": request.user_id,
-            "ai_platform": request.ai_platform,
+            "ai_platform": request.ai_platform or "unknown",
             "message": "Interaction recorded successfully",
         }
     except Exception as e:

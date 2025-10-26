@@ -163,9 +163,11 @@ class InteractionCreate(BaseModel):
     """Create AI-User interaction request."""
 
     user_id: str = Field(..., description="User identifier")
-    ai_platform: str = Field(..., description="AI platform (claude, chatgpt, etc.)")
     query: str = Field(..., description="User's query")
     response: str = Field(..., description="AI's response")
+    ai_platform: str | None = Field(
+        None, description="(Optional) AI platform (claude, chatgpt, etc.)"
+    )
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
