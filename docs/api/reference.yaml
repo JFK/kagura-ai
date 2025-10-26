@@ -37,6 +37,8 @@ servers:
 tags:
   - name: memory
     description: Memory CRUD operations
+  - name: graph
+    description: Graph Memory operations (relationships, interactions, patterns)
   - name: search
     description: Search and recall operations
   - name: system
@@ -276,6 +278,131 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MetricsResponse'
+
+  /api/v1/graph/interactions:
+    post:
+      summary: Record AI-User interaction
+      description: |
+        Store a conversation turn between user and AI in the knowledge graph,
+        enabling pattern analysis and personalization.
+      operationId: recordInteraction
+      tags:
+        - graph
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InteractionCreate'
+      responses:
+        '201':
+          description: Interaction recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InteractionResponse'
+        '503':
+          description: GraphMemory not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Failed to record interaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/graph/{node_id}/related:
+    get:
+      summary: Get related nodes
+      description: |
+        Retrieve nodes related to the specified node through graph traversal.
+        Useful for discovering connections and relationships between memories,
+        users, topics, and interactions.
+      operationId: getRelatedNodes
+      tags:
+        - graph
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Starting node ID
+          schema:
+            type: string
+            example: mem_001
+        - name: depth
+          in: query
+          description: Traversal depth (number of hops)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+            default: 2
+        - name: rel_type
+          in: query
+          description: Filter by relationship type
+          schema:
+            type: string
+            enum: [related_to, depends_on, learned_from, influences, works_on]
+      responses:
+        '200':
+          description: Related nodes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelatedNodesResponse'
+        '503':
+          description: GraphMemory not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Failed to get related nodes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/graph/users/{user_id}/pattern:
+    get:
+      summary: Analyze user pattern
+      description: |
+        Analyze a user's interaction history to discover patterns, interests,
+        and preferences. Returns statistics about topics, platforms, and
+        interaction frequency.
+      operationId: getUserPattern
+      tags:
+        - graph
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User identifier to analyze
+          schema:
+            type: string
+            example: user_jfk
+      responses:
+        '200':
+          description: User pattern analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPatternResponse'
+        '503':
+          description: GraphMemory not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Failed to analyze user pattern
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
@@ -621,3 +748,152 @@ components:
           type: string
           nullable: true
           description: Detailed error information
+
+    InteractionCreate:
+      type: object
+      required:
+        - user_id
+        - ai_platform
+        - query
+        - response
+      properties:
+        user_id:
+          type: string
+          description: User identifier
+          example: user_jfk
+        ai_platform:
+          type: string
+          description: AI platform name (claude, chatgpt, gemini, etc.)
+          example: claude
+        query:
+          type: string
+          description: User's query
+          example: How to use FastAPI?
+        response:
+          type: string
+          description: AI's response
+          example: FastAPI is a modern web framework...
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional metadata (project, session_id, etc.)
+          example:
+            project: kagura
+            session_id: sess_123
+
+    InteractionResponse:
+      type: object
+      required:
+        - interaction_id
+        - user_id
+        - ai_platform
+        - message
+      properties:
+        interaction_id:
+          type: string
+          description: Unique interaction ID
+          example: interaction_a1b2c3d4
+        user_id:
+          type: string
+          description: User identifier
+        ai_platform:
+          type: string
+          description: AI platform name
+        message:
+          type: string
+          description: Confirmation message
+          example: Interaction recorded successfully
+
+    GraphNode:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          description: Node ID
+          example: mem_001
+        type:
+          type: string
+          description: Node type
+          enum: [memory, user, topic, interaction]
+          example: memory
+        data:
+          type: object
+          additionalProperties: true
+          description: Node data/attributes
+
+    RelatedNodesResponse:
+      type: object
+      required:
+        - node_id
+        - depth
+        - related_count
+        - related_nodes
+      properties:
+        node_id:
+          type: string
+          description: Starting node ID
+        depth:
+          type: integer
+          description: Traversal depth
+        rel_type:
+          type: string
+          nullable: true
+          description: Relationship type filter
+        related_count:
+          type: integer
+          description: Number of related nodes found
+        related_nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphNode'
+
+    UserPattern:
+      type: object
+      required:
+        - total_interactions
+        - topics
+        - avg_interactions_per_topic
+        - platforms
+      properties:
+        total_interactions:
+          type: integer
+          description: Total number of interactions
+          example: 42
+        topics:
+          type: array
+          items:
+            type: string
+          description: List of topics user has discussed
+          example: ["python", "fastapi", "asyncio"]
+        avg_interactions_per_topic:
+          type: number
+          description: Average interactions per topic
+          example: 14.0
+        most_discussed_topic:
+          type: string
+          nullable: true
+          description: Most frequently discussed topic
+          example: python
+        platforms:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Platform usage statistics
+          example:
+            claude: 30
+            chatgpt: 12
+
+    UserPatternResponse:
+      type: object
+      required:
+        - user_id
+        - pattern
+      properties:
+        user_id:
+          type: string
+          description: User identifier
+        pattern:
+          $ref: '#/components/schemas/UserPattern'
