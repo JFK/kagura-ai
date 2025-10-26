@@ -18,13 +18,16 @@ if TYPE_CHECKING:
 _memory_cache: dict[str, MemoryManager] = {}
 
 
-def _get_memory_manager(agent_name: str, enable_rag: bool = False) -> MemoryManager:
+def _get_memory_manager(
+    user_id: str, agent_name: str, enable_rag: bool = False
+) -> MemoryManager:
     """Get or create cached MemoryManager instance
 
     Ensures the same MemoryManager instance is reused across MCP tool calls
-    for the same agent_name, allowing working memory to persist.
+    for the same user_id + agent_name combination, allowing working memory to persist.
 
     Args:
+        user_id: User identifier (memory owner)
         agent_name: Name of the agent
         enable_rag: Whether to enable RAG (semantic search)
 
@@ -33,11 +36,11 @@ def _get_memory_manager(agent_name: str, enable_rag: bool = False) -> MemoryMana
     """
     from kagura.core.memory import MemoryManager
 
-    cache_key = f"{agent_name}:rag={enable_rag}"
+    cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
 
     if cache_key not in _memory_cache:
         _memory_cache[cache_key] = MemoryManager(
-            agent_name=agent_name, enable_rag=enable_rag
+            user_id=user_id, agent_name=agent_name, enable_rag=enable_rag
         )
 
     return _memory_cache[cache_key]
@@ -45,6 +48,7 @@ def _get_memory_manager(agent_name: str, enable_rag: bool = False) -> MemoryMana
 
 @tool
 async def memory_store(
+    user_id: str,
     agent_name: str,
     key: str,
     value: str,
@@ -60,11 +64,12 @@ async def memory_store(
     - Important context needs to be preserved
     - User preferences or settings should be stored
 
-    💡 IMPORTANT: agent_name determines memory sharing behavior:
-    - agent_name="global": Shared across ALL chat threads
-      (for user preferences, global facts)
-    - agent_name="thread_specific": Isolated per thread
-      (for conversation-specific context)
+    💡 IMPORTANT: Memory ownership model (v4.0)
+    - user_id: WHO owns this memory (e.g., "user_jfk", email, username)
+    - agent_name: WHERE to store ("global" = all threads, "thread_X" = specific)
+
+    🌐 CROSS-PLATFORM: All memories are tied to user_id, enabling
+        true Universal Memory across Claude, ChatGPT, Gemini, etc.
 
     Examples:
         # Global memory (accessible from all threads)
@@ -97,16 +102,16 @@ async def memory_store(
     enable_rag = True
 
     try:
-        memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+        memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
     except ImportError:
         # If RAG dependencies not available, create without RAG
         # But keep enable_rag=True for cache key consistency
         from kagura.core.memory import MemoryManager
 
-        cache_key = f"{agent_name}:rag={enable_rag}"
+        cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
-                agent_name=agent_name, enable_rag=False
+                user_id=user_id, agent_name=agent_name, enable_rag=False
             )
         memory = _memory_cache[cache_key]
 
@@ -180,7 +185,9 @@ async def memory_store(
 
 
 @tool
-async def memory_recall(agent_name: str, key: str, scope: str = "working") -> str:
+async def memory_recall(
+    user_id: str, agent_name: str, key: str, scope: str = "working"
+) -> str:
     """Recall information from agent memory
 
     Retrieve previously stored information. Use this tool when:
@@ -188,18 +195,22 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
     - Need to access previously saved context or preferences
     - Continuing a previous conversation or task
 
-    💡 IMPORTANT: Use the SAME agent_name as when storing:
-    - agent_name="global": Retrieve globally shared memories
-    - agent_name="thread_specific": Retrieve thread-specific memories
+    💡 IMPORTANT: Memory ownership model (v4.0)
+    - user_id: WHO owns this memory (e.g., "user_jfk", email, username)
+    - agent_name: WHERE to retrieve from ("global" = all threads, "thread_X" = specific)
+
+    🌐 CROSS-PLATFORM: All memories are tied to user_id, enabling
+        true Universal Memory across Claude, ChatGPT, Gemini, etc.
 
     Examples:
-        # Retrieve global memory
-        agent_name="global", key="user_language"
+        # Retrieve global memory for user
+        user_id="user_jfk", agent_name="global", key="user_language"
 
         # Retrieve thread-specific memory
-        agent_name="thread_chat_123", key="current_topic"
+        user_id="user_jfk", agent_name="thread_chat_123", key="current_topic"
 
     Args:
+        user_id: User identifier (memory owner)
         agent_name: Agent identifier (must match the one used in memory_store)
         key: Memory key to retrieve
         scope: Memory scope (working/persistent)
@@ -211,15 +222,15 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
     enable_rag = True
 
     try:
-        memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+        memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
     except ImportError:
         # If RAG dependencies not available, get from cache with consistent key
         from kagura.core.memory import MemoryManager
 
-        cache_key = f"{agent_name}:rag={enable_rag}"
+        cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
-                agent_name=agent_name, enable_rag=False
+                user_id=user_id, agent_name=agent_name, enable_rag=False
             )
         memory = _memory_cache[cache_key]
 
@@ -237,7 +248,7 @@ async def memory_recall(agent_name: str, key: str, scope: str = "working") -> st
 
 @tool
 async def memory_search(
-    agent_name: str, query: str, k: int = 5, scope: str = "all"
+    user_id: str, agent_name: str, query: str, k: int = 5, scope: str = "all"
 ) -> str:
     """Search agent memory using semantic RAG and key-value memory
 
@@ -247,18 +258,22 @@ async def memory_search(
     - Need to find related memories without exact match
     - Exploring what has been remembered about a topic
 
-    💡 IMPORTANT: Searches are scoped by agent_name:
-    - agent_name="global": Search globally shared memories
-    - agent_name="thread_specific": Search thread-specific memories
+    💡 IMPORTANT: Memory ownership model (v4.0)
+    - user_id: WHO owns these memories (searches only this user's data)
+    - agent_name: WHERE to search ("global" = all threads, "thread_X" = specific)
+
+    🌐 CROSS-PLATFORM: Searches are scoped by user_id, enabling
+        cross-platform memory search across all AI tools.
 
     Examples:
-        # Search global memory
-        agent_name="global", query="user preferences"
+        # Search global memory for user
+        user_id="user_jfk", agent_name="global", query="user preferences"
 
         # Search thread memory
-        agent_name="thread_chat_123", query="topics we discussed"
+        user_id="user_jfk", agent_name="thread_chat_123", query="topics we discussed"
 
     Args:
+        user_id: User identifier (memory owner)
         agent_name: Agent identifier (determines which memory space to search)
         query: Search query (semantic and keyword matching)
         k: Number of results from RAG per scope
@@ -282,15 +297,15 @@ async def memory_search(
 
     try:
         # Use cached MemoryManager with RAG enabled
-        memory = _get_memory_manager(agent_name, enable_rag=True)
+        memory = _get_memory_manager(user_id, agent_name, enable_rag=True)
     except ImportError:
         # If RAG dependencies not available, get from cache with consistent key
         from kagura.core.memory import MemoryManager
 
-        cache_key = f"{agent_name}:rag=True"
+        cache_key = f"{user_id}:{agent_name}:rag=True"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
-                agent_name=agent_name, enable_rag=False
+                user_id=user_id, agent_name=agent_name, enable_rag=False
             )
         memory = _memory_cache[cache_key]
 
@@ -333,27 +348,31 @@ async def memory_search(
 
 @tool
 async def memory_list(
-    agent_name: str, scope: str = "persistent", limit: int = 50
+    user_id: str, agent_name: str, scope: str = "persistent", limit: int = 50
 ) -> str:
     """List all stored memories for debugging and exploration
 
-    List all memories stored for the specified agent. Use this tool when:
+    List all memories stored for the specified user and agent. Use this tool when:
     - User asks "what do you remember about me?"
     - Debugging memory issues
     - Exploring what has been stored
 
-    💡 IMPORTANT: Lists memories for specific agent_name:
-    - agent_name="global": List globally shared memories
-    - agent_name="thread_specific": List thread-specific memories
+    💡 IMPORTANT: Memory ownership model (v4.0)
+    - user_id: WHO owns these memories (lists only this user's data)
+    - agent_name: WHERE to list from ("global" = all threads, "thread_X" = specific)
+
+    🌐 CROSS-PLATFORM: Lists are scoped by user_id, showing only
+        memories owned by this user across all AI platforms.
 
     Examples:
-        # List global memories
-        agent_name="global", scope="persistent"
+        # List global memories for user
+        user_id="user_jfk", agent_name="global", scope="persistent"
 
         # List thread-specific working memory
-        agent_name="thread_chat_123", scope="working"
+        user_id="user_jfk", agent_name="thread_chat_123", scope="working"
 
     Args:
+        user_id: User identifier (memory owner)
         agent_name: Agent identifier
         scope: Memory scope (working/persistent)
         limit: Maximum number of entries to return (default: 50)
@@ -372,15 +391,15 @@ async def memory_list(
     enable_rag = True
 
     try:
-        memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+        memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
     except ImportError:
         # If RAG dependencies not available, get from cache with consistent key
         from kagura.core.memory import MemoryManager
 
-        cache_key = f"{agent_name}:rag={enable_rag}"
+        cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
-                agent_name=agent_name, enable_rag=False
+                user_id=user_id, agent_name=agent_name, enable_rag=False
             )
         memory = _memory_cache[cache_key]
 
@@ -388,8 +407,8 @@ async def memory_list(
         results = []
 
         if scope == "persistent":
-            # Get all persistent memories for this agent
-            memories = memory.persistent.search("%", agent_name, limit=limit)
+            # Get all persistent memories for this user and agent
+            memories = memory.persistent.search("%", user_id, agent_name, limit=limit)
             for mem in memories:
                 results.append(
                     {
@@ -437,6 +456,7 @@ async def memory_list(
 
 @tool
 async def memory_feedback(
+    user_id: str,
     agent_name: str,
     key: str,
     label: str,
@@ -451,19 +471,26 @@ async def memory_feedback(
     - A memory is outdated or no longer relevant
     - A memory should be prioritized or deprioritized
 
+    💡 IMPORTANT: Memory ownership model (v4.0)
+    - user_id: WHO owns this memory (feedback applies to user's memory)
+    - agent_name: WHERE the memory is stored
+
     💡 Feedback Types:
     - label="useful": Memory was helpful (+weight to importance)
     - label="irrelevant": Memory not relevant (-weight)
     - label="outdated": Memory is old/stale (-weight, candidate for removal)
 
     Examples:
-        # Mark memory as useful
-        agent_name="global", key="user_language", label="useful", weight=0.2
+        # Mark memory as useful for user
+        user_id="user_jfk", agent_name="global", key="user_language",
+        label="useful", weight=0.2
 
         # Mark memory as outdated
-        agent_name="global", key="old_preference", label="outdated", weight=0.5
+        user_id="user_jfk", agent_name="global", key="old_preference",
+        label="outdated", weight=0.5
 
     Args:
+        user_id: User identifier (memory owner)
         agent_name: Agent identifier
         key: Memory key to provide feedback on
         label: Feedback type ("useful", "irrelevant", "outdated")
@@ -494,14 +521,14 @@ async def memory_feedback(
 
     enable_rag = True
     try:
-        memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+        memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
     except ImportError:
         from kagura.core.memory import MemoryManager
 
-        cache_key = f"{agent_name}:rag={enable_rag}"
+        cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
-                agent_name=agent_name, enable_rag=False
+                user_id=user_id, agent_name=agent_name, enable_rag=False
             )
         memory = _memory_cache[cache_key]
 
@@ -606,7 +633,9 @@ async def memory_feedback(
 
 
 @tool
-async def memory_delete(agent_name: str, key: str, scope: str = "persistent") -> str:
+async def memory_delete(
+    user_id: str, agent_name: str, key: str, scope: str = "persistent"
+) -> str:
     """Delete a memory with audit logging
 
     Permanently delete a memory from storage. Use this tool when:
@@ -614,16 +643,23 @@ async def memory_delete(agent_name: str, key: str, scope: str = "persistent") ->
     - Memory is outdated and should be removed
     - Cleaning up temporary data
 
+    💡 IMPORTANT: Memory ownership model (v4.0)
+    - user_id: WHO owns this memory (deletion scoped to user)
+    - agent_name: WHERE the memory is stored
+
     💡 IMPORTANT: Deletion is permanent and logged for audit.
 
     Examples:
-        # Delete persistent memory
-        agent_name="global", key="old_preference", scope="persistent"
+        # Delete persistent memory for user
+        user_id="user_jfk", agent_name="global", key="old_preference",
+        scope="persistent"
 
         # Delete working memory
-        agent_name="thread_chat_123", key="temp_data", scope="working"
+        user_id="user_jfk", agent_name="thread_chat_123", key="temp_data",
+        scope="working"
 
     Args:
+        user_id: User identifier (memory owner)
         agent_name: Agent identifier
         key: Memory key to delete
         scope: Memory scope (working/persistent)
@@ -632,20 +668,20 @@ async def memory_delete(agent_name: str, key: str, scope: str = "persistent") ->
         Confirmation message with deletion details
 
     Note:
-        - Deletion is logged with timestamp and agent_name
+        - Deletion is logged with timestamp and user_id
         - Both key-value memory and RAG entries are deleted
         - For GDPR compliance: Complete deletion guaranteed
     """
     enable_rag = True
     try:
-        memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+        memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
     except ImportError:
         from kagura.core.memory import MemoryManager
 
-        cache_key = f"{agent_name}:rag={enable_rag}"
+        cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
         if cache_key not in _memory_cache:
             _memory_cache[cache_key] = MemoryManager(
-                agent_name=agent_name, enable_rag=False
+                user_id=user_id, agent_name=agent_name, enable_rag=False
             )
         memory = _memory_cache[cache_key]
 
@@ -706,6 +742,7 @@ async def memory_delete(agent_name: str, key: str, scope: str = "persistent") ->
 
 @tool
 async def memory_get_related(
+    user_id: str,
     agent_name: str,
     node_id: str,
     depth: int | str = 2,
@@ -717,6 +754,10 @@ async def memory_get_related(
     Useful for discovering connections and relationships between memories,
     users, topics, and interactions.
 
+    💡 IMPORTANT: Memory ownership model (v4.0)
+    - user_id: WHO owns this graph data (searches user's graph)
+    - agent_name: WHERE to search ("global" = all threads, "thread_X" = specific)
+
     🔍 USE WHEN:
     - Discovering connections between memories
     - Finding related topics or users
@@ -724,6 +765,7 @@ async def memory_get_related(
     - Building context from related information
 
     Args:
+        user_id: User identifier (memory owner)
         agent_name: Agent identifier (use "global" for cross-thread sharing)
         node_id: Starting node ID to find related nodes from
         depth: Traversal depth (number of hops, default: 2)
@@ -734,13 +776,13 @@ async def memory_get_related(
         JSON string with related nodes list
 
     💡 EXAMPLE:
-        # Find memories related to "python_tips"
-        memory_get_related(agent_name="global", node_id="mem_python_tips",
-                          depth=2)
+        # Find memories related to "python_tips" for user
+        memory_get_related(user_id="user_jfk", agent_name="global",
+                          node_id="mem_python_tips", depth=2)
 
         # Find topics a user has interacted with
-        memory_get_related(agent_name="global", node_id="user_001",
-                          depth=1, rel_type="learned_from")
+        memory_get_related(user_id="user_jfk", agent_name="global",
+                          node_id="user_001", depth=1, rel_type="learned_from")
 
     📊 RETURNS:
         {
@@ -756,7 +798,7 @@ async def memory_get_related(
         Returns empty list if GraphMemory is not available.
     """
     enable_rag = True
-    memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+    memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
 
     # Check if graph is available
     if not memory.graph:
@@ -860,7 +902,7 @@ async def memory_record_interaction(
         The interaction is linked to the user node and can be analyzed later.
     """
     enable_rag = True
-    memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+    memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
 
     # Check if graph is available
     if not memory.graph:
@@ -962,7 +1004,7 @@ async def memory_get_user_pattern(
         User must have recorded interactions via memory_record_interaction.
     """
     enable_rag = True
-    memory = _get_memory_manager(agent_name, enable_rag=enable_rag)
+    memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
 
     # Check if graph is available
     if not memory.graph:

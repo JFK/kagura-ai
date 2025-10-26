@@ -73,7 +73,11 @@ async def test_memory_store_tool():
     assert tool_func is not None
 
     result = await tool_func(
-        agent_name="test", key="user_name", value="Alice", scope="session"
+        user_id="test_user",
+        agent_name="test",
+        key="user_name",
+        value="Alice",
+        scope="session",
     )
 
     assert "Stored" in result

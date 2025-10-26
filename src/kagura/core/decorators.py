@@ -542,6 +542,7 @@ async def _execute_agent(
     # Create and inject memory if enabled
     if enable_memory and has_memory_param:
         memory = MemoryManager(
+            user_id="system",
             agent_name=func.__name__,
             persist_dir=persist_dir,
             max_messages=max_messages,
@@ -725,6 +726,7 @@ async def _stream_agent(
     # Create and inject memory if enabled
     if enable_memory and has_memory_param:
         memory = MemoryManager(
+            user_id="system",
             agent_name=func.__name__,
             persist_dir=persist_dir,
             max_messages=max_messages,

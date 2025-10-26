@@ -62,10 +62,12 @@ class MCPDiagnostics:
         try:
             from kagura.core.memory import MemoryManager
 
-            manager = MemoryManager(agent_name="diagnostics", enable_rag=True)
+            manager = MemoryManager(
+                user_id="system", agent_name="diagnostics", enable_rag=True
+            )
 
             # Count memories
-            persistent_count = manager.persistent.count("diagnostics")
+            persistent_count = manager.persistent.count("system", "diagnostics")
             rag_count = manager.rag.count("diagnostics") if manager.rag else 0
 
             return {

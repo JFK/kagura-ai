@@ -12,37 +12,42 @@ client = TestClient(app)
 @pytest.fixture(autouse=True)
 def clear_memory():
     """Clear memory before and after each test for isolation."""
-    # Clear before test
-    memory = get_memory_manager()
-    memory.working.clear()
-    if memory.persistent:
-        # Clear persistent memory by deleting test keys
-        try:
-            import sqlite3
+    from kagura.api.dependencies import _memory_managers
 
-            if memory.persistent.db_path.exists():
-                with sqlite3.connect(memory.persistent.db_path) as conn:
-                    conn.execute("DELETE FROM memories WHERE key LIKE 'test_%'")
-                    conn.execute("DELETE FROM memories WHERE key LIKE '%_test_%'")
-                    conn.commit()
-        except Exception:
-            pass  # DB might not exist yet
+    # Clear all user memory managers and their data before test
+    for manager in _memory_managers.values():
+        manager.working.clear()
+        # Clear test keys from persistent memory
+        if manager.persistent:
+            try:
+                import sqlite3
+
+                if manager.persistent.db_path.exists():
+                    with sqlite3.connect(manager.persistent.db_path) as conn:
+                        conn.execute("DELETE FROM memories WHERE key LIKE 'test_%'")
+                        conn.commit()
+            except Exception:
+                pass
+
+    _memory_managers.clear()
 
     yield
 
-    # Clear after test
-    memory.working.clear()
-    if memory.persistent:
-        try:
-            import sqlite3
+    # Clear all user memory managers after test
+    for manager in _memory_managers.values():
+        manager.working.clear()
+        if manager.persistent:
+            try:
+                import sqlite3
 
-            if memory.persistent.db_path.exists():
-                with sqlite3.connect(memory.persistent.db_path) as conn:
-                    conn.execute("DELETE FROM memories WHERE key LIKE 'test_%'")
-                    conn.execute("DELETE FROM memories WHERE key LIKE '%_test_%'")
-                    conn.commit()
-        except Exception:
-            pass
+                if manager.persistent.db_path.exists():
+                    with sqlite3.connect(manager.persistent.db_path) as conn:
+                        conn.execute("DELETE FROM memories WHERE key LIKE 'test_%'")
+                        conn.commit()
+            except Exception:
+                pass
+
+    _memory_managers.clear()
 
 
 class TestRootEndpoint:
@@ -179,8 +184,20 @@ class TestMemoryUpdate:
 
     def test_update_memory_value(self):
         """Test updating memory value."""
+        # Create first
+        client.post(
+            "/api/v1/memory",
+            json={
+                "key": "update_value_key",
+                "value": "Original value",
+                "scope": "persistent",
+                "tags": ["original"],
+            },
+        )
+
+        # Update
         response = client.put(
-            "/api/v1/memory/update_test_key",
+            "/api/v1/memory/update_value_key",
             json={"value": "Updated value"},
         )
 
@@ -191,8 +208,20 @@ class TestMemoryUpdate:
 
     def test_update_memory_tags(self):
         """Test updating memory tags."""
+        # Create first
+        client.post(
+            "/api/v1/memory",
+            json={
+                "key": "update_tags_key",
+                "value": "Original value",
+                "scope": "persistent",
+                "tags": ["original"],
+            },
+        )
+
+        # Update
         response = client.put(
-            "/api/v1/memory/update_test_key",
+            "/api/v1/memory/update_tags_key",
             json={"tags": ["updated", "new-tag"]},
         )
 
@@ -202,8 +231,20 @@ class TestMemoryUpdate:
 
     def test_update_memory_importance(self):
         """Test updating memory importance."""
+        # Create first
+        client.post(
+            "/api/v1/memory",
+            json={
+                "key": "update_importance_key",
+                "value": "Original value",
+                "scope": "persistent",
+                "importance": 0.5,
+            },
+        )
+
+        # Update
         response = client.put(
-            "/api/v1/memory/update_test_key",
+            "/api/v1/memory/update_importance_key",
             json={"importance": 0.9},
         )
 
@@ -286,3 +327,86 @@ class TestMemoryList:
         assert len(data["memories"]) <= 3
         assert data["page"] == 1
         assert data["page_size"] == 3
+
+
+class TestUserIdIsolation:
+    """Test X-User-ID header support and user isolation (v4.0)."""
+
+    def test_user_id_from_header(self):
+        """Test that X-User-ID header is respected."""
+        # Create memory for user1
+        response = client.post(
+            "/api/v1/memory",
+            json={"key": "user1_key", "value": "user1_value", "scope": "working"},
+            headers={"X-User-ID": "user1"},
+        )
+        assert response.status_code == 201
+
+        # Get memory with same header - should succeed
+        response = client.get(
+            "/api/v1/memory/user1_key?scope=working",
+            headers={"X-User-ID": "user1"},
+        )
+        assert response.status_code == 200
+        assert response.json()["value"] == "user1_value"
+
+    def test_default_user_without_header(self):
+        """Test that requests without X-User-ID use default_user."""
+        # Create without header
+        response = client.post(
+            "/api/v1/memory",
+            json={"key": "default_key", "value": "default_value", "scope": "working"},
+        )
+        assert response.status_code == 201
+
+        # Get without header - should use same default_user
+        response = client.get("/api/v1/memory/default_key?scope=working")
+        assert response.status_code == 200
+
+    def test_user_isolation(self):
+        """Test that different users have isolated memories."""
+        # Create memory for user1
+        client.post(
+            "/api/v1/memory",
+            json={"key": "shared_key", "value": "user1_value", "scope": "working"},
+            headers={"X-User-ID": "user1"},
+        )
+
+        # Create memory for user2 with same key
+        client.post(
+            "/api/v1/memory",
+            json={"key": "shared_key", "value": "user2_value", "scope": "working"},
+            headers={"X-User-ID": "user2"},
+        )
+
+        # user1 should get their own value
+        response1 = client.get(
+            "/api/v1/memory/shared_key?scope=working",
+            headers={"X-User-ID": "user1"},
+        )
+        assert response1.status_code == 200
+        assert response1.json()["value"] == "user1_value"
+
+        # user2 should get their own value
+        response2 = client.get(
+            "/api/v1/memory/shared_key?scope=working",
+            headers={"X-User-ID": "user2"},
+        )
+        assert response2.status_code == 200
+        assert response2.json()["value"] == "user2_value"
+
+    def test_cross_user_access_denied(self):
+        """Test that user1 cannot access user2's memories."""
+        # Create for user1
+        client.post(
+            "/api/v1/memory",
+            json={"key": "user1_private", "value": "secret", "scope": "working"},
+            headers={"X-User-ID": "user1"},
+        )
+
+        # Try to access with user2 header - should not find
+        response = client.get(
+            "/api/v1/memory/user1_private?scope=working",
+            headers={"X-User-ID": "user2"},
+        )
+        assert response.status_code == 404

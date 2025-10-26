@@ -24,6 +24,7 @@ class TestWorkingMemoryMetadata:
         """Test that _meta_ keys are excluded from memory_list."""
         # Store memories with metadata
         await memory_store(
+            "test_user",
             "test_agent",
             "user_pref",
             "Python",
@@ -33,7 +34,7 @@ class TestWorkingMemoryMetadata:
         )
 
         # List should not include _meta_ keys
-        result = await memory_list("test_agent", scope="working")
+        result = await memory_list("test_user", "test_agent", scope="working")
         data = json.loads(result)
 
         # Should only see user_pref, not _meta_user_pref
@@ -45,10 +46,14 @@ class TestWorkingMemoryMetadata:
     @pytest.mark.asyncio
     async def test_recall_with_meta_key_fails_gracefully(self):
         """Test that trying to recall _meta_ key fails gracefully."""
-        await memory_store("test_agent", "normal_key", "value", scope="working")
+        await memory_store(
+            "test_user", "test_agent", "normal_key", "value", scope="working"
+        )
 
         # Try to recall the internal metadata key
-        result = await memory_recall("test_agent", "_meta_normal_key", scope="working")
+        result = await memory_recall(
+            "test_user", "test_agent", "_meta_normal_key", scope="working"
+        )
 
         # Should return the metadata dict, not error
         # This is acceptable behavior - it's stored in working memory
@@ -59,6 +64,7 @@ class TestWorkingMemoryMetadata:
         """Test that delete removes both value and metadata."""
         # Store with metadata
         await memory_store(
+            "test_user",
             "test_agent",
             "to_delete",
             "value",
@@ -68,12 +74,14 @@ class TestWorkingMemoryMetadata:
         )
 
         # Delete should remove both
-        await memory_delete("test_agent", "to_delete", scope="working")
+        await memory_delete("test_user", "test_agent", "to_delete", scope="working")
 
         # Both should be gone
-        value_result = await memory_recall("test_agent", "to_delete", scope="working")
+        value_result = await memory_recall(
+            "test_user", "test_agent", "to_delete", scope="working"
+        )
         meta_result = await memory_recall(
-            "test_agent", "_meta_to_delete", scope="working"
+            "test_user", "test_agent", "_meta_to_delete", scope="working"
         )
 
         assert "No value found" in value_result
@@ -84,6 +92,7 @@ class TestWorkingMemoryMetadata:
         """Test that search results don't include _meta_ entries."""
         # Store memories
         await memory_store(
+            "test_user",
             "test_agent",
             "searchable",
             "Python programming",
@@ -92,7 +101,9 @@ class TestWorkingMemoryMetadata:
         )
 
         # Search
-        result = await memory_search("test_agent", "python", k=10, scope="working")
+        result = await memory_search(
+            "test_user", "test_agent", "python", k=10, scope="working"
+        )
         data = json.loads(result)
 
         # Check results don't include _meta_ keys
@@ -109,6 +120,7 @@ class TestPersistentMemoryMetadata:
         """Test that persistent memory metadata is stored in DB, not separate key."""
         # Store persistent memory with metadata
         await memory_store(
+            "test_user",
             "test_agent",
             "persistent_key",
             "persistent value",
@@ -118,7 +130,7 @@ class TestPersistentMemoryMetadata:
         )
 
         # List should show 1 memory (not 2)
-        result = await memory_list("test_agent", scope="persistent")
+        result = await memory_list("test_user", "test_agent", scope="persistent")
         data = json.loads(result)
 
         assert data["count"] >= 1  # At least our test memory
@@ -143,6 +155,7 @@ class TestMetadataIntegrity:
         """Test that re-storing with new metadata works."""
         # Store initial
         await memory_store(
+            "test_user",
             "test_agent",
             "update_test",
             "original",
@@ -160,6 +173,7 @@ class TestMetadataIntegrity:
         """Test that metadata doesn't interfere with recall."""
         # Store with rich metadata
         await memory_store(
+            "test_user",
             "test_agent",
             "rich_meta",
             "value with metadata",
@@ -170,7 +184,7 @@ class TestMetadataIntegrity:
         )
 
         # Recall should work normally
-        result = await memory_recall("test_agent", "rich_meta", scope="working")
+        result = await memory_recall("test_user", "test_agent", "rich_meta", scope="working")
 
         assert result == "value with metadata"
         assert "_meta_" not in result

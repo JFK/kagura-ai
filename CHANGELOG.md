@@ -9,6 +9,84 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [4.0.0] - 2025-10-26
+
+### 🎯 Universal Memory Foundation (Issue #382)
+
+**Major Change**: Added `user_id` to all memory operations for true multi-user support.
+
+**Rationale**: Phase C (Remote MCP Server) requires multi-user support. Memory must be scoped by user to enable remote deployment with proper data isolation.
+
+### ⚠️ BREAKING CHANGES
+
+#### MCP Tools API Changes
+
+All memory MCP tools now require `user_id` as the **first parameter**:
+
+**Before v4.0.0**:
+```python
+memory_store(agent_name="my_agent", key="lang", value="ja")
+memory_recall(agent_name="my_agent", key="lang")
+```
+
+**After v4.0.0**:
+```python
+memory_store(user_id="user_jfk", agent_name="my_agent", key="lang", value="ja")
+memory_recall(user_id="user_jfk", agent_name="my_agent", key="lang")
+```
+
+**Affected Tools** (#382):
+- `memory_store(user_id, agent_name, ...)`
+- `memory_recall(user_id, agent_name, ...)`
+- `memory_search(user_id, agent_name, ...)`
+- `memory_list(user_id, agent_name, ...)`
+- `memory_feedback(user_id, agent_name, ...)`
+- `memory_delete(user_id, agent_name, ...)`
+- `memory_get_related(user_id, agent_name, ...)`
+
+#### Python API Changes
+
+`MemoryManager` now requires `user_id`:
+
+**Before v4.0.0**:
+```python
+manager = MemoryManager(agent_name="test")
+```
+
+**After v4.0.0**:
+```python
+manager = MemoryManager(user_id="user_jfk", agent_name="test")
+```
+
+#### REST API Changes
+
+**New**: `X-User-ID` header support
+
+```bash
+# With explicit user_id
+curl -H "X-User-ID: user_jfk" -X POST .../api/v1/memory
+
+# Without header (uses "default_user")
+curl -X POST .../api/v1/memory
+```
+
+### ✨ Added
+
+- **Universal Memory**: `user_id` parameter added to all memory operations (#382)
+- **Database**: `user_id` column with auto-migration for existing data (#382)
+- **REST API**: `X-User-ID` header support with `default_user` fallback (#382)
+- **Multi-User**: Per-user MemoryManager instances with isolated storage (#382)
+- **Documentation**: Migration guide for v4.0.0 (#382)
+
+### 🔄 Changed
+
+- **MemoryManager**: `user_id` is now required (first positional parameter) (#382)
+- **PersistentMemory**: All methods accept `user_id` parameter (#382)
+- **MemoryRAG**: User-scoped vector collections (#382)
+- **Cache Key Format**: `{user_id}:{agent_name}:rag={bool}` (#382)
+
 ### 🗑️ Removed
 
 - **Personal Tools**: Removed v3.0 legacy personal assistant tools (#373)
@@ -29,17 +107,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Improved
 
-- **MCP Tools**: Enhanced docstrings with 🔍 USE WHEN, 💡 EXAMPLE, and 📊 RETURNS sections for better LLM understanding (#379)
-  - `memory_get_related` - Added clear usage guidelines
-  - `memory_record_interaction` - Added topic metadata tip
-  - `memory_get_user_pattern` - Clarified return format
-- **GraphMemory**: `record_interaction` now automatically creates topic nodes when `"topic"` is in metadata
-- **GraphMemory**: User→Topic edges created for pattern analysis
+- **MCP Tools**: Enhanced docstrings with 🔍 USE WHEN, 💡 EXAMPLE, and 📊 RETURNS sections for better LLM understanding (#379, #382)
+- **GraphMemory**: `record_interaction` now automatically creates topic nodes when `"topic"` is in metadata (#379)
+- **GraphMemory**: User→Topic edges created for pattern analysis (#379)
 
 ### 🧪 Tests
 
-- Added `test_get_related_with_string_depth` - MCP protocol compatibility test
-- Added `test_record_interaction_with_topic` - Topic extraction validation
+- Updated 100+ tests for `user_id` support (#382)
+- Added `X-User-ID` header tests for REST API (#382)
+- Added user isolation tests (multi-user memory separation) (#382)
+- Added `test_get_related_with_string_depth` - MCP protocol compatibility test (#379)
+- Added `test_record_interaction_with_topic` - Topic extraction validation (#379)
 
 ---
 
