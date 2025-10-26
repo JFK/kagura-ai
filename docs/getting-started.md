@@ -1,265 +1,226 @@
 # Getting Started with Kagura AI v4.0
 
-> **Universal AI Memory Platform - 5-minute setup**
+> **Universal AI Memory Platform - 10-minute setup**
 
-This guide will help you get started with Kagura v4.0, the universal memory layer for all your AI platforms.
-
----
-
-## 📋 Prerequisites
-
-- Python 3.11 or higher
-- pip or uv package manager
-- (Optional) Docker for API server deployment
-- (Optional) Claude Desktop for MCP integration
+Kagura is a universal memory layer that connects all your AI platforms (Claude, ChatGPT, Gemini, etc.) with shared context and memory.
 
 ---
 
-## 🚀 Quick Start
+## 📋 What is Kagura v4.0?
 
-### Option 1: Local Installation (Recommended)
+**Kagura v4.0** = **MCP-native Universal Memory**
+
+- **For Claude Desktop**: Local MCP server with all 31 tools
+- **For ChatGPT**: HTTP/SSE connector with memory access
+- **For Teams**: Self-hosted API with authentication
+- **For Developers**: REST API + Python SDK
+
+---
+
+## 🚀 Quick Start (Choose Your Path)
+
+### Path 1: Claude Desktop User (Recommended)
+
+**Setup time**: 5 minutes
 
 ```bash
-# Install Kagura with all features
+# Install Kagura
 pip install kagura-ai[full]
 
-# Or use uv for faster installation
-uv pip install kagura-ai[full]
+# Auto-configure Claude Desktop
+kagura mcp install
+
+# Restart Claude Desktop
+# That's it! Kagura is now available in Claude
 ```
 
-### Option 2: Development Setup
+**Try it in Claude Desktop**:
+```
+"Remember: I prefer Python for backend development"
+"What do you know about my preferences?"
+```
+
+**See**: [MCP Setup Guide](mcp-setup.md)
+
+---
+
+### Path 2: ChatGPT Connector User
+
+**Setup time**: 10 minutes
+
+1. **Start Kagura API**:
+   ```bash
+   # Using Docker
+   docker compose up -d
+
+   # Or local
+   pip install kagura-ai[api]
+   uvicorn kagura.api.server:app --port 8000
+   ```
+
+2. **Expose with ngrok** (for testing):
+   ```bash
+   ngrok http 8000
+   # Get URL: https://abc123.ngrok.app
+   ```
+
+3. **Configure ChatGPT**:
+   - Enable Developer Mode
+   - Add Connector:
+     - URL: `https://abc123.ngrok.app/mcp`
+     - Name: Kagura Memory
+
+**See**: [MCP over HTTP/SSE Guide](mcp-http-setup.md)
+
+---
+
+### Path 3: Self-Hosted Production
+
+**Setup time**: 30 minutes
 
 ```bash
 # Clone repository
 git clone https://github.com/JFK/kagura-ai.git
 cd kagura-ai
 
-# Checkout v4.0 branch
-git checkout 364-featv40-phase-a-mcp-first-foundation
+# Configure
+cp .env.example .env
+nano .env  # Set DOMAIN and POSTGRES_PASSWORD
 
-# Install dependencies
-uv sync --all-extras
+# Deploy
+docker compose -f docker-compose.prod.yml up -d
 
-# Verify installation
-kagura --version
+# Generate API key
+docker compose -f docker-compose.prod.yml exec api \
+  kagura api create-key --name "production"
+
+# Verify
+curl https://your-domain.com/api/v1/health
 ```
+
+**See**: [Self-Hosting Guide](self-hosting.md)
 
 ---
 
-## 🧪 Verify Installation
+## 🧩 Key Features
 
-### Check MCP Tools
+### 1. Universal Memory
 
-```bash
-# List all available MCP tools
-kagura mcp tools
-```
-
-**Expected output**:
-```
-Kagura MCP Tools (28)
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Tool Name              ┃ Category ┃ Description          ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━┩
-│ memory_store           │ memory   │ Store information... │
-│ memory_recall          │ memory   │ Recall information...│
-...
-```
-
-### Run Diagnostics
-
-```bash
-# Check system health
-kagura mcp doctor
-```
-
-**Expected output**:
-```
-Kagura MCP Diagnostics
-
-┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
-┃ Component      ┃ Status           ┃ Details         ┃
-┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
-│ Memory Manager │ ✅ healthy       │ Persistent: 0...│
-│ Storage        │ ✅ healthy       │ 0.0 MB          │
-└────────────────┴──────────────────┴─────────────────┘
-```
-
----
-
-## 🔌 Usage Options
-
-Kagura v4.0 provides 3 ways to use the memory platform:
-
-### 1. MCP Integration (Recommended)
-
-Use Kagura with Claude Desktop, Cursor, Cline, or any MCP-compatible client.
-
-```bash
-# Configure Claude Desktop automatically
-kagura mcp install
-
-# Start MCP server (usually called by Claude Desktop)
-kagura mcp serve
-```
-
-**See**: [MCP Setup Guide](./mcp-setup.md) for detailed instructions.
-
----
-
-### 2. REST API
-
-Use the HTTP API for custom integrations.
-
-```bash
-# Start API server
-uvicorn kagura.api.server:app --host 0.0.0.0 --port 8080
-
-# Or use Docker
-docker compose up -d
-```
-
-**API Docs**: http://localhost:8080/docs
-
-**Example**:
-```bash
-# Create memory
-curl -X POST http://localhost:8080/api/v1/memory \
-  -H "Content-Type: application/json" \
-  -d '{
-    "key": "my_preference",
-    "value": "I prefer Python over JavaScript",
-    "scope": "persistent",
-    "tags": ["preferences", "programming"],
-    "importance": 0.9
-  }'
-
-# Recall memory
-curl -X POST http://localhost:8080/api/v1/recall \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "What programming languages do I like?",
-    "k": 5
-  }'
-```
-
-**See**: [API Reference](./api-reference.md)
-
----
-
-### 3. Python SDK (v3.0 Compatible)
-
-Use Kagura programmatically in your Python applications.
+Store memories once, access from any AI:
 
 ```python
-from kagura.core.memory import MemoryManager
+# Via MCP tool (Claude Desktop, ChatGPT, etc.)
+memory_store(
+    user_id="jfk",
+    agent_name="global",
+    key="coding_style",
+    value="Always use type hints in Python",
+    scope="persistent",
+    tags='["python", "best-practices"]'
+)
+```
 
-# Initialize memory manager
-memory = MemoryManager(
-    agent_name="my_app",
-    enable_rag=True  # Enable semantic search
+### 2. Graph Memory
+
+Track relationships and patterns:
+
+```python
+# Record interaction
+memory_record_interaction(
+    user_id="jfk",
+    query="How do I write async functions?",
+    response="...",
+    metadata={"topic": "python", "skill_level": "intermediate"}
 )
 
-# Store memory
-memory.remember(
-    key="user_preference",
-    value="Prefers Python",
-    metadata={"tags": ["python", "preferences"], "importance": 0.9}
-)
-
-# Recall by key
-preference = memory.recall("user_preference")
-print(preference)  # "Prefers Python"
-
-# Semantic search
-results = memory.recall_semantic(
-    query="programming languages",
-    top_k=5
-)
-for result in results:
-    print(f"- {result['content']} (similarity: {1 - result['distance']:.2f})")
+# Analyze patterns
+memory_get_user_pattern(user_id="jfk")
 ```
 
----
+### 3. Remote Access
 
-## 🛠️ Common Tasks
+Access your memory from anywhere:
 
-### Store a Memory
+- **ChatGPT Connector**: HTTP/SSE transport
+- **API Keys**: Secure authentication
+- **Tool Filtering**: Automatic security (no file ops remotely)
 
-**MCP** (via Claude Desktop):
-> "Remember that I prefer dark mode for my IDE"
+### 4. Export/Import
 
-**REST API**:
+Own your data completely:
+
 ```bash
-curl -X POST http://localhost:8080/api/v1/memory \
-  -H "Content-Type: application/json" \
-  -d '{
-    "key": "ide_preference",
-    "value": "Prefers dark mode",
-    "scope": "persistent",
-    "tags": ["preferences", "ide"]
-  }'
-```
+# Backup
+kagura memory export --output ./backup
 
-**Python SDK**:
-```python
-memory.remember("ide_preference", "Prefers dark mode")
+# Restore
+kagura memory import --input ./backup
 ```
 
 ---
 
-### Search Memories
+## 📚 Next Steps
 
-**MCP** (via Claude):
-> "What do you remember about my IDE preferences?"
+### For Claude Desktop Users
 
-**REST API**:
+1. [Complete MCP Setup](mcp-setup.md)
+2. Try built-in tools: `kagura mcp tools`
+3. Explore memory operations
+
+### For ChatGPT Users
+
+1. [Setup HTTP/SSE Connector](mcp-http-setup.md)
+2. Generate API key: `kagura api create-key`
+3. Connect and test
+
+### For Self-Hosters
+
+1. [Follow Self-Hosting Guide](self-hosting.md)
+2. Configure SSL/TLS with Caddy
+3. Set up backups
+
+### For Developers
+
+1. [REST API Reference](api-reference.md)
+2. [Architecture Overview](architecture.md)
+3. [Memory Export/Import](memory-export.md)
+
+---
+
+## 🔍 Available Commands
+
 ```bash
-curl -X POST http://localhost:8080/api/v1/recall \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "IDE preferences",
-    "k": 5
-  }'
-```
+# MCP Management
+kagura mcp serve           # Start MCP server (Claude Desktop)
+kagura mcp install         # Auto-configure Claude Desktop
+kagura mcp tools           # List available tools
+kagura mcp doctor          # Run diagnostics
+kagura mcp connect         # Configure remote connection
+kagura mcp test-remote     # Test remote API
 
-**Python SDK**:
-```python
-results = memory.recall_semantic("IDE preferences", top_k=5)
-```
+# API Key Management
+kagura api create-key      # Generate API key
+kagura api list-keys       # List all keys
+kagura api revoke-key      # Revoke key
 
----
+# Memory Management
+kagura memory export       # Export to JSONL
+kagura memory import       # Import from JSONL
 
-### Provide Feedback
-
-**MCP**:
-> "That memory about dark mode was helpful"
-
-**Python** (via MCP tool):
-```python
-# This would be called by the AI agent automatically
-# when it detects useful memories
+# System
+kagura --version           # Show version
 ```
 
 ---
 
-## 🎯 Next Steps
+## 💬 Support
 
-1. **[MCP Setup](./mcp-setup.md)** - Configure Claude Desktop
-2. **[API Reference](./api-reference.md)** - Explore REST API
-3. **[Architecture](./architecture.md)** - Understand system design
-4. **[Examples](../examples/)** - See code examples
-
----
-
-## 💬 Need Help?
-
-- **Documentation**: https://github.com/JFK/kagura-ai/tree/main/docs
-- **Issues**: https://github.com/JFK/kagura-ai/issues
+- **Documentation**: https://kagura-ai.com/docs
+- **GitHub Issues**: https://github.com/JFK/kagura-ai/issues
 - **Discussions**: https://github.com/JFK/kagura-ai/discussions
 
 ---
 
-**Version**: 4.0.0a
-**Last updated**: 2025-10-26
+**Version**: 4.0.0
+**Protocol**: MCP (Model Context Protocol)
+**License**: Apache 2.0

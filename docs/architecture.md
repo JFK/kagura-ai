@@ -2,455 +2,420 @@
 
 > **Universal AI Memory Platform - System Design**
 
-This document describes the architecture of Kagura v4.0.
+This document describes the architecture of Kagura v4.0 after Phase C completion.
 
 ---
 
 ## 🏗️ High-Level Overview
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    AI Platforms (MCP Clients)               │
-│        Claude Desktop • ChatGPT • Gemini • Cursor           │
-│                 Cline • Custom Agents                       │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                    MCP Protocol
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                  Kagura MCP Server                          │
-│            (src/kagura/mcp/server.py)                       │
-│                                                             │
-│  Tools:                                                     │
-│  • memory_store, memory_recall, memory_search               │
-│  • memory_list, memory_feedback, memory_delete              │
-│  • web_search, youtube_transcript, file_ops, etc.           │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-              Internal Python API
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                  Memory Manager                             │
-│           (src/kagura/core/memory/manager.py)               │
-│                                                             │
-│  ┌─────────────┬────────────────┬─────────────────┐       │
-│  │  Working    │   Context      │   Persistent    │       │
-│  │  Memory     │   Memory       │   Memory        │       │
-│  │ (In-Memory) │  (Messages)    │   (SQLite)      │       │
-│  └─────────────┴────────────────┴─────────────────┘       │
-│                                                             │
-│  ┌──────────────────────────────────────────────┐         │
-│  │  RAG (Retrieval-Augmented Generation)         │         │
-│  │  • Working RAG (ChromaDB)                     │         │
-│  │  • Persistent RAG (ChromaDB)                  │         │
-│  │  • Semantic search, Vector similarity         │         │
-│  └──────────────────────────────────────────────┘         │
-│                                                             │
-│  🆕 Phase B (Coming):                                      │
-│  ┌──────────────────────────────────────────────┐         │
-│  │  Graph Memory (NetworkX)                      │         │
-│  │  • Relationships between memories             │         │
-│  │  • AI-User interaction history                │         │
-│  └──────────────────────────────────────────────┘         │
-└─────────────────────────────────────────────────────────────┘
-                         │
-                    Storage Layer
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                     Storage                                  │
-│                                                             │
-│  • SQLite - Persistent key-value memory                     │
-│  • ChromaDB - Vector embeddings for semantic search         │
-│  • Local files - Graph persistence (Phase B)                │
-│                                                             │
-│  🔮 Future (v4.1+):                                        │
-│  • PostgreSQL + pgvector - Production deployment            │
-│  • Redis - Caching & job queue                              │
-│  • S3-compatible - Multimodal attachments                   │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                  AI Platforms (MCP Clients)                     │
+│      Claude Desktop • ChatGPT • Gemini • Cursor • Cline         │
+└──────┬────────────────────────────────────────────────┬─────────┘
+       │ stdio (local)                    HTTP/SSE (remote)│
+       │                                                   │
+┌──────▼─────────────┐                    ┌──────────────▼────────┐
+│  MCP Server        │                    │  MCP over HTTP/SSE    │
+│  (Local)           │                    │  (/mcp endpoint)      │
+│                    │                    │                       │
+│  All 31 tools ✅   │                    │  24 safe tools only   │
+│  File ops ✅       │                    │  File ops ❌          │
+│  Shell exec ✅     │                    │  Shell exec ❌        │
+└──────┬─────────────┘                    └──────────────┬────────┘
+       │                                                   │
+       │              Internal Python API                  │
+       └───────────────────────┬───────────────────────────┘
+                               │
+          ┌────────────────────▼─────────────────────┐
+          │         Memory Manager                   │
+          │   (src/kagura/core/memory/manager.py)    │
+          │                                          │
+          │  ┌──────────┬───────────┬─────────────┐ │
+          │  │ Working  │ Context   │ Persistent  │ │
+          │  │ Memory   │ Memory    │ Memory      │ │
+          │  │(In-Mem)  │(Messages) │(SQLite)     │ │
+          │  └──────────┴───────────┴─────────────┘ │
+          │                                          │
+          │  ┌────────────────────────────────────┐ │
+          │  │  RAG (ChromaDB)                    │ │
+          │  │  • Working RAG                     │ │
+          │  │  • Persistent RAG                  │ │
+          │  │  • Semantic search                 │ │
+          │  └────────────────────────────────────┘ │
+          │                                          │
+          │  ┌────────────────────────────────────┐ │
+          │  │  Graph Memory (NetworkX)           │ │
+          │  │  • Relationships                   │ │
+          │  │  • Interaction history             │ │
+          │  │  • User patterns                   │ │
+          │  └────────────────────────────────────┘ │
+          └────────────────┬─────────────────────────┘
+                           │
+                  ┌────────▼────────┐
+                  │    Storage      │
+                  │  • SQLite       │
+                  │  • ChromaDB     │
+                  │  • Pickle files │
+                  └─────────────────┘
 ```
 
 ---
 
-## 🧩 Component Details
+## 🆕 Phase C Architecture (Remote MCP Server)
 
-### 1. MCP Server
+### Remote Access Flow
 
-**Location**: `src/kagura/mcp/server.py`
+```
+ChatGPT                         Your Server
+┌─────────┐                     ┌──────────────┐
+│ ChatGPT │  HTTPS/SSE          │    Caddy     │
+│Connector├────────────────────►│ (Port 443)   │
+└─────────┘                     └──────┬───────┘
+                                       │
+                               ┌───────▼───────┐
+                               │  Kagura API   │
+                               │  (Port 8080)  │
+                               │               │
+                               │  /mcp         │◄─ HTTP/SSE
+                               │  /api/v1/*    │◄─ REST
+                               └───────┬───────┘
+                                       │
+                              ┌────────▼────────┐
+                              │ Memory Manager  │
+                              │  + Graph        │
+                              └────────┬────────┘
+                                       │
+                              ┌────────▼────────┐
+                              │ PostgreSQL      │
+                              │ + pgvector      │
+                              └─────────────────┘
+```
 
-**Responsibilities**:
-- Expose tools via MCP protocol
-- Handle stdio communication with MCP clients
-- Route tool calls to appropriate handlers
+### Security Layers
 
-**Tools Categories**:
-- **Memory**: 6 tools (store, recall, search, list, feedback, delete)
-- **Web**: 2 tools (web_search, brave_search)
-- **Files**: 3 tools (read, write, list)
-- **YouTube**: 2 tools (transcript, metadata)
-- **Multimodal**: 2 tools (vision, audio)
-- **Other**: 13 tools (routing, fact-check, etc.)
+```
+1. API Key Authentication
+   ├─ SHA256 hashed storage
+   ├─ Optional expiration
+   └─ Audit trail (last_used_at)
 
-**Total**: 28 MCP tools
+2. Tool Access Control
+   ├─ Local context: All 31 tools ✅
+   ├─ Remote context: 24 safe tools only
+   └─ Dangerous tools filtered:
+      • file_read, file_write
+      • shell_exec
+      • media_open_*
 
----
-
-### 2. Memory Manager
-
-**Location**: `src/kagura/core/memory/manager.py`
-
-**3-Tier Memory System**:
-
-#### a) Working Memory
-- **Type**: In-memory dictionary
-- **Lifetime**: Session only
-- **Use case**: Temporary variables, conversation context
-- **Implementation**: `WorkingMemory` class
-
-#### b) Context Memory
-- **Type**: Message history
-- **Lifetime**: Session or saved session
-- **Use case**: Conversation history for LLM context
-- **Implementation**: `ContextMemory` class
-- **Features**: Compression, token counting
-
-#### c) Persistent Memory
-- **Type**: SQLite database
-- **Lifetime**: Permanent
-- **Use case**: User preferences, long-term knowledge
-- **Implementation**: `PersistentMemory` class
-
----
-
-### 3. RAG (Semantic Search)
-
-**Location**: `src/kagura/core/memory/rag.py`
-
-**Dual RAG System**:
-
-#### Working RAG
-- **Collection**: `kagura_{agent_name}_working`
-- **Purpose**: Semantic search in temporary memory
-- **Storage**: ChromaDB (in-memory or persisted)
-
-#### Persistent RAG
-- **Collection**: `kagura_{agent_name}_persistent`
-- **Purpose**: Semantic search in long-term memory
-- **Storage**: ChromaDB (persisted to disk)
-
-**How it works**:
-1. Content → Embedding (OpenAI text-embedding-3-small)
-2. Store embedding in ChromaDB
-3. Query → Query embedding
-4. Cosine similarity search
-5. Return top-k results with distance scores
+3. Network Security
+   ├─ Caddy reverse proxy
+   ├─ Automatic HTTPS (Let's Encrypt)
+   ├─ CORS configuration
+   └─ Security headers (HSTS, XSS)
+```
 
 ---
 
-### 4. REST API (v4.0 New)
+## 📦 Component Details
 
-**Location**: `src/kagura/api/server.py`
+### 1. MCP Server (src/kagura/mcp/)
+
+**stdio Transport** (local):
+- **File**: `src/kagura/cli/mcp.py`
+- **Command**: `kagura mcp serve`
+- **Context**: `local` (all tools available)
+- **Clients**: Claude Desktop, Cursor, Cline
+
+**HTTP/SSE Transport** (remote):
+- **File**: `src/kagura/api/routes/mcp_transport.py`
+- **Endpoint**: `/mcp`
+- **Context**: `remote` (safe tools only)
+- **Clients**: ChatGPT Connector, web browsers
+
+**Tool Permissions**:
+- **File**: `src/kagura/mcp/permissions.py`
+- **Logic**: `is_tool_allowed(tool_name, context)`
+- **Default**: Deny unknown tools (fail-safe)
+
+---
+
+### 2. Memory Manager (src/kagura/core/memory/)
+
+**Components**:
+- `manager.py` - Main coordinator
+- `working.py` - In-memory temporary storage
+- `persistent.py` - SQLite-based long-term storage
+- `rag.py` - ChromaDB vector search
+- `export.py` - JSONL export/import
+
+**Storage Scopes**:
+- **Working**: Session-only, cleared after use
+- **Persistent**: Survives restarts, SQLite storage
+- **Both**: Indexed in RAG for semantic search
+
+---
+
+### 3. Graph Memory (src/kagura/core/graph/)
+
+**Implementation**: NetworkX-based
+
+**Node Types**:
+- `user` - User profiles
+- `topic` - Discussion topics
+- `memory` - Memory references
+- `interaction` - AI-User interactions
+
+**Edge Types**:
+- `related_to` - Related memories
+- `depends_on` - Dependencies
+- `learned_from` - Learning relationships
+- `works_on` - User activities
+
+**Storage**: Pickle files (`~/.kagura/graph.pkl`)
+
+---
+
+### 4. REST API (src/kagura/api/)
 
 **Framework**: FastAPI
 
 **Endpoints**:
 - `/api/v1/memory` - Memory CRUD
+- `/api/v1/recall` - Semantic search
 - `/api/v1/search` - Full-text search
-- `/api/v1/recall` - Semantic recall
+- `/api/v1/graph/*` - Graph operations
 - `/api/v1/health` - Health check
 - `/api/v1/metrics` - System metrics
+- `/mcp` - MCP over HTTP/SSE ⭐ NEW
 
-**Dependency Injection**:
-```python
-# src/kagura/api/dependencies.py
-def get_memory_manager() -> MemoryManager:
-    # Returns shared MemoryManager instance
-    # Enables state persistence across requests
-```
-
----
-
-### 5. Graph Memory (Phase B)
-
-**Location**: `src/kagura/core/graph/memory.py` (Coming in Phase B)
-
-**Node Types**:
-- `memory`: Memory nodes
-- `user`: User nodes
-- `topic`: Topic nodes
-- `interaction`: AI-User interaction nodes
-
-**Edge Types**:
-- `related_to`: Semantic relationship
-- `depends_on`: Dependency relationship
-- `learned_from`: Learning path
-- `influences`: Influence relationship
-- `works_on`: Project/task relationship
-
-**Use Cases**:
-- Find related memories (multi-hop traversal)
-- Track AI-User interaction history ("Vibe Coding")
-- Discover learning paths
-- Understand user's knowledge graph
+**Authentication**:
+- **File**: `src/kagura/api/auth.py`
+- **Method**: Bearer token (API keys)
+- **Storage**: SQLite (`~/.kagura/api_keys.db`)
+- **Hashing**: SHA256
 
 ---
 
-## 📊 Data Flow
+## 🔄 Data Flow
 
-### Memory Storage Flow
-
-```
-1. AI Agent (Claude) calls memory_store via MCP
-   ↓
-2. MCP Server receives tool call
-   ↓
-3. Calls MemoryManager.remember() or set_temp()
-   ↓
-4. If persistent:
-   a) Store in SQLite (key-value)
-   b) Generate embedding
-   c) Store in ChromaDB (vector)
-   d) Convert metadata (ChromaDB constraints)
-   ↓
-5. Return confirmation to AI
-```
-
-### Semantic Recall Flow
+### Memory Store Flow
 
 ```
-1. AI Agent calls memory_recall via MCP
-   ↓
-2. MCP Server receives tool call
-   ↓
-3. Calls MemoryManager.recall_semantic(query, k=5)
-   ↓
-4. Generate query embedding
-   ↓
-5. ChromaDB cosine similarity search
-   ↓
-6. Retrieve top-k results with distances
-   ↓
-7. Convert distance to similarity (1 - distance/2)
-   ↓
-8. Return results to AI (JSON)
+1. MCP Client (Claude/ChatGPT)
+   └─► MCP Tool Call: memory_store(...)
+
+2. MCP Server (stdio or HTTP/SSE)
+   └─► Route to tool_registry
+
+3. Built-in Tool (src/kagura/mcp/builtin/memory.py)
+   └─► Call MemoryManager.store()
+
+4. Memory Manager
+   ├─► Working memory (if scope="working")
+   ├─► Persistent memory (if scope="persistent")
+   └─► RAG indexing (both scopes)
+
+5. Storage
+   ├─► SQLite (persistent)
+   ├─► ChromaDB (vectors)
+   └─► In-memory dict (working)
 ```
 
----
-
-## 💾 Storage Details
-
-### SQLite Schema (Persistent Memory)
-
-```sql
-CREATE TABLE memories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    key TEXT NOT NULL,
-    value TEXT NOT NULL,
-    agent_name TEXT,
-    metadata TEXT,  -- JSON string
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(key, agent_name)
-);
-```
-
-### ChromaDB Collections
-
-**Working Memory RAG**:
-```python
-{
-  "collection_name": "kagura_{agent_name}_working",
-  "metadata": {
-    "type": "working_memory",
-    "key": str,
-    "tags": str,  # JSON array string
-    "importance": float
-  }
-}
-```
-
-**Persistent Memory RAG**:
-```python
-{
-  "collection_name": "kagura_{agent_name}_persistent",
-  "metadata": {
-    "type": "persistent_memory",
-    "key": str,
-    "tags": str,  # JSON array string
-    "importance": float,
-    "created_at": str,
-    "updated_at": str
-  }
-}
-```
-
-**Metadata Constraints**:
-- ChromaDB only accepts: `str`, `int`, `float`, `bool`, `None`
-- Lists/dicts → JSON strings
-- Transparent encoding/decoding in API layer
-
----
-
-## 🔄 Request Flow (REST API)
+### Memory Recall Flow
 
 ```
-1. HTTP Request
-   ↓
-2. FastAPI route (e.g., routes/memory.py)
-   ↓
-3. Dependency injection: get_memory_manager()
-   ↓
-4. Business logic (CRUD operations)
-   ↓
-5. Encode metadata (lists → JSON strings)
-   ↓
-6. Call MemoryManager methods
-   ↓
-7. Decode metadata (JSON strings → lists)
-   ↓
-8. Return HTTP Response (Pydantic model)
+1. MCP Tool Call: memory_recall(query="Python tips", k=5)
+
+2. Memory Manager
+   └─► Query RAG (vector similarity)
+
+3. RAG Search
+   ├─► Embed query (text-embedding-3-small)
+   ├─► Search ChromaDB collections
+   └─► Return top-k results
+
+4. Return to client
+   └─► Formatted results with scores
 ```
-
----
-
-## 🚀 Deployment Options
-
-### Local Development
-
-```bash
-# Option 1: Direct Python
-uvicorn kagura.api.server:app --reload
-
-# Option 2: Docker Compose
-docker compose up -d
-```
-
-**Services**:
-- API server (port 8080)
-- PostgreSQL + pgvector (Phase A: optional)
-- Redis (Phase A: optional)
-
-### Self-Hosted (v4.1.0+)
-
-```yaml
-# docker-compose.prod.yml
-services:
-  postgres:
-    image: pgvector/pgvector:pg16
-  redis:
-    image: redis:7-alpine
-  api:
-    build: .
-    environment:
-      DATABASE_URL: postgres://...
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "443:443"
-```
-
-### Cloud (v4.2.0+)
-
-- Managed SaaS
-- Multi-tenant architecture
-- Row-Level Security (RLS)
-- BYOK (Bring Your Own Key)
 
 ---
 
 ## 🔐 Security Architecture
 
-### v4.0.0a0(Current)
+### Authentication Flow
 
-- **Authentication**: None (localhost only)
-- **Authorization**: None
-- **Encryption**: None (local deployment)
+```
+1. Client Request
+   └─► Authorization: Bearer kagura_abc123...
 
-### v4.1.0 (Planned)
+2. API Gateway (/mcp or /api/v1/*)
+   └─► Extract Bearer token
 
-- **Authentication**: API Key
-- **Authorization**: Per-key permissions
-- **Encryption**: TLS in transit
+3. API Key Manager (src/kagura/api/auth.py)
+   ├─► Hash provided key (SHA256)
+   ├─► Query api_keys.db
+   ├─► Check expiration & revocation
+   └─► Extract user_id
 
-### v4.2.0 (Planned)
+4. Request Processing
+   └─► Use authenticated user_id for memory operations
+```
 
-- **Authentication**: OAuth2 + JWT
-- **Authorization**: RBAC (Role-Based Access Control)
-- **Encryption**: At rest + in transit, BYOK
+### Tool Filtering (Remote Context)
 
----
+```
+1. create_mcp_server(context="remote")
 
-## 📈 Scalability
+2. handle_list_tools()
+   ├─► Get all registered tools (31 total)
+   ├─► Filter by TOOL_PERMISSIONS
+   └─► Return safe tools only (24)
 
-### Current (v4.0)
-
-- **Memory capacity**: Limited by disk space
-- **Concurrent users**: Single user (localhost)
-- **Performance**: ChromaDB scales to ~1M vectors
-
-### Future (v4.1+)
-
-- **Memory capacity**: Unlimited (cloud storage)
-- **Concurrent users**: Multi-tenant
-- **Performance**: pgvector + Redis caching
-
-**Benchmarks** (v4.0, local):
-- Recall@5 accuracy: 0.89
-- p95 latency: 82ms
-- Storage: 45MB for 10K memories
+3. Client sees:
+   ✅ memory_* tools
+   ✅ web_* tools
+   ❌ file_* tools (blocked)
+   ❌ shell_exec (blocked)
+```
 
 ---
 
-## 🔗 Integration Points
+## 💾 Data Model
 
-### MCP Clients
+### Memory Record
 
-- **Claude Desktop**: Native MCP support
-- **Cursor**: MCP support (coming)
-- **Cline**: VS Code extension with MCP
-- **Custom agents**: Use MCP SDK
+```python
+{
+    "key": str,                  # Unique identifier
+    "value": Any,                # Stored data (JSON serializable)
+    "user_id": str,              # Owner (v4.0+)
+    "agent_name": str,           # Agent scope
+    "scope": "working|persistent",
+    "tags": List[str],           # Categorization
+    "importance": float,         # 0.0-1.0
+    "created_at": datetime,
+    "updated_at": datetime,
+    "metadata": Dict[str, Any]   # Additional metadata
+}
+```
 
-### External Services (Phase C)
+### Graph Node
 
-**Connectors** (v4.1.0+):
-- GitHub: Repository indexing
-- Google Calendar: Event indexing
-- Local Files: Directory watching
+```python
+{
+    "id": str,                   # Node identifier
+    "type": str,                 # Node type (user, topic, memory, interaction)
+    "data": Dict[str, Any],      # Node attributes
+}
+```
 
----
+### Graph Edge
 
-## 🆕 Phase Roadmap
-
-### Phase A (Current - v4.0.0a0
-- ✅ FastAPI REST API
-- ✅ MCP Tools v1.0 (6 memory tools)
-- ✅ MCP CLI Management
-- ✅ MemoryManager integration
-- ✅ Docker Compose setup
-
-### Phase B (v4.0.0)
-- 🔄 GraphMemory (NetworkX)
-- 🔄 Consolidation (short → long-term)
-- 🔄 Export/Import (JSONL)
-- 🔄 Multimodal DB schema
-
-### Phase C (v4.1.0)
-- 🔮 Self-hosted API
-- 🔮 Multimodal MVP
-- 🔮 Connectors
-- 🔮 Consumer App
-
----
-
-## 🔗 Related
-
-- [Getting Started](./getting-started.md) - Setup guide
-- [MCP Setup](./mcp-setup.md) - Claude Desktop integration
-- [API Reference](./api-reference.md) - REST API docs
-- [V4.0 Strategic Pivot](../ai_docs/V4.0_STRATEGIC_PIVOT.md) - Strategy
-- [V4.0 Roadmap](../ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md) - Detailed plan
+```python
+{
+    "src": str,                  # Source node ID
+    "dst": str,                  # Destination node ID
+    "type": str,                 # Relationship type
+    "weight": float,             # 0.0-1.0
+}
+```
 
 ---
 
-**Version**: 4.0.0a
-**Last updated**: 2025-10-26
+## 📊 Deployment Architecture
+
+### Local Development
+
+```
+Developer Machine
+├── SQLite (~/.kagura/memory.db)
+├── ChromaDB (~/.kagura/chromadb/)
+├── Graph pickle (~/.kagura/graph.pkl)
+└── API Keys (~/.kagura/api_keys.db)
+```
+
+### Production Deployment
+
+```
+Docker Stack (docker-compose.prod.yml)
+
+┌─────────────────────────────────────────┐
+│            Caddy (Port 443)             │
+│     Automatic HTTPS, Reverse Proxy      │
+└──────────────────┬──────────────────────┘
+                   │
+┌──────────────────▼──────────────────────┐
+│       Kagura API (Port 8080)            │
+│    FastAPI + MCP over HTTP/SSE          │
+└──────┬──────────────────────┬───────────┘
+       │                      │
+┌──────▼──────────┐   ┌──────▼──────────┐
+│   PostgreSQL    │   │     Redis       │
+│   + pgvector    │   │   (Caching)     │
+└─────────────────┘   └─────────────────┘
+
+Volumes:
+├── postgres_data  - Database persistence
+├── redis_data     - Redis persistence
+├── kagura_data    - Memory exports, etc.
+└── caddy_data     - SSL certificates
+```
+
+---
+
+## 🔄 Export/Import System
+
+### Export Format (JSONL)
+
+```
+backup/
+├── memories.jsonl      # All memory records
+├── graph.jsonl         # Graph nodes & edges
+└── metadata.json       # Export metadata
+```
+
+**Example record**:
+```jsonl
+{"type":"memory","scope":"persistent","key":"python_tips","value":"Use type hints","user_id":"jfk","agent_name":"global","tags":["python"],"importance":0.8,"exported_at":"2025-10-27T10:00:00Z"}
+```
+
+---
+
+## 📐 Design Principles
+
+### 1. MCP-First
+
+All functionality exposed via MCP tools first, then REST API.
+
+### 2. Multi-User from Day 1
+
+All operations scoped by `user_id` (Phase C foundation).
+
+### 3. Security by Default
+
+Remote access auto-filtered for safety.
+
+### 4. Data Portability
+
+Complete export/import in human-readable JSONL.
+
+### 5. Fail-Safe
+
+Unknown tools denied by default in remote context.
+
+---
+
+## 🔗 Related Documentation
+
+- [Getting Started](getting-started.md)
+- [MCP Setup Guide](mcp-setup.md)
+- [MCP over HTTP/SSE](mcp-http-setup.md)
+- [Self-Hosting Guide](self-hosting.md)
+- [API Reference](api-reference.md)
+
+---
+
+**Last Updated**: 2025-10-27
+**Version**: 4.0.0
+**Phase**: C Complete
