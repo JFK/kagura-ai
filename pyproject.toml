@@ -1,15 +1,16 @@
 [project]
 name = "kagura-ai"
-version = "3.0.8"
-description = "Python-First AI Agent SDK - Build production AI with one decorator"
+version = "4.0.0-alpha0"
+description = "Universal AI Memory Platform - MCP-native context management for all AI agents"
 authors = [
     { name = "JFK", email = "fumikazu.kiyota@gmail.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.11"
 keywords = [
-    "ai", "sdk", "agents", "llm", "type-safe", "production-ready",
-    "openai", "anthropic", "gemini", "pydantic", "async"
+    "ai", "memory", "mcp", "context", "knowledge-graph", "rag",
+    "llm", "agents", "claude", "chatgpt", "gemini",
+    "vector-db", "local-first", "privacy", "pydantic", "async"
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -50,6 +51,19 @@ ai = [
     "chromadb>=0.4.0",           # Vector storage for memory & RAG
     "semantic-router>=0.1.11",   # Semantic routing
     "tiktoken>=0.7.0",           # Token counting for context compression
+]
+api = [
+    # v4.0 REST API Server (Phase A)
+    "fastapi>=0.115.0",          # Modern web framework
+    "uvicorn[standard]>=0.32.0", # ASGI server
+    "psycopg2-binary>=2.9.9",    # PostgreSQL adapter
+    "asyncpg>=0.29.0",           # Async PostgreSQL driver
+    "redis>=5.0.0",              # Redis client for caching/queue
+    "python-multipart>=0.0.9",   # For file uploads (multimodal)
+]
+graph = [
+    # v4.0 Knowledge Graph (Phase B - Issue #345)
+    "networkx>=3.0",             # Graph algorithms and data structures
 ]
 web = [
     # Web & Multimodal features
@@ -102,8 +116,10 @@ docs = [
 # Combined presets (recommended)
 # ============================================
 full = [
-    # All user-facing features
+    # All user-facing features (v4.0)
     "kagura-ai[ai]",
+    "kagura-ai[api]",      # v4.0 REST API
+    "kagura-ai[graph]",    # v4.0 Knowledge Graph
     "kagura-ai[web]",
     "kagura-ai[auth]",
     "kagura-ai[mcp]",
