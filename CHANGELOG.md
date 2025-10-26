@@ -9,6 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ✨ Added
+
+- **MCP over HTTP/SSE**: New `/mcp` endpoint for ChatGPT Connectors (#378, Phase C Task 1)
+  - GET `/mcp` - SSE streaming (server → client messages)
+  - POST `/mcp` - JSON-RPC requests (client → server messages)
+  - DELETE `/mcp` - Session termination
+  - Uses MCP SDK's `StreamableHTTPServerTransport` for protocol handling
+  - Auto-registers all built-in MCP tools (memory, graph, etc.)
+  - Background task manages MCP server lifecycle
+  - Documentation: `docs/mcp-http-setup.md`
+
+- **API Key Authentication**: Secure authentication for remote access (#378, Phase C Task 2)
+  - `APIKeyManager` for key generation, validation, and management
+  - SQLite-based storage with SHA256 hashing
+  - CLI commands: `kagura api create-key`, `list-keys`, `revoke-key`, `delete-key`
+  - `/mcp` endpoint authentication via `Authorization: Bearer <key>` header
+  - Support for key expiration and audit trails
+  - Optional authentication (falls back to `default_user`)
+  - User ID extraction from validated API keys
+
+- **Tool Access Control**: Security filtering for remote MCP access (#378, Phase C Task 3)
+  - Permission system in `src/kagura/mcp/permissions.py`
+  - Local vs. remote context distinction
+  - Dangerous tools (file ops, shell exec, local apps) blocked remotely
+  - Safe tools (memory, web, API) allowed remotely
+  - Automatic filtering in `create_mcp_server(context="remote")`
+  - Fail-safe: unknown tools denied by default
+  - Comprehensive test coverage (28 tests)
+
+- **MCP Remote Connection CLI**: Commands for remote configuration (#378, Phase C Task 4)
+  - `kagura mcp connect` - Configure remote API connection
+  - `kagura mcp test-remote` - Test remote connectivity and authentication
+  - `kagura mcp serve --remote` - Remote mode placeholder (future)
+  - Config storage in `~/.kagura/remote-config.json`
+  - Connection diagnostics with health checks
+  - 7 new CLI tests
+
 ### 🔄 Changed
 
 - **GraphMemory**: Made `ai_platform` parameter optional in `record_interaction` (#381)
