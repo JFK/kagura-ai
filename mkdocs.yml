@@ -45,6 +45,7 @@ nav:
     - MCP over HTTP/SSE (ChatGPT): mcp-http-setup.md
     - Self-Hosting Guide: self-hosting.md
     - Memory Export/Import: memory-export.md
+    - REST API Usage: rest-api-usage.md
     - Architecture Overview: architecture.md
 
   - API Reference:
