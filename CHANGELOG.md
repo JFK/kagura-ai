@@ -1,168 +1,152 @@
 # Changelog
 
-## [Unreleased]
+All notable changes to Kagura AI will be documented in this file.
 
-## [3.0.8] - 2025-10-23
-
-### Added
-- **MCP**: New `memory_list` tool for debugging and exploring stored memories (#358)
-  - List all working or persistent memories for an agent
-  - Supports limit parameter to control result count
-  - Returns JSON with keys, values, and metadata
-  - Helps users verify what's actually stored and troubleshoot memory issues
-
-### Changed
-- **Memory**: `enable_rag` now auto-detects chromadb availability (#354, #356)
-  - Default changed from `False` to `None` (auto-detect)
-  - Automatically enables RAG when chromadb is installed
-  - Explicit `True`/`False` values override auto-detection
-  - Better UX - users don't need to manually enable RAG
-  - Consistent behavior between SDK and MCP usage
-
-- **MCP**: Enhanced tool descriptions for better LLM decision making (#355, #357, #358, #359)
-  - Memory tools: Added agent_name guidance for cross-thread sharing
-    - agent_name="global" for shared memories across chat threads
-    - agent_name="thread_specific" for isolated per-thread memories
-  - Web search tools: Added "Use this tool when" / "Do NOT use for" sections
-    - brave_web_search: Guidance on latest info vs general knowledge
-    - brave_news_search: Enhanced freshness parameter explanations
-    - fact_check_claim: Clear verification use cases
-  - File operations: Enhanced with usage scenarios and examples
-    - file_read, file_write, dir_list with detailed guidance
-  - YouTube tools: Added content type guidance
-    - youtube_summarize, youtube_fact_check with appropriate use cases
-  - Helps LLMs make better decisions on when to use each tool
-
-### Fixed
-- **MCP**: Fixed `memory_list` TypeError with working scope (#360, #361)
-  - Added missing type conversion for limit parameter
-  - Now correctly handles limit passed as string from LLM
-  - All scopes (working/persistent) now work reliably
-
-- **Memory**: Fixed metadata mutation bug in `remember()` method (#356)
-  - Original metadata dict is no longer modified when RAG is enabled
-  - Uses metadata.copy() before adding RAG-specific fields
-
-## [3.0.7] - 2025-10-22
-
-### Added
-- **Memory**: Persistent memory now supports RAG (semantic) search (#340, #353)
-  - Dual RAG system: separate ChromaDB collections for working and persistent memory
-  - Auto-indexing when storing persistent data with `remember()`
-  - New `scope` parameter for `recall_semantic()` and `memory_search()` ("working", "persistent", "all")
-  - Semantic search for user preferences, facts, and long-term knowledge
-  - Resolves #337 (memory_search now finds memory_store data in persistent scope)
-  - 9 new integration tests for persistent RAG functionality
-
-### Fixed
-- **MCP**: Fixed telemetry agent_name conflict in memory tools (#344, #349)
-  - Memory tools (memory_store, memory_recall, memory_search) now work correctly with telemetry tracking
-  - Removed duplicate agent_name parameter when calling track_execution()
-  - No impact on other tools (they don't have agent_name parameter)
-- **Tests**: Fixed integration test failures in preset agents (#335, #350)
-  - Tests now handle both str and LLMResponse return types
-  - Updated 5 tests for agents with `-> str` annotation (TranslateAgent, CodeReviewAgent, SummarizeAgent)
-  - Tests align with v3.0.2 behavior where `-> str` returns plain strings
-- **CI**: Re-enabled type checking in test workflow (#328, #351)
-  - Fixed pyrightconfig.json to include entire src/kagura directory
-  - Updated pyright to 1.1.406 (from 1.1.390)
-  - CI type checking now completes in ~2 minutes (previously timed out at 2min)
-  - Type safety restored in CI pipeline
-
-### Changed
-- **Documentation**: Updated for recent core changes (#329, #352)
-  - CHANGELOG.md updated with all recent fixes
-  - V3.0_DEVELOPMENT.md enhanced with integration test patterns and CI best practices
-  - Added WORK_LOG_2025-10-22.md for historical context
-- **MCP**: Memory tools now always enable RAG for both working and persistent scopes (#353)
-  - Better user experience with consistent semantic search availability
-  - Resolves "RAG unavailable" messages when storing persistent data
-
-## [3.0.6] - 2025-10-21
-
-### Changed
-- **MCP**: Removed debug logging from memory tools for cleaner production output (#336)
-- **Testing**: Improved memory tools test suite with 8 comprehensive tests
-
-### Known Issues
-- **memory_search**: Does not search data from memory_store (#337)
-  - memory_store saves to WorkingMemory (in-memory dict)
-  - memory_search searches MemoryRAG (vector DB)
-  - Use memory_recall() to retrieve data stored with memory_store()
-  - Full RAG integration planned for future release
-
-## [3.0.5] - 2025-10-21
-
-### Fixed
-- **MCP**: Fixed working memory persistence across MCP tool calls (#333)
-  - Added global cache for MemoryManager instances
-  - Working memory now properly shared across memory_store/memory_recall/memory_search
-  - Each agent_name maintains a single MemoryManager instance
-  - Fixed critical bug where stored data was immediately lost after tool call
-
-## [3.0.4] - 2025-10-21
-
-### Fixed
-- **MCP**: Fixed `brave_news_search` HttpUrl JSON serialization error (#333)
-  - Converted all result fields to strings before JSON serialization
-  - News search now returns valid JSON instead of serialization error
-
-## [3.0.3] - 2025-10-21
-
-### Fixed
-- **MCP**: Fixed parameter type conversion issues in MCP tools (#333)
-  - `brave_news_search`: count parameter now accepts string input
-  - `memory_search`: k parameter now accepts string input
-  - `multimodal_search`: k parameter now accepts string input
-  - `memory_recall`: Returns helpful message instead of empty string when key not found
-
-## [3.0.2] - 2025-10-21
-
-### Fixed
-- **MCP**: Fixed async tools returning coroutine objects instead of actual results via MCP server (#327)
-  - Web search (brave_web_search, brave_news_search)
-  - YouTube tools (get_youtube_transcript, get_youtube_metadata)
-  - Memory tools (memory_store, memory_recall, memory_search)
-  - Fact checking (fact_check_claim)
-  - Shell execution (shell_exec)
-- **Core**: `@agent` decorator now returns `str` content instead of `LLMResponse` object when return type is `-> str` (#326, #325)
-- **Core**: Replaced `isinstance(response, LLMResponse)` with `hasattr` checks to avoid circular import issues (#326, #325)
-- **Tests**: Added comprehensive tests for personal tools (daily_news, weather_forecast, search_recipes, find_events) (#326)
-- **CI**: Temporarily disabled type checking due to timeout issues in CI environment (tracked in #328)
-
-### Changed
-- **Testing**: Improved LLMMock to properly handle `LLMResponse` objects
-- **Code Quality**: Resolved TODO comments and improved type validation in tool decorator (#325)
-
-## [3.0.1] - 2025-10-19
-
-### Fixed
-- **Critical**: Telemetry JSON serialization with MemoryManager (#322)
-- **Critical**: Code execution LLMResponse handling (#323)
-- Examples: 25+ updated to v3.0 API (#322)
-- Tests: 11 integration tests fixed (#323)
-
-### Added
-- SDK Integration examples (FastAPI, Streamlit, etc.) (#319)
-- Personal Tools examples (news, weather, recipes, events) (#319)
-- Multimodal test data (sample.jpg, sample.pdf) (#323)
-
-### Changed
-- Examples reorganized 01-09 (#319)
-- Examples working rate: 37% → 83%
-- Integration tests: 17 failed → 3 failed
-
-## [3.0.0] - 2025-10-19
-
-### Added
-- SDK-first positioning
-- Personal tools (news, weather, recipes, events)
-- Tool registry system
-
-### Changed
-- Examples completely reorganized
-- Documentation refreshed
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-See git history for earlier versions.
+## [4.0.0-alpha0] - 2025-10-26
+
+### 🎯 Strategic Pivot
+
+**From**: Python-First AI Agent SDK (v3.0)
+**To**: Universal AI Memory & Context Platform (v4.0)
+
+**Vision**: Make Kagura the de facto standard for AI Memory Management across all platforms via MCP.
+
+**See**: [V4.0 Strategic Pivot](./ai_docs/V4.0_STRATEGIC_PIVOT.md)
+
+### ✨ Added
+
+#### REST API (Phase A)
+- FastAPI-based REST API server (`src/kagura/api/`)
+  - Memory CRUD endpoints (`POST/GET/PUT/DELETE /api/v1/memory`)
+  - Search endpoint (`POST /api/v1/search`)
+  - Semantic recall endpoint (`POST /api/v1/recall`)
+  - Health check (`GET /api/v1/health`)
+  - System metrics (`GET /api/v1/metrics`)
+- Pydantic request/response models
+- OpenAPI 3.1 specification (`docs/api/reference.yaml`)
+- Dependency injection for MemoryManager
+- ChromaDB metadata encoding/decoding for list/dict values
+
+#### MCP Tools v1.0 (Phase A)
+- `memory_feedback` - Provide quality feedback (Hebbian-like learning)
+- `memory_delete` - Delete with audit logging (GDPR-compliant)
+- Updated `memory_store` - Support for tags/importance/metadata (v4.0 format)
+- Existing tools: `memory_recall`, `memory_search`, `memory_list` (28 tools total)
+
+#### MCP Tool Management (Phase A, Issue #331)
+- `kagura mcp tools` - List all MCP tools (28 tools, categorized)
+- `kagura mcp doctor` - Comprehensive diagnostics
+  - API Server health check
+  - Memory Manager status
+  - Claude Desktop configuration check
+  - Storage usage monitoring
+- `kagura mcp install` - Auto-configure Claude Desktop
+- `kagura mcp uninstall` - Remove Claude Desktop configuration
+- MCP config management (`src/kagura/mcp/config.py`)
+- MCP diagnostics (`src/kagura/mcp/diagnostics.py`)
+
+#### Docker & Infrastructure
+- Docker Compose setup (PostgreSQL + pgvector, Redis, API server)
+- Dockerfile for API server
+- `.dockerignore` for efficient builds
+- Makefile targets (`build_docs`, `serve_docs`, etc.)
+
+#### Documentation
+- Getting Started guide (`docs/getting-started.md`)
+- MCP Setup guide (`docs/mcp-setup.md`)
+- API Reference (`docs/api-reference.md`)
+- Architecture documentation (`docs/architecture.md`)
+- Redocly API documentation workflow (`.github/workflows/api-docs.yml`)
+- V4.0 strategy documents (5 files in `ai_docs/`)
+
+### 🔧 Changed
+
+- **README.md**: Updated to v4.0 positioning
+  - "Universal AI Memory Platform" messaging
+  - MCP-first approach
+  - Roadmap updated (v4.0 → v4.2)
+- **pyproject.toml**:
+  - Version: 3.0.8 → 4.0.0-alpha0
+  - Description: Memory platform focus
+  - Keywords: memory, mcp, context, knowledge-graph
+  - Dependencies: Added FastAPI, uvicorn, psycopg2, redis, networkx
+- **core/registry.py**: Export `tool_registry` from `tool_registry.py`
+
+### 📝 Documentation
+
+- `ai_docs/V4.0_STRATEGIC_PIVOT.md` - Strategic direction & multimodal plan
+- `ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md` - Detailed 8-12 month roadmap
+- `ai_docs/V4.0_COMPETITIVE_ANALYSIS.md` - Market analysis (vs Mem0, Rewind AI, etc.)
+- `ai_docs/V4.0_README_DRAFT.md` - New README draft
+- `ai_docs/V4.0_GITHUB_ISSUE_TEMPLATE.md` - Issue templates
+
+### 🐛 Fixed
+
+- ChromaDB metadata constraints for list/dict values
+  - Automatic JSON encoding on store
+  - Automatic JSON decoding on retrieve
+  - Transparent to API users
+
+### ⚠️ Breaking Changes
+
+None - v4.0 is developed on separate branch (`364-featv40-phase-a-mcp-first-foundation`)
+
+v3.0 remains stable on `main` branch.
+
+### 🚧 In Progress
+
+#### Phase B (Coming in v4.0.0 stable)
+- GraphMemory integration (Issue #345, #365)
+- Memory consolidation (short → long-term)
+- Export/Import (JSONL format)
+- Multimodal database schema
+
+#### Phase C (Coming in v4.1.0)
+- Self-hosted API with authentication
+- Multimodal MVP (attachments + derived texts)
+- Connectors (GitHub, Calendar, Files)
+- Consumer App (Flutter)
+
+### 📊 Statistics
+
+**Phase A Metrics**:
+- **Files changed**: 30+
+- **Lines added**: 5,000+
+- **New modules**: 7
+- **API endpoints**: 10
+- **MCP tools**: 28 (6 memory tools)
+- **CLI commands**: 6 (4 new)
+- **Documentation pages**: 7
+
+**Git Stats**:
+- **Commits**: 6 (Phase A Week 1-4)
+- **PR**: #366 (Draft)
+- **Issues**: #364 (Phase A), #365 (Phase B)
+
+---
+
+## [3.0.8] - 2025-10-23
+
+### Fixed
+- Memory telemetry type error (Issue #360, #361)
+
+### Improved
+- MCP tool descriptions for better LLM decision making
+
+---
+
+## Earlier Versions
+
+See git history for v3.0.0 - v3.0.7 changes.
+
+---
+
+**For complete details, see**:
+- [V4.0 Implementation Roadmap](./ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md)
+- [GitHub Releases](https://github.com/JFK/kagura-ai/releases)
+- [Pull Requests](https://github.com/JFK/kagura-ai/pulls)
