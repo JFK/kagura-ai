@@ -18,7 +18,7 @@ from kagura.api.routes import memory, search, system
 app = FastAPI(
     title="Kagura Memory API",
     description="Universal AI Memory & Context Platform (MCP-native)",
-    version="4.0.0a0,
+    version="4.0.0a0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -44,7 +44,7 @@ async def root() -> dict[str, Any]:
     """Root endpoint - API information."""
     return {
         "name": "Kagura Memory API",
-        "version": "4.0.0a0,
+        "version": "4.0.0a0",
         "status": "active",
         "docs": "/docs",
         "description": "Universal AI Memory & Context Platform (MCP-native)",
