@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Background task manages MCP server lifecycle
   - Documentation: `docs/mcp-http-setup.md`
 
+- **API Key Authentication**: Secure authentication for remote access (#378, Phase C Task 2)
+  - `APIKeyManager` for key generation, validation, and management
+  - SQLite-based storage with SHA256 hashing
+  - CLI commands: `kagura api create-key`, `list-keys`, `revoke-key`, `delete-key`
+  - `/mcp` endpoint authentication via `Authorization: Bearer <key>` header
+  - Support for key expiration and audit trails
+  - Optional authentication (falls back to `default_user`)
+  - User ID extraction from validated API keys
+
 ### 🔄 Changed
 
 - **GraphMemory**: Made `ai_platform` parameter optional in `record_interaction` (#381)

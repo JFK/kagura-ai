@@ -38,6 +38,11 @@ from .lazy import LazyGroup
             "auth_group",
             "OAuth2 authentication commands",
         ),
+        "api": (
+            "kagura.cli.api_cli",
+            "api_group",
+            "API Key management commands",
+        ),
     },
 )
 @click.version_option(version=__version__, prog_name="Kagura AI")

@@ -85,19 +85,59 @@ Kagura will store and recall your preferences across all AI platforms!
 
 ## 🔧 Advanced Configuration
 
-### API Authentication (Phase C Task 2 - Coming Soon)
+### API Authentication (Phase C Task 2 ✅)
 
-Future versions will support API Key authentication:
+Kagura API now supports API Key authentication for secure remote access.
+
+#### Generate API Key
 
 ```bash
-# Generate API key
+# Create a new API key
 kagura api create-key --name "chatgpt-connector"
 
-# Use in requests
-curl -H "Authorization: Bearer YOUR_API_KEY" \
+# Output:
+# ✓ API key created successfully!
+# ⚠️  Save this key securely - it won't be shown again:
+#
+#   kagura_abc123xyz789...
+```
+
+**⚠️ Important**: The API key is only shown once during creation. Save it securely!
+
+#### Use API Key in Requests
+
+```bash
+# Use in HTTP requests
+curl -H "Authorization: Bearer kagura_abc123xyz789..." \
      -H "Content-Type: application/json" \
      -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
      http://localhost:8000/mcp
+```
+
+#### Manage API Keys
+
+```bash
+# List all API keys
+kagura api list-keys
+
+# List keys for specific user
+kagura api list-keys --user-id user_alice
+
+# Revoke a key (keeps audit history)
+kagura api revoke-key --name "old-key"
+
+# Permanently delete a key
+kagura api delete-key --name "unused-key"
+```
+
+#### API Key Options
+
+```bash
+# Create key with expiration (90 days)
+kagura api create-key --name "temp-key" --expires 90
+
+# Create key for specific user
+kagura api create-key --name "alice-key" --user-id user_alice
 ```
 
 ---

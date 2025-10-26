@@ -128,6 +128,11 @@ async def mcp_asgi_app(scope: Scope, receive: Receive, send: Send) -> None:
     - POST: JSON-RPC requests (client → server messages)
     - DELETE: Session termination
 
+    Authentication:
+        - Authorization header: Bearer {api_key} (optional)
+        - X-User-ID header: User identifier (optional)
+        - If no auth: uses "default_user"
+
     ChatGPT Connector Setup:
         1. Enable Developer Mode in ChatGPT settings
         2. Go to Settings → Connectors → Advanced → Developer Mode
@@ -135,6 +140,7 @@ async def mcp_asgi_app(scope: Scope, receive: Receive, send: Send) -> None:
            - Name: Kagura Memory
            - URL: https://your-server.com/mcp
            - Description: Universal AI Memory Platform
+           - Authentication: Bearer token (if API key required)
 
     Note:
         For local development, use ngrok to expose this endpoint:
@@ -147,12 +153,75 @@ async def mcp_asgi_app(scope: Scope, receive: Receive, send: Send) -> None:
         Uses MCP SDK's StreamableHTTPServerTransport for protocol handling.
         The transport manages sessions, SSE streaming, and JSON-RPC processing.
 
+        API Key authentication (Phase C Task 2):
+        - Checks Authorization header for Bearer token
+        - Validates against API key database
+        - Extracts user_id from validated key
+        - Falls back to default_user if no auth provided
+
     Args:
         scope: ASGI scope dict
         receive: ASGI receive callable
         send: ASGI send callable
     """
     global _server_task
+
+    # Extract headers for authentication
+    headers = dict(scope.get("headers", []))
+
+    # Try to authenticate via API key (optional)
+    user_id = "default_user"  # Default if no authentication
+
+    # Check Authorization header
+    auth_header = headers.get(b"authorization")
+    if auth_header:
+        try:
+            from kagura.api.auth import get_api_key_manager
+
+            auth_str = auth_header.decode("utf-8")
+            if auth_str.startswith("Bearer "):
+                api_key = auth_str[7:]  # Remove "Bearer " prefix
+                manager = get_api_key_manager()
+                validated_user_id = manager.verify_key(api_key)
+
+                if validated_user_id:
+                    user_id = validated_user_id
+                    logger.info(f"Authenticated as user: {user_id}")
+                else:
+                    # Invalid API key - send 401 error
+                    logger.warning("Invalid API key provided")
+                    error_response = b'{"error":"Invalid or expired API key"}'
+                    await send(
+                        {
+                            "type": "http.response.start",
+                            "status": 401,
+                            "headers": [
+                                [b"content-type", b"application/json"],
+                                [b"www-authenticate", b"Bearer"],
+                            ],
+                        }
+                    )
+                    await send(
+                        {
+                            "type": "http.response.body",
+                            "body": error_response,
+                        }
+                    )
+                    return
+
+        except Exception as e:
+            logger.error(f"Authentication error: {e}", exc_info=True)
+            # Continue with default_user on auth errors
+
+    # Check X-User-ID header (fallback, lower priority than API key)
+    if user_id == "default_user":
+        user_id_header = headers.get(b"x-user-id")
+        if user_id_header:
+            user_id = user_id_header.decode("utf-8")
+            logger.info(f"Using X-User-ID header: {user_id}")
+
+    # Store user_id in scope for downstream use (if needed)
+    scope["user_id"] = user_id
 
     # Get or create transport
     transport = get_mcp_transport()
@@ -169,7 +238,7 @@ async def mcp_asgi_app(scope: Scope, receive: Receive, send: Send) -> None:
     # Log request
     method = scope.get("method", "UNKNOWN")
     path = scope.get("path", "")
-    logger.info(f"MCP request: {method} {path}")
+    logger.info(f"MCP request: {method} {path} (user: {user_id})")
 
     # Delegate to transport's handle_request()
     await transport.handle_request(scope, receive, send)

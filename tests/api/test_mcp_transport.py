@@ -168,3 +168,67 @@ class TestMCPErrorHandling:
 
         # Should return 405 Method Not Allowed
         assert response.status_code == 405
+
+
+class TestMCPAuthentication:
+    """Test API Key authentication for /mcp endpoint."""
+
+    @pytest.fixture
+    def api_key(self):
+        """Create a test API key."""
+        from kagura.api.auth import get_api_key_manager
+
+        manager = get_api_key_manager()
+        # Create test key
+        api_key = manager.create_key(
+            name="test-mcp-key",
+            user_id="test_user_auth",
+        )
+        yield api_key
+        # Cleanup
+        manager.delete_key(name="test-mcp-key", user_id="test_user_auth")
+
+    def test_mcp_without_auth(self):
+        """Test /mcp without authentication (should use default_user)."""
+        response = client.post(
+            "/mcp",
+            json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}},
+        )
+
+        # Should respond (may be 406 due to missing headers, but not 401)
+        assert response.status_code != 401
+
+    def test_mcp_with_valid_api_key(self, api_key):
+        """Test /mcp with valid API key."""
+        response = client.post(
+            "/mcp",
+            json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}},
+            headers={"Authorization": f"Bearer {api_key}"},
+        )
+
+        # Should not return 401 Unauthorized
+        assert response.status_code != 401
+
+    def test_mcp_with_invalid_api_key(self):
+        """Test /mcp with invalid API key."""
+        response = client.post(
+            "/mcp",
+            json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}},
+            headers={"Authorization": "Bearer kagura_invalid_key_12345"},
+        )
+
+        # Should return 401 Unauthorized
+        assert response.status_code == 401
+        data = response.json()
+        assert "error" in data or "Invalid" in str(data)
+
+    def test_mcp_with_x_user_id_header(self):
+        """Test /mcp with X-User-ID header (no API key)."""
+        response = client.post(
+            "/mcp",
+            json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}},
+            headers={"X-User-ID": "custom_user"},
+        )
+
+        # Should not return 401 (X-User-ID is accepted without auth)
+        assert response.status_code != 401
