@@ -164,6 +164,9 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# VS Code
+*.code-workspace
+
 # Data
 data/
 
@@ -174,3 +177,8 @@ data/
 .kagura/
 memory_storage/
 notes/
+
+# API documentation build output
+docs/api/*.html
+docs/api/*.css
+docs/api/*.js

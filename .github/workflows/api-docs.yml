@@ -1,0 +1,33 @@
+name: API Documentation Check
+
+on:
+  pull_request:
+    paths:
+      - 'docs/api/reference.yaml'
+      - 'src/kagura/api/**'
+
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+
+      - name: Install Redocly CLI
+        run: |
+          npm i -g @redocly/cli@latest
+
+      - name: Build API documentation
+        run: |
+          npx @redocly/cli build-docs docs/api/reference.yaml --output docs/api/index.html
+
+      - name: Check build result
+        run: |
+          if [ ! -f docs/api/index.html ]; then
+            echo "Error: API documentation build failed"
+            exit 1
+          fi
+          echo "API documentation built successfully"

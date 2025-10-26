@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: kagura-postgres
+    environment:
+      POSTGRES_DB: kagura
+      POSTGRES_USER: kagura
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-kagura_dev_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kagura"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis for job queue and caching
+  redis:
+    image: redis:7-alpine
+    container_name: kagura-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Kagura API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kagura-api
+    environment:
+      # Database
+      DATABASE_URL: postgresql://kagura:${DB_PASSWORD:-kagura_dev_password}@postgres:5432/kagura
+
+      # Redis
+      REDIS_URL: redis://redis:6379
+
+      # API settings
+      API_HOST: 0.0.0.0
+      API_PORT: 8080
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+      # CORS origins (comma-separated)
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+
+      # ChromaDB settings (optional, for RAG)
+      CHROMA_HOST: ${CHROMA_HOST:-}
+      CHROMA_PORT: ${CHROMA_PORT:-8000}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data  # For local file storage
+    command: uvicorn kagura.api.server:app --host 0.0.0.0 --port 8080 --reload
+
+volumes:
+  postgres_data:
+  redis_data:

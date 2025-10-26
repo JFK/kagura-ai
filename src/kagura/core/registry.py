@@ -9,6 +9,8 @@ import importlib
 import inspect
 from typing import Any, Callable
 
+from kagura.core.tool_registry import tool_registry
+
 
 class AgentRegistry:
     """Global registry for all Kagura agents
@@ -111,8 +113,8 @@ class AgentRegistry:
                 self.register(agent_name, obj)
 
 
-# Global agent registry instance
+# Global registry instances
 agent_registry = AgentRegistry()
 
 
-__all__ = ["AgentRegistry", "agent_registry"]
+__all__ = ["AgentRegistry", "agent_registry", "tool_registry"]
