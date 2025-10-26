@@ -879,3 +879,67 @@ class TestMemoryGraphTools:
         data = json.loads(result)
         assert "error" in data
         assert "GraphMemory not available" in data["error"]
+
+
+class TestMemoryRecordInteractionOptionalPlatform:
+    """Test memory_record_interaction with optional ai_platform (Issue #381)."""
+
+    @pytest.mark.asyncio
+    async def test_record_without_platform(self) -> None:
+        """Test recording interaction without ai_platform (v4.0 Universal Memory)."""
+        import json
+
+        # Record without ai_platform
+        result = await memory_record_interaction(
+            agent_name="test_optional_platform",
+            user_id="user_optional",
+            query="How to use MCP?",
+            response="MCP is Model Context Protocol...",
+            metadata='{"topic": "mcp"}',
+        )
+
+        data = json.loads(result)
+        assert data["status"] == "recorded"
+        assert data["user_id"] == "user_optional"
+        assert "interaction_id" in data
+        # ai_platform should be "unknown" when not provided
+        assert data["ai_platform"] in ("", "unknown")
+
+    @pytest.mark.asyncio
+    async def test_record_platform_in_metadata(self) -> None:
+        """Test ai_platform in metadata instead of parameter."""
+        import json
+
+        # Record with ai_platform in metadata
+        result = await memory_record_interaction(
+            agent_name="test_meta_platform",
+            user_id="user_meta",
+            query="Test query",
+            response="Test response",
+            metadata='{"ai_platform": "gemini", "topic": "testing"}',
+        )
+
+        data = json.loads(result)
+        assert data["status"] == "recorded"
+        # Should extract from metadata
+        assert data["ai_platform"] == "gemini"
+
+    @pytest.mark.asyncio
+    async def test_platform_parameter_overrides_metadata(self) -> None:
+        """Test that ai_platform parameter takes precedence over metadata."""
+        import json
+
+        # Both parameter and metadata - parameter should win
+        result = await memory_record_interaction(
+            agent_name="test_override",
+            user_id="user_override",
+            query="Test",
+            response="Test",
+            ai_platform="claude",  # Parameter
+            metadata='{"ai_platform": "chatgpt"}',  # Metadata (ignored)
+        )
+
+        data = json.loads(result)
+        assert data["status"] == "recorded"
+        # Parameter should override metadata
+        assert data["ai_platform"] == "claude"

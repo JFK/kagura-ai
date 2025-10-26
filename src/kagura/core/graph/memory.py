@@ -219,7 +219,6 @@ class GraphMemory:
     def record_interaction(
         self,
         user_id: str,
-        ai_platform: str,
         query: str,
         response: str,
         metadata: Optional[dict[str, Any]] = None,
@@ -228,37 +227,49 @@ class GraphMemory:
 
         Args:
             user_id: User identifier
-            ai_platform: AI platform name (e.g., "claude", "chatgpt")
             query: User's query
             response: AI's response
-            metadata: Additional metadata (e.g., session_id, project, topic)
+            metadata: Additional metadata including:
+                - ai_platform: (Optional) AI platform name (e.g., "claude", "chatgpt")
+                - topic: (Optional) Discussion topic
+                - session_id, project, etc.
 
         Returns:
             Interaction node ID
 
         Example:
+            >>> # Platform-agnostic memory (v4.0 Universal Memory)
             >>> interaction_id = graph.record_interaction(
             ...     user_id="user_001",
-            ...     ai_platform="claude",
             ...     query="How to use FastAPI?",
             ...     response="FastAPI is...",
-            ...     metadata={"project": "kagura", "topic": "python"}
+            ...     metadata={"topic": "python"}
+            ... )
+            >>>
+            >>> # With platform tracking (optional)
+            >>> interaction_id = graph.record_interaction(
+            ...     user_id="user_001",
+            ...     query="...",
+            ...     response="...",
+            ...     metadata={"ai_platform": "claude", "topic": "python"}
             ... )
 
         Note:
             If metadata contains "topic", a topic node will be created and
             linked to both the interaction and the user for pattern analysis.
+
+            v4.0: ai_platform is now optional and stored in metadata, aligning
+            with Universal AI Memory principle: "Own your memory, bring it to every AI."
         """
         # Create interaction node
         interaction_id = f"interaction_{uuid.uuid4().hex[:8]}"
         meta_dict = metadata or {}
         interaction_data = {
             "user_id": user_id,
-            "ai_platform": ai_platform,
             "query": query,
             "response": response,
             "timestamp": datetime.now().isoformat(),
-            **meta_dict,
+            **meta_dict,  # ai_platform comes from metadata (optional)
         }
 
         self.add_node(interaction_id, "interaction", interaction_data)
@@ -505,10 +516,19 @@ class GraphMemory:
         interactions = self.get_user_interactions(user_id)
         total_interactions = len(interactions)
 
-        # Count platforms
+        # Count platforms (backward compatible with v3.0 and v4.0)
         platforms: dict[str, int] = {}
         for interaction in interactions:
-            platform = interaction.get("ai_platform", "unknown")
+            # Try direct field first (v3.0 format), then metadata (v4.0 format)
+            platform = interaction.get("ai_platform")
+            if platform is None and "metadata" in interaction:
+                # Check if metadata is a dict or string
+                meta = interaction["metadata"]
+                if isinstance(meta, dict):
+                    platform = meta.get("ai_platform")
+
+            # Default to "unknown" if not specified
+            platform = platform or "unknown"
             platforms[platform] = platforms.get(platform, 0) + 1
 
         # Get topics

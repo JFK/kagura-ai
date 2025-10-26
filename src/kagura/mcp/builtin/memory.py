@@ -844,9 +844,9 @@ async def memory_get_related(
 async def memory_record_interaction(
     agent_name: str,
     user_id: str,
-    ai_platform: str,
     query: str,
     response: str,
+    ai_platform: str = "",
     metadata: str = "{}",
 ) -> str:
     """Record AI-User interaction in graph memory
@@ -861,6 +861,10 @@ async def memory_record_interaction(
     - Enabling cross-platform memory (same user, different AI tools)
     - Tracking topic discussions over time
 
+    💡 v4.0 Universal Memory: ai_platform is OPTIONAL
+        Focus on "what" was discussed, not "where"
+        Platform tracking is optional for statistics
+
     💡 TIP: Include "topic" in metadata to enable topic analysis
         metadata='{"topic": "python", "project": "kagura"}'
 
@@ -870,9 +874,10 @@ async def memory_record_interaction(
     Args:
         agent_name: Agent identifier (use "global" for cross-thread sharing)
         user_id: User identifier (e.g., "user_001", email, username)
-        ai_platform: AI platform name (e.g., "claude", "chatgpt", "gemini")
         query: User's query/message
         response: AI's response
+        ai_platform: (Optional) AI platform name (e.g., "claude", "chatgpt", "gemini")
+            Leave empty for platform-agnostic memory
         metadata: JSON object string with additional data
             (e.g., '{"project": "kagura", "topic": "python", "session_id": "sess_123"}')
 
@@ -880,14 +885,23 @@ async def memory_record_interaction(
         JSON string with interaction ID and confirmation
 
     💡 EXAMPLE:
-        # Record a Python-related interaction with topic
+        # Platform-agnostic memory (recommended)
         memory_record_interaction(
             agent_name="global",
             user_id="user_jfk",
-            ai_platform="claude",
             query="How to use FastAPI?",
             response="FastAPI is a modern web framework...",
             metadata='{"topic": "python", "project": "kagura"}'
+        )
+
+        # With platform tracking (optional)
+        memory_record_interaction(
+            agent_name="global",
+            user_id="user_jfk",
+            query="...",
+            response="...",
+            ai_platform="claude",
+            metadata='{"topic": "python"}'
         )
 
     📊 RETURNS:
@@ -920,11 +934,14 @@ async def memory_record_interaction(
     except json.JSONDecodeError:
         return json.dumps({"error": "Invalid JSON in metadata parameter"}, indent=2)
 
-    # Record interaction
+    # Merge ai_platform into metadata if provided (backward compatibility)
+    if ai_platform:
+        metadata_dict["ai_platform"] = ai_platform
+
+    # Record interaction (ai_platform now in metadata)
     try:
         interaction_id = memory.graph.record_interaction(
             user_id=user_id,
-            ai_platform=ai_platform,
             query=query,
             response=response,
             metadata=metadata_dict,
@@ -934,12 +951,15 @@ async def memory_record_interaction(
         if memory.graph.persist_path:
             memory.graph.persist()
 
+        # Get platform for response (backward compat)
+        platform = ai_platform or metadata_dict.get("ai_platform", "unknown")
+
         return json.dumps(
             {
                 "status": "recorded",
                 "interaction_id": interaction_id,
                 "user_id": user_id,
-                "ai_platform": ai_platform,
+                "ai_platform": platform,
                 "message": "Interaction recorded successfully",
             },
             indent=2,
