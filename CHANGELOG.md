@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### 🐛 Fixed
+
+- **GraphMemory**: Fixed `memory_get_related` type conversion error when `depth` parameter is sent as string by MCP clients (#379)
+- **GraphMemory**: Topic extraction now working - `record_interaction` creates topic nodes and edges from metadata (#379)
+
+### ✨ Improved
+
+- **MCP Tools**: Enhanced docstrings with 🔍 USE WHEN, 💡 EXAMPLE, and 📊 RETURNS sections for better LLM understanding (#379)
+  - `memory_get_related` - Added clear usage guidelines
+  - `memory_record_interaction` - Added topic metadata tip
+  - `memory_get_user_pattern` - Clarified return format
+- **GraphMemory**: `record_interaction` now automatically creates topic nodes when `"topic"` is in metadata
+- **GraphMemory**: User→Topic edges created for pattern analysis
+
+### 🧪 Tests
+
+- Added `test_get_related_with_string_depth` - MCP protocol compatibility test
+- Added `test_record_interaction_with_topic` - Topic extraction validation
+
+---
+
 ## [4.0.0a0] - 2025-10-26
 
 ### 🎯 Strategic Pivot
