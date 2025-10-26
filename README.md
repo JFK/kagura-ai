@@ -81,24 +81,26 @@ Give **every AI** access to:
 
 ---
 
-## 🚧 v4.0 Status - Phase A (In Progress)
+## ✅ v4.0 Status - Phase A/B Complete
 
-**Current**: Implementing MCP-First Foundation
+**Current**: v4.0.0a0 - Universal AI Memory Platform with GraphMemory
 
 **What's Working**:
 - ✅ v3.0 SDK & Chat（previous release）
-- 🔄 v4.0 REST API skeleton（Phase A）
-- 🔄 Docker Compose setup（Phase A）
-- 🔄 MCP Tools v1.0（Phase A）
+- ✅ v4.0 REST API (FastAPI + OpenAPI)
+- ✅ Docker Compose setup (PostgreSQL + pgvector, Redis)
+- ✅ MCP Tools v1.0 (28 tools total)
+- ✅ GraphMemory (NetworkX-based knowledge graph)
+- ✅ MCP Tool Management (`kagura mcp doctor`, `kagura mcp tools`, `kagura mcp install`)
 
-**Coming in Phase A** (4 weeks):
-- FastAPI-based REST API
-- 5 Core MCP Tools (store/recall/search/feedback/delete)
-- MCP Tool Management (`kagura mcp doctor`, `kagura mcp install`)
-- Production Docker setup
-- v4.0.0a0release
+**Recently Completed**:
+- ✅ **Phase A**: MCP-First Foundation ([Issue #364](https://github.com/JFK/kagura-ai/issues/364))
+- ✅ **Phase B**: GraphMemory - User Pattern Analysis ([Issue #345](https://github.com/JFK/kagura-ai/issues/345))
 
-**See**: [Phase A Issue #364](https://github.com/JFK/kagura-ai/issues/364)
+**Coming Next**:
+- 🔄 **Phase C** (Q2 2026): Self-hosted API + Multimodal MVP
+- 🔄 **Phase D** (Q3 2026): Consumer App (iOS/Android/Desktop)
+- 🔄 **Phase E** (Q4 2026): Cloud SaaS + Enterprise features
 
 ---
 
@@ -119,15 +121,12 @@ async def translator(text: str) -> str:
 result = await translator("Hello World")
 ```
 
-### Option 2: v4.0 Docker（Alpha - In Development）
+### Option 2: v4.0 Docker（v4.0.0a0）
 
 ```bash
 # Clone repository
 git clone https://github.com/JFK/kagura-ai.git
 cd kagura-ai
-
-# Checkout v4.0 branch
-git checkout 364-featv40-phase-a-mcp-first-foundation
 
 # Start services
 docker compose up -d
@@ -138,24 +137,26 @@ curl http://localhost:8080/api/v1/health
 
 **API Docs**: http://localhost:8080/docs
 
-### Option 3: MCP with Claude Desktop（Coming in Phase A Week 3）
+### Option 3: MCP with Claude Desktop（v4.0.0a0）
 
 ```bash
 # Install Kagura
 pip install kagura-ai[full]
 
-# Auto-configure Claude Desktop（Coming soon）
+# Auto-configure Claude Desktop
 kagura mcp install
 
 # Start MCP server
 kagura mcp serve
 ```
 
+**See**: [MCP Setup Guide](docs/mcp-setup.md)
+
 ---
 
-## 🧩 Key Features（v4.0 Roadmap）
+## 🧩 Key Features（v4.0）
 
-### 1. **Universal Memory API**（Phase A）
+### 1. **Universal Memory API**（✅ Phase A Complete）
 
 ```python
 from kagura import MemoryManager
@@ -186,7 +187,7 @@ results = await memory.recall(
 
 ---
 
-### 2. **Knowledge Graph**（Phase B - Issue #345）
+### 2. **Knowledge Graph**（✅ Phase B Complete）
 
 Track **relationships** between memories:
 
@@ -213,7 +214,7 @@ related = await memory.query_graph(
 
 ---
 
-### 3. **Data Portability**（Phase B）
+### 3. **Data Portability**（🔄 Phase C）
 
 ```bash
 # Export everything
@@ -227,7 +228,7 @@ kagura memory import --input=./backup
 
 ---
 
-### 4. **Vibe Coding History**（Phase B - Issue #345）
+### 4. **Vibe Coding History**（✅ Phase B Complete）
 
 Track your **AI-assisted coding journey**:
 
@@ -270,42 +271,45 @@ await memory.record_interaction(
 pip install kagura-ai[full]
 ```
 
-### Development (v4.0-alpha)
+### Development (v4.0.0a0)
 
 ```bash
-# Clone & checkout v4.0 branch
+# Clone repository
 git clone https://github.com/JFK/kagura-ai.git
 cd kagura-ai
-git checkout 364-featv40-phase-a-mcp-first-foundation
 
 # Install dependencies
 uv sync --all-extras
 
-# Run API server（after Phase A completion）
+# Run API server
 uvicorn kagura.api.server:app --reload
 ```
+
+**API Docs**: http://localhost:8000/docs
 
 ---
 
 ## 🗺️ Roadmap
 
-### ✅ v3.0（Released）
+### ✅ v3.0（Released - 2025-09）
 - Python SDK with `@agent` decorator
 - Chat interface（MCP testing）
 - 15+ built-in MCP tools
 
-### 🔄 v4.0.0a0Phase A - Week 1-4）
-- **REST API**（FastAPI + OpenAPI）✅ In Progress
-- **5 Core MCP Tools**（store/recall/search/feedback/delete）
-- **MCP Tool Management**（doctor, install）
-- **Docker Compose**（Postgres + Redis）✅ In Progress
-- **Documentation**
+### ✅ v4.0.0a0（Released - 2025-10-26）
+- **REST API**（FastAPI + OpenAPI）✅
+- **28 MCP Tools**（store/recall/search/feedback/delete + 23 more）✅
+- **MCP Tool Management**（`kagura mcp doctor`, `kagura mcp tools`, `kagura mcp install`）✅
+- **Docker Compose**（PostgreSQL + pgvector, Redis）✅
+- **Knowledge Graph**（NetworkX-based）✅
+- **User Pattern Analysis**（Interaction tracking, topic analysis）✅
+- **Documentation**（Getting Started, API Reference, MCP Setup）✅
 
-### 🔄 v4.0.0（Phase B - Week 5-12）
-- **Knowledge Graph**（NetworkX）- Issue #345
-- **Consolidation**（Short → Long-term）
-- **Export/Import**（JSONL format）
-- **Multimodal DB prep**
+### 🔄 v4.0.0（Stable - Q1 2026）
+- **Memory Consolidation**（Short → Long-term）
+- **Export/Import**（JSONL format, full data portability）
+- **Multimodal DB prep**（Image/audio metadata support）
+- **Production hardening**
 - **v4.0.0 stable release**
 
 ### 🔮 v4.1.0（Phase C - Q2 2026）
@@ -330,12 +334,12 @@ uvicorn kagura.api.server:app --reload
 
 | Platform | Status | Notes |
 |----------|--------|-------|
-| **Claude Desktop** | ✅ v3.0 | MCP v1.0 support（v4.0: Phase A Week 3） |
-| **Cline** | ✅ v3.0 | VS Code extension |
-| **Cursor** | 🔄 v4.0+ | MCP support coming |
+| **Claude Desktop** | ✅ v4.0.0a0 | MCP v1.0 with 28 tools |
+| **Cline** | ✅ v4.0.0a0 | VS Code extension with MCP support |
+| **Cursor** | ✅ v4.0.0a0 | MCP protocol support |
 | **ChatGPT Desktop** | 🔄 2026 | OpenAI announced MCP adoption |
 | **Gemini** | 🔄 2026 | Google confirmed MCP support |
-| **Custom Agents** | ✅ | Use MCP SDK |
+| **Custom Agents** | ✅ v4.0.0a0 | Use MCP SDK or REST API |
 
 **Legend**: ✅ Supported | 🔄 Planned
 
@@ -345,10 +349,12 @@ uvicorn kagura.api.server:app --reload
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-**Active Development**:
-- Phase A（v4.0.0a0: [Issue #364](https://github.com/JFK/kagura-ai/issues/364)
-- Phase B（GraphMemory）: [Issue #365](https://github.com/JFK/kagura-ai/issues/365)
-- Neural Memory Research: [Issue #348](https://github.com/JFK/kagura-ai/issues/348)
+**Completed Milestones**:
+- ✅ Phase A（v4.0.0a0）: [Issue #364](https://github.com/JFK/kagura-ai/issues/364)
+- ✅ Phase B（GraphMemory）: [Issue #345](https://github.com/JFK/kagura-ai/issues/345)
+
+**Active Research**:
+- Neural Memory: [Issue #348](https://github.com/JFK/kagura-ai/issues/348)
 
 **Ways to contribute**:
 - 🐛 Report bugs
@@ -419,5 +425,5 @@ Just as Kagura connects humans with the divine, Kagura AI connects you with all 
 
 ---
 
-*v4.0.0a0- Phase A in progress*
+*v4.0.0a0 - Phase A/B Complete*
 *Last updated: 2025-10-26*
