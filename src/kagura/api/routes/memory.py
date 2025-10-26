@@ -8,6 +8,7 @@ Memory management API routes:
 - GET /api/v1/memory - List memories
 """
 
+import json
 from datetime import datetime
 from typing import Annotated, Any
 
@@ -17,6 +18,27 @@ from kagura.api import models
 from kagura.api.dependencies import MemoryManagerDep
 
 router = APIRouter()
+
+
+def _decode_metadata(metadata_dict: dict[str, Any]) -> dict[str, Any]:
+    """Decode JSON strings in metadata (ChromaDB compatibility).
+
+    Args:
+        metadata_dict: Metadata with potential JSON strings
+
+    Returns:
+        Decoded metadata with lists/dicts restored
+    """
+    decoded = {}
+    for k, v in metadata_dict.items():
+        if isinstance(v, str) and (v.startswith("[") or v.startswith("{")):
+            try:
+                decoded[k] = json.loads(v)
+            except json.JSONDecodeError:
+                decoded[k] = v
+        else:
+            decoded[k] = v
+    return decoded
 
 
 @router.post("", response_model=models.MemoryResponse, status_code=201)
@@ -65,8 +87,20 @@ async def create_memory(
         # Store metadata separately
         memory.set_temp(f"_meta_{request.key}", full_metadata)
     else:  # persistent
-        # Persistent memory: use remember() with metadata
-        memory.remember(request.key, request.value, full_metadata)
+        # For ChromaDB compatibility, convert list values to JSON strings
+        import json
+
+        chromadb_metadata = {}
+        for k, v in full_metadata.items():
+            if isinstance(v, list):
+                chromadb_metadata[k] = json.dumps(v)  # Convert list to JSON string
+            elif isinstance(v, dict):
+                chromadb_metadata[k] = json.dumps(v)  # Convert dict to JSON string
+            else:
+                chromadb_metadata[k] = v
+
+        # Persistent memory: use remember() with ChromaDB-compatible metadata
+        memory.remember(request.key, request.value, chromadb_metadata)
 
     return {
         "key": request.key,
@@ -124,6 +158,9 @@ async def get_memory(
 
     if value is None:
         raise HTTPException(status_code=404, detail=f"Memory '{key}' not found")
+
+    # Decode metadata (ChromaDB compatibility)
+    metadata_dict = _decode_metadata(metadata_dict)
 
     # Extract tags, importance from metadata
     tags = metadata_dict.get("tags", [])
@@ -209,9 +246,21 @@ async def update_memory(
         memory.set_temp(key, updated_value)
         memory.set_temp(f"_meta_{key}", full_metadata)
     else:  # persistent
+        # For ChromaDB compatibility, convert list/dict values to JSON strings
+        import json
+
+        chromadb_metadata = {}
+        for k, v in full_metadata.items():
+            if isinstance(v, list):
+                chromadb_metadata[k] = json.dumps(v)
+            elif isinstance(v, dict):
+                chromadb_metadata[k] = json.dumps(v)
+            else:
+                chromadb_metadata[k] = v
+
         # Delete and recreate (no update method in MemoryManager)
         memory.forget(key)
-        memory.remember(key, updated_value, full_metadata)
+        memory.remember(key, updated_value, chromadb_metadata)
 
     return {
         "key": key,
@@ -293,6 +342,10 @@ async def list_memories(
         persistent_list = memory.search_memory("%", limit=1000)
         for mem in persistent_list:
             metadata_dict = mem.get("metadata", {})
+
+            # Decode metadata (ChromaDB compatibility)
+            metadata_dict = _decode_metadata(metadata_dict)
+
             tags = metadata_dict.get("tags", [])
             importance = metadata_dict.get("importance", 0.5)
             created_at_str = metadata_dict.get("created_at")
