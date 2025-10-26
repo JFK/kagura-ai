@@ -15,19 +15,35 @@ Kagura Memory API provides RESTful endpoints for memory management, graph operat
 
 ## 🔗 Interactive Documentation
 
-### Live API Documentation
+### 1. Redocly Documentation (Recommended) ⭐
 
-When running the Kagura API server, you can access interactive documentation:
+**Static HTML**: [index.html](index.html)
+- Beautiful, interactive API explorer
+- Generated from `reference.yaml` using Redocly
+- No server required - open in browser
+- **Build**: `make build_docs`
+
+### 2. Live API Documentation (Server Required)
+
+When running the Kagura API server:
 
 **Swagger UI**: [http://localhost:8080/docs](http://localhost:8080/docs)
 - Interactive API testing
 - Try endpoints directly from browser
 - See request/response examples
+- Execute requests with authentication
 
 **ReDoc**: [http://localhost:8080/redoc](http://localhost:8080/redoc)
 - Clean, readable API documentation
 - Search functionality
 - Code samples
+
+### 3. OpenAPI YAML
+
+**Spec File**: [reference.yaml](reference.yaml)
+- Source of truth for API specification
+- Use for client SDK generation
+- Import into Postman, Insomnia, etc.
 
 ---
 
