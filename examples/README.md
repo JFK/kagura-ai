@@ -1,6 +1,6 @@
 # Kagura AI v3.0 Examples
 
-Comprehensive examples demonstrating all features of Kagura AI v3.0, from basic agent creation to production-ready SDK integration.
+Comprehensive examples demonstrating Kagura AI v4.0 MCP-first architecture, from basic agent creation to production-ready MCP tools.
 
 ---
 
@@ -16,9 +16,6 @@ pip install -e "examples/[all]"
 ### Install by Category
 
 ```bash
-# SDK Integration (FastAPI, Streamlit, etc.)
-pip install -e "examples/[sdk]"
-
 # Broadlistening Analysis (UMAP, scikit-learn, Plotly)
 pip install -e "examples/[broadlistening]"
 ```
@@ -156,34 +153,6 @@ python pipeline.py sample_data.csv --n-clusters 5
 
 ---
 
-### 08. SDK Integration (`08_sdk_integration/`) - **NEW in v3.0** 🆕
-
-Real-world SDK integration patterns for production applications:
-
-- **fastapi_endpoint.py** - AI-powered REST API with FastAPI
-- **data_pipeline.py** - Data enrichment and ETL workflows
-- **email_automation.py** - Email classification and auto-response
-- **streamlit_dashboard.py** - Interactive AI analytics dashboard
-
-**Learn**: FastAPI, Streamlit, data pipelines, automation
-
-**Dependencies**: `pip install -e "examples/[sdk]"`
-
-```bash
-# FastAPI endpoint
-uvicorn examples.08_sdk_integration.fastapi_endpoint:app --reload
-
-# Data pipeline
-python examples/08_sdk_integration/data_pipeline.py
-
-# Streamlit dashboard
-streamlit run examples/08_sdk_integration/streamlit_dashboard.py
-```
-
-**See**: [08_sdk_integration/README.md](./08_sdk_integration/README.md)
-
----
-
 ## 🚀 Quick Start Paths
 
 ### Path 1: Beginner (1-2 hours)
@@ -199,20 +168,7 @@ For developers new to Kagura AI:
 
 ---
 
-### Path 2: SDK Developer (2-3 hours)
-
-For integrating Kagura AI into your applications:
-
-1. **01_basic/** - Core concepts
-2. **08_sdk_integration/fastapi_endpoint.py** - REST API
-3. **08_sdk_integration/data_pipeline.py** - ETL workflows
-4. **08_sdk_integration/streamlit_dashboard.py** - Dashboards
-
-**Goal**: Build production-ready SDK integrations
-
----
-
-### Path 3: Advanced (3-4 hours)
+### Path 2: Advanced (3-4 hours)
 
 For production-ready systems:
 
@@ -455,11 +411,13 @@ A: Examples demonstrate core patterns. For production, add proper error handling
 
 ### Features
 
-**Q: What's new in v3.0?**
+**Q: What's new in v4.0?**
 
 A:
-- **SDK Integration** - FastAPI, Streamlit, data pipelines (09_sdk_integration/)
-- **Streamlined Examples** - Legacy code removed, focus on SDK-first
+- **MCP-First Architecture** - Universal Memory Platform via MCP
+- **REST API** - Production-ready FastAPI server
+- **GraphMemory** - Knowledge graph for interaction patterns
+- **Streamlined Examples** - Focus on core MCP capabilities
 
 **Q: What's the difference between memory types?**
 
@@ -507,7 +465,7 @@ After exploring these examples:
 
 1. **Build your first agent** - Start with `01_basic/`
 2. **Add tools** - Try `05_web/` for web search
-3. **Integrate into your app** - Check out `08_sdk_integration/`
+3. **Use MCP** - Set up Kagura MCP Server with Claude Desktop
 4. **Deploy to production** - Study `07_real_world/`
 
 **Happy coding with Kagura AI v4.0! 🎉**
