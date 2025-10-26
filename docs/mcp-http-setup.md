@@ -142,6 +142,55 @@ kagura api create-key --name "alice-key" --user-id user_alice
 
 ---
 
+### Tool Access Control (Phase C Task 3 ✅)
+
+Kagura automatically filters dangerous tools when accessed remotely via HTTP/SSE.
+
+#### Safe vs. Dangerous Tools
+
+**✅ Safe for Remote Access** (allowed via `/mcp`):
+- **Memory tools**: `memory_store`, `memory_recall`, `memory_search`, etc.
+- **Web/API tools**: `web_search`, `brave_web_search`, `youtube_summarize`, etc.
+- **Multimodal tools**: `multimodal_index`, `multimodal_search`
+- **Telemetry tools**: `telemetry_stats`, `telemetry_cost`
+
+**⛔ Dangerous - Local Only** (blocked via `/mcp`):
+- **File operations**: `file_read`, `file_write`, `dir_list`
+- **Shell execution**: `shell_exec`
+- **Local app execution**: `media_open_audio`, `media_open_image`, `media_open_video`
+
+#### Why Tool Filtering?
+
+Remote access to file operations or shell commands would allow:
+- Reading sensitive files (`/etc/passwd`, API keys, etc.)
+- Writing malicious files
+- Executing arbitrary commands on your server
+
+**Solution**: The `/mcp` endpoint automatically filters out dangerous tools.
+
+#### Checking Tool Permissions
+
+```bash
+# List all available tools (via HTTP/SSE)
+curl -X POST http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+
+# file_read, shell_exec, etc. will NOT appear in the list
+```
+
+#### Local vs. Remote Context
+
+```python
+# Local MCP server (stdio) - ALL tools available
+kagura mcp serve  # Exposes all 31 tools
+
+# Remote HTTP/SSE server - Only safe tools
+uvicorn kagura.api.server:app  # Exposes ~24 safe tools
+```
+
+---
+
 ### User ID Header
 
 Specify which user's memory to access:

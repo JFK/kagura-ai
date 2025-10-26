@@ -29,6 +29,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Optional authentication (falls back to `default_user`)
   - User ID extraction from validated API keys
 
+- **Tool Access Control**: Security filtering for remote MCP access (#378, Phase C Task 3)
+  - Permission system in `src/kagura/mcp/permissions.py`
+  - Local vs. remote context distinction
+  - Dangerous tools (file ops, shell exec, local apps) blocked remotely
+  - Safe tools (memory, web, API) allowed remotely
+  - Automatic filtering in `create_mcp_server(context="remote")`
+  - Fail-safe: unknown tools denied by default
+  - Comprehensive test coverage (28 tests)
+
 ### 🔄 Changed
 
 - **GraphMemory**: Made `ai_platform` parameter optional in `record_interaction` (#381)

@@ -6,8 +6,9 @@ Claude Code, Cline, and other MCP clients.
 """
 
 import inspect
+import logging
 import time
-from typing import Any
+from typing import Any, Literal
 
 from mcp.server import Server  # type: ignore
 from mcp.types import TextContent, Tool  # type: ignore
@@ -16,24 +17,44 @@ from kagura.core.registry import agent_registry
 from kagura.core.tool_registry import tool_registry
 from kagura.core.workflow_registry import workflow_registry
 
+from .permissions import get_allowed_tools, get_denied_tools
 from .schema import generate_json_schema
 
+logger = logging.getLogger(__name__)
 
-def create_mcp_server(name: str = "kagura-ai") -> Server:
-    """Create MCP server instance
+
+def create_mcp_server(
+    name: str = "kagura-ai",
+    context: Literal["local", "remote"] = "local",
+) -> Server:
+    """Create MCP server instance with tool access control.
 
     Args:
         name: Server name (default: "kagura-ai")
+        context: Execution context ("local" or "remote")
+                 - "local": All tools allowed (stdio transport)
+                 - "remote": Only safe tools allowed (HTTP/SSE transport)
 
     Returns:
-        Configured MCP Server instance
+        Configured MCP Server instance with filtered tools
 
     Example:
-        >>> server = create_mcp_server()
-        >>> # Run server with stdio transport
-        >>> # await server.run(read_stream, write_stream)
+        >>> # Local server (all tools)
+        >>> server = create_mcp_server(context="local")
+        >>>
+        >>> # Remote server (safe tools only)
+        >>> server = create_mcp_server(context="remote")
+
+    Note:
+        Remote context filters out dangerous tools like:
+        - file_read, file_write (filesystem access)
+        - shell_exec (command execution)
+        - media_open_* (local app execution)
     """
     server = Server(name)
+
+    # Log context
+    logger.info(f"Creating MCP server '{name}' in {context} context")
 
     @server.list_tools()
     async def handle_list_tools() -> list[Tool]:
@@ -111,6 +132,60 @@ def create_mcp_server(name: str = "kagura-ai") -> Server:
                 )
             )
 
+        # 4. Filter tools by context (local vs remote)
+        if context == "remote":
+            # Get tool names (strip kagura_ prefix for permission check)
+            all_tool_names = [tool.name for tool in mcp_tools]
+
+            # Extract base names (remove kagura_tool_ prefix)
+            base_names = []
+            for name in all_tool_names:
+                if name.startswith("kagura_tool_"):
+                    base_names.append(name.replace("kagura_tool_", ""))
+                elif name.startswith("kagura_workflow_"):
+                    base_names.append(name.replace("kagura_workflow_", ""))
+                elif name.startswith("kagura_"):
+                    base_names.append(name.replace("kagura_", ""))
+                else:
+                    base_names.append(name)
+
+            # Filter based on permissions
+            allowed_base_names = get_allowed_tools(base_names, context="remote")
+            denied_names = get_denied_tools(base_names, context="remote")
+
+            # Rebuild tool name set for filtering
+            allowed_names_set = set()
+            for base_name in allowed_base_names:
+                # Reconstruct full names
+                allowed_names_set.add(f"kagura_tool_{base_name}")
+                allowed_names_set.add(f"kagura_workflow_{base_name}")
+                allowed_names_set.add(f"kagura_{base_name}")
+
+            # Filter mcp_tools
+            filtered_tools = [
+                tool for tool in mcp_tools if tool.name in allowed_names_set
+            ]
+
+            # Log filtering
+            if denied_names:
+                more_msg = (
+                    f" and {len(denied_names) - 5} more"
+                    if len(denied_names) > 5
+                    else ""
+                )
+                logger.warning(
+                    f"Remote context: Filtered out {len(denied_names)} "
+                    f"dangerous tools: {', '.join(denied_names[:5])}{more_msg}"
+                )
+
+            logger.info(
+                f"Remote context: Exposing {len(filtered_tools)}/{len(mcp_tools)} tools"
+            )
+
+            return filtered_tools
+
+        # Local context - return all tools
+        logger.info(f"Local context: Exposing all {len(mcp_tools)} tools")
         return mcp_tools
 
     @server.call_tool()

@@ -33,10 +33,13 @@ _server_task: asyncio.Task | None = None
 
 
 def get_mcp_server() -> Server:
-    """Get or create shared MCP server instance.
+    """Get or create shared MCP server instance for HTTP/SSE transport.
+
+    Creates a server in "remote" context, which filters out dangerous tools
+    like file operations, shell execution, and local app launches.
 
     Returns:
-        Shared MCP Server instance with all Kagura tools registered
+        Shared MCP Server instance with safe tools only
     """
     global _mcp_server
 
@@ -49,8 +52,14 @@ def get_mcp_server() -> Server:
         except ImportError:
             logger.warning("Could not load built-in MCP tools")
 
-        _mcp_server = create_mcp_server(name="kagura-api-http")
-        logger.info("Created MCP server instance for HTTP transport")
+        # Create server in REMOTE context (tool access control enabled)
+        _mcp_server = create_mcp_server(
+            name="kagura-api-http",
+            context="remote",  # Filter dangerous tools
+        )
+        logger.info(
+            "Created MCP server instance for HTTP transport (remote context)"
+        )
 
     return _mcp_server
 
