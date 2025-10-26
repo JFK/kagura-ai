@@ -9,12 +9,12 @@
 </p>
 
 <p align="center">
-[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Python versions](https://img.shields.io/pypi/pyversions/kagura-ai.svg)](https://pypi.org/project/kagura-ai/)
-[![PyPI version](https://img.shields.io/pypi/v/kagura-ai.svg)](https://pypi.org/project/kagura-ai/)
-[![Downloads](https://img.shields.io/pypi/dm/kagura-ai.svg)](https://pypi.org/project/kagura-ai/)
-[![Protocol: MCP](https://img.shields.io/badge/protocol-MCP-blue.svg)](https://modelcontextprotocol.io/)
-[![Status](https://img.shields.io/badge/status-beta-yellow.svg)]()
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
+  <a href="https://pypi.org/project/kagura-ai/"><img src="https://img.shields.io/pypi/pyversions/kagura-ai.svg" alt="Python versions"></a>
+  <a href="https://pypi.org/project/kagura-ai/"><img src="https://img.shields.io/pypi/v/kagura-ai.svg" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/kagura-ai/"><img src="https://img.shields.io/pypi/dm/kagura-ai.svg" alt="Downloads"></a>
+  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/protocol-MCP-blue.svg" alt="MCP"></a>
+  <img src="https://img.shields.io/badge/status-beta-yellow.svg" alt="Status">
 
 **Kagura** は、あなたの**コンテキストと記憶**を、Claude/ChatGPT/Gemini/各種AIエージェントから**横断参照**できるようにする、オープンソースの **MCP対応メモリ基盤**です。
 
