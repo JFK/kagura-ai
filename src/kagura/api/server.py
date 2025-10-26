@@ -12,13 +12,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from kagura.api import models
-from kagura.api.routes import graph, memory, search, system
+from kagura.api.routes import graph, mcp_transport, memory, search, system
 
 # FastAPI app
 app = FastAPI(
     title="Kagura Memory API",
-    description="Universal AI Memory & Context Platform (MCP-native)",
-    version="4.0.0a0",
+    description="Universal AI Memory Platform (MCP + ChatGPT)",
+    version="4.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -26,7 +26,7 @@ app = FastAPI(
 # CORS middleware (configure for production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # TODO: Configure for production
+    allow_origins=["*"],  # Allow all origins for MCP (ChatGPT, Claude, etc.)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,6 +37,9 @@ app.include_router(memory.router, prefix="/api/v1/memory", tags=["memory"])
 app.include_router(graph.router, prefix="/api/v1/graph", tags=["graph"])
 app.include_router(search.router, prefix="/api/v1", tags=["search"])
 app.include_router(system.router, prefix="/api/v1", tags=["system"])
+
+# MCP over HTTP/SSE (Phase C - ChatGPT Connector)
+app.include_router(mcp_transport.router, tags=["mcp"])
 
 
 # Root endpoint
