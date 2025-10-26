@@ -1,7 +1,14 @@
 # Kagura AI - ユニバーサルAIメモリープラットフォーム
 
-> **あなたのメモリーを所有し、すべてのAIで共有する**
+<p align="center">
+  <img src="docs/assets/kagura-logo.svg" alt="Kagura AI Logo" width="400">
+</p>
 
+<p align="center">
+  <strong>あなたのメモリーを所有し、すべてのAIで共有する</strong>
+</p>
+
+<p align="center">
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python versions](https://img.shields.io/pypi/pyversions/kagura-ai.svg)](https://pypi.org/project/kagura-ai/)
 [![PyPI version](https://img.shields.io/pypi/v/kagura-ai.svg)](https://pypi.org/project/kagura-ai/)
