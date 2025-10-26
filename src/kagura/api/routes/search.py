@@ -5,67 +5,146 @@ Semantic search and recall API routes:
 - POST /api/v1/recall - Semantic recall (similarity-based)
 """
 
+from typing import Any
+
 from fastapi import APIRouter
 
 from kagura.api import models
-
-# TODO: Import MemoryRAG once integrated
-# from kagura.core.rag import MemoryRAG
+from kagura.api.dependencies import MemoryManagerDep
 
 router = APIRouter()
 
 
 @router.post("/search", response_model=models.SearchResponse)
-async def search_memories(request: models.SearchRequest) -> dict:
+async def search_memories(
+    request: models.SearchRequest, memory: MemoryManagerDep
+) -> dict[str, Any]:
     """Search memories with full-text + semantic search.
 
     Args:
         request: Search request
+        memory: MemoryManager dependency
 
     Returns:
         Search results with relevance scores
     """
-    # TODO: Implement actual search with MemoryRAG
-    # rag = MemoryRAG()
-    # results = await rag.search(
-    #     query=request.query,
-    #     scope=request.scope,
-    #     limit=request.limit,
-    #     filter_tags=request.filter_tags,
-    # )
+    # Use persistent memory search (SQL LIKE)
+    # TODO: Add full-text search support or use RAG
+    search_pattern = f"%{request.query}%"
+    results_list = memory.search_memory(search_pattern, limit=request.limit)
 
-    # Placeholder response
+    # Filter by scope if specified
+    if request.scope != "all":
+        # Note: search_memory only searches persistent memory
+        # For working memory, would need to implement search
+        if request.scope != "persistent":
+            results_list = []
+
+    # Filter by tags if specified
+    if request.filter_tags:
+        filtered_results = []
+        for mem in results_list:
+            metadata_dict = mem.get("metadata", {})
+            mem_tags = set(metadata_dict.get("tags", []))
+            if all(tag in mem_tags for tag in request.filter_tags):
+                filtered_results.append(mem)
+        results_list = filtered_results
+
+    # Convert to API response format
+    search_results = []
+    for mem in results_list:
+        metadata_dict = mem.get("metadata", {})
+        tags = metadata_dict.get("tags", [])
+
+        # Remove internal fields
+        user_metadata = {
+            k: v
+            for k, v in metadata_dict.items()
+            if k not in ("tags", "importance", "created_at", "updated_at")
+        }
+
+        search_results.append(
+            {
+                "key": mem["key"],
+                "value": mem["value"],
+                "scope": "persistent",  # search_memory only searches persistent
+                "tags": tags,
+                "score": 1.0,  # TODO: Calculate actual relevance score
+                "metadata": user_metadata,
+            }
+        )
+
     return {
-        "results": [],
-        "total": 0,
+        "results": search_results,
+        "total": len(search_results),
         "query": request.query,
     }
 
 
 @router.post("/recall", response_model=models.RecallResponse)
-async def recall_memories(request: models.RecallRequest) -> dict:
+async def recall_memories(
+    request: models.RecallRequest, memory: MemoryManagerDep
+) -> dict[str, Any]:
     """Recall memories by semantic similarity.
 
     Uses vector embeddings to find semantically similar memories.
 
     Args:
         request: Recall request
+        memory: MemoryManager dependency
 
     Returns:
         Recall results with similarity scores
     """
-    # TODO: Implement actual recall with MemoryRAG
-    # rag = MemoryRAG()
-    # results = await rag.recall(
-    #     query=request.query,
-    #     k=request.k,
-    #     scope=request.scope,
-    #     include_graph=request.include_graph,
-    # )
+    # Use semantic search (RAG)
+    try:
+        rag_results = memory.recall_semantic(
+            query=request.query, top_k=request.k, scope=request.scope
+        )
+    except ValueError as e:
+        # RAG not enabled
+        return {
+            "results": [],
+            "query": request.query,
+            "k": request.k,
+        }
 
-    # Placeholder response
+    # Convert to API response format
+    recall_results = []
+    for result in rag_results:
+        # Get metadata from result
+        metadata_dict = result.get("metadata", {})
+        key = metadata_dict.get("key", "unknown")
+        tags = metadata_dict.get("tags", [])
+        scope = result.get("scope", "persistent")
+
+        # Remove internal fields
+        user_metadata = {
+            k: v
+            for k, v in metadata_dict.items()
+            if k not in ("tags", "importance", "created_at", "updated_at", "type", "key")
+        }
+
+        # Calculate similarity from distance (ChromaDB uses cosine distance)
+        # Distance range: 0 (identical) to 2 (opposite)
+        # Similarity: 1 (identical) to 0 (opposite)
+        distance = result.get("distance", 0.0)
+        similarity = 1.0 - (distance / 2.0)
+        similarity = max(0.0, min(1.0, similarity))  # Clamp to [0, 1]
+
+        recall_results.append(
+            {
+                "key": key,
+                "value": result.get("content", ""),
+                "scope": scope,
+                "similarity": similarity,
+                "tags": tags,
+                "metadata": user_metadata,
+            }
+        )
+
     return {
-        "results": [],
+        "results": recall_results,
         "query": request.query,
         "k": request.k,
     }
