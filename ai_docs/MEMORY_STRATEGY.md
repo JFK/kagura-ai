@@ -1,20 +1,25 @@
 # Kagura AI - Memory Management Strategy
 
-**Version**: 3.x
-**Status**: Active Development
-**Last Updated**: 2025-10-22
+**Version**: 4.0 (Phase C Complete)
+**Status**: Production-Ready
+**Last Updated**: 2025-10-27
 
 ---
 
 ## 🎯 Vision
 
-**「AIとユーザーの交流経験を記録し、パーソナライズして必要不可欠な存在に」**
+**「すべてのAIで共有できる、ユーザー自身のメモリー」**
 
-Kagura AIのメモリーシステムは、単なるデータ保存ではなく：
-- **AIとユーザーの関係性**を記録
-- **過去の交流から学習**
-- **ユーザー個人に最適化**
-- **長期的な信頼関係**を構築
+Kagura AI v4.0のメモリーシステムは：
+- **Universal**: すべてのAIプラットフォームで共有可能
+- **Portable**: 完全なデータエクスポート/インポート
+- **Multi-User**: user_idによる完全なデータ分離
+- **Secure**: リモートアクセス時の自動セキュリティフィルタ
+- **Graph-Enhanced**: メモリー間の関係性とユーザーパターン分析
+
+**v3.0からの進化**:
+- v3.0: AIとユーザーの関係性を記録
+- v4.0: すべてのAIで共有できるユニバーサルメモリー
 
 ### Core Concept
 
@@ -35,20 +40,32 @@ User ←→ AI Agent ←→ Memory Management Agent ←→ 3-Tier Memory
 
 ## 📐 Architecture Overview
 
-### 3-Tier Memory System
+### 4-Tier Memory System (v4.0)
 
 ```
-MemoryManager (v3.2.0+)
-├─ Tier 1: Structured Storage (SQLite)
-│   ├─ PersistentMemory: key-value, metadata
-│   └─ Hierarchical keys: "user.preferences.language"
+MemoryManager (v4.0+)
+├─ Tier 1: Working Memory (In-Memory)
+│   └─ Session-scoped temporary storage
 │
-├─ Tier 2: Semantic Search (ChromaDB)
-│   ├─ MemoryRAG (working): 一時的なセマンティック検索
-│   └─ persistent_rag: 永続的なセマンティック検索 🆕 (v3.1.0)
+├─ Tier 2: Persistent Memory (SQLite)
+│   ├─ Key-value storage with metadata
+│   ├─ user_id scoped (Phase C - Issue #382)
+│   └─ Indexed queries
 │
-└─ Tier 3: Relationship Graph (NetworkX)
-    └─ GraphMemory: 関連性、交流履歴、AI学習 🆕 (v3.2.0)
+├─ Tier 3: Semantic Search (ChromaDB)
+│   ├─ Working RAG: 一時的なセマンティック検索
+│   ├─ Persistent RAG: 永続的なセマンティック検索
+│   └─ User-scoped collections (Phase C)
+│
+├─ Tier 4: Relationship Graph (NetworkX)
+│   ├─ GraphMemory: ノード・エッジ管理 (Phase B)
+│   ├─ Interaction tracking: AI-User履歴
+│   ├─ Pattern analysis: ユーザーパターン分析
+│   └─ Multi-hop traversal
+│
+└─ Export/Import (JSONL) 🆕 (Phase C)
+    ├─ MemoryExporter: 完全なデータエクスポート
+    └─ MemoryImporter: バックアップからの復元
 ```
 
 ### Memory Management Agent 🆕
