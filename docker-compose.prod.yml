@@ -1,0 +1,128 @@
+version: '3.8'
+
+# Production Docker Compose configuration for Kagura AI
+#
+# Usage:
+#   1. Copy .env.example to .env and configure
+#   2. docker-compose -f docker-compose.prod.yml up -d
+#   3. Access via https://your-domain.com
+#
+# Features:
+#   - Caddy reverse proxy with automatic HTTPS
+#   - PostgreSQL with pgvector
+#   - Redis for caching
+#   - Health checks
+#   - Auto-restart
+#   - Volume persistence
+
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: kagura-postgres-prod
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-kagura}
+      POSTGRES_USER: ${POSTGRES_USER:-kagura}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kagura"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - kagura-network
+
+  # Redis for caching and job queue
+  redis:
+    image: redis:7-alpine
+    container_name: kagura-redis-prod
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: always
+    networks:
+      - kagura-network
+
+  # Kagura API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kagura-ai:4.0.0
+    container_name: kagura-api-prod
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-kagura}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-kagura}
+
+      # Redis
+      REDIS_URL: redis://redis:6379
+
+      # API settings
+      API_HOST: 0.0.0.0
+      API_PORT: 8080
+      LOG_LEVEL: ${LOG_LEVEL:-warning}
+
+      # CORS origins (comma-separated)
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://chat.openai.com,https://claude.ai}
+
+      # Security
+      API_KEY_REQUIRED: ${API_KEY_REQUIRED:-false}
+
+      # ChromaDB (optional)
+      CHROMA_HOST: ${CHROMA_HOST:-}
+      CHROMA_PORT: ${CHROMA_PORT:-8000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - kagura_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: always
+    networks:
+      - kagura-network
+
+  # Caddy reverse proxy with automatic HTTPS
+  caddy:
+    image: caddy:2-alpine
+    container_name: kagura-caddy-prod
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN required}
+    depends_on:
+      - api
+    restart: always
+    networks:
+      - kagura-network
+
+networks:
+  kagura-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  kagura_data:
+  caddy_data:
+  caddy_config:

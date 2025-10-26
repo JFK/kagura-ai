@@ -55,6 +55,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Metadata tracking (exported_at, user_id, stats)
   - 6 tests with roundtrip validation
 
+- **Production Deployment**: Docker setup for self-hosting (#378, Week 4)
+  - `docker-compose.prod.yml` for production deployment
+  - Caddy reverse proxy with automatic HTTPS
+  - PostgreSQL + Redis + Kagura API stack
+  - Health checks and auto-restart
+  - Deployment guide: `docs/self-hosting.md`
+  - Environment configuration: `.env.example` updated
+  - Integration test suite (9 tests)
+
 ### 🔄 Changed
 
 - **GraphMemory**: Made `ai_platform` parameter optional in `record_interaction` (#381)
