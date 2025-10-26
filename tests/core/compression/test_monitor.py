@@ -82,7 +82,9 @@ class TestContextMonitor:
         counter = TokenCounter(model="gpt-5-mini")
         monitor = ContextMonitor(counter, max_tokens=1000)  # Small limit
 
-        messages = [{"role": "user", "content": "Long message " * 100} for _ in range(10)]
+        messages = [
+            {"role": "user", "content": "Long message " * 100} for _ in range(10)
+        ]
 
         usage = monitor.check_usage(messages)
 

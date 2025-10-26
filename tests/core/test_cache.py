@@ -27,7 +27,7 @@ class TestCacheEntry:
             response="test_response",
             created_at=datetime.now(),
             ttl=3600,
-            model="gpt-5-mini"
+            model="gpt-5-mini",
         )
         assert entry.key == "test_key"
         assert entry.response == "test_response"
@@ -41,7 +41,7 @@ class TestCacheEntry:
             response="data",
             created_at=datetime.now(),
             ttl=3600,  # 1 hour
-            model="gpt-5-mini"
+            model="gpt-5-mini",
         )
         assert not entry.is_expired
 
@@ -52,7 +52,7 @@ class TestCacheEntry:
             response="data",
             created_at=datetime.now() - timedelta(seconds=3601),  # 1 hour 1 second ago
             ttl=3600,
-            model="gpt-5-mini"
+            model="gpt-5-mini",
         )
         assert entry.is_expired
 
@@ -64,7 +64,7 @@ class TestCacheEntry:
             response="data",
             created_at=datetime.now() - timedelta(seconds=3600),
             ttl=3600,
-            model="gpt-5-mini"
+            model="gpt-5-mini",
         )
         # Should be expired or very close to expiration
         # Due to timing, we allow small tolerance
@@ -77,11 +77,7 @@ class TestLLMCache:
 
     def test_cache_initialization(self):
         """Test LLMCache can be initialized with custom params"""
-        cache = LLMCache(
-            backend="memory",
-            default_ttl=7200,
-            max_size=500
-        )
+        cache = LLMCache(backend="memory", default_ttl=7200, max_size=500)
         assert cache.backend == "memory"
         assert cache.default_ttl == 7200
         assert cache.max_size == 500
@@ -294,16 +290,14 @@ class TestLLMCache:
         await asyncio.gather(
             set_value("key1", "value1"),
             set_value("key2", "value2"),
-            set_value("key3", "value3")
+            set_value("key3", "value3"),
         )
 
         assert len(cache._cache) == 3
 
         # Get multiple values concurrently
         results = await asyncio.gather(
-            get_value("key1"),
-            get_value("key2"),
-            get_value("key3")
+            get_value("key1"), get_value("key2"), get_value("key3")
         )
 
         assert results == ["value1", "value2", "value3"]

@@ -106,7 +106,9 @@ def test_memory_rag_semantic_search(tmp_path):
 @pytest.mark.skipif(not CHROMADB_AVAILABLE, reason="ChromaDB not installed")
 def test_memory_manager_with_rag(tmp_path):
     """Test MemoryManager with RAG enabled"""
-    memory = MemoryManager(agent_name="test_agent", persist_dir=tmp_path, enable_rag=True)
+    memory = MemoryManager(
+        agent_name="test_agent", persist_dir=tmp_path, enable_rag=True
+    )
 
     # Store semantic memory
     content_hash = memory.store_semantic("Python is great for AI development")
@@ -122,7 +124,9 @@ def test_memory_manager_with_rag(tmp_path):
 @pytest.mark.skipif(not CHROMADB_AVAILABLE, reason="ChromaDB not installed")
 def test_memory_manager_rag_not_enabled(tmp_path):
     """Test MemoryManager RAG methods when RAG is not enabled"""
-    memory = MemoryManager(agent_name="test_agent", persist_dir=tmp_path, enable_rag=False)
+    memory = MemoryManager(
+        agent_name="test_agent", persist_dir=tmp_path, enable_rag=False
+    )
 
     # Should raise error
     with pytest.raises(ValueError, match="RAG not enabled"):
@@ -136,7 +140,9 @@ def test_memory_manager_rag_not_enabled(tmp_path):
 @pytest.mark.skipif(not CHROMADB_AVAILABLE, reason="ChromaDB not installed")
 def test_memory_manager_repr_with_rag(tmp_path):
     """Test MemoryManager __repr__ with RAG"""
-    memory = MemoryManager(agent_name="test_agent", persist_dir=tmp_path, enable_rag=True)
+    memory = MemoryManager(
+        agent_name="test_agent", persist_dir=tmp_path, enable_rag=True
+    )
 
     # Store some data
     memory.set_temp("key", "value")

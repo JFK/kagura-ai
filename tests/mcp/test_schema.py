@@ -1,4 +1,5 @@
 """Tests for JSON Schema generation"""
+
 from pydantic import BaseModel
 
 from kagura.mcp.schema import generate_json_schema, python_type_to_json_schema
@@ -28,6 +29,7 @@ def test_python_type_to_json_schema_dict():
 
 def test_python_type_to_json_schema_pydantic():
     """Test Pydantic model conversion"""
+
     class User(BaseModel):
         name: str
         age: int
@@ -40,6 +42,7 @@ def test_python_type_to_json_schema_pydantic():
 
 def test_generate_json_schema_simple_function():
     """Test schema generation for simple function"""
+
     def my_func(name: str, age: int) -> str:
         pass
 
@@ -56,6 +59,7 @@ def test_generate_json_schema_simple_function():
 
 def test_generate_json_schema_optional_params():
     """Test schema generation with optional parameters"""
+
     def my_func(name: str, age: int = 18) -> str:
         pass
 
@@ -67,6 +71,7 @@ def test_generate_json_schema_optional_params():
 
 def test_generate_json_schema_no_type_hints():
     """Test schema generation without type hints"""
+
     def my_func(name, age):
         pass
 
@@ -79,6 +84,7 @@ def test_generate_json_schema_no_type_hints():
 
 def test_generate_json_schema_complex_types():
     """Test schema generation with complex types"""
+
     def my_func(names: list[str], scores: dict[str, float]) -> dict[str, int]:
         pass
 

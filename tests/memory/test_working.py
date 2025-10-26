@@ -1,6 +1,5 @@
 """Tests for WorkingMemory."""
 
-import pytest
 
 from kagura.core.memory.working import WorkingMemory
 

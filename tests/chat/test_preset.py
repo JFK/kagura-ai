@@ -1,4 +1,5 @@
 """Tests for preset agents"""
+
 import pytest
 
 from kagura.agents.summarizer import SummarizeAgent

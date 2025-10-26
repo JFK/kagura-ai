@@ -84,6 +84,7 @@ async def test_memory_store_tool():
 async def test_file_read_tool():
     """Test file_read tool"""
     import tempfile
+
     import kagura.mcp.builtin  # noqa: F401
     from kagura.core.tool_registry import tool_registry
 
@@ -108,6 +109,7 @@ async def test_file_read_tool():
 def test_file_read_via_registry():
     """Test executing file_read via tool registry"""
     import tempfile
+
     import kagura.mcp.builtin  # noqa: F401
     from kagura.core.tool_registry import tool_registry
 

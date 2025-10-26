@@ -1,8 +1,6 @@
 """Tests for AgentBuilder Presets."""
 
-from pathlib import Path
 
-import pytest
 
 from kagura.agents import ChatbotPreset
 

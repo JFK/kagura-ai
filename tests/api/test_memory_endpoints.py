@@ -3,9 +3,46 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from kagura.api.dependencies import get_memory_manager
 from kagura.api.server import app
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def clear_memory():
+    """Clear memory before and after each test for isolation."""
+    # Clear before test
+    memory = get_memory_manager()
+    memory.working.clear()
+    if memory.persistent:
+        # Clear persistent memory by deleting test keys
+        try:
+            import sqlite3
+
+            if memory.persistent.db_path.exists():
+                with sqlite3.connect(memory.persistent.db_path) as conn:
+                    conn.execute("DELETE FROM memories WHERE key LIKE 'test_%'")
+                    conn.execute("DELETE FROM memories WHERE key LIKE '%_test_%'")
+                    conn.commit()
+        except Exception:
+            pass  # DB might not exist yet
+
+    yield
+
+    # Clear after test
+    memory.working.clear()
+    if memory.persistent:
+        try:
+            import sqlite3
+
+            if memory.persistent.db_path.exists():
+                with sqlite3.connect(memory.persistent.db_path) as conn:
+                    conn.execute("DELETE FROM memories WHERE key LIKE 'test_%'")
+                    conn.execute("DELETE FROM memories WHERE key LIKE '%_test_%'")
+                    conn.commit()
+        except Exception:
+            pass
 
 
 class TestRootEndpoint:

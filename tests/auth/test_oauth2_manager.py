@@ -193,9 +193,7 @@ class TestOAuth2ManagerCredentials:
         # Check file permissions (0o600 = owner read/write only)
         assert auth.creds_file.stat().st_mode & 0o777 == 0o600
 
-    def test_get_credentials_when_not_authenticated(
-        self, tmp_path: Path, monkeypatch
-    ):
+    def test_get_credentials_when_not_authenticated(self, tmp_path: Path, monkeypatch):
         """Test get_credentials raises error when not authenticated"""
         monkeypatch.setenv("HOME", str(tmp_path))
 
@@ -268,9 +266,7 @@ class TestOAuth2ManagerCredentials:
         assert token == mock_credentials.token
         assert isinstance(token, str)
 
-    def test_get_token_when_not_authenticated(
-        self, tmp_path: Path, monkeypatch
-    ):
+    def test_get_token_when_not_authenticated(self, tmp_path: Path, monkeypatch):
         """Test get_token raises error when not authenticated"""
         monkeypatch.setenv("HOME", str(tmp_path))
 

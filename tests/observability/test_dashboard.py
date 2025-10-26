@@ -1,12 +1,10 @@
 """Tests for Dashboard."""
 
 import time
-from io import StringIO
 
 import pytest
 
 from kagura.observability import Dashboard, EventStore, TelemetryCollector
-
 
 # ===== Fixture =====
 

@@ -29,7 +29,9 @@ class TestWebSearchTool:
             )()
         ]
 
-        with patch("kagura.web.decorators.search", new=AsyncMock(return_value=mock_results)):
+        with patch(
+            "kagura.web.decorators.search", new=AsyncMock(return_value=mock_results)
+        ):
             result = await web_search("Python programming")
 
             assert "Python Tutorial" in result

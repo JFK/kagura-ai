@@ -1,4 +1,5 @@
 """Tests for tool registry"""
+
 import pytest
 
 from kagura.core.tool_registry import ToolRegistry, tool_registry

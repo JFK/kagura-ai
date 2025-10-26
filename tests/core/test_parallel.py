@@ -91,11 +91,7 @@ class TestParallelGather:
 
         # Parallel execution
         start = time.time()
-        results = await parallel_gather(
-            slow_task(0.1),
-            slow_task(0.1),
-            slow_task(0.1)
-        )
+        results = await parallel_gather(slow_task(0.1), slow_task(0.1), slow_task(0.1))
         parallel_duration = time.time() - start
 
         assert results == [0.1, 0.1, 0.1]
@@ -181,11 +177,7 @@ class TestParallelMap:
             return n * 2
 
         items = [1, 2, 3, 4, 5]
-        results = await parallel_map(
-            process_with_random_delay,
-            items,
-            max_concurrent=5
-        )
+        results = await parallel_map(process_with_random_delay, items, max_concurrent=5)
 
         # Results should be in input order, not completion order
         assert results == [2, 4, 6, 8, 10]
@@ -233,9 +225,7 @@ class TestParallelMapUnordered:
 
         items = [1, 2, 3, 4, 5]
         results = await parallel_map_unordered(
-            process_with_delay,
-            items,
-            max_concurrent=5
+            process_with_delay, items, max_concurrent=5
         )
 
         # First result should be from last item (completes fastest)
@@ -254,11 +244,7 @@ class TestParallelMapUnordered:
         items = list(range(10))
 
         start = time.time()
-        results = await parallel_map_unordered(
-            slow_process,
-            items,
-            max_concurrent=5
-        )
+        results = await parallel_map_unordered(slow_process, items, max_concurrent=5)
         duration = time.time() - start
 
         assert sorted(results) == items

@@ -4,7 +4,6 @@ import subprocess
 import sys
 import time
 
-import pytest
 from click.testing import CliRunner
 
 from kagura.cli.lazy import LazyGroup
@@ -104,7 +103,9 @@ def test_lazy_group_get_command():
     import click
 
     # Create a test lazy group
-    @click.group(cls=LazyGroup, lazy_subcommands={"testcmd": ("os.path", "join", "Test command")})
+    @click.group(
+        cls=LazyGroup, lazy_subcommands={"testcmd": ("os.path", "join", "Test command")}
+    )
     def test_cli():
         pass
 
@@ -130,7 +131,9 @@ def test_lazy_group_caching():
     """Test that loaded commands are cached"""
     import click
 
-    @click.group(cls=LazyGroup, lazy_subcommands={"testcmd": ("os.path", "join", "Test command")})
+    @click.group(
+        cls=LazyGroup, lazy_subcommands={"testcmd": ("os.path", "join", "Test command")}
+    )
     def test_cli():
         pass
 
@@ -228,7 +231,5 @@ def test_cli_startup_benchmark():
     avg_duration = sum(durations) / len(durations)
     max_duration = max(durations)
 
-    assert (
-        avg_duration < 0.3
-    ), f"Average startup: {avg_duration:.3f}s (expected < 0.3s)"
+    assert avg_duration < 0.3, f"Average startup: {avg_duration:.3f}s (expected < 0.3s)"
     assert max_duration < 0.5, f"Max startup: {max_duration:.3f}s (expected < 0.5s)"

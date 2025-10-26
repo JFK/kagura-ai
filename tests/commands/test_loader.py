@@ -1,9 +1,9 @@
 """Tests for CommandLoader."""
 
-import pytest
 from pathlib import Path
 
-from kagura.commands.command import Command
+import pytest
+
 from kagura.commands.loader import CommandLoader
 
 

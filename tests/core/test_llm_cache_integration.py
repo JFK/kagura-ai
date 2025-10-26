@@ -18,6 +18,7 @@ from kagura.core.llm import LLMConfig, call_llm, get_llm_cache, set_llm_cache
 @pytest.fixture
 def mock_llm_response():
     """Mock LLM response object"""
+
     class MockMessage:
         def __init__(self, content: str):
             self.content = content
@@ -133,7 +134,7 @@ class TestLLMCacheIntegration:
         config = LLMConfig(
             model="claude-3-5-sonnet-20241022",
             enable_cache=True,
-            cache_ttl=7200  # 2 hours
+            cache_ttl=7200,  # 2 hours
         )
 
         await call_llm("test prompt", config)
@@ -230,7 +231,7 @@ class TestLLMCacheIntegration:
         cache = get_llm_cache()
         stats = cache.stats()
         assert stats["size"] == 3  # 3 unique prompts
-        assert stats["hits"] == 2   # 2 repeated calls
+        assert stats["hits"] == 2  # 2 repeated calls
         assert stats["misses"] == 3  # 3 initial calls
         assert stats["hit_rate"] == 2 / 5
 
@@ -323,7 +324,9 @@ class TestCacheKeyGeneration:
         assert stats["size"] == 2  # Different models = different keys
 
     @pytest.mark.asyncio
-    async def test_same_prompt_same_model_same_key(self, mock_llm_response, monkeypatch):
+    async def test_same_prompt_same_model_same_key(
+        self, mock_llm_response, monkeypatch
+    ):
         """Test same prompt + model creates same cache key"""
         monkeypatch.setattr("kagura.core.llm.litellm.acompletion", mock_llm_response)
 
@@ -335,4 +338,4 @@ class TestCacheKeyGeneration:
         cache = get_llm_cache()
         stats = cache.stats()
         assert stats["size"] == 1  # Same key reused
-        assert stats["hits"] == 1   # Second call hit cache
+        assert stats["hits"] == 1  # Second call hit cache

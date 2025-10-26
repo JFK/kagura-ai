@@ -30,9 +30,7 @@ def test_agent_builder_with_model():
 def test_agent_builder_with_memory():
     """Test configuring memory."""
     builder = AgentBuilder("test_agent").with_memory(
-        type="rag",
-        max_messages=50,
-        enable_rag=True
+        type="rag", max_messages=50, enable_rag=True
     )
 
     assert builder._config.memory is not None
@@ -67,8 +65,7 @@ def test_agent_builder_with_routing():
     """Test configuring routing."""
     routes = {"translation": "translation_agent", "code_review": "review_agent"}
     builder = AgentBuilder("test_agent").with_routing(
-        strategy="semantic",
-        routes=routes
+        strategy="semantic", routes=routes
     )
 
     assert builder._config.routing is not None
@@ -78,6 +75,7 @@ def test_agent_builder_with_routing():
 
 def test_agent_builder_with_tools():
     """Test adding tools."""
+
     def tool1():
         pass
 
@@ -93,16 +91,14 @@ def test_agent_builder_with_tools():
 
 def test_agent_builder_with_hooks():
     """Test adding hooks."""
+
     def pre_hook():
         pass
 
     def post_hook():
         pass
 
-    builder = AgentBuilder("test_agent").with_hooks(
-        pre=[pre_hook],
-        post=[post_hook]
-    )
+    builder = AgentBuilder("test_agent").with_hooks(pre=[pre_hook], post=[post_hook])
 
     assert builder._config.hooks is not None
     assert len(builder._config.hooks.pre) == 1
@@ -113,10 +109,7 @@ def test_agent_builder_with_hooks():
 
 def test_agent_builder_with_context():
     """Test setting context parameters."""
-    builder = AgentBuilder("test_agent").with_context(
-        temperature=0.8,
-        max_tokens=2000
-    )
+    builder = AgentBuilder("test_agent").with_context(temperature=0.8, max_tokens=2000)
 
     assert builder._config.context["temperature"] == 0.8
     assert builder._config.context["max_tokens"] == 2000
@@ -160,6 +153,7 @@ def test_agent_builder_build():
 @pytest.mark.asyncio
 async def test_agent_builder_full_configuration():
     """Test building agent with full configuration."""
+
     def test_tool():
         return "tool result"
 
@@ -205,10 +199,7 @@ def test_agent_builder_repr():
 def test_memory_config():
     """Test MemoryConfig."""
     config = MemoryConfig(
-        type="rag",
-        max_messages=50,
-        enable_rag=True,
-        session_id="test_session"
+        type="rag", max_messages=50, enable_rag=True, session_id="test_session"
     )
 
     assert config.type == "rag"
@@ -220,10 +211,7 @@ def test_memory_config():
 def test_routing_config():
     """Test RoutingConfig."""
     routes = {"route1": "agent1"}
-    config = RoutingConfig(
-        strategy="llm",
-        routes=routes
-    )
+    config = RoutingConfig(strategy="llm", routes=routes)
 
     assert config.strategy == "llm"
     assert config.routes == routes
@@ -231,13 +219,11 @@ def test_routing_config():
 
 def test_hooks_config():
     """Test HooksConfig."""
+
     def hook1():
         pass
 
-    config = HooksConfig(
-        pre=[hook1],
-        post=[]
-    )
+    config = HooksConfig(pre=[hook1], post=[])
 
     assert len(config.pre) == 1
     assert len(config.post) == 0
@@ -252,7 +238,7 @@ def test_agent_configuration():
         routing=RoutingConfig(strategy="keyword"),
         tools=[],
         hooks=HooksConfig(),
-        context={"temperature": 0.7}
+        context={"temperature": 0.7},
     )
 
     assert config.name == "test_agent"
@@ -267,7 +253,6 @@ def test_agent_configuration():
 
 def test_agent_builder_with_memory_integration():
     """Test building agent with memory integration."""
-    from pathlib import Path
 
     builder = (
         AgentBuilder("memory_agent")
@@ -292,11 +277,7 @@ def test_agent_builder_with_rag_memory():
     builder = (
         AgentBuilder("rag_agent")
         .with_model("gpt-5-mini")
-        .with_memory(
-            type="rag",
-            enable_rag=True,
-            persist_dir=Path("/tmp/kagura_test")
-        )
+        .with_memory(type="rag", enable_rag=True, persist_dir=Path("/tmp/kagura_test"))
     )
 
     agent = builder.build()
@@ -309,6 +290,7 @@ def test_agent_builder_with_rag_memory():
 
 def test_agent_builder_with_tools_integration():
     """Test building agent with tools integration."""
+
     def search_tool(query: str) -> str:
         """Search for information"""
         return f"Results for: {query}"
@@ -334,7 +316,6 @@ def test_agent_builder_with_tools_integration():
 
 def test_agent_builder_memory_and_tools_integration():
     """Test building agent with both memory and tools."""
-    from pathlib import Path
 
     def test_tool() -> str:
         """Test tool"""

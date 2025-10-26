@@ -7,7 +7,6 @@ from pydantic import BaseModel
 
 from kagura.core import workflow
 
-
 # ===== @workflow.chain Tests =====
 
 
@@ -134,7 +133,7 @@ async def test_workflow_parallel_with_run_parallel():
 
     async def task_c(x: int) -> int:
         await asyncio.sleep(0.01)
-        return x ** 2
+        return x**2
 
     @workflow.parallel
     async def parallel_with_helper(value: int) -> dict[str, int]:
@@ -309,6 +308,7 @@ async def test_workflow_chain_with_parallel():
 
     async def parallel_search(query: str) -> list[str]:
         """Parallel search across multiple sources"""
+
         async def source_a(q: str) -> str:
             await asyncio.sleep(0.01)
             return f"A: {q}"
@@ -352,9 +352,7 @@ async def test_workflow_stateful_with_parallel():
     async def multi_source_workflow(state: MultiSourceState) -> MultiSourceState:
         """Stateful workflow with parallel fetching"""
         # Fetch from both sources in parallel
-        results = await asyncio.gather(
-            fetch_a(state.query), fetch_b(state.query)
-        )
+        results = await asyncio.gather(fetch_a(state.query), fetch_b(state.query))
 
         state.source_a_result = results[0]
         state.source_b_result = results[1]
@@ -402,8 +400,6 @@ async def test_run_parallel_preserves_order():
         await asyncio.sleep(0.01)
         return value
 
-    results = await workflow.run_parallel(
-        z=task(26), a=task(1), m=task(13)
-    )
+    results = await workflow.run_parallel(z=task(26), a=task(1), m=task(13))
 
     assert results == {"z": 26, "a": 1, "m": 13}

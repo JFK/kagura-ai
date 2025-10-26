@@ -2,8 +2,6 @@
 
 import time
 
-import pytest
-
 from kagura.testing.utils import Timer
 
 

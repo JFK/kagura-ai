@@ -1,18 +1,21 @@
 """Tests for @agent decorator implementation"""
-import pytest
+
 from unittest.mock import AsyncMock, patch
+
+import pytest
+
 from kagura import agent
 
 
 @pytest.mark.asyncio
 async def test_agent_basic():
     """Test basic @agent functionality"""
-    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+    with patch("kagura.core.decorators.call_llm", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = "Hello, Alice!"
 
         @agent
         async def greet(name: str) -> str:
-            '''Say hello to {{ name }}'''
+            """Say hello to {{ name }}"""
             pass
 
         result = await greet("Alice")
@@ -26,12 +29,12 @@ async def test_agent_basic():
 @pytest.mark.asyncio
 async def test_agent_with_model():
     """Test @agent with model parameter"""
-    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+    with patch("kagura.core.decorators.call_llm", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = "This is a summary."
 
         @agent(model="gpt-5-mini")
         async def summarize(text: str) -> str:
-            '''Summarize this text: {{ text }}'''
+            """Summarize this text: {{ text }}"""
             pass
 
         result = await summarize("This is a test text.")
@@ -44,12 +47,12 @@ async def test_agent_with_model():
 @pytest.mark.asyncio
 async def test_agent_multiple_params():
     """Test @agent with multiple parameters"""
-    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+    with patch("kagura.core.decorators.call_llm", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = "こんにちは"
 
         @agent
         async def translate(text: str, language: str) -> str:
-            '''Translate "{{ text }}" to {{ language }}'''
+            """Translate "{{ text }}" to {{ language }}"""
             pass
 
         result = await translate("Hello", "Japanese")
@@ -64,12 +67,12 @@ async def test_agent_multiple_params():
 @pytest.mark.asyncio
 async def test_agent_temperature():
     """Test @agent with temperature parameter"""
-    with patch('kagura.core.decorators.call_llm', new_callable=AsyncMock) as mock_llm:
+    with patch("kagura.core.decorators.call_llm", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = "4"
 
         @agent(temperature=0.3)
         async def respond(question: str) -> str:
-            '''Answer: {{ question }}'''
+            """Answer: {{ question }}"""
             pass
 
         result = await respond("What is 2+2?")

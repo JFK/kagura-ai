@@ -1,9 +1,10 @@
 """Tests for SelfImprovingMetaAgent"""
 
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from kagura.meta.self_improving import SelfImprovingMetaAgent
+
 from kagura.meta.error_analyzer import ErrorAnalysis
+from kagura.meta.self_improving import SelfImprovingMetaAgent
 
 
 @pytest.fixture

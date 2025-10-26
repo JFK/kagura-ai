@@ -15,9 +15,7 @@ class TestSuggestAlternatives:
     def test_pwd_command_not_found(self):
         """Test alternatives for pwd command not found."""
         alternatives = _suggest_alternatives(
-            "pwd",
-            "bash: pwd: command not found",
-            "show current directory"
+            "pwd", "bash: pwd: command not found", "show current directory"
         )
 
         assert len(alternatives) >= 2
@@ -27,9 +25,7 @@ class TestSuggestAlternatives:
     def test_tree_command_not_found(self):
         """Test alternatives for tree command not found."""
         alternatives = _suggest_alternatives(
-            "tree -L 1",
-            "bash: tree: command not found",
-            "show directory tree"
+            "tree -L 1", "bash: tree: command not found", "show directory tree"
         )
 
         assert len(alternatives) >= 1
@@ -40,7 +36,7 @@ class TestSuggestAlternatives:
         alternatives = _suggest_alternatives(
             "find . -name '*.py'",
             "find: ./some/dir: Permission denied",
-            "find Python files"
+            "find Python files",
         )
 
         assert len(alternatives) >= 1
@@ -49,9 +45,7 @@ class TestSuggestAlternatives:
     def test_no_alternatives_for_unknown_error(self):
         """Test no alternatives for unknown errors."""
         alternatives = _suggest_alternatives(
-            "some_weird_command",
-            "unknown error occurred",
-            "do something"
+            "some_weird_command", "unknown error occurred", "do something"
         )
 
         assert len(alternatives) == 0

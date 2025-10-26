@@ -2,8 +2,12 @@
 
 import pytest
 
-from kagura.observability import EventStore, Telemetry, get_global_telemetry, set_global_telemetry
-
+from kagura.observability import (
+    EventStore,
+    Telemetry,
+    get_global_telemetry,
+    set_global_telemetry,
+)
 
 # ===== Initialization Tests =====
 
@@ -303,10 +307,9 @@ def test_set_global_telemetry():
 @pytest.mark.asyncio
 async def test_global_telemetry_usage():
     """Test using global telemetry."""
-    from kagura.observability.instrumentation import get_global_telemetry
-
     # Reset global state
     import kagura.observability.instrumentation as instr_module
+    from kagura.observability.instrumentation import get_global_telemetry
 
     instr_module._global_telemetry = None
 

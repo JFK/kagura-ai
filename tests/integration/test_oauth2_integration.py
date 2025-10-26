@@ -11,8 +11,9 @@ Run with:
     pytest -m integration tests/integration/test_oauth2_integration.py -v
 """
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 
 def has_oauth_credentials() -> bool:
@@ -24,7 +25,7 @@ def has_oauth_credentials() -> bool:
 @pytest.mark.integration
 @pytest.mark.skipif(
     not has_oauth_credentials(),
-    reason="OAuth2 credentials not available (client_secrets.json missing)"
+    reason="OAuth2 credentials not available (client_secrets.json missing)",
 )
 class TestOAuth2Integration:
     """Integration tests for OAuth2 authentication with real Google API"""
@@ -50,13 +51,14 @@ class TestOAuth2Integration:
 
         # Check file is readable
         import json
+
         with open(client_secrets) as f:
             data = json.load(f)
 
         # Verify it's an OAuth client secrets file
-        assert "installed" in data or "web" in data, (
-            "Invalid client_secrets.json format"
-        )
+        assert (
+            "installed" in data or "web" in data
+        ), "Invalid client_secrets.json format"
 
     def test_authentication_status(self):
         """Test authentication status check"""
@@ -77,7 +79,6 @@ class TestOAuth2Integration:
     def test_get_token_when_authenticated(self):
         """Test token retrieval when authenticated"""
         from kagura.auth import OAuth2Manager
-        from kagura.auth.exceptions import NotAuthenticatedError
 
         auth = OAuth2Manager(provider="google")
 
@@ -140,15 +141,13 @@ class TestOAuth2Integration:
         key_stat = os.stat(auth.key_file)
         key_perms = stat.S_IMODE(key_stat.st_mode)
         assert key_perms == 0o600, (
-            f"Key file has wrong permissions: {oct(key_perms)} "
-            f"(expected 0o600)"
+            f"Key file has wrong permissions: {oct(key_perms)} " f"(expected 0o600)"
         )
 
 
 @pytest.mark.integration
 @pytest.mark.skipif(
-    not has_oauth_credentials(),
-    reason="OAuth2 credentials not available"
+    not has_oauth_credentials(), reason="OAuth2 credentials not available"
 )
 @pytest.mark.asyncio
 class TestLLMOAuth2Integration:
@@ -156,9 +155,8 @@ class TestLLMOAuth2Integration:
 
     async def test_call_llm_with_oauth2(self):
         """Test actual LLM call using OAuth2 authentication"""
-        from kagura.core.llm import LLMConfig, call_llm
         from kagura.auth import OAuth2Manager
-        from kagura.auth.exceptions import NotAuthenticatedError
+        from kagura.core.llm import LLMConfig, call_llm
 
         # Check authentication
         auth = OAuth2Manager(provider="google")
@@ -171,7 +169,7 @@ class TestLLMOAuth2Integration:
             auth_type="oauth2",
             oauth_provider="google",
             temperature=0.7,
-            max_tokens=50
+            max_tokens=50,
         )
 
         # Call LLM
@@ -183,15 +181,16 @@ class TestLLMOAuth2Integration:
         assert len(response) > 0
 
         # Response should mention "4" or "four" (case insensitive)
-        assert "4" in response or "four" in response.lower(), (
-            f"Expected response to mention '4' or 'four', got: {response}"
-        )
+        assert (
+            "4" in response or "four" in response.lower()
+        ), f"Expected response to mention '4' or 'four', got: {response}"
 
     async def test_oauth2_token_used_in_llm_call(self, monkeypatch):
         """Test that OAuth2 token is actually used in LLM call"""
-        from kagura.core.llm import LLMConfig, call_llm
-        from kagura.auth import OAuth2Manager
         from unittest.mock import MagicMock, patch
+
+        from kagura.auth import OAuth2Manager
+        from kagura.core.llm import LLMConfig, call_llm
 
         # Check authentication
         auth = OAuth2Manager(provider="google")
@@ -217,7 +216,7 @@ class TestLLMOAuth2Integration:
             config = LLMConfig(
                 model="gemini/gemini-1.5-flash",
                 auth_type="oauth2",
-                oauth_provider="google"
+                oauth_provider="google",
             )
 
             await call_llm("What is 2+2?", config)

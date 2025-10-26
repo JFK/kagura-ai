@@ -4,7 +4,6 @@ import pytest
 
 from kagura.observability import EventStore, TelemetryCollector
 
-
 # ===== Initialization Tests =====
 
 

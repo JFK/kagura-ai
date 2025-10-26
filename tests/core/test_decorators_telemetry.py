@@ -1,7 +1,8 @@
 """Tests for @agent decorator telemetry integration"""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from kagura import agent
 from kagura.observability import EventStore, Telemetry, set_global_telemetry
@@ -19,6 +20,7 @@ def mock_telemetry_store():
 @pytest.fixture(autouse=True)
 def mock_openai_sdk():
     """Mock OpenAI SDK for all telemetry tests (default model is gpt-5-mini)"""
+
     class MockMessage:
         def __init__(self, content: str):
             self.content = content
@@ -64,7 +66,9 @@ async def test_agent_records_telemetry(mock_llm, mock_telemetry_store):
     """Test that @agent automatically records telemetry"""
     # Mock LLM response with usage (no tool calls)
     mock_llm.return_value = MagicMock(
-        choices=[MagicMock(message=MagicMock(content="Hello, Alice!", tool_calls=None))],
+        choices=[
+            MagicMock(message=MagicMock(content="Hello, Alice!", tool_calls=None))
+        ],
         usage=MagicMock(prompt_tokens=10, completion_tokens=5, total_tokens=15),
     )
 
@@ -117,7 +121,9 @@ async def test_agent_telemetry_disabled(mock_llm, mock_telemetry_store):
     # No telemetry recorded
     executions = mock_telemetry_store.get_executions()
     # Previous test may have recorded, so check for this specific agent
-    agent_executions = [e for e in executions if e["agent_name"] == "no_telemetry_agent"]
+    agent_executions = [
+        e for e in executions if e["agent_name"] == "no_telemetry_agent"
+    ]
     assert len(agent_executions) == 0
 
 
@@ -127,7 +133,9 @@ async def test_agent_records_error(mock_telemetry_store):
     # Patch OpenAI SDK to raise error
     with patch("openai.AsyncOpenAI") as mock_client_class:
         mock_client = MagicMock()
-        mock_client.chat.completions.create = AsyncMock(side_effect=Exception("API Error"))
+        mock_client.chat.completions.create = AsyncMock(
+            side_effect=Exception("API Error")
+        )
         mock_client_class.return_value = mock_client
 
         @agent
@@ -207,7 +215,9 @@ async def test_telemetry_with_memory(mock_telemetry_store):
     """Test telemetry works with memory-enabled agents"""
     from kagura.core.memory import MemoryManager
 
-    with patch("kagura.core.llm.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "kagura.core.llm.litellm.acompletion", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = MagicMock(
             choices=[MagicMock(message=MagicMock(content="Hi"))],
             usage=MagicMock(prompt_tokens=10, completion_tokens=5, total_tokens=15),

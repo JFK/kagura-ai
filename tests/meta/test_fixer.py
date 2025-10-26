@@ -1,8 +1,9 @@
 """Tests for CodeFixer"""
 
 import pytest
-from kagura.meta.fixer import CodeFixer
+
 from kagura.meta.error_analyzer import ErrorAnalysis
+from kagura.meta.fixer import CodeFixer
 
 
 @pytest.fixture

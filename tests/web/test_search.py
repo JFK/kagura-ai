@@ -146,9 +146,7 @@ class TestSearchFunction:
         # Set only new variable name
         monkeypatch.setenv("BRAVE_SEARCH_API_KEY", "test_key")
 
-        with patch(
-            "kagura.web.search.BraveSearch.search"
-        ) as mock_brave_search:
+        with patch("kagura.web.search.BraveSearch.search") as mock_brave_search:
             mock_brave_search.return_value = [
                 SearchResult(
                     title="Test",
@@ -163,6 +161,7 @@ class TestSearchFunction:
             assert len(results) == 1
             assert results[0].source == "brave"
             mock_brave_search.assert_called_once_with("test query", 5)
+
 
 class TestIntegration:
     """Integration tests (require actual dependencies)."""

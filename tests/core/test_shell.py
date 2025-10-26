@@ -57,7 +57,7 @@ class TestShellExecutor:
         # Test with empty whitelist to focus on blacklist
         executor = ShellExecutor(
             allowed_commands=None,
-            blocked_commands={"sudo": "exact", "rm -rf /": "pattern"}
+            blocked_commands={"sudo": "exact", "rm -rf /": "pattern"},
         )
 
         # Should raise SecurityError for blocked commands
@@ -79,7 +79,8 @@ class TestShellExecutor:
     async def test_timeout(self):
         """Test command timeout enforcement."""
         executor = ShellExecutor(
-            timeout=1, allowed_commands=["sleep"]  # Allow sleep for this test
+            timeout=1,
+            allowed_commands=["sleep"],  # Allow sleep for this test
         )
 
         with pytest.raises(TimeoutError, match="timed out"):

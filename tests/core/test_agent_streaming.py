@@ -59,7 +59,7 @@ async def test_streaming_basic_response():
 @pytest.mark.asyncio
 async def test_streaming_with_mock():
     """Test streaming with mocked LLM response"""
-    from unittest.mock import AsyncMock, MagicMock, patch
+    from unittest.mock import patch
 
     @agent(stream=True, model="gpt-4o-mini")
     async def streaming_agent(query: str) -> str:
@@ -74,9 +74,7 @@ async def test_streaming_with_mock():
             yield chunk
 
     # Patch the stream_openai_direct function
-    with patch(
-        "kagura.core.llm_openai.stream_openai_direct", side_effect=mock_stream
-    ):
+    with patch("kagura.core.llm_openai.stream_openai_direct", side_effect=mock_stream):
         # Test streaming
         chunks = []
         async for chunk in streaming_agent.stream("Say hello"):
@@ -138,9 +136,7 @@ async def test_streaming_with_memory():
         """Answer {{ query }}"""
         pass
 
-    with patch(
-        "kagura.core.llm_openai.stream_openai_direct", side_effect=mock_stream
-    ):
+    with patch("kagura.core.llm_openai.stream_openai_direct", side_effect=mock_stream):
         chunks = []
         async for chunk in streaming_agent_with_memory.stream("test"):
             chunks.append(chunk)

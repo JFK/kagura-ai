@@ -1,5 +1,5 @@
 """Pytest configuration"""
-import os
+
 import tempfile
 from pathlib import Path
 from typing import Iterator
@@ -14,7 +14,7 @@ def sample_agent():
 
     @agent
     async def hello(name: str) -> str:
-        '''Say hello to {{ name }}'''
+        """Say hello to {{ name }}"""
         return f"Hello, {name}!"
 
     return hello
@@ -51,6 +51,7 @@ def worker_tmp_dir(worker_id: str) -> Iterator[Path]:
     # Cleanup after session
     try:
         import shutil
+
         shutil.rmtree(worker_tmp, ignore_errors=True)
     except Exception:
         pass

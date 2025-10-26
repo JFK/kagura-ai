@@ -11,7 +11,6 @@ from kagura.commands import (
     HookResult,
     HookType,
     InlineCommandExecutor,
-    hook,
 )
 
 
@@ -60,6 +59,7 @@ class TestHook:
 
     def test_hook_creation(self):
         """Test creating a hook."""
+
         def callback(tool_input):
             return HookResult.ok()
 
@@ -77,6 +77,7 @@ class TestHook:
 
     def test_hook_matches_specific(self):
         """Test hook matching specific tool."""
+
         def callback(tool_input):
             return HookResult.ok()
 
@@ -93,6 +94,7 @@ class TestHook:
 
     def test_hook_matches_all(self):
         """Test hook matching all tools."""
+
         def callback(tool_input):
             return HookResult.ok()
 
@@ -109,6 +111,7 @@ class TestHook:
 
     def test_hook_execute(self):
         """Test executing a hook."""
+
         def callback(tool_input):
             assert tool_input["command"] == "test"
             return HookResult.ok("Success")
@@ -126,6 +129,7 @@ class TestHook:
 
     def test_hook_disabled(self):
         """Test disabled hook returns OK."""
+
         def callback(tool_input):
             return HookResult.block("Should not run")
 
@@ -142,6 +146,7 @@ class TestHook:
 
     def test_hook_exception_handling(self):
         """Test hook exception is caught."""
+
         def callback(tool_input):
             raise ValueError("Oops!")
 
@@ -362,6 +367,7 @@ class TestHookDecorators:
         """Test @hook.pre_tool_use decorator."""
         registry = HookRegistry()
         from kagura.commands.hook_decorators import HookDecorators
+
         test_hook = HookDecorators(registry)
 
         @test_hook.pre_tool_use("bash")
@@ -377,6 +383,7 @@ class TestHookDecorators:
         """Test @hook.post_tool_use decorator."""
         registry = HookRegistry()
         from kagura.commands.hook_decorators import HookDecorators
+
         test_hook = HookDecorators(registry)
 
         @test_hook.post_tool_use("git")
@@ -392,6 +399,7 @@ class TestHookDecorators:
         """Test @hook.validation decorator."""
         registry = HookRegistry()
         from kagura.commands.hook_decorators import HookDecorators
+
         test_hook = HookDecorators(registry)
 
         @test_hook.validation("*")

@@ -3,8 +3,6 @@
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from kagura.core.decorators import agent
 from kagura.core.memory import MemoryManager
 

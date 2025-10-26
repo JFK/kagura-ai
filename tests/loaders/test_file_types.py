@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 # Direct import to avoid gemini dependency issues in tests
 import kagura.loaders.file_types as file_types_module
 

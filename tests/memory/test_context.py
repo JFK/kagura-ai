@@ -1,6 +1,5 @@
 """Tests for ContextMemory."""
 
-import pytest
 
 from kagura.core.memory.context import ContextMemory, Message
 

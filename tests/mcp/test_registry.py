@@ -1,4 +1,5 @@
 """Tests for Agent Registry"""
+
 import pytest
 
 from kagura.core.registry import AgentRegistry
@@ -14,6 +15,7 @@ def registry():
 
 def test_register_agent(registry):
     """Test agent registration"""
+
     def my_agent():
         pass
 
@@ -25,6 +27,7 @@ def test_register_agent(registry):
 
 def test_register_duplicate_raises_error(registry):
     """Test that registering duplicate agent name raises error"""
+
     def agent1():
         pass
 
@@ -44,6 +47,7 @@ def test_get_nonexistent_agent(registry):
 
 def test_get_all_agents(registry):
     """Test getting all agents"""
+
     def agent1():
         pass
 
@@ -62,6 +66,7 @@ def test_get_all_agents(registry):
 
 def test_list_names(registry):
     """Test listing agent names"""
+
     def agent1():
         pass
 
@@ -80,6 +85,7 @@ def test_list_names(registry):
 
 def test_unregister_agent(registry):
     """Test unregistering agent"""
+
     def my_agent():
         pass
 
@@ -98,6 +104,7 @@ def test_unregister_nonexistent_raises_error(registry):
 
 def test_clear_registry(registry):
     """Test clearing all agents from registry"""
+
     def agent1():
         pass
 

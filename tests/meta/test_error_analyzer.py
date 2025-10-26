@@ -1,8 +1,10 @@
 """Tests for ErrorAnalyzer"""
 
-import pytest
 from unittest.mock import AsyncMock, patch
-from kagura.meta.error_analyzer import ErrorAnalyzer, ErrorAnalysis
+
+import pytest
+
+from kagura.meta.error_analyzer import ErrorAnalysis, ErrorAnalyzer
 
 
 @pytest.fixture
@@ -62,7 +64,10 @@ df['column'].mean()
         analysis = await error_analyzer.analyze(e, agent_code, user_input)
 
         assert analysis.error_type == "AttributeError"
-        assert "typo" in analysis.root_cause.lower() or "attribute" in analysis.root_cause.lower()
+        assert (
+            "typo" in analysis.root_cause.lower()
+            or "attribute" in analysis.root_cause.lower()
+        )
         assert analysis.fix_code is not None
         assert "column" in analysis.fix_code
 
@@ -87,7 +92,10 @@ result = fibonacci(int(n))
         analysis = await error_analyzer.analyze(e, agent_code, user_input)
 
         assert analysis.error_type == "TypeError"
-        assert "type" in analysis.root_cause.lower() or "convert" in analysis.suggested_fix.lower()
+        assert (
+            "type" in analysis.root_cause.lower()
+            or "convert" in analysis.suggested_fix.lower()
+        )
 
 
 @pytest.mark.asyncio
