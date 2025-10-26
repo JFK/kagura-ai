@@ -50,7 +50,9 @@ nav:
 
   - API Reference:
     - REST API & MCP Tools: api-reference.md
-    - OpenAPI Specification: api/reference.yaml
+    - OpenAPI Specification:
+      - Overview: api/index.md
+      - YAML Spec: api/reference.yaml
 
   - Examples: https://github.com/JFK/kagura-ai/tree/main/examples
 
