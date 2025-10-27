@@ -139,6 +139,7 @@ class PersistentMemory:
         user_id: str,
         agent_name: Optional[str] = None,
         track_access: bool = False,
+        include_metadata: bool = False,
     ) -> Optional[Any]:
         """Retrieve persistent memory.
 
@@ -147,30 +148,45 @@ class PersistentMemory:
             user_id: User identifier (memory owner)
             agent_name: Optional agent name for scoping
             track_access: If True, record access for frequency tracking
+            include_metadata: If True, return tuple of (value, metadata)
 
         Returns:
-            Stored value or None
+            Stored value or tuple of (value, metadata) if include_metadata is True.
         """
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
                 """
-                SELECT value FROM memories
+                SELECT value, metadata, agent_name
+                FROM memories
                 WHERE key = ? AND user_id = ?
                   AND (agent_name = ? OR agent_name IS NULL)
-                ORDER BY updated_at DESC
+                ORDER BY CASE
+                    WHEN agent_name = ? THEN 0
+                    WHEN agent_name IS NULL THEN 1
+                    ELSE 2
+                END,
+                updated_at DESC
                 LIMIT 1
                 """,
-                (key, user_id, agent_name),
+                (key, user_id, agent_name, agent_name),
             )
 
             row = cursor.fetchone()
             if row:
+                value_json, metadata_json, row_agent_name = row
+                value = json.loads(value_json)
+                metadata = json.loads(metadata_json) if metadata_json else None
+
                 # Track access if requested
                 if track_access:
-                    self.record_access(key, user_id, agent_name)
+                    self.record_access(key, user_id, row_agent_name)
 
-                return json.loads(row[0])
+                if include_metadata:
+                    return value, metadata
+                return value
 
+        if include_metadata:
+            return None
         return None
 
     def record_access(

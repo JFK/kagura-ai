@@ -267,9 +267,12 @@ async def memory_recall(
         memory = _memory_cache[cache_key]
 
     if scope == "persistent":
-        value = memory.recall(key)
-        # Get metadata from persistent storage
-        metadata = memory.recall(f"_meta_{key}")
+        recall_result = memory.recall(key, include_metadata=True)
+        if recall_result is None:
+            value = None
+            metadata = None
+        else:
+            value, metadata = recall_result
     else:
         value = memory.get_temp(key)
         # Get metadata from working memory
