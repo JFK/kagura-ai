@@ -13,9 +13,17 @@ from kagura.config.env import (
     get_search_cache_ttl,
 )
 from kagura.mcp.builtin.cache import SearchCache
+from kagura.mcp.builtin.common import setup_external_library_logging
 
 # Setup logger
 logger = logging.getLogger(__name__)
+
+# Configure brave_search_python_client logging using common utilities
+setup_external_library_logging(
+    library_name="brave_search_python_client",
+    env_var_name="BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME",
+    filename="brave_search_python_client.log",
+)
 
 # Global search cache instance
 _search_cache: SearchCache | None = None

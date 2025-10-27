@@ -59,6 +59,14 @@ async def memory_store(
 ) -> str:
     """Store information in agent memory
 
+    ⚠️ BEFORE CALLING THIS TOOL: Always ask the user whether they want to store
+    the memory globally (accessible from all conversations) or locally (only this
+    conversation). Never assume without asking!
+
+    Question to ask user:
+    "Should I remember this globally (accessible from all conversations) or just
+    for this conversation?"
+
     Stores data in the specified memory scope. Use this tool when:
     - User explicitly asks to 'remember' or 'save' something
     - Important context needs to be preserved
@@ -66,33 +74,40 @@ async def memory_store(
 
     💡 IMPORTANT: Memory ownership model (v4.0)
     - user_id: WHO owns this memory (e.g., "user_jfk", email, username)
-    - agent_name: WHERE to store ("global" = all threads, "thread_X" = specific)
+    - agent_name: WHERE to store
+      * "global" = ALL conversations (user preferences, facts)
+      * "thread_{id}" = ONLY this conversation (temporary context)
 
     🌐 CROSS-PLATFORM: All memories are tied to user_id, enabling
         true Universal Memory across Claude, ChatGPT, Gemini, etc.
 
     Examples:
-        # Global memory (accessible from all threads)
+        # Global memory (accessible from ALL conversations)
         agent_name="global", key="user_language", value="Japanese",
         tags='["preferences"]'
 
-        # Thread-specific memory (only this conversation)
+        # Thread-specific memory (ONLY this conversation)
         agent_name="thread_chat_123", key="current_topic",
         value="Python tutorial", importance=0.8
 
     Args:
-        agent_name: Agent identifier (use "global" for cross-thread sharing)
+        user_id: User identifier (memory owner)
+        agent_name: ⚠️ CRITICAL CHOICE - Ask user first!
+            - "global": Accessible from ALL conversations (use for preferences,
+              user facts, long-term knowledge)
+            - "thread_{thread_id}": Only THIS conversation (use for temporary
+              context, current task state)
         key: Memory key for retrieval
         value: Information to store
         scope: Memory scope - "persistent" (disk, survives restart)
-            or "working" (in-memory)
+            or "working" (in-memory, cleared on restart)
         tags: JSON array string of tags (e.g., '["python", "coding"]')
         importance: Importance score (0.0-1.0, default 0.5)
         metadata: JSON object string of additional metadata
             (e.g., '{"project": "kagura"}')
 
     Returns:
-        Confirmation message
+        Confirmation message with clear indication of storage scope
 
     Note:
         Both working and persistent memory data are automatically indexed in RAG
@@ -181,7 +196,21 @@ async def memory_store(
         scope == "persistent" and memory.persistent_rag is not None
     )
     rag_status = "" if rag_available else " (RAG unavailable)"
-    return f"Stored '{key}' in {scope} memory for {agent_name}{rag_status}"
+
+    # Provide clear feedback about where memory was stored
+    if agent_name == "global":
+        scope_description = "globally (accessible from ALL conversations)"
+    else:
+        scope_description = f"locally for agent '{agent_name}' (only THIS conversation)"
+
+    persistence = "persistent" if scope == "persistent" else "temporary"
+
+    return (
+        f"✓ Stored '{key}' {scope_description}\n"
+        f"  Storage: {persistence} {scope} memory\n"
+        f"  Owner: {user_id}\n"
+        f"  Semantic search: {'enabled' if rag_available else 'disabled'}{rag_status}"
+    )
 
 
 @tool
