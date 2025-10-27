@@ -128,6 +128,15 @@ Give **every AI** access to:
   - Week 1-2: Remote MCP Server (HTTP/SSE, Auth, Security)
   - Week 3: Memory Export/Import (JSONL backup/migration)
   - Week 4: Production deployment & documentation
+- ✅ **Memory Accuracy Improvements** ([Issue #418](https://github.com/JFK/kagura-ai/issues/418), [#417](https://github.com/JFK/kagura-ai/issues/417))
+  - Phase 1: E5 multilingual embeddings (100+ languages), cross-encoder reranking, multi-dimensional scoring
+  - Phase 2: Hybrid search (BM25 + RRF fusion)
+  - Phase 3: Temporal GraphMemory (time-aware knowledge graph)
+  - Expected **+40-60% precision improvement**
+- ✅ **CLI Enhancements** ([#412](https://github.com/JFK/kagura-ai/issues/412), [#413](https://github.com/JFK/kagura-ai/issues/413), [#415](https://github.com/JFK/kagura-ai/issues/415))
+  - `kagura mcp stats` - MCP tool usage analytics
+  - `kagura mcp log` - Server log viewing with filters
+  - `kagura monitor list` - Relative date display
 
 **Coming Next**:
 - 🔄 **v4.0.0 stable release** (Q1 2026): Final testing and documentation
