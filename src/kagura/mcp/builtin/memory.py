@@ -159,7 +159,8 @@ async def memory_store(
         "updated_at": now.isoformat(),
     }
 
-    # Preserve top-level access to user-supplied metadata fields for backwards compatibility
+    # Preserve top-level access to user-supplied metadata fields
+    # for backwards compatibility
     full_metadata = dict(base_metadata)
     if isinstance(metadata_dict, dict):
         for key, value in metadata_dict.items():
