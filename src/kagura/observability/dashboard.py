@@ -406,7 +406,7 @@ class Dashboard:
     def _create_execution_table(self, executions: list[dict[str, Any]]) -> Table:
         """Create table of executions."""
         table = Table(show_header=True, header_style="bold")
-        table.add_column("Time", style="dim")
+        table.add_column("Date/Time", style="dim")  # Changed from "Time"
         table.add_column("Agent", style="cyan")
         table.add_column("Model", style="magenta")
         table.add_column("Status", justify="center")
@@ -448,9 +448,27 @@ class Dashboard:
         return "-"
 
     def _format_timestamp(self, timestamp: float) -> str:
-        """Format timestamp for display."""
+        """Format timestamp with relative date for better context.
+
+        Returns:
+            Formatted string like "Today 16:43", "Yesterday 23:15", "Oct 25 14:30"
+        """
         dt = datetime.fromtimestamp(timestamp)
-        return dt.strftime("%H:%M:%S")
+        now = datetime.now()
+        delta = now.date() - dt.date()
+
+        # Today
+        if delta.days == 0:
+            return f"Today {dt.strftime('%H:%M')}"
+        # Yesterday
+        elif delta.days == 1:
+            return f"Yesterday {dt.strftime('%H:%M')}"
+        # Last week (show weekday)
+        elif delta.days < 7:
+            return f"{dt.strftime('%a %H:%M')}"  # "Mon 14:30"
+        # Older (show date)
+        else:
+            return f"{dt.strftime('%b %d %H:%M')}"  # "Oct 25 14:30"
 
     def _format_status(self, status: str) -> str:
         """Format status with color."""
