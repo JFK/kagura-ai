@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Any
 
 from kagura import tool
 from kagura.config.env import (
@@ -353,7 +354,7 @@ async def brave_news_search(
                             "height": getattr(thumbnail, "height", None),
                         }
 
-                result_item = {
+                result_item: dict[str, Any] = {
                     "title": str(getattr(item, "title", "")),
                     "url": str(getattr(item, "url", "")),  # Convert HttpUrl to str
                     "description": str(getattr(item, "description", "")),
