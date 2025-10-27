@@ -36,7 +36,8 @@ class MemoryManager:
         """Initialize memory manager.
 
         Args:
-            user_id: User identifier (memory owner) - REQUIRED
+            user_id: User identifier (memory owner) - REQUIRED.
+                Will be normalized to lowercase for consistency.
             agent_name: Optional agent name for scoping
             persist_dir: Directory for persistent storage
             max_messages: Maximum messages in context
@@ -49,7 +50,8 @@ class MemoryManager:
             compression_policy: Compression configuration
             model: LLM model name for compression
         """
-        self.user_id = user_id
+        # Normalize user_id to lowercase for case-insensitive matching
+        self.user_id = user_id.lower()
         self.agent_name = agent_name
 
         # Initialize memory types
