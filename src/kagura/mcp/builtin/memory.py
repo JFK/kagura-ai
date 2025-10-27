@@ -427,7 +427,7 @@ async def memory_list(
                 if key.startswith("_meta_"):
                     continue
 
-                value = memory.get_temp(key)
+                value = memory.working.get(key)
                 results.append(
                     {
                         "key": key,
@@ -1051,3 +1051,100 @@ async def memory_get_user_pattern(
         return json.dumps(
             {"error": f"Failed to analyze user pattern: {str(e)}"}, indent=2
         )
+
+
+@tool
+async def memory_stats(
+    user_id: str,
+    agent_name: str = "global",
+) -> str:
+    """Get memory health report and statistics (read-only)
+
+    Provides insights into memory usage without making any changes.
+    Use this tool when:
+    - User asks "how much do you remember?"
+    - Checking memory health
+    - Looking for cleanup opportunities
+
+    💡 READ-ONLY: Does NOT delete or modify memories
+
+    Args:
+        user_id: User identifier
+        agent_name: Agent identifier (default: "global")
+
+    Returns:
+        JSON with statistics and recommendations
+    """
+    enable_rag = True
+    memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
+
+    try:
+        # Count memories
+        working_keys_all = memory.working.keys()
+        working_count = len([k for k in working_keys_all if not k.startswith("_meta_")])
+        persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
+        persistent_count = len(persistent_mems)
+
+        # Analyze duplicates
+        working_keys = [k for k in working_keys_all if not k.startswith("_meta_")]
+        duplicates = sum(
+            1 for k in working_keys if any(m["key"] == k for m in persistent_mems)
+        )
+
+        # Analyze old memories (>90 days)
+        from datetime import datetime, timedelta
+        old_threshold = datetime.now() - timedelta(days=90)
+        old_count = 0
+        for mem in persistent_mems:
+            if mem.get("created_at"):
+                try:
+                    created_str = mem["created_at"].replace("Z", "+00:00")
+                    created = datetime.fromisoformat(created_str)
+                    if created < old_threshold:
+                        old_count += 1
+                except (ValueError, AttributeError):
+                    pass
+
+        # Tag distribution
+        tag_counts: dict[str, int] = {}
+        for mem in persistent_mems:
+            meta = mem.get("metadata")
+            if meta and isinstance(meta, dict):
+                tags = meta.get("tags", [])
+                if isinstance(tags, str):
+                    try:
+                        tags = json.loads(tags)
+                    except json.JSONDecodeError:
+                        tags = []
+                for tag in tags:
+                    tag_counts[tag] = tag_counts.get(tag, 0) + 1
+
+        sorted_tags = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)
+        top_tags = dict(sorted_tags[:5])
+
+        # Recommendations
+        recs = []
+        if duplicates:
+            recs.append(f"{duplicates} duplicate keys - consider consolidating")
+        if old_count > 10:
+            recs.append(f"{old_count} memories >90 days - consider export")
+        if not recs:
+            recs.append("Memory health looks good!")
+
+        # Health score
+        total = working_count + persistent_count
+        health = "excellent" if total < 100 else "good" if total < 500 else "fair"
+
+        stats = {
+            "total_memories": total,
+            "breakdown": {"working": working_count, "persistent": persistent_count},
+            "analysis": {"duplicates": duplicates, "old_90days": old_count},
+            "top_tags": top_tags,
+            "recommendations": recs,
+            "health_score": health,
+        }
+
+        return json.dumps(stats, indent=2)
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})

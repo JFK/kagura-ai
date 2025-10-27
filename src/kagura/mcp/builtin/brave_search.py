@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Literal
 
 from kagura import tool
 from kagura.config.env import (
@@ -210,7 +209,7 @@ async def brave_news_search(
     count: int = 5,
     country: str = "US",
     search_lang: str = "en",
-    freshness: Literal["pd", "pw", "pm", "py"] | None = None,
+    freshness: str | None = None,
 ) -> str:
     """Search recent news articles using Brave Search API.
 
@@ -230,12 +229,12 @@ async def brave_news_search(
         count: Number of results (default: 5, max: 20)
         country: Country code (default: "US", "JP" for Japan, "GB" for UK)
         search_lang: Search language (default: "en", "ja" for Japanese)
-        freshness: Time filter:
+        freshness: Time filter (optional):
             - "pd" (past day / 24 hours)
             - "pw" (past week)
             - "pm" (past month)
             - "py" (past year)
-            - None (all time)
+            - None or empty (all time)
 
     Returns:
         JSON string with news results including title, URL, description, and age
@@ -256,6 +255,14 @@ async def brave_news_search(
             count = int(count)
         except ValueError:
             count = 5  # Default fallback
+
+    # Validate freshness parameter
+    valid_freshness = ["pd", "pw", "pm", "py"]
+    if freshness and freshness not in valid_freshness:
+        logger.warning(
+            f"Invalid freshness value '{freshness}', using None (all time)"
+        )
+        freshness = None
 
     try:
         from brave_search_python_client import (  # type: ignore[import-untyped]
