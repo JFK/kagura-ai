@@ -3,6 +3,7 @@
 Provides a unified interface to all memory types (working, context, persistent).
 """
 
+import json
 from pathlib import Path
 from typing import Any, Optional
 
@@ -137,6 +138,7 @@ class MemoryManager:
         if self.config.hybrid_search.enabled:
             try:
                 self.lexical_searcher = BM25Searcher()
+                self._rebuild_lexical_index()
             except ImportError:
                 # rank-bm25 not installed
                 self.lexical_searcher = None
@@ -282,6 +284,64 @@ class MemoryManager:
         """
         return self.context.get_session_id()
 
+    # Helper methods for lexical search
+    def _stringify_value(self, value: Any) -> str:
+        """Convert value to string for indexing and metadata."""
+        if isinstance(value, str):
+            return value
+        try:
+            return json.dumps(value, ensure_ascii=False)
+        except (TypeError, ValueError):
+            return str(value)
+
+    def _prepare_lexical_document(
+        self, key: str, value: Any, metadata: Optional[dict]
+    ) -> dict[str, Any]:
+        """Prepare a document payload for BM25 indexing."""
+        metadata_copy = metadata.copy() if metadata else {}
+        tags = metadata_copy.get("tags", [])
+        value_repr = self._stringify_value(value)
+
+        content_parts = [key]
+        if value_repr:
+            content_parts.append(value_repr)
+        content = ": ".join(content_parts)
+
+        return {
+            "id": key,
+            "key": key,
+            "value": value,
+            "content": content,
+            "metadata": metadata_copy,
+            "scope": "persistent",
+            "tags": tags,
+        }
+
+    def _rebuild_lexical_index(self) -> None:
+        """Rebuild lexical search index from persistent memory."""
+        if not self.lexical_searcher:
+            return
+
+        memories = self.persistent.fetch_all(self.user_id, self.agent_name)
+        documents = [
+            self._prepare_lexical_document(
+                key=memory["key"],
+                value=memory["value"],
+                metadata=memory.get("metadata"),
+            )
+            for memory in memories
+        ]
+
+        if documents:
+            self.lexical_searcher.index_documents(documents)
+        else:
+            self.lexical_searcher.clear()
+
+    def _ensure_lexical_index(self) -> None:
+        """Ensure lexical index is ready before searching."""
+        if self.lexical_searcher and self.lexical_searcher.count() == 0:
+            self._rebuild_lexical_index()
+
     # Persistent Memory
     def remember(self, key: str, value: Any, metadata: Optional[dict] = None) -> None:
         """Store persistent memory.
@@ -298,12 +358,27 @@ class MemoryManager:
         if self.persistent_rag:
             # Create a copy to avoid modifying the original metadata dict
             full_metadata = metadata.copy() if metadata else {}
-            full_metadata.update({"type": "persistent_memory", "key": key})
-            value_str = value if isinstance(value, str) else str(value)
+            value_str = self._stringify_value(value)
+            full_metadata.update(
+                {
+                    "type": "persistent_memory",
+                    "key": key,
+                    "value": value_str,
+                }
+            )
             content = f"{key}: {value_str}"
             self.persistent_rag.store(
                 content, self.user_id, full_metadata, self.agent_name
             )
+
+        # Index for lexical search
+        if self.lexical_searcher:
+            document = self._prepare_lexical_document(
+                key=key,
+                value=value,
+                metadata=metadata,
+            )
+            self.lexical_searcher.add_document(document)
 
     def recall(self, key: str) -> Optional[Any]:
         """Recall persistent memory.
@@ -351,6 +426,10 @@ class MemoryManager:
             except Exception:
                 # Silently fail if RAG deletion fails
                 pass
+
+        # Delete from lexical search index
+        if self.lexical_searcher:
+            self.lexical_searcher.remove_document(key)
 
     def prune_old(self, older_than_days: int = 90) -> int:
         """Remove old memories.
