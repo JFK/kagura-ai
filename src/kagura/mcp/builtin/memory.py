@@ -151,13 +151,21 @@ async def memory_store(
     from datetime import datetime
 
     now = datetime.now()
-    full_metadata = {
-        **metadata_dict,
+    base_metadata = {
+        "metadata": metadata_dict if isinstance(metadata_dict, dict) else metadata_dict,
         "tags": tags_list,
         "importance": importance,
         "created_at": now.isoformat(),
         "updated_at": now.isoformat(),
     }
+
+    # Preserve top-level access to user-supplied metadata fields for backwards compatibility
+    full_metadata = dict(base_metadata)
+    if isinstance(metadata_dict, dict):
+        for key, value in metadata_dict.items():
+            # Avoid overwriting base keys such as "metadata" or timestamps
+            if key not in full_metadata:
+                full_metadata[key] = value
 
     if scope == "persistent":
         # Convert to ChromaDB-compatible format
