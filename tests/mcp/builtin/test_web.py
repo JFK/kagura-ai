@@ -14,36 +14,30 @@ class TestWebSearch:
     @pytest.mark.asyncio
     async def test_web_search_success(self) -> None:
         """Test web_search returns valid JSON when search succeeds."""
-        from dataclasses import dataclass
+        # Mock brave_web_search (web_search is now an alias)
+        mock_result = json.dumps(
+            [
+                {
+                    "title": "Python Tutorial",
+                    "url": "https://example.com/python",
+                    "snippet": "Learn Python programming",
+                    "source": "brave",
+                },
+                {
+                    "title": "FastAPI Guide",
+                    "url": "https://example.com/fastapi",
+                    "snippet": "Modern web framework",
+                    "source": "brave",
+                },
+            ]
+        )
 
-        @dataclass
-        class SearchResult:
-            """Mock SearchResult."""
-
-            title: str
-            url: str
-            snippet: str
-            source: str
-
-        # Mock search results
-        mock_results = [
-            SearchResult(
-                title="Python Tutorial",
-                url="https://example.com/python",
-                snippet="Learn Python programming",
-                source="brave",
-            ),
-            SearchResult(
-                title="FastAPI Guide",
-                url="https://example.com/fastapi",
-                snippet="Modern web framework",
-                source="brave",
-            ),
-        ]
-
-        # Mock the search function (imported dynamically in web_search)
-        with patch("kagura.web.search", new_callable=AsyncMock) as mock_search:
-            mock_search.return_value = mock_results
+        # Mock brave_web_search since web_search delegates to it
+        with patch(
+            "kagura.mcp.builtin.brave_search.brave_web_search",
+            new_callable=AsyncMock,
+        ) as mock_brave:
+            mock_brave.return_value = mock_result
 
             result = await web_search("python tutorial", max_results=2)
 
@@ -58,14 +52,20 @@ class TestWebSearch:
             assert parsed[0]["snippet"] == "Learn Python programming"
             assert parsed[0]["source"] == "brave"
 
-            # Verify search was called correctly
-            mock_search.assert_called_once_with("python tutorial", max_results=2)
+            # Verify brave_web_search was called correctly
+            mock_brave.assert_called_once_with(query="python tutorial", count=2)
 
     @pytest.mark.asyncio
     async def test_web_search_empty_results(self) -> None:
         """Test web_search handles empty results."""
-        with patch("kagura.web.search", new_callable=AsyncMock) as mock_search:
-            mock_search.return_value = []
+        # Mock brave_web_search returning empty list
+        mock_result = json.dumps([])
+
+        with patch(
+            "kagura.mcp.builtin.brave_search.brave_web_search",
+            new_callable=AsyncMock,
+        ) as mock_brave:
+            mock_brave.return_value = mock_result
 
             result = await web_search("nonexistent query")
 
@@ -88,28 +88,24 @@ class TestWebSearch:
     @pytest.mark.asyncio
     async def test_web_search_japanese_characters(self) -> None:
         """Test web_search handles Japanese characters correctly."""
-        from dataclasses import dataclass
+        # Mock brave_web_search with Japanese content
+        mock_result = json.dumps(
+            [
+                {
+                    "title": "Pythonチュートリアル",
+                    "url": "https://example.jp/python",
+                    "snippet": "Python プログラミングを学ぶ",
+                    "source": "brave",
+                }
+            ],
+            ensure_ascii=False,
+        )
 
-        @dataclass
-        class SearchResult:
-            """Mock SearchResult."""
-
-            title: str
-            url: str
-            snippet: str
-            source: str
-
-        mock_results = [
-            SearchResult(
-                title="Pythonチュートリアル",
-                url="https://example.jp/python",
-                snippet="Python プログラミングを学ぶ",
-                source="brave",
-            )
-        ]
-
-        with patch("kagura.web.search", new_callable=AsyncMock) as mock_search:
-            mock_search.return_value = mock_results
+        with patch(
+            "kagura.mcp.builtin.brave_search.brave_web_search",
+            new_callable=AsyncMock,
+        ) as mock_brave:
+            mock_brave.return_value = mock_result
 
             result = await web_search("Python 日本語")
 
