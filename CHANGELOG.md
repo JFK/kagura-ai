@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
-- **Memory Accuracy Improvements (Phase 1)**: Enhanced memory search precision (#418)
+- **Memory Accuracy Improvements (Phases 1 & 2)**: Enhanced memory search precision (#418)
+
+  **Phase 1: Embeddings & Reranking**
   - **E5 Multilingual Embeddings**: Switch from all-MiniLM-L6-v2 to intfloat/multilingual-e5-large
     - 1024-dim embeddings supporting 100+ languages (including Japanese)
     - Query/passage prefix handling for optimal E5 performance
@@ -35,12 +37,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Memory Configuration**: Centralized config with Pydantic models
     - New `memory_config.py` with `MemorySystemConfig`, `EmbeddingConfig`, `RerankConfig`, `RecallScorerConfig`
     - Type-safe configuration management
-  - **New MemoryManager methods**:
+
+  **Phase 2: Hybrid Search**
+  - **BM25 Lexical Search**: Keyword-based matching to complement vector search
+    - New `lexical_search.py` with `BM25Searcher` class
+    - BM25Okapi algorithm for traditional information retrieval
+    - Effective for proper nouns, technical terms, Japanese kanji variants
+  - **RRF Fusion**: Reciprocal Rank Fusion (SIGIR'09) for combining results
+    - New `hybrid_search.py` with `rrf_fusion()` function
+    - Combines vector (semantic) + lexical (keyword) results
+    - Standard k=60 constant, weighted variants available
+  - **Hybrid Recall**: 3-stage retrieval pipeline
+    - `recall_hybrid()` method in MemoryManager
+    - Vector search → Lexical search → RRF fusion → Cross-encoder reranking
+    - Expected +10-15% for Japanese, +20-30% for exact keywords
+  - **Updated Config**: `HybridSearchConfig` (enabled by default)
+    - Configurable RRF constant, weights, candidates_k
+    - Auto-initialization of BM25Searcher
+
+  **New MemoryManager methods**:
     - `recall_semantic_with_rerank()` - Semantic search with optional reranking
-  - **Tests**: Comprehensive test coverage for new components
+    - `recall_hybrid()` - Hybrid search with vector + lexical + RRF + reranking
+
+  **Tests**: Comprehensive test coverage for Phase 1
     - `test_embeddings.py` - E5 prefix handling
     - `test_reranker.py` - Batch reranking
     - `test_recall_scorer.py` - Multi-dimensional scoring
+
+  **Dependencies Added**:
+    - `sentence-transformers>=2.2.0` - Embeddings & reranking
+    - `rank-bm25>=0.2.2` - BM25 lexical search
 
 - **Brave Image Search**: Search for images via Brave Search API (#399)
   - `brave_image_search` MCP tool
