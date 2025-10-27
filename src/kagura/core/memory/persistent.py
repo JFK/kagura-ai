@@ -249,6 +249,60 @@ class PersistentMemory:
 
             return results
 
+    def fetch_all(
+        self,
+        user_id: str,
+        agent_name: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> list[dict[str, Any]]:
+        """Fetch all memories for a user (optionally scoped by agent).
+
+        Args:
+            user_id: User identifier (memory owner)
+            agent_name: Optional agent name filter
+            limit: Optional maximum number of results to return
+
+        Returns:
+            List of memory dictionaries ordered by updated_at descending
+        """
+        query_parts = [
+            "SELECT key, value, created_at, updated_at, metadata,",
+            "       access_count, last_accessed_at",
+            "FROM memories",
+            "WHERE user_id = ?",
+        ]
+        params: list[Any] = [user_id]
+
+        if agent_name is not None:
+            query_parts.append("  AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))")
+            params.extend([agent_name, agent_name])
+
+        query_parts.append("ORDER BY updated_at DESC")
+        if limit is not None:
+            query_parts.append("LIMIT ?")
+            params.append(limit)
+
+        sql = "\n".join(query_parts)
+
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute(sql, tuple(params))
+
+            results: list[dict[str, Any]] = []
+            for row in cursor.fetchall():
+                results.append(
+                    {
+                        "key": row[0],
+                        "value": json.loads(row[1]),
+                        "created_at": row[2],
+                        "updated_at": row[3],
+                        "metadata": json.loads(row[4]) if row[4] else None,
+                        "access_count": row[5] if row[5] is not None else 0,
+                        "last_accessed_at": row[6],
+                    }
+                )
+
+            return results
+
     def forget(self, key: str, user_id: str, agent_name: Optional[str] = None) -> None:
         """Delete memory.
 

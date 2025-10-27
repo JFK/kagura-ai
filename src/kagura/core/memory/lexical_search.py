@@ -59,7 +59,7 @@ class BM25Searcher:
         self.doc_metadata: list[dict[str, Any]] = []
 
     def index_documents(self, documents: list[dict[str, Any]]) -> None:
-        """Index documents for BM25 search.
+        """Index documents for BM25 search (replaces existing index).
 
         Args:
             documents: List of documents with 'id' and 'content' fields
@@ -70,23 +70,64 @@ class BM25Searcher:
             ...     {"id": "doc2", "content": "FastAPI guide"},
             ... ])
         """
-        self.corpus = []
-        self.doc_ids = []
-        self.doc_metadata = []
+        self.clear()
+        self.add_documents(documents)
 
+    def add_documents(self, documents: list[dict[str, Any]]) -> None:
+        """Add multiple documents to the index."""
+        updated = False
         for doc in documents:
-            content = doc.get("content", "")
-            # Simple tokenization (split by whitespace)
-            # TODO: Use better tokenizer for Japanese (e.g., MeCab, Sudachi)
-            tokens = self._tokenize(content)
+            updated |= self._add_document_internal(doc)
+        if updated:
+            self._rebuild_index()
 
-            self.corpus.append(tokens)
-            self.doc_ids.append(doc["id"])
-            self.doc_metadata.append(doc)
+    def add_document(self, document: dict[str, Any]) -> None:
+        """Add or update a single document in the index.
 
-        # Build BM25 index
+        Args:
+            document: Document with at minimum an 'id' field
+        """
+        updated = self._add_document_internal(document)
+        if updated:
+            self._rebuild_index()
+
+    def _add_document_internal(self, document: dict[str, Any]) -> bool:
+        """Internal helper to add/update document without rebuilding index."""
+        doc_id = document.get("id")
+        if not doc_id:
+            raise ValueError("document must include an 'id' field")
+
+        content = document.get("content", "")
+        tokens = self._tokenize(content)
+
+        # Update if exists
+        if doc_id in self.doc_ids:
+            idx = self.doc_ids.index(doc_id)
+            self.corpus[idx] = tokens
+            self.doc_metadata[idx] = document
+            return True
+
+        # Add new
+        self.doc_ids.append(doc_id)
+        self.corpus.append(tokens)
+        self.doc_metadata.append(document)
+        return True
+
+    def remove_document(self, doc_id: str) -> None:
+        """Remove a document from the index by ID."""
+        if doc_id in self.doc_ids:
+            idx = self.doc_ids.index(doc_id)
+            del self.doc_ids[idx]
+            del self.corpus[idx]
+            del self.doc_metadata[idx]
+            self._rebuild_index()
+
+    def _rebuild_index(self) -> None:
+        """Rebuild BM25 index from current corpus."""
         if self.corpus:
             self.bm25 = BM25Okapi(self.corpus)
+        else:
+            self.bm25 = None
 
     def search(
         self,
@@ -134,12 +175,17 @@ class BM25Searcher:
             if score < min_score:
                 continue
 
+            doc = self.doc_metadata[idx]
             result = {
                 "id": self.doc_ids[idx],
-                "content": self.doc_metadata[idx].get("content", ""),
+                "key": doc.get("key", self.doc_ids[idx]),
+                "value": doc.get("value", doc.get("content", "")),
+                "content": doc.get("content", ""),
+                "scope": doc.get("scope", "persistent"),
+                "tags": doc.get("tags", []),
                 "score": score,
                 "rank": rank,
-                "metadata": self.doc_metadata[idx],
+                "metadata": doc.get("metadata", {}),
             }
             results.append(result)
 
