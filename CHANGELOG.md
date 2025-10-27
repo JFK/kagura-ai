@@ -74,6 +74,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Backward compatible: `analyze_user_pattern` supports both old and new formats
   - Rationale: Aligns with v4.0 Universal Memory principle ("Own your memory, bring it to every AI")
 
+### ⚠️ BREAKING CHANGES
+
+- **Removed `web_search` MCP tool** (#393)
+  - The legacy `web_search` tool has been removed from MCP tools
+  - **Migration**: Use `brave_web_search` instead
+  - `brave_web_search` provides better features:
+    - Search result caching
+    - Better parameter names (`count` instead of `max_results`)
+    - More detailed documentation
+  - Additional Brave Search tools available:
+    - `brave_local_search` - Businesses/places
+    - `brave_news_search` - News articles
+    - `brave_image_search` - Images
+    - `brave_video_search` - Videos
+  - Updated: `src/kagura/mcp/permissions.py`, `docs/api-reference.md`, tests
+
 ---
 
 ## [4.0.0] - 2025-10-26
