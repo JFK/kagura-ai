@@ -11,6 +11,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
+- **Memory Accuracy Improvements (Phase 1)**: Enhanced memory search precision (#418)
+  - **E5 Multilingual Embeddings**: Switch from all-MiniLM-L6-v2 to intfloat/multilingual-e5-large
+    - 1024-dim embeddings supporting 100+ languages (including Japanese)
+    - Query/passage prefix handling for optimal E5 performance
+    - New `embeddings.py` module with `Embedder` class
+  - **Cross-Encoder Reranking**: Two-stage retrieval for improved precision
+    - Fast bi-encoder retrieval (K candidates) + accurate cross-encoder reranking (top k)
+    - MS-MARCO MiniLM-L-6-v2 cross-encoder model
+    - New `reranker.py` module with `MemoryReranker` class
+    - Expected 10-15% improvement in top-result precision
+  - **Multi-Dimensional Recall Scoring**: DNC/NTM-inspired composite scoring
+    - Combines semantic similarity, recency, access frequency, graph distance, and importance
+    - Configurable weights and decay parameters
+    - New `recall_scorer.py` module with `RecallScorer` class
+  - **Access Tracking**: Frequency-based memory usage tracking
+    - Added `access_count` and `last_accessed_at` columns to memories table
+    - Automatic access recording in `persistent.py`
+  - **Memory Reindexing**: CLI command for embedding model migration
+    - `kagura memory reindex` with batch processing and progress display
+    - Dry-run mode for safe testing
+    - GPU acceleration support
+  - **Memory Configuration**: Centralized config with Pydantic models
+    - New `memory_config.py` with `MemorySystemConfig`, `EmbeddingConfig`, `RerankConfig`, `RecallScorerConfig`
+    - Type-safe configuration management
+  - **New MemoryManager methods**:
+    - `recall_semantic_with_rerank()` - Semantic search with optional reranking
+  - **Tests**: Comprehensive test coverage for new components
+    - `test_embeddings.py` - E5 prefix handling
+    - `test_reranker.py` - Batch reranking
+    - `test_recall_scorer.py` - Multi-dimensional scoring
+
 - **Brave Image Search**: Search for images via Brave Search API (#399)
   - `brave_image_search` MCP tool
   - Parameters: query, count (1-200), safesearch (off/moderate/strict)
@@ -351,7 +382,14 @@ curl -X POST .../api/v1/memory
 
 ### ⚠️ Breaking Changes
 
-None - v4.0 is developed on separate branch (`364-featv40-phase-a-mcp-first-foundation`)
+- **Memory Embeddings Migration (#418)**: Embedding model changed from all-MiniLM-L6-v2 to multilingual-e5-large
+  - **Action Required**: Re-index all memories with new model
+  - Command: `kagura memory reindex --model intfloat/multilingual-e5-large`
+  - Impact: Existing semantic search results will change
+  - Reason: Improved multilingual support (100+ languages including Japanese) and 1024-dim embeddings
+  - **Database Schema**: Added `access_count` and `last_accessed_at` columns to memories table (auto-migrated)
+
+Note: v4.0 is developed on separate branch (`364-featv40-phase-a-mcp-first-foundation`)
 
 v3.0 remains stable on `main` branch.
 
