@@ -203,6 +203,19 @@ async def brave_web_search(query: str, count: int = 5) -> str:
         return error_msg
 
 
+# Supported country/language combinations for Brave News API
+# Based on typical News API limitations (English-speaking countries mainly)
+_NEWS_COUNTRY_PRESETS = {
+    "US": "en",  # United States - English
+    "GB": "en",  # United Kingdom - English
+    "CA": "en",  # Canada - English
+    "AU": "en",  # Australia - English
+    "NZ": "en",  # New Zealand - English
+    "IE": "en",  # Ireland - English
+    # Limited support for non-English countries
+}
+
+
 @tool
 async def brave_news_search(
     query: str,
@@ -219,35 +232,38 @@ async def brave_news_search(
     - Time-sensitive information from news sources
     - User explicitly asks for "news" or "latest news"
 
-    Supports filtering by:
-    - Country (US, JP, UK, etc.)
-    - Language (en, ja, etc.)
-    - Freshness (last 24h, week, month, year)
+    ⚠️ IMPORTANT: News API primarily supports English-speaking countries
+    - For non-English news, use brave_web_search or web_search instead
+    - Supported countries: US, GB, CA, AU, NZ, IE (English only)
+    - For Japanese/other language news → use brave_web_search
 
     Args:
         query: Search query for news articles
         count: Number of results (default: 5, max: 20)
-        country: Country code (default: "US", "JP" for Japan, "GB" for UK)
-        search_lang: Search language (default: "en", "ja" for Japanese)
+        country: Country code (default: "US")
+            Supported: US, GB, CA, AU, NZ, IE
+            For other countries, automatically falls back to US
+        search_lang: Search language (default: "en")
+            Currently only "en" is well-supported for news
         freshness: Time filter (optional):
             - "pd" (past day / 24 hours)
             - "pw" (past week)
             - "pm" (past month)
             - "py" (past year)
-            - None or empty (all time)
+            - None (all time)
 
     Returns:
-        JSON string with news results including title, URL, description, and age
+        JSON string with news results
 
-    Example:
-        # Breaking news (last 24 hours)
-        query="AI regulation", freshness="pd", count=5
+    Examples:
+        # Breaking US news (recommended)
+        query="AI regulation", freshness="pd"
 
-        # Weekly tech news
-        query="tech industry", freshness="pw", country="US"
+        # UK news
+        query="tech industry", country="GB"
 
-        # Japanese news
-        query="東京オリンピック", country="JP", search_lang="ja"
+        # For Japanese news, use brave_web_search instead:
+        brave_web_search(query="AI ニュース")
     """
     # Ensure count is int (LLM might pass as string)
     if isinstance(count, str):
@@ -255,6 +271,18 @@ async def brave_news_search(
             count = int(count)
         except ValueError:
             count = 5  # Default fallback
+
+    # Validate and auto-correct country/language combination
+    if country not in _NEWS_COUNTRY_PRESETS:
+        logger.warning(
+            f"Country '{country}' may not be supported for news. "
+            f"Falling back to 'US'. Supported: {list(_NEWS_COUNTRY_PRESETS.keys())}"
+        )
+        country = "US"
+        search_lang = "en"
+    else:
+        # Use preset language for country
+        search_lang = _NEWS_COUNTRY_PRESETS[country]
 
     # Validate freshness parameter
     valid_freshness = ["pd", "pw", "pm", "py"]
