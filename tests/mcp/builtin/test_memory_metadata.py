@@ -183,8 +183,24 @@ class TestMetadataIntegrity:
             metadata='{"custom": "field"}',
         )
 
-        # Recall should work normally
-        result = await memory_recall("test_user", "test_agent", "rich_meta", scope="working")
+        # Recall should now include metadata (new behavior)
+        result = await memory_recall(
+            "test_user", "test_agent", "rich_meta", scope="working"
+        )
 
-        assert result == "value with metadata"
+        # Parse JSON response
+        import json
+
+        data = json.loads(result)
+
+        # Verify value is correct
+        assert data["value"] == "value with metadata"
+
+        # Verify metadata is included
+        assert "metadata" in data
+        assert data["metadata"]["custom"] == "field"
+        assert data["metadata"]["tags"] == ["tag1", "tag2"]
+        assert data["metadata"]["importance"] == 0.95
+
+        # Verify no meta keys in the returned string
         assert "_meta_" not in result

@@ -245,7 +245,10 @@ async def memory_recall(
         scope: Memory scope (working/persistent)
 
     Returns:
-        Stored value or "No value found" message
+        JSON object with value and metadata if metadata exists,
+        otherwise just the value.
+        Format: {"key": "...", "value": "...", "metadata": {...}}
+        Returns "No value found" message if key doesn't exist.
     """
     # Always enable RAG to match memory_store behavior
     enable_rag = True
@@ -265,14 +268,29 @@ async def memory_recall(
 
     if scope == "persistent":
         value = memory.recall(key)
+        # Get metadata from persistent storage
+        metadata = memory.recall(f"_meta_{key}")
     else:
         value = memory.get_temp(key)
+        # Get metadata from working memory
+        metadata = memory.get_temp(f"_meta_{key}")
 
     # Return helpful message if value not found
     if value is None:
         return f"No value found for key '{key}' in {scope} memory"
 
-    return str(value)
+    # Return value with metadata if available
+    if metadata:
+        import json
+
+        return json.dumps(
+            {"key": key, "value": str(value), "metadata": metadata},
+            ensure_ascii=False,
+            indent=2,
+        )
+    else:
+        # Fallback: return just the value for backward compatibility
+        return str(value)
 
 
 @tool

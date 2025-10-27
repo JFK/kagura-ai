@@ -82,9 +82,15 @@ class TestMemoryRecall:
             scope="working",
         )
 
-        # Should retrieve the stored value (not "No value found")
-        assert result == "cached_value"
+        # Should retrieve the stored value with metadata (JSON format)
         assert "No value found" not in result
+        # Parse JSON response
+        import json
+
+        data = json.loads(result)
+        assert data["key"] == "cached_key"
+        assert data["value"] == "cached_value"
+        assert "metadata" in data
 
     @pytest.mark.asyncio
     async def test_recall_different_agents_isolated(self) -> None:
@@ -109,13 +115,17 @@ class TestMemoryRecall:
         result1 = await memory_recall(
             user_id="test_user", agent_name="agent1", key="shared_key"
         )
-        assert result1 == "value_from_agent1"
+        import json
+
+        data1 = json.loads(result1)
+        assert data1["value"] == "value_from_agent1"
 
         # Recall for agent2 - should get agent2's value
         result2 = await memory_recall(
             user_id="test_user", agent_name="agent2", key="shared_key"
         )
-        assert result2 == "value_from_agent2"
+        data2 = json.loads(result2)
+        assert data2["value"] == "value_from_agent2"
 
     @pytest.mark.asyncio
     async def test_multiple_keys_same_agent(self) -> None:
@@ -129,13 +139,24 @@ class TestMemoryRecall:
         await memory_store(user_id, agent, "city", "Tokyo")
 
         # Recall all values
-        name = await memory_recall(user_id, agent, "name")
-        age = await memory_recall(user_id, agent, "age")
-        city = await memory_recall(user_id, agent, "city")
+        name_result = await memory_recall(user_id, agent, "name")
+        age_result = await memory_recall(user_id, agent, "age")
+        city_result = await memory_recall(user_id, agent, "city")
 
-        assert name == "Alice"
-        assert age == "25"
-        assert city == "Tokyo"
+        import json
+
+        name_data = json.loads(name_result)
+        age_data = json.loads(age_result)
+        city_data = json.loads(city_result)
+
+        assert name_data["value"] == "Alice"
+        assert age_data["value"] == "25"
+        assert city_data["value"] == "Tokyo"
+
+        # Verify metadata is included
+        assert "metadata" in name_data
+        assert "metadata" in age_data
+        assert "metadata" in city_data
 
 
 class TestMemorySearch:
