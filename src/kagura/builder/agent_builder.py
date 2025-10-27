@@ -1,5 +1,6 @@
 """AgentBuilder - Fluent API for building agents with integrated features."""
 
+import inspect
 from pathlib import Path
 from typing import Any, Callable, Optional
 
@@ -270,7 +271,7 @@ class AgentBuilder:
                     for hook in config.hooks.pre:
                         result = hook(*args, **kwargs)
                         # Support both sync and async hooks
-                        if hasattr(result, "__await__"):
+                        if inspect.isawaitable(result):
                             await result
 
                 # Run agent
@@ -281,7 +282,7 @@ class AgentBuilder:
                     for hook in config.hooks.post:
                         result = hook(agent_result)
                         # Support both sync and async hooks
-                        if hasattr(result, "__await__"):
+                        if inspect.isawaitable(result):
                             await result
 
                 return agent_result
