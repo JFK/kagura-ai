@@ -111,22 +111,33 @@ class RecallScorerConfig(BaseModel):
 class HybridSearchConfig(BaseModel):
     """Hybrid search configuration (vector + lexical).
 
-    Note: Phase 2 feature, placeholder for future use.
+    Combines vector search (semantic) with lexical search (keyword) using
+    Reciprocal Rank Fusion (RRF) for improved precision and recall.
 
     Attributes:
         enabled: Enable hybrid search (RRF fusion)
-        rrf_k: RRF constant (typical: 60)
+        rrf_k: RRF constant (typical: 60, from original SIGIR 2009 paper)
         lexical_weight: Weight for lexical search results (0.0-1.0)
         vector_weight: Weight for vector search results (0.0-1.0)
+        candidates_k: Number of candidates from each search method
+        min_lexical_score: Minimum BM25 score threshold
     """
 
-    enabled: bool = Field(default=False, description="Enable hybrid search")
+    enabled: bool = Field(default=True, description="Enable hybrid search (v4.0.0a0)")
     rrf_k: int = Field(default=60, description="RRF constant", ge=1)
     lexical_weight: float = Field(
         default=0.5, description="Weight for lexical results", ge=0.0, le=1.0
     )
     vector_weight: float = Field(
         default=0.5, description="Weight for vector results", ge=0.0, le=1.0
+    )
+    candidates_k: int = Field(
+        default=100,
+        description="Number of candidates from each search method",
+        ge=1,
+    )
+    min_lexical_score: float = Field(
+        default=0.0, description="Minimum BM25 score threshold", ge=0.0
     )
 
 

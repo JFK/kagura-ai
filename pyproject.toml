@@ -51,6 +51,7 @@ ai = [
     # Core AI features: Memory, Routing, Context Compression
     "chromadb>=0.4.0",           # Vector storage for memory & RAG
     "sentence-transformers>=2.2.0",  # Embeddings (E5) & reranking (v4.0.0a0)
+    "rank-bm25>=0.2.2",          # BM25 lexical search (v4.0.0a0 Phase 2)
     "semantic-router>=0.1.11",   # Semantic routing
     "tiktoken>=0.7.0",           # Token counting for context compression
 ]
