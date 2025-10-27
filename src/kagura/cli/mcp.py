@@ -92,21 +92,55 @@ def serve(ctx: click.Context, name: str, remote: bool):
         )
         sys.exit(1)
 
+    # Setup logging to file (Issue #415)
+    import logging
+    from logging.handlers import RotatingFileHandler
+    from pathlib import Path
+
+    log_dir = Path.home() / ".kagura" / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "mcp_server.log"
+
+    # Configure file handler (10MB max, 5 backups)
+    file_handler = RotatingFileHandler(
+        log_file, maxBytes=10 * 1024 * 1024, backupCount=5
+    )
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+    )
+
+    # Setup logger
+    logger = logging.getLogger("kagura.mcp")
+    logger.addHandler(file_handler)
+    logger.setLevel(logging.INFO)
+
+    # Also log to stderr if verbose
+    if verbose:
+        console_handler = logging.StreamHandler(sys.stderr)
+        console_handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+        logger.addHandler(console_handler)
+
+    logger.info(f"Starting Kagura MCP server: {name}")
+
     if verbose:
         click.echo(f"Starting Kagura MCP server: {name}", err=True)
+        click.echo(f"Logging to: {log_file}", err=True)
 
     # Auto-register built-in tools
     try:
         import kagura.mcp.builtin  # noqa: F401
 
+        logger.info("Loaded built-in MCP tools")
         if verbose:
             click.echo("Loaded built-in MCP tools", err=True)
     except ImportError:
+        logger.warning("Could not load built-in tools")
         if verbose:
             click.echo("Warning: Could not load built-in tools", err=True)
 
     # Create MCP server (local context = all tools)
     server = create_mcp_server(name, context="local")
+    logger.info("MCP server created with context: local")
 
     # Run server with stdio transport
     async def run_server():
