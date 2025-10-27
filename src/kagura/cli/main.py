@@ -48,6 +48,11 @@ from .lazy import LazyGroup
             "memory_group",
             "Memory management commands",
         ),
+        "config": (
+            "kagura.cli.config_cli",
+            "app",
+            "Configuration management and diagnostics",
+        ),
     },
 )
 @click.version_option(version=__version__, prog_name="Kagura AI")
