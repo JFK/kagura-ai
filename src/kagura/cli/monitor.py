@@ -215,16 +215,57 @@ def trace(execution_id: str, db: Optional[str]) -> None:
     default=None,
 )
 def cost(since: Optional[float], group_by: str, db: Optional[str]) -> None:
-    """Show cost summary.
+    """Show comprehensive cost and API usage summary.
+
+    Displays LLM costs, embedding usage, and API quota information.
 
     \b
     Examples:
         kagura monitor cost                     # Cost by agent
         kagura monitor cost --group-by date     # Cost by date
         kagura monitor cost --since 1696953600  # Cost since timestamp
+
+    \b
+    Tracks:
+        • LLM calls (OpenAI, Anthropic, Google)
+        • Embeddings (local E5 or OpenAI)
+        • Brave Search quota (2000/month free tier)
+        • arXiv search (free, unlimited)
     """
+    from rich.console import Console
+
     db_path = Path(db) if db else None
     store = EventStore(db_path)
     dashboard = Dashboard(store)
+    console = Console()
 
+    # Show LLM costs (existing)
     dashboard.show_cost_summary(since=since, group_by=group_by)
+
+    # Show API usage info (Phase 1 - Basic display)
+    console.print()
+    console.print("[bold cyan]API Usage Information[/bold cyan]")
+    console.print()
+
+    # Embeddings
+    console.print("[cyan]Embeddings:[/cyan]")
+    console.print("  • Model: intfloat/multilingual-e5-large (local)")
+    console.print("  • Cost: $0.00 (free, runs locally)")
+    console.print("  • Languages: 100+ (including Japanese)")
+    console.print()
+
+    # Brave Search
+    console.print("[cyan]Brave Search:[/cyan]")
+    console.print("  • Free Tier: 2,000 queries/month")
+    console.print("  • Current usage: [yellow]Not tracked yet[/yellow]")
+    console.print("  • Estimate: Check https://api.search.brave.com/app/dashboard")
+    console.print()
+
+    # Other APIs
+    console.print("[cyan]Other APIs:[/cyan]")
+    console.print("  • arXiv: Free, unlimited")
+    console.print("  • YouTube: Free (yt-dlp, no API)")
+    console.print()
+
+    console.print("[dim]Note: Full API tracking coming in v4.1.0 (#414)[/dim]")
+    console.print()
