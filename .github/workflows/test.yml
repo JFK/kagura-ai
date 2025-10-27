@@ -1,7 +1,8 @@
 # File: .github/workflows/test.yml
 # Unit and functional tests workflow
-# Runs on: pull requests, pushes to main
+# Runs on: pull requests to main, pushes to main
 # Note: Integration tests are in integration_tests.yml
+# Modified: Only run CI for PRs targeting main branch to save time
 
 name: Run tests
 
@@ -16,6 +17,8 @@ on:
       - 'tests/**'
       - 'pyproject.toml'
   pull_request:
+    branches:
+      - main  # Only run on PRs targeting main branch
     paths:
       - 'src/**'
       - 'tests/**'
