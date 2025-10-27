@@ -15,29 +15,25 @@ from kagura import tool
 async def web_search(query: str, max_results: int = 5) -> str:
     """Search the web using Brave Search API
 
+    NOTE: This is an alias for brave_web_search for backward compatibility.
+    brave_web_search has better features (caching, detailed docs).
+
     Args:
         query: Search query
-        max_results: Maximum number of results
+        max_results: Maximum number of results (maps to count parameter)
 
     Returns:
         JSON string of search results
+
+    Recommendation: Use brave_web_search directly for:
+    - Search result caching
+    - Better parameter names
+    - More detailed documentation
     """
-    try:
-        from kagura.web import search
+    # Delegate to brave_web_search (better implementation)
+    from kagura.mcp.builtin.brave_search import brave_web_search
 
-        results = await search(query, max_results=max_results)
-
-        # Convert SearchResult dataclass objects to dictionaries
-        results_dict = [asdict(result) for result in results]
-
-        return json.dumps(results_dict, indent=2, ensure_ascii=False)
-    except ImportError:
-        return json.dumps(
-            {
-                "error": "Web search requires 'web' extra. "
-                "Install with: pip install kagura-ai[web]"
-            }
-        )
+    return await brave_web_search(query=query, count=max_results)
 
 
 @tool
