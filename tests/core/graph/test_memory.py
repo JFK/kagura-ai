@@ -4,6 +4,7 @@ Issue #345: GraphDB integration for AI-User relationship memory
 """
 
 import tempfile
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -551,3 +552,140 @@ class TestClear:
 
         assert graph_with_data.graph.number_of_nodes() == 0
         assert graph_with_data.graph.number_of_edges() == 0
+
+
+class TestTemporalGraphMemory:
+    """Tests for temporal graph features (v4.0.0a0 Phase 3)."""
+
+    def test_add_edge_with_temporal_attributes(
+        self, graph_memory: GraphMemory
+    ) -> None:
+        """Test adding edge with temporal validity."""
+        graph_memory.add_node("person_kiyota", "user")
+        graph_memory.add_node("company_snapdish", "topic")
+
+        now = datetime.now()
+        graph_memory.add_edge(
+            "person_kiyota",
+            "company_snapdish",
+            "works_on",
+            valid_from=now - timedelta(days=365),
+            valid_until=None,
+            source="https://snapdish.co",
+            confidence=1.0,
+        )
+
+        edge = graph_memory.get_edge("person_kiyota", "company_snapdish")
+        assert edge is not None
+        assert "valid_from" in edge
+        assert "valid_until" in edge
+        assert edge["valid_until"] is None
+        assert edge["source"] == "https://snapdish.co"
+        assert edge["confidence"] == 1.0
+
+    def test_is_edge_valid_at_current(self, graph_memory: GraphMemory) -> None:
+        """Test checking edge validity at current time."""
+        graph_memory.add_node("node_a", "memory")
+        graph_memory.add_node("node_b", "memory")
+
+        now = datetime.now()
+        graph_memory.add_edge(
+            "node_a",
+            "node_b",
+            "related_to",
+            valid_from=now - timedelta(days=10),
+            valid_until=None,
+        )
+
+        assert graph_memory.is_edge_valid_at("node_a", "node_b") is True
+
+    def test_is_edge_valid_at_past(self, graph_memory: GraphMemory) -> None:
+        """Test checking edge validity at past timestamp."""
+        graph_memory.add_node("node_a", "memory")
+        graph_memory.add_node("node_b", "memory")
+
+        now = datetime.now()
+        graph_memory.add_edge(
+            "node_a",
+            "node_b",
+            "related_to",
+            valid_from=now - timedelta(days=10),
+            valid_until=now - timedelta(days=5),
+        )
+
+        # Not valid now (expired 5 days ago)
+        assert graph_memory.is_edge_valid_at("node_a", "node_b") is False
+
+        # Valid 7 days ago
+        past = now - timedelta(days=7)
+        assert graph_memory.is_edge_valid_at("node_a", "node_b", past) is True
+
+    def test_invalidate_edge(self, graph_memory: GraphMemory) -> None:
+        """Test invalidating an edge."""
+        graph_memory.add_node("person_kiyota", "user")
+        graph_memory.add_node("company_old", "topic")
+
+        graph_memory.add_edge("person_kiyota", "company_old", "works_on")
+
+        # Valid initially
+        assert graph_memory.is_edge_valid_at("person_kiyota", "company_old") is True
+
+        # Invalidate
+        graph_memory.invalidate_edge("person_kiyota", "company_old")
+
+        # Now invalid
+        assert graph_memory.is_edge_valid_at("person_kiyota", "company_old") is False
+
+    def test_query_graph_temporal_filters_invalid(
+        self, graph_memory: GraphMemory
+    ) -> None:
+        """Test temporal query filters out invalid edges."""
+        graph_memory.add_node("node_a", "memory")
+        graph_memory.add_node("node_b", "memory")
+        graph_memory.add_node("node_c", "memory")
+
+        now = datetime.now()
+
+        # Valid edge
+        graph_memory.add_edge(
+            "node_a", "node_b", "related_to", valid_until=None
+        )
+
+        # Invalid edge (expired)
+        graph_memory.add_edge(
+            "node_b",
+            "node_c",
+            "related_to",
+            valid_until=now - timedelta(days=5),
+        )
+
+        result = graph_memory.query_graph_temporal(["node_a"], hops=2)
+
+        node_ids = {n["id"] for n in result["nodes"]}
+        assert "node_a" in node_ids
+        assert "node_b" in node_ids
+        assert "node_c" not in node_ids  # Filtered out
+
+    def test_temporal_contradiction_handling(self, graph_memory: GraphMemory) -> None:
+        """Test handling contradictory information over time."""
+        graph_memory.add_node("person_kiyota", "user")
+        graph_memory.add_node("company_old", "topic")
+        graph_memory.add_node("company_snapdish", "topic")
+
+        # Old relationship
+        graph_memory.add_edge("person_kiyota", "company_old", "works_on")
+
+        # New information contradicts old - invalidate
+        graph_memory.invalidate_edge("person_kiyota", "company_old")
+
+        # Add new relationship
+        graph_memory.add_edge("person_kiyota", "company_snapdish", "works_on")
+
+        # Current query should only show new relationship
+        result = graph_memory.query_graph_temporal(
+            ["person_kiyota"], hops=1, rel_filters=["works_on"]
+        )
+
+        node_ids = {n["id"] for n in result["nodes"]}
+        assert "company_snapdish" in node_ids
+        assert "company_old" not in node_ids

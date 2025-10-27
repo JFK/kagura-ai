@@ -89,8 +89,12 @@ class GraphMemory:
         rel_type: str,
         weight: float = 1.0,
         metadata: Optional[dict[str, Any]] = None,
+        valid_from: Optional[datetime] = None,
+        valid_until: Optional[datetime] = None,
+        source: Optional[str] = None,
+        confidence: float = 1.0,
     ) -> None:
-        """Add edge between nodes.
+        """Add edge between nodes with optional temporal validity.
 
         Args:
             src_id: Source node ID
@@ -98,9 +102,23 @@ class GraphMemory:
             rel_type: Relationship type
             weight: Edge weight (0.0-1.0, default 1.0)
             metadata: Additional edge metadata
+            valid_from: Start of validity period (defaults to now)
+            valid_until: End of validity period (None =永続有効)
+            source: Evidence/source URL for this relationship
+            confidence: Confidence score (0.0-1.0, default 1.0)
 
         Raises:
             ValueError: If rel_type is invalid or nodes don't exist
+
+        Example:
+            >>> # Temporal relationship
+            >>> graph.add_edge(
+            ...     "person_kiyota", "company_snapdish", "works_at",
+            ...     valid_from=datetime(2016, 1, 1),
+            ...     valid_until=None,  # Still valid
+            ...     source="https://snapdish.co/about",
+            ...     confidence=1.0
+            ... )
         """
         if rel_type not in self.EDGE_TYPES:
             raise ValueError(
@@ -117,6 +135,14 @@ class GraphMemory:
         edge_data["type"] = rel_type
         edge_data["weight"] = weight
         edge_data["created_at"] = datetime.now().isoformat()
+
+        # Temporal attributes (v4.0.0a0 Phase 3)
+        edge_data["valid_from"] = (
+            valid_from.isoformat() if valid_from else datetime.now().isoformat()
+        )
+        edge_data["valid_until"] = valid_until.isoformat() if valid_until else None
+        edge_data["source"] = source
+        edge_data["confidence"] = confidence
 
         self.graph.add_edge(src_id, dst_id, **edge_data)
 
@@ -566,6 +592,191 @@ class GraphMemory:
     def clear(self) -> None:
         """Clear all nodes and edges from graph."""
         self.graph.clear()
+
+    def is_edge_valid_at(
+        self, src_id: str, dst_id: str, timestamp: Optional[datetime] = None
+    ) -> bool:
+        """Check if an edge is valid at a given timestamp.
+
+        Args:
+            src_id: Source node ID
+            dst_id: Destination node ID
+            timestamp: Time to check validity (defaults to now)
+
+        Returns:
+            True if edge exists and is valid at timestamp
+
+        Example:
+            >>> # Check if relationship is currently valid
+            >>> graph.is_edge_valid_at("person_kiyota", "company_snapdish")
+            True
+            >>> # Check historical validity
+            >>> graph.is_edge_valid_at(
+            ...     "person_kiyota", "old_company",
+            ...     timestamp=datetime(2015, 1, 1)
+            ... )
+            False
+        """
+        if not self.graph.has_edge(src_id, dst_id):
+            return False
+
+        edge_data = self.graph.edges[src_id, dst_id]
+        timestamp = timestamp or datetime.now()
+
+        # Parse valid_from
+        valid_from_str = edge_data.get("valid_from")
+        if valid_from_str:
+            valid_from = datetime.fromisoformat(valid_from_str)
+            if timestamp < valid_from:
+                return False
+
+        # Parse valid_until
+        valid_until_str = edge_data.get("valid_until")
+        if valid_until_str:
+            valid_until = datetime.fromisoformat(valid_until_str)
+            if timestamp >= valid_until:
+                return False
+
+        return True
+
+    def invalidate_edge(
+        self, src_id: str, dst_id: str, invalidate_at: Optional[datetime] = None
+    ) -> None:
+        """Invalidate an edge by setting its valid_until.
+
+        Used for handling contradictions or superseded information.
+
+        Args:
+            src_id: Source node ID
+            dst_id: Destination node ID
+            invalidate_at: Invalidation timestamp (defaults to now)
+
+        Raises:
+            ValueError: If edge doesn't exist
+
+        Example:
+            >>> # Old fact: "Kiyota works at OldCorp"
+            >>> graph.add_edge("person_kiyota", "company_oldcorp", "works_at")
+            >>>
+            >>> # New fact: "Kiyota now works at SnapDish"
+            >>> # Invalidate old relationship
+            >>> graph.invalidate_edge("person_kiyota", "company_oldcorp")
+            >>> # Add new relationship
+            >>> graph.add_edge("person_kiyota", "company_snapdish", "works_at")
+        """
+        if not self.graph.has_edge(src_id, dst_id):
+            raise ValueError(f"Edge ({src_id}, {dst_id}) does not exist")
+
+        invalidate_time = invalidate_at or datetime.now()
+        self.graph.edges[src_id, dst_id]["valid_until"] = invalidate_time.isoformat()
+        self.graph.edges[src_id, dst_id]["invalidated"] = True
+
+    def query_graph_temporal(
+        self,
+        seed_ids: list[str],
+        hops: int = 2,
+        rel_filters: Optional[list[str]] = None,
+        timestamp: Optional[datetime] = None,
+    ) -> dict[str, Any]:
+        """Multi-hop graph traversal with temporal filtering.
+
+        Only includes edges that are valid at the specified timestamp.
+
+        Args:
+            seed_ids: Starting node IDs
+            hops: Number of hops (depth) to traverse
+            rel_filters: Filter by relationship types (None = all types)
+            timestamp: Time point for validity check (defaults to now)
+
+        Returns:
+            Subgraph dict with temporally valid nodes and edges
+
+        Example:
+            >>> # Query current state
+            >>> result = graph.query_graph_temporal(
+            ...     seed_ids=["person_kiyota"],
+            ...     hops=2
+            ... )
+            >>>
+            >>> # Query historical state
+            >>> result = graph.query_graph_temporal(
+            ...     seed_ids=["person_kiyota"],
+            ...     hops=2,
+            ...     timestamp=datetime(2015, 1, 1)  # What was true in 2015?
+            ... )
+        """
+        timestamp = timestamp or datetime.now()
+
+        # Collect nodes within hops (only through valid edges)
+        visited_nodes = set(seed_ids)
+        current_layer = set(seed_ids)
+
+        for _ in range(hops):
+            next_layer = set()
+            for node_id in current_layer:
+                if not self.graph.has_node(node_id):
+                    continue
+
+                # Get successors (outgoing edges)
+                for neighbor in self.graph.successors(node_id):
+                    # Check temporal validity
+                    if not self.is_edge_valid_at(node_id, neighbor, timestamp):
+                        continue
+
+                    edge_data = self.graph.edges[node_id, neighbor]
+                    edge_type = edge_data.get("type")
+
+                    # Filter by relationship type if specified
+                    if rel_filters and edge_type not in rel_filters:
+                        continue
+
+                    if neighbor not in visited_nodes:
+                        visited_nodes.add(neighbor)
+                        next_layer.add(neighbor)
+
+                # Get predecessors (incoming edges)
+                for neighbor in self.graph.predecessors(node_id):
+                    # Check temporal validity
+                    if not self.is_edge_valid_at(neighbor, node_id, timestamp):
+                        continue
+
+                    edge_data = self.graph.edges[neighbor, node_id]
+                    edge_type = edge_data.get("type")
+
+                    # Filter by relationship type if specified
+                    if rel_filters and edge_type not in rel_filters:
+                        continue
+
+                    if neighbor not in visited_nodes:
+                        visited_nodes.add(neighbor)
+                        next_layer.add(neighbor)
+
+            current_layer = next_layer
+
+            if not current_layer:
+                break  # No more nodes to explore
+
+        # Build subgraph (only include temporally valid edges)
+        subgraph_nodes = visited_nodes
+        subgraph_edges = []
+
+        for src in subgraph_nodes:
+            for dst in subgraph_nodes:
+                if self.graph.has_edge(src, dst):
+                    if self.is_edge_valid_at(src, dst, timestamp):
+                        edge_data = dict(self.graph.edges[src, dst])
+                        edge_data["src"] = src
+                        edge_data["dst"] = dst
+                        subgraph_edges.append(edge_data)
+
+        # Build result
+        nodes = []
+        for node_id in subgraph_nodes:
+            node_data = dict(self.graph.nodes[node_id])
+            node_data["id"] = node_id
+            nodes.append(node_data)
+
+        return {"nodes": nodes, "edges": subgraph_edges}
 
     def __repr__(self) -> str:
         """String representation."""
