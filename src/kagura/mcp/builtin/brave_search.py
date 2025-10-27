@@ -340,14 +340,31 @@ async def brave_news_search(
         results = []
         if hasattr(response, "results"):
             for item in response.results[:count]:
-                results.append(
-                    {
-                        "title": str(getattr(item, "title", "")),
-                        "url": str(getattr(item, "url", "")),  # Convert HttpUrl to str
-                        "description": str(getattr(item, "description", "")),
-                        "age": str(getattr(item, "age", "")),
-                    }
-                )
+                # Clean thumbnail if present but empty
+                thumbnail = getattr(item, "thumbnail", None)
+                thumbnail_data = None
+                if thumbnail:
+                    # Handle empty thumbnail src (422 error cause)
+                    thumb_src = str(getattr(thumbnail, "src", ""))
+                    if thumb_src:  # Only include if not empty
+                        thumbnail_data = {
+                            "src": thumb_src,
+                            "width": getattr(thumbnail, "width", None),
+                            "height": getattr(thumbnail, "height", None),
+                        }
+
+                result_item = {
+                    "title": str(getattr(item, "title", "")),
+                    "url": str(getattr(item, "url", "")),  # Convert HttpUrl to str
+                    "description": str(getattr(item, "description", "")),
+                    "age": str(getattr(item, "age", "")),
+                }
+
+                # Only add thumbnail if it has valid data
+                if thumbnail_data:
+                    result_item["thumbnail"] = thumbnail_data
+
+                results.append(result_item)
 
         return json.dumps(results, ensure_ascii=False, indent=2)
 
