@@ -274,10 +274,10 @@ class PersistentMemory:
         params: list[Any] = [user_id]
 
         if agent_name is not None:
-            query_parts.append(
-                "  AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))"
-            )
-            params.extend([agent_name, agent_name])
+            # Include both agent-scoped AND global (agent_name IS NULL) memories
+            # This matches the logic in recall() and search()
+            query_parts.append("  AND (agent_name = ? OR agent_name IS NULL)")
+            params.append(agent_name)
 
         query_parts.append("ORDER BY updated_at DESC")
         if limit is not None:
