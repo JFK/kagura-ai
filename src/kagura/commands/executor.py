@@ -4,6 +4,7 @@ Executes commands with inline command substitution and template rendering.
 """
 
 import re
+import shlex
 import subprocess
 from typing import Any, Optional
 
@@ -80,9 +81,25 @@ class InlineCommandExecutor:
                 command = result.modified_input.get("command", command)
 
         try:
+            command_for_hooks = command
+            if isinstance(command, str):
+                command = command.strip()
+                if not command:
+                    return "[Error: Empty command]"
+                try:
+                    cmd_args = shlex.split(command)
+                except ValueError as exc:
+                    return f"[Error: Invalid command syntax: {exc}]"
+                command_for_hooks = command
+            elif isinstance(command, (list, tuple)):
+                cmd_args = [str(part) for part in command]
+                command_for_hooks = " ".join(cmd_args)
+            else:
+                return "[Error: Unsupported command type]"
+
             result = subprocess.run(
-                command,
-                shell=True,
+                cmd_args,
+                shell=False,
                 capture_output=True,
                 text=True,
                 timeout=self.timeout,
@@ -96,7 +113,7 @@ class InlineCommandExecutor:
 
             # Execute post-tool-use hooks
             post_input = {
-                "command": command,
+                "command": command_for_hooks,
                 "tool": "bash",
                 "output": output,
                 "returncode": result.returncode,
