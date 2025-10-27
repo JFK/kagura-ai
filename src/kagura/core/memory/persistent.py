@@ -274,7 +274,9 @@ class PersistentMemory:
         params: list[Any] = [user_id]
 
         if agent_name is not None:
-            query_parts.append("  AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))")
+            query_parts.append(
+                "  AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))"
+            )
             params.extend([agent_name, agent_name])
 
         query_parts.append("ORDER BY updated_at DESC")
