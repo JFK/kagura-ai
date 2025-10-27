@@ -169,7 +169,8 @@ class TestPersistentMemoryMetadata:
         assert data["metadata"]["importance"] == 0.7
         # Lists/dicts are stored as JSON strings for Chroma compatibility
         assert data["metadata"]["tags"] == '["persistent", "meta"]'
-        assert json.loads(data["metadata"]["metadata"]) == {"custom": "field"}
+        # Custom metadata fields are expanded into the metadata object
+        assert data["metadata"]["custom"] == "field"
 
 
 class TestMetadataIntegrity:
