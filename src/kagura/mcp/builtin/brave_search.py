@@ -324,4 +324,26 @@ async def brave_news_search(
         return json.dumps(results, ensure_ascii=False, indent=2)
 
     except Exception as e:
-        return json.dumps({"error": f"News search failed: {str(e)}"}, indent=2)
+        error_msg = str(e)
+
+        # Provide helpful error messages
+        if "422" in error_msg or "Unprocessable" in error_msg:
+            return json.dumps(
+                {
+                    "error": "News search API error (422)",
+                    "details": error_msg,
+                    "suggestions": [
+                        "Try with country='US' and search_lang='en'",
+                        "Some country/language combinations may not be supported",
+                        "For Japanese news, try web_search instead",
+                    ],
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+
+        return json.dumps(
+            {"error": f"News search failed: {error_msg}"},
+            ensure_ascii=False,
+            indent=2,
+        )
