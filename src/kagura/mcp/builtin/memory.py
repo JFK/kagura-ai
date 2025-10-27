@@ -163,10 +163,10 @@ async def memory_store(
     # for backwards compatibility
     full_metadata = dict(base_metadata)
     if isinstance(metadata_dict, dict):
-        for key, value in metadata_dict.items():
+        for meta_key, meta_value in metadata_dict.items():
             # Avoid overwriting base keys such as "metadata" or timestamps
-            if key not in full_metadata:
-                full_metadata[key] = value
+            if meta_key not in full_metadata:
+                full_metadata[meta_key] = meta_value
 
     if scope == "persistent":
         # Convert to ChromaDB-compatible format
