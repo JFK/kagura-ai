@@ -146,6 +146,32 @@ class TestPersistentMemoryMetadata:
         keys = [m["key"] for m in data["memories"]]
         assert "_meta_persistent_key" not in keys
 
+    @pytest.mark.asyncio
+    async def test_persistent_memory_recall_returns_metadata(self):
+        """Persistent recall should include metadata payload."""
+        await memory_store(
+            "test_user",
+            "test_agent",
+            "persistent_meta",
+            "persistent value",
+            scope="persistent",
+            tags='["persistent", "meta"]',
+            importance=0.7,
+            metadata='{"custom": "field"}',
+        )
+
+        result = await memory_recall(
+            "test_user", "test_agent", "persistent_meta", scope="persistent"
+        )
+
+        data = json.loads(result)
+        assert data["value"] == "persistent value"
+        assert data["metadata"]["importance"] == 0.7
+        # Lists/dicts are stored as JSON strings for Chroma compatibility
+        assert data["metadata"]["tags"] == '["persistent", "meta"]'
+        # Custom metadata fields are expanded into the metadata object
+        assert data["metadata"]["custom"] == "field"
+
 
 class TestMetadataIntegrity:
     """Test that metadata operations don't corrupt data."""

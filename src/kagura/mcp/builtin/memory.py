@@ -151,13 +151,22 @@ async def memory_store(
     from datetime import datetime
 
     now = datetime.now()
-    full_metadata = {
-        **metadata_dict,
+    base_metadata = {
+        "metadata": metadata_dict if isinstance(metadata_dict, dict) else metadata_dict,
         "tags": tags_list,
         "importance": importance,
         "created_at": now.isoformat(),
         "updated_at": now.isoformat(),
     }
+
+    # Preserve top-level access to user-supplied metadata fields
+    # for backwards compatibility
+    full_metadata = dict(base_metadata)
+    if isinstance(metadata_dict, dict):
+        for meta_key, meta_value in metadata_dict.items():
+            # Avoid overwriting base keys such as "metadata" or timestamps
+            if meta_key not in full_metadata:
+                full_metadata[meta_key] = meta_value
 
     if scope == "persistent":
         # Convert to ChromaDB-compatible format
@@ -267,9 +276,12 @@ async def memory_recall(
         memory = _memory_cache[cache_key]
 
     if scope == "persistent":
-        value = memory.recall(key)
-        # Get metadata from persistent storage
-        metadata = memory.recall(f"_meta_{key}")
+        recall_result = memory.recall(key, include_metadata=True)
+        if recall_result is None:
+            value = None
+            metadata = None
+        else:
+            value, metadata = recall_result
     else:
         value = memory.get_temp(key)
         # Get metadata from working memory
@@ -279,18 +291,14 @@ async def memory_recall(
     if value is None:
         return f"No value found for key '{key}' in {scope} memory"
 
-    # Return value with metadata if available
-    if metadata:
-        import json
+    # Always return structured JSON so callers can rely on consistent fields
+    payload = {
+        "key": key,
+        "value": str(value),
+        "metadata": metadata,
+    }
 
-        return json.dumps(
-            {"key": key, "value": str(value), "metadata": metadata},
-            ensure_ascii=False,
-            indent=2,
-        )
-    else:
-        # Fallback: return just the value for backward compatibility
-        return str(value)
+    return json.dumps(payload, ensure_ascii=False, indent=2, default=str)
 
 
 @tool

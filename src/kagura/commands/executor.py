@@ -4,6 +4,7 @@ Executes commands with inline command substitution and template rendering.
 """
 
 import re
+import shlex
 import subprocess
 from typing import Any, Optional
 
@@ -80,13 +81,52 @@ class InlineCommandExecutor:
                 command = result.modified_input.get("command", command)
 
         try:
-            result = subprocess.run(
-                command,
-                shell=True,
-                capture_output=True,
-                text=True,
-                timeout=self.timeout,
-            )
+            command_for_hooks = command
+            run_kwargs = {
+                "capture_output": True,
+                "text": True,
+                "timeout": self.timeout,
+            }
+
+            if isinstance(command, str):
+                command = command.strip()
+                if not command:
+                    return "[Error: Empty command]"
+
+                # Detect shell features that require a shell for execution
+                needs_shell = bool(
+                    re.search(r"[|&;<>()$`\\]", command)
+                    or "&&" in command
+                    or "||" in command
+                    or command.endswith("&")
+                )
+
+                if needs_shell:
+                    cmd_args = command
+                    run_kwargs["shell"] = True
+                    run_kwargs["executable"] = "/bin/bash"
+                else:
+                    try:
+                        cmd_args = shlex.split(command)
+                    except ValueError as exc:
+                        return f"[Error: Invalid command syntax: {exc}]"
+
+                    if not cmd_args:
+                        return "[Error: Empty command]"
+
+                    run_kwargs["shell"] = False
+
+                command_for_hooks = command
+            elif isinstance(command, (list, tuple)):
+                cmd_args = [str(part) for part in command]
+                if not cmd_args:
+                    return "[Error: Empty command]"
+                run_kwargs["shell"] = False
+                command_for_hooks = " ".join(cmd_args)
+            else:
+                return "[Error: Unsupported command type]"
+
+            result = subprocess.run(cmd_args, **run_kwargs)
 
             output = (
                 result.stdout.strip()
@@ -96,7 +136,7 @@ class InlineCommandExecutor:
 
             # Execute post-tool-use hooks
             post_input = {
-                "command": command,
+                "command": command_for_hooks,
                 "tool": "bash",
                 "output": output,
                 "returncode": result.returncode,

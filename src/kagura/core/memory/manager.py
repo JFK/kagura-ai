@@ -380,16 +380,30 @@ class MemoryManager:
             )
             self.lexical_searcher.add_document(document)
 
-    def recall(self, key: str) -> Optional[Any]:
+    def recall(
+        self,
+        key: str,
+        *,
+        include_metadata: bool = False,
+        track_access: bool = False,
+    ) -> Optional[Any]:
         """Recall persistent memory.
 
         Args:
             key: Memory key
+            include_metadata: Return metadata along with the value if True
+            track_access: Record access statistics if True
 
         Returns:
-            Stored value or None
+            Stored value or (value, metadata) when include_metadata is True.
         """
-        return self.persistent.recall(key, self.user_id, self.agent_name)
+        return self.persistent.recall(
+            key,
+            self.user_id,
+            self.agent_name,
+            track_access=track_access,
+            include_metadata=include_metadata,
+        )
 
     def search_memory(self, query: str, limit: int = 10) -> list[dict[str, Any]]:
         """Search persistent memory.

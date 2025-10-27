@@ -66,8 +66,32 @@ def test_persistent_memory_agent_scoping(temp_db):
     memory.store("key1", "agent2_value", user_id="test_user", agent_name="agent2")
 
     # Recall should be scoped
-    assert memory.recall("key1", user_id="test_user", agent_name="agent1") == "agent1_value"
-    assert memory.recall("key1", user_id="test_user", agent_name="agent2") == "agent2_value"
+    assert (
+        memory.recall("key1", user_id="test_user", agent_name="agent1")
+        == "agent1_value"
+    )
+    assert (
+        memory.recall("key1", user_id="test_user", agent_name="agent2")
+        == "agent2_value"
+    )
+
+
+def test_persistent_memory_agent_scoped_preferred_over_global(temp_db):
+    """Agent-specific entries should take precedence over global fallbacks."""
+    memory = PersistentMemory(db_path=temp_db)
+
+    # Agent-specific entry written first (older timestamp)
+    memory.store("key1", "agent_value", user_id="test_user", agent_name="agent1")
+    # Global entry updated afterwards (newer timestamp)
+    memory.store("key1", "global_value", user_id="test_user")
+
+    # Even though the global entry is newer, agent-scoped recall should prefer it
+    assert (
+        memory.recall("key1", user_id="test_user", agent_name="agent1")
+        == "agent_value"
+    )
+    # Global recall should still return the global value
+    assert memory.recall("key1", user_id="test_user") == "global_value"
 
 
 def test_persistent_memory_search(temp_db):
@@ -128,7 +152,10 @@ def test_persistent_memory_forget_with_agent(temp_db):
     memory.forget("key1", user_id="test_user", agent_name="agent1")
 
     assert memory.recall("key1", user_id="test_user", agent_name="agent1") is None
-    assert memory.recall("key1", user_id="test_user", agent_name="agent2") == "agent2_value"
+    assert (
+        memory.recall("key1", user_id="test_user", agent_name="agent2")
+        == "agent2_value"
+    )
 
 
 def test_persistent_memory_count(temp_db):
@@ -164,6 +191,20 @@ def test_persistent_memory_metadata(temp_db):
     results = memory.search("key1", user_id="test_user")
     assert len(results) == 1
     assert results[0]["metadata"] == metadata
+
+
+def test_persistent_memory_recall_with_metadata(temp_db):
+    """Recall should optionally include stored metadata."""
+    memory = PersistentMemory(db_path=temp_db)
+
+    metadata = {"source": "web", "importance": "high"}
+    memory.store("key1", "value1", metadata=metadata, user_id="test_user")
+
+    result = memory.recall("key1", user_id="test_user", include_metadata=True)
+    assert result is not None
+    value, returned_metadata = result
+    assert value == "value1"
+    assert returned_metadata == metadata
 
 
 def test_persistent_memory_prune(temp_db):
