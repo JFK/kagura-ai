@@ -73,7 +73,7 @@ Give **every AI** access to:
 **For developers**:
 - 🔌 **REST API**: Query memory from any agent, any language
 - 🐍 **Python SDK**: Build AI agents with unified memory access
-- 📦 **MCP Tools**: 31 built-in tools for Claude, Cursor, Cline
+- 📦 **MCP Tools**: 34 built-in tools for Claude, Cursor, Cline
 - 🛠️ **Extensible**: Custom connectors, workflows, integrations
 
 **One memory. Every AI. Every developer.**
@@ -112,7 +112,7 @@ Give **every AI** access to:
 - ✅ v3.0 SDK & Chat (previous release)
 - ✅ v4.0 REST API (FastAPI + OpenAPI)
 - ✅ Docker Compose setup (PostgreSQL + pgvector, Redis)
-- ✅ MCP Tools v1.0 (31 tools total)
+- ✅ MCP Tools v1.0 (34 tools total)
 - ✅ GraphMemory (NetworkX-based knowledge graph)
 - ✅ MCP Tool Management (`kagura mcp doctor`, `kagura mcp tools`, `kagura mcp install`)
 - ✅ **NEW**: MCP over HTTP/SSE (ChatGPT Connector support)
@@ -463,7 +463,7 @@ uvicorn kagura.api.server:app --reload
 
 | Platform | Status | Notes |
 |----------|--------|-------|
-| **Claude Desktop** | ✅ v4.0.0a0 | MCP v1.0 with 31 tools |
+| **Claude Desktop** | ✅ v4.0.0a0 | MCP v1.0 with 34 tools |
 | **Cline** | ✅ v4.0.0a0 | VS Code extension with MCP support |
 | **Cursor** | ✅ v4.0.0a0 | MCP protocol support |
 | **ChatGPT Desktop** | 🔄 2026 | OpenAI announced MCP adoption |

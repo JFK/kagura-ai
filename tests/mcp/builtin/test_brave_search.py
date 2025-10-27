@@ -8,7 +8,9 @@ from unittest.mock import patch
 import pytest
 
 from kagura.mcp.builtin.brave_search import (
+    brave_image_search,
     brave_news_search,
+    brave_video_search,
     brave_web_search,
 )
 from kagura.mcp.builtin.common import setup_external_library_logging
@@ -444,3 +446,111 @@ class TestBraveSearchLogging:
             # Should use Unix null device
             assert result == "/dev/null"
             assert os.environ["BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME"] == "/dev/null"
+
+
+class TestBraveImageSearch:
+    """Test brave_image_search tool."""
+
+    @pytest.mark.asyncio
+    async def test_missing_library(self, monkeypatch) -> None:
+        """Test error when brave-search-python-client not installed"""
+        import builtins
+        import sys
+
+        if "brave_search_python_client" in sys.modules:
+            del sys.modules["brave_search_python_client"]
+
+        original_import = builtins.__import__
+
+        def mock_import(name, *args, **kwargs):
+            if name == "brave_search_python_client":
+                raise ImportError("No module named 'brave_search_python_client'")
+            return original_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", mock_import)
+
+        result = await brave_image_search("test query")
+        data = json.loads(result)
+
+        assert "error" in data
+        assert "brave-search-python-client" in data["error"]
+
+    @pytest.mark.asyncio
+    async def test_missing_api_key(self, monkeypatch) -> None:
+        """Test error when BRAVE_SEARCH_API_KEY not set"""
+        monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
+
+        result = await brave_image_search("test query")
+        data = json.loads(result)
+
+        assert "error" in data
+        assert (
+            "BRAVE_SEARCH_API_KEY" in data["error"]
+            or "brave-search-python-client" in data["error"]
+        )
+
+    @pytest.mark.asyncio
+    async def test_count_string_conversion(self, monkeypatch) -> None:
+        """Test that count parameter handles string input"""
+        monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
+
+        # Pass count as string - should be converted to int
+        result = await brave_image_search("test", count="10")  # type: ignore[arg-type]
+
+        # The key test: no TypeError should occur
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+
+class TestBraveVideoSearch:
+    """Test brave_video_search tool."""
+
+    @pytest.mark.asyncio
+    async def test_missing_library(self, monkeypatch) -> None:
+        """Test error when brave-search-python-client not installed"""
+        import builtins
+        import sys
+
+        if "brave_search_python_client" in sys.modules:
+            del sys.modules["brave_search_python_client"]
+
+        original_import = builtins.__import__
+
+        def mock_import(name, *args, **kwargs):
+            if name == "brave_search_python_client":
+                raise ImportError("No module named 'brave_search_python_client'")
+            return original_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", mock_import)
+
+        result = await brave_video_search("test query")
+        data = json.loads(result)
+
+        assert "error" in data
+        assert "brave-search-python-client" in data["error"]
+
+    @pytest.mark.asyncio
+    async def test_missing_api_key(self, monkeypatch) -> None:
+        """Test error when BRAVE_SEARCH_API_KEY not set"""
+        monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
+
+        result = await brave_video_search("test query")
+        data = json.loads(result)
+
+        assert "error" in data
+        assert (
+            "BRAVE_SEARCH_API_KEY" in data["error"]
+            or "brave-search-python-client" in data["error"]
+        )
+
+    @pytest.mark.asyncio
+    async def test_count_string_conversion(self, monkeypatch) -> None:
+        """Test that count parameter handles string input"""
+        monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
+
+        # Pass count as string - should be converted to int
+        result = await brave_video_search("test", count="10")  # type: ignore[arg-type]
+
+        # The key test: no TypeError should occur
+        assert isinstance(result, str)
+        assert len(result) > 0

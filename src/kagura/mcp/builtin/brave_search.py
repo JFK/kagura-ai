@@ -401,3 +401,217 @@ async def brave_news_search(
             ensure_ascii=False,
             indent=2,
         )
+
+
+@tool
+async def brave_image_search(
+    query: str,
+    count: int = 10,
+    safesearch: str = "moderate",
+) -> str:
+    """Search for images using Brave Search API.
+
+    Use this tool when:
+    - User asks for images, photos, or pictures
+    - Visual content is needed
+    - User explicitly requests image search
+    - Need illustrations or examples
+
+    Args:
+        query: Search query for images
+        count: Number of results (default: 10, max: 200)
+        safesearch: Safe search filtering:
+            - "off": No filtering
+            - "moderate": Filter explicit content (default)
+            - "strict": Strict filtering
+
+    Returns:
+        JSON string with image results including URLs, thumbnails, titles
+
+    Examples:
+        # Search for images
+        query="python programming", count=10
+
+        # Strict filtering
+        query="nature photos", safesearch="strict"
+    """
+    # Ensure count is int
+    if isinstance(count, str):
+        try:
+            count = int(count)
+        except ValueError:
+            count = 10
+
+    # Validate safesearch
+    valid_safesearch = ["off", "moderate", "strict"]
+    if safesearch not in valid_safesearch:
+        safesearch = "moderate"
+
+    try:
+        from brave_search_python_client import (  # type: ignore[import-untyped]
+            BraveSearch,
+            ImageSearchRequest,
+        )
+    except ImportError:
+        return json.dumps(
+            {
+                "error": "brave-search-python-client is required",
+                "install": "uv add brave-search-python-client",
+            },
+            indent=2,
+        )
+
+    # Check API key
+    api_key = get_brave_search_api_key()
+    if not api_key:
+        return json.dumps(
+            {
+                "error": "BRAVE_SEARCH_API_KEY environment variable not set",
+                "help": "Get API key from https://brave.com/search/api/",
+            },
+            indent=2,
+        )
+
+    try:
+        # Create client
+        client = BraveSearch(api_key=api_key)
+
+        # Create search request
+        request = ImageSearchRequest(  # type: ignore[call-arg]
+            q=query,
+            count=min(count, 200),
+            safesearch=safesearch,  # type: ignore[arg-type]
+        )
+
+        # Execute search
+        response = await client.images(request)  # type: ignore[arg-type]
+
+        # Extract results
+        results = []
+        if hasattr(response, "results"):
+            for item in response.results[:count]:  # type: ignore[union-attr]
+                results.append(
+                    {
+                        "title": str(getattr(item, "title", "")),
+                        "url": str(getattr(item, "url", "")),
+                        "thumbnail": str(getattr(item, "thumbnail", "")),
+                        "source": str(getattr(item, "source", "")),
+                    }
+                )
+
+        return json.dumps(results, ensure_ascii=False, indent=2)
+
+    except Exception as e:
+        return json.dumps(
+            {"error": f"Image search failed: {str(e)}"},
+            ensure_ascii=False,
+            indent=2,
+        )
+
+
+@tool
+async def brave_video_search(
+    query: str,
+    count: int = 10,
+    safesearch: str = "moderate",
+) -> str:
+    """Search for videos using Brave Search API.
+
+    Use this tool when:
+    - User asks for videos or video content
+    - Need tutorial or demonstration videos
+    - User explicitly requests video search
+    - Looking for visual explanations
+
+    Args:
+        query: Search query for videos
+        count: Number of results (default: 10, max: 50)
+        safesearch: Safe search filtering:
+            - "off": No filtering
+            - "moderate": Filter explicit content (default)
+            - "strict": Strict filtering
+
+    Returns:
+        JSON string with video results including URLs, thumbnails, titles, duration
+
+    Examples:
+        # Search for videos
+        query="python tutorial", count=10
+
+        # Educational content
+        query="machine learning basics", safesearch="strict"
+    """
+    # Ensure count is int
+    if isinstance(count, str):
+        try:
+            count = int(count)
+        except ValueError:
+            count = 10
+
+    # Validate safesearch
+    valid_safesearch = ["off", "moderate", "strict"]
+    if safesearch not in valid_safesearch:
+        safesearch = "moderate"
+
+    try:
+        from brave_search_python_client import (  # type: ignore[import-untyped]
+            BraveSearch,
+            VideoSearchRequest,
+        )
+    except ImportError:
+        return json.dumps(
+            {
+                "error": "brave-search-python-client is required",
+                "install": "uv add brave-search-python-client",
+            },
+            indent=2,
+        )
+
+    # Check API key
+    api_key = get_brave_search_api_key()
+    if not api_key:
+        return json.dumps(
+            {
+                "error": "BRAVE_SEARCH_API_KEY environment variable not set",
+                "help": "Get API key from https://brave.com/search/api/",
+            },
+            indent=2,
+        )
+
+    try:
+        # Create client
+        client = BraveSearch(api_key=api_key)
+
+        # Create search request
+        request = VideoSearchRequest(  # type: ignore[call-arg]
+            q=query,
+            count=min(count, 50),
+            safesearch=safesearch,  # type: ignore[arg-type]
+        )
+
+        # Execute search
+        response = await client.videos(request)  # type: ignore[arg-type]
+
+        # Extract results
+        results = []
+        if hasattr(response, "results"):
+            for item in response.results[:count]:  # type: ignore[union-attr]
+                results.append(
+                    {
+                        "title": str(getattr(item, "title", "")),
+                        "url": str(getattr(item, "url", "")),
+                        "thumbnail": str(getattr(item, "thumbnail", "")),
+                        "duration": str(getattr(item, "duration", "")),
+                        "creator": str(getattr(item, "creator", "")),
+                        "view_count": str(getattr(item, "view_count", "")),
+                    }
+                )
+
+        return json.dumps(results, ensure_ascii=False, indent=2)
+
+    except Exception as e:
+        return json.dumps(
+            {"error": f"Video search failed: {str(e)}"},
+            ensure_ascii=False,
+            indent=2,
+        )
