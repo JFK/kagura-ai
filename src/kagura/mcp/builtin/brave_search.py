@@ -1,4 +1,5 @@
 """Brave Search integration for Kagura AI."""
+# pyright: reportAttributeAccessIssue=false
 
 from __future__ import annotations
 
@@ -477,7 +478,7 @@ async def brave_image_search(
         client = BraveSearch(api_key=api_key)
 
         # Create search request
-        request = ImageSearchRequest(  # type: ignore[call-arg]
+        request = ImageSearchRequest(  # type: ignore[call-arg,misc]
             q=query,
             count=min(count, 200),
             safesearch=safesearch,  # type: ignore[arg-type]
@@ -583,7 +584,7 @@ async def brave_video_search(
         client = BraveSearch(api_key=api_key)
 
         # Create search request
-        request = VideoSearchRequest(  # type: ignore[call-arg]
+        request = VideoSearchRequest(  # type: ignore[call-arg,misc]
             q=query,
             count=min(count, 50),
             safesearch=safesearch,  # type: ignore[arg-type]

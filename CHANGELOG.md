@@ -11,6 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
+- **Brave Image Search**: Search for images via Brave Search API (#399)
+  - `brave_image_search` MCP tool
+  - Parameters: query, count (1-200), safesearch (off/moderate/strict)
+  - Returns: JSON with image URLs, thumbnails, titles, sources
+  - Use case: Visual content discovery, illustrations, photo search
+
+- **Brave Video Search**: Search for videos via Brave Search API (#399)
+  - `brave_video_search` MCP tool
+  - Parameters: query, count (1-50), safesearch
+  - Returns: JSON with video URLs, thumbnails, duration, creator, views
+  - Use case: Tutorial videos, demonstrations, educational content
+
+- **arXiv Academic Search**: Search academic papers on arXiv (#399)
+  - `arxiv_search` MCP tool in new `academic.py` module
+  - Parameters: query, max_results (1-20), category (cs.AI, cs.LG, etc.)
+  - Returns: JSON with title, authors, abstract, PDF URL, publication date
+  - New dependency: `arxiv==2.2.0`
+  - Use case: Research papers, scientific literature, latest preprints
+  - Supported categories: cs.AI, cs.LG, cs.CL, cs.CV, physics, math, stat, q-bio
+
+- **MCP Tool Count**: Expanded from 31 to 34 tools
+
 - **MCP over HTTP/SSE**: New `/mcp` endpoint for ChatGPT Connectors (#378, Phase C Task 1)
   - GET `/mcp` - SSE streaming (server → client messages)
   - POST `/mcp` - JSON-RPC requests (client → server messages)
