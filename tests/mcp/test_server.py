@@ -213,7 +213,12 @@ async def test_memory_tools_with_telemetry():
         result = await memory_recall(
             user_id="test_user", agent_name="test_agent", key="test_key", scope="working"
         )
-        assert result == "test_value"
+        # Parse JSON response (new format includes metadata)
+        import json
+
+        data = json.loads(result)
+        assert data["value"] == "test_value"
+        assert "metadata" in data
 
     # Cleanup
     _memory_cache.clear()

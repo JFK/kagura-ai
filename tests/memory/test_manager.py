@@ -247,3 +247,42 @@ def test_manager_context_with_metadata():
 
     messages = manager.get_context()
     assert messages[0].metadata == metadata
+
+
+def test_manager_user_id_case_insensitive():
+    """Test that user_id is case-insensitive (normalized to lowercase)."""
+    # Create managers with different case user_ids
+    manager1 = MemoryManager(user_id="TestUser")
+    manager2 = MemoryManager(user_id="testuser")
+    manager3 = MemoryManager(user_id="TESTUSER")
+
+    # All should be normalized to lowercase
+    assert manager1.user_id == "testuser"
+    assert manager2.user_id == "testuser"
+    assert manager3.user_id == "testuser"
+
+    # Verify they reference the same user
+    manager1.set_temp("key1", "value1")
+    manager2.set_temp("key2", "value2")
+
+    # Both should have access to all keys (if using same agent_name)
+    assert manager1.get_temp("key1") == "value1"
+    assert manager2.get_temp("key2") == "value2"
+
+
+def test_manager_user_id_normalization_in_persistent_memory(temp_dir):
+    """Test user_id normalization works with persistent memory."""
+    # Store with uppercase user_id
+    manager_upper = MemoryManager(
+        user_id="TestUser", agent_name="test_agent", persist_dir=temp_dir
+    )
+    manager_upper.remember("pref_key", "pref_value")
+
+    # Recall with lowercase user_id (should work)
+    manager_lower = MemoryManager(
+        user_id="testuser", agent_name="test_agent", persist_dir=temp_dir
+    )
+    result = manager_lower.recall("pref_key")
+
+    # Should retrieve the same value
+    assert result == "pref_value"

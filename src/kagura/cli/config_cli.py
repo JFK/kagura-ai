@@ -129,7 +129,7 @@ async def _test_google_api(api_key: str) -> tuple[bool, str]:
         from litellm import acompletion
 
         await acompletion(
-            model="gemini/gemini-1.5-flash",
+            model="gemini-1.5-flash",
             messages=[{"role": "user", "content": "test"}],
             api_key=api_key,
             max_tokens=1,
