@@ -5,9 +5,6 @@ Exposes Kagura's web search and scraping features via MCP.
 
 from __future__ import annotations
 
-import json
-from dataclasses import asdict
-
 from kagura import tool
 
 
