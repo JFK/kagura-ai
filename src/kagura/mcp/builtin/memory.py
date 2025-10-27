@@ -282,18 +282,14 @@ async def memory_recall(
     if value is None:
         return f"No value found for key '{key}' in {scope} memory"
 
-    # Return value with metadata if available
-    if metadata:
-        import json
+    # Always return structured JSON so callers can rely on consistent fields
+    payload = {
+        "key": key,
+        "value": str(value),
+        "metadata": metadata,
+    }
 
-        return json.dumps(
-            {"key": key, "value": str(value), "metadata": metadata},
-            ensure_ascii=False,
-            indent=2,
-        )
-    else:
-        # Fallback: return just the value for backward compatibility
-        return str(value)
+    return json.dumps(payload, ensure_ascii=False, indent=2, default=str)
 
 
 @tool
