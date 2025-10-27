@@ -5,10 +5,15 @@ This module provides YouTube video analysis capabilities via MCP.
 """
 
 import json
+import logging
 import re
 from typing import Any
 
 from kagura import tool
+from kagura.mcp.builtin.common import get_library_cache_dir
+
+# Setup logger
+logger = logging.getLogger(__name__)
 
 
 def extract_video_id(url: str) -> str:
@@ -131,11 +136,13 @@ async def get_youtube_metadata(video_url: str) -> str:
         )
 
     try:
-        # Configure yt-dlp
+        # Configure yt-dlp with proper cache directory
+        cache_dir = get_library_cache_dir("yt-dlp")
         ydl_opts = {
             "quiet": True,
             "no_warnings": True,
             "extract_flat": False,
+            "cachedir": cache_dir,  # Use Kagura's cache directory
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

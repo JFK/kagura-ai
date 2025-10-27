@@ -32,10 +32,12 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     "media_open_image": {"remote": False},
     "media_open_video": {"remote": False},
     # Web/API tools - SAFE (external API calls only)
-    "web_search": {"remote": True},
     "web_scrape": {"remote": True},
     "brave_web_search": {"remote": True},
+    "brave_local_search": {"remote": True},
     "brave_news_search": {"remote": True},
+    "brave_image_search": {"remote": True},
+    "brave_video_search": {"remote": True},
     # YouTube tools - SAFE (API calls only)
     "get_youtube_metadata": {"remote": True},
     "get_youtube_transcript": {"remote": True},
@@ -108,11 +110,11 @@ def get_allowed_tools(
         List of allowed tool names
 
     Examples:
-        >>> tools = ["memory_store", "file_read", "web_search"]
+        >>> tools = ["memory_store", "file_read", "brave_web_search"]
         >>> get_allowed_tools(tools, "remote")
-        ['memory_store', 'web_search']
+        ['memory_store', 'brave_web_search']
         >>> get_allowed_tools(tools, "local")
-        ['memory_store', 'file_read', 'web_search']
+        ['memory_store', 'file_read', 'brave_web_search']
     """
     return [tool for tool in all_tools if is_tool_allowed(tool, context)]
 
@@ -131,7 +133,7 @@ def get_denied_tools(
         List of denied tool names
 
     Examples:
-        >>> tools = ["memory_store", "file_read", "web_search"]
+        >>> tools = ["memory_store", "file_read", "brave_web_search"]
         >>> get_denied_tools(tools, "remote")
         ['file_read']
     """

@@ -1,10 +1,17 @@
 """Tests for Brave Search tools."""
 
 import json
+import os
+from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
-from kagura.mcp.builtin.brave_search import brave_news_search, brave_web_search
+from kagura.mcp.builtin.brave_search import (
+    brave_news_search,
+    brave_web_search,
+)
+from kagura.mcp.builtin.common import setup_external_library_logging
 
 
 class TestBraveWebSearch:
@@ -147,7 +154,8 @@ class TestBraveNewsSearch:
         # Result should be valid JSON string
         assert isinstance(result, str)
 
-        # Should be parseable as JSON (no "Object of type HttpUrl is not JSON serializable" error)
+        # Should be parseable as JSON
+        # (no "Object of type HttpUrl is not JSON serializable" error)
         try:
             data = json.loads(result)
             # Successfully parsed - either error dict or results list
@@ -286,3 +294,153 @@ class TestBraveSearchCaching:
         # Should be a cache hit
         stats = cache.stats()
         assert stats["hits"] >= 1
+
+
+class TestBraveSearchLogging:
+    """Test Brave Search logging configuration."""
+
+    def test_respects_existing_env_var(self, monkeypatch) -> None:
+        """Test that existing env var is respected"""
+        custom_log_path = "/custom/path/to/log.log"
+        monkeypatch.setenv("BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME", custom_log_path)
+
+        # Call setup function
+        result = setup_external_library_logging(
+            "brave_search_python_client",
+            "BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME",
+            "brave_search_python_client.log",
+        )
+
+        # Should return existing env var
+        assert result == custom_log_path
+        assert os.environ["BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME"] == custom_log_path
+
+    def test_creates_home_directory_log(self, monkeypatch, tmp_path) -> None:
+        """Test that log file is created in home directory by default"""
+        # Clear env var
+        monkeypatch.delenv("BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME", raising=False)
+
+        # Mock home directory to use tmp_path
+        fake_home = tmp_path / "fake_home"
+        fake_home.mkdir()
+
+        with patch("kagura.mcp.builtin.common.Path.home", return_value=fake_home):
+            result = setup_external_library_logging(
+                "brave_search_python_client",
+                "BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME",
+                "brave_search_python_client.log",
+            )
+
+            # Should set env var to home directory
+            log_file = "brave_search_python_client.log"
+            expected_log_path = fake_home / ".kagura" / "logs" / log_file
+            assert result == str(expected_log_path)
+            assert os.environ["BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME"] == str(
+                expected_log_path
+            )
+
+            # Should create the log directory
+            assert (fake_home / ".kagura" / "logs").exists()
+
+    def test_fallback_to_null_device_on_permission_error(
+        self, monkeypatch
+    ) -> None:
+        """Test fallback to /dev/null when home directory is not writable"""
+        # Clear env var
+        monkeypatch.delenv("BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME", raising=False)
+
+        # Mock Path.home() to raise permission error
+        with patch(
+            "kagura.mcp.builtin.common.Path.home",
+            side_effect=PermissionError("No access"),
+        ):
+            result = setup_external_library_logging(
+                "brave_search_python_client",
+                "BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME",
+                "brave_search_python_client.log",
+            )
+
+            # Should fallback to null device
+            assert result in ("/dev/null", "NUL")
+            log_path = os.environ.get("BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME")
+            assert log_path in ("/dev/null", "NUL")
+
+    def test_fallback_to_null_device_on_write_test_failure(
+        self, monkeypatch, tmp_path
+    ) -> None:
+        """Test fallback to /dev/null when write test fails"""
+        # Clear env var
+        monkeypatch.delenv("BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME", raising=False)
+
+        # Mock home directory
+        fake_home = tmp_path / "fake_home"
+        fake_home.mkdir()
+
+        # Mock Path.touch() to raise permission error
+        original_touch = Path.touch
+
+        def mock_touch(self, *args, **kwargs):
+            if ".write_test" in str(self):
+                raise PermissionError("Cannot write to directory")
+            return original_touch(self, *args, **kwargs)
+
+        with (
+            patch("kagura.mcp.builtin.common.Path.home", return_value=fake_home),
+            patch("kagura.mcp.builtin.common.Path.touch", mock_touch),
+        ):
+            result = setup_external_library_logging(
+                "brave_search_python_client",
+                "BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME",
+                "brave_search_python_client.log",
+            )
+
+            # Should fallback to null device
+            assert result in ("/dev/null", "NUL")
+            log_path = os.environ.get("BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME")
+            assert log_path in ("/dev/null", "NUL")
+
+    def test_windows_null_device(self, monkeypatch) -> None:
+        """Test that Windows uses NUL as null device"""
+        # Clear env var
+        monkeypatch.delenv("BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME", raising=False)
+
+        # Mock os.name to simulate Windows
+        monkeypatch.setattr("kagura.mcp.builtin.common.os.name", "nt")
+
+        # Mock Path.home() to raise error (force fallback)
+        with patch(
+            "kagura.mcp.builtin.common.Path.home",
+            side_effect=PermissionError("No access"),
+        ):
+            result = setup_external_library_logging(
+                "brave_search_python_client",
+                "BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME",
+                "brave_search_python_client.log",
+            )
+
+            # Should use Windows null device
+            assert result == "NUL"
+            assert os.environ["BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME"] == "NUL"
+
+    def test_unix_null_device(self, monkeypatch) -> None:
+        """Test that Unix-like systems use /dev/null as null device"""
+        # Clear env var
+        monkeypatch.delenv("BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME", raising=False)
+
+        # Mock os.name to simulate Unix
+        monkeypatch.setattr("kagura.mcp.builtin.common.os.name", "posix")
+
+        # Mock Path.home() to raise error (force fallback)
+        with patch(
+            "kagura.mcp.builtin.common.Path.home",
+            side_effect=PermissionError("No access"),
+        ):
+            result = setup_external_library_logging(
+                "brave_search_python_client",
+                "BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME",
+                "brave_search_python_client.log",
+            )
+
+            # Should use Unix null device
+            assert result == "/dev/null"
+            assert os.environ["BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME"] == "/dev/null"

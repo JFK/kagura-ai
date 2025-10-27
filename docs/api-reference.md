@@ -308,7 +308,11 @@ Analyze user's interaction patterns.
 
 ### Web/API Tools (Safe for Remote)
 
-- `web_search` - Brave Search integration
+- `brave_web_search` - Brave Search integration (replaces deprecated `web_search`)
+- `brave_local_search` - Brave Local Search for businesses/places
+- `brave_news_search` - Brave News Search
+- `brave_image_search` - Brave Image Search
+- `brave_video_search` - Brave Video Search
 - `web_scrape` - Scrape web pages
 - `youtube_summarize` - Summarize YouTube videos
 - `get_youtube_transcript` - Get video transcript

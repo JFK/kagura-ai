@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Literal
+from typing import Any
 
 from kagura import tool
 from kagura.config.env import (
@@ -13,9 +13,17 @@ from kagura.config.env import (
     get_search_cache_ttl,
 )
 from kagura.mcp.builtin.cache import SearchCache
+from kagura.mcp.builtin.common import setup_external_library_logging
 
 # Setup logger
 logger = logging.getLogger(__name__)
+
+# Configure brave_search_python_client logging using common utilities
+setup_external_library_logging(
+    library_name="brave_search_python_client",
+    env_var_name="BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME",
+    filename="brave_search_python_client.log",
+)
 
 # Global search cache instance
 _search_cache: SearchCache | None = None
@@ -204,13 +212,26 @@ async def brave_web_search(query: str, count: int = 5) -> str:
         return error_msg
 
 
+# Supported country/language combinations for Brave News API
+# Based on typical News API limitations (English-speaking countries mainly)
+_NEWS_COUNTRY_PRESETS = {
+    "US": "en",  # United States - English
+    "GB": "en",  # United Kingdom - English
+    "CA": "en",  # Canada - English
+    "AU": "en",  # Australia - English
+    "NZ": "en",  # New Zealand - English
+    "IE": "en",  # Ireland - English
+    # Limited support for non-English countries
+}
+
+
 @tool
 async def brave_news_search(
     query: str,
     count: int = 5,
     country: str = "US",
     search_lang: str = "en",
-    freshness: Literal["pd", "pw", "pm", "py"] | None = None,
+    freshness: str | None = None,
 ) -> str:
     """Search recent news articles using Brave Search API.
 
@@ -220,17 +241,20 @@ async def brave_news_search(
     - Time-sensitive information from news sources
     - User explicitly asks for "news" or "latest news"
 
-    Supports filtering by:
-    - Country (US, JP, UK, etc.)
-    - Language (en, ja, etc.)
-    - Freshness (last 24h, week, month, year)
+    ⚠️ IMPORTANT: News API primarily supports English-speaking countries
+    - For non-English news, use brave_web_search or web_search instead
+    - Supported countries: US, GB, CA, AU, NZ, IE (English only)
+    - For Japanese/other language news → use brave_web_search
 
     Args:
         query: Search query for news articles
         count: Number of results (default: 5, max: 20)
-        country: Country code (default: "US", "JP" for Japan, "GB" for UK)
-        search_lang: Search language (default: "en", "ja" for Japanese)
-        freshness: Time filter:
+        country: Country code (default: "US")
+            Supported: US, GB, CA, AU, NZ, IE
+            For other countries, automatically falls back to US
+        search_lang: Search language (default: "en")
+            Currently only "en" is well-supported for news
+        freshness: Time filter (optional):
             - "pd" (past day / 24 hours)
             - "pw" (past week)
             - "pm" (past month)
@@ -238,17 +262,17 @@ async def brave_news_search(
             - None (all time)
 
     Returns:
-        JSON string with news results including title, URL, description, and age
+        JSON string with news results
 
-    Example:
-        # Breaking news (last 24 hours)
-        query="AI regulation", freshness="pd", count=5
+    Examples:
+        # Breaking US news (recommended)
+        query="AI regulation", freshness="pd"
 
-        # Weekly tech news
-        query="tech industry", freshness="pw", country="US"
+        # UK news
+        query="tech industry", country="GB"
 
-        # Japanese news
-        query="東京オリンピック", country="JP", search_lang="ja"
+        # For Japanese news, use brave_web_search instead:
+        brave_web_search(query="AI ニュース")
     """
     # Ensure count is int (LLM might pass as string)
     if isinstance(count, str):
@@ -256,6 +280,26 @@ async def brave_news_search(
             count = int(count)
         except ValueError:
             count = 5  # Default fallback
+
+    # Validate and auto-correct country/language combination
+    if country not in _NEWS_COUNTRY_PRESETS:
+        logger.warning(
+            f"Country '{country}' may not be supported for news. "
+            f"Falling back to 'US'. Supported: {list(_NEWS_COUNTRY_PRESETS.keys())}"
+        )
+        country = "US"
+        search_lang = "en"
+    else:
+        # Use preset language for country
+        search_lang = _NEWS_COUNTRY_PRESETS[country]
+
+    # Validate freshness parameter
+    valid_freshness = ["pd", "pw", "pm", "py"]
+    if freshness and freshness not in valid_freshness:
+        logger.warning(
+            f"Invalid freshness value '{freshness}', using None (all time)"
+        )
+        freshness = None
 
     try:
         from brave_search_python_client import (  # type: ignore[import-untyped]
@@ -305,16 +349,55 @@ async def brave_news_search(
         results = []
         if hasattr(response, "results"):
             for item in response.results[:count]:
-                results.append(
-                    {
-                        "title": str(getattr(item, "title", "")),
-                        "url": str(getattr(item, "url", "")),  # Convert HttpUrl to str
-                        "description": str(getattr(item, "description", "")),
-                        "age": str(getattr(item, "age", "")),
-                    }
-                )
+                # Clean thumbnail if present but empty
+                thumbnail = getattr(item, "thumbnail", None)
+                thumbnail_data = None
+                if thumbnail:
+                    # Handle empty thumbnail src (422 error cause)
+                    thumb_src = str(getattr(thumbnail, "src", ""))
+                    if thumb_src:  # Only include if not empty
+                        thumbnail_data = {
+                            "src": thumb_src,
+                            "width": getattr(thumbnail, "width", None),
+                            "height": getattr(thumbnail, "height", None),
+                        }
+
+                result_item: dict[str, Any] = {
+                    "title": str(getattr(item, "title", "")),
+                    "url": str(getattr(item, "url", "")),  # Convert HttpUrl to str
+                    "description": str(getattr(item, "description", "")),
+                    "age": str(getattr(item, "age", "")),
+                }
+
+                # Only add thumbnail if it has valid data
+                if thumbnail_data:
+                    result_item["thumbnail"] = thumbnail_data
+
+                results.append(result_item)
 
         return json.dumps(results, ensure_ascii=False, indent=2)
 
     except Exception as e:
-        return json.dumps({"error": f"News search failed: {str(e)}"}, indent=2)
+        error_msg = str(e)
+
+        # Provide helpful error messages
+        if "422" in error_msg or "Unprocessable" in error_msg:
+            return json.dumps(
+                {
+                    "error": "News search API error (422)",
+                    "details": error_msg,
+                    "suggestions": [
+                        "Try with country='US' and search_lang='en'",
+                        "Some country/language combinations may not be supported",
+                        "For Japanese news, try web_search instead",
+                    ],
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+
+        return json.dumps(
+            {"error": f"News search failed: {error_msg}"},
+            ensure_ascii=False,
+            indent=2,
+        )

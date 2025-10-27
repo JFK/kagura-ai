@@ -18,7 +18,7 @@ class TestIsToolAllowed:
         """Test that local context allows all tools."""
         # Safe tools
         assert is_tool_allowed("memory_store", "local") is True
-        assert is_tool_allowed("web_search", "local") is True
+        assert is_tool_allowed("brave_web_search", "local") is True
 
         # Dangerous tools
         assert is_tool_allowed("file_read", "local") is True
@@ -29,7 +29,7 @@ class TestIsToolAllowed:
         """Test that remote context allows safe tools."""
         assert is_tool_allowed("memory_store", "remote") is True
         assert is_tool_allowed("memory_recall", "remote") is True
-        assert is_tool_allowed("web_search", "remote") is True
+        assert is_tool_allowed("brave_web_search", "remote") is True
         assert is_tool_allowed("youtube_summarize", "remote") is True
 
     def test_remote_context_denies_dangerous_tools(self):
@@ -62,18 +62,18 @@ class TestGetAllowedTools:
 
     def test_local_context_returns_all_tools(self):
         """Test that local context returns all tools."""
-        tools = ["memory_store", "file_read", "web_search", "shell_exec"]
+        tools = ["memory_store", "file_read", "brave_web_search", "shell_exec"]
         allowed = get_allowed_tools(tools, "local")
         assert allowed == tools
 
     def test_remote_context_filters_dangerous_tools(self):
         """Test that remote context filters dangerous tools."""
-        tools = ["memory_store", "file_read", "web_search", "shell_exec"]
+        tools = ["memory_store", "file_read", "brave_web_search", "shell_exec"]
         allowed = get_allowed_tools(tools, "remote")
 
         # Should include safe tools only
         assert "memory_store" in allowed
-        assert "web_search" in allowed
+        assert "brave_web_search" in allowed
 
         # Should exclude dangerous tools
         assert "file_read" not in allowed
@@ -89,7 +89,7 @@ class TestGetDeniedTools:
 
     def test_remote_context_returns_dangerous_tools(self):
         """Test that remote context returns dangerous tools."""
-        tools = ["memory_store", "file_read", "web_search", "shell_exec"]
+        tools = ["memory_store", "file_read", "brave_web_search", "shell_exec"]
         denied = get_denied_tools(tools, "remote")
 
         # Should include dangerous tools only
@@ -98,11 +98,11 @@ class TestGetDeniedTools:
 
         # Should exclude safe tools
         assert "memory_store" not in denied
-        assert "web_search" not in denied
+        assert "brave_web_search" not in denied
 
     def test_local_context_returns_empty(self):
         """Test that local context returns empty list."""
-        tools = ["memory_store", "file_read", "web_search", "shell_exec"]
+        tools = ["memory_store", "file_read", "brave_web_search", "shell_exec"]
         denied = get_denied_tools(tools, "local")
         assert denied == []
 
@@ -169,7 +169,7 @@ class TestToolPermissionsConfig:
 
     def test_web_tools_are_safe(self):
         """Test that web/API tools are marked as safe."""
-        web_tools = ["web_search", "web_scrape", "brave_web_search"]
+        web_tools = ["web_scrape", "brave_web_search", "brave_news_search"]
 
         for tool in web_tools:
             assert TOOL_PERMISSIONS[tool]["remote"] is True, f"{tool} should be safe"
@@ -190,7 +190,7 @@ class TestIntegrationScenarios:
             "memory_recall",
             "file_read",
             "file_write",
-            "web_search",
+            "brave_web_search",
             "shell_exec",
             "youtube_summarize",
         ]
@@ -201,7 +201,7 @@ class TestIntegrationScenarios:
         # Should allow memory, web, youtube
         assert len(allowed) == 4
         assert "memory_store" in allowed
-        assert "web_search" in allowed
+        assert "brave_web_search" in allowed
         assert "youtube_summarize" in allowed
 
         # Should deny file, shell
@@ -217,7 +217,7 @@ class TestIntegrationScenarios:
             "memory_store",
             "memory_recall",
             "memory_search",
-            "web_search",
+            "brave_web_search",
             "youtube_summarize",
         ]
 

@@ -60,7 +60,7 @@ def test_mcp_server_includes_builtin_tools():
     assert "memory_recall" in tools
     assert "file_read" in tools
     assert "file_write" in tools
-    assert "web_search" in tools
+    assert "brave_web_search" in tools
 
 
 @pytest.mark.asyncio
@@ -149,7 +149,7 @@ def test_builtin_tools_auto_register():
     assert "memory_recall" in tools
     assert "file_read" in tools
     assert "file_write" in tools
-    assert "web_search" in tools
+    assert "brave_web_search" in tools
 
     # Should have at least 10 built-in tools
     assert len(tools) >= 10

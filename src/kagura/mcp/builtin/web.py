@@ -1,43 +1,13 @@
 """Built-in MCP tools for Web operations
 
-Exposes Kagura's web search and scraping features via MCP.
+Exposes Kagura's web scraping features via MCP.
+
+Note: For web search, use brave_web_search from brave_search.py
 """
 
 from __future__ import annotations
 
-import json
-from dataclasses import asdict
-
 from kagura import tool
-
-
-@tool
-async def web_search(query: str, max_results: int = 5) -> str:
-    """Search the web using Brave Search API
-
-    Args:
-        query: Search query
-        max_results: Maximum number of results
-
-    Returns:
-        JSON string of search results
-    """
-    try:
-        from kagura.web import search
-
-        results = await search(query, max_results=max_results)
-
-        # Convert SearchResult dataclass objects to dictionaries
-        results_dict = [asdict(result) for result in results]
-
-        return json.dumps(results_dict, indent=2, ensure_ascii=False)
-    except ImportError:
-        return json.dumps(
-            {
-                "error": "Web search requires 'web' extra. "
-                "Install with: pip install kagura-ai[web]"
-            }
-        )
 
 
 @tool
