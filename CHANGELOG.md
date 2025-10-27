@@ -11,6 +11,90 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
+- **Memory Accuracy Improvements (Phases 1 & 2)**: Enhanced memory search precision (#418)
+
+  **Phase 1: Embeddings & Reranking**
+  - **E5 Multilingual Embeddings**: Switch from all-MiniLM-L6-v2 to intfloat/multilingual-e5-large
+    - 1024-dim embeddings supporting 100+ languages (including Japanese)
+    - Query/passage prefix handling for optimal E5 performance
+    - New `embeddings.py` module with `Embedder` class
+  - **Cross-Encoder Reranking**: Two-stage retrieval for improved precision
+    - Fast bi-encoder retrieval (K candidates) + accurate cross-encoder reranking (top k)
+    - MS-MARCO MiniLM-L-6-v2 cross-encoder model
+    - New `reranker.py` module with `MemoryReranker` class
+    - Expected 10-15% improvement in top-result precision
+  - **Multi-Dimensional Recall Scoring**: DNC/NTM-inspired composite scoring
+    - Combines semantic similarity, recency, access frequency, graph distance, and importance
+    - Configurable weights and decay parameters
+    - New `recall_scorer.py` module with `RecallScorer` class
+  - **Access Tracking**: Frequency-based memory usage tracking
+    - Added `access_count` and `last_accessed_at` columns to memories table
+    - Automatic access recording in `persistent.py`
+  - **Memory Reindexing**: CLI command for embedding model migration
+    - `kagura memory reindex` with batch processing and progress display
+    - Dry-run mode for safe testing
+    - GPU acceleration support
+  - **Memory Configuration**: Centralized config with Pydantic models
+    - New `memory_config.py` with `MemorySystemConfig`, `EmbeddingConfig`, `RerankConfig`, `RecallScorerConfig`
+    - Type-safe configuration management
+
+  **Phase 2: Hybrid Search**
+  - **BM25 Lexical Search**: Keyword-based matching to complement vector search
+    - New `lexical_search.py` with `BM25Searcher` class
+    - BM25Okapi algorithm for traditional information retrieval
+    - Effective for proper nouns, technical terms, Japanese kanji variants
+  - **RRF Fusion**: Reciprocal Rank Fusion (SIGIR'09) for combining results
+    - New `hybrid_search.py` with `rrf_fusion()` function
+    - Combines vector (semantic) + lexical (keyword) results
+    - Standard k=60 constant, weighted variants available
+  - **Hybrid Recall**: 3-stage retrieval pipeline
+    - `recall_hybrid()` method in MemoryManager
+    - Vector search → Lexical search → RRF fusion → Cross-encoder reranking
+    - Expected +10-15% for Japanese, +20-30% for exact keywords
+  - **Updated Config**: `HybridSearchConfig` (enabled by default)
+    - Configurable RRF constant, weights, candidates_k
+    - Auto-initialization of BM25Searcher
+
+  **Phase 3: Temporal GraphMemory**
+  - **Temporal Edge Attributes**: Time-aware knowledge graph
+    - `valid_from`: Start of validity period (defaults to now)
+    - `valid_until`: End of validity period (None = still valid)
+    - `source`: Evidence/source URL for relationships
+    - `confidence`: Confidence score (0.0-1.0)
+  - **Temporal Validation**: `is_edge_valid_at(timestamp)` method
+    - Check edge validity at any point in time
+    - Filter edges based on temporal bounds
+    - Timezone-aware datetime handling
+  - **Edge Invalidation**: `invalidate_edge()` for contradiction handling
+    - Mark edges as superseded
+    - Automatic `valid_until` setting
+    - `invalidated` flag for audit trail
+  - **Temporal Graph Queries**: `query_graph_temporal()` method
+    - Multi-hop traversal with temporal filtering
+    - Query current state or historical state
+    - Only follows edges valid at specified timestamp
+  - **Use Cases**:
+    - Contradiction handling (old vs new facts)
+    - Historical reasoning ("What was true in 2015?")
+    - Evidence-based knowledge management
+  - **Tests**: 6 new tests for temporal features
+    - Temporal edge creation, validation, invalidation
+    - Historical query scenarios
+  - **Backward Compatible**: All new parameters optional
+
+  **New MemoryManager methods**:
+    - `recall_semantic_with_rerank()` - Semantic search with optional reranking
+    - `recall_hybrid()` - Hybrid search with vector + lexical + RRF + reranking
+
+  **Tests**: Comprehensive test coverage for Phase 1
+    - `test_embeddings.py` - E5 prefix handling
+    - `test_reranker.py` - Batch reranking
+    - `test_recall_scorer.py` - Multi-dimensional scoring
+
+  **Dependencies Added**:
+    - `sentence-transformers>=2.2.0` - Embeddings & reranking
+    - `rank-bm25>=0.2.2` - BM25 lexical search
+
 - **Brave Image Search**: Search for images via Brave Search API (#399)
   - `brave_image_search` MCP tool
   - Parameters: query, count (1-200), safesearch (off/moderate/strict)
@@ -351,7 +435,14 @@ curl -X POST .../api/v1/memory
 
 ### ⚠️ Breaking Changes
 
-None - v4.0 is developed on separate branch (`364-featv40-phase-a-mcp-first-foundation`)
+- **Memory Embeddings Migration (#418)**: Embedding model changed from all-MiniLM-L6-v2 to multilingual-e5-large
+  - **Action Required**: Re-index all memories with new model
+  - Command: `kagura memory reindex --model intfloat/multilingual-e5-large`
+  - Impact: Existing semantic search results will change
+  - Reason: Improved multilingual support (100+ languages including Japanese) and 1024-dim embeddings
+  - **Database Schema**: Added `access_count` and `last_accessed_at` columns to memories table (auto-migrated)
+
+Note: v4.0 is developed on separate branch (`364-featv40-phase-a-mcp-first-foundation`)
 
 v3.0 remains stable on `main` branch.
 

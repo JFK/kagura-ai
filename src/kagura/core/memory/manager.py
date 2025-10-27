@@ -6,12 +6,17 @@ Provides a unified interface to all memory types (working, context, persistent).
 from pathlib import Path
 from typing import Any, Optional
 
+from kagura.config.memory_config import MemorySystemConfig
 from kagura.core.compression import CompressionPolicy, ContextManager
 from kagura.core.graph import GraphMemory
 
 from .context import ContextMemory, Message
+from .hybrid_search import rrf_fusion
+from .lexical_search import BM25Searcher
 from .persistent import PersistentMemory
 from .rag import MemoryRAG
+from .recall_scorer import RecallScorer
+from .reranker import MemoryReranker
 from .working import WorkingMemory
 
 
@@ -32,6 +37,7 @@ class MemoryManager:
         enable_compression: bool = True,
         compression_policy: Optional[CompressionPolicy] = None,
         model: str = "gpt-5-mini",
+        memory_config: Optional[MemorySystemConfig] = None,
     ) -> None:
         """Initialize memory manager.
 
@@ -49,10 +55,14 @@ class MemoryManager:
             enable_compression: Enable automatic context compression
             compression_policy: Compression configuration
             model: LLM model name for compression
+            memory_config: Memory system configuration (v4.0.0a0+)
         """
         # Normalize user_id to lowercase for case-insensitive matching
         self.user_id = user_id.lower()
         self.agent_name = agent_name
+
+        # Load memory configuration (v4.0.0a0+)
+        self.config = memory_config or MemorySystemConfig()
 
         # Initialize memory types
         self.working = WorkingMemory()
@@ -107,6 +117,29 @@ class MemoryManager:
             except ImportError:
                 # NetworkX not installed, disable graph
                 self.graph = None
+
+        # Optional: Reranker (v4.0.0a0 - Issue #418)
+        self.reranker: Optional[MemoryReranker] = None
+        if self.config.rerank.enabled:
+            try:
+                self.reranker = MemoryReranker(self.config.rerank)
+            except ImportError:
+                # sentence-transformers not installed
+                self.reranker = None
+
+        # Optional: Recall Scorer (v4.0.0a0 - Issue #418)
+        self.recall_scorer: Optional[RecallScorer] = None
+        if self.config.enable_access_tracking:
+            self.recall_scorer = RecallScorer(self.config.recall_scorer)
+
+        # Optional: BM25 Lexical Searcher (v4.0.0a0 Phase 2 - Issue #418)
+        self.lexical_searcher: Optional[BM25Searcher] = None
+        if self.config.hybrid_search.enabled:
+            try:
+                self.lexical_searcher = BM25Searcher()
+            except ImportError:
+                # rank-bm25 not installed
+                self.lexical_searcher = None
 
     # Working Memory
     def set_temp(self, key: str, value: Any) -> None:
@@ -442,6 +475,168 @@ class MemoryManager:
         # Sort by distance (lower is better) and limit to top_k
         results.sort(key=lambda x: x["distance"])
         return results[:top_k]
+
+    def recall_semantic_with_rerank(
+        self,
+        query: str,
+        top_k: Optional[int] = None,
+        candidates_k: Optional[int] = None,
+        scope: str = "all",
+        enable_rerank: bool = True,
+    ) -> list[dict[str, Any]]:
+        """Semantic search with optional cross-encoder reranking.
+
+        Two-stage retrieval for improved precision:
+        1. Fast bi-encoder retrieval (candidates_k results)
+        2. Accurate cross-encoder reranking (top_k final results)
+
+        Args:
+            query: Search query
+            top_k: Number of final results (defaults to config.rerank.top_k)
+            candidates_k: Number of candidates to retrieve before reranking
+                (defaults to config.rerank.candidates_k)
+            scope: Memory scope ("working", "persistent", "all")
+            enable_rerank: If True and reranker available, rerank results
+
+        Returns:
+            List of memory dictionaries, reranked if enabled
+
+        Raises:
+            ValueError: If RAG is not enabled
+
+        Example:
+            >>> # Fast: retrieve 100, rerank to 20
+            >>> results = memory.recall_semantic_with_rerank(
+            ...     "Python async patterns",
+            ...     top_k=20,
+            ...     candidates_k=100
+            ... )
+
+        Note:
+            Reranking improves precision but adds latency. For fast responses,
+            set enable_rerank=False or use recall_semantic() directly.
+        """
+        # Use config defaults if not specified
+        final_top_k = top_k or self.config.rerank.top_k
+        retrieve_k = candidates_k or self.config.rerank.candidates_k
+
+        # Stage 1: Fast bi-encoder retrieval
+        candidates = self.recall_semantic(query, top_k=retrieve_k, scope=scope)
+
+        # Stage 2: Cross-encoder reranking (if enabled and available)
+        if enable_rerank and self.reranker and candidates:
+            reranked = self.reranker.rerank(query, candidates, top_k=final_top_k)
+            return reranked
+
+        # Fallback: return top-k candidates without reranking
+        return candidates[:final_top_k]
+
+    def recall_hybrid(
+        self,
+        query: str,
+        top_k: Optional[int] = None,
+        candidates_k: Optional[int] = None,
+        scope: str = "all",
+        enable_rerank: bool = True,
+    ) -> list[dict[str, Any]]:
+        """Hybrid search combining vector and lexical search with RRF fusion.
+
+        Three-stage retrieval for maximum precision:
+        1. Vector search (semantic similarity)
+        2. Lexical search (keyword matching with BM25)
+        3. RRF fusion + optional cross-encoder reranking
+
+        Args:
+            query: Search query
+            top_k: Number of final results (defaults to config.rerank.top_k)
+            candidates_k: Number of candidates from each search
+                (defaults to config.hybrid_search.candidates_k)
+            scope: Memory scope ("working", "persistent", "all")
+            enable_rerank: If True and reranker available, rerank fused results
+
+        Returns:
+            List of memory dictionaries, ranked by hybrid score
+
+        Raises:
+            ValueError: If RAG is not enabled or lexical searcher not available
+
+        Example:
+            >>> # Hybrid search with reranking
+            >>> results = memory.recall_hybrid(
+            ...     "Pythonの非同期処理",
+            ...     top_k=20,
+            ...     candidates_k=100
+            ... )
+
+        Note:
+            Hybrid search is especially effective for:
+            - Japanese text with kanji variants
+            - Proper nouns (names, places, brands)
+            - Technical terms and code
+            - Queries requiring both semantic and exact matching
+        """
+        if not self.rag and not self.persistent_rag:
+            raise ValueError("RAG not enabled. Set enable_rag=True")
+
+        if not self.lexical_searcher:
+            raise ValueError(
+                "Lexical search not available. "
+                "Install rank-bm25: pip install rank-bm25"
+            )
+
+        # Use config defaults if not specified
+        final_top_k = top_k or self.config.rerank.top_k
+        retrieve_k = candidates_k or self.config.hybrid_search.candidates_k
+
+        # Stage 1: Vector search (semantic)
+        vector_results = self.recall_semantic(query, top_k=retrieve_k, scope=scope)
+
+        # Add rank field (1-based)
+        for rank, result in enumerate(vector_results, start=1):
+            result["rank"] = rank
+
+        # Stage 2: Lexical search (keyword)
+        # First, ensure documents are indexed
+        # TODO: Auto-index on document store
+        # For now, search from existing vector results as fallback
+        lexical_results: list[dict[str, Any]] = []
+        if self.lexical_searcher.count() > 0:
+            lexical_results = self.lexical_searcher.search(
+                query,
+                k=retrieve_k,
+                min_score=self.config.hybrid_search.min_lexical_score,
+            )
+
+        # Stage 3: RRF fusion
+        if lexical_results:
+            # Combine using RRF
+            fused_ids_scores = rrf_fusion(
+                vector_results,
+                lexical_results,
+                k=self.config.hybrid_search.rrf_k,
+            )
+
+            # Rebuild results from fused IDs
+            # Map doc IDs to full documents
+            id_to_doc = {r["id"]: r for r in vector_results}
+            id_to_doc.update({r["id"]: r for r in lexical_results})
+
+            fused_results = []
+            for doc_id, rrf_score in fused_ids_scores[:retrieve_k]:
+                if doc_id in id_to_doc:
+                    doc = id_to_doc[doc_id].copy()
+                    doc["rrf_score"] = rrf_score
+                    fused_results.append(doc)
+        else:
+            # Fallback to vector-only if no lexical results
+            fused_results = vector_results[:retrieve_k]
+
+        # Stage 4: Cross-encoder reranking (optional)
+        if enable_rerank and self.reranker and fused_results:
+            reranked = self.reranker.rerank(query, fused_results, top_k=final_top_k)
+            return reranked
+
+        return fused_results[:final_top_k]
 
     def clear_all(self) -> None:
         """Clear all memory (working and context).

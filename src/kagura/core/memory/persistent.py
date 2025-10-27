@@ -49,7 +49,24 @@ class PersistentMemory:
                 # Column already exists
                 pass
 
-            # Create indexes (after ensuring user_id column exists)
+            # Migration: Add access tracking columns (v4.0.0a0)
+            try:
+                conn.execute(
+                    "ALTER TABLE memories ADD COLUMN access_count INTEGER DEFAULT 0"
+                )
+            except sqlite3.OperationalError:
+                # Column already exists
+                pass
+
+            try:
+                conn.execute(
+                    "ALTER TABLE memories ADD COLUMN last_accessed_at TIMESTAMP"
+                )
+            except sqlite3.OperationalError:
+                # Column already exists
+                pass
+
+            # Create indexes (after ensuring all columns exist)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_key ON memories(key)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_agent ON memories(agent_name)")
             conn.execute(
@@ -117,7 +134,11 @@ class PersistentMemory:
                 )
 
     def recall(
-        self, key: str, user_id: str, agent_name: Optional[str] = None
+        self,
+        key: str,
+        user_id: str,
+        agent_name: Optional[str] = None,
+        track_access: bool = False,
     ) -> Optional[Any]:
         """Retrieve persistent memory.
 
@@ -125,6 +146,7 @@ class PersistentMemory:
             key: Memory key
             user_id: User identifier (memory owner)
             agent_name: Optional agent name for scoping
+            track_access: If True, record access for frequency tracking
 
         Returns:
             Stored value or None
@@ -143,9 +165,41 @@ class PersistentMemory:
 
             row = cursor.fetchone()
             if row:
+                # Track access if requested
+                if track_access:
+                    self.record_access(key, user_id, agent_name)
+
                 return json.loads(row[0])
 
         return None
+
+    def record_access(
+        self, key: str, user_id: str, agent_name: Optional[str] = None
+    ) -> None:
+        """Record memory access for frequency tracking.
+
+        Updates access_count and last_accessed_at for the specified memory.
+        Used by RecallScorer for multi-dimensional recall scoring.
+
+        Args:
+            key: Memory key
+            user_id: User identifier (memory owner)
+            agent_name: Optional agent name for scoping
+
+        Note:
+            This is called automatically by recall() when track_access=True.
+        """
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                """
+                UPDATE memories
+                SET access_count = COALESCE(access_count, 0) + 1,
+                    last_accessed_at = ?
+                WHERE key = ? AND user_id = ?
+                  AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))
+                """,
+                (datetime.now().isoformat(), key, user_id, agent_name, agent_name),
+            )
 
     def search(
         self,
@@ -163,12 +217,13 @@ class PersistentMemory:
             limit: Maximum results
 
         Returns:
-            List of memory dictionaries
+            List of memory dictionaries with access tracking info
         """
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
                 """
-                SELECT key, value, created_at, updated_at, metadata
+                SELECT key, value, created_at, updated_at, metadata,
+                       access_count, last_accessed_at
                 FROM memories
                 WHERE key LIKE ? AND user_id = ?
                   AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))
@@ -187,6 +242,8 @@ class PersistentMemory:
                         "created_at": row[2],
                         "updated_at": row[3],
                         "metadata": json.loads(row[4]) if row[4] else None,
+                        "access_count": row[5] if row[5] is not None else 0,
+                        "last_accessed_at": row[6],
                     }
                 )
 
