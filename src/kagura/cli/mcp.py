@@ -92,21 +92,55 @@ def serve(ctx: click.Context, name: str, remote: bool):
         )
         sys.exit(1)
 
+    # Setup logging to file (Issue #415)
+    import logging
+    from logging.handlers import RotatingFileHandler
+    from pathlib import Path
+
+    log_dir = Path.home() / ".kagura" / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "mcp_server.log"
+
+    # Configure file handler (10MB max, 5 backups)
+    file_handler = RotatingFileHandler(
+        log_file, maxBytes=10 * 1024 * 1024, backupCount=5
+    )
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+    )
+
+    # Setup logger
+    logger = logging.getLogger("kagura.mcp")
+    logger.addHandler(file_handler)
+    logger.setLevel(logging.INFO)
+
+    # Also log to stderr if verbose
+    if verbose:
+        console_handler = logging.StreamHandler(sys.stderr)
+        console_handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+        logger.addHandler(console_handler)
+
+    logger.info(f"Starting Kagura MCP server: {name}")
+
     if verbose:
         click.echo(f"Starting Kagura MCP server: {name}", err=True)
+        click.echo(f"Logging to: {log_file}", err=True)
 
     # Auto-register built-in tools
     try:
         import kagura.mcp.builtin  # noqa: F401
 
+        logger.info("Loaded built-in MCP tools")
         if verbose:
             click.echo("Loaded built-in MCP tools", err=True)
     except ImportError:
+        logger.warning("Could not load built-in tools")
         if verbose:
             click.echo("Warning: Could not load built-in tools", err=True)
 
     # Create MCP server (local context = all tools)
     server = create_mcp_server(name, context="local")
+    logger.info("MCP server created with context: local")
 
     # Run server with stdio transport
     async def run_server():
@@ -816,6 +850,143 @@ def stats_command(
     for i, (tool_name, stats) in enumerate(sorted_tools[:5], start=1):
         console.print(f"  {i}. {tool_name} ({stats['calls']} calls)")
     console.print()
+
+
+@mcp.command(name="log")
+@click.option(
+    "--tail", "-n", help="Number of lines (default: 50)", type=int, default=50
+)
+@click.option("--follow", "-f", help="Follow log in real-time", is_flag=True)
+@click.option(
+    "--level",
+    help="Filter by log level",
+    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"]),
+    default=None,
+)
+@click.option("--search", help="Search pattern in logs", type=str, default=None)
+@click.pass_context
+def log_command(
+    ctx: click.Context,
+    tail: int,
+    follow: bool,
+    level: str | None,
+    search: str | None,
+):
+    """View MCP server logs
+
+    Display logs from MCP server for debugging and monitoring.
+
+    \b
+    Examples:
+        kagura mcp log                      # Last 50 lines
+        kagura mcp log --tail 100           # Last 100 lines
+        kagura mcp log --follow             # Real-time (like tail -f)
+        kagura mcp log --level ERROR        # Errors only
+        kagura mcp log --search "memory"    # Search for "memory"
+    """
+    import re
+    import time
+    from pathlib import Path
+
+    from rich.console import Console
+
+    console = Console()
+
+    # Log file location
+    log_file = Path.home() / ".kagura" / "logs" / "mcp_server.log"
+
+    if not log_file.exists():
+        console.print("[yellow]No log file found[/yellow]")
+        console.print()
+        console.print("[dim]MCP server logs will be created when you run:[/dim]")
+        console.print("[cyan]  kagura mcp serve[/cyan]")
+        console.print()
+        console.print(f"[dim]Expected location: {log_file}[/dim]")
+        console.print()
+        return
+
+    def matches_filters(line: str) -> bool:
+        """Check if line matches level and search filters."""
+        if level and f"[{level}]" not in line:
+            return False
+        if search and not re.search(search, line, re.IGNORECASE):
+            return False
+        return True
+
+    def format_log_line(line: str) -> tuple[str, str]:
+        """Format log line with appropriate style."""
+        if "[ERROR]" in line:
+            return line.rstrip(), "red"
+        elif "[WARNING]" in line or "[WARN]" in line:
+            return line.rstrip(), "yellow"
+        elif "[INFO]" in line:
+            return line.rstrip(), "white"
+        elif "[DEBUG]" in line:
+            return line.rstrip(), "dim"
+        else:
+            return line.rstrip(), "white"
+
+    # Display header
+    console.print()
+    console.print("[bold cyan]Kagura MCP Server Logs[/bold cyan]")
+
+    if follow:
+        console.print("[dim]Following log (Ctrl+C to stop)...[/dim]")
+    else:
+        console.print(f"[dim]Last {tail} lines[/dim]")
+
+    if level:
+        console.print(f"[dim]Level filter: {level}[/dim]")
+    if search:
+        console.print(f"[dim]Search: {search}[/dim]")
+
+    console.print(f"[dim]Log file: {log_file}[/dim]")
+    console.print()
+
+    # Read and display logs
+    try:
+        with open(log_file, "r") as f:
+            if not follow:
+                # Tail mode: read all, filter, show last N
+                lines = f.readlines()
+                filtered_lines = [line for line in lines if matches_filters(line)]
+                display_lines = filtered_lines[-tail:]
+
+                for line in display_lines:
+                    text, style = format_log_line(line)
+                    console.print(text, style=style)
+
+                console.print()
+                console.print(
+                    f"[dim]Showing {len(display_lines)} of "
+                    f"{len(filtered_lines)} matching lines[/dim]"
+                )
+                console.print()
+
+            else:
+                # Follow mode: seek to end, wait for new lines
+                f.seek(0, 2)  # Seek to end
+
+                console.print("[dim]Waiting for new log entries...[/dim]")
+                console.print()
+
+                try:
+                    while True:
+                        line = f.readline()
+                        if line:
+                            if matches_filters(line):
+                                text, style = format_log_line(line)
+                                console.print(text, style=style)
+                        else:
+                            time.sleep(0.1)
+                except KeyboardInterrupt:
+                    console.print()
+                    console.print("[dim]Stopped following log[/dim]")
+                    console.print()
+
+    except Exception as e:
+        console.print(f"[red]✗ Failed to read log: {e}[/red]")
+        raise click.Abort()
 
 
 __all__ = ["mcp"]
