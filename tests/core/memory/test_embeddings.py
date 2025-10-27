@@ -4,7 +4,8 @@ import pytest
 
 pytest.importorskip("sentence_transformers")
 
-from kagura.core.memory.embeddings import Embedder, EmbeddingConfig
+from kagura.config.memory_config import EmbeddingConfig  # noqa: E402
+from kagura.core.memory.embeddings import Embedder  # noqa: E402
 
 
 def test_embedding_config_defaults():
@@ -123,12 +124,6 @@ def test_embedder_repr():
 def test_embedder_missing_dependency():
     """Test error when sentence-transformers is not installed."""
     # This test is tricky as we need sentence_transformers to run tests
-    # For now, just test the ImportError path is defined
-    try:
-        from kagura.core.memory.embeddings import Embedder
-
-        # If import succeeds, we can't test the failure path
-        assert True
-    except ImportError:
-        # Expected if sentence_transformers is not installed
-        assert True
+    # The ImportError is raised in __init__, not at module import
+    # Skip this test as it requires uninstalling sentence_transformers
+    pytest.skip("Requires uninstalling sentence_transformers to test")

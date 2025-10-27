@@ -4,8 +4,8 @@ import pytest
 
 pytest.importorskip("sentence_transformers")
 
-from kagura.config.memory_config import RerankConfig
-from kagura.core.memory.reranker import MemoryReranker
+from kagura.config.memory_config import RerankConfig  # noqa: E402
+from kagura.core.memory.reranker import MemoryReranker  # noqa: E402
 
 
 def test_rerank_config_defaults():

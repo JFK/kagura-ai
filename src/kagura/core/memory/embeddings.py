@@ -16,43 +16,10 @@ from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 
+from kagura.config.memory_config import EmbeddingConfig
+
 if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
-
-
-class EmbeddingConfig:
-    """Configuration for embedding models.
-
-    Attributes:
-        model: Model identifier (HuggingFace model name)
-        dimension: Embedding dimension
-        use_prefix: Whether to use query:/passage: prefixes (required for E5)
-        max_tokens: Maximum sequence length
-        normalize: Whether to normalize embeddings (recommended for cosine similarity)
-    """
-
-    def __init__(
-        self,
-        model: str = "intfloat/multilingual-e5-large",
-        dimension: int = 1024,
-        use_prefix: bool = True,
-        max_tokens: int = 512,
-        normalize: bool = True,
-    ):
-        """Initialize embedding configuration.
-
-        Args:
-            model: HuggingFace model identifier
-            dimension: Embedding dimension
-            use_prefix: Use query:/passage: prefixes (required for E5-series)
-            max_tokens: Maximum sequence length
-            normalize: Normalize embeddings to unit vectors
-        """
-        self.model = model
-        self.dimension = dimension
-        self.use_prefix = use_prefix
-        self.max_tokens = max_tokens
-        self.normalize = normalize
 
 
 class Embedder:
