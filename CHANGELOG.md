@@ -55,6 +55,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Configurable RRF constant, weights, candidates_k
     - Auto-initialization of BM25Searcher
 
+  **Phase 3: Temporal GraphMemory**
+  - **Temporal Edge Attributes**: Time-aware knowledge graph
+    - `valid_from`: Start of validity period (defaults to now)
+    - `valid_until`: End of validity period (None = still valid)
+    - `source`: Evidence/source URL for relationships
+    - `confidence`: Confidence score (0.0-1.0)
+  - **Temporal Validation**: `is_edge_valid_at(timestamp)` method
+    - Check edge validity at any point in time
+    - Filter edges based on temporal bounds
+    - Timezone-aware datetime handling
+  - **Edge Invalidation**: `invalidate_edge()` for contradiction handling
+    - Mark edges as superseded
+    - Automatic `valid_until` setting
+    - `invalidated` flag for audit trail
+  - **Temporal Graph Queries**: `query_graph_temporal()` method
+    - Multi-hop traversal with temporal filtering
+    - Query current state or historical state
+    - Only follows edges valid at specified timestamp
+  - **Use Cases**:
+    - Contradiction handling (old vs new facts)
+    - Historical reasoning ("What was true in 2015?")
+    - Evidence-based knowledge management
+  - **Tests**: 6 new tests for temporal features
+    - Temporal edge creation, validation, invalidation
+    - Historical query scenarios
+  - **Backward Compatible**: All new parameters optional
+
   **New MemoryManager methods**:
     - `recall_semantic_with_rerank()` - Semantic search with optional reranking
     - `recall_hybrid()` - Hybrid search with vector + lexical + RRF + reranking
