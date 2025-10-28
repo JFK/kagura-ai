@@ -105,9 +105,13 @@ async def _test_openai_api(api_key: str) -> tuple[bool, str]:
         error_msg = str(e)
 
         # Provide helpful hints for common errors
-        if "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
+        if (
+            "authentication" in error_msg.lower()
+            or "invalid api key" in error_msg.lower()
+            or "invalid key" in error_msg.lower()
+        ):
             return False, "Invalid API key (check format and validity)"
-        elif "rate_limit" in error_msg.lower() or "quota" in error_msg.lower():
+        elif ("rate_limit" in error_msg.lower() or "quota" in error_msg.lower()):
             return False, "Rate limit exceeded (try again later)"
         else:
             return False, f"Connection failed: {error_msg[:200]}"
@@ -165,12 +169,12 @@ async def _test_google_api(api_key: str) -> tuple[bool, str]:
 
         # Provide helpful hints for common errors
         if (
-            "authentication_error" in error_msg.lower() or
-            "invalid" in error_msg.lower()
+            "authentication_error" in error_msg.lower()
+            or "invalid api key" in error_msg.lower()
+            or "api key not valid" in error_msg.lower()
         ):
             return False, "Invalid API key (check format and validity)"
-        elif "rate_limit" in error_msg.lower() or \
-             "quota" in error_msg.lower():
+        elif ("rate_limit" in error_msg.lower() or "quota" in error_msg.lower()):
             return False, "Rate limit exceeded (try again later)"
         else:
             # Truncate long error messages
