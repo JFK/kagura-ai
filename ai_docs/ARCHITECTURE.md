@@ -87,7 +87,7 @@ Kagura AI v4.0 is a **Universal AI Memory Platform** - MCP-native memory infrast
        │              Storage Layer                │
        │  • SQLite (memory.db, api_keys.db)        │
        │  • ChromaDB (vectors)                     │
-       │  • NetworkX pickle (graph.pkl)            │
+       │  • NetworkX JSON (graph.json)             │
        │  • JSONL exports                          │
        └───────────────────────────────────────────┘
 ```
@@ -312,7 +312,7 @@ MemoryManager(user_id="jfk", agent_name="global")
 - `record_interaction()` - AI-User interaction tracking
 - `analyze_user_pattern()` - Pattern analysis
 
-**Storage**: Pickle file (`~/.kagura/graph.pkl`)
+**Storage**: JSON file (`~/.kagura/graph.json`)
 
 ---
 

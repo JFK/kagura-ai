@@ -113,7 +113,7 @@ class MemoryManager:
         self.graph: Optional[GraphMemory] = None
         if enable_graph:
             try:
-                graph_path = persist_dir / "graph.pkl" if persist_dir else None
+                graph_path = persist_dir / "graph.json" if persist_dir else None
                 self.graph = GraphMemory(persist_path=graph_path)
             except ImportError:
                 # NetworkX not installed, disable graph

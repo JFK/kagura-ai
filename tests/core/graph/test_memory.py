@@ -50,7 +50,7 @@ class TestGraphMemoryBasics:
     def test_init_with_persist_path(self) -> None:
         """Test initialization with persist path."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            persist_path = Path(tmpdir) / "graph.pkl"
+            persist_path = Path(tmpdir) / "graph.json"
             graph = GraphMemory(persist_path=persist_path)
             assert graph.persist_path == persist_path
 
@@ -451,7 +451,7 @@ class TestPersistence:
     def test_persist_and_load(self, graph_with_data: GraphMemory) -> None:
         """Test saving and loading graph."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            persist_path = Path(tmpdir) / "graph.pkl"
+            persist_path = Path(tmpdir) / "graph.json"
             graph_with_data.persist_path = persist_path
 
             # Save graph
@@ -487,7 +487,7 @@ class TestPersistence:
     def test_load_nonexistent_file(self) -> None:
         """Test load non-existent file raises error."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            persist_path = Path(tmpdir) / "nonexistent.pkl"
+            persist_path = Path(tmpdir) / "nonexistent.json"
             graph = GraphMemory(persist_path=persist_path)
             with pytest.raises(FileNotFoundError):
                 graph.load()
@@ -495,7 +495,7 @@ class TestPersistence:
     def test_auto_load_on_init(self) -> None:
         """Test graph auto-loads if persist_path exists."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            persist_path = Path(tmpdir) / "graph.pkl"
+            persist_path = Path(tmpdir) / "graph.json"
 
             # Create and save graph
             graph1 = GraphMemory(persist_path=persist_path)
