@@ -4,11 +4,11 @@ Dependency injection for MemoryManager and other shared resources.
 """
 
 import warnings
-from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, Header
 
+from kagura.config.paths import get_data_dir
 from kagura.core.memory import MemoryManager
 
 # Global MemoryManager instances (user_id -> MemoryManager)
@@ -60,8 +60,8 @@ def get_memory_manager(user_id: str = Depends(get_user_id)) -> MemoryManager:
     """
     if user_id not in _memory_managers:
         # Initialize MemoryManager for this user
-        # Each user gets their own persist directory
-        persist_dir = Path(f".kagura/api/{user_id}")
+        # Each user gets their own persist directory in XDG data dir
+        persist_dir = get_data_dir() / "api" / user_id
         persist_dir.mkdir(parents=True, exist_ok=True)
 
         _memory_managers[user_id] = MemoryManager(

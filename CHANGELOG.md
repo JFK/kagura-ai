@@ -9,7 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔒 Security
+
+- **Fixed X-User-ID Header Trust Vulnerability** (#436)
+  - Removed trust of X-User-ID header to prevent user impersonation attacks
+  - Now only trusts user_id from verified API keys
+  - Added KAGURA_REQUIRE_AUTH environment variable for production mode
+  - Added 6 security tests for impersonation prevention
+  - **Breaking Change**: Clients using X-User-ID must migrate to API key authentication
+
 ### ✨ Added
+
+- **XDG Base Directory Compliance** (#439)
+  - Platform-specific directory management following XDG specification
+  - New `config/paths.py` module with get_cache_dir(), get_data_dir(), get_config_dir()
+  - Environment variable override support (KAGURA_*_DIR)
+  - Cross-platform: Linux (XDG), macOS (XDG), Windows (AppData)
+  - **Directory structure**:
+    - Cache: ~/.cache/kagura/ (deletable)
+    - Data: ~/.local/share/kagura/ (persistent)
+    - Config: ~/.config/kagura/ (user-editable)
+  - **Breaking Change**: Path changes - existing ~/.kagura data requires manual migration
+
+- **Progressive Disclosure for Memory Search** (#432 Phase 2)
+  - `memory_search_ids`: Browse search results with ID + 50-char previews (~80% token reduction)
+  - `memory_fetch`: Fetch full content by key after browsing
+  - Two-step workflow for efficient token usage
 
 - **Memory Accuracy Improvements (Phases 1 & 2)**: Enhanced memory search precision (#418)
 
@@ -171,6 +196,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integration test suite (9 tests)
 
 ### 🔄 Changed
+
+- **GraphMemory Persistence: Pickle → JSON** (#433)
+  - Replaced pickle.dump/load with NetworkX node_link_data/node_link_graph
+  - File format: graph.pkl → graph.json (human-readable, git-friendly)
+  - Added edges="links" parameter for NetworkX 3.6+ compatibility
+  - **Security**: Eliminates arbitrary code execution risk from pickle
+  - **Cloud-safe**: Multi-instance compatible file format
+  - **Breaking Change**: Existing graph.pkl files require manual recreation
+
+- **MCP Tool Token Optimization** (#432 Phase 1 & 2)
+  - **memory_search**: Reduced default k from 5 to 3 (40% fewer results)
+  - **memory_search**: Added mode parameter ("summary" | "full")
+    - Summary mode: ~200 tokens (80% reduction)
+    - Full mode: ~1000 tokens (backward compatible default)
+  - **memory_list**: Reduced default limit from 50 to 10 (80% reduction)
+  - **memory_store**: Compact output format (67% reduction)
+    - Before: 4 lines, ~150 tokens
+    - After: 1 line, ~50 tokens ("✓ Stored: key (persistent, global, RAG✓)")
+  - **Overall token reduction**: ~60-70% across memory tools
 
 - **GraphMemory**: Made `ai_platform` parameter optional in `record_interaction` (#381)
   - New signature: `record_interaction(user_id, query, response, metadata)`

@@ -172,7 +172,7 @@ ChatGPT                         Your Server
 - `learned_from` - Learning relationships
 - `works_on` - User activities
 
-**Storage**: Pickle files (`~/.kagura/graph.pkl`)
+**Storage**: Pickle files (`~/.local/share/kagura/graph.pkl`)
 
 ---
 
@@ -192,7 +192,7 @@ ChatGPT                         Your Server
 **Authentication**:
 - **File**: `src/kagura/api/auth.py`
 - **Method**: Bearer token (API keys)
-- **Storage**: SQLite (`~/.kagura/api_keys.db`)
+- **Storage**: SQLite (`~/.local/share/kagura/api_keys.db`)
 - **Hashing**: SHA256
 
 ---
@@ -329,10 +329,10 @@ ChatGPT                         Your Server
 
 ```
 Developer Machine
-├── SQLite (~/.kagura/memory.db)
-├── ChromaDB (~/.kagura/chromadb/)
-├── Graph pickle (~/.kagura/graph.pkl)
-└── API Keys (~/.kagura/api_keys.db)
+├── SQLite (~/.local/share/kagura/memory.db)
+├── ChromaDB (~/.local/share/kagura/chromadb/)
+├── Graph pickle (~/.local/share/kagura/graph.pkl)
+└── API Keys (~/.local/share/kagura/api_keys.db)
 ```
 
 ### Production Deployment

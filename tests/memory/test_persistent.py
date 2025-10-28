@@ -246,9 +246,11 @@ def test_persistent_memory_repr(temp_db):
 
 
 def test_persistent_memory_default_path():
-    """Test default database path."""
+    """Test default database path (XDG-compliant)."""
+    from kagura.config.paths import get_data_dir
+
     memory = PersistentMemory()
-    expected_path = Path.home() / ".kagura" / "memory.db"
+    expected_path = get_data_dir() / "memory.db"
     assert memory.db_path == expected_path
 
     # Clean up

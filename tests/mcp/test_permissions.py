@@ -1,6 +1,5 @@
 """Tests for MCP tool permission system."""
 
-import pytest
 
 from kagura.mcp.permissions import (
     TOOL_PERMISSIONS,

@@ -20,11 +20,15 @@ class TestOAuth2ManagerInit:
     def test_initialization_default_provider(self, tmp_path: Path, monkeypatch):
         """Test initialization with default provider"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
+        # Mock XDG config dir to use tmp_path
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager(provider="google")
 
         assert auth.provider == "google"
-        assert auth.config_dir == tmp_path / ".kagura"
+        # XDG-compliant path: $XDG_CONFIG_HOME/kagura
+        assert auth.config_dir == tmp_path / ".config" / "kagura"
         assert auth.config_dir.exists()
         assert auth.key_file.exists()
         assert auth.key_file.stat().st_mode & 0o777 == 0o600
@@ -32,6 +36,8 @@ class TestOAuth2ManagerInit:
     def test_initialization_custom_config(self, tmp_path: Path, monkeypatch):
         """Test initialization with custom config"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         config = AuthConfig(
             provider="google",
@@ -45,6 +51,7 @@ class TestOAuth2ManagerInit:
     def test_encryption_key_generation(self, tmp_path: Path, monkeypatch):
         """Test encryption key is generated on first run"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
 
@@ -61,6 +68,7 @@ class TestOAuth2ManagerInit:
     def test_encryption_key_reuse(self, tmp_path: Path, monkeypatch):
         """Test existing encryption key is reused"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth1 = OAuth2Manager()
         key1 = auth1.key_file.read_bytes()
@@ -77,6 +85,7 @@ class TestOAuth2ManagerAuthentication:
     def test_is_authenticated_false_initially(self, tmp_path: Path, monkeypatch):
         """Test is_authenticated returns False initially"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
         assert not auth.is_authenticated()
@@ -86,6 +95,7 @@ class TestOAuth2ManagerAuthentication:
     ):
         """Test is_authenticated returns True after credentials saved"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
         auth._save_credentials(mock_credentials)
@@ -95,6 +105,7 @@ class TestOAuth2ManagerAuthentication:
     def test_login_missing_client_secrets(self, tmp_path: Path, monkeypatch):
         """Test login raises error when client_secrets.json missing"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
 
@@ -140,6 +151,7 @@ class TestOAuth2ManagerAuthentication:
     ):
         """Test logout removes credentials"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
         auth._save_credentials(mock_credentials)
@@ -154,6 +166,7 @@ class TestOAuth2ManagerAuthentication:
     def test_logout_when_not_authenticated(self, tmp_path: Path, monkeypatch):
         """Test logout raises error when not authenticated"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
 
@@ -171,6 +184,7 @@ class TestOAuth2ManagerCredentials:
     ):
         """Test credentials can be saved and loaded"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
         auth._save_credentials(mock_credentials)
@@ -186,6 +200,7 @@ class TestOAuth2ManagerCredentials:
     ):
         """Test credentials file has secure permissions"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
         auth._save_credentials(mock_credentials)
@@ -196,6 +211,7 @@ class TestOAuth2ManagerCredentials:
     def test_get_credentials_when_not_authenticated(self, tmp_path: Path, monkeypatch):
         """Test get_credentials raises error when not authenticated"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
 
@@ -207,6 +223,7 @@ class TestOAuth2ManagerCredentials:
     ):
         """Test get_credentials returns valid credentials"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
         auth._save_credentials(mock_credentials)
@@ -222,6 +239,7 @@ class TestOAuth2ManagerCredentials:
     ):
         """Test token is refreshed when expired"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         # Create expired credentials
         creds_data = {
@@ -257,6 +275,7 @@ class TestOAuth2ManagerCredentials:
     ):
         """Test get_token returns access token"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
         auth._save_credentials(mock_credentials)
@@ -269,6 +288,7 @@ class TestOAuth2ManagerCredentials:
     def test_get_token_when_not_authenticated(self, tmp_path: Path, monkeypatch):
         """Test get_token raises error when not authenticated"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
 
@@ -278,6 +298,7 @@ class TestOAuth2ManagerCredentials:
     def test_load_invalid_credentials(self, tmp_path: Path, monkeypatch):
         """Test loading corrupted credentials raises error"""
         monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / ".config"))
 
         auth = OAuth2Manager()
 

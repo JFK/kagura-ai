@@ -1,10 +1,11 @@
 """Tests for API Key authentication."""
 
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
-from kagura.api.auth import APIKeyManager, API_KEY_PREFIX
+import pytest
+
+from kagura.api.auth import API_KEY_PREFIX, APIKeyManager
 
 
 class TestAPIKeyManager:
@@ -146,7 +147,6 @@ class TestAPIKeyManager:
 
     def test_expired_key_fails_verification(self, manager):
         """Test that expired keys cannot be verified."""
-        from datetime import datetime, timedelta
 
         api_key = manager.create_key(
             name="expired-key",

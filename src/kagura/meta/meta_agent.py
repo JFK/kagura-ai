@@ -132,7 +132,9 @@ class MetaAgent:
         if output_path is None:
             # Parse description again to get agent name
             spec = await self.parser.parse(description)
-            agents_dir = Path.home() / ".kagura" / "agents"
+            from kagura.config.paths import get_config_dir
+
+            agents_dir = get_config_dir() / "agents"
             agents_dir.mkdir(parents=True, exist_ok=True)
             output_path = agents_dir / f"{spec.name}.py"
 

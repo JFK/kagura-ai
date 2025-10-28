@@ -20,6 +20,7 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 
 from kagura import agent
+from kagura.config.paths import get_config_dir, get_data_dir
 from kagura.core.memory import MemoryManager
 from kagura.core.tool_registry import tool_registry
 from kagura.routing import AgentRouter, NoAgentFoundError
@@ -880,7 +881,7 @@ class ChatSession:
         """
         self.console = Console()
         self.model = model
-        self.session_dir = session_dir or Path.home() / ".kagura" / "sessions"
+        self.session_dir = session_dir or get_data_dir() / "sessions"
         self.session_dir.mkdir(parents=True, exist_ok=True)
 
         # Create memory manager
@@ -965,7 +966,7 @@ class ChatSession:
 
     def _load_custom_agents(self) -> None:
         """Load custom agents from ~/.kagura/agents/"""
-        agents_dir = Path.home() / ".kagura" / "agents"
+        agents_dir = get_config_dir() / "agents"
 
         # Create directory if not exists
         agents_dir.mkdir(parents=True, exist_ok=True)
@@ -1766,7 +1767,7 @@ Daily assistance with real-time streaming:
 
             if confirm == "y":
                 # Save to file
-                agents_dir = Path.home() / ".kagura" / "agents"
+                agents_dir = get_config_dir() / "agents"
                 agents_dir.mkdir(parents=True, exist_ok=True)
                 agent_file = agents_dir / f"{agent_name}.py"
 

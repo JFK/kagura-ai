@@ -8,6 +8,8 @@ from typing import Any, Optional
 
 import frontmatter
 
+from kagura.config.paths import get_config_dir
+
 from .command import Command
 
 
@@ -48,7 +50,7 @@ class CommandLoader:
         else:
             # Default: search global then local (so local overrides global)
             self.commands_dirs = [
-                Path.home() / ".kagura" / "commands",  # Global
+                get_config_dir() / "commands",  # Global
                 Path.cwd() / ".kagura" / "commands",  # Local (priority)
             ]
 

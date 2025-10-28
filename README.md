@@ -425,6 +425,41 @@ uvicorn kagura.api.server:app --reload
 
 **API Docs**: http://localhost:8000/docs
 
+### Data Storage
+
+Kagura follows **XDG Base Directory specification** for clean, platform-compliant data management:
+
+**Linux/macOS**:
+```
+~/.cache/kagura/          # Cache (deletable)
+├── chromadb/             # Vector embeddings
+└── logs/                 # MCP server logs
+
+~/.local/share/kagura/    # Persistent data
+├── memory.db             # Memories
+├── api_keys.db           # API keys
+└── sessions/             # Chat sessions
+
+~/.config/kagura/         # Configuration (user-editable)
+├── config.json           # Main config
+├── agents/               # Custom agents
+└── commands/             # Custom commands
+```
+
+**Windows**:
+```
+%LOCALAPPDATA%\kagura\cache\     # Cache
+%LOCALAPPDATA%\kagura\data\      # Data
+%APPDATA%\kagura\                # Config
+```
+
+**Customization** (optional):
+```bash
+export KAGURA_CACHE_DIR=/custom/cache/path
+export KAGURA_DATA_DIR=/custom/data/path
+export KAGURA_CONFIG_DIR=/custom/config/path
+```
+
 ---
 
 ## 🗺️ Roadmap

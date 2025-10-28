@@ -2,7 +2,6 @@
 
 import json
 import logging
-from pathlib import Path
 
 from cryptography.fernet import Fernet
 from google.auth.transport.requests import Request
@@ -59,8 +58,10 @@ class OAuth2Manager:
         self.config = config or AuthConfig(provider=provider)
 
         # Setup configuration directory
-        self.config_dir = Path.home() / ".kagura"
-        self.config_dir.mkdir(exist_ok=True)
+        from kagura.config.paths import get_config_dir
+
+        self.config_dir = get_config_dir()
+        self.config_dir.mkdir(exist_ok=True, parents=True)
 
         # File paths
         self.creds_file = self.config_dir / "credentials.json.enc"

@@ -310,7 +310,7 @@ kagura mcp connect \
   --user-id user_alice
 ```
 
-**Config saved to**: `~/.kagura/remote-config.json`
+**Config saved to**: `~/.config/kagura/remote-config.json`
 
 ### Test Remote Connection
 

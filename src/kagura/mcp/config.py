@@ -17,7 +17,9 @@ class MCPConfig:
         self.claude_config_path = (
             Path.home() / ".config" / "claude" / "claude_desktop_config.json"
         )
-        self.kagura_config_path = Path.home() / ".kagura" / "mcp-config.yaml"
+        from kagura.config.paths import get_config_dir
+
+        self.kagura_config_path = get_config_dir() / "mcp-config.yaml"
 
     def get_claude_desktop_config(self) -> dict[str, Any] | None:
         """Get Claude Desktop MCP configuration.

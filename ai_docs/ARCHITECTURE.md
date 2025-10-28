@@ -85,11 +85,52 @@ Kagura AI v4.0 is a **Universal AI Memory Platform** - MCP-native memory infrast
                         │
        ┌────────────────▼──────────────────────────┐
        │              Storage Layer                │
-       │  • SQLite (memory.db, api_keys.db)        │
-       │  • ChromaDB (vectors)                     │
-       │  • NetworkX JSON (graph.json)             │
-       │  • JSONL exports                          │
+       │  XDG-Compliant Directories (v4.0+)        │
+       │                                           │
+       │  Cache (~/.cache/kagura/):                │
+       │    • ChromaDB vectors                     │
+       │    • MCP logs                             │
+       │                                           │
+       │  Data (~/.local/share/kagura/):           │
+       │    • SQLite (memory.db, api_keys.db)      │
+       │    • NetworkX JSON (graph.json)           │
+       │    • Sessions, telemetry                  │
+       │                                           │
+       │  Config (~/.config/kagura/):              │
+       │    • config.json, mcp-config.yaml         │
+       │    • Custom agents, commands              │
        └───────────────────────────────────────────┘
+```
+
+### Directory Structure (XDG-Compliant, v4.0+)
+
+**Linux/macOS**:
+```
+~/.cache/kagura/          # Cache (deletable)
+├── chromadb/             # Vector embeddings
+└── logs/                 # MCP server logs
+
+~/.local/share/kagura/    # Persistent data
+├── memory.db             # SQLite memory storage
+├── api_keys.db           # API key database
+├── telemetry.db          # Observability data
+├── graph.json            # NetworkX graph
+├── sessions/             # Chat sessions
+└── api/{user_id}/        # Per-user API data
+
+~/.config/kagura/         # User-editable config
+├── config.json           # Main configuration
+├── mcp-config.yaml       # MCP settings
+├── remote-config.json    # Remote connection
+├── agents/               # Custom agents
+└── commands/             # Custom commands
+```
+
+**Environment Variable Override**:
+```bash
+export KAGURA_CACHE_DIR=/custom/cache  # Override cache location
+export KAGURA_DATA_DIR=/custom/data    # Override data location
+export KAGURA_CONFIG_DIR=/custom/cfg   # Override config location
 ```
 
 ---
@@ -312,7 +353,7 @@ MemoryManager(user_id="jfk", agent_name="global")
 - `record_interaction()` - AI-User interaction tracking
 - `analyze_user_pattern()` - Pattern analysis
 
-**Storage**: JSON file (`~/.kagura/graph.json`)
+**Storage**: JSON file (`~/.local/share/kagura/graph.json`)
 
 ---
 
@@ -338,7 +379,7 @@ FastAPI App (server.py)
 - **File**: `auth.py`
 - **Class**: `APIKeyManager`
 - **Method**: Bearer token
-- **Storage**: SQLite (`~/.kagura/api_keys.db`)
+- **Storage**: SQLite (`~/.local/share/kagura/api_keys.db`)
 - **Hashing**: SHA256
 - **Extraction**: `user_id` from validated key
 
@@ -436,7 +477,7 @@ def get_memory_manager(user_id: str) -> MemoryManager:
 
 ### 1. API Key Authentication
 
-**Storage** (`~/.kagura/api_keys.db`):
+**Storage** (`~/.local/share/kagura/api_keys.db`):
 ```sql
 CREATE TABLE api_keys (
     id INTEGER PRIMARY KEY,

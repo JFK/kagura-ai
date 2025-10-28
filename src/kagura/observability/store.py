@@ -7,6 +7,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Optional
 
+from kagura.config.paths import get_data_dir
+
 
 class EventStore:
     """Store telemetry events in SQLite database.
@@ -29,7 +31,7 @@ class EventStore:
                 Can also be ":memory:" for in-memory database (testing).
         """
         if db_path is None:
-            db_path = Path.home() / ".kagura" / "telemetry.db"
+            db_path = get_data_dir() / "telemetry.db"
         elif isinstance(db_path, str) and db_path != ":memory:":
             db_path = Path(db_path)
 

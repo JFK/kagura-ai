@@ -138,7 +138,9 @@ class MCPDiagnostics:
             Status dict with storage info
         """
         try:
-            kagura_dir = Path.home() / ".kagura"
+            from kagura.config.paths import get_data_dir
+
+            kagura_dir = get_data_dir()
 
             if not kagura_dir.exists():
                 return {

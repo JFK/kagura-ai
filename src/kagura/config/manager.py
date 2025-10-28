@@ -50,10 +50,13 @@ class ConfigManager:
         """Initialize config manager
 
         Args:
-            config_path: Custom config file path (default: ~/.kagura/config.json)
+            config_path: Custom config file path
+                (default: XDG config dir or ~/.config/kagura/config.json)
         """
         if config_path is None:
-            config_path = Path.home() / ".kagura" / "config.json"
+            from kagura.config.paths import get_config_dir
+
+            config_path = get_config_dir() / "config.json"
 
         self.config_path = config_path
         self._config: Optional[UserConfig] = None
