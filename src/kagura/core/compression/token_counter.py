@@ -197,14 +197,31 @@ class TokenCounter:
         """
         # Model limits (as of 2025)
         limits = {
+            # OpenAI GPT-5 (2025)
+            "gpt-5": {"context_window": 128_000, "max_completion": 16_384},
             "gpt-5-mini": {"context_window": 128_000, "max_completion": 16_384},
+            "gpt-5-nano": {"context_window": 128_000, "max_completion": 16_384},
+            # OpenAI GPT-4 (legacy)
             "gpt-4o": {"context_window": 128_000, "max_completion": 16_384},
             "gpt-4-turbo": {"context_window": 128_000, "max_completion": 4_096},
             "gpt-4-turbo-preview": {"context_window": 128_000, "max_completion": 4_096},
             "gpt-3.5-turbo": {"context_window": 16_385, "max_completion": 4_096},
+            # Anthropic Claude 4 (2025)
+            "claude-sonnet-4-5": {"context_window": 200_000, "max_completion": 8_192},
+            "claude-haiku-4-5": {"context_window": 200_000, "max_completion": 8_192},
+            "claude-opus-4-1": {"context_window": 200_000, "max_completion": 8_192},
+            # Anthropic Claude 3 (legacy)
             "claude-3-5-sonnet": {"context_window": 200_000, "max_completion": 8_192},
             "claude-3-opus": {"context_window": 200_000, "max_completion": 4_096},
             "claude-3-sonnet": {"context_window": 200_000, "max_completion": 4_096},
+            # Google Gemini 2.0/2.5 (2025)
+            "gemini-2.0-flash-exp": {
+                "context_window": 1_000_000,
+                "max_completion": 8_192,
+            },
+            "gemini-2.5-flash": {"context_window": 1_000_000, "max_completion": 8_192},
+            "gemini-2.5-pro": {"context_window": 2_000_000, "max_completion": 8_192},
+            # Google Gemini 1.5 (deprecated 2025)
             "gemini-1.5-pro": {"context_window": 2_000_000, "max_completion": 8_192},
             "gemini-1.5-flash": {"context_window": 1_000_000, "max_completion": 8_192},
         }
