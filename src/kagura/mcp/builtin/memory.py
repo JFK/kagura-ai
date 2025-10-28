@@ -415,7 +415,8 @@ async def memory_search(
                 # Distance/score (if available)
                 distance = result.get("distance")
                 if distance is not None:
-                    score_str = f" (score: {1-distance:.2f})"
+                    score = max(0.0, min(1.0, 1 - distance))
+                    score_str = f" (score: {score:.2f})"
                 else:
                     score_str = ""
 
