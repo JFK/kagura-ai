@@ -271,7 +271,7 @@ echo 'manager.working.set("test", "value")' | python -c "..."
 kagura memory export --output ./roundtrip-test
 
 # Clear (⚠️ for testing only)
-rm ~/.kagura/memory.db
+rm ~/.local/share/kagura/memory.db
 
 # Import
 kagura memory import --input ./roundtrip-test

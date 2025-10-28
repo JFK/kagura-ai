@@ -48,12 +48,12 @@ pip install kagura-ai[auth]
 
 ### Step 2: Save Client Secrets
 
-Save the downloaded JSON file as `~/.kagura/client_secrets.json`:
+Save the downloaded JSON file as `~/.config/kagura/client_secrets.json`:
 
 ```bash
 mkdir -p ~/.kagura
-mv ~/Downloads/client_secret_*.json ~/.kagura/client_secrets.json
-chmod 600 ~/.kagura/client_secrets.json
+mv ~/Downloads/client_secret_*.json ~/.config/kagura/client_secrets.json
+chmod 600 ~/.config/kagura/client_secrets.json
 ```
 
 **Important**: Keep this file secure! It contains your OAuth client credentials.
@@ -69,7 +69,7 @@ kagura auth login --provider google
 This will:
 1. Open your browser for Google OAuth2 authentication
 2. Ask you to authorize Kagura AI to access Google Generative Language API
-3. Save encrypted credentials to `~/.kagura/credentials.json.enc`
+3. Save encrypted credentials to `~/.config/kagura/credentials.json.enc`
 
 **Output:**
 ```
@@ -212,9 +212,9 @@ Run: kagura auth login --provider google
 
 OAuth2 credentials are stored securely:
 
-- **Location**: `~/.kagura/credentials.json.enc`
+- **Location**: `~/.config/kagura/credentials.json.enc`
 - **Encryption**: Fernet (AES-128 in CBC mode)
-- **Key Storage**: `~/.kagura/.key` (with 0600 permissions)
+- **Key Storage**: `~/.config/kagura/.key` (with 0600 permissions)
 - **File Permissions**: Both files have 0600 (owner read/write only)
 
 ### Token Refresh
@@ -227,7 +227,7 @@ Access tokens are automatically refreshed:
 
 ### Best Practices
 
-1. **Never commit** `~/.kagura/` directory to version control
+1. **Never commit** `~/.config/kagura/` directory to version control
 2. **Keep `client_secrets.json` secure** - it's like a password
 3. **Don't share** your `credentials.json.enc` file
 4. **Logout** when you're done on shared machines
@@ -244,7 +244,7 @@ FileNotFoundError: Client secrets file not found: /home/user/.kagura/client_secr
 
 **Solution:**
 1. Download OAuth 2.0 Client ID JSON from Google Cloud Console
-2. Save it as `~/.kagura/client_secrets.json`
+2. Save it as `~/.config/kagura/client_secrets.json`
 
 ### "Not authenticated with google"
 
@@ -279,7 +279,7 @@ InvalidCredentialsError: Failed to decrypt credentials
 - Encryption key was regenerated
 
 **Solution:**
-1. Remove credentials: `rm ~/.kagura/credentials.json.enc`
+1. Remove credentials: `rm ~/.config/kagura/credentials.json.enc`
 2. Login again: `kagura auth login --provider google`
 
 ## Environment Variables
