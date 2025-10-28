@@ -3,6 +3,7 @@ Main CLI entry point for Kagura AI
 """
 
 import click
+from dotenv import load_dotenv
 
 # Direct import to avoid loading kagura/__init__.py
 from kagura.version import __version__
@@ -70,6 +71,10 @@ def cli(ctx: click.Context, verbose: bool, quiet: bool):
       kagura version          Show version information
       kagura --help           Show this help message
     """
+    # Auto-load .env file from current directory (Issue #444)
+    # This allows users to store API keys in .env instead of system environment
+    load_dotenv()
+
     # Store options in context for subcommands
     ctx.ensure_object(dict)
     ctx.obj["verbose"] = verbose
