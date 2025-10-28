@@ -17,6 +17,8 @@ class TestMCPConnect:
     def temp_config_dir(self, monkeypatch, tmp_path):
         """Use temporary directory for config."""
         monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path)
+        # Override get_config_dir() to use tmp_path
+        monkeypatch.setenv("KAGURA_CONFIG_DIR", str(tmp_path / ".config" / "kagura"))
         yield tmp_path
 
     def test_connect_saves_config(self, temp_config_dir):
@@ -111,6 +113,8 @@ class TestMCPTestRemote:
     def temp_config_dir(self, monkeypatch, tmp_path):
         """Use temporary directory for config."""
         monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path)
+        # Override get_config_dir() to use tmp_path
+        monkeypatch.setenv("KAGURA_CONFIG_DIR", str(tmp_path / ".config" / "kagura"))
         yield tmp_path
 
     @pytest.fixture
