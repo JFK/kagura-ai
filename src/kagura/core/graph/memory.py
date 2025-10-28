@@ -400,15 +400,8 @@ class GraphMemory:
 
         # Convert JSON data back to NetworkX graph
         # edges="links" ensures forward compatibility with NetworkX 3.6+
-        loaded_graph = nx.node_link_graph(data, edges="links")
-
-        # Ensure it's a DiGraph (type narrowing for pyright)
-        if not isinstance(loaded_graph, nx.DiGraph):
-            # Convert to DiGraph if needed (shouldn't happen with our data)
-            self.graph = nx.DiGraph(loaded_graph)
-        else:
-            self.graph = loaded_graph
-
+        # edges="links" ensures forward compatibility with NetworkX 3.6+
+        self.graph: nx.DiGraph = nx.node_link_graph(data, edges="links")  # type: ignore[assignment]
     def stats(self) -> dict[str, Any]:
         """Get graph statistics.
 
