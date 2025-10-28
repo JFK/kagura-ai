@@ -1267,11 +1267,12 @@ async def memory_search_ids(
         JSON array of result objects with id, key, preview (50 chars), and score
 
         Example:
-            [{"id": "abc123", "key": "project_plan",
+            [{"id": "result_0", "key": "project_plan",
               "preview": "The Q3 roadmap...", "score": 0.95}]
 
     Note:
-        Use memory_fetch(id="abc123") to get full content after seeing previews.
+        Use memory_fetch(key="project_plan") to get full content.
+        The "id" field is for display only; use "key" for fetching.
     """
     # Ensure k is int
     if isinstance(k, str):
@@ -1324,11 +1325,12 @@ async def memory_search_ids(
             content = result.get("content", result.get("value", ""))
             preview = content[:50] + "..." if len(content) > 50 else content
 
-            # Generate simple ID (index-based for now)
+            # Generate simple ID (index-based for display)
             result_id = f"result_{i}"
 
-            # Get score (distance) if available
-            score = result.get("distance")
+            # Convert distance to score (consistent with memory_search)
+            distance = result.get("distance")
+            score = max(0.0, min(1.0, 1 - distance)) if distance is not None else None
 
             compact_results.append(
                 {
