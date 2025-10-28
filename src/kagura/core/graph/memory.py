@@ -5,7 +5,7 @@ NetworkX-based knowledge graph for memories, users, topics, and interactions.
 Issue #345: GraphDB integration for AI-User relationship memory
 """
 
-import pickle
+import json
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -49,7 +49,7 @@ class GraphMemory:
         """Initialize graph memory.
 
         Args:
-            persist_path: Path to save/load graph (pickle format)
+            persist_path: Path to save/load graph (JSON format)
         """
         self.graph = nx.DiGraph()
         self.persist_path = persist_path
@@ -359,7 +359,7 @@ class GraphMemory:
         return data
 
     def persist(self) -> None:
-        """Save graph to disk (pickle format).
+        """Save graph to disk (JSON format).
 
         Raises:
             ValueError: If persist_path is not set
@@ -370,12 +370,16 @@ class GraphMemory:
         # Ensure parent directory exists
         self.persist_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Save graph using pickle
-        with open(self.persist_path, "wb") as f:
-            pickle.dump(self.graph, f)
+        # Convert NetworkX graph to JSON-serializable format
+        # edges="links" preserves backward compatibility with NetworkX < 3.6
+        data = nx.node_link_data(self.graph, edges="links")
+
+        # Save graph using JSON
+        with open(self.persist_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, default=str)
 
     def load(self) -> None:
-        """Load graph from disk (pickle format).
+        """Load graph from disk (JSON format).
 
         Raises:
             ValueError: If persist_path is not set
@@ -387,9 +391,13 @@ class GraphMemory:
         if not self.persist_path.exists():
             raise FileNotFoundError(f"Graph file not found: {self.persist_path}")
 
-        # Load graph using pickle
-        with open(self.persist_path, "rb") as f:
-            self.graph = pickle.load(f)
+        # Load graph using JSON
+        with open(self.persist_path, encoding="utf-8") as f:
+            data = json.load(f)
+
+        # Convert JSON data back to NetworkX graph
+        # edges="links" preserves backward compatibility with NetworkX < 3.6
+        self.graph = nx.node_link_graph(data, edges="links")
 
     def stats(self) -> dict[str, Any]:
         """Get graph statistics.
