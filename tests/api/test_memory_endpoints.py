@@ -329,84 +329,25 @@ class TestMemoryList:
         assert data["page_size"] == 3
 
 
-class TestUserIdIsolation:
-    """Test X-User-ID header support and user isolation (v4.0)."""
-
-    def test_user_id_from_header(self):
-        """Test that X-User-ID header is respected."""
-        # Create memory for user1
-        response = client.post(
-            "/api/v1/memory",
-            json={"key": "user1_key", "value": "user1_value", "scope": "working"},
-            headers={"X-User-ID": "user1"},
-        )
-        assert response.status_code == 201
-
-        # Get memory with same header - should succeed
-        response = client.get(
-            "/api/v1/memory/user1_key?scope=working",
-            headers={"X-User-ID": "user1"},
-        )
-        assert response.status_code == 200
-        assert response.json()["value"] == "user1_value"
-
-    def test_default_user_without_header(self):
-        """Test that requests without X-User-ID use default_user."""
-        # Create without header
-        response = client.post(
-            "/api/v1/memory",
-            json={"key": "default_key", "value": "default_value", "scope": "working"},
-        )
-        assert response.status_code == 201
-
-        # Get without header - should use same default_user
-        response = client.get("/api/v1/memory/default_key?scope=working")
-        assert response.status_code == 200
-
-    def test_user_isolation(self):
-        """Test that different users have isolated memories."""
-        # Create memory for user1
-        client.post(
-            "/api/v1/memory",
-            json={"key": "shared_key", "value": "user1_value", "scope": "working"},
-            headers={"X-User-ID": "user1"},
-        )
-
-        # Create memory for user2 with same key
-        client.post(
-            "/api/v1/memory",
-            json={"key": "shared_key", "value": "user2_value", "scope": "working"},
-            headers={"X-User-ID": "user2"},
-        )
-
-        # user1 should get their own value
-        response1 = client.get(
-            "/api/v1/memory/shared_key?scope=working",
-            headers={"X-User-ID": "user1"},
-        )
-        assert response1.status_code == 200
-        assert response1.json()["value"] == "user1_value"
-
-        # user2 should get their own value
-        response2 = client.get(
-            "/api/v1/memory/shared_key?scope=working",
-            headers={"X-User-ID": "user2"},
-        )
-        assert response2.status_code == 200
-        assert response2.json()["value"] == "user2_value"
-
-    def test_cross_user_access_denied(self):
-        """Test that user1 cannot access user2's memories."""
-        # Create for user1
-        client.post(
-            "/api/v1/memory",
-            json={"key": "user1_private", "value": "secret", "scope": "working"},
-            headers={"X-User-ID": "user1"},
-        )
-
-        # Try to access with user2 header - should not find
-        response = client.get(
-            "/api/v1/memory/user1_private?scope=working",
-            headers={"X-User-ID": "user2"},
-        )
-        assert response.status_code == 404
+# DEPRECATED (Issue #436): X-User-ID header no longer trusted for security reasons
+# These tests are disabled as they relied on X-User-ID header for user isolation
+# TODO: Rewrite these tests to use API key authentication instead
+#
+# class TestUserIdIsolation:
+#     """Test X-User-ID header support and user isolation (v4.0)."""
+#
+#     def test_user_id_from_header(self):
+#         """Test that X-User-ID header is respected."""
+#         ...
+#
+#     def test_default_user_without_header(self):
+#         """Test that requests without X-User-ID use default_user."""
+#         ...
+#
+#     def test_user_isolation(self):
+#         """Test that different users have isolated memories."""
+#         ...
+#
+#     def test_cross_user_access_denied(self):
+#         """Test that user1 cannot access user2's memories."""
+#         ...

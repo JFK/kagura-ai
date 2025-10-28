@@ -221,14 +221,3 @@ class TestMCPAuthentication:
         assert response.status_code == 401
         data = response.json()
         assert "error" in data or "Invalid" in str(data)
-
-    def test_mcp_with_x_user_id_header(self):
-        """Test /mcp with X-User-ID header (no API key)."""
-        response = client.post(
-            "/mcp",
-            json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}},
-            headers={"X-User-ID": "custom_user"},
-        )
-
-        # Should not return 401 (X-User-ID is accepted without auth)
-        assert response.status_code != 401

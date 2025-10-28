@@ -560,8 +560,6 @@ def test_remote(ctx: click.Context):
         headers = {"Content-Type": "application/json"}
         if api_key:
             headers["Authorization"] = f"Bearer {api_key}"
-        if user_id:
-            headers["X-User-ID"] = user_id
 
         # Try tools/list request
         mcp_request = {

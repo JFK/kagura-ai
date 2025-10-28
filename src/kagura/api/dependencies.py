@@ -3,6 +3,7 @@
 Dependency injection for MemoryManager and other shared resources.
 """
 
+import warnings
 from pathlib import Path
 from typing import Annotated
 
@@ -16,19 +17,32 @@ _memory_managers: dict[str, MemoryManager] = {}
 
 
 def get_user_id(x_user_id: str | None = Header(None)) -> str:
-    """Extract user_id from X-User-ID header.
+    """[DEPRECATED] Extract user_id from X-User-ID header.
 
     Args:
-        x_user_id: User ID from X-User-ID header (optional)
+        x_user_id: User ID from X-User-ID header (deprecated, ignored)
 
     Returns:
-        User ID (from header or "default_user" as fallback)
+        Always returns "default_user" (X-User-ID header is no longer trusted)
 
-    Note:
-        For Phase C (Remote MCP Server), this will be replaced with
-        proper authentication middleware that validates JWT tokens.
+    Warning:
+        X-User-ID header is deprecated due to security concerns (impersonation risk).
+        Use API key authentication instead. This function always returns "default_user"
+        regardless of the header value.
+
+    See Also:
+        - Issue #436: Security vulnerability fix
+        - Use verify_api_key() from kagura.api.auth for proper authentication
     """
-    return x_user_id or "default_user"
+    if x_user_id:
+        warnings.warn(
+            "X-User-ID header is deprecated and ignored for security reasons. "
+            "Use API key authentication (Authorization: Bearer <api_key>) instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    return "default_user"
 
 
 def get_memory_manager(user_id: str = Depends(get_user_id)) -> MemoryManager:

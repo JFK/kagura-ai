@@ -12,7 +12,9 @@ Note: This module provides an ASGI app that should be mounted in server.py
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import os
 
 from mcp.server import Server
 from mcp.server.streamable_http import StreamableHTTPServerTransport
@@ -138,9 +140,8 @@ async def mcp_asgi_app(scope: Scope, receive: Receive, send: Send) -> None:
     - DELETE: Session termination
 
     Authentication:
-        - Authorization header: Bearer {api_key} (optional)
-        - X-User-ID header: User identifier (optional)
-        - If no auth: uses "default_user"
+        - Authorization header: Bearer {api_key} (recommended for production)
+        - If no auth: uses "default_user" (local development only)
 
     ChatGPT Connector Setup:
         1. Enable Developer Mode in ChatGPT settings
@@ -222,12 +223,30 @@ async def mcp_asgi_app(scope: Scope, receive: Receive, send: Send) -> None:
             logger.error(f"Authentication error: {e}", exc_info=True)
             # Continue with default_user on auth errors
 
-    # Check X-User-ID header (fallback, lower priority than API key)
-    if user_id == "default_user":
-        user_id_header = headers.get(b"x-user-id")
-        if user_id_header:
-            user_id = user_id_header.decode("utf-8")
-            logger.info(f"Using X-User-ID header: {user_id}")
+    # Check if authentication is required (production mode)
+    require_auth = os.getenv("KAGURA_REQUIRE_AUTH", "false").lower() == "true"
+    if require_auth and (not user_id or user_id == "default_user"):
+        # 401 Unauthorized - API key required
+        error_response = json.dumps(
+            {
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32600,
+                    "message": "API key required in production mode. "
+                    "Set KAGURA_REQUIRE_AUTH=false for local development.",
+                },
+            }
+        ).encode()
+
+        await send(
+            {
+                "type": "http.response.start",
+                "status": 401,
+                "headers": [[b"content-type", b"application/json"]],
+            }
+        )
+        await send({"type": "http.response.body", "body": error_response})
+        return
 
     # Store user_id in scope for downstream use (if needed)
     scope["user_id"] = user_id
