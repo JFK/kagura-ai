@@ -3,7 +3,6 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from kagura.api.dependencies import get_memory_manager
 from kagura.api.server import app
 
 client = TestClient(app)

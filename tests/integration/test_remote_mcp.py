@@ -60,7 +60,6 @@ class TestExportImportIntegration:
     async def test_export_import_preserves_all_data(self):
         """Test that export → import preserves 100% of data."""
         import tempfile
-        from pathlib import Path
 
         from kagura.core.memory import MemoryManager
         from kagura.core.memory.export import MemoryExporter, MemoryImporter
@@ -108,10 +107,9 @@ class TestSecurityScenarios:
 
     def test_file_tools_blocked_remotely(self):
         """Test that file operations are blocked in remote context."""
-        from kagura.mcp.server import create_mcp_server
-
         # Create remote server
         import kagura.mcp.builtin  # noqa: F401
+        from kagura.mcp.server import create_mcp_server
 
         server = create_mcp_server(name="test-remote", context="remote")
 
