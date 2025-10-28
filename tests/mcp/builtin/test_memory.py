@@ -4,11 +4,13 @@ import pytest
 
 from kagura.mcp.builtin.memory import (
     _memory_cache,
+    memory_fetch,
     memory_get_related,
     memory_get_user_pattern,
     memory_recall,
     memory_record_interaction,
     memory_search,
+    memory_search_ids,
     memory_store,
 )
 
@@ -964,3 +966,112 @@ class TestMemoryRecordInteractionOptionalPlatform:
         assert data["status"] == "recorded"
         # Parameter should override metadata
         assert data["ai_platform"] == "claude"
+
+
+class TestProgressiveDisclosure:
+    """Test Phase 2 progressive disclosure tools (Issue #432)."""
+
+    @pytest.mark.asyncio
+    async def test_memory_search_ids_returns_compact_results(self) -> None:
+        """Test memory_search_ids returns IDs with previews only."""
+        import json
+
+        # Store test data
+        long_value = (
+            "This is a very long content that should be "
+            "truncated in the preview to save tokens"
+        )
+        await memory_store(
+            user_id="test_user",
+            agent_name="test_pd",
+            key="long_content",
+            value=long_value,
+            scope="working",
+        )
+
+        # Search with IDs
+        result = await memory_search_ids(
+            user_id="test_user",
+            agent_name="test_pd",
+            query="content",
+            k=5,
+        )
+
+        data = json.loads(result)
+        assert isinstance(data, list)
+
+        if len(data) > 0:
+            # Check compact format
+            first = data[0]
+            assert "id" in first
+            assert "key" in first
+            assert "preview" in first
+            # Preview should be truncated (50 chars + "...")
+            assert len(first["preview"]) <= 55  # 50 + "..." + margin
+
+    @pytest.mark.asyncio
+    async def test_memory_fetch_retrieves_full_content(self) -> None:
+        """Test memory_fetch retrieves full content by key."""
+        # Store test data
+        full_content = "This is the complete content that should be retrievable in full"
+        await memory_store(
+            user_id="test_user",
+            agent_name="test_fetch",
+            key="test_key",
+            value=full_content,
+            scope="working",
+        )
+
+        # Fetch full content
+        result = await memory_fetch(
+            user_id="test_user",
+            agent_name="test_fetch",
+            key="test_key",
+            scope="working",
+        )
+
+        # Should return full content
+        assert full_content in result
+
+    @pytest.mark.asyncio
+    async def test_progressive_disclosure_workflow(self) -> None:
+        """Test two-step workflow: search_ids then fetch."""
+        import json
+
+        # Store multiple items
+        await memory_store(
+            user_id="test_user",
+            agent_name="test_workflow",
+            key="item1",
+            value="First item with detailed content",
+            scope="working",
+        )
+        await memory_store(
+            user_id="test_user",
+            agent_name="test_workflow",
+            key="item2",
+            value="Second item with more information",
+            scope="working",
+        )
+
+        # Step 1: Search IDs (compact)
+        ids_result = await memory_search_ids(
+            user_id="test_user",
+            agent_name="test_workflow",
+            query="item",
+            k=10,
+        )
+
+        data = json.loads(ids_result)
+        assert len(data) >= 2
+
+        # Step 2: Fetch full content of first result
+        first_key = data[0]["key"]
+        full_result = await memory_fetch(
+            user_id="test_user",
+            agent_name="test_workflow",
+            key=first_key,
+            scope="working",
+        )
+
+        assert "detailed content" in full_result or "more information" in full_result
