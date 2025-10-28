@@ -131,11 +131,15 @@ async def _test_anthropic_api(api_key: str) -> tuple[bool, str]:
         error_msg = str(e)
 
         # Provide helpful hints for common errors
-        if "authentication_error" in error_msg.lower() or \
-           "invalid x-api-key" in error_msg.lower():
+        if (
+            "authentication_error" in error_msg.lower() or
+            "invalid x-api-key" in error_msg.lower()
+        ):
             return False, "Invalid API key (check format and validity)"
-        elif "rate_limit" in error_msg.lower() or \
-             "overloaded" in error_msg.lower():
+        elif (
+            "rate_limit" in error_msg.lower() or
+            "overloaded" in error_msg.lower()
+        ):
             return False, "Rate limit exceeded or API overloaded (try again later)"
         else:
             # Truncate long error messages
