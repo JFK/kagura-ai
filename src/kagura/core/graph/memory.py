@@ -28,13 +28,13 @@ class GraphMemory:
 
     Edge Types:
         - related_to: Semantic relationship
-
-    Attributes:
-        graph: NetworkX DiGraph instance for relationship storage
         - depends_on: Dependency relationship
         - learned_from: Learning source
         - influences: Influence relationship
         - works_on: Project/task relationship
+
+    Attributes:
+        graph: NetworkX DiGraph instance for relationship storage
 
     Example:
         >>> graph = GraphMemory()
@@ -374,7 +374,7 @@ class GraphMemory:
         self.persist_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Convert NetworkX graph to JSON-serializable format
-        # edges="links" preserves backward compatibility with NetworkX < 3.6
+        # edges="links" ensures forward compatibility with NetworkX 3.6+
         data = nx.node_link_data(self.graph, edges="links")
 
         # Save graph using JSON
@@ -399,7 +399,7 @@ class GraphMemory:
             data = json.load(f)
 
         # Convert JSON data back to NetworkX graph
-        # edges="links" preserves backward compatibility with NetworkX < 3.6
+        # edges="links" ensures forward compatibility with NetworkX 3.6+
         loaded_graph = nx.node_link_graph(data, edges="links")
 
         # Ensure it's a DiGraph (type narrowing for pyright)
