@@ -35,6 +35,8 @@ dependencies = [
     "pygments>=2.19.2",
     "python-frontmatter>=1.0.0",
     "arxiv>=2.2.0",
+    "brave-search-python-client>=0.4.0",  # Brave Search API (MCP core feature)
+    "psutil>=5.9.0",  # Required by brave-search-python-client
 ]
 
 [project.scripts]
@@ -75,8 +77,6 @@ web = [
     "proto-plus<2.0.0dev",          # Gemini dependency
     "protobuf>=4.25.0,<6.0.0",      # Gemini dependency
     "httpx>=0.25.0",                # HTTP client for web scraping
-    "brave-search-python-client>=0.4.0",  # Brave Search API
-    "psutil>=5.9.0",                # Required by brave-search-python-client
     "beautifulsoup4>=4.12.0",       # HTML parsing
     "youtube-transcript-api>=0.6.0",  # YouTube transcript extraction
     "yt-dlp>=2023.0.0",             # YouTube metadata extraction

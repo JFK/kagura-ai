@@ -284,9 +284,10 @@ async def brave_news_search(
 
     # Validate and auto-correct country/language combination
     if country not in _NEWS_COUNTRY_PRESETS:
-        logger.warning(
-            f"Country '{country}' may not be supported for news. "
-            f"Falling back to 'US'. Supported: {list(_NEWS_COUNTRY_PRESETS.keys())}"
+        logger.info(
+            f"News API: Country '{country}' → Using 'US' (English news). "
+            f"Supported countries: {list(_NEWS_COUNTRY_PRESETS.keys())}. "
+            f"Tip: For non-English news, use brave_web_search() instead."
         )
         country = "US"
         search_lang = "en"
