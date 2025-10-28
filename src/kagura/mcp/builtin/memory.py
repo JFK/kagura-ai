@@ -414,7 +414,10 @@ async def memory_search(
 
                 # Distance/score (if available)
                 distance = result.get("distance")
-                score_str = f" (score: {1-distance:.2f})" if distance else ""
+                if distance is not None:
+                    score_str = f" (score: {1-distance:.2f})"
+                else:
+                    score_str = ""
 
                 lines.append(f"{i}. {source_badge} {preview}{score_str}")
 
@@ -1262,8 +1265,10 @@ async def memory_search_ids(
 
     Returns:
         JSON array of result objects with id, key, preview (50 chars), and score
-        Example: [{"id": "abc123", "key": "project_plan", "preview": "The Q3
-roadmap...", "score": 0.95}]
+
+        Example:
+            [{"id": "abc123", "key": "project_plan",
+              "preview": "The Q3 roadmap...", "score": 0.95}]
 
     Note:
         Use memory_fetch(id="abc123") to get full content after seeing previews.
@@ -1323,7 +1328,7 @@ roadmap...", "score": 0.95}]
             result_id = f"result_{i}"
 
             # Get score (distance) if available
-            score = result.get("distance", 0) if "distance" in result else None
+            score = result.get("distance")
 
             compact_results.append(
                 {
