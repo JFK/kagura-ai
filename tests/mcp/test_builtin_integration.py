@@ -81,7 +81,9 @@ async def test_memory_store_tool():
     )
 
     assert "Stored" in result
-    assert "test" in result
+    assert "user_name" in result
+    # New compact format: "✓ Stored: user_name (session, local, RAG✗)"
+    assert "session" in result or "working" in result
 
 
 @pytest.mark.asyncio
