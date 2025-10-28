@@ -419,11 +419,23 @@ cd kagura-ai
 # Install dependencies
 uv sync --all-extras
 
+# Configure API keys (create .env file)
+cat > .env << 'EOF'
+OPENAI_API_KEY=sk-your-openai-key
+ANTHROPIC_API_KEY=sk-ant-your-anthropic-key
+GOOGLE_API_KEY=AIzaSy-your-google-key
+EOF
+
+# Verify configuration
+kagura config doctor
+
 # Run API server
 uvicorn kagura.api.server:app --reload
 ```
 
 **API Docs**: http://localhost:8000/docs
+
+**Note**: `.env` files are automatically loaded by all `kagura` CLI commands.
 
 ### Data Storage
 
