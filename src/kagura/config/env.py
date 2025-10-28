@@ -179,7 +179,7 @@ def get_default_model() -> str:
     Environment variable: DEFAULT_MODEL
 
     Returns:
-        Model name (default: "gpt-5-mini")
+        Model name (default: "gpt-4o-mini")
 
     Example:
         >>> model = get_default_model()
@@ -187,13 +187,92 @@ def get_default_model() -> str:
         'gpt-4o-mini'
 
     Supported models:
-    - OpenAI: gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-3.5-turbo
-    - Anthropic: claude-3-5-sonnet-20241022, claude-3-opus, claude-3-haiku
-    - Google: gemini-1.5-pro, gemini-1.5-flash, gemini-pro
+    - OpenAI: gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat
+    - Anthropic: claude-sonnet-4-5, claude-haiku-4-5, claude-opus-4-1
+    - Google: gemini-2.0-flash-exp, gemini-2.5-flash, gemini-2.5-pro
 
     See: https://docs.litellm.ai/docs/providers for full list
     """
-    return os.getenv("DEFAULT_MODEL", "gpt-5-mini")
+    return os.getenv("DEFAULT_MODEL", "gpt-4o-mini")
+
+
+def get_google_ai_default_model() -> str:
+    """
+    Get default Google AI model from environment.
+
+    Environment variable: GOOGLE_AI_DEFAULT_MODEL
+
+    Returns:
+        Model name (default: "gemini/gemini-2.0-flash-exp")
+
+    Example:
+        >>> model = get_google_ai_default_model()
+        >>> print(model)
+        'gemini/gemini-2.0-flash-exp'
+
+    Supported models:
+    - gemini/gemini-2.0-flash-exp (recommended, fast)
+    - gemini/gemini-2.5-flash (newest, best price-performance)
+    - gemini/gemini-2.5-pro (most capable)
+
+    Note:
+        Gemini 1.5 models were deprecated in 2025.
+        Use the gemini/ prefix for Google AI Studio API.
+
+    See: https://ai.google.dev/gemini-api/docs/models
+    """
+    return os.getenv("GOOGLE_AI_DEFAULT_MODEL", "gemini/gemini-2.0-flash-exp")
+
+
+def get_openai_default_model() -> str:
+    """
+    Get default OpenAI model from environment.
+
+    Environment variable: OPENAI_DEFAULT_MODEL
+
+    Returns:
+        Model name (default: "gpt-5-mini")
+
+    Example:
+        >>> model = get_openai_default_model()
+        >>> print(model)
+        'gpt-5-mini'
+
+    Supported models:
+    - gpt-5-mini (recommended, fast and affordable)
+    - gpt-5 (most capable)
+    - gpt-5-nano (fastest, most affordable)
+    - gpt-5-chat (optimized for chat)
+    - gpt-5-codex (specialized for coding)
+
+    See: https://platform.openai.com/docs/models
+    """
+    return os.getenv("OPENAI_DEFAULT_MODEL", "gpt-5-mini")
+
+
+def get_anthropic_default_model() -> str:
+    """
+    Get default Anthropic model from environment.
+
+    Environment variable: ANTHROPIC_DEFAULT_MODEL
+
+    Returns:
+        Model name (default: "claude-sonnet-4-5")
+
+    Example:
+        >>> model = get_anthropic_default_model()
+        >>> print(model)
+        'claude-sonnet-4-5'
+
+    Supported models:
+    - claude-sonnet-4-5 (recommended, most capable, Sep 2025)
+    - claude-haiku-4-5 (fastest, most affordable, Oct 2025)
+    - claude-opus-4-1 (specialized for agentic tasks, Aug 2025)
+    - claude-opus-4 (previous flagship)
+
+    See: https://docs.anthropic.com/claude/docs/models-overview
+    """
+    return os.getenv("ANTHROPIC_DEFAULT_MODEL", "claude-sonnet-4-5")
 
 
 def get_default_temperature() -> float:
@@ -257,6 +336,9 @@ def list_env_vars() -> dict[str, Optional[str]]:
         "ENABLE_SEARCH_CACHE": str(get_search_cache_enabled()),
         "SEARCH_CACHE_TTL": str(get_search_cache_ttl()),
         "DEFAULT_MODEL": get_default_model(),
+        "OPENAI_DEFAULT_MODEL": get_openai_default_model(),
+        "ANTHROPIC_DEFAULT_MODEL": get_anthropic_default_model(),
+        "GOOGLE_AI_DEFAULT_MODEL": get_google_ai_default_model(),
         "DEFAULT_TEMPERATURE": str(get_default_temperature()),
     }
 

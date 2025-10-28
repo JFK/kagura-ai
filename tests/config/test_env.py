@@ -5,11 +5,14 @@ import warnings
 from kagura.config.env import (
     check_required_env_vars,
     get_anthropic_api_key,
+    get_anthropic_default_model,
     get_brave_search_api_key,
     get_default_model,
     get_default_temperature,
+    get_google_ai_default_model,
     get_google_api_key,
     get_openai_api_key,
+    get_openai_default_model,
     list_env_vars,
 )
 
@@ -81,7 +84,49 @@ class TestDefaultModel:
     def test_get_default_value(self, monkeypatch):
         """Test default value when not set"""
         monkeypatch.delenv("DEFAULT_MODEL", raising=False)
-        assert get_default_model() == "gpt-5-mini"
+        assert get_default_model() == "gpt-4o-mini"
+
+
+class TestGoogleAIDefaultModel:
+    """Tests for get_google_ai_default_model()"""
+
+    def test_get_with_env_var(self, monkeypatch):
+        """Test getting Google AI default model from environment"""
+        monkeypatch.setenv("GOOGLE_AI_DEFAULT_MODEL", "gemini/gemini-2.5-flash")
+        assert get_google_ai_default_model() == "gemini/gemini-2.5-flash"
+
+    def test_get_default_value(self, monkeypatch):
+        """Test default value when not set"""
+        monkeypatch.delenv("GOOGLE_AI_DEFAULT_MODEL", raising=False)
+        assert get_google_ai_default_model() == "gemini/gemini-2.0-flash-exp"
+
+
+class TestOpenAIDefaultModel:
+    """Tests for get_openai_default_model()"""
+
+    def test_get_with_env_var(self, monkeypatch):
+        """Test getting OpenAI default model from environment"""
+        monkeypatch.setenv("OPENAI_DEFAULT_MODEL", "gpt-5")
+        assert get_openai_default_model() == "gpt-5"
+
+    def test_get_default_value(self, monkeypatch):
+        """Test default value when not set"""
+        monkeypatch.delenv("OPENAI_DEFAULT_MODEL", raising=False)
+        assert get_openai_default_model() == "gpt-5-mini"
+
+
+class TestAnthropicDefaultModel:
+    """Tests for get_anthropic_default_model()"""
+
+    def test_get_with_env_var(self, monkeypatch):
+        """Test getting Anthropic default model from environment"""
+        monkeypatch.setenv("ANTHROPIC_DEFAULT_MODEL", "claude-haiku-4-5")
+        assert get_anthropic_default_model() == "claude-haiku-4-5"
+
+    def test_get_default_value(self, monkeypatch):
+        """Test default value when not set"""
+        monkeypatch.delenv("ANTHROPIC_DEFAULT_MODEL", raising=False)
+        assert get_anthropic_default_model() == "claude-sonnet-4-5"
 
 
 class TestDefaultTemperature:
@@ -133,7 +178,15 @@ class TestListEnvVars:
         assert result["GOOGLE_API_KEY"] is None
 
         # Non-sensitive values should be shown
-        assert "gpt-5-mini" in result["DEFAULT_MODEL"]
+        assert result["DEFAULT_MODEL"] is not None
+        assert "gpt-4o-mini" in result["DEFAULT_MODEL"]
+        assert result["OPENAI_DEFAULT_MODEL"] is not None
+        assert "gpt-5-mini" in result["OPENAI_DEFAULT_MODEL"]
+        assert result["ANTHROPIC_DEFAULT_MODEL"] is not None
+        assert "claude-sonnet-4-5" in result["ANTHROPIC_DEFAULT_MODEL"]
+        assert result["GOOGLE_AI_DEFAULT_MODEL"] is not None
+        assert "gemini-2.0-flash-exp" in result["GOOGLE_AI_DEFAULT_MODEL"]
+        assert result["DEFAULT_TEMPERATURE"] is not None
         assert "0.7" in result["DEFAULT_TEMPERATURE"]
 
     def test_list_with_no_vars_set(self, monkeypatch):

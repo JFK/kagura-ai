@@ -46,7 +46,8 @@ class TestGeminiLoaderInit:
 
         loader = GeminiLoader(api_key="test_key")
         assert loader.api_key == "test_key"
-        assert loader.model_name == "gemini-1.5-flash"
+        # Default model from GOOGLE_AI_DEFAULT_MODEL env var (without gemini/ prefix)
+        assert loader.model_name == "gemini-2.0-flash-exp"
 
     def test_init_with_env_var(self, mock_genai, monkeypatch):
         """Test initialization with environment variable."""
@@ -68,8 +69,8 @@ class TestGeminiLoaderInit:
         """Test initialization with custom model."""
         from kagura.loaders.gemini import GeminiLoader
 
-        loader = GeminiLoader(model="gemini-1.5-pro", api_key="test_key")
-        assert loader.model_name == "gemini-1.5-pro"
+        loader = GeminiLoader(model="gemini-2.5-pro", api_key="test_key")
+        assert loader.model_name == "gemini-2.5-pro"
 
 
 class TestGeminiLoaderAnalyzeImage:

@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from kagura.config.env import get_google_api_key
+from kagura.config.env import get_google_ai_default_model, get_google_api_key
 
 try:
     import google.generativeai as genai
@@ -26,7 +26,7 @@ class GeminiLoader:
     - PDF documents
 
     Examples:
-        >>> loader = GeminiLoader(model="gemini-1.5-flash")
+        >>> loader = GeminiLoader(model="gemini-2.0-flash-exp")
         >>> result = await loader.analyze_image("diagram.png", "Explain this diagram")
         >>> print(result)
         "This diagram shows..."
@@ -38,14 +38,14 @@ class GeminiLoader:
 
     def __init__(
         self,
-        model: str = "gemini-1.5-flash",
+        model: str | None = None,
         api_key: str | None = None,
     ):
         """Initialize Gemini loader.
 
         Args:
-            model: Gemini model to use (default: gemini-1.5-flash)
-                   Options: gemini-1.5-flash, gemini-1.5-pro
+            model: Gemini model to use (default: from GOOGLE_AI_DEFAULT_MODEL env var)
+                   Options: gemini-2.0-flash-exp, gemini-2.5-flash, gemini-2.5-pro
             api_key: Google API key (if None, uses GOOGLE_API_KEY env var)
 
         Raises:
@@ -58,7 +58,14 @@ class GeminiLoader:
                 "Install it with: pip install google-generativeai"
             )
 
-        self.model_name = model
+        # Get model name from parameter or environment variable
+        # Note: Google AI SDK uses model names without the gemini/ prefix
+        default_model = get_google_ai_default_model()
+        # Strip gemini/ prefix if present
+        if default_model.startswith("gemini/"):
+            default_model = default_model.replace("gemini/", "")
+
+        self.model_name = model or default_model
         self.api_key = api_key or get_google_api_key()
 
         if not self.api_key:
@@ -69,7 +76,7 @@ class GeminiLoader:
 
         # Configure Gemini
         genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel(model)
+        self.model = genai.GenerativeModel(self.model_name)
 
     async def analyze_image(
         self,

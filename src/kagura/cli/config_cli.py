@@ -17,9 +17,12 @@ from rich.table import Table
 from kagura.config.env import (
     check_required_env_vars,
     get_anthropic_api_key,
+    get_anthropic_default_model,
     get_brave_search_api_key,
+    get_google_ai_default_model,
     get_google_api_key,
     get_openai_api_key,
+    get_openai_default_model,
     list_env_vars,
 )
 
@@ -92,8 +95,9 @@ async def _test_openai_api(api_key: str) -> tuple[bool, str]:
     try:
         from litellm import acompletion
 
+        model = get_openai_default_model()
         await acompletion(
-            model="gpt-3.5-turbo",
+            model=model,
             messages=[{"role": "user", "content": "test"}],
             api_key=api_key,
             max_tokens=1,
@@ -111,7 +115,7 @@ async def _test_openai_api(api_key: str) -> tuple[bool, str]:
             or "invalid key" in error_msg.lower()
         ):
             return False, "Invalid API key (check format and validity)"
-        elif ("rate_limit" in error_msg.lower() or "quota" in error_msg.lower()):
+        elif "rate_limit" in error_msg.lower() or "quota" in error_msg.lower():
             return False, "Rate limit exceeded (try again later)"
         else:
             return False, f"Connection failed: {error_msg[:200]}"
@@ -122,8 +126,9 @@ async def _test_anthropic_api(api_key: str) -> tuple[bool, str]:
     try:
         from litellm import acompletion
 
+        model = get_anthropic_default_model()
         await acompletion(
-            model="claude-3-haiku-20240307",
+            model=model,
             messages=[{"role": "user", "content": "test"}],
             api_key=api_key,
             max_tokens=1,
@@ -136,14 +141,11 @@ async def _test_anthropic_api(api_key: str) -> tuple[bool, str]:
 
         # Provide helpful hints for common errors
         if (
-            "authentication_error" in error_msg.lower() or
-            "invalid x-api-key" in error_msg.lower()
+            "authentication_error" in error_msg.lower()
+            or "invalid x-api-key" in error_msg.lower()
         ):
             return False, "Invalid API key (check format and validity)"
-        elif (
-            "rate_limit" in error_msg.lower() or
-            "overloaded" in error_msg.lower()
-        ):
+        elif "rate_limit" in error_msg.lower() or "overloaded" in error_msg.lower():
             return False, "Rate limit exceeded or API overloaded (try again later)"
         else:
             # Truncate long error messages
@@ -155,8 +157,9 @@ async def _test_google_api(api_key: str) -> tuple[bool, str]:
     try:
         from litellm import acompletion
 
+        model = get_google_ai_default_model()
         await acompletion(
-            model="gemini/gemini-1.5-flash",  # gemini/ prefix for Google AI Studio
+            model=model,
             messages=[{"role": "user", "content": "test"}],
             api_key=api_key,
             max_tokens=1,
@@ -174,7 +177,7 @@ async def _test_google_api(api_key: str) -> tuple[bool, str]:
             or "api key not valid" in error_msg.lower()
         ):
             return False, "Invalid API key (check format and validity)"
-        elif ("rate_limit" in error_msg.lower() or "quota" in error_msg.lower()):
+        elif "rate_limit" in error_msg.lower() or "quota" in error_msg.lower():
             return False, "Rate limit exceeded (try again later)"
         else:
             # Truncate long error messages
@@ -325,9 +328,7 @@ def doctor() -> None:
         if anthropic_key.startswith("sk-ant-"):
             console.print("   [green]✓ Anthropic API key format looks valid[/]")
         else:
-            console.print(
-                "   [yellow]⚠ Anthropic API key format looks incorrect[/]"
-            )
+            console.print("   [yellow]⚠ Anthropic API key format looks incorrect[/]")
             keys_ok = False
 
     google_key = get_google_api_key()
