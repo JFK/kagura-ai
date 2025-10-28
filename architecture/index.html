@@ -1658,7 +1658,7 @@
 - <code>depends_on</code> - Dependencies
 - <code>learned_from</code> - Learning relationships
 - <code>works_on</code> - User activities</p>
-<p><strong>Storage</strong>: Pickle files (<code>~/.kagura/graph.pkl</code>)</p>
+<p><strong>Storage</strong>: Pickle files (<code>~/.local/share/kagura/graph.pkl</code>)</p>
 <hr />
 <h3 id="4-rest-api-srckaguraapi">4. REST API (src/kagura/api/)</h3>
 <p><strong>Framework</strong>: FastAPI</p>
@@ -1673,7 +1673,7 @@
 <p><strong>Authentication</strong>:
 - <strong>File</strong>: <code>src/kagura/api/auth.py</code>
 - <strong>Method</strong>: Bearer token (API keys)
-- <strong>Storage</strong>: SQLite (<code>~/.kagura/api_keys.db</code>)
+- <strong>Storage</strong>: SQLite (<code>~/.local/share/kagura/api_keys.db</code>)
 - <strong>Hashing</strong>: SHA256</p>
 <hr />
 <h2 id="data-flow">🔄 Data Flow</h2>
@@ -1778,10 +1778,10 @@
 <h2 id="deployment-architecture">📊 Deployment Architecture</h2>
 <h3 id="local-development">Local Development</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Developer Machine
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>├── SQLite (~/.kagura/memory.db)
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>├── ChromaDB (~/.kagura/chromadb/)
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>├── Graph pickle (~/.kagura/graph.pkl)
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>└── API Keys (~/.kagura/api_keys.db)
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>├── SQLite (~/.local/share/kagura/memory.db)
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>├── ChromaDB (~/.local/share/kagura/chromadb/)
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>├── Graph pickle (~/.local/share/kagura/graph.pkl)
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>└── API Keys (~/.local/share/kagura/api_keys.db)
 </code></pre></div>
 <h3 id="production-deployment">Production Deployment</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Docker Stack (docker-compose.prod.yml)

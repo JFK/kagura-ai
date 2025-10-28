@@ -1190,10 +1190,10 @@
 <li>Download the JSON file</li>
 </ol>
 <h3 id="step-2-save-client-secrets">Step 2: Save Client Secrets</h3>
-<p>Save the downloaded JSON file as <code>~/.kagura/client_secrets.json</code>:</p>
+<p>Save the downloaded JSON file as <code>~/.config/kagura/client_secrets.json</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>~/.kagura
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>mv<span class="w"> </span>~/Downloads/client_secret_*.json<span class="w"> </span>~/.kagura/client_secrets.json
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>~/.kagura/client_secrets.json
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>mv<span class="w"> </span>~/Downloads/client_secret_*.json<span class="w"> </span>~/.config/kagura/client_secrets.json
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>~/.config/kagura/client_secrets.json
 </code></pre></div>
 <p><strong>Important</strong>: Keep this file secure! It contains your OAuth client credentials.</p>
 <h3 id="step-3-login">Step 3: Login</h3>
@@ -1203,7 +1203,7 @@
 <p>This will:
 1. Open your browser for Google OAuth2 authentication
 2. Ask you to authorize Kagura AI to access Google Generative Language API
-3. Save encrypted credentials to <code>~/.kagura/credentials.json.enc</code></p>
+3. Save encrypted credentials to <code>~/.config/kagura/credentials.json.enc</code></p>
 <p><strong>Output:</strong>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>✓ Authentication successful!
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>✓ Credentials saved to: /home/user/.kagura/credentials.json.enc
@@ -1303,9 +1303,9 @@
 <h3 id="credential-storage">Credential Storage</h3>
 <p>OAuth2 credentials are stored securely:</p>
 <ul>
-<li><strong>Location</strong>: <code>~/.kagura/credentials.json.enc</code></li>
+<li><strong>Location</strong>: <code>~/.config/kagura/credentials.json.enc</code></li>
 <li><strong>Encryption</strong>: Fernet (AES-128 in CBC mode)</li>
-<li><strong>Key Storage</strong>: <code>~/.kagura/.key</code> (with 0600 permissions)</li>
+<li><strong>Key Storage</strong>: <code>~/.config/kagura/.key</code> (with 0600 permissions)</li>
 <li><strong>File Permissions</strong>: Both files have 0600 (owner read/write only)</li>
 </ul>
 <h3 id="token-refresh">Token Refresh</h3>
@@ -1317,7 +1317,7 @@
 </ol>
 <h3 id="best-practices">Best Practices</h3>
 <ol>
-<li><strong>Never commit</strong> <code>~/.kagura/</code> directory to version control</li>
+<li><strong>Never commit</strong> <code>~/.config/kagura/</code> directory to version control</li>
 <li><strong>Keep <code>client_secrets.json</code> secure</strong> - it's like a password</li>
 <li><strong>Don't share</strong> your <code>credentials.json.enc</code> file</li>
 <li><strong>Logout</strong> when you're done on shared machines</li>
@@ -1330,7 +1330,7 @@
 </code></pre></div></p>
 <p><strong>Solution:</strong>
 1. Download OAuth 2.0 Client ID JSON from Google Cloud Console
-2. Save it as <code>~/.kagura/client_secrets.json</code></p>
+2. Save it as <code>~/.config/kagura/client_secrets.json</code></p>
 <h3 id="not-authenticated-with-google">"Not authenticated with google"</h3>
 <p><strong>Error:</strong>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>NotAuthenticatedError: Not authenticated with google. Please run: kagura auth login --provider google
@@ -1352,7 +1352,7 @@ Run <code>kagura auth login --provider google</code> to authenticate.</p>
 - Corrupted credentials file
 - Encryption key was regenerated</p>
 <p><strong>Solution:</strong>
-1. Remove credentials: <code>rm ~/.kagura/credentials.json.enc</code>
+1. Remove credentials: <code>rm ~/.config/kagura/credentials.json.enc</code>
 2. Login again: <code>kagura auth login --provider google</code></p>
 <h2 id="environment-variables">Environment Variables</h2>
 <p>OAuth2 authentication does NOT use environment variables. All authentication is handled through the OAuth2 flow and stored encrypted credentials.</p>
