@@ -201,8 +201,9 @@ class TokenCounter:
             "gpt-5": {"context_window": 128_000, "max_completion": 16_384},
             "gpt-5-mini": {"context_window": 128_000, "max_completion": 16_384},
             "gpt-5-nano": {"context_window": 128_000, "max_completion": 16_384},
-            # OpenAI GPT-4 (legacy)
+            # OpenAI GPT-4 (current)
             "gpt-4o": {"context_window": 128_000, "max_completion": 16_384},
+            "gpt-4o-mini": {"context_window": 128_000, "max_completion": 16_384},
             "gpt-4-turbo": {"context_window": 128_000, "max_completion": 4_096},
             "gpt-4-turbo-preview": {"context_window": 128_000, "max_completion": 4_096},
             "gpt-3.5-turbo": {"context_window": 16_385, "max_completion": 4_096},
