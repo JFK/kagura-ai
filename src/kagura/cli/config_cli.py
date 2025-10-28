@@ -102,7 +102,19 @@ async def _test_openai_api(api_key: str) -> tuple[bool, str]:
     except ImportError:
         return False, "litellm not installed (optional)"
     except Exception as e:
-        return False, f"Connection failed: {str(e)}"
+        error_msg = str(e)
+
+        # Provide helpful hints for common errors
+        if (
+            "authentication" in error_msg.lower()
+            or "invalid api key" in error_msg.lower()
+            or "invalid key" in error_msg.lower()
+        ):
+            return False, "Invalid API key (check format and validity)"
+        elif ("rate_limit" in error_msg.lower() or "quota" in error_msg.lower()):
+            return False, "Rate limit exceeded (try again later)"
+        else:
+            return False, f"Connection failed: {error_msg[:200]}"
 
 
 async def _test_anthropic_api(api_key: str) -> tuple[bool, str]:
@@ -120,7 +132,22 @@ async def _test_anthropic_api(api_key: str) -> tuple[bool, str]:
     except ImportError:
         return False, "litellm not installed (optional)"
     except Exception as e:
-        return False, f"Connection failed: {str(e)}"
+        error_msg = str(e)
+
+        # Provide helpful hints for common errors
+        if (
+            "authentication_error" in error_msg.lower() or
+            "invalid x-api-key" in error_msg.lower()
+        ):
+            return False, "Invalid API key (check format and validity)"
+        elif (
+            "rate_limit" in error_msg.lower() or
+            "overloaded" in error_msg.lower()
+        ):
+            return False, "Rate limit exceeded or API overloaded (try again later)"
+        else:
+            # Truncate long error messages
+            return False, f"Connection failed: {error_msg[:200]}"
 
 
 async def _test_google_api(api_key: str) -> tuple[bool, str]:
@@ -129,7 +156,7 @@ async def _test_google_api(api_key: str) -> tuple[bool, str]:
         from litellm import acompletion
 
         await acompletion(
-            model="gemini-1.5-flash",
+            model="gemini/gemini-1.5-flash",  # gemini/ prefix for Google AI Studio
             messages=[{"role": "user", "content": "test"}],
             api_key=api_key,
             max_tokens=1,
@@ -138,7 +165,20 @@ async def _test_google_api(api_key: str) -> tuple[bool, str]:
     except ImportError:
         return False, "litellm not installed (optional)"
     except Exception as e:
-        return False, f"Connection failed: {str(e)}"
+        error_msg = str(e)
+
+        # Provide helpful hints for common errors
+        if (
+            "authentication_error" in error_msg.lower()
+            or "invalid api key" in error_msg.lower()
+            or "api key not valid" in error_msg.lower()
+        ):
+            return False, "Invalid API key (check format and validity)"
+        elif ("rate_limit" in error_msg.lower() or "quota" in error_msg.lower()):
+            return False, "Rate limit exceeded (try again later)"
+        else:
+            # Truncate long error messages
+            return False, f"Connection failed: {error_msg[:200]}"
 
 
 async def _test_brave_search_api(api_key: str) -> tuple[bool, str]:
