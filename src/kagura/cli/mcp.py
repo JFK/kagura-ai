@@ -11,6 +11,7 @@ from typing import Any
 import click
 from mcp.server.stdio import stdio_server  # type: ignore
 
+from kagura.config.paths import get_cache_dir, get_config_dir
 from kagura.mcp import create_mcp_server
 
 
@@ -95,9 +96,8 @@ def serve(ctx: click.Context, name: str, remote: bool):
     # Setup logging to file (Issue #415)
     import logging
     from logging.handlers import RotatingFileHandler
-    from pathlib import Path
 
-    log_dir = Path.home() / ".kagura" / "logs"
+    log_dir = get_cache_dir() / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / "mcp_server.log"
 
@@ -461,7 +461,6 @@ def connect(
         kagura mcp connect --api-base https://api.kagura.io --user-id user_alice
     """
     import json
-    from pathlib import Path
 
     from rich.console import Console
 
@@ -473,7 +472,7 @@ def connect(
         raise click.Abort()
 
     # Prepare config
-    config_dir = Path.home() / ".kagura"
+    config_dir = get_config_dir()
     config_file = config_dir / "remote-config.json"
     config_dir.mkdir(parents=True, exist_ok=True)
 
@@ -511,7 +510,6 @@ def test_remote(ctx: click.Context):
         kagura mcp test-remote
     """
     import json
-    from pathlib import Path
 
     import httpx
     from rich.console import Console
@@ -519,7 +517,7 @@ def test_remote(ctx: click.Context):
     console = Console()
 
     # Load config
-    config_file = Path.home() / ".kagura" / "remote-config.json"
+    config_file = get_config_dir() / "remote-config.json"
     if not config_file.exists():
         console.print("[red]✗ Error: Remote connection not configured[/red]")
         console.print()
@@ -884,14 +882,13 @@ def log_command(
     """
     import re
     import time
-    from pathlib import Path
 
     from rich.console import Console
 
     console = Console()
 
     # Log file location
-    log_file = Path.home() / ".kagura" / "logs" / "mcp_server.log"
+    log_file = get_cache_dir() / "logs" / "mcp_server.log"
 
     if not log_file.exists():
         console.print("[yellow]No log file found[/yellow]")

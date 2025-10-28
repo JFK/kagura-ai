@@ -39,8 +39,8 @@ class TestMCPConnect:
         assert result.exit_code == 0
         assert "configured successfully" in result.output
 
-        # Check config file exists
-        config_file = temp_config_dir / ".kagura" / "remote-config.json"
+        # Check config file exists (XDG config dir)
+        config_file = temp_config_dir / ".config" / "kagura" / "remote-config.json"
         assert config_file.exists()
 
         # Check config content
@@ -63,7 +63,7 @@ class TestMCPConnect:
         assert result.exit_code == 0
 
         # Check config
-        config_file = temp_config_dir / ".kagura" / "remote-config.json"
+        config_file = temp_config_dir / ".config" / "kagura" / "remote-config.json"
         with open(config_file) as f:
             config = json.load(f)
 
@@ -96,7 +96,7 @@ class TestMCPConnect:
         assert result.exit_code == 0
 
         # Check config
-        config_file = temp_config_dir / ".kagura" / "remote-config.json"
+        config_file = temp_config_dir / ".config" / "kagura" / "remote-config.json"
         with open(config_file) as f:
             config = json.load(f)
 

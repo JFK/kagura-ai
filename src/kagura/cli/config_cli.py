@@ -314,9 +314,11 @@ def doctor() -> None:
     else:
         console.print("   [yellow]⊘ .env file not found[/] (using system environment)")
 
-    kagura_dir = Path.home() / ".kagura"
+    from kagura.config.paths import get_data_dir
+
+    kagura_dir = get_data_dir()
     if kagura_dir.exists():
-        console.print(f"   [green]✓ Kagura directory:[/] {kagura_dir}")
+        console.print(f"   [green]✓ Kagura data directory:[/] {kagura_dir}")
     else:
         console.print(f"   [blue]ℹ Kagura directory will be created:[/] {kagura_dir}")
     console.print()

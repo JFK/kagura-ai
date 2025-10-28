@@ -15,6 +15,8 @@ from typing import Optional
 from fastapi import HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from kagura.config.paths import get_data_dir
+
 # API Key prefix for easy identification
 API_KEY_PREFIX = "kagura_"
 
@@ -32,9 +34,10 @@ class APIKeyManager:
         """Initialize API Key manager.
 
         Args:
-            db_path: Path to SQLite database (default: ~/.kagura/api_keys.db)
+            db_path: Path to SQLite database
+                (default: XDG data dir or ~/.local/share/kagura/api_keys.db)
         """
-        self.db_path = db_path or Path.home() / ".kagura" / "api_keys.db"
+        self.db_path = db_path or get_data_dir() / "api_keys.db"
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 

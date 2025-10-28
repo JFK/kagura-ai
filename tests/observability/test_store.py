@@ -11,11 +11,13 @@ from kagura.observability import EventStore
 
 
 def test_store_initialization_default():
-    """Test EventStore initialization with default path."""
+    """Test EventStore initialization with default path (XDG-compliant)."""
+    from kagura.config.paths import get_data_dir
+
     store = EventStore()
 
-    # Should create at ~/.kagura/telemetry.db
-    expected_path = Path.home() / ".kagura" / "telemetry.db"
+    # Should create at XDG data dir
+    expected_path = get_data_dir() / "telemetry.db"
     assert store.db_path == expected_path
     assert expected_path.exists()
 

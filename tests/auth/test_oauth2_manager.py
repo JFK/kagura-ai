@@ -24,7 +24,8 @@ class TestOAuth2ManagerInit:
         auth = OAuth2Manager(provider="google")
 
         assert auth.provider == "google"
-        assert auth.config_dir == tmp_path / ".kagura"
+        # XDG-compliant path: ~/.config/kagura
+        assert auth.config_dir == tmp_path / ".config" / "kagura"
         assert auth.config_dir.exists()
         assert auth.key_file.exists()
         assert auth.key_file.stat().st_mode & 0o777 == 0o600

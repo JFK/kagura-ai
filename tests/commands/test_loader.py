@@ -17,8 +17,10 @@ def tmp_commands_dir(tmp_path):
 
 def test_loader_initialization_default():
     """Test loader initialization with default directories."""
+    from kagura.config.paths import get_config_dir
+
     loader = CommandLoader()
-    expected_global = Path.home() / ".kagura" / "commands"
+    expected_global = get_config_dir() / "commands"  # XDG config dir
     expected_local = Path.cwd() / ".kagura" / "commands"
 
     assert len(loader.commands_dirs) == 2

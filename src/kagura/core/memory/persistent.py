@@ -6,6 +6,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
+from kagura.config.paths import get_data_dir
+
 
 class PersistentMemory:
     """Long-term persistent memory using SQLite.
@@ -17,9 +19,10 @@ class PersistentMemory:
         """Initialize persistent memory.
 
         Args:
-            db_path: Path to SQLite database (default: ~/.kagura/memory.db)
+            db_path: Path to SQLite database
+                (default: XDG data dir or ~/.local/share/kagura/memory.db)
         """
-        self.db_path = db_path or Path.home() / ".kagura" / "memory.db"
+        self.db_path = db_path or get_data_dir() / "memory.db"
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 

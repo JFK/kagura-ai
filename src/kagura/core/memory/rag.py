@@ -8,6 +8,8 @@ import hashlib
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
+from kagura.config.paths import get_cache_dir
+
 # ChromaDB (lightweight, local vector DB)
 try:
     import chromadb  # type: ignore
@@ -54,7 +56,7 @@ class MemoryRAG:
                 "ChromaDB not installed. Install with: pip install chromadb"
             )
 
-        persist_dir = persist_dir or Path.home() / ".kagura" / "vector_db"
+        persist_dir = persist_dir or get_cache_dir() / "chromadb"
         persist_dir.mkdir(parents=True, exist_ok=True)
 
         self.client = chromadb.PersistentClient(
