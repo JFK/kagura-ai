@@ -28,6 +28,9 @@ class GraphMemory:
 
     Edge Types:
         - related_to: Semantic relationship
+
+    Attributes:
+        graph: NetworkX DiGraph instance for relationship storage
         - depends_on: Dependency relationship
         - learned_from: Learning source
         - influences: Influence relationship
@@ -51,7 +54,7 @@ class GraphMemory:
         Args:
             persist_path: Path to save/load graph (JSON format)
         """
-        self.graph = nx.DiGraph()
+        self.graph: nx.DiGraph = nx.DiGraph()
         self.persist_path = persist_path
 
         # Load existing graph if path exists
@@ -397,7 +400,14 @@ class GraphMemory:
 
         # Convert JSON data back to NetworkX graph
         # edges="links" preserves backward compatibility with NetworkX < 3.6
-        self.graph = nx.node_link_graph(data, edges="links")
+        loaded_graph = nx.node_link_graph(data, edges="links")
+
+        # Ensure it's a DiGraph (type narrowing for pyright)
+        if not isinstance(loaded_graph, nx.DiGraph):
+            # Convert to DiGraph if needed (shouldn't happen with our data)
+            self.graph = nx.DiGraph(loaded_graph)
+        else:
+            self.graph = loaded_graph
 
     def stats(self) -> dict[str, Any]:
         """Get graph statistics.
