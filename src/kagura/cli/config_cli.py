@@ -164,8 +164,10 @@ async def _test_google_api(api_key: str) -> tuple[bool, str]:
         error_msg = str(e)
 
         # Provide helpful hints for common errors
-        if "authentication_error" in error_msg.lower() or \
-           "invalid" in error_msg.lower():
+        if (
+            "authentication_error" in error_msg.lower() or
+            "invalid" in error_msg.lower()
+        ):
             return False, "Invalid API key (check format and validity)"
         elif "rate_limit" in error_msg.lower() or \
              "quota" in error_msg.lower():
