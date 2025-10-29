@@ -3,9 +3,11 @@
 Provides a unified interface to all memory types (working, context, persistent).
 """
 
+from __future__ import annotations
+
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from kagura.config.memory_config import MemorySystemConfig
 from kagura.core.compression import CompressionPolicy, ContextManager
@@ -15,10 +17,12 @@ from .context import ContextMemory, Message
 from .hybrid_search import rrf_fusion
 from .lexical_search import BM25Searcher
 from .persistent import PersistentMemory
-from .rag import MemoryRAG
 from .recall_scorer import RecallScorer
 from .reranker import MemoryReranker
 from .working import WorkingMemory
+
+if TYPE_CHECKING:
+    from .rag import MemoryRAG
 
 
 class MemoryManager:
@@ -101,6 +105,10 @@ class MemoryManager:
         self.persistent_rag: Optional[MemoryRAG] = None  # Persistent memory RAG
         if enable_rag:
             logger.debug("MemoryManager: Initializing RAG (enable_rag=True)")
+            # Lazy import to avoid ChromaDB initialization on module load
+            from .rag import MemoryRAG
+
+            logger.debug("MemoryManager: MemoryRAG imported successfully")
             collection_name = f"kagura_{agent_name}" if agent_name else "kagura_memory"
             vector_dir = persist_dir / "vector_db" if persist_dir else None
             logger.debug(
