@@ -51,6 +51,11 @@ class MemoryRAG:
         Raises:
             ImportError: If ChromaDB is not installed
         """
+        import logging
+        logger = logging.getLogger(__name__)
+
+        logger.debug(f"MemoryRAG init: collection={collection_name}, dir={persist_dir}")
+
         if not CHROMADB_AVAILABLE:
             raise ImportError(
                 "ChromaDB not installed. Install with: pip install chromadb"
@@ -58,15 +63,19 @@ class MemoryRAG:
 
         persist_dir = persist_dir or get_cache_dir() / "chromadb"
         persist_dir.mkdir(parents=True, exist_ok=True)
+        logger.debug(f"MemoryRAG: Creating ChromaDB client at {persist_dir}")
 
         self.client = chromadb.PersistentClient(
             path=str(persist_dir),
             settings=Settings(anonymized_telemetry=False),
         )
+        logger.debug("MemoryRAG: ChromaDB client created")
 
+        logger.debug(f"MemoryRAG: Getting/creating collection '{collection_name}'")
         self.collection = self.client.get_or_create_collection(
             name=collection_name, metadata={"hnsw:space": "cosine"}
         )
+        logger.debug(f"MemoryRAG: Collection '{collection_name}' ready")
 
     def store(
         self,
