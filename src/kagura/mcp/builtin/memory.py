@@ -1214,12 +1214,29 @@ async def memory_stats(
                 except (ValueError, AttributeError):
                     pass
 
-        # Tag distribution
+        # Tag distribution (both working and persistent)
+        logger.debug("memory_stats: Analyzing tags")
         tag_counts: dict[str, int] = {}
+
+        # Count tags from persistent memories
         for mem in persistent_mems:
             meta = mem.get("metadata")
             if meta and isinstance(meta, dict):
                 tags = meta.get("tags", [])
+                if isinstance(tags, str):
+                    try:
+                        tags = json.loads(tags)
+                    except json.JSONDecodeError:
+                        tags = []
+                for tag in tags:
+                    tag_counts[tag] = tag_counts.get(tag, 0) + 1
+
+        # Count tags from working memories
+        for key in working_keys:
+            meta = memory.get_temp(f"_meta_{key}")
+            if meta and isinstance(meta, dict):
+                tags = meta.get("tags", [])
+                # Working memory tags are already lists (not JSON strings)
                 if isinstance(tags, str):
                     try:
                         tags = json.loads(tags)
