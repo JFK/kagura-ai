@@ -9,13 +9,7 @@ name: Run tests
 on:
   workflow_call: {}
   workflow_dispatch: {}
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'pyproject.toml'
+  # push rmeoved: too many checks
   pull_request:
     branches:
       - main  # Only run on PRs targeting main branch
@@ -23,7 +17,6 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'pyproject.toml'
-
 jobs:
   test:
     name: Run tests
