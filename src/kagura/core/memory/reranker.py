@@ -21,12 +21,57 @@ Example:
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
 from kagura.config.memory_config import RerankConfig
 
 if TYPE_CHECKING:
     from sentence_transformers import CrossEncoder
+
+
+def is_reranker_available(
+    model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2",
+) -> bool:
+    """Check if reranker model is available (installed and cached).
+
+    Uses huggingface_hub API to properly detect cached models,
+    respecting HF_HOME and other environment variables.
+
+    Args:
+        model_name: Model identifier to check
+
+    Returns:
+        True if model is ready to use without download, False otherwise
+    """
+    try:
+        # Check sentence-transformers installation
+        import sentence_transformers  # noqa: F401
+
+        # Use huggingface_hub to check cache (respects HF_HOME, etc.)
+        try:
+            from huggingface_hub import try_to_load_from_cache
+            from huggingface_hub.constants import HUGGINGFACE_HUB_CACHE
+
+            # Check for config.json (main model file)
+            cache_path = try_to_load_from_cache(
+                model_name, "config.json", cache_dir=HUGGINGFACE_HUB_CACHE
+            )
+
+            # If not None and not _CACHED_NO_EXIST, model is cached
+            return cache_path is not None and cache_path != "_CACHED_NO_EXIST"
+        except ImportError:
+            # Fallback to directory check if huggingface_hub not available
+            cache_dir = Path.home() / ".cache" / "huggingface" / "hub"
+            if not cache_dir.exists():
+                return False
+
+            model_slug = model_name.replace("/", "--")
+            model_dirs = list(cache_dir.glob(f"models--{model_slug}*"))
+            return len(model_dirs) > 0
+
+    except ImportError:
+        return False
 
 
 class MemoryReranker:

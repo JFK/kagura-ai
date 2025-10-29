@@ -155,7 +155,9 @@ class MemoryManager:
                 self.graph = None
 
         # Optional: Reranker (v4.0.0a0 - Issue #418)
+        logger.debug(f"MemoryManager: Reranker enabled={self.config.rerank.enabled}")
         self.reranker: Optional[MemoryReranker] = None
+
         if self.config.rerank.enabled:
             try:
                 logger.debug("MemoryManager: Creating MemoryReranker")
