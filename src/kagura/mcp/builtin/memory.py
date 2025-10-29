@@ -34,14 +34,24 @@ def _get_memory_manager(
     Returns:
         Cached or new MemoryManager instance
     """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    logger.debug("_get_memory_manager: Importing MemoryManager...")
     from kagura.core.memory import MemoryManager
+    logger.debug("_get_memory_manager: MemoryManager imported successfully")
 
     cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
+    logger.debug(f"_get_memory_manager: cache_key={cache_key}")
 
     if cache_key not in _memory_cache:
+        logger.debug(f"_get_memory_manager: Creating MemoryManager rag={enable_rag}")
         _memory_cache[cache_key] = MemoryManager(
             user_id=user_id, agent_name=agent_name, enable_rag=enable_rag
         )
+        logger.debug("_get_memory_manager: MemoryManager created successfully")
+    else:
+        logger.debug("_get_memory_manager: Using cached MemoryManager")
 
     return _memory_cache[cache_key]
 
@@ -207,9 +217,9 @@ async def memory_store(
 
     # Compact output (token-efficient)
     scope_badge = "global" if agent_name == "global" else "local"
-    rag_badge = "RAG✓" if rag_available else "RAG✗"
+    rag_badge = "RAG:OK" if rag_available else "RAG:NO"
 
-    return f"✓ Stored: {key} ({scope}, {scope_badge}, {rag_badge})"
+    return f"[OK] Stored: {key} ({scope}, {scope_badge}, {rag_badge})"
 
 
 @tool
@@ -1161,23 +1171,36 @@ async def memory_stats(
     Returns:
         JSON with statistics and recommendations
     """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    logger.debug(f"memory_stats: Starting for user={user_id}, agent={agent_name}")
     enable_rag = True
     memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
+    logger.debug("memory_stats: Got memory manager")
 
     try:
         # Count memories
+        logger.debug("memory_stats: Counting working memories")
         working_keys_all = memory.working.keys()
         working_count = len([k for k in working_keys_all if not k.startswith("_meta_")])
+        logger.debug(f"memory_stats: Working count = {working_count}")
+
+        logger.debug("memory_stats: Searching persistent memories")
         persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
         persistent_count = len(persistent_mems)
+        logger.debug(f"memory_stats: Persistent count = {persistent_count}")
 
         # Analyze duplicates
+        logger.debug("memory_stats: Analyzing duplicates")
         working_keys = [k for k in working_keys_all if not k.startswith("_meta_")]
         duplicates = sum(
             1 for k in working_keys if any(m["key"] == k for m in persistent_mems)
         )
+        logger.debug(f"memory_stats: Duplicates = {duplicates}")
 
         # Analyze old memories (>90 days)
+        logger.debug("memory_stats: Analyzing old memories")
         from datetime import datetime, timedelta
         old_threshold = datetime.now() - timedelta(days=90)
         old_count = 0
@@ -1205,10 +1228,12 @@ async def memory_stats(
                 for tag in tags:
                     tag_counts[tag] = tag_counts.get(tag, 0) + 1
 
+        logger.debug("memory_stats: Sorting tags")
         sorted_tags = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)
         top_tags = dict(sorted_tags[:5])
 
         # Recommendations
+        logger.debug("memory_stats: Generating recommendations")
         recs = []
         if duplicates:
             recs.append(f"{duplicates} duplicate keys - consider consolidating")
@@ -1218,6 +1243,7 @@ async def memory_stats(
             recs.append("Memory health looks good!")
 
         # Health score
+        logger.debug("memory_stats: Calculating health score")
         total = working_count + persistent_count
         health = "excellent" if total < 100 else "good" if total < 500 else "fair"
 
@@ -1230,7 +1256,10 @@ async def memory_stats(
             "health_score": health,
         }
 
-        return json.dumps(stats, indent=2)
+        logger.debug("memory_stats: Creating JSON response")
+        result = json.dumps(stats, indent=2)
+        logger.debug(f"memory_stats: Returning JSON (length={len(result)})")
+        return result
 
     except Exception as e:
         return json.dumps({"error": str(e)})

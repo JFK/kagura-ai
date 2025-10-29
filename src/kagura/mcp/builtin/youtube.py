@@ -94,7 +94,7 @@ async def get_youtube_transcript(video_url: str, lang: str = "en") -> str:
                 return (
                     "Transcript not available: "
                     "This video does not have subtitles.\n\n"
-                    "💡 Tip: You can still get video information using "
+                    "Tip: You can still get video information using "
                     "get_youtube_metadata, or use web_search for additional context."
                 )
 

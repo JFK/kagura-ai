@@ -3,9 +3,11 @@
 Provides a unified interface to all memory types (working, context, persistent).
 """
 
+from __future__ import annotations
+
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from kagura.config.memory_config import MemorySystemConfig
 from kagura.core.compression import CompressionPolicy, ContextManager
@@ -15,10 +17,12 @@ from .context import ContextMemory, Message
 from .hybrid_search import rrf_fusion
 from .lexical_search import BM25Searcher
 from .persistent import PersistentMemory
-from .rag import MemoryRAG
 from .recall_scorer import RecallScorer
 from .reranker import MemoryReranker
 from .working import WorkingMemory
+
+if TYPE_CHECKING:
+    from .rag import MemoryRAG
 
 
 class MemoryManager:
@@ -58,22 +62,34 @@ class MemoryManager:
             model: LLM model name for compression
             memory_config: Memory system configuration (v4.0.0a0+)
         """
+        import logging
+        logger = logging.getLogger(__name__)
+
+        logger.debug(
+            f"MemoryManager init: user={user_id}, agent={agent_name}, rag={enable_rag}"
+        )
+
         # Normalize user_id to lowercase for case-insensitive matching
         self.user_id = user_id.lower()
         self.agent_name = agent_name
 
         # Load memory configuration (v4.0.0a0+)
+        logger.debug("MemoryManager: Loading memory config")
         self.config = memory_config or MemorySystemConfig()
 
         # Initialize memory types
+        logger.debug("MemoryManager: Creating WorkingMemory")
         self.working = WorkingMemory()
+        logger.debug("MemoryManager: Creating ContextMemory")
         self.context = ContextMemory(max_messages=max_messages)
 
         db_path = None
         if persist_dir:
             db_path = persist_dir / "memory.db"
 
+        logger.debug(f"MemoryManager: Creating PersistentMemory (db_path={db_path})")
         self.persistent = PersistentMemory(db_path=db_path)
+        logger.debug("MemoryManager: PersistentMemory created")
 
         # Auto-detect chromadb availability if enable_rag is None
         if enable_rag is None:
@@ -88,60 +104,90 @@ class MemoryManager:
         self.rag: Optional[MemoryRAG] = None  # Working memory RAG
         self.persistent_rag: Optional[MemoryRAG] = None  # Persistent memory RAG
         if enable_rag:
+            logger.debug("MemoryManager: Initializing RAG (enable_rag=True)")
+            # Lazy import to avoid ChromaDB initialization on module load
+            from .rag import MemoryRAG
+
+            logger.debug("MemoryManager: MemoryRAG imported successfully")
             collection_name = f"kagura_{agent_name}" if agent_name else "kagura_memory"
             vector_dir = persist_dir / "vector_db" if persist_dir else None
+            logger.debug(
+                f"MemoryManager: RAG collection={collection_name}, dir={vector_dir}"
+            )
 
             # Working memory RAG
+            logger.debug("MemoryManager: Creating working MemoryRAG")
             self.rag = MemoryRAG(
                 collection_name=f"{collection_name}_working", persist_dir=vector_dir
             )
+            logger.debug("MemoryManager: Working MemoryRAG created")
 
             # Persistent memory RAG
+            logger.debug("MemoryManager: Creating persistent MemoryRAG")
             self.persistent_rag = MemoryRAG(
                 collection_name=f"{collection_name}_persistent", persist_dir=vector_dir
             )
+            logger.debug("MemoryManager: Persistent MemoryRAG created")
+        else:
+            logger.debug("MemoryManager: RAG disabled (enable_rag=False)")
 
         # Optional: Compression
         self.enable_compression = enable_compression
         self.context_manager: Optional[ContextManager] = None
         if enable_compression:
+            logger.debug("MemoryManager: Creating ContextManager")
             self.context_manager = ContextManager(
                 policy=compression_policy or CompressionPolicy(), model=model
             )
+            logger.debug("MemoryManager: ContextManager created")
 
         # Optional: Graph Memory (Phase B - Issue #345)
         self.graph: Optional[GraphMemory] = None
         if enable_graph:
             try:
+                logger.debug("MemoryManager: Creating GraphMemory")
                 graph_path = persist_dir / "graph.json" if persist_dir else None
                 self.graph = GraphMemory(persist_path=graph_path)
+                logger.debug("MemoryManager: GraphMemory created")
             except ImportError:
                 # NetworkX not installed, disable graph
+                logger.debug("MemoryManager: GraphMemory disabled (no NetworkX)")
                 self.graph = None
 
         # Optional: Reranker (v4.0.0a0 - Issue #418)
         self.reranker: Optional[MemoryReranker] = None
         if self.config.rerank.enabled:
             try:
+                logger.debug("MemoryManager: Creating MemoryReranker")
                 self.reranker = MemoryReranker(self.config.rerank)
+                logger.debug("MemoryManager: MemoryReranker created")
             except ImportError:
                 # sentence-transformers not installed
+                logger.debug("MemoryManager: Reranker disabled (no transformers)")
                 self.reranker = None
 
         # Optional: Recall Scorer (v4.0.0a0 - Issue #418)
         self.recall_scorer: Optional[RecallScorer] = None
         if self.config.enable_access_tracking:
+            logger.debug("MemoryManager: Creating RecallScorer")
             self.recall_scorer = RecallScorer(self.config.recall_scorer)
+            logger.debug("MemoryManager: RecallScorer created")
 
         # Optional: BM25 Lexical Searcher (v4.0.0a0 Phase 2 - Issue #418)
         self.lexical_searcher: Optional[BM25Searcher] = None
         if self.config.hybrid_search.enabled:
             try:
+                logger.debug("MemoryManager: Creating BM25Searcher")
                 self.lexical_searcher = BM25Searcher()
+                logger.debug("MemoryManager: Rebuilding lexical index")
                 self._rebuild_lexical_index()
+                logger.debug("MemoryManager: BM25Searcher created")
             except ImportError:
                 # rank-bm25 not installed
+                logger.debug("MemoryManager: BM25Searcher disabled (no rank-bm25)")
                 self.lexical_searcher = None
+
+        logger.debug("MemoryManager: Initialization complete")
 
     # Working Memory
     def set_temp(self, key: str, value: Any) -> None:

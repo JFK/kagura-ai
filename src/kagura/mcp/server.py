@@ -205,10 +205,13 @@ def create_mcp_server(
         Raises:
             ValueError: If name is invalid or item not found
         """
+        logger.debug(f"handle_call_tool called: name={name}, args={arguments}")
+
         if not name.startswith("kagura_"):
             raise ValueError(f"Invalid tool name: {name}")
 
         args = arguments or {}
+        logger.debug(f"Processed args: {args}")
 
         # Get telemetry collector
         from kagura.observability import get_global_telemetry
@@ -239,6 +242,7 @@ def create_mcp_server(
             # Route to appropriate registry and execute
             start_time = time.time()
             try:
+                logger.debug(f"Executing tool: {item_name}")
                 if name.startswith("kagura_tool_"):
                     # Execute @tool
                     tool_func = tool_registry.get(item_name)
@@ -246,11 +250,14 @@ def create_mcp_server(
                         raise ValueError(f"Tool not found: {item_name}")
 
                     # Tools can be async or sync
+                    logger.debug(f"Calling tool function: {item_name}")
                     if inspect.iscoroutinefunction(tool_func):
                         result = await tool_func(**args)
                     else:
                         result = tool_func(**args)
+                    logger.debug(f"Tool {item_name} returned, converting to string")
                     result_text = str(result)
+                    logger.debug(f"Result text length: {len(result_text)}")
 
                 elif name.startswith("kagura_workflow_"):
                     # Execute @workflow
@@ -280,11 +287,13 @@ def create_mcp_server(
 
                 # Record successful tool call
                 duration = time.time() - start_time
+                logger.debug(f"Tool {item_name} completed in {duration:.2f}s")
                 collector.record_tool_call(item_name, duration, **tracking_args)
 
             except Exception as e:
                 # Record failed tool call
                 duration = time.time() - start_time
+                logger.error(f"Tool {item_name} failed: {str(e)}")
                 collector.record_tool_call(
                     item_name, duration, error=str(e), **tracking_args
                 )
@@ -293,7 +302,10 @@ def create_mcp_server(
                 result_text = f"Error executing '{name}': {str(e)}"
 
             # Return as TextContent
-            return [TextContent(type="text", text=result_text)]
+            logger.debug(f"Creating TextContent response, length={len(result_text)}")
+            response = [TextContent(type="text", text=result_text)]
+            logger.debug("Returning response")
+            return response
 
     return server
 
