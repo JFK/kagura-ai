@@ -34,14 +34,22 @@ def _get_memory_manager(
     Returns:
         Cached or new MemoryManager instance
     """
+    import logging
+    logger = logging.getLogger(__name__)
+
     from kagura.core.memory import MemoryManager
 
     cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
+    logger.debug(f"_get_memory_manager: cache_key={cache_key}")
 
     if cache_key not in _memory_cache:
+        logger.debug(f"_get_memory_manager: Creating MemoryManager rag={enable_rag}")
         _memory_cache[cache_key] = MemoryManager(
             user_id=user_id, agent_name=agent_name, enable_rag=enable_rag
         )
+        logger.debug("_get_memory_manager: MemoryManager created successfully")
+    else:
+        logger.debug("_get_memory_manager: Using cached MemoryManager")
 
     return _memory_cache[cache_key]
 
