@@ -29,11 +29,20 @@ Kagura AI v4.0の開発ドキュメント。AI開発者向け。
   - Remote MCP Server architecture
   - Security layers
 
-- **[MEMORY_STRATEGY.md](./MEMORY_STRATEGY.md)** - メモリー戦略
-  - Multi-tier memory system
-  - RAG統合
-  - GraphMemory統合
-  - Export/Import strategy
+- **[MEMORY_STRATEGY.md](./MEMORY_STRATEGY.md)** - メモリー戦略（v4.0 Phase C完了）
+  - Multi-tier memory system (4-tier + Graph)
+  - RAG統合 (ChromaDB/Qdrant)
+  - GraphMemory統合 (NetworkX)
+  - Export/Import strategy (JSONL)
+
+- **[../src/kagura/core/memory/README.md](../src/kagura/core/memory/README.md)** - Temperature-based Hierarchy設計
+  - 🔥 Hot/Warm/Cool/Cold階層
+  - Important Memory Protection
+  - Hebbian学習アルゴリズム
+  - Memory Curator設計
+  - High Context実現方法
+  - **実装ガイド** (Phase 1-3)
+  - [Issue #453](https://github.com/JFK/kagura-ai/issues/453)
 
 ### 3. 開発ガイドライン
 - **[CODING_STANDARDS.md](./CODING_STANDARDS.md)** - コーディング規約
@@ -174,6 +183,6 @@ A: **完全後方互換** ✅
 
 ---
 
-**Last Updated**: 2025-10-27（v4.0 Phase C完了時）
+**Last Updated**: 2025-10-29（Temperature-based Hierarchy設計追加）
 **Maintained By**: Claude Code + Human developers
-**Status**: Phase C Complete, Ready for v4.0.0 stable
+**Status**: Phase C Complete, v4.0.0 stable準備中、Phase 1実装開始予定（Issue #453）
