@@ -15,11 +15,11 @@ Kagura AI provides a **4-tier memory architecture** (v4.0):
 ### v4.0+ Features
 
 - **User-scoped Memory**: All memories are user-specific (via `user_id`)
-- **Temperature-based Hierarchy**: Hot/Warm/Cool/Cold tiers for optimization ([see design](../../src/kagura/core/memory/README.md))
+- **Temperature-based Hierarchy**: Hot/Warm/Cool/Cold tiers for optimization ([see design](../../ai_docs/MEMORY_TEMPERATURE_HIERARCHY.md))
 - **Export/Import**: JSONL format for backup & migration (v4.0 Phase C)
 - **Knowledge Graph**: Relationship tracking with NetworkX (v4.0 Phase B)
 
-For detailed architecture and Temperature-based hierarchy design, see: `src/kagura/core/memory/README.md`
+For detailed architecture and Temperature-based hierarchy design, see: [`ai_docs/MEMORY_TEMPERATURE_HIERARCHY.md`](../../ai_docs/MEMORY_TEMPERATURE_HIERARCHY.md)
 
 ## Memory System Architecture
 
