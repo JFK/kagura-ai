@@ -1,6 +1,6 @@
 # Kagura AI v4.0.0 - Universal AI Memory Platform
 
-**Release Date**: November 2025
+**Release Date**: October 29, 2025
 **Status**: Stable Release
 
 ---

@@ -136,7 +136,7 @@ Give **every AI** access to:
 **Test Coverage**: 1,451+ tests passing | 90%+ coverage
 
 **What's Next**:
-- 🎯 **v4.0.0 stable** (November 2025): Final release & documentation
+- 🎯 **v4.0.0 stable** (October 2025): Final release & documentation
 - 🔜 **v4.1.0** (Q2 2026): Smart Forgetting, Auto-recall, PostgreSQL backend
 - 🔜 **v4.2.0** (Q3-Q4 2026): Cloud SaaS, Enterprise features
 
@@ -486,7 +486,7 @@ export KAGURA_CONFIG_DIR=/custom/config/path
 - **User Pattern Analysis** (Interaction tracking, topic analysis) ✅
 - **Documentation** (Getting Started, API Reference, MCP Setup) ✅
 
-### 🎯 v4.0.0 (Stable - November 2025)
+### 🎯 v4.0.0 (Stable - October 2025)
 **Status**: Phase A/B/C Complete - Ready for stable release
 
 **Core Features** (All Complete):
