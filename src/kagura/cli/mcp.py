@@ -5,6 +5,7 @@ Provides commands to start MCP server and manage MCP integration.
 """
 
 import asyncio
+import os
 import sys
 from typing import Any
 
@@ -112,7 +113,11 @@ def serve(ctx: click.Context, name: str, remote: bool):
     # Setup logger
     logger = logging.getLogger("kagura.mcp")
     logger.addHandler(file_handler)
-    logger.setLevel(logging.INFO)
+
+    # Set log level from environment variable (default: INFO)
+    log_level_name = os.environ.get("KAGURA_LOG_LEVEL", "INFO").upper()
+    log_level = getattr(logging, log_level_name, logging.INFO)
+    logger.setLevel(log_level)
 
     # Also log to stderr if verbose
     if verbose:
