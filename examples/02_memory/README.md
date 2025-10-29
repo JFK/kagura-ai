@@ -4,11 +4,22 @@ This directory contains examples demonstrating Kagura AI's memory management sys
 
 ## Overview
 
-Kagura AI provides a **3-tier memory architecture**:
-1. **WorkingMemory** - Short-term conversational context
-2. **ContextMemory** - Medium-term session memory with limits
-3. **PersistentMemory** - Long-term storage across sessions
-4. **MemoryRAG** - Semantic search with vector embeddings
+Kagura AI provides a **4-tier memory architecture** (v4.0):
+1. **WorkingMemory** - Short-term conversational context (Tier 1)
+2. **ContextMemory** - Medium-term session memory with limits (Tier 2)
+3. **PersistentMemory** - Long-term storage across sessions (Tier 3)
+4. **MemoryRAG** - Semantic search with vector embeddings (Tier 4)
+
+**Bonus**: **GraphMemory** - Relationship tracking between memories (v4.0 Phase B)
+
+### v4.0+ Features
+
+- **User-scoped Memory**: All memories are user-specific (via `user_id`)
+- **Temperature-based Hierarchy**: Hot/Warm/Cool/Cold tiers for optimization ([see design](../../src/kagura/core/memory/README.md))
+- **Export/Import**: JSONL format for backup & migration (v4.0 Phase C)
+- **Knowledge Graph**: Relationship tracking with NetworkX (v4.0 Phase B)
+
+For detailed architecture and Temperature-based hierarchy design, see: `src/kagura/core/memory/README.md`
 
 ## Memory System Architecture
 

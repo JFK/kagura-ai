@@ -1,7 +1,30 @@
 # Memory Management Guide - MCP メモリー管理ガイド
 
+> ⚠️ **DEPRECATED - v3.0向けドキュメント**
+>
+> このドキュメントはv3.0時代のJSON file-based memoryシステム向けです。
+>
+> **v4.0以降の情報**:
+> - **実装ガイド**: [`src/kagura/core/memory/README.md`](../../../src/kagura/core/memory/README.md)
+> - **戦略文書**: [`ai_docs/MEMORY_STRATEGY.md`](../../MEMORY_STRATEGY.md)
+> - **アーキテクチャ**: [`ai_docs/ARCHITECTURE.md`](../../ARCHITECTURE.md)
+> - **Issue**: [#453 - Temperature-based Hierarchy](https://github.com/JFK/kagura-ai/issues/453)
+>
+> **主な変更点**:
+> - JSON file → SQLite + ChromaDB + NetworkX
+> - 4-tier memory architecture (Working/Context/Persistent/RAG)
+> - Temperature-based hierarchy (Hot/Warm/Cool/Cold)
+> - User-scoped memory (user_id)
+> - Export/Import (JSONL format)
+>
+> **最終更新**: 2025-10-29（廃止警告追加）
+
+---
+
+**元の文書（v3.0向け）**:
+
 **最終更新**: 2025-10-04
-**対象**: Kagura AI 開発プロジェクト
+**対象**: Kagura AI 開発プロジェクト（v3.0）
 **関連**: MCP_SETUP_GUIDE.md
 
 ---
