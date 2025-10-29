@@ -1062,7 +1062,8 @@ def install_reranking(model: str):
         try:
             from sentence_transformers import CrossEncoder
 
-            # This triggers model download
+            # Intentional cache warming: load model to trigger download, then discard.
+            # The cached model will be reloaded when actually used.
             _ = CrossEncoder(model)
 
             progress.update(task, description="[green]✓ Model downloaded![/green]")

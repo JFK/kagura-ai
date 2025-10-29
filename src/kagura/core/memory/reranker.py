@@ -35,6 +35,9 @@ def is_reranker_available(
 ) -> bool:
     """Check if reranker model is available (installed and cached).
 
+    Uses huggingface_hub API to properly detect cached models,
+    respecting HF_HOME and other environment variables.
+
     Args:
         model_name: Model identifier to check
 
@@ -45,16 +48,28 @@ def is_reranker_available(
         # Check sentence-transformers installation
         import sentence_transformers  # noqa: F401
 
-        # Check Hugging Face cache
-        cache_dir = Path.home() / ".cache" / "huggingface" / "hub"
-        if not cache_dir.exists():
-            return False
+        # Use huggingface_hub to check cache (respects HF_HOME, etc.)
+        try:
+            from huggingface_hub import try_to_load_from_cache
+            from huggingface_hub.constants import HUGGINGFACE_HUB_CACHE
 
-        # Model is cached if directory exists
-        model_slug = model_name.replace("/", "--")
-        model_dirs = list(cache_dir.glob(f"models--{model_slug}*"))
+            # Check for config.json (main model file)
+            cache_path = try_to_load_from_cache(
+                model_name, "config.json", cache_dir=HUGGINGFACE_HUB_CACHE
+            )
 
-        return len(model_dirs) > 0
+            # If not None and not _CACHED_NO_EXIST, model is cached
+            return cache_path is not None and cache_path != "_CACHED_NO_EXIST"
+        except ImportError:
+            # Fallback to directory check if huggingface_hub not available
+            cache_dir = Path.home() / ".cache" / "huggingface" / "hub"
+            if not cache_dir.exists():
+                return False
+
+            model_slug = model_name.replace("/", "--")
+            model_dirs = list(cache_dir.glob(f"models--{model_slug}*"))
+            return len(model_dirs) > 0
+
     except ImportError:
         return False
 

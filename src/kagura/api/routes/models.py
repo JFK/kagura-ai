@@ -51,6 +51,10 @@ async def install_reranker(request: RerankInstallRequest):
     Downloads and caches the cross-encoder model. First-time download
     may take 2-5 minutes depending on connection speed.
 
+    Note: This is intentional cache warming. The model is loaded to trigger
+    Hugging Face download and caching, then discarded. The cached model
+    will be reloaded when actually used in production.
+
     Args:
         request: Installation request with model identifier
 
@@ -60,6 +64,8 @@ async def install_reranker(request: RerankInstallRequest):
     Raises:
         HTTPException: If installation fails
     """
+    import asyncio
+
     from kagura.core.memory.reranker import is_reranker_available
 
     # Check if already cached
@@ -79,9 +85,14 @@ async def install_reranker(request: RerankInstallRequest):
             detail="sentence-transformers not installed",
         )
 
-    # Download model
+    # Download model in thread pool to avoid blocking event loop
+    def download_model():
+        """Cache warming: load model to trigger download, then discard"""
+        return CrossEncoder(request.model)
+
     try:
-        _ = CrossEncoder(request.model)
+        # Run blocking download in separate thread
+        await asyncio.to_thread(download_model)
 
         return {
             "status": "installed",
