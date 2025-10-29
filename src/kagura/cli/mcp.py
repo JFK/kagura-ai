@@ -1074,7 +1074,11 @@ def install_reranking(model: str):
     console.print()
     console.print("[green]✓ Reranking model installed successfully![/green]")
     console.print()
-    console.print("[dim]Model will be auto-enabled in future sessions.[/dim]")
+    console.print("[yellow]To enable reranking:[/yellow]")
+    console.print("  Set env var: [cyan]KAGURA_ENABLE_RERANKING=true[/cyan]")
+    console.print("  Or in Python:")
+    console.print("    [cyan]config = MemorySystemConfig()[/cyan]")
+    console.print("    [cyan]config.rerank.enabled = True[/cyan]")
     console.print()
 
 

@@ -179,6 +179,14 @@ class MemorySystemConfig(BaseModel):
         default=True, description="Use graph distance in recall scoring"
     )
 
+    def model_post_init(self, __context) -> None:
+        """Post-initialization hook to apply environment variables"""
+        import os
+
+        # Check environment variable for reranking
+        if os.environ.get("KAGURA_ENABLE_RERANKING", "").lower() == "true":
+            self.rerank.enabled = True
+
     @classmethod
     def from_dict(cls, config_dict: dict) -> "MemorySystemConfig":
         """Create config from dictionary.
