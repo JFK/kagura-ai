@@ -53,12 +53,21 @@ class MemoryReranker:
         Raises:
             ImportError: If sentence-transformers is not installed
         """
+        import logging
+        logger = logging.getLogger(__name__)
+
         self.config = config or RerankConfig()
+        logger.debug(f"MemoryReranker init: model={self.config.model}")
 
         try:
+            logger.debug("MemoryReranker: Importing sentence_transformers...")
             from sentence_transformers import CrossEncoder
+            logger.debug("MemoryReranker: sentence_transformers imported")
 
+            logger.debug(f"MemoryReranker: Loading CrossEncoder '{self.config.model}'")
+            logger.debug("Note: First run may download model from Hugging Face (slow)")
             self.model: CrossEncoder = CrossEncoder(self.config.model)
+            logger.debug("MemoryReranker: CrossEncoder model loaded successfully")
         except ImportError as e:
             raise ImportError(
                 "sentence-transformers not installed. "

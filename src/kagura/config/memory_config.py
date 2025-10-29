@@ -56,7 +56,10 @@ class RerankConfig(BaseModel):
         batch_size: Batch size for reranking (memory vs speed tradeoff)
     """
 
-    enabled: bool = Field(default=True, description="Enable reranking")
+    enabled: bool = Field(
+        default=False,
+        description="Enable reranking (requires sentence-transformers, slow first run)",
+    )
     model: str = Field(
         default="cross-encoder/ms-marco-MiniLM-L-6-v2",
         description="Cross-Encoder model identifier",
