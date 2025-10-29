@@ -207,9 +207,9 @@ async def memory_store(
 
     # Compact output (token-efficient)
     scope_badge = "global" if agent_name == "global" else "local"
-    rag_badge = "RAG✓" if rag_available else "RAG✗"
+    rag_badge = "RAG:OK" if rag_available else "RAG:NO"
 
-    return f"✓ Stored: {key} ({scope}, {scope_badge}, {rag_badge})"
+    return f"[OK] Stored: {key} ({scope}, {scope_badge}, {rag_badge})"
 
 
 @tool

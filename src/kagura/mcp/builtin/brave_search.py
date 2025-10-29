@@ -112,7 +112,7 @@ async def brave_web_search(query: str, count: int = 5) -> str:
                 from rich.console import Console
 
                 console = Console()
-                console.print("[green]✓ Cache hit (instant) - No API call needed[/]")
+                console.print("[green][OK] Cache hit (instant) - No API call needed[/]")
             except ImportError:
                 pass
 
