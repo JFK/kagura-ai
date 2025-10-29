@@ -37,7 +37,9 @@ def _get_memory_manager(
     import logging
     logger = logging.getLogger(__name__)
 
+    logger.debug("_get_memory_manager: Importing MemoryManager...")
     from kagura.core.memory import MemoryManager
+    logger.debug("_get_memory_manager: MemoryManager imported successfully")
 
     cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
     logger.debug(f"_get_memory_manager: cache_key={cache_key}")
