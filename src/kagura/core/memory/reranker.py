@@ -21,12 +21,42 @@ Example:
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
 from kagura.config.memory_config import RerankConfig
 
 if TYPE_CHECKING:
     from sentence_transformers import CrossEncoder
+
+
+def is_reranker_available(
+    model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2",
+) -> bool:
+    """Check if reranker model is available (installed and cached).
+
+    Args:
+        model_name: Model identifier to check
+
+    Returns:
+        True if model is ready to use without download, False otherwise
+    """
+    try:
+        # Check sentence-transformers installation
+        import sentence_transformers  # noqa: F401
+
+        # Check Hugging Face cache
+        cache_dir = Path.home() / ".cache" / "huggingface" / "hub"
+        if not cache_dir.exists():
+            return False
+
+        # Model is cached if directory exists
+        model_slug = model_name.replace("/", "--")
+        model_dirs = list(cache_dir.glob(f"models--{model_slug}*"))
+
+        return len(model_dirs) > 0
+    except ImportError:
+        return False
 
 
 class MemoryReranker:

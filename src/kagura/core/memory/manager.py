@@ -155,8 +155,19 @@ class MemoryManager:
                 self.graph = None
 
         # Optional: Reranker (v4.0.0a0 - Issue #418)
+        # Auto-enable if model is cached (avoids download delay)
         self.reranker: Optional[MemoryReranker] = None
-        if self.config.rerank.enabled:
+        should_enable_reranker = self.config.rerank.enabled
+
+        if not should_enable_reranker:
+            # Check if model is already cached (auto-enable if available)
+            from .reranker import is_reranker_available
+
+            if is_reranker_available(self.config.rerank.model):
+                logger.debug("MemoryManager: Reranker model cached, auto-enabling")
+                should_enable_reranker = True
+
+        if should_enable_reranker:
             try:
                 logger.debug("MemoryManager: Creating MemoryReranker")
                 self.reranker = MemoryReranker(self.config.rerank)

@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 
 from kagura.api import models
 from kagura.api.routes import graph, memory, search, system
+from kagura.api.routes import models as models_routes
 from kagura.api.routes.mcp_transport import mcp_asgi_app
 
 # FastAPI app
@@ -38,6 +39,7 @@ app.include_router(memory.router, prefix="/api/v1/memory", tags=["memory"])
 app.include_router(graph.router, prefix="/api/v1/graph", tags=["graph"])
 app.include_router(search.router, prefix="/api/v1", tags=["search"])
 app.include_router(system.router, prefix="/api/v1", tags=["system"])
+app.include_router(models_routes.router, prefix="/api/v1", tags=["models"])
 
 # MCP over HTTP/SSE (Phase C - ChatGPT Connector)
 # Mount as ASGI app to handle GET/POST/DELETE

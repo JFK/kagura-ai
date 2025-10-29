@@ -995,4 +995,87 @@ def log_command(
         raise click.Abort()
 
 
+@mcp.command(name="install-reranking")
+@click.option(
+    "--model",
+    default="cross-encoder/ms-marco-MiniLM-L-6-v2",
+    help="Cross-encoder model to install",
+)
+def install_reranking(model: str):
+    """Install semantic reranking model
+
+    Downloads and caches the cross-encoder model for improved semantic
+    search precision. First-time download may take 2-5 minutes.
+
+    Once installed, reranking is automatically enabled for all memory
+    search operations.
+
+    Examples:
+        # Install default model
+        kagura mcp install-reranking
+
+        # Install specific model
+        kagura mcp install-reranking --model cross-encoder/ms-marco-MiniLM-L-12-v2
+    """
+    from rich.console import Console
+    from rich.progress import Progress, SpinnerColumn, TextColumn
+
+    console = Console()
+
+    console.print("\n[bold]Installing Semantic Reranking Support[/bold]\n")
+
+    # Check sentence-transformers installation
+    try:
+        import sentence_transformers  # noqa: F401
+
+        console.print("[green]✓[/green] sentence-transformers installed")
+    except ImportError:
+        console.print("[red]✗[/red] sentence-transformers not installed")
+        console.print()
+        console.print("Install with: [cyan]uv add sentence-transformers[/cyan]")
+        console.print("Or: [cyan]pip install sentence-transformers[/cyan]")
+        console.print()
+        raise click.Abort()
+
+    # Check if model is already cached
+    from kagura.core.memory.reranker import is_reranker_available
+
+    if is_reranker_available(model):
+        console.print(f"[green]✓[/green] Model '{model}' already cached")
+        console.print()
+        console.print("[dim]Reranking is ready to use![/dim]")
+        console.print()
+        return
+
+    # Download model with progress
+    console.print(f"[yellow]Downloading model:[/yellow] {model}")
+    console.print("[dim]This may take 2-5 minutes...[/dim]")
+    console.print()
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Downloading model...", total=None)
+
+        try:
+            from sentence_transformers import CrossEncoder
+
+            # This triggers model download
+            _ = CrossEncoder(model)
+
+            progress.update(task, description="[green]✓ Model downloaded![/green]")
+        except Exception as e:
+            progress.stop()
+            console.print(f"[red]✗ Download failed:[/red] {e}")
+            raise click.Abort()
+
+    console.print()
+    console.print("[green]✓ Reranking model installed successfully![/green]")
+    console.print()
+    console.print("[dim]Model will be auto-enabled in future sessions.[/dim]")
+    console.print()
+
+
 __all__ = ["mcp"]
