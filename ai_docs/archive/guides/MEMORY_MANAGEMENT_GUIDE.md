@@ -5,9 +5,10 @@
 > このドキュメントはv3.0時代のJSON file-based memoryシステム向けです。
 >
 > **v4.0以降の情報**:
-> - **実装ガイド**: [`src/kagura/core/memory/README.md`](../../../src/kagura/core/memory/README.md)
+> - **設計文書**: [`ai_docs/MEMORY_TEMPERATURE_HIERARCHY.md`](../../MEMORY_TEMPERATURE_HIERARCHY.md)
 > - **戦略文書**: [`ai_docs/MEMORY_STRATEGY.md`](../../MEMORY_STRATEGY.md)
 > - **アーキテクチャ**: [`ai_docs/ARCHITECTURE.md`](../../ARCHITECTURE.md)
+> - **実装ガイド**: [`src/kagura/core/memory/README.md`](../../../src/kagura/core/memory/README.md)
 > - **Issue**: [#453 - Temperature-based Hierarchy](https://github.com/JFK/kagura-ai/issues/453)
 >
 > **主な変更点**:

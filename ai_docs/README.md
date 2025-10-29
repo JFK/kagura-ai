@@ -35,13 +35,14 @@ Kagura AI v4.0の開発ドキュメント。AI開発者向け。
   - GraphMemory統合 (NetworkX)
   - Export/Import strategy (JSONL)
 
-- **[../src/kagura/core/memory/README.md](../src/kagura/core/memory/README.md)** - Temperature-based Hierarchy設計
+- **[MEMORY_TEMPERATURE_HIERARCHY.md](./MEMORY_TEMPERATURE_HIERARCHY.md)** - Temperature-based Hierarchy設計
   - 🔥 Hot/Warm/Cool/Cold階層
   - Important Memory Protection
   - Hebbian学習アルゴリズム
   - Memory Curator設計
   - High Context実現方法
   - **実装ガイド** (Phase 1-3)
+  - MD-based管理システム
   - [Issue #453](https://github.com/JFK/kagura-ai/issues/453)
 
 ### 3. 開発ガイドライン
