@@ -15,6 +15,9 @@ Coding Memory is a specialized memory system for AI coding assistants that maint
 ✅ **Multimodal Support** - Analyze error screenshots and architecture diagrams
 ✅ **Design Decision Tracking** - Record and retrieve architectural decisions with rationale
 ✅ **Coding Session Management** - Group related activities with AI-powered summaries
+✅ **Plan Mode & Approval Workflows** - Cost estimation and approval before expensive operations
+✅ **Multi-Provider Support** - OpenAI (GPT-5), Google (Gemini 2.5), Anthropic (Claude)
+✅ **Cost Tracking** - Real-time cost monitoring and budget management
 
 ## Architecture
 
@@ -251,20 +254,68 @@ See `src/kagura/llm/prompts.py` for complete prompt templates.
 
 ## Configuration
 
-Add to your `kagura.toml`:
+### Environment Variables
+
+```bash
+# Model Configuration
+export CODING_MEMORY_MODEL="gpt-5-mini"  # or "gemini/gemini-2.5-flash"
+export CODING_MEMORY_VISION_MODEL="gpt-4o"  # or "gemini/gemini-2.0-flash-exp"
+
+# Cost Management
+export CODING_MEMORY_AUTO_APPROVE="false"  # Require approval
+export CODING_MEMORY_COST_THRESHOLD="0.10"  # Ask approval if > $0.10
+```
+
+### Python Configuration
+
+```python
+from kagura.core.memory.coding_memory import CodingMemoryManager
+
+# Fast & Affordable (Gemini)
+coding_mem = CodingMemoryManager(
+    user_id="dev_john",
+    project_id="my-project",
+    model="gemini/gemini-2.0-flash-exp",  # Free during preview
+    vision_model="gemini/gemini-2.0-flash-exp",
+    auto_approve=False,  # Require approval
+    cost_threshold=0.05  # Ask if > $0.05
+)
+
+# Balanced (GPT-5)
+coding_mem = CodingMemoryManager(
+    user_id="dev_john",
+    project_id="my-project",
+    model="gpt-5-mini",  # Fast and affordable
+    vision_model="gpt-4o",  # Good vision quality
+)
+
+# Premium (Claude + GPT-4o Vision)
+coding_mem = CodingMemoryManager(
+    user_id="dev_john",
+    project_id="my-project",
+    model="claude-sonnet-4-5",  # Best reasoning
+    vision_model="gpt-4o",  # Best vision
+    auto_approve=True,  # Skip approvals (富豪仕様)
+)
+```
+
+### kagura.toml (Optional)
 
 ```toml
 [coding_memory]
 enabled = true
-llm_provider = "openai"  # or "anthropic", "google"
-llm_model = "gpt-4-turbo-preview"
-vision_model = "gpt-4-vision-preview"
 max_session_duration_hours = 24
 auto_summarize_on_end = true
 enable_pattern_learning = true
 
+[coding_memory.defaults]
+model = "gpt-5-mini"
+vision_model = "gpt-4o"
+auto_approve = false
+cost_threshold = 0.10
+
 [coding_memory.costs]
-max_monthly_budget_usd = 500.0  # Optional cost limit
+max_monthly_budget_usd = 500.0
 warn_at_percentage = 80.0
 ```
 
@@ -305,23 +356,111 @@ Claude: [calls coding_end_session]
 Session summary: Resolved datetime comparison TypeError (recurring pattern). Applied UTC timezone fix in src/auth.py. Recommend adding pre-commit hook to catch this pattern in future.
 ```
 
+## Plan Mode & Cost Management
+
+### Approval Workflow
+
+When `auto_approve=False` (default), expensive operations require approval:
+
+```python
+# End session - shows cost estimate and asks approval
+result = await coding_mem.end_coding_session(success=True)
+
+# Output:
+# ┌─────────────────────────────────────────┐
+# │ ⚠️  Approval Required                    │
+# │                                          │
+# │ Generate AI-powered session summary     │
+# │                                          │
+# │ Estimated Cost: $0.25                   │
+# │ Input: ~3500 tokens, Model: gpt-5-mini │
+# └─────────────────────────────────────────┘
+# Approve? [Y/n]:
+```
+
+### Cost Threshold
+
+Only ask approval if cost exceeds threshold:
+
+```python
+coding_mem = CodingMemoryManager(
+    user_id="dev_john",
+    project_id="my-project",
+    cost_threshold=0.50  # Only ask if > $0.50
+)
+
+# Operations under $0.50 → auto-approved
+# Operations over $0.50 → ask for approval
+```
+
+### Auto-Approve Mode (Batch Processing)
+
+For automated workflows or "富豪仕様":
+
+```python
+coding_mem = CodingMemoryManager(
+    user_id="dev_john",
+    project_id="my-project",
+    auto_approve=True  # Never ask, always execute
+)
+```
+
+### Real-Time Cost Tracking
+
+```python
+# Check cumulative costs
+print(f"Total spent: ${coding_mem.coding_analyzer.total_cost:.2f}")
+print(f"Total tokens: {coding_mem.coding_analyzer.total_tokens}")
+print(f"LLM calls: {coding_mem.coding_analyzer.call_count}")
+
+# Detailed breakdown
+for call in coding_mem.coding_analyzer.call_costs:
+    print(f"{call['timestamp']}: {call['model']} - ${call['cost']:.4f}")
+```
+
 ## Cost Considerations
 
-"富豪仕様" (Premium Configuration) - Cost estimates:
+### Model Comparison
 
-| Operation | Model | Cost (approx) |
-|-----------|-------|---------------|
-| Session summary | GPT-4 | $0.10-0.30 |
-| Error analysis | GPT-4 | $0.05-0.15 |
-| Screenshot analysis | GPT-4 Vision | $0.01-0.05 |
-| Pattern extraction | GPT-4 | $0.20-0.50 |
+| Provider | Model | Input ($/1M) | Output ($/1M) | Speed | Quality |
+|----------|-------|--------------|---------------|-------|---------|
+| OpenAI | gpt-5-mini | $0.15 | $0.60 | ⚡️⚡️⚡️ | ⭐️⭐️⭐️ |
+| OpenAI | gpt-5 | $2.50 | $10.00 | ⚡️⚡️ | ⭐️⭐️⭐️⭐️ |
+| Google | gemini-2.0-flash-exp | Free | Free | ⚡️⚡️⚡️ | ⭐️⭐️⭐️ |
+| Google | gemini-2.5-flash | $0.075 | $0.30 | ⚡️⚡️⚡️ | ⭐️⭐️⭐️⭐️ |
+| Google | gemini-2.5-pro | $1.25 | $5.00 | ⚡️⚡️ | ⭐️⭐️⭐️⭐️⭐️ |
+| Anthropic | claude-sonnet-4-5 | $3.00 | $15.00 | ⚡️⚡️ | ⭐️⭐️⭐️⭐️⭐️ |
 
-**Monthly estimate:** 100 sessions × $0.50 avg = **~$50-100/month**
+### Operation Cost Estimates
 
-To reduce costs:
-- Use GPT-3.5-turbo for simple summaries
-- Cache frequently accessed contexts
-- Batch multiple analyses together
+| Operation | Tokens | gpt-5-mini | gemini-2.5-flash | claude-sonnet-4-5 |
+|-----------|--------|------------|------------------|-------------------|
+| Session summary | ~5000 | $0.05 | $0.02 | $0.22 |
+| Error analysis | ~3000 | $0.03 | $0.01 | $0.13 |
+| Screenshot analysis | ~2000 | $0.02 | Free | $0.09 |
+| Pattern extraction | ~7000 | $0.08 | $0.03 | $0.31 |
+
+### Monthly Cost Estimates
+
+**Budget-Conscious (Gemini):**
+- 100 sessions × $0.03 avg = **~$3-5/month**
+
+**Balanced (GPT-5-mini):**
+- 100 sessions × $0.05 avg = **~$5-10/month**
+
+**Premium (Claude):**
+- 100 sessions × $0.25 avg = **~$25-50/month**
+
+**富豪仕様 (All Premium):**
+- 500 sessions × $0.30 avg = **~$150-200/month**
+
+### Cost Reduction Tips
+
+1. **Use Gemini for most operations** - Free during preview, very affordable after
+2. **Set cost thresholds** - Only approve expensive operations
+3. **Use fast models for summaries** - gpt-5-mini is 94% cheaper than Claude
+4. **Cache contexts** - Reuse project context across sessions
+5. **Batch operations** - Analyze patterns weekly, not per session
 
 ## Multimodal Features
 
