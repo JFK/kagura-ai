@@ -37,10 +37,19 @@ Implemented authentication system with JWT tokens.
 @pytest.fixture
 def coding_memory():
     """Create coding memory manager for testing."""
+    try:
+        import chromadb  # noqa: F401
+
+        # RAG available - enable it
+        enable_rag = True
+    except ImportError:
+        # ChromaDB not available - disable RAG
+        enable_rag = False
+
     return CodingMemoryManager(
         user_id="test_e2e_user",
         project_id="test_e2e_project",
-        enable_rag=False,  # Disable RAG for faster tests
+        enable_rag=enable_rag,  # Enable RAG if available
         enable_graph=True,  # Enable graph for session tracking
         auto_approve=True,  # Auto-approve to skip prompts in tests
     )

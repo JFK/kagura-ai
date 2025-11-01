@@ -228,6 +228,7 @@ class CodingMemoryManager(MemoryManager):
                     "action": action,
                     "project_id": self.project_id,
                     "session_id": self.current_session_id or "",
+                    "change_id": change_id,  # Entity ID for retrieval
                 },
                 agent_name=self.agent_name,
             )
@@ -390,6 +391,7 @@ class CodingMemoryManager(MemoryManager):
                     "file_path": file_path,
                     "resolved": record.resolved,
                     "project_id": self.project_id,
+                    "error_id": error_id,  # Entity ID for retrieval
                 },
                 agent_name=self.agent_name,
             )
@@ -518,6 +520,7 @@ class CodingMemoryManager(MemoryManager):
                     "type": "decision",
                     "tags": ",".join(tags or []),  # ChromaDB doesn't support lists
                     "project_id": self.project_id,
+                    "decision_id": decision_id,  # Entity ID for retrieval
                 },
                 agent_name=self.agent_name,
             )
@@ -769,23 +772,39 @@ class CodingMemoryManager(MemoryManager):
 
         # Retrieve full error records
         errors = []
-        for result in results[:k]:
+        for result in results:
+            metadata = result.get("metadata", {})
+
             # Filter by project_id and type
-            if result.get("metadata", {}).get("project_id") != self.project_id:
+            if metadata.get("project_id") != self.project_id:
                 continue
-            if result.get("metadata", {}).get("type") != "error":
+            if metadata.get("type") != "error":
                 continue
 
-            # Extract error ID from result
-            # Assuming result has 'id' or we need to extract from metadata
-            error_id = result.get("id")
+            # Extract error ID - try metadata first (more reliable), then ChromaDB ID
+            error_id = metadata.get("error_id")  # From Fix #2
+            if not error_id:
+                # Fallback: ChromaDB content hash (older data)
+                error_id = result.get("id")
+
             if error_id:
-                key = self._make_key(f"error:{error_id}")
+                # Construct key and retrieve full record
+                if error_id.startswith("error_"):
+                    # Entity ID format
+                    key = self._make_key(f"error:{error_id}")
+                else:
+                    # ChromaDB hash - skip (can't map back without reverse index)
+                    continue
+
                 error_data = self.persistent.recall(key=key, user_id=self.user_id)
                 if error_data:
                     errors.append(ErrorRecord(**error_data))
 
-        return errors[:k]
+                # Stop when we have enough
+                if len(errors) >= k:
+                    break
+
+        return errors
 
     async def get_project_context(self, focus: str | None = None) -> ProjectContext:
         """Get comprehensive project context.
@@ -951,9 +970,13 @@ class CodingMemoryManager(MemoryManager):
                 metadata = result.get("metadata", {})
                 if metadata.get("type") == "file_change":
                     if metadata.get("project_id") == self.project_id:
-                        # Get full record
-                        change_id = result.get("id", "")
-                        if change_id:
+                        # Get entity ID from metadata (Fix #2)
+                        change_id = metadata.get("change_id")
+                        if not change_id:
+                            # Fallback to ChromaDB ID
+                            change_id = result.get("id", "")
+
+                        if change_id and change_id.startswith("change_"):
                             key = self._make_key(f"file_change:{change_id}")
                             data = self.persistent.recall(key=key, user_id=self.user_id)
                             if data:
@@ -985,10 +1008,16 @@ class CodingMemoryManager(MemoryManager):
 
             decisions = []
             for result in results:
-                if result.get("metadata", {}).get("type") == "decision":
-                    if result.get("metadata", {}).get("project_id") == self.project_id:
-                        decision_id = result.get("id", "")
-                        if decision_id:
+                metadata = result.get("metadata", {})
+                if metadata.get("type") == "decision":
+                    if metadata.get("project_id") == self.project_id:
+                        # Get entity ID from metadata (Fix #2)
+                        decision_id = metadata.get("decision_id")
+                        if not decision_id:
+                            # Fallback to ChromaDB ID
+                            decision_id = result.get("id", "")
+
+                        if decision_id and decision_id.startswith("decision_"):
                             key = self._make_key(f"decision:{decision_id}")
                             data = self.persistent.recall(key=key, user_id=self.user_id)
                             if data:

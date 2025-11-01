@@ -168,6 +168,7 @@ class MemoryRAG:
             for i, doc in enumerate(results["documents"][0]):
                 memories.append(
                     {
+                        "id": results["ids"][0][i],  # ChromaDB content hash
                         "content": doc,
                         "distance": results["distances"][0][i],
                         "metadata": (
