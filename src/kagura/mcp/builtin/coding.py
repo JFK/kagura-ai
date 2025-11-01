@@ -121,11 +121,8 @@ async def coding_track_file_change(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    # Parse related_files from JSON
-    try:
-        related_files_list = json.loads(related_files)
-    except json.JSONDecodeError:
-        related_files_list = []
+    # Parse related_files from JSON (using helper)
+    related_files_list = _parse_json_list(related_files, "related_files")
 
     # Parse line_range if provided
     line_range_tuple = None
@@ -238,11 +235,8 @@ async def coding_record_error(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    # Parse tags from JSON
-    try:
-        tags_list = json.loads(tags)
-    except json.JSONDecodeError:
-        tags_list = []
+    # Parse tags from JSON (using helper)
+    tags_list = _parse_json_list(tags, "tags")
 
     error_id = await memory.record_error(
         error_type=error_type,
@@ -1163,3 +1157,35 @@ async def coding_get_issue_context(
             f"- Issue #{issue_number} exists\n"
             f"- You have permission to view it"
         )
+
+
+# Helper Functions
+
+
+def _parse_json_list(value: str, param_name: str = "parameter") -> list:
+    """Parse JSON list parameter from MCP tools.
+
+    Handles JSON parsing with error recovery for MCP tool parameters.
+
+    Args:
+        value: JSON string or already-parsed list
+        param_name: Parameter name for error messages
+
+    Returns:
+        Parsed list (empty list if parsing fails)
+    """
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    try:
+        parsed = json.loads(value) if isinstance(value, str) else value
+        if not isinstance(parsed, list):
+            logger.warning(
+                f"{param_name} is not a list, converting to single-item list"
+            )
+            return [parsed]
+        return parsed
+    except json.JSONDecodeError as e:
+        logger.warning(f"Invalid JSON for {param_name}: {e}, returning empty list")
+        return []

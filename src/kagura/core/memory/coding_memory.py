@@ -1273,22 +1273,21 @@ class CodingMemoryManager(MemoryManager):
 
         # Update graph with import relationships
         if self.graph:
-            # Add file node
-            if not self.graph.graph.has_node(file_path):
-                self.graph.add_node(
-                    node_id=file_path,
-                    node_type="file",
-                    data={"file_path": file_path, "project_id": self.project_id},
-                )
+            # Add file node (using helper)
+            self._ensure_graph_node(
+                node_id=file_path,
+                node_type="file",
+                data={"file_path": file_path, "project_id": self.project_id},
+            )
 
             # Add import edges
             for imported in imports:
-                if not self.graph.graph.has_node(imported):
-                    self.graph.add_node(
-                        node_id=imported,
-                        node_type="file",
-                        data={"file_path": imported},
-                    )
+                # Ensure imported file node exists (using helper)
+                self._ensure_graph_node(
+                    node_id=imported,
+                    node_type="file",
+                    data={"file_path": imported},
+                )
 
                 self.graph.add_edge(
                     src_id=file_path,
@@ -1569,20 +1568,19 @@ class CodingMemoryManager(MemoryManager):
 
         # Add to graph if available
         if self.graph:
-            # Create GitHub issue node
+            # Create GitHub issue node (using helper)
             issue_node_id = f"gh_issue_{issue_number}"
 
-            if not self.graph.graph.has_node(issue_node_id):
-                self.graph.add_node(
-                    node_id=issue_node_id,
-                    node_type="github_issue",
-                    data={
-                        "issue_number": issue_number,
-                        "title": issue["title"],
-                        "url": issue["url"],
-                        "state": issue["state"],
-                    },
-                )
+            self._ensure_graph_node(
+                node_id=issue_node_id,
+                node_type="github_issue",
+                data={
+                    "issue_number": issue_number,
+                    "title": issue["title"],
+                    "url": issue["url"],
+                    "state": issue["state"],
+                },
+            )
 
             # Link session to issue
             self.graph.add_edge(
