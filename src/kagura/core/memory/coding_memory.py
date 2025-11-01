@@ -197,7 +197,9 @@ class CodingMemoryManager(MemoryManager):
 
         # Store in persistent memory (user_id scoped)
         key = self._make_key(f"file_change:{change_id}")
-        self.persistent.store(key=key, value=record.model_dump(), user_id=self.user_id)
+        self.persistent.store(
+            key=key, value=record.model_dump(mode="json"), user_id=self.user_id
+        )
 
         # Add to RAG if available for semantic search
         if self.persistent_rag:
@@ -215,6 +217,7 @@ class CodingMemoryManager(MemoryManager):
                     "file_path": file_path,
                     "action": action,
                     "project_id": self.project_id,
+                    "session_id": self.current_session_id or "",
                 },
                 agent_name=self.agent_name,
             )
@@ -224,7 +227,7 @@ class CodingMemoryManager(MemoryManager):
             # Node for file change
             self.graph.add_node(
                 node_id=change_id,
-                node_type="file_change",
+                node_type="memory",
                 data={
                     "file_path": file_path,
                     "action": action,
@@ -240,13 +243,13 @@ class CodingMemoryManager(MemoryManager):
                 if not self.graph.graph.has_node(related_key):
                     self.graph.add_node(
                         node_id=related_key,
-                        node_type="file",
+                        node_type="memory",
                         data={"file_path": related_file},
                     )
                 self.graph.add_edge(
                     src_id=change_id,
                     dst_id=related_key,
-                    rel_type="affects",
+                    rel_type="related_to",
                     weight=0.8,
                 )
 
@@ -255,7 +258,7 @@ class CodingMemoryManager(MemoryManager):
                 self.graph.add_edge(
                     src_id=self.current_session_id,
                     dst_id=change_id,
-                    rel_type="includes",
+                    rel_type="related_to",
                     weight=1.0,
                 )
 
@@ -343,7 +346,7 @@ class CodingMemoryManager(MemoryManager):
 
         # Store in persistent memory
         key = self._make_key(f"error:{error_id}")
-        self.persistent.store(key=key, value=record.model_dump(), user_id=self.user_id)
+        self.persistent.store(key=key, value=record.model_dump(mode="json"), user_id=self.user_id)
 
         # Add to RAG for semantic search
         if self.persistent_rag:
@@ -370,7 +373,7 @@ class CodingMemoryManager(MemoryManager):
         if self.graph:
             self.graph.add_node(
                 node_id=error_id,
-                node_type="error",
+                node_type="memory",
                 data={
                     "error_type": error_type,
                     "file_path": file_path,
@@ -385,7 +388,7 @@ class CodingMemoryManager(MemoryManager):
                 self.graph.add_edge(
                     src_id=self.current_session_id,
                     dst_id=error_id,
-                    rel_type="encountered",
+                    rel_type="related_to",
                     weight=1.0,
                 )
 
@@ -442,7 +445,7 @@ class CodingMemoryManager(MemoryManager):
 
         # Store in persistent memory
         key = self._make_key(f"decision:{decision_id}")
-        self.persistent.store(key=key, value=record.model_dump(), user_id=self.user_id)
+        self.persistent.store(key=key, value=record.model_dump(mode="json"), user_id=self.user_id)
 
         # Add to RAG
         if self.persistent_rag:
@@ -456,7 +459,7 @@ class CodingMemoryManager(MemoryManager):
                 user_id=self.user_id,
                 metadata={
                     "type": "decision",
-                    "tags": tags or [],
+                    "tags": ",".join(tags or []),  # ChromaDB doesn't support lists
                     "project_id": self.project_id,
                 },
                 agent_name=self.agent_name,
@@ -466,7 +469,7 @@ class CodingMemoryManager(MemoryManager):
         if self.graph:
             self.graph.add_node(
                 node_id=decision_id,
-                node_type="decision",
+                node_type="memory",
                 data={
                     "decision": decision,
                     "tags": tags or [],
@@ -479,7 +482,7 @@ class CodingMemoryManager(MemoryManager):
                 self.graph.add_edge(
                     src_id=self.current_session_id,
                     dst_id=decision_id,
-                    rel_type="made",
+                    rel_type="related_to",
                     weight=1.0,
                 )
 
@@ -529,17 +532,17 @@ class CodingMemoryManager(MemoryManager):
         )
 
         # Store in working memory (active session)
-        self.working.set(f"session:{session_id}", session.model_dump())
+        self.working.set(f"session:{session_id}", session.model_dump(mode="json"))
 
         # Store in persistent memory
         key = self._make_key(f"session:{session_id}")
-        self.persistent.store(key=key, value=session.model_dump(), user_id=self.user_id)
+        self.persistent.store(key=key, value=session.model_dump(mode="json"), user_id=self.user_id)
 
         # Add to graph
         if self.graph:
             self.graph.add_node(
                 node_id=session_id,
-                node_type="session",
+                node_type="memory",
                 data={
                     "description": description,
                     "project_id": self.project_id,
@@ -642,7 +645,7 @@ class CodingMemoryManager(MemoryManager):
 
         # Update stored session
         key = self._make_key(f"session:{session_id}")
-        self.persistent.store(key=key, value=session.model_dump(), user_id=self.user_id)
+        self.persistent.store(key=key, value=session.model_dump(mode="json"), user_id=self.user_id)
 
         # Remove from working memory
         self.working.delete(f"session:{session_id}")
@@ -659,7 +662,7 @@ class CodingMemoryManager(MemoryManager):
                 self.graph.graph.remove_node(session_id)
                 self.graph.add_node(
                     node_id=session_id,
-                    node_type="session",
+                    node_type="memory",
                     data=node_data,
                 )
 
