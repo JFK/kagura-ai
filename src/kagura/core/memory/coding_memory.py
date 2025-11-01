@@ -60,9 +60,6 @@ class CodingMemoryManager(MemoryManager):
         current_session_id: ID of active coding session (None if no active session)
     """
 
-    # Class-level lock for session management
-    _session_lock = asyncio.Lock()
-
     def __init__(
         self,
         user_id: str,
@@ -147,6 +144,9 @@ class CodingMemoryManager(MemoryManager):
         # Approval settings
         self.auto_approve = auto_approve
         self.cost_threshold = cost_threshold
+
+        # Instance-level lock for session management (prevents race conditions)
+        self._session_lock = asyncio.Lock()
 
         logger.info(
             f"CodingMemoryManager initialized: user={user_id}, project={project_id}"
@@ -609,37 +609,37 @@ class CodingMemoryManager(MemoryManager):
 
             session_id = f"session_{uuid.uuid4().hex[:12]}"
             session = CodingSession(
-            session_id=session_id,
-            user_id=self.user_id,
-            project_id=self.project_id,
-            description=description,
-            start_time=datetime.utcnow(),
-            end_time=None,
-            tags=tags or [],
-            summary=None,
-            success=None,
-        )
-
-        # Store in working memory (active session)
-        self.working.set(f"session:{session_id}", session.model_dump(mode="json"))
-
-        # Store in persistent memory
-        key = self._make_key(f"session:{session_id}")
-        self.persistent.store(
-            key=key, value=session.model_dump(mode="json"), user_id=self.user_id
-        )
-
-        # Add to graph
-        if self.graph:
-            self.graph.add_node(
-                node_id=session_id,
-                node_type="memory",
-                data={
-                    "description": description,
-                    "project_id": self.project_id,
-                    "active": True,
-                },
+                session_id=session_id,
+                user_id=self.user_id,
+                project_id=self.project_id,
+                description=description,
+                start_time=datetime.utcnow(),
+                end_time=None,
+                tags=tags or [],
+                summary=None,
+                success=None,
             )
+
+            # Store in working memory (active session)
+            self.working.set(f"session:{session_id}", session.model_dump(mode="json"))
+
+            # Store in persistent memory
+            key = self._make_key(f"session:{session_id}")
+            self.persistent.store(
+                key=key, value=session.model_dump(mode="json"), user_id=self.user_id
+            )
+
+            # Add to graph
+            if self.graph:
+                self.graph.add_node(
+                    node_id=session_id,
+                    node_type="memory",
+                    data={
+                        "description": description,
+                        "project_id": self.project_id,
+                        "active": True,
+                    },
+                )
 
             self.current_session_id = session_id
             logger.info(f"Started coding session: {session_id}")
