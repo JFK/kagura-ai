@@ -50,7 +50,7 @@ Coding Memory is a specialized memory system for AI coding assistants that maint
 
 ## MCP Tools
 
-Kagura provides 8 MCP tools for coding assistants:
+Kagura provides **11 MCP tools** for coding assistants (8 Phase 1 + 3 Phase 2):
 
 ### 1. `coding_track_file_change`
 
@@ -614,3 +614,193 @@ await coding_start_session(...)  # Start new
 ---
 
 **Contributing:** This is a new feature! Please report issues or suggest improvements at [GitHub Issues](https://github.com/JFK/kagura-ai/issues).
+
+### 9. `coding_analyze_file_dependencies` (Phase 2)
+
+Analyze Python file dependencies using AST parsing.
+
+```python
+await coding_analyze_file_dependencies(
+    user_id="dev_john",
+    project_id="api-service",
+    file_path="src/auth.py"
+)
+
+# Output:
+# 📊 Dependency Analysis: src/auth.py
+# 
+# Imports (2 files):
+# - src/models/user.py
+# - src/utils/jwt.py
+#
+# Imported By (3 files):
+# - src/main.py
+# - src/api/auth.py
+# - src/middleware.py
+#
+# Import Depth: 3
+# ✅ No Circular Dependencies
+```
+
+### 10. `coding_analyze_refactor_impact` (Phase 2)
+
+Analyze refactoring impact with risk assessment.
+
+```python
+await coding_analyze_refactor_impact(
+    user_id="dev_john",
+    project_id="api-service",
+    file_path="src/models/user.py"
+)
+
+# Output:
+# 🔍 Refactoring Impact Analysis: src/models/user.py
+#
+# Risk Level: 🚨 HIGH
+#
+# Affected Files (5):
+# - src/auth.py
+# - src/api/users.py
+# - src/api/posts.py
+# - src/middleware.py
+# - src/main.py
+#
+# Recommendations:
+# ⚠️  5 files depend on this - test thoroughly
+# Consider adding integration tests before refactoring
+```
+
+### 11. `coding_suggest_refactor_order` (Phase 2)
+
+Suggest safe refactoring order using topological sort.
+
+```python
+await coding_suggest_refactor_order(
+    user_id="dev_john",
+    project_id="api-service",
+    files='["src/main.py", "src/auth.py", "src/models/user.py"]'
+)
+
+# Output:
+# 📋 Suggested Refactoring Order:
+#
+# 1. src/models/user.py
+# 2. src/auth.py
+# 3. src/main.py
+#
+# 💡 Refactor in this order to minimize breaking changes.
+# Leaf dependencies (files with no internal imports) come first.
+```
+
+---
+
+## Phase 2: Advanced Graph Features
+
+### Automatic Dependency Graph
+
+**AST-Based Import Analysis:**
+- Automatically parses Python `import` and `from ... import` statements
+- Builds dependency graph without manual configuration
+- Detects circular dependencies
+- Calculates import depth
+
+**Usage:**
+```python
+# Analyze before refactoring
+deps = await coding_mem.analyze_file_dependencies("src/auth.py")
+
+if deps["circular_deps"]:
+    print(f"⚠️  Circular dependency: {deps['circular_deps'][0]}")
+
+print(f"This file is imported by {len(deps['imported_by'])} other files")
+```
+
+### Error → Solution Linking
+
+**Automatic Graph Links:**
+```python
+# Record error with solution
+error_id = await coding_mem.record_error(
+    error_type="TypeError",
+    message="datetime comparison failed",
+    stack_trace="...",
+    file_path="src/auth.py",
+    line_number=42,
+    solution="Use datetime.now(timezone.utc) consistently"
+)
+
+# Graph automatically creates:
+# - error node
+# - solution node
+# - error → solution edge (solved_by)
+
+# Later, retrieve solutions for similar errors
+solutions = await coding_mem.get_solutions_for_error(error_id)
+for sol in solutions:
+    print(f"Solution: {sol['solution']} (confidence: {sol['confidence']})")
+```
+
+### Decision → Implementation Linking
+
+**Track Implementation Progress:**
+```python
+# Record decision
+decision_id = await coding_mem.record_decision(
+    decision="Implement JWT authentication",
+    rationale="Stateless auth for scaling",
+    related_files=["src/auth.py", "src/middleware.py", "src/config.py"]
+)
+
+# Implement in first file
+await coding_mem.track_file_change(
+    file_path="src/auth.py",
+    action="create",
+    diff="...",
+    reason="Implement JWT auth",
+    implements_decision_id=decision_id  # Link to decision
+)
+
+# Check implementation status
+status = await coding_mem.get_decision_implementation_status(decision_id)
+print(f"Progress: {status['completion']:.0%}")
+# → "Progress: 33%" (1 of 3 files implemented)
+
+print(f"Pending: {status['pending_files']}")
+# → "Pending: ['src/middleware.py', 'src/config.py']"
+```
+
+### Refactoring Workflow Example
+
+```python
+# 1. Analyze impact before refactoring
+impact = await coding_mem.analyze_refactor_impact("src/models/user.py")
+
+if impact["risk_level"] == "high":
+    print("High risk refactoring!")
+    print(f"Affected files: {impact['affected_files']}")
+    
+    # Ask user confirmation
+    proceed = input("Continue? [y/N]: ")
+    if proceed.lower() != 'y':
+        exit()
+
+# 2. If refactoring multiple files, get safe order
+files_to_refactor = [
+    "src/models/user.py",
+    "src/auth.py",
+    "src/api/users.py"
+]
+
+order = await coding_mem.suggest_refactor_order(files_to_refactor)
+print(f"Refactor in this order: {order}")
+
+# 3. Track each refactoring
+for file in order:
+    await coding_mem.track_file_change(
+        file_path=file,
+        action="refactor",
+        diff="...",
+        reason=f"Refactor {file} as part of user model update"
+    )
+```
+
