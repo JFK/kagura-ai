@@ -41,7 +41,7 @@ def coding_memory():
         user_id="test_e2e_user",
         project_id="test_e2e_project",
         enable_rag=False,  # Disable RAG for faster tests
-        enable_graph=False,  # Disable graph for simpler tests
+        enable_graph=True,  # Enable graph for session tracking
         auto_approve=True,  # Auto-approve to skip prompts in tests
     )
 

@@ -791,33 +791,166 @@ class CodingMemoryManager(MemoryManager):
     async def _get_session_file_changes(
         self, session_id: str
     ) -> list[FileChangeRecord]:
-        """Get file changes for session."""
-        # TODO: Implement graph traversal or RAG search
-        return []
+        """Get file changes for session.
+
+        Args:
+            session_id: Session ID
+
+        Returns:
+            List of file changes associated with session
+        """
+        file_changes = []
+
+        # Method 1: Use graph if available
+        if self.graph and self.graph.graph.has_node(session_id):
+            # Get all nodes linked from session
+            for _, dst_id, edge_data in self.graph.graph.out_edges(
+                session_id, data=True
+            ):
+                # Check if it's a file change
+                if dst_id.startswith("change_"):
+                    key = self._make_key(f"file_change:{dst_id}")
+                    data = self.persistent.recall(key=key, user_id=self.user_id)
+                    if data:
+                        file_changes.append(FileChangeRecord(**data))
+
+        # Method 2: Fallback - query persistent storage by prefix
+        # (not implemented - would require scanning all keys)
+
+        return file_changes
 
     async def _get_session_errors(self, session_id: str) -> list[ErrorRecord]:
-        """Get errors for session."""
-        # TODO: Implement graph traversal or RAG search
-        return []
+        """Get errors for session.
+
+        Args:
+            session_id: Session ID
+
+        Returns:
+            List of errors associated with session
+        """
+        errors = []
+
+        # Use graph if available
+        if self.graph and self.graph.graph.has_node(session_id):
+            for _, dst_id, edge_data in self.graph.graph.out_edges(
+                session_id, data=True
+            ):
+                # Check if it's an error
+                if dst_id.startswith("error_"):
+                    key = self._make_key(f"error:{dst_id}")
+                    data = self.persistent.recall(key=key, user_id=self.user_id)
+                    if data:
+                        errors.append(ErrorRecord(**data))
+
+        return errors
 
     async def _get_session_decisions(self, session_id: str) -> list[DesignDecision]:
-        """Get decisions for session."""
-        # TODO: Implement graph traversal or RAG search
-        return []
+        """Get decisions for session.
 
-    async def _get_recent_file_changes(self, limit: int = 30) -> list[FileChangeRecord]:
-        """Get recent file changes."""
-        # TODO: Implement time-based query
+        Args:
+            session_id: Session ID
+
+        Returns:
+            List of decisions associated with session
+        """
+        decisions = []
+
+        # Use graph if available
+        if self.graph and self.graph.graph.has_node(session_id):
+            for _, dst_id, edge_data in self.graph.graph.out_edges(
+                session_id, data=True
+            ):
+                # Check if it's a decision
+                if dst_id.startswith("decision_"):
+                    key = self._make_key(f"decision:{dst_id}")
+                    data = self.persistent.recall(key=key, user_id=self.user_id)
+                    if data:
+                        decisions.append(DesignDecision(**data))
+
+        return decisions
+
+    async def _get_recent_file_changes(
+        self, limit: int = 30
+    ) -> list[FileChangeRecord]:
+        """Get recent file changes.
+
+        Args:
+            limit: Maximum number of changes to return
+
+        Returns:
+            List of recent file changes, sorted by timestamp (newest first)
+        """
+        # Method 1: Use RAG if available
+        if self.persistent_rag:
+            results = self.persistent_rag.recall(
+                query="recent file changes in project",
+                user_id=self.user_id,
+                top_k=limit * 2,  # Get more candidates
+                agent_name=self.agent_name,
+            )
+
+            file_changes = []
+            for result in results:
+                metadata = result.get("metadata", {})
+                if metadata.get("type") == "file_change":
+                    if metadata.get("project_id") == self.project_id:
+                        # Get full record
+                        change_id = result.get("id", "")
+                        if change_id:
+                            key = self._make_key(f"file_change:{change_id}")
+                            data = self.persistent.recall(key=key, user_id=self.user_id)
+                            if data:
+                                file_changes.append(FileChangeRecord(**data))
+
+            # Sort by timestamp and limit
+            file_changes.sort(key=lambda x: x.timestamp, reverse=True)
+            return file_changes[:limit]
+
         return []
 
     async def _get_recent_decisions(self, limit: int = 20) -> list[DesignDecision]:
-        """Get recent decisions."""
-        # TODO: Implement time-based query
+        """Get recent decisions.
+
+        Args:
+            limit: Maximum number of decisions to return
+
+        Returns:
+            List of recent decisions, sorted by timestamp (newest first)
+        """
+        # Use RAG if available
+        if self.persistent_rag:
+            results = self.persistent_rag.recall(
+                query="design decisions",
+                user_id=self.user_id,
+                top_k=limit * 2,
+                agent_name=self.agent_name,
+            )
+
+            decisions = []
+            for result in results:
+                if result.get("metadata", {}).get("type") == "decision":
+                    if result.get("metadata", {}).get("project_id") == self.project_id:
+                        decision_id = result.get("id", "")
+                        if decision_id:
+                            key = self._make_key(f"decision:{decision_id}")
+                            data = self.persistent.recall(key=key, user_id=self.user_id)
+                            if data:
+                                decisions.append(DesignDecision(**data))
+
+            decisions.sort(key=lambda x: x.timestamp, reverse=True)
+            return decisions[:limit]
+
         return []
 
     async def _get_coding_patterns(self) -> list[CodingPattern]:
-        """Get identified coding patterns."""
-        # TODO: Implement pattern retrieval
+        """Get identified coding patterns.
+
+        Returns:
+            List of identified coding patterns
+        """
+        # Patterns would be stored separately after analysis
+        # For now, return empty list (patterns are generated on-demand)
+        # Future: Store analyzed patterns in persistent storage
         return []
 
     # Approval and Cost Estimation Methods
