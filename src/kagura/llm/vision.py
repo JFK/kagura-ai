@@ -12,7 +12,7 @@ import logging
 from pathlib import Path
 from typing import Any, Literal
 
-from litellm import ModelResponse, acompletion
+from litellm import acompletion
 
 logger = logging.getLogger(__name__)
 

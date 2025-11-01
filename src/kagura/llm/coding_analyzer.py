@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Any
 
 import tiktoken
-from litellm import ModelResponse, acompletion
+from litellm import acompletion
 
 from kagura.core.memory.models.coding import (
     CodingPattern,
@@ -78,10 +78,7 @@ class CodingAnalyzer:
         # Use environment defaults if not specified
         import os
 
-        from kagura.config.env import (
-            get_google_ai_default_model,
-            get_openai_default_model,
-        )
+        from kagura.config.env import get_openai_default_model
 
         # Default to gpt-5-mini or environment override
         if model is None:
