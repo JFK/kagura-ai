@@ -8,6 +8,7 @@ Web) via MCP for single-config Claude Desktop integration.
 from . import (
     brave_search,  # noqa: F401
     cache,  # noqa: F401
+    coding,  # noqa: F401
     fact_check,  # noqa: F401
     file_ops,  # noqa: F401
     media,  # noqa: F401
@@ -27,6 +28,7 @@ except ImportError:
 
 __all__ = [
     "memory",
+    "coding",
     "routing",
     "multimodal",
     "web",
