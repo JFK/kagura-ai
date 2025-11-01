@@ -94,10 +94,11 @@ class CodingMemoryManager(MemoryManager):
                 - Fast: "gpt-5-mini", "gemini/gemini-2.0-flash-exp"
                 - Balanced: "gpt-5", "gemini/gemini-2.5-flash"
                 - Premium: "claude-sonnet-4-5", "gemini/gemini-2.5-pro"
-            vision_model: Vision model for image analysis (None = use gpt-4o)
+            vision_model: Vision model for image analysis (None = gemini-2.0-flash-exp default)
                 Recommended:
-                - OpenAI: "gpt-4o"
-                - Google: "gemini/gemini-2.0-flash-exp", "gemini/gemini-2.5-flash"
+                - Google: "gemini/gemini-2.0-flash-exp" (DEFAULT, free, excellent)
+                - Google: "gemini/gemini-2.5-flash" (production, $0.075/1M)
+                - OpenAI: "gpt-4o" (alternative, $2.50/1M)
             auto_approve: Skip approval prompts (default: False)
             cost_threshold: Ask approval if operation costs > this (USD, default: 0.10)
             memory_config: Memory system configuration
