@@ -890,9 +890,7 @@ def format_duration(minutes: float) -> str:
     return f"{hours:.1f} hours"
 
 
-def build_session_summary_prompt(
-    session_data: dict[str, Any]
-) -> dict[str, str]:
+def build_session_summary_prompt(session_data: dict[str, Any]) -> dict[str, str]:
     """Build session summary prompt from session data.
 
     Args:
@@ -904,9 +902,7 @@ def build_session_summary_prompt(
     duration_minutes = session_data.get("duration_minutes", 0)
     duration_human = format_duration(duration_minutes)
 
-    files_list = "\n".join(
-        f"- {f}" for f in session_data.get("files_touched", [])
-    )
+    files_list = "\n".join(f"- {f}" for f in session_data.get("files_touched", []))
     errors_list = "\n\n".join(
         f"**Error {i+1}:** {e.get('message', 'Unknown')}\n"
         f"File: {e.get('file_path', 'Unknown')}\n"
@@ -927,9 +923,7 @@ def build_session_summary_prompt(
         file_count=len(session_data.get("files_touched", [])),
         files_list=files_list or "No files modified",
         error_count=len(session_data.get("errors", [])),
-        fixed_count=sum(
-            1 for e in session_data.get("errors", []) if e.get("resolved")
-        ),
+        fixed_count=sum(1 for e in session_data.get("errors", []) if e.get("resolved")),
         errors_list=errors_list or "No errors encountered",
         decision_count=len(session_data.get("decisions", [])),
         decisions_list=decisions_list or "No decisions recorded",
@@ -959,9 +953,7 @@ def build_error_pattern_prompt(errors: list[dict[str, Any]]) -> dict[str, str]:
         for i, e in enumerate(errors)
     )
 
-    user_prompt = ERROR_PATTERN_USER_TEMPLATE.format(
-        error_history=error_history
-    )
+    user_prompt = ERROR_PATTERN_USER_TEMPLATE.format(error_history=error_history)
 
     return {"system": ERROR_PATTERN_SYSTEM, "user": user_prompt}
 
@@ -979,19 +971,22 @@ def build_solution_prompt(
         Dictionary with 'system' and 'user' prompt keys
     """
     screenshot_section = ""
-    if current_error.get("screenshot_path") or current_error.get(
-        "screenshot_base64"
-    ):
-        screenshot_section = "**Screenshot:** Available (analyze for additional context)\n"
+    if current_error.get("screenshot_path") or current_error.get("screenshot_base64"):
+        screenshot_section = (
+            "**Screenshot:** Available (analyze for additional context)\n"
+        )
 
-    similar_errors_text = "\n\n".join(
-        f"### Past Error #{i+1} (Similarity: {e.get('similarity', 0):.1%})\n"
-        f"**Type:** {e.get('error_type', 'Unknown')}\n"
-        f"**Message:** {e.get('message', 'N/A')}\n"
-        f"**Solution Applied:** {e.get('solution', 'No solution recorded')}\n"
-        f"**Outcome:** {'Successful' if e.get('resolved') else 'Unresolved'}"
-        for i, e in enumerate(similar_errors)
-    ) or "No similar past errors found"
+    similar_errors_text = (
+        "\n\n".join(
+            f"### Past Error #{i+1} (Similarity: {e.get('similarity', 0):.1%})\n"
+            f"**Type:** {e.get('error_type', 'Unknown')}\n"
+            f"**Message:** {e.get('message', 'N/A')}\n"
+            f"**Solution Applied:** {e.get('solution', 'No solution recorded')}\n"
+            f"**Outcome:** {'Successful' if e.get('resolved') else 'Unresolved'}"
+            for i, e in enumerate(similar_errors)
+        )
+        or "No similar past errors found"
+    )
 
     user_prompt = SOLUTION_SUGGESTION_USER_TEMPLATE.format(
         error_type=current_error.get("error_type", "Unknown"),

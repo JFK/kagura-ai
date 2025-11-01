@@ -1,5 +1,8 @@
 """Built-in Git agents for repository operations."""
 
+import json
+import re
+
 from kagura.core.shell import ShellExecutor
 
 # Git-only executor for security
@@ -137,8 +140,6 @@ async def gh_issue_get(issue_number: int) -> dict:
         >>> print(issue['url'])
         'https://github.com/owner/repo/issues/464'
     """
-    import json
-
     # Validate input
     if not isinstance(issue_number, int) or issue_number < 1:
         raise ValueError(f"Invalid issue number: {issue_number}")
@@ -148,9 +149,7 @@ async def gh_issue_get(issue_number: int) -> dict:
     result = await _executor.exec(cmd)
 
     if not result.success:
-        raise ValueError(
-            f"Failed to fetch issue #{issue_number}: {result.stderr}"
-        )
+        raise ValueError(f"Failed to fetch issue #{issue_number}: {result.stderr}")
 
     # Parse JSON response
     return json.loads(result.stdout)
@@ -176,8 +175,6 @@ async def gh_pr_get(pr_number: int | None = None) -> dict:
         >>> print(pr['title'])
         >>> print(pr['state'])  # OPEN, CLOSED, MERGED
     """
-    import json
-
     # Build command
     if pr_number is not None:
         if not isinstance(pr_number, int) or pr_number < 1:
@@ -262,8 +259,6 @@ async def gh_extract_issue_from_branch(branch_name: str | None = None) -> int | 
         >>> print(issue_num)
         None
     """
-    import re
-
     # Get current branch if not provided
     if branch_name is None:
         branch_name = await git_current_branch()
@@ -273,4 +268,3 @@ async def gh_extract_issue_from_branch(branch_name: str | None = None) -> int | 
     match = re.match(r"^(\d+)-", branch_name)
 
     return int(match.group(1)) if match else None
-

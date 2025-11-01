@@ -50,7 +50,10 @@ Coding Memory is a specialized memory system for AI coding assistants that maint
 
 ## MCP Tools
 
-Kagura provides **11 MCP tools** for coding assistants (8 Phase 1 + 3 Phase 2):
+Kagura provides **14 MCP tools** for coding assistants:
+- **Phase 1**: 8 tools (basic memory + sessions)
+- **Phase 2**: 3 tools (dependency analysis)
+- **GitHub**: 3 tools (issue/PR integration)
 
 ### 1. `coding_track_file_change`
 
@@ -803,4 +806,205 @@ for file in order:
         reason=f"Refactor {file} as part of user model update"
     )
 ```
+
+
+### 12. `coding_link_github_issue` (GitHub Integration)
+
+Link current coding session to a GitHub issue.
+
+```python
+# Auto-detect from branch name (e.g., 464-feat-...)
+await coding_link_github_issue(
+    user_id="dev_john",
+    project_id="kagura-ai"
+)
+
+# Or specify explicitly
+await coding_link_github_issue(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    issue_number=464
+)
+
+# Output:
+# ✅ Linked session to GitHub issue #464
+# Title: feat(memory): Implement Coding-Specialized Memory System
+# URL: https://github.com/JFK/kagura-ai/issues/464
+# State: OPEN
+# Labels: enhancement, memory
+```
+
+### 13. `coding_generate_pr_description` (GitHub Integration)
+
+Generate AI-powered PR description from session activities.
+
+```python
+await coding_generate_pr_description(
+    user_id="dev_john",
+    project_id="kagura-ai"
+)
+
+# Output:
+# 📝 Generated PR Description:
+#
+# ## Summary
+# Implemented coding-specialized memory system with...
+#
+# ## Changes
+# - Added CodingMemoryManager for project-scoped memory
+# - Implemented 8 MCP tools for file/error/decision tracking
+# ...
+#
+# ## Testing
+# - Run pytest tests/core/memory/
+# - Verify RAG search functionality
+```
+
+### 14. `coding_get_issue_context` (GitHub Integration)
+
+Get GitHub issue details for coding context.
+
+```python
+context = await coding_get_issue_context(464)
+
+# Output:
+# # Issue #464: feat(memory): Implement Coding-Specialized Memory System
+#
+# **URL:** https://github.com/JFK/kagura-ai/issues/464
+# **State:** OPEN
+# **Labels:** enhancement, memory
+# **Assignees:** JFK
+#
+# ## Description
+# Implement a coding-specialized memory system for AI coding assistants...
+```
+
+---
+
+## GitHub Integration Workflow
+
+### Complete Workflow Example
+
+```python
+# 1. Get issue context at start
+issue_context = await coding_get_issue_context(464)
+print(issue_context)  # Understand requirements
+
+# 2. Start session
+session_id = await coding_start_session(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    description="Implement coding memory system (Issue #464)",
+    tags='["feature", "memory", "issue-464"]'
+)
+
+# 3. Auto-link to GitHub issue
+await coding_link_github_issue(
+    user_id="dev_john",
+    project_id="kagura-ai"
+)
+# → Automatically detects issue #464 from branch name
+
+# 4. Do your work...
+await coding_track_file_change(
+    file_path="src/kagura/core/memory/coding_memory.py",
+    action="create",
+    diff="...",
+    reason="Implement CodingMemoryManager"
+)
+
+await coding_record_decision(
+    decision="Use project-scoped memory (user_id + project_id)",
+    rationale="Isolate memories by project for better organization",
+    tags=["architecture"]
+)
+
+# 5. End session with AI summary
+result = await coding_end_session(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    success=True
+)
+
+# 6. Generate PR description
+pr_desc = await coding_generate_pr_description(
+    user_id="dev_john",
+    project_id="kagura-ai"
+)
+
+# 7. Create PR with generated description
+# (manually copy pr_desc or save to file)
+# gh pr create --title "feat(memory): Implement coding memory" --body "$pr_desc"
+```
+
+### Auto-Detection Features
+
+**Branch Name → Issue Number:**
+```
+Branch: "464-featmemory-implement-coding-specialized-memory-system"
+→ Auto-detects: Issue #464
+```
+
+**Session → GitHub Context:**
+```
+Session linked to Issue #464
+→ Session summary includes:
+  - Issue title
+  - Issue labels
+  - Issue URL
+  - Automatically adds "Closes #464" to PR description
+```
+
+### Benefits
+
+1. **Traceability**: Code → Session → Issue → PR (完全な追跡)
+2. **Context Preservation**: Issue詳細がセッションコンテキストに含まれる
+3. **Automation**: PR説明文自動生成
+4. **Graph Relationships**: Issue-Session-PR の関係がグラフで管理
+5. **No Manual Work**: Branch名から自動検出、手動入力不要
+
+---
+
+## Requirements
+
+### For GitHub Integration
+
+**Required:**
+- `gh` CLI installed and authenticated
+  ```bash
+  # Install gh CLI
+  brew install gh  # macOS
+  # or download from: https://cli.github.com/
+  
+  # Authenticate
+  gh auth login
+  ```
+
+**Optional:**
+- Git repository with GitHub remote
+- GitHub issue tracking enabled
+- Branch naming convention: `{issue_number}-{description}`
+
+### Troubleshooting
+
+**"Failed to fetch issue":**
+```bash
+# Check gh authentication
+gh auth status
+
+# Re-authenticate if needed
+gh auth login
+
+# Test manually
+gh issue view 464 --json title
+```
+
+**"Could not detect issue number":**
+- Branch name must start with digits: `464-feat-...` ✅
+- Invalid: `feat-464`, `feature-branch` ❌
+- Rename branch: `git branch -m 464-feat-my-feature`
+
+**"No active session":**
+- Start session first: `await coding_start_session(...)`
+- Then link to issue: `await coding_link_github_issue(...)`
 

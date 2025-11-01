@@ -73,7 +73,7 @@ Give **every AI** access to:
 **For developers**:
 - 🔌 **REST API**: Query memory from any agent, any language
 - 🐍 **Python SDK**: Build AI agents with unified memory access
-- 📦 **MCP Tools**: 34 built-in tools for Claude, Cursor, Cline
+- 📦 **MCP Tools**: 37+ built-in tools for Claude, Cursor, Cline (including 14 coding-specialized tools)
 - 🛠️ **Extensible**: Custom connectors, workflows, integrations
 
 **One memory. Every AI. Every developer.**
@@ -94,7 +94,8 @@ Give **every AI** access to:
   - AI-powered session summaries with cost tracking
   - Automatic dependency analysis (AST-based)
   - Refactoring impact assessment
-  - 11 MCP tools for Claude Code, Cursor, etc.
+  - **GitHub integration** (issue/PR linking, auto-detection)
+  - **14 MCP tools** for Claude Code, Cursor, etc.
 - 🔌 **MCP-native**: Works with Claude Desktop, Cursor, Cline, etc.
 - 🐍 **Python SDK**: Build agents that share memory across platforms
 - 🌐 **REST API**: Access memory from any language, any agent

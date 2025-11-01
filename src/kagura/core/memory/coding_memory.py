@@ -125,7 +125,9 @@ class CodingMemoryManager(MemoryManager):
             model=model if model else None,
             vision_model=vision_model if vision_model else None,
         )
-        self.vision_analyzer = VisionAnalyzer(model=vision_model if vision_model else None)
+        self.vision_analyzer = VisionAnalyzer(
+            model=vision_model if vision_model else None
+        )
 
         # Initialize dependency analyzer (Phase 2)
         self.dependency_analyzer: DependencyAnalyzer | None = None
@@ -372,7 +374,9 @@ class CodingMemoryManager(MemoryManager):
 
         # Store in persistent memory
         key = self._make_key(f"error:{error_id}")
-        self.persistent.store(key=key, value=record.model_dump(mode="json"), user_id=self.user_id)
+        self.persistent.store(
+            key=key, value=record.model_dump(mode="json"), user_id=self.user_id
+        )
 
         # Add to RAG for semantic search
         if self.persistent_rag:
@@ -504,7 +508,9 @@ class CodingMemoryManager(MemoryManager):
 
         # Store in persistent memory
         key = self._make_key(f"decision:{decision_id}")
-        self.persistent.store(key=key, value=record.model_dump(mode="json"), user_id=self.user_id)
+        self.persistent.store(
+            key=key, value=record.model_dump(mode="json"), user_id=self.user_id
+        )
 
         # Add to RAG
         if self.persistent_rag:
@@ -596,7 +602,9 @@ class CodingMemoryManager(MemoryManager):
 
         # Store in persistent memory
         key = self._make_key(f"session:{session_id}")
-        self.persistent.store(key=key, value=session.model_dump(mode="json"), user_id=self.user_id)
+        self.persistent.store(
+            key=key, value=session.model_dump(mode="json"), user_id=self.user_id
+        )
 
         # Add to graph
         if self.graph:
@@ -705,7 +713,9 @@ class CodingMemoryManager(MemoryManager):
 
         # Update stored session
         key = self._make_key(f"session:{session_id}")
-        self.persistent.store(key=key, value=session.model_dump(mode="json"), user_id=self.user_id)
+        self.persistent.store(
+            key=key, value=session.model_dump(mode="json"), user_id=self.user_id
+        )
 
         # Remove from working memory
         self.working.delete(f"session:{session_id}")
@@ -945,9 +955,7 @@ class CodingMemoryManager(MemoryManager):
 
         return decisions
 
-    async def _get_recent_file_changes(
-        self, limit: int = 30
-    ) -> list[FileChangeRecord]:
+    async def _get_recent_file_changes(self, limit: int = 30) -> list[FileChangeRecord]:
         """Get recent file changes.
 
         Args:
@@ -1238,9 +1246,7 @@ class CodingMemoryManager(MemoryManager):
 
         # Check for circular dependencies
         circular_deps = self.dependency_analyzer.find_circular_dependencies()
-        relevant_cycles = [
-            cycle for cycle in circular_deps if file_path in cycle
-        ]
+        relevant_cycles = [cycle for cycle in circular_deps if file_path in cycle]
 
         # Update graph with import relationships
         if self.graph:
@@ -1443,9 +1449,7 @@ class CodingMemoryManager(MemoryManager):
 
         # Find file changes that implement this decision
         implemented = []
-        for src_id, _, edge_data in self.graph.graph.in_edges(
-            decision_id, data=True
-        ):
+        for src_id, _, edge_data in self.graph.graph.in_edges(decision_id, data=True):
             if edge_data.get("type") == "implements":
                 # This is a file change implementing the decision
                 if self.graph.graph.has_node(src_id):
@@ -1630,17 +1634,13 @@ class CodingMemoryManager(MemoryManager):
         if not session_data:
             raise RuntimeError(f"Session data not found: {self.current_session_id}")
 
-        file_changes = await self._get_session_file_changes(
-            self.current_session_id
-        )
+        file_changes = await self._get_session_file_changes(self.current_session_id)
         decisions = await self._get_session_decisions(self.current_session_id)
         errors = await self._get_session_errors(self.current_session_id)
 
         # Get GitHub context if available
         github_context = session_data.get("github_context")
-        related_issue = (
-            github_context.get("github_issue") if github_context else None
-        )
+        related_issue = github_context.get("github_issue") if github_context else None
 
         # Generate PR description using LLM
         pr_desc = await self.coding_analyzer.generate_pr_description(

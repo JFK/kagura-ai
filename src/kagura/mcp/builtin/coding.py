@@ -1094,12 +1094,14 @@ async def coding_generate_pr_description(
             "```\n\n"
             "💡 **Usage:**\n"
             "1. Copy the markdown above\n"
-            "2. Use with: `gh pr create --title \"...\" --body \"<paste here>\"`\n"
+            '2. Use with: `gh pr create --title "..." --body "<paste here>"`\n'
             "3. Or save to file and use: `gh pr create --body-file pr_desc.md`"
         )
 
     except RuntimeError as e:
-        return f"❌ Error: {e}\n\nStart a coding session first with coding_start_session()"
+        return (
+            f"❌ Error: {e}\n\nStart a coding session first with coding_start_session()"
+        )
 
 
 @tool
