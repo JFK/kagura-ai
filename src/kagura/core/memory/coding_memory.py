@@ -119,8 +119,12 @@ class CodingMemoryManager(MemoryManager):
         self.current_session_id: str | None = None
 
         # Initialize LLM analyzers
-        self.coding_analyzer = CodingAnalyzer(model=model, vision_model=vision_model)
-        self.vision_analyzer = VisionAnalyzer(model=vision_model)
+        # Note: CodingAnalyzer and VisionAnalyzer now accept None and use env defaults
+        self.coding_analyzer = CodingAnalyzer(
+            model=model if model else None,
+            vision_model=vision_model if vision_model else None,
+        )
+        self.vision_analyzer = VisionAnalyzer(model=vision_model if vision_model else None)
 
         # Cost tracking
         self.total_cost = 0.0

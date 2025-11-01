@@ -447,13 +447,13 @@ primary_solution:
     from typing import Any
 
     def create_token(user_id: int, expires_in: timedelta) -> str:
-        """Create JWT with timezone-aware expiry."""
+        '''Create JWT with timezone-aware expiry.'''
         exp = datetime.now(timezone.utc) + expires_in
         payload = {"sub": user_id, "exp": exp}
         return encode_jwt(payload)
 
     def validate_token(token: str) -> dict[str, Any]:
-        """Validate JWT expiry with timezone-aware comparison."""
+        '''Validate JWT expiry with timezone-aware comparison.'''
         try:
             payload = decode_jwt(token)
             exp_timestamp = payload["exp"]
