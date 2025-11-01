@@ -60,6 +60,9 @@ class CodingMemoryManager(MemoryManager):
         current_session_id: ID of active coding session (None if no active session)
     """
 
+    # Class-level lock for session management
+    _session_lock = asyncio.Lock()
+
     def __init__(
         self,
         user_id: str,
@@ -160,6 +163,24 @@ class CodingMemoryManager(MemoryManager):
         """
         return f"project:{self.project_id}:{key}"
 
+    def _ensure_graph_node(
+        self, node_id: str, node_type: str, data: dict[str, Any]
+    ) -> None:
+        """Ensure graph node exists (create if not exists).
+
+        Helper to avoid duplicated node existence checks throughout the code.
+
+        Args:
+            node_id: Unique node identifier
+            node_type: Node type
+            data: Node data dictionary
+        """
+        if not self.graph:
+            return
+
+        if not self.graph.graph.has_node(node_id):
+            self.graph.add_node(node_id=node_id, node_type=node_type, data=data)
+
     async def track_file_change(
         self,
         file_path: str,
@@ -253,13 +274,12 @@ class CodingMemoryManager(MemoryManager):
             # Link to related files
             for related_file in related_files or []:
                 related_key = self._make_key(f"file:{related_file}")
-                # Ensure related file node exists
-                if not self.graph.graph.has_node(related_key):
-                    self.graph.add_node(
-                        node_id=related_key,
-                        node_type="memory",
-                        data={"file_path": related_file},
-                    )
+                # Ensure related file node exists (using helper)
+                self._ensure_graph_node(
+                    node_id=related_key,
+                    node_type="memory",
+                    data={"file_path": related_file},
+                )
                 self.graph.add_edge(
                     src_id=change_id,
                     dst_id=related_key,
@@ -579,14 +599,16 @@ class CodingMemoryManager(MemoryManager):
             ...     tags=["authentication", "security"]
             ... )
         """
-        if self.current_session_id:
-            raise RuntimeError(
-                f"Session already active: {self.current_session_id}. "
-                "End current session before starting a new one."
-            )
+        # Use lock to prevent race conditions
+        async with self._session_lock:
+            if self.current_session_id:
+                raise RuntimeError(
+                    f"Session already active: {self.current_session_id}. "
+                    "End current session before starting a new one."
+                )
 
-        session_id = f"session_{uuid.uuid4().hex[:12]}"
-        session = CodingSession(
+            session_id = f"session_{uuid.uuid4().hex[:12]}"
+            session = CodingSession(
             session_id=session_id,
             user_id=self.user_id,
             project_id=self.project_id,
@@ -619,9 +641,9 @@ class CodingMemoryManager(MemoryManager):
                 },
             )
 
-        self.current_session_id = session_id
-        logger.info(f"Started coding session: {session_id}")
-        return session_id
+            self.current_session_id = session_id
+            logger.info(f"Started coding session: {session_id}")
+            return session_id
 
     async def end_coding_session(
         self, summary: str | None = None, success: bool | None = None
