@@ -89,13 +89,18 @@ Give **every AI** access to:
 - 📊 **Insights**: Visualize your learning patterns
 
 ### For Developers
-- 💻 **"Vibe Coding" memory**: Track coding patterns, GitHub integration
+- 💻 **Coding-Specialized Memory (NEW v4.1)**:
+  - Track file changes, errors, design decisions
+  - AI-powered session summaries with cost tracking
+  - Automatic dependency analysis (AST-based)
+  - Refactoring impact assessment
+  - 11 MCP tools for Claude Code, Cursor, etc.
 - 🔌 **MCP-native**: Works with Claude Desktop, Cursor, Cline, etc.
 - 🐍 **Python SDK**: Build agents that share memory across platforms
 - 🌐 **REST API**: Access memory from any language, any agent
 - 🔗 **Agent orchestration**: Your custom agents can reference each other's memory
 - 🛠️ **Extensible**: Custom connectors, tools, workflows
-- 📦 **Production-ready**: Docker, API, full test coverage (1,400+ tests)
+- 📦 **Production-ready**: Docker, API, full test coverage (1,450+ tests)
 
 ### For Teams(Coming in v4.2)
 - 👥 **Shared knowledge**: Team-wide memory
