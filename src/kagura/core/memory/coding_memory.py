@@ -165,6 +165,7 @@ class CodingMemoryManager(MemoryManager):
         reason: str,
         related_files: list[str] | None = None,
         line_range: tuple[int, int] | None = None,
+        implements_decision_id: str | None = None,
     ) -> str:
         """Track file modification with context.
 
@@ -177,6 +178,7 @@ class CodingMemoryManager(MemoryManager):
             reason: Why this change was made
             related_files: Other affected/related files
             line_range: Lines affected (start, end)
+            implements_decision_id: ID of design decision this change implements (Phase 2)
 
         Returns:
             Unique ID for this file change record
@@ -270,6 +272,19 @@ class CodingMemoryManager(MemoryManager):
                     weight=1.0,
                 )
 
+            # Link to decision if implementing one (Phase 2)
+            if implements_decision_id:
+                if self.graph.graph.has_node(implements_decision_id):
+                    self.graph.add_edge(
+                        src_id=change_id,
+                        dst_id=implements_decision_id,
+                        rel_type="implements",
+                        weight=1.0,
+                    )
+                    logger.info(
+                        f"Linked file change {change_id} to decision {implements_decision_id}"
+                    )
+
         logger.info(f"Tracked file change: {change_id} ({file_path})")
         return change_id
 
@@ -283,6 +298,7 @@ class CodingMemoryManager(MemoryManager):
         solution: str | None = None,
         screenshot: str | None = None,  # Path or base64
         tags: list[str] | None = None,
+        similar_error_ids: list[str] | None = None,
     ) -> str:
         """Record error with optional screenshot.
 
@@ -297,6 +313,7 @@ class CodingMemoryManager(MemoryManager):
             solution: How error was resolved (optional)
             screenshot: Path to screenshot or base64-encoded image
             tags: Custom categorization tags
+            similar_error_ids: IDs of similar past errors (for graph linking)
 
         Returns:
             Unique ID for this error record
@@ -397,6 +414,38 @@ class CodingMemoryManager(MemoryManager):
                     src_id=self.current_session_id,
                     dst_id=error_id,
                     rel_type="encountered",
+                    weight=1.0,
+                )
+
+            # Link to similar errors (Phase 2)
+            if similar_error_ids:
+                for similar_id in similar_error_ids:
+                    if self.graph.graph.has_node(similar_id):
+                        self.graph.add_edge(
+                            src_id=error_id,
+                            dst_id=similar_id,
+                            rel_type="similar_to",
+                            weight=0.85,
+                        )
+
+            # If solution provided, create solution node and link (Phase 2)
+            if solution and self.graph:
+                solution_id = f"solution_{uuid.uuid4().hex[:8]}"
+                self.graph.add_node(
+                    node_id=solution_id,
+                    node_type="solution",
+                    data={
+                        "solution": solution,
+                        "error_type": error_type,
+                        "project_id": self.project_id,
+                    },
+                )
+
+                # Link error to solution
+                self.graph.add_edge(
+                    src_id=error_id,
+                    dst_id=solution_id,
+                    rel_type="solved_by",
                     weight=1.0,
                 )
 
@@ -1293,3 +1342,98 @@ class CodingMemoryManager(MemoryManager):
             return files
 
         return self.dependency_analyzer.suggest_refactor_order(files)
+
+    async def get_solutions_for_error(self, error_id: str) -> list[dict[str, Any]]:
+        """Get solutions for an error from graph.
+
+        Args:
+            error_id: Error ID
+
+        Returns:
+            List of solutions with confidence scores
+
+        Example:
+            >>> solutions = await coding_mem.get_solutions_for_error("error_abc123")
+            >>> for sol in solutions:
+            ...     print(f"{sol['solution']} (confidence: {sol['confidence']})")
+        """
+        solutions = []
+
+        if not self.graph or not self.graph.graph.has_node(error_id):
+            return solutions
+
+        # Find solution nodes linked from this error
+        for _, dst_id, edge_data in self.graph.graph.out_edges(error_id, data=True):
+            if edge_data.get("type") == "solved_by":
+                # Get solution node data
+                if self.graph.graph.has_node(dst_id):
+                    node_data = self.graph.graph.nodes[dst_id]
+                    solutions.append(
+                        {
+                            "solution_id": dst_id,
+                            "solution": node_data.get("solution", ""),
+                            "confidence": edge_data.get("weight", 0.0),
+                        }
+                    )
+
+        return solutions
+
+    async def get_decision_implementation_status(
+        self, decision_id: str
+    ) -> dict[str, Any]:
+        """Get implementation status for a decision.
+
+        Args:
+            decision_id: Decision ID
+
+        Returns:
+            Dictionary with implementation status:
+                - implemented_files: Files that implement this decision
+                - pending_files: Files mentioned but not implemented
+                - completion: Percentage (0.0-1.0)
+
+        Example:
+            >>> status = await coding_mem.get_decision_implementation_status("decision_xyz")
+            >>> print(status)
+            {
+                'implemented_files': ['src/auth.py'],
+                'pending_files': ['src/middleware.py'],
+                'completion': 0.5
+            }
+        """
+        if not self.graph or not self.graph.graph.has_node(decision_id):
+            return {
+                "implemented_files": [],
+                "pending_files": [],
+                "completion": 0.0,
+            }
+
+        # Get decision data
+        decision_data = self.graph.graph.nodes[decision_id]
+        related_files = decision_data.get("related_files", [])
+
+        # Find file changes that implement this decision
+        implemented = []
+        for src_id, _, edge_data in self.graph.graph.in_edges(
+            decision_id, data=True
+        ):
+            if edge_data.get("type") == "implements":
+                # This is a file change implementing the decision
+                if self.graph.graph.has_node(src_id):
+                    change_data = self.graph.graph.nodes[src_id]
+                    file_path = change_data.get("file_path")
+                    if file_path:
+                        implemented.append(file_path)
+
+        # Determine pending files
+        pending = [f for f in related_files if f not in implemented]
+
+        # Calculate completion
+        total = len(related_files) if related_files else 1
+        completion = len(implemented) / total if total > 0 else 0.0
+
+        return {
+            "implemented_files": implemented,
+            "pending_files": pending,
+            "completion": completion,
+        }
