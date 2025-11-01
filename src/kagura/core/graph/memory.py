@@ -56,6 +56,9 @@ class GraphMemory:
         "decision",
         "session",
         "solution",
+        # GitHub Integration types
+        "github_issue",
+        "github_pr",
     ]
     EDGE_TYPES = [
         "related_to",
@@ -74,6 +77,10 @@ class GraphMemory:
         "includes",  # Session includes activity
         "encountered",  # Session encountered error
         "made",  # Session made decision
+        # GitHub Integration relations
+        "addresses",  # Session addresses issue
+        "closes",  # PR closes issue
+        "mentioned_in",  # Referenced in issue/PR
     ]
 
     def __init__(self, persist_path: Optional[Path] = None):

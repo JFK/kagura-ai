@@ -628,3 +628,158 @@ Focus Area: {focus or 'general overview'}"""
             coding_patterns=[p.description for p in patterns],
             token_count=None,  # Could be calculated if needed
         )
+
+    async def generate_pr_description(
+        self,
+        session_description: str | None,
+        file_changes: list[FileChangeRecord],
+        decisions: list[DesignDecision],
+        errors_fixed: list[ErrorRecord],
+        related_issue: int | None = None,
+    ) -> str:
+        """Generate PR description from session activities.
+
+        Args:
+            session_description: Session goal/description
+            file_changes: List of file modifications
+            decisions: Design decisions made
+            errors_fixed: Errors resolved during session
+            related_issue: Related GitHub issue number
+
+        Returns:
+            Markdown-formatted PR description
+
+        Example:
+            >>> pr_desc = await analyzer.generate_pr_description(
+            ...     session_description="Implement authentication",
+            ...     file_changes=[...],
+            ...     decisions=[...],
+            ...     errors_fixed=[...]
+            ... )
+        """
+        # Build prompt context
+        changes_text = self._format_file_changes(file_changes)
+        decisions_text = self._format_decisions(decisions)
+        errors_text = self._format_errors_fixed(errors_fixed)
+
+        issue_ref = f"Closes #{related_issue}" if related_issue else ""
+
+        system_prompt = """You are a technical writer creating pull request descriptions.
+
+<role>
+Generate concise, informative PR descriptions that:
+- Clearly explain what was changed and why
+- Help reviewers understand the context
+- Include testing guidance
+- Follow markdown best practices
+</role>"""
+
+        user_prompt = f"""Generate a pull request description from this coding session.
+
+<session_info>
+<goal>{session_description or 'Code improvements and fixes'}</goal>
+<related_issue>{issue_ref or 'None'}</related_issue>
+</session_info>
+
+<file_changes count="{len(file_changes)}">
+{changes_text}
+</file_changes>
+
+<design_decisions count="{len(decisions)}">
+{decisions_text}
+</design_decisions>
+
+<errors_fixed count="{len(errors_fixed)}">
+{errors_text}
+</errors_fixed>
+
+<task>
+Generate a PR description with these sections:
+
+## Summary
+2-3 sentences explaining what this PR does and why.
+
+## Changes
+- Bullet points of key modifications
+- Focus on WHAT changed, not HOW
+
+## Technical Decisions
+- List significant design decisions (if any)
+- Include brief rationale
+
+## Testing
+- How to test/verify these changes
+- What scenarios to check
+
+## Notes
+- Any important context for reviewers
+- Breaking changes (if any)
+- Follow-up work needed (if any)
+
+{f"Closes #{related_issue}" if related_issue else ""}
+</task>
+
+<output_format>
+Use clear markdown. Be concise but informative.
+Each section should be 2-5 bullet points maximum.
+</output_format>
+
+Generate the PR description:"""
+
+        response = await self._call_llm(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.3,  # Moderate creativity
+            max_tokens=1500,
+        )
+
+        return response
+
+    def _format_file_changes(self, changes: list[FileChangeRecord]) -> str:
+        """Format file changes for prompt."""
+        if not changes:
+            return "No file changes"
+
+        lines = []
+        for change in changes[:15]:  # Limit to prevent token overflow
+            lines.append(f"- **{change.action.upper()}**: `{change.file_path}`")
+            lines.append(f"  Reason: {change.reason}")
+
+        if len(changes) > 15:
+            lines.append(f"- ... and {len(changes) - 15} more files")
+
+        return "\n".join(lines)
+
+    def _format_decisions(self, decisions: list[DesignDecision]) -> str:
+        """Format design decisions for prompt."""
+        if not decisions:
+            return "No major design decisions"
+
+        lines = []
+        for dec in decisions[:5]:
+            lines.append(f"- **{dec.decision}**")
+            lines.append(f"  Rationale: {dec.rationale[:150]}")
+
+        if len(decisions) > 5:
+            lines.append(f"- ... and {len(decisions) - 5} more decisions")
+
+        return "\n".join(lines)
+
+    def _format_errors_fixed(self, errors: list[ErrorRecord]) -> str:
+        """Format fixed errors for prompt."""
+        if not errors:
+            return "No errors resolved"
+
+        lines = []
+        for err in errors[:5]:
+            lines.append(
+                f"- **{err.error_type}** in `{err.file_path}:{err.line_number}`"
+            )
+            if err.solution:
+                solution_short = err.solution[:100]
+                lines.append(f"  Solution: {solution_short}")
+
+        if len(errors) > 5:
+            lines.append(f"- ... and {len(errors) - 5} more errors fixed")
+
+        return "\n".join(lines)

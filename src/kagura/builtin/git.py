@@ -114,3 +114,163 @@ async def git_create_pr(
     )
     result = await _executor.exec(cmd)
     return result.stdout
+
+
+async def gh_issue_get(issue_number: int) -> dict:
+    """Get GitHub issue details as structured data.
+
+    Uses gh CLI with JSON output for easy parsing.
+
+    Args:
+        issue_number: GitHub issue number
+
+    Returns:
+        Dictionary with issue data (number, title, body, url, state, labels, assignees)
+
+    Raises:
+        ValueError: If issue number is invalid or gh command fails
+
+    Example:
+        >>> issue = await gh_issue_get(464)
+        >>> print(issue['title'])
+        'feat(memory): Implement Coding-Specialized Memory System'
+        >>> print(issue['url'])
+        'https://github.com/owner/repo/issues/464'
+    """
+    import json
+
+    # Validate input
+    if not isinstance(issue_number, int) or issue_number < 1:
+        raise ValueError(f"Invalid issue number: {issue_number}")
+
+    # Execute gh command with JSON output
+    cmd = f"gh issue view {issue_number} --json number,title,body,url,state,labels,assignees"
+    result = await _executor.exec(cmd)
+
+    if not result.success:
+        raise ValueError(
+            f"Failed to fetch issue #{issue_number}: {result.stderr}"
+        )
+
+    # Parse JSON response
+    return json.loads(result.stdout)
+
+
+async def gh_pr_get(pr_number: int | None = None) -> dict:
+    """Get GitHub PR details as structured data.
+
+    Uses gh CLI with JSON output. If pr_number is None, gets PR for current branch.
+
+    Args:
+        pr_number: PR number (if None, uses current branch)
+
+    Returns:
+        Dictionary with PR data (number, title, body, url, state, isDraft, headRefName)
+
+    Raises:
+        ValueError: If gh command fails
+
+    Example:
+        >>> pr = await gh_pr_get()  # Current branch
+        >>> pr = await gh_pr_get(465)  # Specific PR
+        >>> print(pr['title'])
+        >>> print(pr['state'])  # OPEN, CLOSED, MERGED
+    """
+    import json
+
+    # Build command
+    if pr_number is not None:
+        if not isinstance(pr_number, int) or pr_number < 1:
+            raise ValueError(f"Invalid PR number: {pr_number}")
+        cmd = f"gh pr view {pr_number} --json number,title,body,url,state,isDraft,headRefName"
+    else:
+        # Get PR for current branch
+        cmd = "gh pr view --json number,title,body,url,state,isDraft,headRefName"
+
+    result = await _executor.exec(cmd)
+
+    if not result.success:
+        raise ValueError(f"Failed to fetch PR: {result.stderr}")
+
+    return json.loads(result.stdout)
+
+
+async def git_current_branch() -> str:
+    """Get current git branch name.
+
+    Returns:
+        Branch name (e.g., 'main', '464-feat-implement...')
+
+    Raises:
+        ValueError: If not in a git repository
+
+    Example:
+        >>> branch = await git_current_branch()
+        >>> print(branch)
+        '464-featmemory-implement-coding-specialized-memory-system-phase-1-core'
+    """
+    result = await _executor.exec("git rev-parse --abbrev-ref HEAD")
+
+    if not result.success:
+        raise ValueError(f"Failed to get current branch: {result.stderr}")
+
+    return result.stdout.strip()
+
+
+async def git_current_commit() -> str:
+    """Get current git commit hash.
+
+    Returns:
+        Full commit hash (40 characters)
+
+    Raises:
+        ValueError: If not in a git repository
+
+    Example:
+        >>> commit = await git_current_commit()
+        >>> print(commit)
+        'a1b2c3d4e5f6...'
+    """
+    result = await _executor.exec("git rev-parse HEAD")
+
+    if not result.success:
+        raise ValueError(f"Failed to get current commit: {result.stderr}")
+
+    return result.stdout.strip()
+
+
+async def gh_extract_issue_from_branch(branch_name: str | None = None) -> int | None:
+    """Extract GitHub issue number from branch name.
+
+    Follows GitHub convention: {issue_number}-{description}
+    Example: "464-feat-implement..." → 464
+
+    Args:
+        branch_name: Branch name (if None, uses current branch)
+
+    Returns:
+        Issue number or None if not found
+
+    Example:
+        >>> issue_num = await gh_extract_issue_from_branch()
+        >>> print(issue_num)
+        464
+        >>> issue_num = await gh_extract_issue_from_branch("123-bugfix")
+        >>> print(issue_num)
+        123
+        >>> issue_num = await gh_extract_issue_from_branch("main")
+        >>> print(issue_num)
+        None
+    """
+    import re
+
+    # Get current branch if not provided
+    if branch_name is None:
+        branch_name = await git_current_branch()
+
+    # Extract issue number using regex
+    # Pattern: starts with digits followed by dash
+    match = re.match(r"^(\d+)-", branch_name)
+
+    return int(match.group(1)) if match else None
+
