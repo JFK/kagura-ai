@@ -45,8 +45,43 @@ class GraphMemory:
     """
 
     # Type definitions
-    NODE_TYPES = ["memory", "user", "topic", "interaction"]
-    EDGE_TYPES = ["related_to", "depends_on", "learned_from", "influences", "works_on"]
+    NODE_TYPES = [
+        "memory",
+        "user",
+        "topic",
+        "interaction",
+        # Coding Memory types (Issue #464, #466)
+        "file",
+        "error",
+        "decision",
+        "session",
+        "solution",
+        # GitHub Integration types
+        "github_issue",
+        "github_pr",
+    ]
+    EDGE_TYPES = [
+        "related_to",
+        "depends_on",
+        "learned_from",
+        "influences",
+        "works_on",
+        # Coding Memory relations (Issue #464, #466)
+        "solved_by",  # Error solved by solution
+        "similar_to",  # Similarity relationship
+        "caused_by",  # Causality relationship
+        "implements",  # File implements decision
+        "imports",  # File imports another file
+        "affects",  # Change affects file
+        "blocks",  # Issue blocks task
+        "includes",  # Session includes activity
+        "encountered",  # Session encountered error
+        "made",  # Session made decision
+        # GitHub Integration relations
+        "addresses",  # Session addresses issue
+        "closes",  # PR closes issue
+        "mentioned_in",  # Referenced in issue/PR
+    ]
 
     def __init__(self, persist_path: Optional[Path] = None):
         """Initialize graph memory.

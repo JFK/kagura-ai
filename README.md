@@ -73,7 +73,7 @@ Give **every AI** access to:
 **For developers**:
 - 🔌 **REST API**: Query memory from any agent, any language
 - 🐍 **Python SDK**: Build AI agents with unified memory access
-- 📦 **MCP Tools**: 34 built-in tools for Claude, Cursor, Cline
+- 📦 **MCP Tools**: 37+ built-in tools for Claude, Cursor, Cline (including 14 coding-specialized tools)
 - 🛠️ **Extensible**: Custom connectors, workflows, integrations
 
 **One memory. Every AI. Every developer.**
@@ -89,13 +89,19 @@ Give **every AI** access to:
 - 📊 **Insights**: Visualize your learning patterns
 
 ### For Developers
-- 💻 **"Vibe Coding" memory**: Track coding patterns, GitHub integration
+- 💻 **Coding-Specialized Memory (NEW v4.1)**:
+  - Track file changes, errors, design decisions
+  - AI-powered session summaries with cost tracking
+  - Automatic dependency analysis (AST-based)
+  - Refactoring impact assessment
+  - **GitHub integration** (issue/PR linking, auto-detection)
+  - **14 MCP tools** for Claude Code, Cursor, etc.
 - 🔌 **MCP-native**: Works with Claude Desktop, Cursor, Cline, etc.
 - 🐍 **Python SDK**: Build agents that share memory across platforms
 - 🌐 **REST API**: Access memory from any language, any agent
 - 🔗 **Agent orchestration**: Your custom agents can reference each other's memory
 - 🛠️ **Extensible**: Custom connectors, tools, workflows
-- 📦 **Production-ready**: Docker, API, full test coverage (1,400+ tests)
+- 📦 **Production-ready**: Docker, API, full test coverage (1,450+ tests)
 
 ### For Teams(Coming in v4.2)
 - 👥 **Shared knowledge**: Team-wide memory

@@ -1,0 +1,1010 @@
+# Coding Memory - AI Coding Assistant Memory System
+
+**Status:** Phase 1 Complete (v4.1.0)
+**Target Users:** AI Coding Assistants (Claude Code, Cursor, GitHub Copilot, etc.)
+
+## Overview
+
+Coding Memory is a specialized memory system for AI coding assistants that maintains context across sessions, learns from error patterns, and tracks project evolution.
+
+### Key Features
+
+✅ **Cross-Session Context** - Remember coding decisions, errors, and patterns across sessions
+✅ **Error Pattern Learning** - Automatically suggest solutions based on past resolutions
+✅ **Project Structure Understanding** - Maintain comprehensive project context
+✅ **Multimodal Support** - Analyze error screenshots and architecture diagrams
+✅ **Design Decision Tracking** - Record and retrieve architectural decisions with rationale
+✅ **Coding Session Management** - Group related activities with AI-powered summaries
+✅ **Plan Mode & Approval Workflows** - Cost estimation and approval before expensive operations
+✅ **Multi-Provider Support** - OpenAI (GPT-5), Google (Gemini 2.5), Anthropic (Claude)
+✅ **Cost Tracking** - Real-time cost monitoring and budget management
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  CodingMemoryManager                        │
+│  (Extends base MemoryManager with coding features)         │
+├─────────────────────────────────────────────────────────────┤
+│  Scope: user_id + project_id                                │
+│                                                              │
+│  Storage:                                                    │
+│  ├─ Working Memory (active session)                        │
+│  ├─ Persistent Memory (SQLite/PostgreSQL)                  │
+│  ├─ RAG (ChromaDB) - Semantic search                       │
+│  └─ Graph (NetworkX) - Relationships                       │
+│                                                              │
+│  LLM Integration:                                           │
+│  ├─ Session summarization (GPT-4/Claude)                   │
+│  ├─ Error pattern analysis                                  │
+│  ├─ Solution suggestions                                    │
+│  ├─ Preference extraction                                   │
+│  └─ Context compression (RFC-024)                          │
+│                                                              │
+│  Vision Integration:                                        │
+│  ├─ Error screenshot analysis                               │
+│  ├─ Architecture diagram interpretation                     │
+│  └─ Code extraction from images                            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## MCP Tools
+
+Kagura provides **14 MCP tools** for coding assistants:
+- **Phase 1**: 8 tools (basic memory + sessions)
+- **Phase 2**: 3 tools (dependency analysis)
+- **GitHub**: 3 tools (issue/PR integration)
+
+### 1. `coding_track_file_change`
+
+Track file modifications with context.
+
+```python
+await coding_track_file_change(
+    user_id="dev_john",
+    project_id="api-service",
+    file_path="src/auth.py",
+    action="edit",  # create, edit, delete, rename, refactor, test
+    diff="+ def validate_token(token: str) -> bool:\n+     ...",
+    reason="Add JWT token validation for auth middleware",
+    related_files='["src/middleware.py"]',
+    line_range="42,57"  # Optional
+)
+```
+
+### 2. `coding_record_error`
+
+Record errors with optional screenshots.
+
+```python
+await coding_record_error(
+    user_id="dev_john",
+    project_id="api-service",
+    error_type="TypeError",
+    message="can't compare offset-naive and offset-aware datetimes",
+    stack_trace="Traceback:\n  File 'auth.py', line 42...",
+    file_path="src/auth.py",
+    line_number=42,
+    solution="Use datetime.now(timezone.utc) consistently",  # After fixing
+    screenshot="/path/to/error_screenshot.png",  # Optional
+    tags='["datetime", "timezone"]'
+)
+```
+
+### 3. `coding_record_decision`
+
+Record design decisions with rationale.
+
+```python
+await coding_record_decision(
+    user_id="dev_john",
+    project_id="api-service",
+    decision="Use JWT tokens for authentication",
+    rationale="Stateless auth enables horizontal scaling. No session storage needed.",
+    alternatives='["Session-based auth", "OAuth only"]',
+    impact="Eliminates session store, requires key rotation strategy",
+    tags='["architecture", "security"]',
+    related_files='["src/auth.py", "src/middleware.py"]',
+    confidence=0.9
+)
+```
+
+### 4. `coding_start_session`
+
+Start a tracked coding session.
+
+```python
+session_id = await coding_start_session(
+    user_id="dev_john",
+    project_id="api-service",
+    description="Implement JWT authentication system",
+    tags='["feature", "authentication"]'
+)
+```
+
+### 5. `coding_end_session`
+
+End session with AI-generated summary.
+
+```python
+result = await coding_end_session(
+    user_id="dev_john",
+    project_id="api-service",
+    summary=None,  # Let AI generate summary
+    success=True
+)
+
+print(result['summary'])  # AI-generated comprehensive summary
+```
+
+### 6. `coding_search_errors`
+
+Search past errors semantically.
+
+```python
+similar_errors = await coding_search_errors(
+    user_id="dev_john",
+    project_id="api-service",
+    query="TypeError comparing datetime objects",
+    k=5  # Return top 5 similar errors
+)
+```
+
+### 7. `coding_get_project_context`
+
+Get comprehensive project context.
+
+```python
+context = await coding_get_project_context(
+    user_id="dev_john",
+    project_id="api-service",
+    focus="authentication"  # Optional focus area
+)
+
+print(context)  # Project summary, tech stack, recent changes, decisions, patterns
+```
+
+### 8. `coding_analyze_patterns`
+
+Analyze coding patterns and preferences.
+
+```python
+patterns = await coding_analyze_patterns(
+    user_id="dev_john",
+    project_id="api-service"
+)
+
+print(patterns)  # Language prefs, library choices, naming conventions, etc.
+```
+
+## Usage Example: Typical Session
+
+```python
+# 1. Start session
+session_id = await coding_start_session(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    description="Implement coding memory system",
+    tags='["feature", "memory"]'
+)
+
+# 2. Track file changes
+await coding_track_file_change(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    file_path="src/kagura/core/memory/coding_memory.py",
+    action="create",
+    diff="New file: CodingMemoryManager class",
+    reason="Create coding-specialized memory manager"
+)
+
+# 3. Record errors (if any)
+await coding_record_error(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    error_type="ImportError",
+    message="No module named 'litellm'",
+    stack_trace="...",
+    file_path="src/kagura/llm/coding_analyzer.py",
+    line_number=8,
+    solution="Added litellm to dependencies"
+)
+
+# 4. Record design decisions
+await coding_record_decision(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    decision="Use LiteLLM for model abstraction",
+    rationale="Unified interface for OpenAI, Anthropic, Google models",
+    alternatives='["Direct API calls", "LangChain"]',
+    impact="Easy model switching, better error handling"
+)
+
+# 5. End session with AI summary
+result = await coding_end_session(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    success=True
+)
+
+print(f"Session completed in {result['duration_minutes']} minutes")
+print(f"Summary:\n{result['summary']}")
+```
+
+## Prompt Engineering
+
+Coding Memory uses carefully crafted prompts for high-quality LLM outputs:
+
+### Session Summary Prompt
+- **Few-shot examples** for consistency
+- **Structured output** (markdown with clear sections)
+- **Chain-of-thought** reasoning for decisions
+- **Actionable recommendations**
+
+### Error Pattern Analysis Prompt
+- **Pattern recognition** focus
+- **Root cause analysis** beyond symptoms
+- **Prevention strategies** with code examples
+- **Quick fix** step-by-step instructions
+
+### Solution Suggestion Prompt
+- **Case-based reasoning** from past errors
+- **Confidence scoring** (high/medium/low)
+- **Alternative approaches** when applicable
+- **Debugging tips** if solution fails
+
+See `src/kagura/llm/prompts.py` for complete prompt templates.
+
+## Configuration
+
+### Environment Variables
+
+```bash
+# Model Configuration
+export CODING_MEMORY_MODEL="gpt-5-mini"  # or "gemini/gemini-2.5-flash"
+export CODING_MEMORY_VISION_MODEL="gpt-4o"  # or "gemini/gemini-2.0-flash-exp"
+
+# Cost Management
+export CODING_MEMORY_AUTO_APPROVE="false"  # Require approval
+export CODING_MEMORY_COST_THRESHOLD="0.10"  # Ask approval if > $0.10
+```
+
+### Python Configuration
+
+```python
+from kagura.core.memory.coding_memory import CodingMemoryManager
+
+# Fast & Affordable (Gemini) - RECOMMENDED
+coding_mem = CodingMemoryManager(
+    user_id="dev_john",
+    project_id="my-project",
+    model="gemini/gemini-2.0-flash-exp",  # Free during preview
+    vision_model="gemini/gemini-2.0-flash-exp",  # DEFAULT: Free + excellent quality
+    auto_approve=False,  # Require approval
+    cost_threshold=0.05  # Ask if > $0.05
+)
+
+# Balanced (GPT-5 + Gemini Vision)
+coding_mem = CodingMemoryManager(
+    user_id="dev_john",
+    project_id="my-project",
+    model="gpt-5-mini",  # Fast and affordable
+    vision_model="gemini/gemini-2.0-flash-exp",  # DEFAULT: Free vision
+)
+
+# Premium (Claude + GPT-4o Vision)
+coding_mem = CodingMemoryManager(
+    user_id="dev_john",
+    project_id="my-project",
+    model="claude-sonnet-4-5",  # Best reasoning
+    vision_model="gpt-4o",  # Best vision
+    auto_approve=True,  # Skip approvals (富豪仕様)
+)
+```
+
+### kagura.toml (Optional)
+
+```toml
+[coding_memory]
+enabled = true
+max_session_duration_hours = 24
+auto_summarize_on_end = true
+enable_pattern_learning = true
+
+[coding_memory.defaults]
+model = "gpt-5-mini"
+vision_model = "gpt-4o"
+auto_approve = false
+cost_threshold = 0.10
+
+[coding_memory.costs]
+max_monthly_budget_usd = 500.0
+warn_at_percentage = 80.0
+```
+
+## Integration with Claude Code
+
+1. **Add to Claude Desktop config** (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "kagura": {
+      "command": "kagura",
+      "args": ["mcp", "serve"],
+      "env": {
+        "USER_ID": "dev_john",
+        "PROJECT_ID": "my-project"
+      }
+    }
+  }
+}
+```
+
+2. **Use tools in Claude Code**:
+
+```
+User: I'm getting a TypeError when comparing datetimes
+Claude: Let me check if we've seen this before...
+[calls coding_search_errors]
+Claude: You've encountered this 3 times before! The solution is to use datetime.now(timezone.utc) consistently. Should I apply that fix?
+
+User: Yes, and start tracking this session
+Claude: [calls coding_start_session]
+Session started! I'll track all changes.
+
+[After fixing...]
+User: Fixed! End the session
+Claude: [calls coding_end_session]
+Session summary: Resolved datetime comparison TypeError (recurring pattern). Applied UTC timezone fix in src/auth.py. Recommend adding pre-commit hook to catch this pattern in future.
+```
+
+## Plan Mode & Cost Management
+
+### Approval Workflow
+
+When `auto_approve=False` (default), expensive operations require approval:
+
+```python
+# End session - shows cost estimate and asks approval
+result = await coding_mem.end_coding_session(success=True)
+
+# Output:
+# ┌─────────────────────────────────────────┐
+# │ ⚠️  Approval Required                    │
+# │                                          │
+# │ Generate AI-powered session summary     │
+# │                                          │
+# │ Estimated Cost: $0.25                   │
+# │ Input: ~3500 tokens, Model: gpt-5-mini │
+# └─────────────────────────────────────────┘
+# Approve? [Y/n]:
+```
+
+### Cost Threshold
+
+Only ask approval if cost exceeds threshold:
+
+```python
+coding_mem = CodingMemoryManager(
+    user_id="dev_john",
+    project_id="my-project",
+    cost_threshold=0.50  # Only ask if > $0.50
+)
+
+# Operations under $0.50 → auto-approved
+# Operations over $0.50 → ask for approval
+```
+
+### Auto-Approve Mode (Batch Processing)
+
+For automated workflows or "富豪仕様":
+
+```python
+coding_mem = CodingMemoryManager(
+    user_id="dev_john",
+    project_id="my-project",
+    auto_approve=True  # Never ask, always execute
+)
+```
+
+### Real-Time Cost Tracking
+
+```python
+# Check cumulative costs
+print(f"Total spent: ${coding_mem.coding_analyzer.total_cost:.2f}")
+print(f"Total tokens: {coding_mem.coding_analyzer.total_tokens}")
+print(f"LLM calls: {coding_mem.coding_analyzer.call_count}")
+
+# Detailed breakdown
+for call in coding_mem.coding_analyzer.call_costs:
+    print(f"{call['timestamp']}: {call['model']} - ${call['cost']:.4f}")
+```
+
+## Cost Considerations
+
+### Model Comparison
+
+| Provider | Model | Input ($/1M) | Output ($/1M) | Speed | Quality |
+|----------|-------|--------------|---------------|-------|---------|
+| OpenAI | gpt-5-mini | $0.15 | $0.60 | ⚡️⚡️⚡️ | ⭐️⭐️⭐️ |
+| OpenAI | gpt-5 | $2.50 | $10.00 | ⚡️⚡️ | ⭐️⭐️⭐️⭐️ |
+| Google | gemini-2.0-flash-exp | Free | Free | ⚡️⚡️⚡️ | ⭐️⭐️⭐️ |
+| Google | gemini-2.5-flash | $0.075 | $0.30 | ⚡️⚡️⚡️ | ⭐️⭐️⭐️⭐️ |
+| Google | gemini-2.5-pro | $1.25 | $5.00 | ⚡️⚡️ | ⭐️⭐️⭐️⭐️⭐️ |
+| Anthropic | claude-sonnet-4-5 | $3.00 | $15.00 | ⚡️⚡️ | ⭐️⭐️⭐️⭐️⭐️ |
+
+### Operation Cost Estimates
+
+| Operation | Tokens | gpt-5-mini | gemini-2.5-flash | claude-sonnet-4-5 |
+|-----------|--------|------------|------------------|-------------------|
+| Session summary | ~5000 | $0.05 | $0.02 | $0.22 |
+| Error analysis | ~3000 | $0.03 | $0.01 | $0.13 |
+| Screenshot analysis | ~2000 | $0.02 | Free | $0.09 |
+| Pattern extraction | ~7000 | $0.08 | $0.03 | $0.31 |
+
+### Monthly Cost Estimates
+
+**Budget-Conscious (Gemini):**
+- 100 sessions × $0.03 avg = **~$3-5/month**
+
+**Balanced (GPT-5-mini):**
+- 100 sessions × $0.05 avg = **~$5-10/month**
+
+**Premium (Claude):**
+- 100 sessions × $0.25 avg = **~$25-50/month**
+
+**富豪仕様 (All Premium):**
+- 500 sessions × $0.30 avg = **~$150-200/month**
+
+### Cost Reduction Tips
+
+1. **Use Gemini for most operations** - Free during preview, very affordable after
+2. **Set cost thresholds** - Only approve expensive operations
+3. **Use fast models for summaries** - gpt-5-mini is 94% cheaper than Claude
+4. **Cache contexts** - Reuse project context across sessions
+5. **Batch operations** - Analyze patterns weekly, not per session
+
+## Multimodal Features
+
+### Error Screenshot Analysis
+
+```python
+await coding_record_error(
+    user_id="dev_john",
+    project_id="api-service",
+    error_type="Unknown",  # Vision AI will detect
+    message="See screenshot",
+    stack_trace="",
+    file_path="unknown",
+    line_number=0,
+    screenshot="/path/to/screenshot.png"  # Vision AI extracts: error type, message, location, code context
+)
+```
+
+Vision AI automatically extracts:
+- Error type and message
+- File path and line number
+- Stack trace key frames
+- Visible code context
+- Suggested root cause
+
+### Architecture Diagram Analysis
+
+```python
+from kagura.llm.vision import VisionAnalyzer
+
+vision = VisionAnalyzer()
+arch_info = await vision.analyze_architecture_diagram("docs/architecture.png")
+
+print(arch_info['components'])  # ['API Gateway', 'Auth Service', 'Database']
+print(arch_info['architecture_pattern'])  # 'Microservices'
+```
+
+## Best Practices
+
+### 1. Always Provide Reason for Changes
+
+❌ **Bad:**
+```python
+diff="Added function",
+reason="Update"
+```
+
+✅ **Good:**
+```python
+diff="+ def validate_token(token: str) -> bool:\n+     return jwt.decode(...)",
+reason="Add JWT validation to support stateless auth. Needed for mobile app integration."
+```
+
+### 2. Record Errors Immediately
+
+Record errors when they occur, then update with solution after fixing:
+
+```python
+# When error occurs
+error_id = await coding_record_error(...)
+
+# After fixing (update with solution)
+error = await memory.recall(error_id)
+error.solution = "Fixed by using timezone-aware datetimes"
+error.resolved = True
+await memory.store(error_id, error)
+```
+
+### 3. Use Sessions for Coherent Work
+
+Group related changes into sessions:
+
+```python
+# Good: Feature implementation session
+await coding_start_session(
+    description="Implement rate limiting for API endpoints",
+    tags=["feature", "security", "performance"]
+)
+# ... all changes tracked automatically ...
+await coding_end_session()
+
+# Also good: Debugging session
+await coding_start_session(
+    description="Debug memory leak in background task",
+    tags=["bugfix", "performance"]
+)
+```
+
+### 4. Leverage Semantic Search
+
+Use natural language queries to find relevant past errors:
+
+```python
+# Instead of exact keywords, use descriptions
+await coding_search_errors(
+    query="problem with async database queries not working",
+    k=5
+)
+# Finds errors related to async/await, database operations, even if wording differs
+```
+
+## Troubleshooting
+
+### "No similar errors found"
+
+- Need more historical data (record errors as you encounter them)
+- RAG might not be enabled (check `enable_rag=True`)
+- Check project_id scope (errors are project-specific)
+
+### "Insufficient data for pattern analysis"
+
+- Requires 10+ file changes for basic analysis
+- 30+ changes recommended for detailed insights
+- Continue coding and tracking activities
+
+### "Session already active" error
+
+- Only one session can be active at a time
+- End current session before starting new one:
+
+```python
+await coding_end_session(...)  # End current
+await coding_start_session(...)  # Start new
+```
+
+## Roadmap
+
+**Phase 2: Graph Integration** (Issue #464)
+- Automatic dependency graph from imports
+- Error → solution relationship tracking
+- Design decision → implementation links
+
+**Phase 3: API & CLI**
+- REST API endpoints for non-MCP clients
+- CLI commands (`kagura coding start`, `kagura coding analyze-patterns`)
+- Export/import functionality
+
+**Phase 4: Advanced Features**
+- Cross-file refactoring recommendations
+- Proactive error prevention suggestions
+- Team-level pattern aggregation
+- Custom pattern definition
+
+## See Also
+
+- [CODING_MEMORY_DESIGN.md](../ai_docs/CODING_MEMORY_DESIGN.md) - Technical design
+- [RFC-024: Context Compression](../ai_docs/archive/rfcs/completed/RFC_024_CONTEXT_COMPRESSION.md)
+- [Issue #464](https://github.com/JFK/kagura-ai/issues/464) - Phase 1 implementation
+- [prompts.py](../src/kagura/llm/prompts.py) - Prompt engineering
+
+---
+
+**Contributing:** This is a new feature! Please report issues or suggest improvements at [GitHub Issues](https://github.com/JFK/kagura-ai/issues).
+
+### 9. `coding_analyze_file_dependencies` (Phase 2)
+
+Analyze Python file dependencies using AST parsing.
+
+```python
+await coding_analyze_file_dependencies(
+    user_id="dev_john",
+    project_id="api-service",
+    file_path="src/auth.py"
+)
+
+# Output:
+# 📊 Dependency Analysis: src/auth.py
+# 
+# Imports (2 files):
+# - src/models/user.py
+# - src/utils/jwt.py
+#
+# Imported By (3 files):
+# - src/main.py
+# - src/api/auth.py
+# - src/middleware.py
+#
+# Import Depth: 3
+# ✅ No Circular Dependencies
+```
+
+### 10. `coding_analyze_refactor_impact` (Phase 2)
+
+Analyze refactoring impact with risk assessment.
+
+```python
+await coding_analyze_refactor_impact(
+    user_id="dev_john",
+    project_id="api-service",
+    file_path="src/models/user.py"
+)
+
+# Output:
+# 🔍 Refactoring Impact Analysis: src/models/user.py
+#
+# Risk Level: 🚨 HIGH
+#
+# Affected Files (5):
+# - src/auth.py
+# - src/api/users.py
+# - src/api/posts.py
+# - src/middleware.py
+# - src/main.py
+#
+# Recommendations:
+# ⚠️  5 files depend on this - test thoroughly
+# Consider adding integration tests before refactoring
+```
+
+### 11. `coding_suggest_refactor_order` (Phase 2)
+
+Suggest safe refactoring order using topological sort.
+
+```python
+await coding_suggest_refactor_order(
+    user_id="dev_john",
+    project_id="api-service",
+    files='["src/main.py", "src/auth.py", "src/models/user.py"]'
+)
+
+# Output:
+# 📋 Suggested Refactoring Order:
+#
+# 1. src/models/user.py
+# 2. src/auth.py
+# 3. src/main.py
+#
+# 💡 Refactor in this order to minimize breaking changes.
+# Leaf dependencies (files with no internal imports) come first.
+```
+
+---
+
+## Phase 2: Advanced Graph Features
+
+### Automatic Dependency Graph
+
+**AST-Based Import Analysis:**
+- Automatically parses Python `import` and `from ... import` statements
+- Builds dependency graph without manual configuration
+- Detects circular dependencies
+- Calculates import depth
+
+**Usage:**
+```python
+# Analyze before refactoring
+deps = await coding_mem.analyze_file_dependencies("src/auth.py")
+
+if deps["circular_deps"]:
+    print(f"⚠️  Circular dependency: {deps['circular_deps'][0]}")
+
+print(f"This file is imported by {len(deps['imported_by'])} other files")
+```
+
+### Error → Solution Linking
+
+**Automatic Graph Links:**
+```python
+# Record error with solution
+error_id = await coding_mem.record_error(
+    error_type="TypeError",
+    message="datetime comparison failed",
+    stack_trace="...",
+    file_path="src/auth.py",
+    line_number=42,
+    solution="Use datetime.now(timezone.utc) consistently"
+)
+
+# Graph automatically creates:
+# - error node
+# - solution node
+# - error → solution edge (solved_by)
+
+# Later, retrieve solutions for similar errors
+solutions = await coding_mem.get_solutions_for_error(error_id)
+for sol in solutions:
+    print(f"Solution: {sol['solution']} (confidence: {sol['confidence']})")
+```
+
+### Decision → Implementation Linking
+
+**Track Implementation Progress:**
+```python
+# Record decision
+decision_id = await coding_mem.record_decision(
+    decision="Implement JWT authentication",
+    rationale="Stateless auth for scaling",
+    related_files=["src/auth.py", "src/middleware.py", "src/config.py"]
+)
+
+# Implement in first file
+await coding_mem.track_file_change(
+    file_path="src/auth.py",
+    action="create",
+    diff="...",
+    reason="Implement JWT auth",
+    implements_decision_id=decision_id  # Link to decision
+)
+
+# Check implementation status
+status = await coding_mem.get_decision_implementation_status(decision_id)
+print(f"Progress: {status['completion']:.0%}")
+# → "Progress: 33%" (1 of 3 files implemented)
+
+print(f"Pending: {status['pending_files']}")
+# → "Pending: ['src/middleware.py', 'src/config.py']"
+```
+
+### Refactoring Workflow Example
+
+```python
+# 1. Analyze impact before refactoring
+impact = await coding_mem.analyze_refactor_impact("src/models/user.py")
+
+if impact["risk_level"] == "high":
+    print("High risk refactoring!")
+    print(f"Affected files: {impact['affected_files']}")
+    
+    # Ask user confirmation
+    proceed = input("Continue? [y/N]: ")
+    if proceed.lower() != 'y':
+        exit()
+
+# 2. If refactoring multiple files, get safe order
+files_to_refactor = [
+    "src/models/user.py",
+    "src/auth.py",
+    "src/api/users.py"
+]
+
+order = await coding_mem.suggest_refactor_order(files_to_refactor)
+print(f"Refactor in this order: {order}")
+
+# 3. Track each refactoring
+for file in order:
+    await coding_mem.track_file_change(
+        file_path=file,
+        action="refactor",
+        diff="...",
+        reason=f"Refactor {file} as part of user model update"
+    )
+```
+
+
+### 12. `coding_link_github_issue` (GitHub Integration)
+
+Link current coding session to a GitHub issue.
+
+```python
+# Auto-detect from branch name (e.g., 464-feat-...)
+await coding_link_github_issue(
+    user_id="dev_john",
+    project_id="kagura-ai"
+)
+
+# Or specify explicitly
+await coding_link_github_issue(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    issue_number=464
+)
+
+# Output:
+# ✅ Linked session to GitHub issue #464
+# Title: feat(memory): Implement Coding-Specialized Memory System
+# URL: https://github.com/JFK/kagura-ai/issues/464
+# State: OPEN
+# Labels: enhancement, memory
+```
+
+### 13. `coding_generate_pr_description` (GitHub Integration)
+
+Generate AI-powered PR description from session activities.
+
+```python
+await coding_generate_pr_description(
+    user_id="dev_john",
+    project_id="kagura-ai"
+)
+
+# Output:
+# 📝 Generated PR Description:
+#
+# ## Summary
+# Implemented coding-specialized memory system with...
+#
+# ## Changes
+# - Added CodingMemoryManager for project-scoped memory
+# - Implemented 8 MCP tools for file/error/decision tracking
+# ...
+#
+# ## Testing
+# - Run pytest tests/core/memory/
+# - Verify RAG search functionality
+```
+
+### 14. `coding_get_issue_context` (GitHub Integration)
+
+Get GitHub issue details for coding context.
+
+```python
+context = await coding_get_issue_context(464)
+
+# Output:
+# # Issue #464: feat(memory): Implement Coding-Specialized Memory System
+#
+# **URL:** https://github.com/JFK/kagura-ai/issues/464
+# **State:** OPEN
+# **Labels:** enhancement, memory
+# **Assignees:** JFK
+#
+# ## Description
+# Implement a coding-specialized memory system for AI coding assistants...
+```
+
+---
+
+## GitHub Integration Workflow
+
+### Complete Workflow Example
+
+```python
+# 1. Get issue context at start
+issue_context = await coding_get_issue_context(464)
+print(issue_context)  # Understand requirements
+
+# 2. Start session
+session_id = await coding_start_session(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    description="Implement coding memory system (Issue #464)",
+    tags='["feature", "memory", "issue-464"]'
+)
+
+# 3. Auto-link to GitHub issue
+await coding_link_github_issue(
+    user_id="dev_john",
+    project_id="kagura-ai"
+)
+# → Automatically detects issue #464 from branch name
+
+# 4. Do your work...
+await coding_track_file_change(
+    file_path="src/kagura/core/memory/coding_memory.py",
+    action="create",
+    diff="...",
+    reason="Implement CodingMemoryManager"
+)
+
+await coding_record_decision(
+    decision="Use project-scoped memory (user_id + project_id)",
+    rationale="Isolate memories by project for better organization",
+    tags=["architecture"]
+)
+
+# 5. End session with AI summary
+result = await coding_end_session(
+    user_id="dev_john",
+    project_id="kagura-ai",
+    success=True
+)
+
+# 6. Generate PR description
+pr_desc = await coding_generate_pr_description(
+    user_id="dev_john",
+    project_id="kagura-ai"
+)
+
+# 7. Create PR with generated description
+# (manually copy pr_desc or save to file)
+# gh pr create --title "feat(memory): Implement coding memory" --body "$pr_desc"
+```
+
+### Auto-Detection Features
+
+**Branch Name → Issue Number:**
+```
+Branch: "464-featmemory-implement-coding-specialized-memory-system"
+→ Auto-detects: Issue #464
+```
+
+**Session → GitHub Context:**
+```
+Session linked to Issue #464
+→ Session summary includes:
+  - Issue title
+  - Issue labels
+  - Issue URL
+  - Automatically adds "Closes #464" to PR description
+```
+
+### Benefits
+
+1. **Traceability**: Code → Session → Issue → PR (完全な追跡)
+2. **Context Preservation**: Issue詳細がセッションコンテキストに含まれる
+3. **Automation**: PR説明文自動生成
+4. **Graph Relationships**: Issue-Session-PR の関係がグラフで管理
+5. **No Manual Work**: Branch名から自動検出、手動入力不要
+
+---
+
+## Requirements
+
+### For GitHub Integration
+
+**Required:**
+- `gh` CLI installed and authenticated
+  ```bash
+  # Install gh CLI
+  brew install gh  # macOS
+  # or download from: https://cli.github.com/
+  
+  # Authenticate
+  gh auth login
+  ```
+
+**Optional:**
+- Git repository with GitHub remote
+- GitHub issue tracking enabled
+- Branch naming convention: `{issue_number}-{description}`
+
+### Troubleshooting
+
+**"Failed to fetch issue":**
+```bash
+# Check gh authentication
+gh auth status
+
+# Re-authenticate if needed
+gh auth login
+
+# Test manually
+gh issue view 464 --json title
+```
+
+**"Could not detect issue number":**
+- Branch name must start with digits: `464-feat-...` ✅
+- Invalid: `feat-464`, `feature-branch` ❌
+- Rename branch: `git branch -m 464-feat-my-feature`
+
+**"No active session":**
+- Start session first: `await coding_start_session(...)`
+- Then link to issue: `await coding_link_github_issue(...)`
+

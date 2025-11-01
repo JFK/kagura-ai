@@ -9,6 +9,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.0] - 2025-10-29
 
+### ✨ Added
+
+- **Coding-Specialized Memory System (v4.1)** (#464, #466)
+  - **11 MCP Tools** for AI coding assistants (Claude Code, Cursor, etc.)
+    - Phase 1 (8 tools): File tracking, error recording, sessions, cost tracking
+    - Phase 2 (3 tools): Dependency analysis, refactoring impact, safe order suggestion
+  - **Project-scoped memory**: `user_id + project_id` hierarchy
+  - **AI-powered features**:
+    - Session summaries with LLM (GPT-5, Gemini, Claude)
+    - Error pattern detection and solution suggestions
+    - Coding preference extraction
+    - Vision AI for screenshot analysis
+  - **Plan Mode & Approval Workflows**:
+    - Cost estimation before expensive operations
+    - Rich UI approval prompts with timeout
+    - Configurable cost thresholds (default: $0.10)
+    - Auto-approve mode for batch operations
+  - **Automatic Dependency Graph** (AST-based):
+    - Parse Python imports automatically
+    - Build dependency graph
+    - Detect circular dependencies
+    - Calculate import depth
+    - Reverse dependency tracking
+  - **Refactoring Intelligence**:
+    - Cross-file impact analysis (risk: low/medium/high)
+    - Safe refactoring order (topological sort)
+    - Affected files identification
+  - **Graph Relationships**:
+    - Error → solution linking (`solved_by`)
+    - Decision → implementation tracking (`implements`)
+    - File → file dependencies (`imports`, `affects`)
+    - Session activity tracking (`includes`, `encountered`, `made`)
+  - **Multi-Provider Support**:
+    - OpenAI: gpt-5-mini, gpt-5, gpt-4o
+    - Google: gemini-2.0-flash-exp, gemini-2.5-flash, gemini-2.5-pro
+    - Anthropic: claude-sonnet-4-5
+  - **Prompt Engineering** (Claude Official Guidelines):
+    - XML tags for structure (`<role>`, `<task>`, `<thinking>`)
+    - Chain-of-thought reasoning prompts
+    - Few-shot examples with structured outputs
+  - **Cost Tracking**:
+    - Real-time cost monitoring via `observability.pricing`
+    - Per-call and cumulative tracking
+    - Budget estimates: $3-200/month depending on provider
+  - **Data Models**: 6 Pydantic models (FileChangeRecord, ErrorRecord, DesignDecision, CodingSession, CodingPattern, ProjectContext)
+  - **Testing**: 43 tests (models, MCP tools, E2E, dependency analysis)
+  - **Documentation**: Complete user guide + technical design document
+
 ### 🔒 Security
 
 - **Fixed X-User-ID Header Trust Vulnerability** (#436)
