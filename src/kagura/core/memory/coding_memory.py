@@ -7,8 +7,11 @@ Extends the base MemoryManager with coding-specific features:
 - Design decision recording
 - Coding session management
 - LLM-powered analysis and summarization
+- Approval workflows for expensive operations
+- Cost estimation and tracking
 """
 
+import asyncio
 import logging
 import uuid
 from datetime import datetime
@@ -30,6 +33,12 @@ from kagura.llm.coding_analyzer import CodingAnalyzer
 from kagura.llm.vision import VisionAnalyzer
 
 logger = logging.getLogger(__name__)
+
+
+class UserCancelledError(Exception):
+    """Raised when user cancels an operation."""
+
+    pass
 
 
 class CodingMemoryManager(MemoryManager):
@@ -61,8 +70,10 @@ class CodingMemoryManager(MemoryManager):
         enable_graph: bool = True,
         enable_compression: bool = True,
         compression_policy: CompressionPolicy | None = None,
-        model: str = "gpt-4-turbo-preview",
-        vision_model: str = "gpt-4-vision-preview",
+        model: str | None = None,
+        vision_model: str | None = None,
+        auto_approve: bool = False,
+        cost_threshold: float = 0.10,
         memory_config: MemorySystemConfig | None = None,
     ) -> None:
         """Initialize coding memory manager.
@@ -77,8 +88,17 @@ class CodingMemoryManager(MemoryManager):
             enable_graph: Enable graph memory for relationships
             enable_compression: Enable context compression
             compression_policy: Compression configuration
-            model: LLM model for analysis
-            vision_model: Vision-capable model for image analysis
+            model: LLM model for analysis (None = use environment default)
+                Recommended models:
+                - Fast: "gpt-5-mini", "gemini/gemini-2.0-flash-exp"
+                - Balanced: "gpt-5", "gemini/gemini-2.5-flash"
+                - Premium: "claude-sonnet-4-5", "gemini/gemini-2.5-pro"
+            vision_model: Vision model for image analysis (None = use gpt-4o)
+                Recommended:
+                - OpenAI: "gpt-4o"
+                - Google: "gemini/gemini-2.0-flash-exp", "gemini/gemini-2.5-flash"
+            auto_approve: Skip approval prompts (default: False)
+            cost_threshold: Ask approval if operation costs > this (USD, default: 0.10)
             memory_config: Memory system configuration
         """
         # Initialize base memory manager with user_id
@@ -101,6 +121,14 @@ class CodingMemoryManager(MemoryManager):
         # Initialize LLM analyzers
         self.coding_analyzer = CodingAnalyzer(model=model, vision_model=vision_model)
         self.vision_analyzer = VisionAnalyzer(model=vision_model)
+
+        # Cost tracking
+        self.total_cost = 0.0
+        self.total_tokens = 0
+
+        # Approval settings
+        self.auto_approve = auto_approve
+        self.cost_threshold = cost_threshold
 
         logger.info(
             f"CodingMemoryManager initialized: user={user_id}, project={project_id}"
@@ -570,13 +598,41 @@ class CodingMemoryManager(MemoryManager):
         # Generate summary if not provided
         if summary is None:
             logger.info("Generating AI-powered session summary...")
-            try:
-                summary = await self.coding_analyzer.summarize_session(
-                    session, file_changes, errors, decisions
-                )
-            except Exception as e:
-                logger.error(f"Summary generation failed: {e}")
-                summary = f"Session ended. {len(file_changes)} files modified, {len(errors)} errors, {len(decisions)} decisions."
+
+            # Estimate cost before generating summary
+            context_size = (
+                len(str(file_changes)) + len(str(errors)) + len(str(decisions)) + 500
+            )
+            estimated_tokens = self.coding_analyzer.count_tokens(
+                str(session_data)[:context_size]
+            )
+            estimated_cost = self._estimate_llm_cost(
+                input_tokens=estimated_tokens,
+                output_tokens=1500,  # Expected summary length
+            )
+
+            # Ask approval if cost exceeds threshold
+            approved = await self._ask_approval_with_cost(
+                operation="Generate AI-powered session summary",
+                estimated_cost=estimated_cost,
+                details=f"Input: ~{estimated_tokens} tokens, Model: {self.coding_analyzer.model}",
+            )
+
+            if not approved:
+                summary = f"Session ended. {len(file_changes)} files modified, {len(errors)} errors, {len(decisions)} decisions. (AI summary skipped)"
+                logger.info("Session summary generation cancelled by user")
+            else:
+                try:
+                    summary = await self.coding_analyzer.summarize_session(
+                        session, file_changes, errors, decisions
+                    )
+                    # Track actual cost (would be updated in analyzer)
+                    logger.info(
+                        f"Summary generated. Estimated cost: ${estimated_cost:.2f}"
+                    )
+                except Exception as e:
+                    logger.error(f"Summary generation failed: {e}")
+                    summary = f"Session ended. {len(file_changes)} files modified, {len(errors)} errors, {len(decisions)} decisions."
 
         session.summary = summary
 
@@ -756,3 +812,159 @@ class CodingMemoryManager(MemoryManager):
         """Get identified coding patterns."""
         # TODO: Implement pattern retrieval
         return []
+
+    # Approval and Cost Estimation Methods
+
+    async def _ask_approval(
+        self,
+        prompt: str,
+        timeout: float = 60.0,
+        default: bool = True,
+    ) -> bool:
+        """Ask user for approval with Rich UI.
+
+        Args:
+            prompt: Question to ask user
+            timeout: Timeout in seconds (default: 60.0)
+            default: Default value if timeout/error (default: True)
+
+        Returns:
+            True if approved, False if rejected
+
+        Example:
+            >>> approved = await memory._ask_approval(
+            ...     "Generate expensive summary for $0.50?"
+            ... )
+            >>> if not approved:
+            ...     raise UserCancelledError("Operation cancelled")
+        """
+        # Skip if auto_approve is enabled
+        if self.auto_approve:
+            logger.info(f"Auto-approved: {prompt}")
+            return True
+
+        try:
+            from rich.console import Console
+            from rich.panel import Panel
+
+            console = Console()
+
+            # Show prompt in panel
+            console.print(
+                Panel(
+                    prompt,
+                    title="[bold yellow]⚠️  Approval Required[/]",
+                    border_style="yellow",
+                )
+            )
+
+            # Ask for input
+            console.print("[yellow]Approve? [Y/n]:[/] ", end="")
+
+            # Use asyncio to get input with timeout
+            response = await asyncio.wait_for(
+                asyncio.get_event_loop().run_in_executor(None, input),
+                timeout=timeout,
+            )
+
+            result = response.strip().lower() in ("", "y", "yes")
+            if not result:
+                console.print("[yellow]❌ Operation cancelled by user[/]")
+            return result
+
+        except asyncio.TimeoutError:
+            logger.warning(f"Approval timeout - using default ({default})")
+            print(f"\n[dim]Timeout - using default ({default})[/]")
+            return default
+
+        except (EOFError, KeyboardInterrupt):
+            logger.info("Approval cancelled by user (EOF/KeyboardInterrupt)")
+            print("\n[yellow]❌ Cancelled[/]")
+            return False
+
+        except Exception as e:
+            logger.error(f"Approval error: {e}")
+            print(f"\n[red]Error: {e}[/]")
+            return default
+
+    def _estimate_llm_cost(
+        self,
+        input_tokens: int,
+        output_tokens: int = 1500,
+        model: str | None = None,
+    ) -> float:
+        """Estimate LLM API cost.
+
+        Args:
+            input_tokens: Number of input tokens
+            output_tokens: Expected output tokens (default: 1500)
+            model: Model name (default: self.coding_analyzer.model)
+
+        Returns:
+            Estimated cost in USD
+
+        Example:
+            >>> cost = memory._estimate_llm_cost(
+            ...     input_tokens=5000,
+            ...     output_tokens=2000,
+            ...     model="gpt-4"
+            ... )
+            >>> print(f"Estimated cost: ${cost:.2f}")
+            Estimated cost: $0.35
+        """
+        try:
+            from kagura.observability.pricing import calculate_cost
+
+            usage = {
+                "prompt_tokens": input_tokens,
+                "completion_tokens": output_tokens,
+            }
+
+            model_name = model or self.coding_analyzer.model
+            cost = calculate_cost(usage, model_name)
+
+            return cost
+
+        except Exception as e:
+            logger.warning(f"Cost estimation failed: {e}")
+            # Return conservative estimate
+            return (input_tokens + output_tokens) / 1000 * 0.03  # ~$0.03 per 1K tokens
+
+    async def _ask_approval_with_cost(
+        self,
+        operation: str,
+        estimated_cost: float,
+        details: str | None = None,
+    ) -> bool:
+        """Ask approval with cost information.
+
+        Args:
+            operation: Operation name (e.g., "Generate session summary")
+            estimated_cost: Estimated cost in USD
+            details: Additional details to show
+
+        Returns:
+            True if approved, False if rejected
+
+        Example:
+            >>> approved = await memory._ask_approval_with_cost(
+            ...     operation="Generate session summary",
+            ...     estimated_cost=0.25,
+            ...     details="5000 tokens input, GPT-4"
+            ... )
+        """
+        # Skip if below cost threshold
+        if estimated_cost < self.cost_threshold:
+            logger.info(
+                f"{operation}: ${estimated_cost:.2f} < threshold ${self.cost_threshold:.2f}, auto-approved"
+            )
+            return True
+
+        # Build prompt
+        prompt = f"{operation}\n\n"
+        prompt += f"[bold]Estimated Cost:[/] ${estimated_cost:.2f}"
+
+        if details:
+            prompt += f"\n[dim]{details}[/]"
+
+        return await self._ask_approval(prompt)

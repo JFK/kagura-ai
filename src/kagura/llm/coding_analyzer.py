@@ -11,6 +11,7 @@ All analysis uses carefully crafted prompts for maximum reliability.
 """
 
 import logging
+from datetime import datetime
 from typing import Any
 
 import tiktoken
@@ -54,24 +55,57 @@ class CodingAnalyzer:
 
     def __init__(
         self,
-        model: str = "gpt-4-turbo-preview",
-        vision_model: str = "gpt-4-vision-preview",
+        model: str | None = None,
+        vision_model: str | None = None,
         temperature: float = 0.3,
         max_tokens: int = 4096,
     ):
         """Initialize coding analyzer.
 
         Args:
-            model: Default LLM model ID
-            vision_model: Vision-capable model ID
+            model: Default LLM model ID (None = use environment default)
+                Recommended:
+                - OpenAI: "gpt-5-mini" (fast), "gpt-5" (balanced)
+                - Google: "gemini/gemini-2.0-flash-exp" (fast), "gemini/gemini-2.5-pro" (premium)
+                - Anthropic: "claude-sonnet-4-5" (balanced)
+            vision_model: Vision-capable model ID (None = use gpt-4o)
+                Recommended:
+                - OpenAI: "gpt-4o" (best quality)
+                - Google: "gemini/gemini-2.0-flash-exp" (fast, free preview)
             temperature: LLM temperature (lower = more deterministic)
             max_tokens: Maximum response tokens
         """
+        # Use environment defaults if not specified
+        import os
+
+        from kagura.config.env import (
+            get_google_ai_default_model,
+            get_openai_default_model,
+        )
+
+        # Default to gpt-5-mini or environment override
+        if model is None:
+            model = os.getenv("CODING_MEMORY_MODEL") or get_openai_default_model()
+
+        # Default to gpt-4o for vision (has good vision capabilities)
+        if vision_model is None:
+            vision_model = os.getenv("CODING_MEMORY_VISION_MODEL") or "gpt-4o"
+
         self.model = model
         self.vision_model = vision_model
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.encoding = tiktoken.get_encoding("cl100k_base")
+
+        # Cost tracking
+        self.total_cost = 0.0
+        self.total_tokens = 0
+        self.call_count = 0
+        self.call_costs: list[dict[str, Any]] = []
+
+        logger.info(
+            f"CodingAnalyzer initialized: model={self.model}, vision={self.vision_model}"
+        )
 
     def count_tokens(self, text: str) -> int:
         """Count tokens in text.
@@ -124,9 +158,44 @@ class CodingAnalyzer:
             if not content:
                 raise ValueError("Empty response from LLM")
 
-            logger.info(
-                f"LLM call successful: {response.usage.total_tokens} tokens"  # type: ignore
-            )
+            # Track usage and cost
+            if hasattr(response, "usage") and response.usage:  # type: ignore
+                usage = {
+                    "prompt_tokens": response.usage.prompt_tokens,  # type: ignore
+                    "completion_tokens": response.usage.completion_tokens,  # type: ignore
+                    "total_tokens": response.usage.total_tokens,  # type: ignore
+                }
+
+                # Calculate cost
+                try:
+                    from kagura.observability.pricing import calculate_cost
+
+                    cost = calculate_cost(usage, model or self.model)
+                    self.total_cost += cost
+                    self.total_tokens += usage["total_tokens"]
+                    self.call_count += 1
+
+                    # Record individual call
+                    self.call_costs.append(
+                        {
+                            "model": model or self.model,
+                            "tokens": usage["total_tokens"],
+                            "cost": cost,
+                            "timestamp": datetime.utcnow().isoformat(),
+                        }
+                    )
+
+                    logger.info(
+                        f"LLM call successful: {usage['total_tokens']} tokens, "
+                        f"cost: ${cost:.4f}, cumulative: ${self.total_cost:.4f}"
+                    )
+                except ImportError:
+                    logger.info(
+                        f"LLM call successful: {response.usage.total_tokens} tokens"  # type: ignore
+                    )
+            else:
+                logger.info("LLM call successful")
+
             return content
 
         except Exception as e:

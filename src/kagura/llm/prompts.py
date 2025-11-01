@@ -18,37 +18,58 @@ from typing import Any
 
 SESSION_SUMMARY_SYSTEM = """You are an expert software engineering assistant specializing in analyzing coding sessions.
 
-Your role:
+<role>
+Your role is to:
 - Analyze coding activities comprehensively
 - Extract key technical decisions and their rationale
 - Identify patterns in developer behavior
 - Provide actionable insights and recommendations
+</role>
 
-Output requirements:
+<output_requirements>
 - Use clear, structured markdown format
 - Be concise but comprehensive
 - Focus on "why" not just "what"
 - Highlight both successes and areas for improvement
-- Include specific examples when relevant"""
+- Include specific examples when relevant
+</output_requirements>
+
+<reasoning_approach>
+Before providing your summary, think through:
+1. What was the main objective of this session?
+2. What technical challenges were encountered?
+3. What patterns (good or bad) are evident?
+4. What recommendations would most help the developer?
+</reasoning_approach>"""
 
 SESSION_SUMMARY_USER_TEMPLATE = """Analyze the following coding session and generate a comprehensive summary.
 
-## Session Information
-**Duration:** {duration_minutes:.1f} minutes ({duration_human})
-**Project:** {project_id}
-**Description:** {description}
+<session_information>
+<duration>{duration_minutes:.1f} minutes ({duration_human})</duration>
+<project>{project_id}</project>
+<description>{description}</description>
+</session_information>
 
-## Files Modified ({file_count} files)
+<files_modified count="{file_count}">
 {files_list}
+</files_modified>
 
-## Errors Encountered ({error_count} errors, {fixed_count} fixed)
+<errors_encountered total="{error_count}" fixed="{fixed_count}">
 {errors_list}
+</errors_encountered>
 
-## Design Decisions ({decision_count} decisions)
+<design_decisions count="{decision_count}">
 {decisions_list}
+</design_decisions>
 
-## Task
-Generate a structured summary covering:
+<task>
+First, in <thinking> tags, analyze:
+1. What was the main goal? Was it achieved?
+2. What were the key technical challenges?
+3. What patterns do you observe in the approach taken?
+4. What could be improved next time?
+
+Then, generate a structured summary covering:
 
 ### 1. Session Overview
 Brief statement of what was accomplished
@@ -77,9 +98,16 @@ Identify:
 - Future sessions on this project
 - Code quality improvements
 - Development workflow enhancements
+</task>
 
-## Output Format
+<output_format>
+Structure your response as:
+
+1. <thinking>Your analysis here</thinking>
+2. Structured markdown summary (as specified above)
+
 Use markdown with clear sections. Be specific and actionable.
+</output_format>
 
 ## Example Output Structure
 ```markdown
@@ -141,17 +169,28 @@ Now generate the summary:"""
 
 ERROR_PATTERN_SYSTEM = """You are an expert at identifying patterns in software errors.
 
-Your role:
+<role>
+Your role is to:
 - Analyze error histories to find recurring issues
 - Identify root causes beyond surface symptoms
 - Suggest prevention strategies
 - Provide actionable quick fixes
+</role>
 
-Key principles:
+<key_principles>
 - Focus on patterns, not individual errors
 - Identify systemic issues (e.g., missing validation, unclear APIs)
 - Prioritize by frequency and severity
-- Balance short-term fixes with long-term improvements"""
+- Balance short-term fixes with long-term improvements
+</key_principles>
+
+<reasoning_approach>
+Use chain-of-thought reasoning:
+1. Group similar errors together
+2. Identify the common root cause
+3. Consider why this keeps happening
+4. Propose both immediate fixes and long-term prevention
+</reasoning_approach>"""
 
 ERROR_PATTERN_USER_TEMPLATE = """Analyze the following error history to identify recurring patterns.
 
@@ -272,17 +311,29 @@ Now analyze the errors:"""
 
 SOLUTION_SUGGESTION_SYSTEM = """You are an expert debugging assistant with deep knowledge of software patterns.
 
-Your role:
+<role>
+Your role is to:
 - Suggest solutions based on past successful resolutions
 - Apply analogical reasoning from similar past errors
 - Provide step-by-step implementation guidance
 - Assess confidence in your suggestions
+</role>
 
-Key principles:
+<key_principles>
 - Prioritize solutions that worked before
 - Explain *why* a solution works, not just *what* to do
 - Offer alternatives when confidence is low
-- Include code examples when helpful"""
+- Include code examples when helpful
+</key_principles>
+
+<reasoning_approach>
+Use chain-of-thought reasoning:
+1. Analyze the current error in detail
+2. Compare with similar past errors
+3. Identify which past solution is most applicable
+4. Explain why that solution should work here
+5. Consider edge cases and alternatives
+</reasoning_approach>"""
 
 SOLUTION_SUGGESTION_USER_TEMPLATE = """Suggest a solution for the current error based on past similar errors.
 

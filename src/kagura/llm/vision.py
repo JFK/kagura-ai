@@ -34,20 +34,32 @@ class VisionAnalyzer:
 
     def __init__(
         self,
-        model: str = "gpt-4-vision-preview",
+        model: str | None = None,
         temperature: float = 0.2,
         max_tokens: int = 2048,
     ):
         """Initialize vision analyzer.
 
         Args:
-            model: Vision-capable model ID (supports image input)
+            model: Vision-capable model ID (None = use gpt-4o default)
+                Recommended:
+                - OpenAI: "gpt-4o" (best vision quality)
+                - Google: "gemini/gemini-2.0-flash-exp" (fast, free during preview)
+                - Google: "gemini/gemini-2.5-flash" (production ready)
             temperature: LLM temperature (lower = more deterministic)
             max_tokens: Maximum response tokens
         """
+        import os
+
+        # Default to gpt-4o if not specified
+        if model is None:
+            model = os.getenv("CODING_MEMORY_VISION_MODEL") or "gpt-4o"
+
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
+
+        logger.info(f"VisionAnalyzer initialized: model={self.model}")
 
     def _load_image(self, image_source: str | bytes) -> str:
         """Load image and encode as base64.
