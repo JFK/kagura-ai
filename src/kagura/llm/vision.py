@@ -51,9 +51,12 @@ class VisionAnalyzer:
         """
         import os
 
-        # Default to gpt-4o if not specified
+        # Default to Gemini (free during preview, excellent vision quality)
         if model is None:
-            model = os.getenv("CODING_MEMORY_VISION_MODEL") or "gpt-4o"
+            model = (
+                os.getenv("CODING_MEMORY_VISION_MODEL")
+                or "gemini/gemini-2.0-flash-exp"
+            )
 
         self.model = model
         self.temperature = temperature

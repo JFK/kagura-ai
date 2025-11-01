@@ -274,22 +274,22 @@ export CODING_MEMORY_COST_THRESHOLD="0.10"  # Ask approval if > $0.10
 ```python
 from kagura.core.memory.coding_memory import CodingMemoryManager
 
-# Fast & Affordable (Gemini)
+# Fast & Affordable (Gemini) - RECOMMENDED
 coding_mem = CodingMemoryManager(
     user_id="dev_john",
     project_id="my-project",
     model="gemini/gemini-2.0-flash-exp",  # Free during preview
-    vision_model="gemini/gemini-2.0-flash-exp",
+    vision_model="gemini/gemini-2.0-flash-exp",  # DEFAULT: Free + excellent quality
     auto_approve=False,  # Require approval
     cost_threshold=0.05  # Ask if > $0.05
 )
 
-# Balanced (GPT-5)
+# Balanced (GPT-5 + Gemini Vision)
 coding_mem = CodingMemoryManager(
     user_id="dev_john",
     project_id="my-project",
     model="gpt-5-mini",  # Fast and affordable
-    vision_model="gpt-4o",  # Good vision quality
+    vision_model="gemini/gemini-2.0-flash-exp",  # DEFAULT: Free vision
 )
 
 # Premium (Claude + GPT-4o Vision)

@@ -84,9 +84,12 @@ class CodingAnalyzer:
         if model is None:
             model = os.getenv("CODING_MEMORY_MODEL") or get_openai_default_model()
 
-        # Default to gpt-4o for vision (has good vision capabilities)
+        # Default to Gemini for vision (free during preview, excellent vision)
         if vision_model is None:
-            vision_model = os.getenv("CODING_MEMORY_VISION_MODEL") or "gpt-4o"
+            vision_model = (
+                os.getenv("CODING_MEMORY_VISION_MODEL")
+                or "gemini/gemini-2.0-flash-exp"
+            )
 
         self.model = model
         self.vision_model = vision_model
