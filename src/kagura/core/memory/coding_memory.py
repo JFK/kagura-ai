@@ -169,16 +169,22 @@ class CodingMemoryManager(MemoryManager):
 
         # Add to RAG if available for semantic search
         if self.persistent_rag:
-            self.persistent_rag.add(
-                memory_id=change_id,
-                content=f"File: {file_path}\nAction: {action}\nReason: {reason}\nDiff: {diff[:500]}",
+            content_text = (
+                f"File: {file_path}\n"
+                f"Action: {action}\n"
+                f"Reason: {reason}\n"
+                f"Diff: {diff[:500]}"
+            )
+            self.persistent_rag.store(
+                content=content_text,
+                user_id=self.user_id,
                 metadata={
                     "type": "file_change",
                     "file_path": file_path,
                     "action": action,
                     "project_id": self.project_id,
-                    "user_id": self.user_id,
                 },
+                agent_name=self.agent_name,
             )
 
         # Add to graph if available
@@ -198,19 +204,26 @@ class CodingMemoryManager(MemoryManager):
             # Link to related files
             for related_file in related_files or []:
                 related_key = self._make_key(f"file:{related_file}")
+                # Ensure related file node exists
+                if not self.graph.graph.has_node(related_key):
+                    self.graph.add_node(
+                        node_id=related_key,
+                        node_type="file",
+                        data={"file_path": related_file},
+                    )
                 self.graph.add_edge(
-                    src=change_id,
-                    dst=related_key,
-                    edge_type="affects",
+                    src_id=change_id,
+                    dst_id=related_key,
+                    rel_type="affects",
                     weight=0.8,
                 )
 
             # Link to current session if active
             if self.current_session_id:
                 self.graph.add_edge(
-                    src=self.current_session_id,
-                    dst=change_id,
-                    edge_type="includes",
+                    src_id=self.current_session_id,
+                    dst_id=change_id,
+                    rel_type="includes",
                     weight=1.0,
                 )
 
@@ -298,15 +311,19 @@ class CodingMemoryManager(MemoryManager):
 
         # Store in persistent memory
         key = self._make_key(f"error:{error_id}")
-        await self.persistent.store(
-            key=key, value=record.model_dump(), user_id=self.user_id
-        )
+        self.persistent.store(key=key, value=record.model_dump(), user_id=self.user_id)
 
         # Add to RAG for semantic search
         if self.persistent_rag:
-            await self.persistent_rag.add_memory(
-                memory_id=error_id,
-                content=f"Error: {error_type}\nMessage: {message}\nFile: {file_path}:{line_number}\nSolution: {solution or 'Not yet resolved'}",
+            content_text = (
+                f"Error: {error_type}\n"
+                f"Message: {message}\n"
+                f"File: {file_path}:{line_number}\n"
+                f"Solution: {solution or 'Not yet resolved'}"
+            )
+            self.persistent_rag.store(
+                content=content_text,
+                user_id=self.user_id,
                 metadata={
                     "type": "error",
                     "error_type": error_type,
@@ -314,17 +331,18 @@ class CodingMemoryManager(MemoryManager):
                     "resolved": record.resolved,
                     "project_id": self.project_id,
                 },
-                user_id=self.user_id,
+                agent_name=self.agent_name,
             )
 
         # Add to graph
         if self.graph:
-            self.graph.add_memory_node(
-                memory_id=error_id,
-                content=f"{error_type} in {file_path}:{line_number}",
-                memory_type="error",
-                metadata={
+            self.graph.add_node(
+                node_id=error_id,
+                node_type="error",
+                data={
                     "error_type": error_type,
+                    "file_path": file_path,
+                    "line_number": line_number,
                     "resolved": record.resolved,
                     "project_id": self.project_id,
                 },
@@ -332,10 +350,10 @@ class CodingMemoryManager(MemoryManager):
 
             # Link to session if active
             if self.current_session_id:
-                self.graph.link_memories(
+                self.graph.add_edge(
                     src_id=self.current_session_id,
                     dst_id=error_id,
-                    relation="encountered",
+                    rel_type="encountered",
                     weight=1.0,
                 )
 
@@ -392,38 +410,44 @@ class CodingMemoryManager(MemoryManager):
 
         # Store in persistent memory
         key = self._make_key(f"decision:{decision_id}")
-        await self.persistent.store(
-            key=key, value=record.model_dump(), user_id=self.user_id
-        )
+        self.persistent.store(key=key, value=record.model_dump(), user_id=self.user_id)
 
         # Add to RAG
         if self.persistent_rag:
-            await self.persistent_rag.add_memory(
-                memory_id=decision_id,
-                content=f"Decision: {decision}\nRationale: {rationale}\nAlternatives: {', '.join(alternatives or [])}",
+            content_text = (
+                f"Decision: {decision}\n"
+                f"Rationale: {rationale}\n"
+                f"Alternatives: {', '.join(alternatives or [])}"
+            )
+            self.persistent_rag.store(
+                content=content_text,
+                user_id=self.user_id,
                 metadata={
                     "type": "decision",
                     "tags": tags or [],
                     "project_id": self.project_id,
                 },
-                user_id=self.user_id,
+                agent_name=self.agent_name,
             )
 
         # Add to graph
         if self.graph:
-            self.graph.add_memory_node(
-                memory_id=decision_id,
-                content=decision,
-                memory_type="decision",
-                metadata={"tags": tags or [], "project_id": self.project_id},
+            self.graph.add_node(
+                node_id=decision_id,
+                node_type="decision",
+                data={
+                    "decision": decision,
+                    "tags": tags or [],
+                    "project_id": self.project_id,
+                },
             )
 
             # Link to session if active
             if self.current_session_id:
-                self.graph.link_memories(
+                self.graph.add_edge(
                     src_id=self.current_session_id,
                     dst_id=decision_id,
-                    relation="made",
+                    rel_type="made",
                     weight=1.0,
                 )
 
@@ -466,7 +490,10 @@ class CodingMemoryManager(MemoryManager):
             project_id=self.project_id,
             description=description,
             start_time=datetime.utcnow(),
+            end_time=None,
             tags=tags or [],
+            summary=None,
+            success=None,
         )
 
         # Store in working memory (active session)
@@ -474,17 +501,18 @@ class CodingMemoryManager(MemoryManager):
 
         # Store in persistent memory
         key = self._make_key(f"session:{session_id}")
-        await self.persistent.store(
-            key=key, value=session.model_dump(), user_id=self.user_id
-        )
+        self.persistent.store(key=key, value=session.model_dump(), user_id=self.user_id)
 
         # Add to graph
         if self.graph:
-            self.graph.add_memory_node(
-                memory_id=session_id,
-                content=f"Session: {description}",
-                memory_type="session",
-                metadata={"project_id": self.project_id, "active": True},
+            self.graph.add_node(
+                node_id=session_id,
+                node_type="session",
+                data={
+                    "description": description,
+                    "project_id": self.project_id,
+                    "active": True,
+                },
             )
 
         self.current_session_id = session_id
@@ -554,19 +582,26 @@ class CodingMemoryManager(MemoryManager):
 
         # Update stored session
         key = self._make_key(f"session:{session_id}")
-        await self.persistent.store(
-            key=key, value=session.model_dump(), user_id=self.user_id
-        )
+        self.persistent.store(key=key, value=session.model_dump(), user_id=self.user_id)
 
         # Remove from working memory
         self.working.delete(f"session:{session_id}")
 
-        # Update graph
+        # Update graph (delete and re-add with updated data)
         if self.graph:
-            self.graph.update_node(
-                node_id=session_id,
-                metadata={"active": False, "success": success},
-            )
+            if self.graph.graph.has_node(session_id):
+                # Get existing data
+                node_data = dict(self.graph.graph.nodes[session_id])
+                # Update fields
+                node_data["active"] = False
+                node_data["success"] = success
+                # Remove and re-add
+                self.graph.graph.remove_node(session_id)
+                self.graph.add_node(
+                    node_id=session_id,
+                    node_type="session",
+                    data=node_data,
+                )
 
         self.current_session_id = None
         logger.info(f"Ended coding session: {session_id}")
@@ -605,22 +640,32 @@ class CodingMemoryManager(MemoryManager):
             logger.warning("RAG not available, returning empty results")
             return []
 
-        results = await self.persistent_rag.search(
+        results = self.persistent_rag.recall(
             query=query,
-            k=k * 2,  # Get more candidates for filtering
             user_id=self.user_id,
-            filters={"type": "error", "project_id": self.project_id},
+            top_k=k * 2,  # Get more candidates for filtering
+            agent_name=self.agent_name,
         )
 
         # Retrieve full error records
         errors = []
         for result in results[:k]:
-            key = self._make_key(f"error:{result.id}")
-            error_data = await self.persistent.recall(key=key, user_id=self.user_id)
-            if error_data:
-                errors.append(ErrorRecord(**error_data))
+            # Filter by project_id and type
+            if result.get("metadata", {}).get("project_id") != self.project_id:
+                continue
+            if result.get("metadata", {}).get("type") != "error":
+                continue
 
-        return errors
+            # Extract error ID from result
+            # Assuming result has 'id' or we need to extract from metadata
+            error_id = result.get("id")
+            if error_id:
+                key = self._make_key(f"error:{error_id}")
+                error_data = self.persistent.recall(key=key, user_id=self.user_id)
+                if error_data:
+                    errors.append(ErrorRecord(**error_data))
+
+        return errors[:k]
 
     async def get_project_context(self, focus: str | None = None) -> ProjectContext:
         """Get comprehensive project context.

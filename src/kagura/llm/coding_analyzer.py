@@ -113,18 +113,20 @@ class CodingAnalyzer:
         ]
 
         try:
-            response: ModelResponse = await acompletion(
+            response = await acompletion(  # type: ignore
                 model=model or self.model,
                 messages=messages,
                 temperature=temperature or self.temperature,
                 max_tokens=max_tokens or self.max_tokens,
             )
 
-            content = response.choices[0].message.content
+            content = response.choices[0].message.content  # type: ignore
             if not content:
                 raise ValueError("Empty response from LLM")
 
-            logger.info(f"LLM call successful: {response.usage.total_tokens} tokens")
+            logger.info(
+                f"LLM call successful: {response.usage.total_tokens} tokens"  # type: ignore
+            )
             return content
 
         except Exception as e:
@@ -531,6 +533,7 @@ class CodingAnalyzer:
         ]
 
         # Generate AI summary
+        decisions_text = "\n".join(key_decisions_text)
         summary_prompt = f"""Provide a 2-3 sentence high-level summary of the project based on:
 
 Project ID: {project_id}
@@ -538,7 +541,7 @@ Recent Changes:
 {recent_changes_text}
 
 Key Decisions:
-{'\n'.join(key_decisions_text)}
+{decisions_text}
 
 Focus Area: {focus or 'general overview'}"""
 
@@ -553,7 +556,9 @@ Focus Area: {focus or 'general overview'}"""
             project_id=project_id,
             summary=summary.strip(),
             tech_stack=tech_stack,
+            architecture_style=None,  # To be inferred from analysis
             recent_changes=recent_changes_text,
             key_decisions=key_decisions_text,
             coding_patterns=[p.description for p in patterns],
+            token_count=None,  # Could be calculated if needed
         )

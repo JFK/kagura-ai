@@ -112,19 +112,19 @@ class VisionAnalyzer:
         ]
 
         try:
-            response: ModelResponse = await acompletion(
+            response = await acompletion(  # type: ignore
                 model=model or self.model,
                 messages=messages,
                 temperature=temperature or self.temperature,
                 max_tokens=max_tokens or self.max_tokens,
             )
 
-            content = response.choices[0].message.content
+            content = response.choices[0].message.content  # type: ignore
             if not content:
                 raise ValueError("Empty response from vision LLM")
 
             logger.info(
-                f"Vision LLM call successful: {response.usage.total_tokens} tokens"
+                f"Vision LLM call successful: {response.usage.total_tokens} tokens"  # type: ignore
             )
             return content
 
