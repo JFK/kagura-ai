@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.1] - 2025-11-02
+
+### 🐛 Fixed
+
+- **PyPI Package Build**: Fixed package filename normalization issue
+  - Build now correctly generates `kagura_ai-4.0.1.tar.gz` (underscore) instead of `kagura-ai-4.0.1.tar.gz` (hyphen)
+  - Resolves PyPI upload error: "Filename 'kagura-ai-4.0.0.tar.gz' is invalid"
+  - No functional changes from v4.0.0
+
+---
+
 ## [4.0.0] - 2025-11-02
 
 ### ✨ Added
