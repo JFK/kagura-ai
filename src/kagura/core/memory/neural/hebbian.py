@@ -65,8 +65,8 @@ class HebbianLearner:
             activations: List of activated nodes in this retrieval
             nodes: Map of node_id -> NeuralMemoryNode (for confidence scores)
         """
-        # Extract co-activation pairs
-        active_ids = [a.node_id for a in activations]
+        # Extract co-activation pairs (for logging/debugging)
+        # active_ids = [a.node_id for a in activations]  # Unused, kept for clarity
 
         for i, act_i in enumerate(activations):
             for act_j in activations[i + 1 :]:  # Avoid duplicates

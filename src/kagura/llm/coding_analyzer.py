@@ -447,7 +447,7 @@ class CodingAnalyzer:
 
         prompts = build_preference_extraction_prompt(changes_dicts, decisions_dicts)
 
-        response = await self._call_llm(
+        _response = await self._call_llm(  # Reserved for future structured parsing
             system_prompt=prompts["system"],
             user_prompt=prompts["user"],
             temperature=0.1,  # Very low temp for consistent extraction
