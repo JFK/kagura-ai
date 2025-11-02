@@ -17,16 +17,41 @@ References:
 - Memorizing Transformers (arXiv:2203.08913)
 """
 
+from .activation import ActivationSpreader
+from .co_activation import CoActivationTracker
 from .config import NeuralMemoryConfig
+from .decay import DecayManager
 from .engine import NeuralMemoryEngine
-from .models import ActivationState, CoActivationRecord, NeuralMemoryNode
+from .hebbian import HebbianLearner
+from .models import (
+    ActivationState,
+    CoActivationRecord,
+    HebbianUpdate,
+    MemoryKind,
+    NeuralMemoryNode,
+    RecallResult,
+    SourceKind,
+)
+from .scoring import UnifiedScorer
 
 __all__ = [
+    # Main components
     "NeuralMemoryConfig",
     "NeuralMemoryEngine",
+    # Subcomponents
+    "ActivationSpreader",
+    "CoActivationTracker",
+    "DecayManager",
+    "HebbianLearner",
+    "UnifiedScorer",
+    # Models
     "NeuralMemoryNode",
     "ActivationState",
     "CoActivationRecord",
+    "HebbianUpdate",
+    "RecallResult",
+    "MemoryKind",
+    "SourceKind",
 ]
 
 __version__ = "0.1.0"
