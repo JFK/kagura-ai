@@ -1,6 +1,6 @@
 [project]
-name = "kagura-ai"
-version = "4.0.1"
+name = "kagura_ai"
+version = "4.0.0"
 description = "Universal AI Memory Platform - MCP-native context management for all AI agents"
 authors = [
     { name = "JFK", email = "fumikazu.kiyota@gmail.com" }

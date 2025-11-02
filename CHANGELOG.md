@@ -7,18 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.0.1] - 2025-11-02
-
-### 🐛 Fixed
-
-- **PyPI Package Build**: Fixed package filename normalization issue
-  - Build now correctly generates `kagura_ai-4.0.1.tar.gz` (underscore) instead of `kagura-ai-4.0.1.tar.gz` (hyphen)
-  - Resolves PyPI upload error: "Filename 'kagura-ai-4.0.0.tar.gz' is invalid"
-  - No functional changes from v4.0.0
-
----
-
 ## [4.0.0] - 2025-11-02
+
+**Note**: Package name changed from `kagura-ai` to `kagura_ai` for PyPI compatibility. Users can still install with `pip install kagura-ai` (PyPI normalizes names).
+
+### 🔧 Package Changes
+
+- **Package Name**: Changed from `kagura-ai` to `kagura_ai` in `pyproject.toml`
+  - Resolves PyPI sdist filename requirement (must use underscores)
+  - Updated `src/kagura/version.py` to use `kagura_ai`
+  - Installation: `pip install kagura-ai` still works (PyPI normalizes)
+
+
 
 ### ✨ Added
 
