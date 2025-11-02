@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
+- **MCP Tools Fixes & Enhancements** (#468, #469)
+  - **Critical**: Enabled 7 previously inaccessible tools (GitHub 6 + Academic 1)
+  - **GitHub tools**: Direct execution via ShellExecutor (no LLM intermediary)
+  - **Multimodal**: Japanese language support (`language="ja"` parameter)
+  - **API Port**: Unified to 8000 (uvicorn standard)
+  - **Claude Desktop**: Windows/macOS/Linux path detection
+  - **Dependencies**: Added psutil for brave-search-python-client
+  - **Shell Execution**: Code generation mode (returns implementation, not execution)
+  - **MCP Tool Count**: Accurate 56 tools (15 Memory + 15 Coding + 6 GitHub + 5 Brave + 4 YouTube + 11 others)
+
 - **Neural Memory Network** (#348) - 8 commits, 2,471 lines
   - **Hebbian Learning-based adaptive memory** with graph neural architecture
   - **Activation spreading**: 1-3 hop propagation with exponential decay
