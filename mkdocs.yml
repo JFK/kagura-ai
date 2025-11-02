@@ -38,11 +38,14 @@ nav:
 
   - Getting Started:
     - Quick Start (10 min): getting-started.md
-    - MCP Setup (Claude Desktop): mcp-setup.md
     - Installation: quickstart.md
 
+  - MCP Integration:
+    - Claude Desktop: mcp-setup.md
+    - Claude Code: mcp-claude-code-setup.md
+    - Remote MCP (ChatGPT): mcp-http-setup.md
+
   - User Guides:
-    - MCP over HTTP/SSE (ChatGPT): mcp-http-setup.md
     - Self-Hosting Guide: self-hosting.md
     - Memory Export/Import: memory-export.md
     - REST API Usage: rest-api-usage.md

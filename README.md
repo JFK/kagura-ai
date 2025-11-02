@@ -207,6 +207,21 @@ kagura mcp serve
 
 **See**: [MCP Setup Guide](docs/mcp-setup.md)
 
+### Option 3b: MCP with Claude Code (v4.0.0) ⭐ NEW
+
+```bash
+# Install Kagura
+pip install kagura-ai[full]
+
+# Add to Claude Code
+claude mcp add --transport stdio kagura -- kagura mcp serve
+
+# Verify
+claude mcp list
+```
+
+**See**: [Claude Code MCP Setup](docs/mcp-claude-code-setup.md)
+
 ### Option 4: Self-Hosted Production (v4.0.0) ⭐ NEW
 
 ```bash
