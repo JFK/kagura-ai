@@ -73,7 +73,8 @@ Give **every AI** access to:
 **For developers**:
 - 🔌 **REST API**: Query memory from any agent, any language
 - 🐍 **Python SDK**: Build AI agents with unified memory access
-- 📦 **MCP Tools**: 37+ built-in tools for Claude, Cursor, Cline (including 14 coding-specialized tools)
+- 📦 **MCP Tools**: 43+ built-in tools for Claude, Cursor, Cline (including 14 coding + 6 GitHub + Neural Memory)
+- 🧠 **Neural Memory**: Hebbian learning, activation spreading, adaptive associations
 - 🛠️ **Extensible**: Custom connectors, workflows, integrations
 
 **One memory. Every AI. Every developer.**
@@ -89,13 +90,23 @@ Give **every AI** access to:
 - 📊 **Insights**: Visualize your learning patterns
 
 ### For Developers
-- 💻 **Coding-Specialized Memory (NEW v4.1)**:
+- 🧠 **Neural Memory Network (NEW v4.0)**:
+  - Hebbian learning-based adaptive memory
+  - Activation spreading (1-3 hop graph propagation)
+  - Trust-modulated learning (poisoning defense)
+  - GDPR-compliant with automatic forgetting
+  - Research-backed: Hopfield Networks, kNN-LM, RETRO
+- 💻 **Coding-Specialized Memory (v4.0)**:
   - Track file changes, errors, design decisions
   - AI-powered session summaries with cost tracking
   - Automatic dependency analysis (AST-based)
   - Refactoring impact assessment
-  - **GitHub integration** (issue/PR linking, auto-detection)
   - **14 MCP tools** for Claude Code, Cursor, etc.
+- 🔧 **GitHub CLI Integration (v4.0)**:
+  - Safe shell execution with danger detection
+  - Issue/PR operations via MCP (6 tools)
+  - Automatic confirmation for dangerous commands
+  - Working directory support for all shell operations
 - 🔌 **MCP-native**: Works with Claude Desktop, Cursor, Cline, etc.
 - 🐍 **Python SDK**: Build agents that share memory across platforms
 - 🌐 **REST API**: Access memory from any language, any agent
