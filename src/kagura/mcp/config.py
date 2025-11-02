@@ -4,6 +4,7 @@ Manages MCP server configuration and Claude Desktop integration.
 """
 
 import json
+import os
 import shutil
 from pathlib import Path
 from typing import Any
@@ -22,7 +23,9 @@ class MCPConfig:
             # Windows: %APPDATA%\Claude\claude_desktop_config.json
             appdata = os.getenv("APPDATA")
             if appdata:
-                self.claude_config_path = Path(appdata) / "Claude" / "claude_desktop_config.json"
+                self.claude_config_path = (
+                    Path(appdata) / "Claude" / "claude_desktop_config.json"
+                )
             else:
                 self.claude_config_path = (
                     Path.home()

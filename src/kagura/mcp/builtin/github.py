@@ -181,7 +181,10 @@ async def github_issue_list(state: str = "open", limit: int = 30) -> str:
 
     from kagura.core.shell import ShellExecutor
 
-    cmd = f"gh issue list --state {state} --limit {limit} --json number,title,state,labels"
+    cmd = (
+        f"gh issue list --state {state} --limit {limit} "
+        f"--json number,title,state,labels"
+    )
 
     try:
         executor = ShellExecutor(allowed_commands=["gh"], working_dir=Path("."))
