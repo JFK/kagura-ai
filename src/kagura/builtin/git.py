@@ -145,7 +145,10 @@ async def gh_issue_get(issue_number: int) -> dict:
         raise ValueError(f"Invalid issue number: {issue_number}")
 
     # Execute gh command with JSON output
-    cmd = f"gh issue view {issue_number} --json number,title,body,url,state,labels,assignees"
+    cmd = (
+        f"gh issue view {issue_number} "
+        f"--json number,title,body,url,state,labels,assignees"
+    )
     result = await _executor.exec(cmd)
 
     if not result.success:
@@ -179,7 +182,10 @@ async def gh_pr_get(pr_number: int | None = None) -> dict:
     if pr_number is not None:
         if not isinstance(pr_number, int) or pr_number < 1:
             raise ValueError(f"Invalid PR number: {pr_number}")
-        cmd = f"gh pr view {pr_number} --json number,title,body,url,state,isDraft,headRefName"
+        cmd = (
+            f"gh pr view {pr_number} "
+            f"--json number,title,body,url,state,isDraft,headRefName"
+        )
     else:
         # Get PR for current branch
         cmd = "gh pr view --json number,title,body,url,state,isDraft,headRefName"

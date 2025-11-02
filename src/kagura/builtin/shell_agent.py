@@ -68,7 +68,10 @@ async def shell_safe_exec(
             if safety.safe_alternative:
                 warning += f"\n💡 Safer alternative:\n  {safety.safe_alternative}\n"
 
-            warning += "\n❌ Execution BLOCKED. Use auto_confirm=True to override (not recommended)."
+            warning += (
+                "\n❌ Execution BLOCKED. "
+                "Use auto_confirm=True to override (not recommended)."
+            )
             return warning
 
         logger.warning(

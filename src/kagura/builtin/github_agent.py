@@ -202,7 +202,10 @@ async def gh_pr_create_safe(
         ... )
     """
     draft_flag = "--draft" if draft else ""
-    cmd = f'gh pr create --title "{title}" --body "{body}" --base {base} {draft_flag}'.strip()
+    cmd = (
+        f'gh pr create --title "{title}" --body "{body}" '
+        f'--base {base} {draft_flag}'
+    ).strip()
 
     return await gh_safe_exec(cmd, auto_confirm=auto_confirm)
 
@@ -257,7 +260,10 @@ async def gh_issue_list_safe(
         >>> for issue in issues:
         ...     print(f"#{issue['number']}: {issue['title']}")
     """
-    cmd = f"gh issue list --state {state} --limit {limit} --json number,title,state,labels"
+    cmd = (
+        f"gh issue list --state {state} --limit {limit} "
+        f"--json number,title,state,labels"
+    )
 
     if repo:
         cmd += f" --repo {repo}"
