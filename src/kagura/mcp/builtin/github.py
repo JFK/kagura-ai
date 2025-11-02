@@ -10,11 +10,8 @@ import logging
 
 from kagura import tool
 from kagura.builtin.github_agent import (
-    gh_issue_list_safe,
-    gh_issue_view_safe,
     gh_pr_create_safe,
     gh_pr_merge_safe,
-    gh_pr_view_safe,
     gh_safe_exec,
 )
 
@@ -77,7 +74,9 @@ async def github_issue_view(issue_number: int) -> str:
 
         issue_data = json.loads(exec_result.stdout)
     except json.JSONDecodeError:
-        return f"Error: Failed to parse issue data\n{result}"
+        return f"Error: Failed to parse issue data\n{exec_result.stdout}"
+    except Exception as e:
+        return f"Error: {e}"
 
     # Format nicely for display
     output = f"# Issue #{issue_number}: {issue_data.get('title', 'N/A')}\n\n"
@@ -135,7 +134,9 @@ async def github_pr_view(pr_number: int | None = None) -> str:
 
         pr_data = json.loads(exec_result.stdout)
     except json.JSONDecodeError:
-        return f"Error: Failed to parse PR data\n{result}"
+        return f"Error: Failed to parse PR data\n{exec_result.stdout}"
+    except Exception as e:
+        return f"Error: {e}"
 
     if "error" in pr_data:
         return f"Error: {pr_data['error']}"
@@ -191,7 +192,9 @@ async def github_issue_list(state: str = "open", limit: int = 30) -> str:
 
         issues = json.loads(exec_result.stdout)
     except json.JSONDecodeError:
-        return f"Error: Failed to parse issues\n{result}"
+        return f"Error: Failed to parse issues\n{exec_result.stdout}"
+    except Exception as e:
+        return f"Error: {e}"
 
     if not issues:
         return f"No {state} issues found."

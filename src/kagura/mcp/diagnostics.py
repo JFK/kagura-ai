@@ -4,7 +4,6 @@ Provides diagnostic utilities for MCP server and related services.
 """
 
 import json
-from pathlib import Path
 from typing import Any
 
 import httpx
