@@ -14,9 +14,38 @@ class MCPConfig:
 
     def __init__(self):
         """Initialize config manager."""
-        self.claude_config_path = (
-            Path.home() / ".config" / "claude" / "claude_desktop_config.json"
-        )
+        # Platform-specific Claude Desktop config paths
+        import platform
+
+        system = platform.system()
+        if system == "Windows":
+            # Windows: %APPDATA%\Claude\claude_desktop_config.json
+            appdata = os.getenv("APPDATA")
+            if appdata:
+                self.claude_config_path = Path(appdata) / "Claude" / "claude_desktop_config.json"
+            else:
+                self.claude_config_path = (
+                    Path.home()
+                    / "AppData"
+                    / "Roaming"
+                    / "Claude"
+                    / "claude_desktop_config.json"
+                )
+        elif system == "Darwin":
+            # macOS: ~/Library/Application Support/Claude/claude_desktop_config.json
+            self.claude_config_path = (
+                Path.home()
+                / "Library"
+                / "Application Support"
+                / "Claude"
+                / "claude_desktop_config.json"
+            )
+        else:
+            # Linux: ~/.config/claude/claude_desktop_config.json
+            self.claude_config_path = (
+                Path.home() / ".config" / "claude" / "claude_desktop_config.json"
+            )
+
         from kagura.config.paths import get_config_dir
 
         self.kagura_config_path = get_config_dir() / "mcp-config.yaml"

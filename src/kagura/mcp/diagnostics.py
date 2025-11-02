@@ -91,7 +91,7 @@ class MCPDiagnostics:
         from kagura.mcp.config import MCPConfig
 
         mcp_config = MCPConfig()
-        config_path = mcp_config.config_path
+        config_path = mcp_config.claude_config_path
 
         if not config_path.exists():
             return {
