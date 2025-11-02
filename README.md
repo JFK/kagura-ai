@@ -73,7 +73,7 @@ Give **every AI** access to:
 **For developers**:
 - 🔌 **REST API**: Query memory from any agent, any language
 - 🐍 **Python SDK**: Build AI agents with unified memory access
-- 📦 **MCP Tools**: 43+ built-in tools for Claude, Cursor, Cline (including 14 coding + 6 GitHub + Neural Memory)
+- 📦 **MCP Tools**: 56 built-in tools (15 Memory + 15 Coding + 6 GitHub + 5 Brave + 4 YouTube + 11 others)
 - 🧠 **Neural Memory**: Hebbian learning, activation spreading, adaptive associations
 - 🛠️ **Extensible**: Custom connectors, workflows, integrations
 

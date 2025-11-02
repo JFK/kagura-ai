@@ -204,52 +204,36 @@ class TestShellExec:
     """Test shell_exec MCP tool."""
 
     @pytest.mark.asyncio
-    async def test_shell_exec_success(self) -> None:
-        """Test executing a shell command successfully."""
-        # Mock the shell_safe_exec agent (new implementation)
-        with patch(
-            "kagura.builtin.shell_agent.shell_safe_exec",
-            return_value="Command output",
-        ):
-            result = await shell_exec("echo test")
-            assert result == "Command output"
+    async def test_shell_exec_returns_explanation(self) -> None:
+        """Test shell_exec returns implementation explanation (default mode)."""
+        result = await shell_exec("ls -la")
+
+        # Should return explanation, not execute
+        assert "# Command:" in result or "Python Implementation" in result
+        assert "ls -la" in result
+
+    @pytest.mark.asyncio
+    async def test_shell_exec_returns_code(self) -> None:
+        """Test shell_exec returns executable Python code."""
+        result = await shell_exec("echo test", return_code=True)
+
+        # Should return Python code
+        assert "import subprocess" in result
+        assert "echo test" in result
+        assert "subprocess.run" in result
 
     @pytest.mark.asyncio
     async def test_shell_exec_with_working_dir(self) -> None:
-        """Test shell_exec with working directory parameter."""
-        with patch(
-            "kagura.builtin.shell_agent.shell_safe_exec",
-            return_value="Directory output",
-        ) as mock_agent:
-            result = await shell_exec("ls", working_dir="/tmp")
+        """Test shell_exec includes working_dir in output."""
+        result = await shell_exec("ls", working_dir="/tmp")
 
-            assert result == "Directory output"
-            # Verify working_dir was passed
-            mock_agent.assert_called_once_with("ls", working_dir="/tmp", auto_confirm=False)
+        # Should mention working directory
+        assert "/tmp" in result
 
     @pytest.mark.asyncio
-    async def test_shell_exec_with_force(self) -> None:
-        """Test shell_exec with force parameter."""
-        with patch(
-            "kagura.builtin.shell_agent.shell_safe_exec",
-            return_value="Forced execution",
-        ) as mock_agent:
-            result = await shell_exec("rm file", force=True)
+    async def test_shell_exec_safety_analysis(self) -> None:
+        """Test shell_exec includes safety analysis."""
+        result = await shell_exec("rm -rf /")
 
-            assert result == "Forced execution"
-            # Verify auto_confirm=True was passed
-            mock_agent.assert_called_once_with(
-                "rm file", working_dir=".", auto_confirm=True
-            )
-
-    @pytest.mark.asyncio
-    async def test_shell_exec_error_handling(self) -> None:
-        """Test shell_exec handles errors gracefully."""
-        with patch(
-            "kagura.builtin.shell_agent.shell_safe_exec",
-            side_effect=Exception("Test error"),
-        ):
-            result = await shell_exec("test command")
-
-            assert "Error executing command" in result
-            assert "Test error" in result
+        # Should include danger warning
+        assert "HIGH" in result or "CRITICAL" in result or "DANGER" in result
