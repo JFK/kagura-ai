@@ -717,7 +717,11 @@ class CodingMemoryManager(MemoryManager):
             )
 
             if not approved:
-                summary = f"Session ended. {len(file_changes)} files modified, {len(errors)} errors, {len(decisions)} decisions. (AI summary skipped)"
+                summary = (
+                    f"Session ended. {len(file_changes)} files modified, "
+                    f"{len(errors)} errors, {len(decisions)} decisions. "
+                    f"(AI summary skipped)"
+                )
                 logger.info("Session summary generation cancelled by user")
             else:
                 try:
@@ -730,7 +734,10 @@ class CodingMemoryManager(MemoryManager):
                     )
                 except Exception as e:
                     logger.error(f"Summary generation failed: {e}")
-                    summary = f"Session ended. {len(file_changes)} files modified, {len(errors)} errors, {len(decisions)} decisions."
+                    summary = (
+                        f"Session ended. {len(file_changes)} files modified, "
+                        f"{len(errors)} errors, {len(decisions)} decisions."
+                    )
 
         session.summary = summary
 
