@@ -85,7 +85,9 @@ class ActivationSpreader:
             )
 
             if not next_layer:
-                logger.debug(f"Activation spreading stopped at hop {hop} (no new activations)")
+                logger.debug(
+                    f"Activation spreading stopped at hop {hop} (no new activations)"
+                )
                 break
 
             current_layer = next_layer
@@ -252,7 +254,9 @@ class ActivationSpreader:
             List of (node_id, activation_score) tuples, sorted by score descending
         """
         seed_activations = {nid: 1.0 for nid in seed_nodes}
-        all_activations = self.spread(seed_activations=seed_activations, max_hops=max_hops)
+        all_activations = self.spread(
+            seed_activations=seed_activations, max_hops=max_hops
+        )
 
         # Filter and sort
         results = [
@@ -281,7 +285,9 @@ class ActivationSpreader:
         Returns:
             Dict with visualization data (nodes, edges, activations)
         """
-        all_activations = self.spread(seed_activations=seed_activations, max_hops=max_hops)
+        all_activations = self.spread(
+            seed_activations=seed_activations, max_hops=max_hops
+        )
 
         # Build visualization data
         viz_data = {
@@ -313,7 +319,9 @@ class ActivationSpreader:
             for neighbor_id in neighbors:
                 if neighbor_id in activated_ids:
                     try:
-                        weight = self.graph.graph[node_id][neighbor_id].get("weight", 0.0)
+                        weight = self.graph.graph[node_id][neighbor_id].get(
+                            "weight", 0.0
+                        )
                         viz_data["edges"].append(
                             {
                                 "source": node_id,

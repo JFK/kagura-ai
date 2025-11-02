@@ -108,7 +108,9 @@ class NeuralMemoryEngine:
         )
 
         if not rag_results:
-            logger.warning(f"No RAG results for user {user_id}, query: {query_text[:50]}")
+            logger.warning(
+                f"No RAG results for user {user_id}, query: {query_text[:50]}"
+            )
             return []
 
         # Extract query embedding (from RAG or provided)

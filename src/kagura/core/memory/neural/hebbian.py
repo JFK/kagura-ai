@@ -21,7 +21,6 @@ References:
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Any
 
 from ..graph.memory import GraphMemory
 from .config import NeuralMemoryConfig
@@ -80,8 +79,12 @@ class HebbianLearner:
                 delta_w = self._calculate_delta_weight(
                     activation_i=act_i.activation,
                     activation_j=act_j.activation,
-                    confidence_i=node_i.confidence if self.config.enable_trust_modulation else 1.0,
-                    confidence_j=node_j.confidence if self.config.enable_trust_modulation else 1.0,
+                    confidence_i=node_i.confidence
+                    if self.config.enable_trust_modulation
+                    else 1.0,
+                    confidence_j=node_j.confidence
+                    if self.config.enable_trust_modulation
+                    else 1.0,
                     current_weight=self._get_current_weight(
                         user_id, act_i.node_id, act_j.node_id
                     ),
@@ -232,7 +235,9 @@ class HebbianLearner:
             try:
                 if self.graph.graph.has_edge(src_id, dst_id):
                     self.graph.graph.remove_edge(src_id, dst_id)
-                    logger.debug(f"Pruned edge ({src_id}, {dst_id}) (weight={new_weight:.4f})")
+                    logger.debug(
+                        f"Pruned edge ({src_id}, {dst_id}) (weight={new_weight:.4f})"
+                    )
                 return 0.0
             except Exception as e:
                 logger.error(f"Failed to remove edge ({src_id}, {dst_id}): {e}")
@@ -332,7 +337,9 @@ class HebbianLearner:
             try:
                 self.graph.graph.remove_edge(node_id, dst_id)
                 removed_count += 1
-                logger.debug(f"Pruned weak edge ({node_id}, {dst_id}) (weight={weight:.4f})")
+                logger.debug(
+                    f"Pruned weak edge ({node_id}, {dst_id}) (weight={weight:.4f})"
+                )
             except Exception as e:
                 logger.error(f"Failed to prune edge ({node_id}, {dst_id}): {e}")
 

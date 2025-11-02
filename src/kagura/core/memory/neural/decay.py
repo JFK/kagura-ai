@@ -38,7 +38,7 @@ class DecayManager:
         self.config = config
         self._last_decay_time: datetime | None = None
 
-    def apply_decay(self, user_id: str) -> dict[str, int]:
+    def apply_decay(self, user_id: str) -> dict[str, int | float]:
         """Apply exponential decay to all edge weights.
 
         Formula:
@@ -48,7 +48,7 @@ class DecayManager:
             user_id: User ID (for filtering user-specific edges)
 
         Returns:
-            Dict with statistics (edges_decayed, edges_pruned)
+            Dict with statistics (edges_decayed, edges_pruned, delta_seconds)
         """
         if not self.config.enable_decay:
             logger.debug("Decay is disabled in configuration")
@@ -109,9 +109,7 @@ class DecayManager:
             "delta_seconds": delta_seconds,
         }
 
-    def prune_weak_edges(
-        self, user_id: str, threshold: float | None = None
-    ) -> int:
+    def prune_weak_edges(self, user_id: str, threshold: float | None = None) -> int:
         """Prune edges below a weight threshold.
 
         Args:
@@ -136,7 +134,9 @@ class DecayManager:
             except nx.NetworkXError:
                 pass
 
-        logger.info(f"Pruned {len(edges_to_remove)} weak edges (threshold={threshold:.4f})")
+        logger.info(
+            f"Pruned {len(edges_to_remove)} weak edges (threshold={threshold:.4f})"
+        )
 
         return len(edges_to_remove)
 
@@ -237,7 +237,9 @@ class DecayManager:
                 try:
                     if node_id in self.graph.graph.nodes:
                         self.graph.graph.nodes[node_id]["long_term"] = True
-                        self.graph.graph.nodes[node_id]["consolidated_at"] = datetime.utcnow()
+                        self.graph.graph.nodes[node_id]["consolidated_at"] = (
+                            datetime.utcnow()
+                        )
                         promoted.append(node_id)
                         logger.debug(
                             f"Promoted node {node_id} to long-term "

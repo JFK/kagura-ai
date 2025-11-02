@@ -5,7 +5,7 @@ including hyperparameters for Hebbian learning, activation spreading, scoring,
 and forgetting mechanisms.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -116,7 +116,9 @@ class NeuralMemoryConfig:
         """Validate configuration parameters."""
         # Validate ranges
         if not (0.0 <= self.learning_rate <= 1.0):
-            raise ValueError(f"learning_rate must be in [0, 1], got {self.learning_rate}")
+            raise ValueError(
+                f"learning_rate must be in [0, 1], got {self.learning_rate}"
+            )
         if not (0.0 <= self.decay_lambda <= 1.0):
             raise ValueError(f"decay_lambda must be in [0, 1], got {self.decay_lambda}")
         if not self.weight_max > 0:
@@ -140,7 +142,9 @@ class NeuralMemoryConfig:
             )
 
         if not self.recency_tau_days > 0:
-            raise ValueError(f"recency_tau_days must be positive, got {self.recency_tau_days}")
+            raise ValueError(
+                f"recency_tau_days must be positive, got {self.recency_tau_days}"
+            )
         if not (0.0 <= self.importance_ema_alpha <= 1.0):
             raise ValueError(
                 f"importance_ema_alpha must be in [0, 1], got {self.importance_ema_alpha}"
@@ -158,7 +162,9 @@ class NeuralMemoryConfig:
         if not self.decay_rate >= 0:
             raise ValueError(f"decay_rate must be non-negative, got {self.decay_rate}")
         if not (0.0 <= self.prune_threshold <= 1.0):
-            raise ValueError(f"prune_threshold must be in [0, 1], got {self.prune_threshold}")
+            raise ValueError(
+                f"prune_threshold must be in [0, 1], got {self.prune_threshold}"
+            )
 
         if not self.consolidation_use_count_min > 0:
             raise ValueError(
@@ -170,16 +176,22 @@ class NeuralMemoryConfig:
             )
 
         if not self.gradient_clipping > 0:
-            raise ValueError(f"gradient_clipping must be positive, got {self.gradient_clipping}")
+            raise ValueError(
+                f"gradient_clipping must be positive, got {self.gradient_clipping}"
+            )
 
         if not self.batch_update_size > 0:
-            raise ValueError(f"batch_update_size must be positive, got {self.batch_update_size}")
+            raise ValueError(
+                f"batch_update_size must be positive, got {self.batch_update_size}"
+            )
         if not self.async_update_delay_ms >= 0:
             raise ValueError(
                 f"async_update_delay_ms must be non-negative, got {self.async_update_delay_ms}"
             )
         if not self.max_candidates_k > 0:
-            raise ValueError(f"max_candidates_k must be positive, got {self.max_candidates_k}")
+            raise ValueError(
+                f"max_candidates_k must be positive, got {self.max_candidates_k}"
+            )
 
     @property
     def scoring_weights_normalized(self) -> dict[str, float]:

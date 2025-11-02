@@ -15,8 +15,7 @@ Formula:
 
 import logging
 import math
-from datetime import datetime, timedelta
-from typing import Any
+from datetime import datetime
 
 import numpy as np
 
@@ -150,7 +149,9 @@ class UnifiedScorer:
 
         return results
 
-    def _calculate_recency_score(self, node: NeuralMemoryNode, current_time: datetime) -> float:
+    def _calculate_recency_score(
+        self, node: NeuralMemoryNode, current_time: datetime
+    ) -> float:
         """Calculate recency score with exponential decay.
 
         Formula:
@@ -205,13 +206,18 @@ class UnifiedScorer:
         # Use frequency (log-scaled to [0, 1])
         if node.use_count > 0:
             # Log scale: log(1+count) / log(1+ref) normalizes based on reference count
-            log_frequency = math.log(1 + node.use_count) / math.log(1 + LOG_FREQUENCY_REFERENCE_COUNT)
+            log_frequency = math.log(1 + node.use_count) / math.log(
+                1 + LOG_FREQUENCY_REFERENCE_COUNT
+            )
             log_frequency = min(1.0, log_frequency)  # Clamp to [0, 1]
         else:
             log_frequency = 0.0
 
         # Weighted combination
-        importance_score = IMPORTANCE_STORED_WEIGHT * stored_importance + IMPORTANCE_FREQUENCY_WEIGHT * log_frequency
+        importance_score = (
+            IMPORTANCE_STORED_WEIGHT * stored_importance
+            + IMPORTANCE_FREQUENCY_WEIGHT * log_frequency
+        )
 
         return importance_score
 
@@ -320,7 +326,9 @@ class UnifiedScorer:
                 # Diversity (max similarity to selected)
                 if selected:
                     max_sim = max(
-                        self._cosine_similarity(result.node.embedding, sel.node.embedding)
+                        self._cosine_similarity(
+                            result.node.embedding, sel.node.embedding
+                        )
                         for sel in selected
                     )
                 else:

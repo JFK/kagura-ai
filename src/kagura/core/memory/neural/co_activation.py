@@ -35,14 +35,14 @@ class CoActivationTracker:
         self.config = config
 
         # Map: user_id -> list of (timestamp, set of activated node IDs)
-        self._activation_history: dict[str, list[tuple[datetime, set[str]]]] = defaultdict(
-            list
+        self._activation_history: dict[str, list[tuple[datetime, set[str]]]] = (
+            defaultdict(list)
         )
 
         # Map: user_id -> {(node_1, node_2): CoActivationRecord}
-        self._co_activation_records: dict[str, dict[tuple[str, str], CoActivationRecord]] = (
-            defaultdict(dict)
-        )
+        self._co_activation_records: dict[
+            str, dict[tuple[str, str], CoActivationRecord]
+        ] = defaultdict(dict)
 
     def record_activation(
         self,
@@ -128,7 +128,9 @@ class CoActivationTracker:
         Returns:
             List of co-activation records
         """
-        min_count = min_count if min_count is not None else self.config.min_co_activation_count
+        min_count = (
+            min_count if min_count is not None else self.config.min_co_activation_count
+        )
 
         records = list(self._co_activation_records[user_id].values())
 
