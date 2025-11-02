@@ -1,7 +1,7 @@
 # Kagura AI - Universal AI Memory Platform
 
 <p align="center">
-  <img src="docs/assets/kagura-logo.svg" alt="Kagura AI Logo" width="400">
+  <img src="https://raw.githubusercontent.com/JFK/kagura-ai/main/docs/assets/kagura-logo.svg" alt="Kagura AI Logo" width="400">
 </p>
 
 <p align="center">
@@ -14,7 +14,7 @@
   <a href="https://pypi.org/project/kagura-ai/"><img src="https://img.shields.io/pypi/v/kagura-ai.svg" alt="PyPI version"></a>
   <a href="https://pypi.org/project/kagura-ai/"><img src="https://img.shields.io/pypi/dm/kagura-ai.svg" alt="Downloads"></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/protocol-MCP-blue.svg" alt="MCP"></a>
-  <img src="https://img.shields.io/badge/status-beta-yellow.svg" alt="Status">
+  <img src="https://img.shields.io/badge/status-stable-green.svg" alt="Status">
 </p>
 
 **Kagura** is an open-source **MCP-enabled memory platform** that allows your **context and memories** to be **shared across** Claude, ChatGPT, Gemini, and all your AI agents.
