@@ -115,13 +115,19 @@ class NeuralMemoryConfig:
     def __post_init__(self) -> None:
         """Validate configuration parameters."""
         # Validate ranges
-        assert 0.0 <= self.learning_rate <= 1.0, "learning_rate must be in [0, 1]"
-        assert 0.0 <= self.decay_lambda <= 1.0, "decay_lambda must be in [0, 1]"
-        assert self.weight_max > 0, "weight_max must be positive"
-        assert self.top_m_edges > 0, "top_m_edges must be positive"
+        if not (0.0 <= self.learning_rate <= 1.0):
+            raise ValueError(f"learning_rate must be in [0, 1], got {self.learning_rate}")
+        if not (0.0 <= self.decay_lambda <= 1.0):
+            raise ValueError(f"decay_lambda must be in [0, 1], got {self.decay_lambda}")
+        if not self.weight_max > 0:
+            raise ValueError(f"weight_max must be positive, got {self.weight_max}")
+        if not self.top_m_edges > 0:
+            raise ValueError(f"top_m_edges must be positive, got {self.top_m_edges}")
 
-        assert 1 <= self.spread_hops <= 3, "spread_hops must be in [1, 3]"
-        assert 0.0 <= self.spread_decay <= 1.0, "spread_decay must be in [0, 1]"
+        if not (1 <= self.spread_hops <= 3):
+            raise ValueError(f"spread_hops must be in [1, 3], got {self.spread_hops}")
+        if not (0.0 <= self.spread_decay <= 1.0):
+            raise ValueError(f"spread_decay must be in [0, 1], got {self.spread_decay}")
 
         # Validate scoring weights (should sum to ~1.0 for primary signals)
         primary_sum = self.alpha + self.beta + self.gamma + self.delta + self.epsilon
@@ -133,31 +139,47 @@ class NeuralMemoryConfig:
                 "This may cause score normalization issues."
             )
 
-        assert self.recency_tau_days > 0, "recency_tau_days must be positive"
-        assert (
-            0.0 <= self.importance_ema_alpha <= 1.0
-        ), "importance_ema_alpha must be in [0, 1]"
+        if not self.recency_tau_days > 0:
+            raise ValueError(f"recency_tau_days must be positive, got {self.recency_tau_days}")
+        if not (0.0 <= self.importance_ema_alpha <= 1.0):
+            raise ValueError(
+                f"importance_ema_alpha must be in [0, 1], got {self.importance_ema_alpha}"
+            )
 
-        assert self.co_activation_window > 0, "co_activation_window must be positive"
-        assert (
-            self.min_co_activation_count > 0
-        ), "min_co_activation_count must be positive"
+        if not self.co_activation_window > 0:
+            raise ValueError(
+                f"co_activation_window must be positive, got {self.co_activation_window}"
+            )
+        if not self.min_co_activation_count > 0:
+            raise ValueError(
+                f"min_co_activation_count must be positive, got {self.min_co_activation_count}"
+            )
 
-        assert self.decay_rate >= 0, "decay_rate must be non-negative"
-        assert 0.0 <= self.prune_threshold <= 1.0, "prune_threshold must be in [0, 1]"
+        if not self.decay_rate >= 0:
+            raise ValueError(f"decay_rate must be non-negative, got {self.decay_rate}")
+        if not (0.0 <= self.prune_threshold <= 1.0):
+            raise ValueError(f"prune_threshold must be in [0, 1], got {self.prune_threshold}")
 
-        assert (
-            self.consolidation_use_count_min > 0
-        ), "consolidation_use_count_min must be positive"
-        assert (
-            0.0 <= self.consolidation_importance_min <= 1.0
-        ), "consolidation_importance_min must be in [0, 1]"
+        if not self.consolidation_use_count_min > 0:
+            raise ValueError(
+                f"consolidation_use_count_min must be positive, got {self.consolidation_use_count_min}"
+            )
+        if not (0.0 <= self.consolidation_importance_min <= 1.0):
+            raise ValueError(
+                f"consolidation_importance_min must be in [0, 1], got {self.consolidation_importance_min}"
+            )
 
-        assert self.gradient_clipping > 0, "gradient_clipping must be positive"
+        if not self.gradient_clipping > 0:
+            raise ValueError(f"gradient_clipping must be positive, got {self.gradient_clipping}")
 
-        assert self.batch_update_size > 0, "batch_update_size must be positive"
-        assert self.async_update_delay_ms >= 0, "async_update_delay_ms must be non-negative"
-        assert self.max_candidates_k > 0, "max_candidates_k must be positive"
+        if not self.batch_update_size > 0:
+            raise ValueError(f"batch_update_size must be positive, got {self.batch_update_size}")
+        if not self.async_update_delay_ms >= 0:
+            raise ValueError(
+                f"async_update_delay_ms must be non-negative, got {self.async_update_delay_ms}"
+            )
+        if not self.max_candidates_k > 0:
+            raise ValueError(f"max_candidates_k must be positive, got {self.max_candidates_k}")
 
     @property
     def scoring_weights_normalized(self) -> dict[str, float]:

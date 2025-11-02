@@ -75,10 +75,14 @@ class NeuralMemoryNode:
 
     def __post_init__(self) -> None:
         """Validate field values."""
-        assert 0.0 <= self.importance <= 1.0, "importance must be in [0, 1]"
-        assert 0.0 <= self.confidence <= 1.0, "confidence must be in [0, 1]"
-        assert self.use_count >= 0, "use_count must be non-negative"
-        assert len(self.embedding) > 0, "embedding must not be empty"
+        if not (0.0 <= self.importance <= 1.0):
+            raise ValueError(f"importance must be in [0, 1], got {self.importance}")
+        if not (0.0 <= self.confidence <= 1.0):
+            raise ValueError(f"confidence must be in [0, 1], got {self.confidence}")
+        if not self.use_count >= 0:
+            raise ValueError(f"use_count must be non-negative, got {self.use_count}")
+        if not len(self.embedding) > 0:
+            raise ValueError("embedding must not be empty")
 
 
 @dataclass
@@ -104,8 +108,10 @@ class ActivationState:
 
     def __post_init__(self) -> None:
         """Validate activation value."""
-        assert 0.0 <= self.activation <= 1.0, "activation must be in [0, 1]"
-        assert self.hop >= 0, "hop must be non-negative"
+        if not (0.0 <= self.activation <= 1.0):
+            raise ValueError(f"activation must be in [0, 1], got {self.activation}")
+        if not self.hop >= 0:
+            raise ValueError(f"hop must be non-negative, got {self.hop}")
 
 
 @dataclass

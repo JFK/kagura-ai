@@ -113,8 +113,13 @@ class NeuralMemoryEngine:
 
         # Extract query embedding (from RAG or provided)
         if query_embedding is None:
-            # TODO: Get embedding from RAG system
-            # For now, use first result's embedding as proxy (not ideal)
+            if not rag_results:
+                raise ValueError(
+                    "No RAG results available and no query embedding provided. "
+                    "Cannot perform neural memory recall."
+                )
+            # TODO: Get embedding from RAG system (MemoryRAG should expose embedding function)
+            # For now, use first result's embedding as proxy (not ideal but safe)
             query_embedding = rag_results[0][0].embedding
 
         # 2. Get seed nodes for activation spreading
@@ -369,8 +374,12 @@ class NeuralMemoryEngine:
             Embedding vector
         """
         # TODO: Expose embedding function from MemoryRAG
-        # For now, return dummy embedding
-        return [0.0] * 1024
+        # This is a critical missing integration point - MemoryRAG needs to expose its embedding model
+        raise NotImplementedError(
+            "Embedding generation not yet implemented. "
+            "MemoryRAG needs to expose its sentence-transformers embedding function. "
+            "Track in issue #348 Phase 2."
+        )
 
     async def _update_node_usage(self, user_id: str, node: NeuralMemoryNode) -> None:
         """Update node usage statistics.

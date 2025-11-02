@@ -23,6 +23,12 @@ import numpy as np
 from .activation import ActivationSpreader
 from .config import NeuralMemoryConfig
 from .models import NeuralMemoryNode, RecallResult
+from .utils import (
+    IMPORTANCE_FREQUENCY_WEIGHT,
+    IMPORTANCE_STORED_WEIGHT,
+    LOG_FREQUENCY_REFERENCE_COUNT,
+    SECONDS_PER_DAY,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -169,7 +175,7 @@ class UnifiedScorer:
 
         # Calculate age in days
         age_delta = current_time - reference_time
-        age_days = age_delta.total_seconds() / 86400.0  # 86400 = seconds per day
+        age_days = age_delta.total_seconds() / SECONDS_PER_DAY
 
         # Exponential decay
         tau_days = self.config.recency_tau_days
@@ -198,15 +204,14 @@ class UnifiedScorer:
 
         # Use frequency (log-scaled to [0, 1])
         if node.use_count > 0:
-            # Log scale: log(1+count) / log(1+100) maps [0,100] -> [0,1]
-            # This is a heuristic; adjust the reference count (100) as needed
-            log_frequency = math.log(1 + node.use_count) / math.log(1 + 100)
+            # Log scale: log(1+count) / log(1+ref) normalizes based on reference count
+            log_frequency = math.log(1 + node.use_count) / math.log(1 + LOG_FREQUENCY_REFERENCE_COUNT)
             log_frequency = min(1.0, log_frequency)  # Clamp to [0, 1]
         else:
             log_frequency = 0.0
 
         # Weighted combination
-        importance_score = 0.7 * stored_importance + 0.3 * log_frequency
+        importance_score = IMPORTANCE_STORED_WEIGHT * stored_importance + IMPORTANCE_FREQUENCY_WEIGHT * log_frequency
 
         return importance_score
 
@@ -266,11 +271,12 @@ class UnifiedScorer:
 
         cosine_sim = dot_product / (norm_v1 * norm_v2)
 
-        # Normalize to [0, 1] (assuming embeddings are typically positive)
-        # Note: cosine_sim is in [-1, 1], but for embeddings like E5, it's usually [0, 1]
-        normalized_sim = (cosine_sim + 1.0) / 2.0
-
-        return float(normalized_sim)
+        # E5 embeddings (multilingual-e5-large) are normalized and typically produce
+        # cosine similarities in [0, 1] range for semantically reasonable queries.
+        # We return the raw cosine_sim without additional normalization to avoid
+        # mapping [0,1] → [0.5,1.0] which would reduce discrimination.
+        # If negative similarities occur, they represent semantic opposition (rare for E5).
+        return float(max(0.0, cosine_sim))  # Clamp to [0, 1] for safety
 
     def mmr_rerank(
         self,

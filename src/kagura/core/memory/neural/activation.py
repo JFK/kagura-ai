@@ -140,6 +140,18 @@ class ActivationSpreader:
                 continue
 
             for dst_id in neighbors:
+                # GDPR compliance: Filter by user_id to prevent cross-user data leakage
+                if user_id is not None:
+                    try:
+                        dst_node_data = self.graph.graph.nodes[dst_id]
+                        node_user_id = dst_node_data.get("user_id")
+                        if node_user_id and node_user_id != user_id:
+                            # Skip nodes belonging to other users
+                            continue
+                    except (KeyError, nx.NetworkXError):
+                        # Node not found or missing data - skip for safety
+                        continue
+
                 # Get edge weight
                 try:
                     edge_data = self.graph.graph[src_id][dst_id]
