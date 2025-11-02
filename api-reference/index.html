@@ -1630,16 +1630,16 @@
 </ol>
 <hr />
 <h2 id="rest-api">🌐 REST API</h2>
-<p><strong>Base URL</strong>: <code>http://localhost:8080</code> (default)</p>
-<p><strong>Interactive Docs</strong>: http://localhost:8080/docs</p>
+<p><strong>Base URL</strong>: <code>http://localhost:8000</code> (default)</p>
+<p><strong>Interactive Docs</strong>: http://localhost:8000/docs</p>
 <h3 id="authentication">Authentication</h3>
 <p><strong>v4.0.0</strong>: Optional API Key authentication</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># With API key</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer kagura_abc123...&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">     </span>http://localhost:8080/api/v1/memory
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">     </span>http://localhost:8000/api/v1/memory
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Without (uses default_user)</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>curl<span class="w"> </span>http://localhost:8080/api/v1/memory
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>curl<span class="w"> </span>http://localhost:8000/api/v1/memory
 </code></pre></div>
 <p><strong>Headers</strong>:
 - <code>Authorization: Bearer &lt;api_key&gt;</code> - Optional API key
@@ -1758,7 +1758,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer kagura_abc123...&quot;</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">     </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">     </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;tools/list&quot;,&quot;params&quot;:{}}&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">     </span>http://localhost:8080/mcp
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">     </span>http://localhost:8000/mcp
 </code></pre></div></p>
 <p><strong>See</strong>: <a href="../mcp-http-setup/">MCP over HTTP/SSE Guide</a></p>
 <hr />
@@ -1859,13 +1859,13 @@
 <h3 id="using-api-keys">Using API Keys</h3>
 <p><strong>REST API</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer kagura_abc123...&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">     </span>http://localhost:8080/api/v1/memory
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">     </span>http://localhost:8000/api/v1/memory
 </code></pre></div></p>
 <p><strong>MCP over HTTP/SSE</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer kagura_abc123...&quot;</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">     </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">     </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;tools/list&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">     </span>http://localhost:8080/mcp
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">     </span>http://localhost:8000/mcp
 </code></pre></div></p>
 <p><strong>User ID Extraction</strong>:
 - API keys are associated with <code>user_id</code>
@@ -1873,10 +1873,10 @@
 - Fallback to <code>default_user</code> if no authentication</p>
 <hr />
 <h2 id="openapi-specification">📄 OpenAPI Specification</h2>
-<p><strong>Interactive Docs</strong>: http://localhost:8080/docs</p>
-<p><strong>OpenAPI JSON</strong>: http://localhost:8080/openapi.json</p>
+<p><strong>Interactive Docs</strong>: http://localhost:8000/docs</p>
+<p><strong>OpenAPI JSON</strong>: http://localhost:8000/openapi.json</p>
 <p><strong>Download</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>curl<span class="w"> </span>http://localhost:8080/openapi.json<span class="w"> </span>&gt;<span class="w"> </span>openapi.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>curl<span class="w"> </span>http://localhost:8000/openapi.json<span class="w"> </span>&gt;<span class="w"> </span>openapi.json
 </code></pre></div></p>
 <hr />
 <h2 id="related-documentation">🔗 Related Documentation</h2>

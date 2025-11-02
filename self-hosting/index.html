@@ -2028,7 +2028,7 @@
 <h3 id="api-workers">API Workers</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># Use gunicorn for multiple workers</span>
 <a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="c1"># Update api command in docker-compose.prod.yml:</span>
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>command:<span class="w"> </span>gunicorn<span class="w"> </span>kagura.api.server:app<span class="w"> </span>-w<span class="w"> </span><span class="m">4</span><span class="w"> </span>-k<span class="w"> </span>uvicorn.workers.UvicornWorker<span class="w"> </span>-b<span class="w"> </span><span class="m">0</span>.0.0.0:8080
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>command:<span class="w"> </span>gunicorn<span class="w"> </span>kagura.api.server:app<span class="w"> </span>-w<span class="w"> </span><span class="m">4</span><span class="w"> </span>-k<span class="w"> </span>uvicorn.workers.UvicornWorker<span class="w"> </span>-b<span class="w"> </span><span class="m">0</span>.0.0.0:8000
 </code></pre></div>
 <hr />
 <h2 id="related-documentation">🔗 Related Documentation</h2>
