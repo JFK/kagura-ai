@@ -58,6 +58,44 @@ docker compose logs -f api
 
 ## 🚨 一般的な問題
 
+### 問題 0: "No result received from client-side tool execution"
+
+**症状**:
+- MCPツールがハングしてタイムアウトする
+- エラー: "No result received from client-side tool execution"
+- メモリーツールの初回使用時に発生
+
+**根本原因**:
+初回実行時に埋め込みモデル（約500MB）をダウンロードするため、30〜60秒かかります。MCPクライアントがタイムアウトします。
+
+**解決策**: 埋め込みモデルを事前ダウンロード
+
+```bash
+# MCPメモリーツール使用前に一度だけ実行
+kagura memory setup
+```
+
+**出力**:
+```
+Kagura Memory Setup
+
+Downloading embeddings model: intfloat/multilingual-e5-large
+(~500MB, may take 30-60 seconds)
+
+✓ Model downloaded successfully!
+
+  Model: intfloat/multilingual-e5-large
+  Dimension: 1024
+
+MCP memory tools are now ready to use!
+```
+
+**セットアップ後**: MCPメモリーツールが即座に動作（タイムアウトなし）。
+
+**代替案**: Claude Codeのターミナルで最初の会話中にセットアップを実行。
+
+---
+
 ### 問題1: MCPサーバーが接続できない
 
 **症状**:

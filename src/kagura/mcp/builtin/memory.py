@@ -48,6 +48,11 @@ def _get_memory_manager(
 
     if cache_key not in _memory_cache:
         logger.debug(f"_get_memory_manager: Creating MemoryManager rag={enable_rag}")
+        if enable_rag:
+            logger.info(
+                f"First-time RAG initialization for {agent_name}. "
+                "Downloading embeddings model (~500MB, may take 30-60s)..."
+            )
         _memory_cache[cache_key] = MemoryManager(
             user_id=user_id, agent_name=agent_name, enable_rag=enable_rag
         )
@@ -129,7 +134,19 @@ async def memory_store(
     enable_rag = True
 
     try:
+        cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
+        is_first_init = cache_key not in _memory_cache
+
+        # If first initialization, this may download embeddings model (~500MB)
+        # which can take 30-60 seconds
+        if is_first_init:
+            # Note: We can't send intermediate progress via MCP tool return value,
+            # but we can include a notice in the final response
+            pass
+
         memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
+        initialization_note = " (initialized embeddings)" if is_first_init else ""
+
     except ImportError:
         # If RAG dependencies not available, create without RAG
         # But keep enable_rag=True for cache key consistency
@@ -141,6 +158,10 @@ async def memory_store(
                 user_id=user_id, agent_name=agent_name, enable_rag=False
             )
         memory = _memory_cache[cache_key]
+        initialization_note = ""
+    except Exception as e:
+        # Catch any initialization errors (timeouts, download failures, etc.)
+        return f"[ERROR] Failed to initialize memory: {str(e)[:200]}"
 
     # Parse tags and metadata from JSON strings
     try:
@@ -221,7 +242,8 @@ async def memory_store(
     scope_badge = "global" if agent_name == "global" else "local"
     rag_badge = "RAG:OK" if rag_available else "RAG:NO"
 
-    return f"[OK] Stored: {key} ({scope}, {scope_badge}, {rag_badge})"
+    result = f"[OK] Stored: {key} ({scope}, {scope_badge}, {rag_badge})"
+    return result + initialization_note
 
 
 @tool

@@ -58,6 +58,44 @@ docker compose logs -f api
 
 ## 🚨 Common Issues
 
+### Issue 0: "No result received from client-side tool execution"
+
+**Symptoms**:
+- MCP tool hangs and times out
+- Error: "No result received from client-side tool execution"
+- Happens on first use of memory tools
+
+**Root Cause**:
+First-time execution downloads embeddings model (~500MB), taking 30-60 seconds. MCP client times out waiting for response.
+
+**Solution**: Pre-download embeddings model
+
+```bash
+# Run this ONCE before using MCP memory tools
+kagura memory setup
+```
+
+**Output**:
+```
+Kagura Memory Setup
+
+Downloading embeddings model: intfloat/multilingual-e5-large
+(~500MB, may take 30-60 seconds)
+
+✓ Model downloaded successfully!
+
+  Model: intfloat/multilingual-e5-large
+  Dimension: 1024
+
+MCP memory tools are now ready to use!
+```
+
+**After setup**: MCP memory tools work instantly (no timeout).
+
+**Alternative**: Use Claude Code terminal to run setup during first conversation.
+
+---
+
 ### Issue 1: MCP Server Not Connecting
 
 **Symptoms**:

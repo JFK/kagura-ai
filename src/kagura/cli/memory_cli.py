@@ -406,3 +406,134 @@ def reindex_command(
     except Exception as e:
         console.print(f"\n[red]✗ Reindexing failed: {e}[/red]")
         raise click.Abort()
+
+
+@memory_group.command(name="setup")
+@click.option(
+    "--model",
+    default=None,
+    help="Embedding model (default: auto-detect based on OPENAI_API_KEY)",
+)
+@click.option(
+    "--provider",
+    type=click.Choice(["openai", "local"], case_sensitive=False),
+    default=None,
+    help="Force provider: 'openai' (API) or 'local' (sentence-transformers)",
+)
+def setup_command(model: str | None, provider: str | None) -> None:
+    """Pre-download embeddings model to avoid MCP timeout.
+
+    Downloads and initializes the embedding model used for semantic search.
+    Run this once before using MCP memory tools to prevent first-time timeouts.
+
+    Provider auto-detection:
+    - If OPENAI_API_KEY is set → OpenAI Embeddings API (text-embedding-3-large)
+    - Otherwise → Local model (intfloat/multilingual-e5-large, ~500MB download)
+
+    Examples:
+
+        # Auto-detect based on OPENAI_API_KEY
+        kagura memory setup
+
+        # Force OpenAI API (requires OPENAI_API_KEY)
+        kagura memory setup --provider openai
+
+        # Force local model
+        kagura memory setup --provider local
+
+        # Specific model
+        kagura memory setup --model intfloat/multilingual-e5-base
+    """
+    import os
+
+    from kagura.config.memory_config import EmbeddingConfig
+
+    console.print("\n[cyan]Kagura Memory Setup[/cyan]")
+    console.print()
+
+    # Auto-detect provider if not specified
+    has_openai_key = bool(os.getenv("OPENAI_API_KEY"))
+
+    if provider is None:
+        if has_openai_key:
+            provider = "openai"
+            console.print("[green]✓ OPENAI_API_KEY detected[/green]")
+        else:
+            provider = "local"
+            console.print("[yellow]⚠ OPENAI_API_KEY not set[/yellow]")
+        console.print(f"Using provider: [bold]{provider}[/bold]")
+        console.print()
+
+    # Set default model based on provider
+    if model is None:
+        if provider == "openai":
+            model = "text-embedding-3-large"
+        else:
+            model = "intfloat/multilingual-e5-large"
+
+    # Provider-specific setup
+    if provider == "openai":
+        console.print(f"Using OpenAI Embeddings API: [bold]{model}[/bold]")
+        console.print("[dim](API-based, no download required)[/dim]")
+        console.print()
+
+        if not has_openai_key:
+            console.print("[red]✗ OPENAI_API_KEY not set[/red]")
+            console.print("\nSet your API key:")
+            console.print("  export OPENAI_API_KEY='sk-...'")
+            raise click.Abort()
+
+        try:
+            # Test OpenAI API
+            from openai import OpenAI
+
+            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+            with console.status("[bold green]Testing OpenAI API..."):
+                response = client.embeddings.create(
+                    input=["test"], model=model
+                )
+
+            console.print("[green]✓ OpenAI API configured successfully![/green]")
+            console.print()
+            console.print(f"  Model: {model}")
+            console.print(f"  Dimension: {len(response.data[0].embedding)}")
+            console.print()
+            console.print("[green]MCP memory tools ready (using OpenAI API)![/green]")
+            console.print()
+
+        except Exception as e:
+            console.print(f"\n[red]✗ OpenAI API test failed: {e}[/red]")
+            raise click.Abort()
+
+    else:  # local provider
+        console.print(f"Downloading local model: [bold]{model}[/bold]")
+        console.print("[dim](~500MB, may take 30-60 seconds)[/dim]")
+        console.print()
+
+        try:
+            from kagura.core.memory.embeddings import Embedder
+
+            config = EmbeddingConfig(model=model)
+
+            with console.status("[bold green]Downloading model..."):
+                embedder = Embedder(config)
+
+            # Test the model
+            test_embedding = embedder.encode_queries(["test"])
+
+            console.print("[green]✓ Model downloaded successfully![/green]")
+            console.print()
+            console.print(f"  Model: {model}")
+            console.print(f"  Dimension: {len(test_embedding[0])}")
+            console.print()
+            console.print("[green]MCP memory tools are now ready to use![/green]")
+            console.print()
+
+        except ImportError as e:
+            console.print(f"\n[red]✗ Missing dependency: {e}[/red]")
+            console.print("\nInstall with: pip install 'kagura-ai[memory]'")
+            raise click.Abort()
+        except Exception as e:
+            console.print(f"\n[red]✗ Setup failed: {e}[/red]")
+            raise click.Abort()

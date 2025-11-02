@@ -7,9 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.4] - 2025-11-03
+
+### ✨ Added
+
+- **`kagura memory setup` Command**: Pre-download embeddings to avoid MCP timeout (#485)
+  - Auto-detects provider based on OPENAI_API_KEY
+  - OpenAI API support: Uses `text-embedding-3-large` (no download, instant)
+  - Local model support: Downloads `intfloat/multilingual-e5-large` (~500MB)
+  - Options: `--provider openai|local`, `--model <model-name>`
+  - Prevents "No result received from client-side tool execution" error
+  - Usage: `kagura memory setup` (run once before using MCP memory tools)
+
+### 🐛 Fixed
+
+- **MCP memory_store Tool**: Improved error handling and user feedback
+  - Added try-catch for initialization errors (embeddings download timeouts, etc.)
+  - Returns clear error messages instead of silent failures
+  - Added initialization notice when downloading embeddings model
+  - Helps diagnose "No result received from client-side tool execution" errors
+
+### 📝 Documentation
+
+- **Troubleshooting Guide** (EN/JA): Added "No result received" error solution
+  - Clear instructions to run `kagura memory setup` before first use
+  - Explains root cause (embeddings download timeout)
+  - Documents both OpenAI API and local model options
+
+---
+
+## [4.0.2] - 2025-11-02
+
+**Complete release** with both wheel and sdist. Identical functionality to v4.0.0.
+
+### 🐛 Fixed
+
+- **PyPI Release**: Complete package upload with both distribution files
+  - Previous v4.0.0 had only `.whl` file (sdist upload failed)
+  - v4.0.2 includes both `kagura_ai-4.0.2-py3-none-any.whl` and `kagura_ai-4.0.2.tar.gz`
+  - No functional changes from v4.0.0
+
+---
+
 ## [4.0.0] - 2025-11-02
 
 **Note**: Package name changed from `kagura-ai` to `kagura_ai` for PyPI compatibility. Users can still install with `pip install kagura-ai` (PyPI normalizes names).
+
+**Note**: v4.0.0 PyPI release was incomplete (missing sdist). Use v4.0.2 instead.
 
 ### 🔧 Package Changes
 
