@@ -167,7 +167,8 @@ class TestCoActivationRecord:
             user_id="user_123",
         )
 
-        assert record.average_activation_product == 0.8  # 2.4 / 3
+        # Use approximate equality for floating point
+        assert abs(record.average_activation_product - 0.8) < 1e-6  # 2.4 / 3
 
     def test_average_activation_product_zero_count(self):
         """Test average_activation_product with zero count."""

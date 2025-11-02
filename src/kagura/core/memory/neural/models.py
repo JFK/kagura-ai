@@ -176,7 +176,8 @@ class RecallResult:
 
     def __post_init__(self) -> None:
         """Validate score."""
-        assert self.score >= 0.0, "score must be non-negative"
+        if not self.score >= 0.0:
+            raise ValueError(f"score must be non-negative, got {self.score}")
 
 
 @dataclass

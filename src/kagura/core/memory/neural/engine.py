@@ -15,8 +15,9 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from ..graph.memory import GraphMemory
-from ..memory.rag import MemoryRAG
+from kagura.core.graph.memory import GraphMemory
+from kagura.core.memory.rag import MemoryRAG
+
 from .activation import ActivationSpreader
 from .co_activation import CoActivationTracker
 from .config import NeuralMemoryConfig

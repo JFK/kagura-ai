@@ -22,7 +22,8 @@ import logging
 from collections import defaultdict
 from datetime import datetime
 
-from ..graph.memory import GraphMemory
+from kagura.core.graph.memory import GraphMemory
+
 from .config import NeuralMemoryConfig
 from .models import ActivationState, HebbianUpdate, NeuralMemoryNode
 

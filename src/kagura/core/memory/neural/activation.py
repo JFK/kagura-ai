@@ -18,7 +18,8 @@ from typing import Any
 
 import networkx as nx
 
-from ..graph.memory import GraphMemory
+from kagura.core.graph.memory import GraphMemory
+
 from .config import NeuralMemoryConfig
 from .models import ActivationState
 

@@ -175,7 +175,23 @@ class UnifiedScorer:
             reference_time = node.last_used_at
 
         # Calculate age in days
-        age_delta = current_time - reference_time
+        # Handle timezone-aware and naive datetimes
+        try:
+            age_delta = current_time - reference_time
+        except TypeError:
+            # Mixed timezone-aware and naive - make both naive for comparison
+            if current_time.tzinfo is not None:
+                current_time_naive = current_time.replace(tzinfo=None)
+            else:
+                current_time_naive = current_time
+
+            if reference_time.tzinfo is not None:
+                reference_time_naive = reference_time.replace(tzinfo=None)
+            else:
+                reference_time_naive = reference_time
+
+            age_delta = current_time_naive - reference_time_naive
+
         age_days = age_delta.total_seconds() / SECONDS_PER_DAY
 
         # Exponential decay
