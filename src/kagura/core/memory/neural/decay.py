@@ -71,8 +71,8 @@ class DecayManager:
         edges_to_remove = []
         edges_decayed = 0
 
-        for src, dst, data in self.graph.graph.edges(data=True):
-            current_weight = data.get("weight", 0.0)
+        for src, dst, data in self.graph.graph.edges(data=True):  # type: ignore[misc]
+            current_weight = data.get("weight", 0.0) if data else 0.0
 
             # Calculate decay factor
             # Note: decay_rate is per-second rate
@@ -124,8 +124,8 @@ class DecayManager:
 
         edges_to_remove = []
 
-        for src, dst, data in self.graph.graph.edges(data=True):
-            weight = data.get("weight", 0.0)
+        for src, dst, data in self.graph.graph.edges(data=True):  # type: ignore[misc]
+            weight = data.get("weight", 0.0) if data else 0.0
             if weight < threshold:
                 edges_to_remove.append((src, dst))
 
@@ -159,7 +159,10 @@ class DecayManager:
 
         nodes_to_remove = []
 
-        for node_id, node_data in self.graph.graph.nodes(data=True):
+        for node_id, node_data in self.graph.graph.nodes(data=True):  # type: ignore[misc]
+            if not node_data:
+                continue
+
             # Check if this is a memory node (has created_at)
             created_at = node_data.get("created_at")
             if not created_at:
@@ -265,8 +268,8 @@ class DecayManager:
         weights = []
         neural_edges = 0
 
-        for _, _, data in self.graph.graph.edges(data=True):
-            if data.get("type") == "neural_association":
+        for _, _, data in self.graph.graph.edges(data=True):  # type: ignore[misc]
+            if data and data.get("type") == "neural_association":
                 neural_edges += 1
                 weight = data.get("weight", 0.0)
                 weights.append(weight)

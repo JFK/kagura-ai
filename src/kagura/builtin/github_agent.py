@@ -99,8 +99,8 @@ async def gh_safe_exec(
         executor = ShellExecutor(allowed_commands=["gh"], working_dir=Path(working_dir))
         result = await executor.exec(command)
 
-        if result.returncode != 0:
-            return f"❌ Command failed (exit {result.returncode}):\n{result.stderr}"
+        if result.return_code != 0:
+            return f"❌ Command failed (exit {result.return_code}):\n{result.stderr}"
 
         return result.stdout if result.stdout else result.stderr
 

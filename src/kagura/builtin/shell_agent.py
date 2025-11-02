@@ -101,9 +101,9 @@ async def shell_safe_exec(
         executor = ShellExecutor(working_dir=Path(working_dir))
         result = await executor.exec(command)
 
-        if result.returncode != 0:
+        if result.return_code != 0:
             error_msg = (
-                f"❌ Command failed (exit code {result.returncode})\n"
+                f"❌ Command failed (exit code {result.return_code})\n"
                 f"Command: {command}\n"
                 f"Error: {result.stderr}"
             )

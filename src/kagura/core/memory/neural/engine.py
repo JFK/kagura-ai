@@ -231,7 +231,7 @@ class NeuralMemoryEngine:
         )
 
         # Store in RAG (vector search)
-        await self.rag.store(
+        self.rag.store(
             content=text,
             user_id=user_id,
             metadata={
@@ -273,7 +273,7 @@ class NeuralMemoryEngine:
 
         return True
 
-    async def consolidate(self, user_id: str) -> dict[str, int]:
+    async def consolidate(self, user_id: str) -> dict[str, int | float]:
         """Run consolidation process (short-term → long-term).
 
         Args:
@@ -285,7 +285,7 @@ class NeuralMemoryEngine:
         # Get all nodes for user
         user_nodes = []
         for node_id, node_data in self.graph.graph.nodes(data=True):
-            if node_data.get("user_id") == user_id:
+            if node_data and node_data.get("user_id") == user_id:
                 user_nodes.append({"id": node_id, **node_data})
 
         # Promote qualifying nodes
@@ -323,9 +323,7 @@ class NeuralMemoryEngine:
             List of (NeuralMemoryNode, similarity_score) tuples
         """
         # Query RAG
-        rag_results = await self.rag.recall(
-            query=query_text, user_id=user_id, top_k=top_k
-        )
+        rag_results = self.rag.recall(query=query_text, user_id=user_id, top_k=top_k)
 
         # Convert to NeuralMemoryNode
         results = []
