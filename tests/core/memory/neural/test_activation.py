@@ -12,13 +12,13 @@ def graph():
     """Create test graph with some nodes."""
     g = GraphMemory()
     # Add test nodes
-    g.add_node("node_a", "memory", user_id="user1")
-    g.add_node("node_b", "memory", user_id="user1")
-    g.add_node("node_c", "memory", user_id="user1")
+    g.add_node("node_a", "memory", data={"user_id": "user1"})
+    g.add_node("node_b", "memory", data={"user_id": "user1"})
+    g.add_node("node_c", "memory", data={"user_id": "user1"})
 
-    # Add edges with weights
-    g.add_edge("node_a", "node_b", "neural_association", weight=0.8)
-    g.add_edge("node_b", "node_c", "neural_association", weight=0.6)
+    # Add edges with weights (using existing edge type)
+    g.add_edge("node_a", "node_b", "related_to", weight=0.8)
+    g.add_edge("node_b", "node_c", "related_to", weight=0.6)
 
     return g
 
@@ -102,9 +102,9 @@ class TestActivationSpreader:
     def test_user_id_filtering(self, spreader):
         """Test user_id filtering prevents cross-user data leakage."""
         # Add node for different user
-        spreader.graph.add_node("node_other", "memory", user_id="user2")
+        spreader.graph.add_node("node_other", "memory", data={"user_id": "user2"})
         spreader.graph.add_edge(
-            "node_a", "node_other", "neural_association", weight=0.9
+            "node_a", "node_other", "related_to", weight=0.9
         )
 
         # Spread with user_id filter

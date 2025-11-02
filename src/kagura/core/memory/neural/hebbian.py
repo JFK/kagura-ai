@@ -251,13 +251,13 @@ class HebbianLearner:
                 self.graph.graph[src_id][dst_id]["weight"] = new_weight
                 self.graph.graph[src_id][dst_id]["last_updated"] = datetime.utcnow()
             else:
-                # Create new edge
+                # Create new edge (using 'learned_from' as the closest existing edge type)
                 self.graph.add_edge(
                     src_id=src_id,
                     dst_id=dst_id,
-                    rel_type="neural_association",  # Special type for neural edges
+                    rel_type="learned_from",  # Use existing edge type for compatibility
                     weight=new_weight,
-                    metadata={"created_by": "hebbian_learning"},
+                    metadata={"created_by": "hebbian_learning", "neural_association": True},
                     confidence=1.0,
                 )
 

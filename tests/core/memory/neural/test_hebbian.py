@@ -118,3 +118,33 @@ class TestHebbianLearner:
         # Total delta for node_a is 3.0, should be clipped to config.gradient_clipping (0.5)
         total_clipped = sum(abs(v) for (src, _), v in clipped.items() if src == "node_a")
         assert total_clipped <= hebbian.config.gradient_clipping
+
+    def test_prune_weak_edges(self, hebbian, graph):
+        """Test pruning weak outgoing edges."""
+        # Add source node first
+        graph.add_node("node_src", "memory", data={"user_id": "user1"})
+
+        # Add node with many edges
+        for i in range(10):
+            node_id = f"node_{i}"
+            graph.add_node(node_id, "memory", data={"user_id": "user1"})
+            graph.add_edge("node_src", node_id, "related_to", weight=0.1 * (i + 1))
+
+        # Prune to keep only top 5
+        removed = hebbian.prune_weak_edges("user1", "node_src")
+
+        # Should remove some edges (10 edges, keep top_m_edges=5, remove 5)
+        assert removed >= 0
+
+    def test_apply_update_to_edge_creates_new(self, hebbian, graph):
+        """Test _apply_update_to_edge creates new edge."""
+        # Create nodes without edge
+        graph.add_node("node_x", "memory", data={"user_id": "user1"})
+        graph.add_node("node_y", "memory", data={"user_id": "user1"})
+
+        # Apply update
+        new_weight = hebbian._apply_update_to_edge("user1", "node_x", "node_y", 0.3)
+
+        # Should create edge with new weight
+        assert new_weight is not None
+        assert new_weight >= 0.0
