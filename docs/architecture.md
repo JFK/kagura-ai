@@ -75,7 +75,7 @@ ChatGPT                         Your Server
                                        │
                                ┌───────▼───────┐
                                │  Kagura API   │
-                               │  (Port 8080)  │
+                               │  (Port 8000)  │
                                │               │
                                │  /mcp         │◄─ HTTP/SSE
                                │  /api/v1/*    │◄─ REST
@@ -346,7 +346,7 @@ Docker Stack (docker-compose.prod.yml)
 └──────────────────┬──────────────────────┘
                    │
 ┌──────────────────▼──────────────────────┐
-│       Kagura API (Port 8080)            │
+│       Kagura API (Port 8000)            │
 │    FastAPI + MCP over HTTP/SSE          │
 └──────┬──────────────────────┬───────────┘
        │                      │

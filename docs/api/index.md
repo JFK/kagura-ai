@@ -271,7 +271,7 @@ The OpenAPI spec can be regenerated from the running server:
 
 ```bash
 # Start server
-uvicorn kagura.api.server:app --port 8080
+uvicorn kagura.api.server:app --port 8000
 
 # Download current spec
 curl http://localhost:8000/openapi.json > docs/api/reference.json
