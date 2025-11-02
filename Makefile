@@ -70,7 +70,7 @@ clean:
 .PHONY: docs
 docs:
 	@echo "Building documentation..."
-	$(VENV_DIR)/bin/pip install mkdocs mkdocs-material
+	$(VENV_DIR)/bin/pip install mkdocs mkdocs-material mkdocs-static-i18n
 	$(VENV_DIR)/bin/mkdocs build
 	@echo "Done. Documentation is in site/"
 
