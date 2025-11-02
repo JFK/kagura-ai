@@ -4,7 +4,6 @@ Provides diagnostic utilities for MCP server and related services.
 """
 
 import json
-from pathlib import Path
 from typing import Any
 
 import httpx
@@ -13,7 +12,7 @@ import httpx
 class MCPDiagnostics:
     """MCP server diagnostics and health checks."""
 
-    def __init__(self, api_base_url: str = "http://localhost:8080"):
+    def __init__(self, api_base_url: str = "http://localhost:8000"):
         """Initialize diagnostics.
 
         Args:
@@ -87,8 +86,11 @@ class MCPDiagnostics:
         Returns:
             Status dict
         """
-        # Claude Desktop config path
-        config_path = Path.home() / ".config" / "claude" / "claude_desktop_config.json"
+        # Use MCPConfig to get platform-specific path
+        from kagura.mcp.config import MCPConfig
+
+        mcp_config = MCPConfig()
+        config_path = mcp_config.claude_config_path
 
         if not config_path.exists():
             return {

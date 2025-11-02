@@ -10,11 +10,8 @@ import logging
 
 from kagura import tool
 from kagura.builtin.github_agent import (
-    gh_issue_list_safe,
-    gh_issue_view_safe,
     gh_pr_create_safe,
     gh_pr_merge_safe,
-    gh_pr_view_safe,
     gh_safe_exec,
 )
 
@@ -60,10 +57,26 @@ async def github_issue_view(issue_number: int) -> str:
         github_issue_view(348)
     """
 
-    issue_data = await gh_issue_view_safe(issue_number)
+    # Execute gh command directly (bypassing agent to avoid LLM call)
+    import json
+    from pathlib import Path
 
-    if "error" in issue_data:
-        return f"Error: {issue_data['error']}"
+    from kagura.core.shell import ShellExecutor
+
+    cmd = f"gh issue view {issue_number} --json number,title,body,state,labels,comments"
+
+    try:
+        executor = ShellExecutor(allowed_commands=["gh"], working_dir=Path("."))
+        exec_result = await executor.exec(cmd)
+
+        if exec_result.return_code != 0:
+            return f"Error: {exec_result.stderr}"
+
+        issue_data = json.loads(exec_result.stdout)
+    except json.JSONDecodeError:
+        return f"Error: Failed to parse issue data\n{exec_result.stdout}"
+    except Exception as e:
+        return f"Error: {e}"
 
     # Format nicely for display
     output = f"# Issue #{issue_number}: {issue_data.get('title', 'N/A')}\n\n"
@@ -101,8 +114,29 @@ async def github_pr_view(pr_number: int | None = None) -> str:
         github_pr_view(465)
         github_pr_view()  # Auto-detect from branch
     """
+    # Execute gh command directly
+    import json
+    from pathlib import Path
 
-    pr_data = await gh_pr_view_safe(pr_number)
+    from kagura.core.shell import ShellExecutor
+
+    if pr_number:
+        cmd = f"gh pr view {pr_number} --json number,title,body,state,commits,files"
+    else:
+        cmd = "gh pr view --json number,title,body,state,commits,files"
+
+    try:
+        executor = ShellExecutor(allowed_commands=["gh"], working_dir=Path("."))
+        exec_result = await executor.exec(cmd)
+
+        if exec_result.return_code != 0:
+            return f"Error: {exec_result.stderr}"
+
+        pr_data = json.loads(exec_result.stdout)
+    except json.JSONDecodeError:
+        return f"Error: Failed to parse PR data\n{exec_result.stdout}"
+    except Exception as e:
+        return f"Error: {e}"
 
     if "error" in pr_data:
         return f"Error: {pr_data['error']}"
@@ -141,7 +175,29 @@ async def github_issue_list(state: str = "open", limit: int = 30) -> str:
     Example:
         github_issue_list("open", 10)
     """
-    issues = await gh_issue_list_safe(state, limit)
+    # Execute gh command directly
+    import json
+    from pathlib import Path
+
+    from kagura.core.shell import ShellExecutor
+
+    cmd = (
+        f"gh issue list --state {state} --limit {limit} "
+        f"--json number,title,state,labels"
+    )
+
+    try:
+        executor = ShellExecutor(allowed_commands=["gh"], working_dir=Path("."))
+        exec_result = await executor.exec(cmd)
+
+        if exec_result.return_code != 0:
+            return f"Error: {exec_result.stderr}"
+
+        issues = json.loads(exec_result.stdout)
+    except json.JSONDecodeError:
+        return f"Error: Failed to parse issues\n{exec_result.stdout}"
+    except Exception as e:
+        return f"Error: {e}"
 
     if not issues:
         return f"No {state} issues found."

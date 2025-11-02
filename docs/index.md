@@ -105,7 +105,7 @@ kagura mcp install  # Auto-configure
 **ChatGPT Connector** (remote, 24 safe tools):
 ```bash
 docker compose up -d
-# Connect ChatGPT to http://localhost:8080/mcp
+# Connect ChatGPT to http://localhost:8000/mcp
 # Safe tools only (no file ops, no shell)
 ```
 
@@ -145,7 +145,7 @@ kagura mcp install
 
 ```bash
 docker compose up -d
-# Configure ChatGPT Connector: http://localhost:8080/mcp
+# Configure ChatGPT Connector: http://localhost:8000/mcp
 ```
 
 [ChatGPT Connector Setup →](mcp-http-setup.md)

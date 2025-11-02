@@ -21,7 +21,7 @@ async def store_to_kagura(key: str, value: str) -> str:
     """Store data to Kagura Memory via REST API"""
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            "http://localhost:8080/api/v1/memory",
+            "http://localhost:8000/api/v1/memory",
             json={
                 "key": key,
                 "value": value,
@@ -48,7 +48,7 @@ async def store_to_kagura(key: str, value: str) -> str:
 const axios = require('axios');
 
 async function storeMemory(key, value) {
-  const response = await axios.post('http://localhost:8080/api/v1/memory', {
+  const response = await axios.post('http://localhost:8000/api/v1/memory', {
     key: key,
     value: value,
     scope: 'persistent'
@@ -82,7 +82,7 @@ func storeMemory(key, value string) error {
 
     body, _ := json.Marshal(payload)
     req, _ := http.NewRequest("POST",
-        "http://localhost:8080/api/v1/memory",
+        "http://localhost:8000/api/v1/memory",
         bytes.NewBuffer(body))
     req.Header.Set("Content-Type", "application/json")
     req.Header.Set("X-User-ID", "go_client")
@@ -108,7 +108,7 @@ func storeMemory(key, value string) error {
 import axios from 'axios';
 
 const KaguraClient = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
+  baseURL: 'http://localhost:8000/api/v1',
   headers: {
     'X-User-ID': 'web_user_123',
     'Authorization': `Bearer ${localStorage.getItem('kagura_api_key')}`
@@ -151,7 +151,7 @@ const results = ref([]);
 
 async function search() {
   const response = await axios.post(
-    'http://localhost:8080/api/v1/recall',
+    'http://localhost:8000/api/v1/recall',
     { query: query.value, k: 5 }
   );
   results.value = response.data.results;
@@ -186,7 +186,7 @@ async def github_webhook(request: Request):
             # Kagura APIに保存
             async with httpx.AsyncClient() as client:
                 await client.post(
-                    "http://localhost:8080/api/v1/memory",
+                    "http://localhost:8000/api/v1/memory",
                     json={
                         "key": f"commit_{commit['id']}",
                         "value": commit['message'],
@@ -208,11 +208,11 @@ from datetime import datetime
 async def daily_memory_snapshot():
     async with httpx.AsyncClient() as client:
         # メトリクス取得
-        metrics = await client.get("http://localhost:8080/api/v1/metrics")
+        metrics = await client.get("http://localhost:8000/api/v1/metrics")
 
         # スナップショット保存
         await client.post(
-            "http://localhost:8080/api/v1/memory",
+            "http://localhost:8000/api/v1/memory",
             json={
                 "key": f"snapshot_{datetime.now().isoformat()}",
                 "value": metrics.json(),
@@ -239,7 +239,7 @@ async def daily_memory_snapshot():
 async def process_and_store(data):
     async with httpx.AsyncClient() as client:
         await client.post(
-            "http://kagura-api:8080/api/v1/memory",
+            "http://kagura-api:8000/api/v1/memory",
             json={
                 "key": f"user_{user_id}_preference",
                 "value": data,
@@ -251,7 +251,7 @@ async def process_and_store(data):
 async def fetch_user_preference(user_id):
     async with httpx.AsyncClient() as client:
         response = await client.get(
-            f"http://kagura-api:8080/api/v1/memory/user_{user_id}_preference"
+            f"http://kagura-api:8000/api/v1/memory/user_{user_id}_preference"
         )
         return response.json()
 ```
@@ -289,7 +289,7 @@ class KaguraClient:
 
     def __init__(
         self,
-        base_url: str = "http://localhost:8080",
+        base_url: str = "http://localhost:8000",
         api_key: Optional[str] = None,
         user_id: str = "default_user"
     ):

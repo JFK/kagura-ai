@@ -405,7 +405,7 @@ command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
 ```bash
 # Use gunicorn for multiple workers
 # Update api command in docker-compose.prod.yml:
-command: gunicorn kagura.api.server:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8080
+command: gunicorn kagura.api.server:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
 ```
 
 ---

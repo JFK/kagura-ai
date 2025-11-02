@@ -163,7 +163,7 @@ related = await memory.query_graph(
 
 ```bash
 # Start remote MCP server
-kagura api serve --host 0.0.0.0 --port 8080
+kagura api serve --host 0.0.0.0 --port 8000
 
 # Create API key
 kagura api create-key --name "chatgpt"

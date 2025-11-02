@@ -36,6 +36,7 @@ dependencies = [
     "python-frontmatter>=1.0.0",
     "arxiv>=2.2.0",
     "brave-search-python-client>=0.4.0",  # Brave Search API (MCP core feature)
+    "psutil>=5.9.0",  # Required by brave-search-python-client (missing from their deps)
 ]
 
 [project.scripts]

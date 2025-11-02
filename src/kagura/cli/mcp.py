@@ -211,7 +211,7 @@ def list(ctx: click.Context):
 
 
 @mcp.command()
-@click.option("--api-url", default="http://localhost:8080", help="API server URL")
+@click.option("--api-url", default="http://localhost:8000", help="API server URL")
 @click.pass_context
 def doctor(ctx: click.Context, api_url: str):
     """Run MCP diagnostics

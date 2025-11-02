@@ -18,9 +18,9 @@ Comprehensive reference for Kagura's REST API and MCP tools.
 
 ## 🌐 REST API
 
-**Base URL**: `http://localhost:8080` (default)
+**Base URL**: `http://localhost:8000` (default)
 
-**Interactive Docs**: http://localhost:8080/docs
+**Interactive Docs**: http://localhost:8000/docs
 
 ### Authentication
 
@@ -29,10 +29,10 @@ Comprehensive reference for Kagura's REST API and MCP tools.
 ```bash
 # With API key
 curl -H "Authorization: Bearer kagura_abc123..." \
-     http://localhost:8080/api/v1/memory
+     http://localhost:8000/api/v1/memory
 
 # Without (uses default_user)
-curl http://localhost:8080/api/v1/memory
+curl http://localhost:8000/api/v1/memory
 ```
 
 **Headers**:
@@ -205,7 +205,7 @@ System metrics.
 curl -H "Authorization: Bearer kagura_abc123..." \
      -H "Content-Type: application/json" \
      -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
-     http://localhost:8080/mcp
+     http://localhost:8000/mcp
 ```
 
 **See**: [MCP over HTTP/SSE Guide](mcp-http-setup.md)
@@ -349,7 +349,7 @@ kagura api revoke-key --name "my-key"
 **REST API**:
 ```bash
 curl -H "Authorization: Bearer kagura_abc123..." \
-     http://localhost:8080/api/v1/memory
+     http://localhost:8000/api/v1/memory
 ```
 
 **MCP over HTTP/SSE**:
@@ -357,7 +357,7 @@ curl -H "Authorization: Bearer kagura_abc123..." \
 curl -H "Authorization: Bearer kagura_abc123..." \
      -H "Content-Type: application/json" \
      -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
-     http://localhost:8080/mcp
+     http://localhost:8000/mcp
 ```
 
 **User ID Extraction**:
@@ -369,13 +369,13 @@ curl -H "Authorization: Bearer kagura_abc123..." \
 
 ## 📄 OpenAPI Specification
 
-**Interactive Docs**: http://localhost:8080/docs
+**Interactive Docs**: http://localhost:8000/docs
 
-**OpenAPI JSON**: http://localhost:8080/openapi.json
+**OpenAPI JSON**: http://localhost:8000/openapi.json
 
 **Download**:
 ```bash
-curl http://localhost:8080/openapi.json > openapi.json
+curl http://localhost:8000/openapi.json > openapi.json
 ```
 
 ---
