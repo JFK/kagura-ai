@@ -27,6 +27,13 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     "dir_list": {"remote": False},
     # Shell execution - DANGEROUS (arbitrary code execution)
     "shell_exec": {"remote": False},
+    # GitHub operations - READ operations SAFE, WRITE operations DANGEROUS
+    "github_exec": {"remote": False},  # General executor - dangerous
+    "github_issue_view": {"remote": True},  # Read-only - safe
+    "github_issue_list": {"remote": True},  # Read-only - safe
+    "github_pr_view": {"remote": True},  # Read-only - safe
+    "github_pr_create": {"remote": False},  # Write operation - dangerous
+    "github_pr_merge": {"remote": False},  # Write operation - very dangerous
     # Media operations - DANGEROUS (local application execution)
     "media_open_audio": {"remote": False},
     "media_open_image": {"remote": False},
