@@ -110,7 +110,8 @@ class HebbianLearner:
                 )
 
         logger.debug(
-            f"Queued {len(self._update_queue[user_id])} Hebbian updates for user {user_id}"
+            f"Queued {len(self._update_queue[user_id])} Hebbian updates "
+            f"for user {user_id}"
         )
 
     def apply_updates(self, user_id: str) -> int:
@@ -251,7 +252,8 @@ class HebbianLearner:
                 self.graph.graph[src_id][dst_id]["weight"] = new_weight
                 self.graph.graph[src_id][dst_id]["last_updated"] = datetime.utcnow()
             else:
-                # Create new edge (using 'learned_from' as the closest existing edge type)
+                # Create new edge (using 'learned_from')
+                # This is the closest existing edge type
                 self.graph.add_edge(
                     src_id=src_id,
                     dst_id=dst_id,
@@ -265,7 +267,8 @@ class HebbianLearner:
                 )
 
             logger.debug(
-                f"Updated edge ({src_id}, {dst_id}): {current_weight:.4f} -> {new_weight:.4f} (Δ={delta_w:.4f})"
+                f"Updated edge ({src_id}, {dst_id}): "
+                f"{current_weight:.4f} -> {new_weight:.4f} (Δ={delta_w:.4f})"
             )
             return new_weight
 
@@ -301,7 +304,8 @@ class HebbianLearner:
                 scale = self.config.gradient_clipping / total_delta
                 clipped_deltas[(src_id, dst_id)] = delta_w * scale
                 logger.debug(
-                    f"Clipped gradient for node {src_id}: {delta_w:.4f} -> {delta_w * scale:.4f}"
+                    f"Clipped gradient for node {src_id}: "
+                    f"{delta_w:.4f} -> {delta_w * scale:.4f}"
                 )
             else:
                 clipped_deltas[(src_id, dst_id)] = delta_w

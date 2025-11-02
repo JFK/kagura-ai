@@ -147,16 +147,19 @@ class NeuralMemoryConfig:
             )
         if not (0.0 <= self.importance_ema_alpha <= 1.0):
             raise ValueError(
-                f"importance_ema_alpha must be in [0, 1], got {self.importance_ema_alpha}"
+                f"importance_ema_alpha must be in [0, 1], "
+                f"got {self.importance_ema_alpha}"
             )
 
         if not self.co_activation_window > 0:
             raise ValueError(
-                f"co_activation_window must be positive, got {self.co_activation_window}"
+                f"co_activation_window must be positive, "
+                f"got {self.co_activation_window}"
             )
         if not self.min_co_activation_count > 0:
             raise ValueError(
-                f"min_co_activation_count must be positive, got {self.min_co_activation_count}"
+                f"min_co_activation_count must be positive, "
+                f"got {self.min_co_activation_count}"
             )
 
         if not self.decay_rate >= 0:
@@ -168,11 +171,13 @@ class NeuralMemoryConfig:
 
         if not self.consolidation_use_count_min > 0:
             raise ValueError(
-                f"consolidation_use_count_min must be positive, got {self.consolidation_use_count_min}"
+                f"consolidation_use_count_min must be positive, "
+                f"got {self.consolidation_use_count_min}"
             )
         if not (0.0 <= self.consolidation_importance_min <= 1.0):
             raise ValueError(
-                f"consolidation_importance_min must be in [0, 1], got {self.consolidation_importance_min}"
+                f"consolidation_importance_min must be in [0, 1], "
+                f"got {self.consolidation_importance_min}"
             )
 
         if not self.gradient_clipping > 0:
@@ -186,7 +191,8 @@ class NeuralMemoryConfig:
             )
         if not self.async_update_delay_ms >= 0:
             raise ValueError(
-                f"async_update_delay_ms must be non-negative, got {self.async_update_delay_ms}"
+                f"async_update_delay_ms must be non-negative, "
+                f"got {self.async_update_delay_ms}"
             )
         if not self.max_candidates_k > 0:
             raise ValueError(

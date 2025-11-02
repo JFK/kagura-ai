@@ -297,7 +297,8 @@ class UnifiedScorer:
         # cosine similarities in [0, 1] range for semantically reasonable queries.
         # We return the raw cosine_sim without additional normalization to avoid
         # mapping [0,1] → [0.5,1.0] which would reduce discrimination.
-        # If negative similarities occur, they represent semantic opposition (rare for E5).
+        # If negative similarities occur, they represent semantic opposition
+        # (rare for E5).
         return float(max(0.0, cosine_sim))  # Clamp to [0, 1] for safety
 
     def mmr_rerank(

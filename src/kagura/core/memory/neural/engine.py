@@ -121,7 +121,8 @@ class NeuralMemoryEngine:
                     "No RAG results available and no query embedding provided. "
                     "Cannot perform neural memory recall."
                 )
-            # TODO: Get embedding from RAG system (MemoryRAG should expose embedding function)
+            # TODO: Get embedding from RAG system
+            # MemoryRAG should expose embedding function
             # For now, use first result's embedding as proxy (not ideal but safe)
             query_embedding = rag_results[0][0].embedding
 
@@ -375,7 +376,8 @@ class NeuralMemoryEngine:
             Embedding vector
         """
         # TODO: Expose embedding function from MemoryRAG
-        # This is a critical missing integration point - MemoryRAG needs to expose its embedding model
+        # This is a critical missing integration point
+        # MemoryRAG needs to expose its embedding model
         raise NotImplementedError(
             "Embedding generation not yet implemented. "
             "MemoryRAG needs to expose its sentence-transformers embedding function. "

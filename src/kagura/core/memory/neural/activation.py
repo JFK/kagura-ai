@@ -215,7 +215,8 @@ class ActivationSpreader:
             max_hops: Maximum hops to consider (default: config.spread_hops)
 
         Returns:
-            Association score [0, 1] (0 = not reachable, 1 = direct neighbor with high weight)
+            Association score [0, 1]
+            (0 = not reachable, 1 = direct neighbor with high weight)
         """
         if not seed_nodes:
             return 0.0
