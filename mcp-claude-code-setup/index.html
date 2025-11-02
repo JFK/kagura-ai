@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://www.kagura-ai.com/mcp-setup/">
+        <link rel="canonical" href="https://www.kagura-ai.com/mcp-claude-code-setup/">
       
       
-        <link rel="prev" href="../quickstart/">
+        <link rel="prev" href="../mcp-setup/">
       
       
-        <link rel="next" href="../mcp-claude-code-setup/">
+        <link rel="next" href="../mcp-http-setup/">
       
       
       <link rel="icon" href="../assets/kagura-icon.svg">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Claude Desktop - Kagura AI Documentation</title>
+        <title>Claude Code - Kagura AI Documentation</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mcp-setup-guide-claude-desktop-integration" class="md-skip">
+        <a href="#mcp-setup-guide-claude-code-integration" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Claude Desktop
+              Claude Code
             
           </span>
         </div>
@@ -360,6 +360,29 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Desktop
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -377,7 +400,7 @@
   
   
   <span class="md-ellipsis">
-    Claude Desktop
+    Claude Code
     
   </span>
   
@@ -390,7 +413,7 @@
   
   
   <span class="md-ellipsis">
-    Claude Desktop
+    Claude Code
     
   </span>
   
@@ -422,46 +445,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#automatic-setup-recommended" class="md-nav__link">
+  <a href="#quick-setup" class="md-nav__link">
     <span class="md-ellipsis">
-      ⚡ Automatic Setup (Recommended)
+      ⚡ Quick Setup
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#manual-setup-alternative" class="md-nav__link">
-    <span class="md-ellipsis">
-      🔧 Manual Setup (Alternative)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🔧 Manual Setup (Alternative)">
+    <nav class="md-nav" aria-label="⚡ Quick Setup">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1-locate-claude-desktop-config" class="md-nav__link">
+  <a href="#step-1-install-kagura" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 1: Locate Claude Desktop Config
+      Step 1: Install Kagura
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2-edit-configuration" class="md-nav__link">
+  <a href="#step-2-add-mcp-server-to-claude-code" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 2: Edit Configuration
+      Step 2: Add MCP Server to Claude Code
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-3-restart-claude-desktop" class="md-nav__link">
+  <a href="#step-3-verify-connection" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 3: Restart Claude Desktop
+      Step 3: Verify Connection
     </span>
   </a>
   
@@ -473,28 +487,55 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#verify-integration" class="md-nav__link">
+  <a href="#available-tools" class="md-nav__link">
     <span class="md-ellipsis">
-      ✅ Verify Integration
+      🧠 Available Tools
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="✅ Verify Integration">
+    <nav class="md-nav" aria-label="🧠 Available Tools">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#method-1-ask-claude" class="md-nav__link">
+  <a href="#core-memory-tools-4" class="md-nav__link">
     <span class="md-ellipsis">
-      Method 1: Ask Claude
+      Core Memory Tools (4)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#method-2-check-diagnostics" class="md-nav__link">
+  <a href="#knowledge-graph-tools-3" class="md-nav__link">
     <span class="md-ellipsis">
-      Method 2: Check Diagnostics
+      Knowledge Graph Tools (3)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-tools-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search Tools (6)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coding-tools-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      Coding Tools (14)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-tools-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub Tools (6)
     </span>
   </a>
   
@@ -506,37 +547,79 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-memory-tools" class="md-nav__link">
+  <a href="#usage-examples" class="md-nav__link">
     <span class="md-ellipsis">
-      🧠 Available Memory Tools
+      🎯 Usage Examples
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🧠 Available Memory Tools">
+    <nav class="md-nav" aria-label="🎯 Usage Examples">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#core-tools" class="md-nav__link">
+  <a href="#basic-memory-operations" class="md-nav__link">
     <span class="md-ellipsis">
-      Core Tools
+      Basic Memory Operations
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#memory-scopes" class="md-nav__link">
+  <a href="#knowledge-graph" class="md-nav__link">
     <span class="md-ellipsis">
-      Memory Scopes
+      Knowledge Graph
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-interactions" class="md-nav__link">
+  <a href="#coding-session" class="md-nav__link">
     <span class="md-ellipsis">
-      Example Interactions
+      Coding Session
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Advanced Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Advanced Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#remote-mode-safe-tools-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote Mode (Safe Tools Only)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-server-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Server Name
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
     </span>
   </a>
   
@@ -558,15 +641,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#claude-desktop-doesnt-see-kagura-tools" class="md-nav__link">
-    <span class="md-ellipsis">
-      Claude Desktop doesn't see Kagura tools
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#kagura-command-not-found" class="md-nav__link">
     <span class="md-ellipsis">
       "kagura command not found"
@@ -576,9 +650,51 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#memory-not-persisting-across-conversations" class="md-nav__link">
+  <a href="#check-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Memory not persisting across conversations
+      Check Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove-and-re-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove and Re-add
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Monitoring
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Monitoring">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#view-tool-usage-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      View Tool Usage Statistics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-server-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      View Server Logs
     </span>
   </a>
   
@@ -599,11 +715,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#related" class="md-nav__link">
+  <a href="#related-documentation" class="md-nav__link">
     <span class="md-ellipsis">
-      🔗 Related
+      🔗 Related Documentation
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Additional Resources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Additional Resources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#claude-code-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Claude Code Documentation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kagura-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kagura Documentation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -611,29 +760,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../mcp-claude-code-setup/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Claude Code
-    
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1115,46 +1241,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#automatic-setup-recommended" class="md-nav__link">
+  <a href="#quick-setup" class="md-nav__link">
     <span class="md-ellipsis">
-      ⚡ Automatic Setup (Recommended)
+      ⚡ Quick Setup
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#manual-setup-alternative" class="md-nav__link">
-    <span class="md-ellipsis">
-      🔧 Manual Setup (Alternative)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🔧 Manual Setup (Alternative)">
+    <nav class="md-nav" aria-label="⚡ Quick Setup">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1-locate-claude-desktop-config" class="md-nav__link">
+  <a href="#step-1-install-kagura" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 1: Locate Claude Desktop Config
+      Step 1: Install Kagura
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2-edit-configuration" class="md-nav__link">
+  <a href="#step-2-add-mcp-server-to-claude-code" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 2: Edit Configuration
+      Step 2: Add MCP Server to Claude Code
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-3-restart-claude-desktop" class="md-nav__link">
+  <a href="#step-3-verify-connection" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 3: Restart Claude Desktop
+      Step 3: Verify Connection
     </span>
   </a>
   
@@ -1166,28 +1283,55 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#verify-integration" class="md-nav__link">
+  <a href="#available-tools" class="md-nav__link">
     <span class="md-ellipsis">
-      ✅ Verify Integration
+      🧠 Available Tools
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="✅ Verify Integration">
+    <nav class="md-nav" aria-label="🧠 Available Tools">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#method-1-ask-claude" class="md-nav__link">
+  <a href="#core-memory-tools-4" class="md-nav__link">
     <span class="md-ellipsis">
-      Method 1: Ask Claude
+      Core Memory Tools (4)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#method-2-check-diagnostics" class="md-nav__link">
+  <a href="#knowledge-graph-tools-3" class="md-nav__link">
     <span class="md-ellipsis">
-      Method 2: Check Diagnostics
+      Knowledge Graph Tools (3)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-tools-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search Tools (6)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coding-tools-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      Coding Tools (14)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-tools-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub Tools (6)
     </span>
   </a>
   
@@ -1199,37 +1343,79 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-memory-tools" class="md-nav__link">
+  <a href="#usage-examples" class="md-nav__link">
     <span class="md-ellipsis">
-      🧠 Available Memory Tools
+      🎯 Usage Examples
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🧠 Available Memory Tools">
+    <nav class="md-nav" aria-label="🎯 Usage Examples">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#core-tools" class="md-nav__link">
+  <a href="#basic-memory-operations" class="md-nav__link">
     <span class="md-ellipsis">
-      Core Tools
+      Basic Memory Operations
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#memory-scopes" class="md-nav__link">
+  <a href="#knowledge-graph" class="md-nav__link">
     <span class="md-ellipsis">
-      Memory Scopes
+      Knowledge Graph
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-interactions" class="md-nav__link">
+  <a href="#coding-session" class="md-nav__link">
     <span class="md-ellipsis">
-      Example Interactions
+      Coding Session
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Advanced Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Advanced Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#remote-mode-safe-tools-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote Mode (Safe Tools Only)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-server-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Server Name
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
     </span>
   </a>
   
@@ -1251,15 +1437,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#claude-desktop-doesnt-see-kagura-tools" class="md-nav__link">
-    <span class="md-ellipsis">
-      Claude Desktop doesn't see Kagura tools
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#kagura-command-not-found" class="md-nav__link">
     <span class="md-ellipsis">
       "kagura command not found"
@@ -1269,9 +1446,51 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#memory-not-persisting-across-conversations" class="md-nav__link">
+  <a href="#check-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Memory not persisting across conversations
+      Check Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove-and-re-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove and Re-add
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Monitoring
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Monitoring">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#view-tool-usage-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      View Tool Usage Statistics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-server-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      View Server Logs
     </span>
   </a>
   
@@ -1292,11 +1511,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#related" class="md-nav__link">
+  <a href="#related-documentation" class="md-nav__link">
     <span class="md-ellipsis">
-      🔗 Related
+      🔗 Related Documentation
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Additional Resources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Additional Resources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#claude-code-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Claude Code Documentation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kagura-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kagura Documentation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1316,213 +1568,322 @@
 
 
 
-<h1 id="mcp-setup-guide-claude-desktop-integration">MCP Setup Guide - Claude Desktop Integration</h1>
+<h1 id="mcp-setup-guide-claude-code-integration">MCP Setup Guide - Claude Code Integration</h1>
 <blockquote>
-<p><strong>Connect Kagura to Claude Desktop in 2 minutes</strong></p>
+<p><strong>Connect Kagura to Claude Code in 2 minutes</strong></p>
 </blockquote>
-<p>This guide shows how to integrate Kagura's universal memory with Claude Desktop using the Model Context Protocol (MCP).</p>
+<p>This guide shows how to integrate Kagura's universal memory with Claude Code (Anthropic's official CLI) using the Model Context Protocol (MCP).</p>
 <hr />
 <h2 id="prerequisites">📋 Prerequisites</h2>
 <ul>
 <li>Kagura AI v4.0+ installed</li>
-<li>Claude Desktop (supports MCP)</li>
+<li>Claude Code CLI (Anthropic's official CLI tool)</li>
 </ul>
 <hr />
-<h2 id="automatic-setup-recommended">⚡ Automatic Setup (Recommended)</h2>
-<p>Kagura can automatically configure Claude Desktop for you:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Install Kagura MCP server to Claude Desktop</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>install
+<h2 id="quick-setup">⚡ Quick Setup</h2>
+<h3 id="step-1-install-kagura">Step 1: Install Kagura</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Install with full dependencies</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>full<span class="o">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Or install from source</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/JFK/kagura-ai.git
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nb">cd</span><span class="w"> </span>kagura-ai
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>uv<span class="w"> </span>sync<span class="w"> </span>--all-extras
+</code></pre></div>
+<h3 id="step-2-add-mcp-server-to-claude-code">Step 2: Add MCP Server to Claude Code</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Add Kagura as an MCP server</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>kagura<span class="w"> </span>--<span class="w"> </span>kagura<span class="w"> </span>mcp<span class="w"> </span>serve
 </code></pre></div>
 <p><strong>Output</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>✅ Successfully installed!
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Configuration:
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  Server name: kagura-memory
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  Command: kagura mcp serve
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  Config file: ~/.config/claude/claude_desktop_config.json
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>Next steps:
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  1. Restart Claude Desktop
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>  2. Start a new conversation
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>  3. Try: &#39;Remember that I prefer Python&#39;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Added stdio MCP server kagura with command: kagura mcp serve to local config
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>File modified: /home/user/.claude.json
 </code></pre></div></p>
-<p><strong>That's it!</strong> Kagura is now connected to Claude Desktop.</p>
-<hr />
-<h2 id="manual-setup-alternative">🔧 Manual Setup (Alternative)</h2>
-<p>If automatic setup doesn't work, you can manually edit the config file.</p>
-<h3 id="step-1-locate-claude-desktop-config">Step 1: Locate Claude Desktop Config</h3>
-<p><strong>macOS/Linux</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>~/.config/claude/claude_desktop_config.json
-</code></pre></div></p>
-<p><strong>Windows</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>%APPDATA%\Claude\claude_desktop_config.json
-</code></pre></div></p>
-<h3 id="step-2-edit-configuration">Step 2: Edit Configuration</h3>
-<p>Add Kagura to the <code>mcpServers</code> section:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">&quot;kagura-memory&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kagura&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">}</span>
+<h3 id="step-3-verify-connection">Step 3: Verify Connection</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Check MCP server status</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>claude<span class="w"> </span>mcp<span class="w"> </span>list
 </code></pre></div>
-<p><strong>Full example</strong>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&quot;kagura-memory&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kagura&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="nt">&quot;other-server&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;other-command&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;serve&quot;</span><span class="p">]</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">}</span>
+<p><strong>Expected output</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Checking MCP server health...
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>kagura: kagura mcp serve - ✓ Connected
 </code></pre></div></p>
-<h3 id="step-3-restart-claude-desktop">Step 3: Restart Claude Desktop</h3>
-<p>Close and reopen Claude Desktop to apply changes.</p>
+<p><strong>That's it!</strong> Kagura is now connected to Claude Code.</p>
 <hr />
-<h2 id="verify-integration">✅ Verify Integration</h2>
-<h3 id="method-1-ask-claude">Method 1: Ask Claude</h3>
-<p>Start a new conversation in Claude Desktop and try:</p>
-<blockquote>
-<p><strong>You</strong>: "Remember that I prefer Python over JavaScript for backend projects"</p>
-</blockquote>
-<p>Claude will use the <code>memory_store</code> tool to save this.</p>
-<blockquote>
-<p><strong>You</strong>: "What programming languages do I prefer?"</p>
-</blockquote>
-<p>Claude will use <code>memory_recall</code> or <code>memory_search</code> to retrieve the information.</p>
-<h3 id="method-2-check-diagnostics">Method 2: Check Diagnostics</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>doctor
-</code></pre></div>
-<p>Look for:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Claude Desktop │ ✅ configured │ Kagura MCP server configured
-</code></pre></div></p>
-<hr />
-<h2 id="available-memory-tools">🧠 Available Memory Tools</h2>
-<p>Once integrated, Claude has access to these memory tools:</p>
-<h3 id="core-tools">Core Tools</h3>
+<h2 id="available-tools">🧠 Available Tools</h2>
+<p>Once integrated, Claude Code has access to <strong>31 MCP tools</strong> across these categories:</p>
+<h3 id="core-memory-tools-4">Core Memory Tools (4)</h3>
 <table>
 <thead>
 <tr>
 <th>Tool</th>
 <th>Purpose</th>
-<th>Example</th>
+<th>Example Usage</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>memory_store</strong></td>
+<td><code>memory_store</code></td>
 <td>Save information</td>
-<td>"Remember X"</td>
+<td>"Remember that I prefer Python"</td>
 </tr>
 <tr>
-<td><strong>memory_recall</strong></td>
-<td>Get by key</td>
-<td>"What did I say about Y?"</td>
+<td><code>memory_recall</code></td>
+<td>Retrieve by key</td>
+<td>"What's my Python preference?"</td>
 </tr>
 <tr>
-<td><strong>memory_search</strong></td>
+<td><code>memory_search</code></td>
 <td>Semantic search</td>
-<td>"Find memories about Z"</td>
+<td>"Find memories about coding"</td>
 </tr>
 <tr>
-<td><strong>memory_list</strong></td>
-<td>List all memories</td>
-<td>"What do you remember about me?"</td>
-</tr>
-<tr>
-<td><strong>memory_feedback</strong></td>
-<td>Mark useful/outdated</td>
-<td>Automatic</td>
-</tr>
-<tr>
-<td><strong>memory_delete</strong></td>
-<td>Forget information</td>
+<td><code>memory_delete</code></td>
+<td>Remove memory</td>
 <td>"Forget about X"</td>
 </tr>
 </tbody>
 </table>
-<h3 id="memory-scopes">Memory Scopes</h3>
-<ul>
-<li><strong>working</strong>: Temporary, session-only (default)</li>
-<li><strong>persistent</strong>: Saved to disk, survives restart</li>
-</ul>
-<h3 id="example-interactions">Example Interactions</h3>
-<p><strong>Store persistent memory</strong>:</p>
-<blockquote>
-<p>"Remember that my favorite Python library is FastAPI. This is important and should be persistent."</p>
-</blockquote>
-<p><strong>Search memories</strong>:</p>
-<blockquote>
-<p>"What do you know about my coding preferences?"</p>
-</blockquote>
-<p><strong>Feedback</strong> (automatic):</p>
-<blockquote>
-<p>Claude automatically marks memories as "useful" when they help answer your questions.</p>
-</blockquote>
-<p><strong>Delete</strong>:</p>
-<blockquote>
-<p>"Forget about my old JavaScript preference"</p>
-</blockquote>
+<h3 id="knowledge-graph-tools-3">Knowledge Graph Tools (3)</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>graph_add_node</code></td>
+<td>Add concept</td>
+</tr>
+<tr>
+<td><code>graph_link</code></td>
+<td>Connect memories</td>
+</tr>
+<tr>
+<td><code>graph_query</code></td>
+<td>Multi-hop traversal</td>
+</tr>
+</tbody>
+</table>
+<h3 id="search-tools-6">Search Tools (6)</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>search_memories</code></td>
+<td>Hybrid search (BM25 + vector)</td>
+</tr>
+<tr>
+<td><code>search_brave</code></td>
+<td>Web search via Brave API</td>
+</tr>
+<tr>
+<td><code>search_arxiv</code></td>
+<td>Academic papers</td>
+</tr>
+<tr>
+<td>...</td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<h3 id="coding-tools-14">Coding Tools (14)</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>coding_store_file_change</code></td>
+<td>Track file modifications</td>
+</tr>
+<tr>
+<td><code>coding_store_error</code></td>
+<td>Log errors</td>
+</tr>
+<tr>
+<td><code>coding_store_design_decision</code></td>
+<td>Document design choices</td>
+</tr>
+<tr>
+<td><code>coding_summary</code></td>
+<td>AI-powered session summary</td>
+</tr>
+<tr>
+<td>...</td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<h3 id="github-tools-6">GitHub Tools (6)</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>github_shell_exec</code></td>
+<td>Safe shell execution</td>
+</tr>
+<tr>
+<td><code>github_issue_*</code></td>
+<td>Issue operations</td>
+</tr>
+<tr>
+<td><code>github_pr_*</code></td>
+<td>PR management</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Full list</strong>: Run <code>kagura mcp tools</code> to see all 31 tools.</p>
+<hr />
+<h2 id="usage-examples">🎯 Usage Examples</h2>
+<h3 id="basic-memory-operations">Basic Memory Operations</h3>
+<p><strong>Store a memory</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>User: Remember that I prefer Python over JavaScript for backend projects
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Claude: [Uses memory_store tool]
+</code></pre></div></p>
+<p><strong>Recall a memory</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>User: What programming languages do I prefer?
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Claude: [Uses memory_recall/search to retrieve the information]
+</code></pre></div></p>
+<h3 id="knowledge-graph">Knowledge Graph</h3>
+<p><strong>Link related memories</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>User: Connect my Python preference with FastAPI knowledge
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Claude: [Uses graph_link to create relationship]
+</code></pre></div></p>
+<p><strong>Find related concepts</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>User: What&#39;s related to my coding preferences?
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>Claude: [Uses graph_query for multi-hop traversal]
+</code></pre></div></p>
+<h3 id="coding-session">Coding Session</h3>
+<p><strong>Track file changes</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Claude: [Automatically uses coding_store_file_change when editing files]
+</code></pre></div></p>
+<p><strong>Summarize session</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>User: Summarize what we accomplished today
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Claude: [Uses coding_summary to analyze session history]
+</code></pre></div></p>
+<hr />
+<h2 id="advanced-configuration">🔧 Advanced Configuration</h2>
+<h3 id="remote-mode-safe-tools-only">Remote Mode (Safe Tools Only)</h3>
+<p>If you want to connect to a remote Kagura API:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Configure remote connection</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>connect
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Add remote MCP server</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>kagura-remote<span class="w"> </span>--<span class="w"> </span>kagura<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span>--remote
+</code></pre></div>
+<h3 id="custom-server-name">Custom Server Name</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Use custom name</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>my-kagura<span class="w"> </span>--<span class="w"> </span>kagura<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span>--name<span class="w"> </span>my-kagura
+</code></pre></div>
+<h3 id="environment-variables">Environment Variables</h3>
+<p>Add API keys for optional features:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Add with environment variables</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>kagura<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span>--env<span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span>sk-...<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span>--env<span class="w"> </span><span class="nv">BRAVE_API_KEY</span><span class="o">=</span>...<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">  </span>--<span class="w"> </span>kagura<span class="w"> </span>mcp<span class="w"> </span>serve
+</code></pre></div>
 <hr />
 <h2 id="troubleshooting">🔍 Troubleshooting</h2>
-<h3 id="claude-desktop-doesnt-see-kagura-tools">Claude Desktop doesn't see Kagura tools</h3>
-<p><strong>Check 1</strong>: Verify installation
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>doctor
-</code></pre></div></p>
-<p><strong>Check 2</strong>: Restart Claude Desktop
-- Quit Claude Desktop completely
-- Reopen it
-- Start a new conversation</p>
-<p><strong>Check 3</strong>: Check logs
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Claude Desktop logs (macOS)</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>tail<span class="w"> </span>-f<span class="w"> </span>~/Library/Logs/Claude/mcp*.log
-</code></pre></div></p>
 <h3 id="kagura-command-not-found">"kagura command not found"</h3>
-<p><strong>Solution</strong>: Use full path in config</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nt">&quot;kagura-memory&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/full/path/to/kagura&quot;</span><span class="p">,</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">]</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">}</span>
+<p><strong>Solution</strong>: Use full path</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Find kagura path</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>which<span class="w"> </span>kagura
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="c1"># Output: /home/user/.local/bin/kagura</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1"># Add with full path</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>kagura<span class="w"> </span>--<span class="w"> </span>/home/user/.local/bin/kagura<span class="w"> </span>mcp<span class="w"> </span>serve
 </code></pre></div>
-<p>Find full path:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>which<span class="w"> </span>kagura
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="c1"># Output: /home/user/.local/bin/kagura</span>
+<h3 id="check-configuration">Check Configuration</h3>
+<p><strong>View current configuration</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>claude<span class="w"> </span>mcp<span class="w"> </span>get<span class="w"> </span>kagura
 </code></pre></div></p>
-<h3 id="memory-not-persisting-across-conversations">Memory not persisting across conversations</h3>
-<p><strong>Cause</strong>: Using <code>scope="working"</code> (default)</p>
-<p><strong>Solution</strong>: Explicitly use <code>scope="persistent"</code></p>
-<p>Or tell Claude:</p>
-<blockquote>
-<p>"Remember this <strong>permanently</strong>: I prefer Python"</p>
-</blockquote>
+<p><strong>Check logs</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Kagura MCP server logs</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>log
+</code></pre></div></p>
+<h3 id="remove-and-re-add">Remove and Re-add</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Remove</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>claude<span class="w"> </span>mcp<span class="w"> </span>remove<span class="w"> </span>kagura
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Re-add</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>kagura<span class="w"> </span>--<span class="w"> </span>kagura<span class="w"> </span>mcp<span class="w"> </span>serve
+</code></pre></div>
+<hr />
+<h2 id="monitoring">📊 Monitoring</h2>
+<h3 id="view-tool-usage-statistics">View Tool Usage Statistics</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>stats
+</code></pre></div>
+<p><strong>Example output</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>MCP Tool Usage Statistics
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>─────────────────────────────────────────────────
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>Total calls: 156
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>Top tools:
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>  memory_store: 45 calls
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>  memory_search: 32 calls
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>  coding_store_file_change: 28 calls
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>  graph_link: 15 calls
+</code></pre></div></p>
+<h3 id="view-server-logs">View Server Logs</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Real-time logs</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>log<span class="w"> </span>--tail
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Last 100 lines</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>log<span class="w"> </span>--lines<span class="w"> </span><span class="m">100</span>
+</code></pre></div>
 <hr />
 <h2 id="uninstall">🚫 Uninstall</h2>
-<p>To remove Kagura from Claude Desktop:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>uninstall
+<p>To remove Kagura from Claude Code:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>claude<span class="w"> </span>mcp<span class="w"> </span>remove<span class="w"> </span>kagura
 </code></pre></div>
 <p>This removes the configuration but <strong>does not delete your stored memories</strong>.</p>
+<p>To delete memories:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># Export first (backup)</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>kagura<span class="w"> </span>memory<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--output<span class="o">=</span>./backup
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># Clear all memories</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>rm<span class="w"> </span>-rf<span class="w"> </span>~/.local/share/kagura/
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>rm<span class="w"> </span>-rf<span class="w"> </span>~/.cache/kagura/
+</code></pre></div></p>
 <hr />
-<h2 id="related">🔗 Related</h2>
+<h2 id="related-documentation">🔗 Related Documentation</h2>
 <ul>
+<li><a href="../mcp-setup/">MCP Setup (Claude Desktop)</a> - Claude Desktop integration</li>
+<li><a href="../mcp-http-setup/">MCP over HTTP/SSE</a> - Remote MCP setup</li>
 <li><a href="../getting-started/">Getting Started</a> - Installation guide</li>
 <li><a href="../api-reference/">API Reference</a> - REST API docs</li>
-<li><a href="../architecture/">Architecture</a> - System design</li>
 </ul>
 <hr />
-<p><strong>Version</strong>: 4.0.0a
-<strong>Last updated</strong>: 2025-10-26</p>
+<h2 id="additional-resources">📚 Additional Resources</h2>
+<h3 id="claude-code-documentation">Claude Code Documentation</h3>
+<ul>
+<li><a href="https://docs.claude.com/en/docs/claude-code">Claude Code Official Docs</a></li>
+<li><a href="https://modelcontextprotocol.io/">MCP Protocol</a></li>
+</ul>
+<h3 id="kagura-documentation">Kagura Documentation</h3>
+<ul>
+<li><a href="https://github.com/JFK/kagura-ai">GitHub Repository</a></li>
+<li><a href="https://pypi.org/project/kagura-ai/">PyPI Package</a></li>
+</ul>
+<hr />
+<p><strong>Version</strong>: 4.0.0
+<strong>Last updated</strong>: 2025-11-02</p>
 
 
 
