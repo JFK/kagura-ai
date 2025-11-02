@@ -66,7 +66,8 @@ class CodingAnalyzer:
             model: Default LLM model ID (None = use environment default)
                 Recommended:
                 - OpenAI: "gpt-5-mini" (fast), "gpt-5" (balanced)
-                - Google: "gemini/gemini-2.0-flash-exp" (fast), "gemini/gemini-2.5-pro" (premium)
+                - Google: "gemini/gemini-2.0-flash-exp" (fast),
+                  "gemini/gemini-2.5-pro" (premium)
                 - Anthropic: "claude-sonnet-4-5" (balanced)
             vision_model: Vision-capable model ID (None = use gpt-4o)
                 Recommended:
@@ -103,7 +104,8 @@ class CodingAnalyzer:
         self.call_costs: list[dict[str, Any]] = []
 
         logger.info(
-            f"CodingAnalyzer initialized: model={self.model}, vision={self.vision_model}"
+            f"CodingAnalyzer initialized: model={self.model}, "
+            f"vision={self.vision_model}"
         )
 
     def count_tokens(self, text: str) -> int:
@@ -602,7 +604,8 @@ class CodingAnalyzer:
 
         # Generate AI summary
         decisions_text = "\n".join(key_decisions_text)
-        summary_prompt = f"""Provide a 2-3 sentence high-level summary of the project based on:
+        summary_prompt = f"""Provide a 2-3 sentence high-level summary of the
+project based on:
 
 Project ID: {project_id}
 Recent Changes:
@@ -614,7 +617,9 @@ Key Decisions:
 Focus Area: {focus or "general overview"}"""
 
         summary = await self._call_llm(
-            system_prompt="You are a technical writer creating concise project summaries.",
+            system_prompt=(
+                "You are a technical writer creating concise project summaries."
+            ),
             user_prompt=summary_prompt,
             temperature=0.4,
             max_tokens=256,
@@ -666,7 +671,8 @@ Focus Area: {focus or "general overview"}"""
 
         issue_ref = f"Closes #{related_issue}" if related_issue else ""
 
-        system_prompt = """You are a technical writer creating pull request descriptions.
+        system_prompt = """You are a technical writer creating pull request
+descriptions.
 
 <role>
 Generate concise, informative PR descriptions that:
