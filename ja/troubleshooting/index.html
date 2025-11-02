@@ -1,0 +1,2692 @@
+
+<!doctype html>
+<html lang="ja" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Universal AI Memory Platform - MCP-native memory for all your AIs">
+      
+      
+      
+        <link rel="canonical" href="https://www.kagura-ai.com/ja/troubleshooting/">
+      
+      
+        <link rel="prev" href="../rest-api-usage/">
+      
+      
+        <link rel="next" href="../architecture/">
+      
+      
+      <link rel="icon" href="../../assets/kagura-icon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.21">
+    
+    
+      
+        <title>Troubleshooting - Kagura AI Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2a3383ac.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/custom.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="red">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          コンテンツにスキップ
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="ヘッダー">
+    <a href="../" title="Kagura AI Documentation" class="md-header__button md-logo" aria-label="Kagura AI Documentation" data-md-component="logo">
+      
+  <img src="../../assets/kagura-icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kagura AI Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Troubleshooting
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="言語切り替え">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../troubleshooting/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="ja" class="md-select__link">
+              日本語
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="検索" placeholder="検索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="検索">
+        
+        <button type="reset" class="md-search__icon md-icon" title="クリア" aria-label="クリア" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            検索を初期化
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="ナビゲーション" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../" title="Kagura AI Documentation" class="md-nav__button md-logo" aria-label="Kagura AI Documentation" data-md-component="logo">
+      
+  <img src="../../assets/kagura-icon.svg" alt="logo">
+
+    </a>
+    Kagura AI Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start (10 min)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MCP Integration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            MCP Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Desktop
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-claude-code-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Code
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-http-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remote MCP (ChatGPT)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            User Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chat-integration-tips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat Integration Tips
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../self-hosting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Self-Hosting Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory Export/Import
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rest-api-usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    REST API Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目次">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目次
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 クイック診断
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 クイック診断">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      ステップ1: Doctorコマンドを実行
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      ステップ2: サーバーステータスを確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 一般的な問題
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 一般的な問題">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題1: MCPサーバーが接続できない
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題1: MCPサーバーが接続できない">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: MCPサーバーを再起動（ローカル）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: コマンドパスを確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: パーミッションを確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題2: メモリーが保持されない
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題2: メモリーが保持されない">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: 永続的なスコープを使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-user_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: user_idを確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題3: ファイル操作が機能しない（リモートMCP）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題3: ファイル操作が機能しない（リモートMCP）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-mcp_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: ファイル操作にはローカルMCPを使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: コンテンツをコピー/ペースト（リモートMCP）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-v41" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: v4.1ファイルアップロードを待つ
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題4: 検索結果が返されない
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題4: 検索結果が返されない">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: メモリーの存在を確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: 正しい検索タイプを使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: フィルターを確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-user_idagent_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策D: user_idとagent_nameを確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題5: 高額なAPIコスト
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題5: 高額なAPIコスト">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: ローカル埋め込みを使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: 低トークン検索を使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: 検索頻度を減らす
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策D: コストを監視
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題6: パフォーマンスが遅い
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題6: パフォーマンスが遅い">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: 古いメモリーをクリーンアップ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-chromadb" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: ChromaDBを最適化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-bm25" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: 完全一致にはBM25を使用
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題7: 認証エラー（リモートMCP）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題7: 認証エラー（リモートMCP）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: APIキーを作成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-apimcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: APIキーでMCPを設定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: キーのパーミッションを確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題8: Dockerの問題
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題8: Dockerの問題">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: Dockerを起動
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: ポート競合を修正
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: Docker環境をリセット
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 高度なトラブルシューティング
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 高度なトラブルシューティング">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      デバッグログを有効化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      データベース整合性を確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      ベクトルインデックスを再構築
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      MCPツールを手動でテスト
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 サポートを受ける
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 サポートを受ける">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. ドキュメントを確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 既存の問題を検索
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. コミュニティに質問
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. バグを報告
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 診断チェックリスト
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Architecture Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Workflow Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Workflow Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/chatgpt-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ChatGPT Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/claude-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    REST API & MCP Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    OpenAPI Specification
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            OpenAPI Specification
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/reference.yaml" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    YAML Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JFK/kagura-ai/tree/main/examples" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code Examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    For Developers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            For Developers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    How to Contribute
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JFK/kagura-ai/blob/main/CODE_OF_CONDUCT.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code of Conduct
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目次">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目次
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 クイック診断
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 クイック診断">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      ステップ1: Doctorコマンドを実行
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      ステップ2: サーバーステータスを確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚨 一般的な問題
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚨 一般的な問題">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題1: MCPサーバーが接続できない
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題1: MCPサーバーが接続できない">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: MCPサーバーを再起動（ローカル）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: コマンドパスを確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: パーミッションを確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題2: メモリーが保持されない
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題2: メモリーが保持されない">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: 永続的なスコープを使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-user_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: user_idを確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題3: ファイル操作が機能しない（リモートMCP）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題3: ファイル操作が機能しない（リモートMCP）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-mcp_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: ファイル操作にはローカルMCPを使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: コンテンツをコピー/ペースト（リモートMCP）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-v41" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: v4.1ファイルアップロードを待つ
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題4: 検索結果が返されない
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題4: 検索結果が返されない">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: メモリーの存在を確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: 正しい検索タイプを使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: フィルターを確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-user_idagent_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策D: user_idとagent_nameを確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題5: 高額なAPIコスト
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題5: 高額なAPIコスト">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: ローカル埋め込みを使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: 低トークン検索を使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: 検索頻度を減らす
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策D: コストを監視
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題6: パフォーマンスが遅い
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題6: パフォーマンスが遅い">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: 古いメモリーをクリーンアップ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-chromadb" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: ChromaDBを最適化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-bm25" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: 完全一致にはBM25を使用
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題7: 認証エラー（リモートMCP）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題7: 認証エラー（リモートMCP）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: APIキーを作成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-apimcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: APIキーでMCPを設定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: キーのパーミッションを確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      問題8: Dockerの問題
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="問題8: Dockerの問題">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策A: Dockerを起動
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策B: ポート競合を修正
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      解決策C: Docker環境をリセット
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 高度なトラブルシューティング
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 高度なトラブルシューティング">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      デバッグログを有効化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      データベース整合性を確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      ベクトルインデックスを再構築
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      MCPツールを手動でテスト
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 サポートを受ける
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 サポートを受ける">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. ドキュメントを確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 既存の問題を検索
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. コミュニティに質問
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. バグを報告
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 診断チェックリスト
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">トラブルシューティングガイド</h1>
+<blockquote>
+<p><strong>Kagura AIの一般的な問題と解決策</strong></p>
+</blockquote>
+<p>このガイドは、Kagura AI統合に関する一般的な問題の診断と修正を支援します。</p>
+<hr />
+<h2 id="_2">🔍 クイック診断</h2>
+<h3 id="1-doctor">ステップ1: Doctorコマンドを実行</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>doctor
+</code></pre></div>
+<p><strong>期待される出力</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Kagura MCP Diagnostics
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>✅ Python version: 3.11.5
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>✅ Kagura installed: 4.0.0
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>✅ MCP server: Configured
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>✅ Database: Connected (342 memories)
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>✅ Vector store: Healthy (ChromaDB)
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>Configuration:
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>  Data dir: ~/.local/share/kagura
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>  Cache dir: ~/.cache/kagura
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>  Config dir: ~/.config/kagura
+</code></pre></div></p>
+<h3 id="2">ステップ2: サーバーステータスを確認</h3>
+<p><strong>ローカルMCP（Claude Desktop/Code）</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Claude Code</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>claude<span class="w"> </span>mcp<span class="w"> </span>list
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Kaguraログを確認</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>log<span class="w"> </span>--tail
+</code></pre></div></p>
+<p><strong>リモートMCP（ChatGPT）</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># APIヘルスチェック</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>curl<span class="w"> </span>http://localhost:8080/api/v1/health
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># MCPエンドポイントを確認</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>curl<span class="w"> </span>http://localhost:8080/mcp
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># ログを確認</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>api
+</code></pre></div></p>
+<hr />
+<h2 id="_3">🚨 一般的な問題</h2>
+<h3 id="1-mcp">問題1: MCPサーバーが接続できない</h3>
+<p><strong>症状</strong>:
+- ClaudeがKaguraツールを認識しない
+- 「サーバーが応答しません」エラー
+- ツールリストが空</p>
+<p><strong>診断</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Claude Code</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>claude<span class="w"> </span>mcp<span class="w"> </span>list
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># 表示されるべき内容: kagura: ✓ Connected</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># 接続されていない場合、ログを確認</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>log
+</code></pre></div>
+<p><strong>解決策</strong>:</p>
+<h4 id="a-mcp">解決策A: MCPサーバーを再起動（ローカル）</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Claude Desktop</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># 1. Claude Desktopを完全に終了</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># 2. Claude Desktopを再起動</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># 3. 新しい会話を開始</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1"># Claude Code</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># 1. サーバーを削除して再追加</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>claude<span class="w"> </span>mcp<span class="w"> </span>remove<span class="w"> </span>kagura
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>kagura<span class="w"> </span>--<span class="w"> </span>kagura<span class="w"> </span>mcp<span class="w"> </span>serve
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="c1"># 2. 確認</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>claude<span class="w"> </span>mcp<span class="w"> </span>list
+</code></pre></div>
+<h4 id="b">解決策B: コマンドパスを確認</h4>
+<p><strong>問題</strong>: <code>kagura: command not found</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># kaguraのパスを見つける</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>which<span class="w"> </span>kagura
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1"># 出力: /home/user/.local/bin/kagura</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># 設定でフルパスを使用</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>kagura<span class="w"> </span>--<span class="w"> </span>/home/user/.local/bin/kagura<span class="w"> </span>mcp<span class="w"> </span>serve
+</code></pre></div>
+<h4 id="c">解決策C: パーミッションを確認</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># kaguraが実行可能であることを確認</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>chmod<span class="w"> </span>+x<span class="w"> </span><span class="k">$(</span>which<span class="w"> </span>kagura<span class="k">)</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Python環境を確認</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>python<span class="w"> </span>--version<span class="w">  </span><span class="c1"># 3.11以上である必要があります</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>pip<span class="w"> </span>show<span class="w"> </span>kagura-ai<span class="w">  </span><span class="c1"># バージョン4.0.0以上を表示する必要があります</span>
+</code></pre></div>
+<hr />
+<h3 id="2_1">問題2: メモリーが保持されない</h3>
+<p><strong>症状</strong>:
+- 会話終了後にメモリーが消える
+- 次のセッションで「メモリーが見つかりません」
+- 進捗が失われる</p>
+<p><strong>診断</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># メモリー統計を確認</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>tools<span class="w">  </span><span class="c1"># Claudeで実行: &quot;Show memory stats&quot;</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># データベースを確認</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>ls<span class="w"> </span>-lh<span class="w"> </span>~/.local/share/kagura/memory.db
+</code></pre></div>
+<p><strong>解決策</strong>:</p>
+<h4 id="a">解決策A: 永続的なスコープを使用</h4>
+<p><strong>問題</strong>: デフォルトの<code>scope="working"</code>（一時的）を使用している</p>
+<p><strong>修正</strong>: 明示的に永続ストレージをリクエスト</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>❌ &quot;Remember that I prefer Python&quot;
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>✅ &quot;Remember PERMANENTLY: I prefer Python&quot;
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>✅ &quot;Save this with scope=&#39;persistent&#39;: I prefer Python&quot;
+</code></pre></div>
+<p><strong>プロンプト内で</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">memory_store</span><span class="p">(</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="n">key</span><span class="o">=</span><span class="s2">&quot;python_preference&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">value</span><span class="o">=</span><span class="s2">&quot;FastAPI over Django&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;persistent&quot;</span>  <span class="c1"># ← 重要!</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">)</span>
+</code></pre></div></p>
+<h4 id="b-user_id">解決策B: user_idを確認</h4>
+<p><strong>問題</strong>: 各セッションで異なる<code>user_id</code>を使用している</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a># セッション1
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>&quot;Remember for user_id=&#39;john&#39;: I prefer Python&quot;
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a># セッション2（異なるuser_id！）
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>&quot;What do I prefer?&quot;  # デフォルトのuser_idを使用 → 結果なし
+</code></pre></div>
+<p><strong>修正</strong>: 一貫した<code>user_id</code>を使用:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a># 常に同じuser_idを指定
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>&quot;For user_id=&#39;john&#39;: What programming languages do I prefer?&quot;
+</code></pre></div>
+<hr />
+<h3 id="3-mcp">問題3: ファイル操作が機能しない（リモートMCP）</h3>
+<p><strong>症状</strong>:
+- "file_read not found"
+- "ファイルにアクセスできません"
+- アップロードが機能しない</p>
+<p><strong>診断</strong>:</p>
+<p>これはリモートMCP（ChatGPT、Claude Chat）における<strong>期待される動作</strong>です。</p>
+<p><strong>理由</strong>: リモートMCPはHTTP/SSE経由で実行され、セキュリティ上の理由から直接ファイルシステムアクセスを持ちません。</p>
+<p><strong>解決策</strong>:</p>
+<h4 id="a-mcp_1">解決策A: ファイル操作にはローカルMCPを使用</h4>
+<p>Claude DesktopまたはClaude Codeに切り替え:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Claude Desktop</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>install
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Claude Code</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>--transport<span class="w"> </span>stdio<span class="w"> </span>kagura<span class="w"> </span>--<span class="w"> </span>kagura<span class="w"> </span>mcp<span class="w"> </span>serve
+</code></pre></div>
+<p>これで以下が使用できます:
+- <code>file_read</code>
+- <code>file_write</code>
+- <code>dir_list</code>
+- <code>media_open_*</code></p>
+<h4 id="b-mcp">解決策B: コンテンツをコピー/ペースト（リモートMCP）</h4>
+<p>リモートMCPを使用する必要がある場合:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a># &quot;Read config.py&quot;の代わりに
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a># → ファイルの内容をチャットにコピー/ペースト
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>ユーザー: &quot;これがconfig.pyの内容です:
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>      [内容をペースト]
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>      この設定を分析してください&quot;
+</code></pre></div>
+<h4 id="c-v41">解決策C: v4.1ファイルアップロードを待つ</h4>
+<p><strong>将来</strong>: マルチモーダルアップロードAPIはv4.1で計画されています</p>
+<p>参照: <a href="https://github.com/JFK/kagura-ai/issues/462">Issue #462</a></p>
+<hr />
+<h3 id="4">問題4: 検索結果が返されない</h3>
+<p><strong>症状</strong>:
+- <code>memory_search</code>が空を返す
+- "メモリーが見つかりません"
+- 保存された情報を見つけられない</p>
+<p><strong>診断</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a># Claude/ChatGPTで:
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>&quot;List all my memories&quot;
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>[memory_listを使用]
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>&quot;Show memory statistics&quot;
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>[memory_statsを使用]
+</code></pre></div>
+<p><strong>解決策</strong>:</p>
+<h4 id="a_1">解決策A: メモリーの存在を確認</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>&quot;List all memories&quot;
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a># 空の場合 → まだメモリーが保存されていない
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a># メモリーがある場合 → 次の解決策に進む
+</code></pre></div>
+<h4 id="b_1">解決策B: 正しい検索タイプを使用</h4>
+<p><strong>セマンティック検索</strong>（意味ベース）:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>✅ &quot;Find memories about backend development&quot;
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>✅ &quot;Search for information on API design&quot;
+</code></pre></div></p>
+<p><strong>正確なキー呼び出し</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>✅ &quot;Recall memory with key=&#39;python_preference&#39;&quot;
+</code></pre></div></p>
+<p><strong>誤ったアプローチ</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>❌ &quot;Search for exact text &#39;I prefer FastAPI over Django&#39;&quot;
+</code></pre></div></p>
+<h4 id="c_1">解決策C: フィルターを確認</h4>
+<p><strong>問題</strong>: 制限が厳しすぎるフィルター</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># 特定しすぎ（結果なし）</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="n">memory_search</span><span class="p">(</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    <span class="n">query</span><span class="o">=</span><span class="s2">&quot;FastAPI&quot;</span><span class="p">,</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;web&quot;</span><span class="p">,</span> <span class="s2">&quot;api&quot;</span><span class="p">,</span> <span class="s2">&quot;backend&quot;</span><span class="p">,</span> <span class="s2">&quot;2024&quot;</span><span class="p">]</span>  <span class="c1"># タグが多すぎる</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="p">)</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="c1"># より良い（より多くの結果）</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="n">memory_search</span><span class="p">(</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>    <span class="n">query</span><span class="o">=</span><span class="s2">&quot;FastAPI&quot;</span><span class="p">,</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>    <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">]</span>  <span class="c1"># タグが少ない</span>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="p">)</span>
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="c1"># 最良（最も多くの結果）</span>
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="n">memory_search</span><span class="p">(</span>
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>    <span class="n">query</span><span class="o">=</span><span class="s2">&quot;FastAPI&quot;</span>  <span class="c1"># フィルターなし</span>
+<a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="p">)</span>
+</code></pre></div>
+<h4 id="d-user_idagent_name">解決策D: user_idとagent_nameを確認</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a># 何を検索しているか確認
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>&quot;Search memories for user_id=&#39;john&#39; with agent_name=&#39;global&#39;&quot;
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a># 結果がない場合、異なる組み合わせを試す
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>&quot;Search all memories regardless of user_id&quot;
+</code></pre></div>
+<hr />
+<h3 id="5-api">問題5: 高額なAPIコスト</h3>
+<p><strong>症状</strong>:
+- 予期しないOpenAI/Anthropicの請求
+- 埋め込みAPIのコストが高すぎる
+- トークン使用量の警告</p>
+<p><strong>診断</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a># コスト概要を確認
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>&quot;Show telemetry cost summary&quot;
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>[telemetry_costを使用]
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a># ツール使用状況を確認
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>kagura mcp stats
+</code></pre></div>
+<p><strong>解決策</strong>:</p>
+<h4 id="a_2">解決策A: ローカル埋め込みを使用</h4>
+<p><strong>問題</strong>: 埋め込みにOpenAI APIを使用している</p>
+<p><strong>修正</strong>: ローカルのsentence-transformersに切り替え</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># AIエクストラをインストール（sentence-transformersを含む）</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>ai<span class="o">]</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="c1"># ローカル埋め込みを使用するように設定</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="c1"># .envまたは環境変数で:</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="nv">KAGURA_EMBEDDING_MODEL</span><span class="o">=</span><span class="nb">local</span><span class="w">  </span><span class="c1"># E5モデルを使用（無料、ローカル）</span>
+</code></pre></div>
+<p><strong>コスト比較</strong>:
+- OpenAI埋め込み: 1Kトークンあたり$0.0001
+- ローカルE5埋め込み: $0（マシン上で実行）</p>
+<h4 id="b_2">解決策B: 低トークン検索を使用</h4>
+<p><code>memory_search</code>（完全な内容を返す）の代わりに、<code>memory_search_ids</code>を使用:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># 高トークン使用量</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">memory_search</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;FastAPI&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="c1"># 10個の完全なメモリーを返す → 約5000トークン</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="c1"># 低トークン使用量</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="n">memory_search_ids</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;FastAPI&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="c1"># 10個のID + プレビューを返す → 約500トークン</span>
+</code></pre></div>
+<h4 id="c_2">解決策C: 検索頻度を減らす</h4>
+<p>検索結果をキャッシュ:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a># 複数回検索する代わりに
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>&quot;Find memories about Python&quot;  # 検索1
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>&quot;Find memories about Python&quot;  # 検索2（重複！）
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a># より良い: 一度検索して、その後参照
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>&quot;Find memories about Python&quot;  # 一度検索
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>&quot;Based on those memories, what should I use for backend?&quot;  # 検索なし
+</code></pre></div>
+<h4 id="d">解決策D: コストを監視</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a># 定期的なコストチェック
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>&quot;Show me telemetry cost for the last week&quot;
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a># 予算アラートを設定（将来の機能）
+</code></pre></div>
+<hr />
+<h3 id="6">問題6: パフォーマンスが遅い</h3>
+<p><strong>症状</strong>:
+- 検索に5秒以上かかる
+- メモリー操作がタイムアウト
+- APIレスポンスが遅い</p>
+<p><strong>診断</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="c1"># データベースサイズを確認</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>du<span class="w"> </span>-sh<span class="w"> </span>~/.local/share/kagura/
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="c1"># メモリー数を確認</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>tools<span class="w">  </span><span class="c1"># その後: &quot;Show memory stats&quot;</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="c1"># システムリソースを確認</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>top<span class="w">  </span><span class="c1"># 高いCPU/メモリー使用率を確認</span>
+</code></pre></div>
+<p><strong>解決策</strong>:</p>
+<h4 id="a_3">解決策A: 古いメモリーをクリーンアップ</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="c1"># まずエクスポート（バックアップ）</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>kagura<span class="w"> </span>memory<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--output<span class="o">=</span>./backup
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="c1"># 古い/未使用のメモリーを削除</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="c1"># Claude/ChatGPTで:</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="s2">&quot;Delete memories older than 6 months with usefulness score &lt; 0.3&quot;</span>
+</code></pre></div>
+<h4 id="b-chromadb">解決策B: ChromaDBを最適化</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="c1"># データベースを圧縮</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="nb">cd</span><span class="w"> </span>~/.cache/kagura/chromadb
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="c1"># ChromaDBは自動圧縮しますが、強制するために再起動できます</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="c1"># または最初から再構築</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>kagura<span class="w"> </span>memory<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--output<span class="o">=</span>./backup
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>rm<span class="w"> </span>-rf<span class="w"> </span>~/.cache/kagura/chromadb
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>kagura<span class="w"> </span>memory<span class="w"> </span>import<span class="w"> </span>--input<span class="o">=</span>./backup
+</code></pre></div>
+<h4 id="c-bm25">解決策C: 完全一致にはBM25を使用</h4>
+<p><strong>セマンティック検索（大規模データセットでは遅い）</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">memory_search</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;FastAPI&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;vector&quot;</span><span class="p">)</span>  <span class="c1"># 10K以上のメモリーでは遅い</span>
+</code></pre></div></p>
+<p><strong>BM25字句検索（高速）</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">memory_search</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;FastAPI&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;bm25&quot;</span><span class="p">)</span>  <span class="c1"># 100K以上のメモリーでも高速</span>
+</code></pre></div></p>
+<p><strong>ハイブリッド（最良の精度 + 速度）</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="n">memory_search</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;FastAPI&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;hybrid&quot;</span><span class="p">)</span>  <span class="c1"># バランス</span>
+</code></pre></div></p>
+<hr />
+<h3 id="7-mcp">問題7: 認証エラー（リモートMCP）</h3>
+<p><strong>症状</strong>:
+- "401 Unauthorized"
+- "Invalid API key"
+- "Authentication required"</p>
+<p><strong>診断</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="c1"># APIキーが存在するか確認</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>kagura<span class="w"> </span>api<span class="w"> </span>list-keys
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="c1"># 認証をテスト</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_KEY&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a><span class="w">     </span>http://localhost:8080/api/v1/health
+</code></pre></div>
+<p><strong>解決策</strong>:</p>
+<h4 id="a-api">解決策A: APIキーを作成</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="c1"># 新しいAPIキーを生成</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>kagura<span class="w"> </span>api<span class="w"> </span>create-key<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;chatgpt-integration&quot;</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="c1"># 出力:</span>
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="c1"># Created API key: kg_xxxxxxxxxxxxxxxxxxxxxxxx</span>
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="c1"># Save this key securely!</span>
+</code></pre></div>
+<h4 id="b-apimcp">解決策B: APIキーでMCPを設定</h4>
+<p><strong>ChatGPT MCP設定</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="p">{</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="w">  </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://your-domain.com/mcp&quot;</span><span class="p">,</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="w">  </span><span class="nt">&quot;headers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="w">    </span><span class="nt">&quot;Authorization&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bearer kg_xxxxxxxxxxxxxxxxxxxxxxxx&quot;</span>
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a><span class="p">}</span>
+</code></pre></div></p>
+<h4 id="c_3">解決策C: キーのパーミッションを確認</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="c1"># キーの詳細を表示</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>kagura<span class="w"> </span>api<span class="w"> </span>get-key<span class="w"> </span>kg_xxxxxxxx
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="c1"># 侵害された場合はローテーション</span>
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a>kagura<span class="w"> </span>api<span class="w"> </span>rotate-key<span class="w"> </span>kg_xxxxxxxx
+<a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a>
+<a id="__codelineno-36-7" name="__codelineno-36-7" href="#__codelineno-36-7"></a><span class="c1"># 必要に応じて取り消し</span>
+<a id="__codelineno-36-8" name="__codelineno-36-8" href="#__codelineno-36-8"></a>kagura<span class="w"> </span>api<span class="w"> </span>revoke-key<span class="w"> </span>kg_xxxxxxxx
+</code></pre></div>
+<hr />
+<h3 id="8-docker">問題8: Dockerの問題</h3>
+<p><strong>症状</strong>:
+- "Cannot connect to Docker daemon"
+- コンテナが起動しない
+- ポートの競合</p>
+<p><strong>診断</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="c1"># Dockerステータスを確認</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>docker<span class="w"> </span>ps
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a><span class="c1"># ログを確認</span>
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a>
+<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a><span class="c1"># ポートを確認</span>
+<a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:8080<span class="w">  </span><span class="c1"># APIポート</span>
+<a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:5432<span class="w">  </span><span class="c1"># PostgreSQLポート</span>
+<a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:6379<span class="w">  </span><span class="c1"># Redisポート</span>
+</code></pre></div>
+<p><strong>解決策</strong>:</p>
+<h4 id="a-docker">解決策A: Dockerを起動</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="c1"># Linux</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>docker
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a><span class="c1"># macOS</span>
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="c1"># Docker Desktopを開く</span>
+<a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a>
+<a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a><span class="c1"># 確認</span>
+<a id="__codelineno-38-8" name="__codelineno-38-8" href="#__codelineno-38-8"></a>docker<span class="w"> </span>ps
+</code></pre></div>
+<h4 id="b_3">解決策B: ポート競合を修正</h4>
+<p><strong>問題</strong>: ポート8080が既に使用中</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="c1"># ポートを使用しているものを見つける</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:8080
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="c1"># プロセスを終了</span>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span>&lt;PID&gt;
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>
+<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a><span class="c1"># またはdocker-compose.ymlでKaguraのポートを変更</span>
+<a id="__codelineno-39-8" name="__codelineno-39-8" href="#__codelineno-39-8"></a>ports:
+<a id="__codelineno-39-9" name="__codelineno-39-9" href="#__codelineno-39-9"></a><span class="w">  </span>-<span class="w"> </span><span class="s2">&quot;8090:8080&quot;</span><span class="w">  </span><span class="c1"># 代わりに8090を使用</span>
+</code></pre></div>
+<h4 id="c-docker">解決策C: Docker環境をリセット</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="c1"># すべてのコンテナを停止</span>
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a>
+<a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a><span class="c1"># ボリュームを削除（⚠️ データを削除します！）</span>
+<a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>down<span class="w"> </span>-v
+<a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a>
+<a id="__codelineno-40-7" name="__codelineno-40-7" href="#__codelineno-40-7"></a><span class="c1"># 再ビルド</span>
+<a id="__codelineno-40-8" name="__codelineno-40-8" href="#__codelineno-40-8"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build
+<a id="__codelineno-40-9" name="__codelineno-40-9" href="#__codelineno-40-9"></a>
+<a id="__codelineno-40-10" name="__codelineno-40-10" href="#__codelineno-40-10"></a><span class="c1"># ヘルスチェック</span>
+<a id="__codelineno-40-11" name="__codelineno-40-11" href="#__codelineno-40-11"></a>curl<span class="w"> </span>http://localhost:8080/api/v1/health
+</code></pre></div>
+<hr />
+<h2 id="_4">🔧 高度なトラブルシューティング</h2>
+<h3 id="_5">デバッグログを有効化</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="c1"># ログレベルを設定</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">KAGURA_LOG_LEVEL</span><span class="o">=</span>DEBUG
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="c1"># デバッグログでMCPサーバーを起動</span>
+<a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>serve
+<a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a>
+<a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a><span class="c1"># またはAPI用</span>
+<a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a>uvicorn<span class="w"> </span>kagura.api.server:app<span class="w"> </span>--log-level<span class="w"> </span>debug
+</code></pre></div>
+<h3 id="_6">データベース整合性を確認</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="c1"># SQLite整合性チェック</span>
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>sqlite3<span class="w"> </span>~/.local/share/kagura/memory.db<span class="w"> </span><span class="s2">&quot;PRAGMA integrity_check;&quot;</span>
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a><span class="c1"># 期待される出力: ok</span>
+</code></pre></div>
+<h3 id="_7">ベクトルインデックスを再構築</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="c1"># メモリーをエクスポート</span>
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>kagura<span class="w"> </span>memory<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--output<span class="o">=</span>./backup
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a>
+<a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a><span class="c1"># ベクトルストアをクリア</span>
+<a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a>rm<span class="w"> </span>-rf<span class="w"> </span>~/.cache/kagura/chromadb
+<a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a>
+<a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a><span class="c1"># 再インポート（ベクトルを再構築）</span>
+<a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a>kagura<span class="w"> </span>memory<span class="w"> </span>import<span class="w"> </span>--input<span class="o">=</span>./backup
+</code></pre></div>
+<h3 id="mcp">MCPツールを手動でテスト</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="c1"># API経由で個々のツールをテスト</span>
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/v1/memory/store<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a><span class="s1">    &quot;key&quot;: &quot;test&quot;,</span>
+<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a><span class="s1">    &quot;value&quot;: &quot;test value&quot;,</span>
+<a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a><span class="s1">    &quot;scope&quot;: &quot;working&quot;</span>
+<a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a><span class="s1">  }&#39;</span>
+<a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a>
+<a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a><span class="c1"># 保存されたか確認</span>
+<a id="__codelineno-44-11" name="__codelineno-44-11" href="#__codelineno-44-11"></a>curl<span class="w"> </span>http://localhost:8080/api/v1/memory/list
+</code></pre></div>
+<hr />
+<h2 id="_8">📚 サポートを受ける</h2>
+<h3 id="1">1. ドキュメントを確認</h3>
+<ul>
+<li><a href="../chat-integration-tips/">チャット統合のヒント</a></li>
+<li><a href="../mcp-setup/">MCPセットアップガイド</a></li>
+<li><a href="../api-reference/">APIリファレンス</a></li>
+<li><a href="../architecture/">アーキテクチャ</a></li>
+</ul>
+<h3 id="2_2">2. 既存の問題を検索</h3>
+<p><a href="https://github.com/JFK/kagura-ai/issues">GitHub Issues</a></p>
+<h3 id="3">3. コミュニティに質問</h3>
+<p><a href="https://github.com/JFK/kagura-ai/discussions">GitHub Discussions</a></p>
+<h3 id="4_1">4. バグを報告</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="c1"># 診断情報を含む新しいissueを作成</span>
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>doctor<span class="w"> </span>&gt;<span class="w"> </span>diagnostics.txt
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a><span class="c1"># issueを作成する際にdiagnostics.txtを添付</span>
+<a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a>gh<span class="w"> </span>issue<span class="w"> </span>create<span class="w"> </span>--title<span class="w"> </span><span class="s2">&quot;Bug: [問題を記述]&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a><span class="w">                </span>--body<span class="w"> </span><span class="s2">&quot;添付のdiagnostics.txtを参照してください&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="_9">📊 診断チェックリスト</h2>
+<p>問題を報告する前に、以下の情報を収集してください:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="c1"># 1. バージョン情報</span>
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>kagura<span class="w"> </span>--version
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>python<span class="w"> </span>--version
+<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a>pip<span class="w"> </span>show<span class="w"> </span>kagura-ai
+<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a>
+<a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a><span class="c1"># 2. システム情報</span>
+<a id="__codelineno-46-7" name="__codelineno-46-7" href="#__codelineno-46-7"></a>uname<span class="w"> </span>-a<span class="w">  </span><span class="c1"># Linux/macOS</span>
+<a id="__codelineno-46-8" name="__codelineno-46-8" href="#__codelineno-46-8"></a>cat<span class="w"> </span>/etc/os-release<span class="w">  </span><span class="c1"># Linuxディストリビューション</span>
+<a id="__codelineno-46-9" name="__codelineno-46-9" href="#__codelineno-46-9"></a>
+<a id="__codelineno-46-10" name="__codelineno-46-10" href="#__codelineno-46-10"></a><span class="c1"># 3. 診断レポート</span>
+<a id="__codelineno-46-11" name="__codelineno-46-11" href="#__codelineno-46-11"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>doctor
+<a id="__codelineno-46-12" name="__codelineno-46-12" href="#__codelineno-46-12"></a>
+<a id="__codelineno-46-13" name="__codelineno-46-13" href="#__codelineno-46-13"></a><span class="c1"># 4. 最近のログ</span>
+<a id="__codelineno-46-14" name="__codelineno-46-14" href="#__codelineno-46-14"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>log<span class="w"> </span>--lines<span class="w"> </span><span class="m">100</span>
+<a id="__codelineno-46-15" name="__codelineno-46-15" href="#__codelineno-46-15"></a>
+<a id="__codelineno-46-16" name="__codelineno-46-16" href="#__codelineno-46-16"></a><span class="c1"># 5. エラーメッセージ</span>
+<a id="__codelineno-46-17" name="__codelineno-46-17" href="#__codelineno-46-17"></a><span class="c1"># 完全なエラーメッセージ + スタックトレースをコピー</span>
+<a id="__codelineno-46-18" name="__codelineno-46-18" href="#__codelineno-46-18"></a>
+<a id="__codelineno-46-19" name="__codelineno-46-19" href="#__codelineno-46-19"></a><span class="c1"># 6. 再現手順</span>
+<a id="__codelineno-46-20" name="__codelineno-46-20" href="#__codelineno-46-20"></a><span class="c1"># 問題を引き起こす正確な手順を記述</span>
+</code></pre></div>
+<hr />
+<p><strong>バージョン</strong>: 4.0.0
+<strong>最終更新</strong>: 2025-11-02</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  ページトップへ戻る
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/JFK/kagura-ai" target="_blank" rel="noopener" title="GitHub Repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://pypi.org/project/kagura-ai/" target="_blank" rel="noopener" title="PyPI Package" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.instant", "navigation.tracking", "navigation.top"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f", "clipboard.copy": "\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u3078\u30b3\u30d4\u30fc", "search.result.more.one": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3082\u30461\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.more.other": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3042\u3068#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.none": "\u4f55\u3082\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f", "search.result.one": "1\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.other": "#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.placeholder": "\u691c\u7d22\u30ad\u30fc\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044", "search.result.term.missing": "\u691c\u7d22\u306b\u542b\u307e\u308c\u306a\u3044", "select.version": "\u30d0\u30fc\u30b8\u30e7\u30f3\u5207\u308a\u66ff\u3048"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="../../assets/custom.js"></script>
+      
+    
+  </body>
+</html>

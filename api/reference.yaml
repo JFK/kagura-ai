@@ -14,10 +14,16 @@ info:
     - 🕸️ **Knowledge Graph**: Relationship tracking between memories (v4.0.0+)
     - 📊 **Vibe Coding History**: Track AI-assisted coding journey
     - 🔒 **Privacy-First**: Local or self-hosted deployment
+    - 🛠️ **56 MCP Tools**: Memory, Web Search, YouTube, GitHub, Coding, and more
+
+    ## Quick Links
+    - [Chat Integration Tips](https://github.com/JFK/kagura-ai/blob/main/docs/chat-integration-tips.md) - Use with ChatGPT, Claude
+    - [MCP Setup Guides](https://github.com/JFK/kagura-ai/blob/main/docs/mcp-setup.md) - Integration instructions
+    - [Workflow Examples](https://github.com/JFK/kagura-ai/tree/main/docs/examples) - Practical use cases
 
     ## Authentication
     - **Local**: No authentication required (localhost only)
-    - **Self-hosted**: API Key authentication (v4.1.0+)
+    - **Self-hosted**: API Key authentication (v4.0.0+)
     - **Cloud**: OAuth2 + JWT (v4.2.0+)
 
   contact:

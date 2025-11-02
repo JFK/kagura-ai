@@ -1,0 +1,2700 @@
+
+<!doctype html>
+<html lang="ja" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Universal AI Memory Platform - MCP-native memory for all your AIs">
+      
+      
+      
+        <link rel="canonical" href="https://www.kagura-ai.com/ja/coding-memory/">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/kagura-icon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.21">
+    
+    
+      
+        <title>Coding Memory - AI Coding Assistant Memory System - Kagura AI Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2a3383ac.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/custom.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="red">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#coding-memory-ai-coding-assistant-memory-system" class="md-skip">
+          コンテンツにスキップ
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="ヘッダー">
+    <a href="../" title="Kagura AI Documentation" class="md-header__button md-logo" aria-label="Kagura AI Documentation" data-md-component="logo">
+      
+  <img src="../../assets/kagura-icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kagura AI Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Coding Memory - AI Coding Assistant Memory System
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="言語切り替え">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../coding-memory/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="ja" class="md-select__link">
+              日本語
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="検索" placeholder="検索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="検索">
+        
+        <button type="reset" class="md-search__icon md-icon" title="クリア" aria-label="クリア" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            検索を初期化
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="ナビゲーション" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../" title="Kagura AI Documentation" class="md-nav__button md-logo" aria-label="Kagura AI Documentation" data-md-component="logo">
+      
+  <img src="../../assets/kagura-icon.svg" alt="logo">
+
+    </a>
+    Kagura AI Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start (10 min)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MCP Integration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            MCP Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Desktop
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-claude-code-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Code
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-http-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remote MCP (ChatGPT)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            User Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chat-integration-tips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat Integration Tips
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../self-hosting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Self-Hosting Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory Export/Import
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rest-api-usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    REST API Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Architecture Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Workflow Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Workflow Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/chatgpt-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ChatGPT Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/claude-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    REST API & MCP Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    OpenAPI Specification
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            OpenAPI Specification
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/reference.yaml" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    YAML Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JFK/kagura-ai/tree/main/examples" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code Examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    For Developers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            For Developers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    How to Contribute
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JFK/kagura-ai/blob/main/CODE_OF_CONDUCT.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code of Conduct
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目次">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目次
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mcp-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      MCP Tools
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MCP Tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-coding_track_file_change" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. coding_track_file_change
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-coding_record_error" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. coding_record_error
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-coding_record_decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. coding_record_decision
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-coding_start_session" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. coding_start_session
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-coding_end_session" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. coding_end_session
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-coding_search_errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. coding_search_errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-coding_get_project_context" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. coding_get_project_context
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-coding_analyze_patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. coding_analyze_patterns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example-typical-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example: Typical Session
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prompt-engineering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prompt Engineering
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prompt Engineering">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#session-summary-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Session Summary Prompt
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-pattern-analysis-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Pattern Analysis Prompt
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution-suggestion-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Solution Suggestion Prompt
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Python Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kaguratoml-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      kagura.toml (Optional)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-claude-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration with Claude Code
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plan-mode-cost-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plan Mode &amp; Cost Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Plan Mode &amp; Cost Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#approval-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Approval Workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cost-threshold" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cost Threshold
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-approve-mode-batch-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auto-Approve Mode (Batch Processing)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-time-cost-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-Time Cost Tracking
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cost-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cost Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cost Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model Comparison
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operation-cost-estimates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operation Cost Estimates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monthly-cost-estimates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monthly Cost Estimates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cost-reduction-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cost Reduction Tips
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multimodal-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multimodal Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multimodal Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-screenshot-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Screenshot Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#architecture-diagram-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture Diagram Analysis
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-always-provide-reason-for-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Always Provide Reason for Changes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-record-errors-immediately" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Record Errors Immediately
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-use-sessions-for-coherent-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Use Sessions for Coherent Work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-leverage-semantic-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Leverage Semantic Search
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#no-similar-errors-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      "No similar errors found"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#insufficient-data-for-pattern-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Insufficient data for pattern analysis"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session-already-active-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Session already active" error
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Roadmap
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="See Also">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-coding_analyze_file_dependencies-phase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. coding_analyze_file_dependencies (Phase 2)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-coding_analyze_refactor_impact-phase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. coding_analyze_refactor_impact (Phase 2)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#11-coding_suggest_refactor_order-phase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. coding_suggest_refactor_order (Phase 2)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-advanced-graph-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Advanced Graph Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 2: Advanced Graph Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automatic-dependency-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatic Dependency Graph
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-solution-linking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error → Solution Linking
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decision-implementation-linking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decision → Implementation Linking
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refactoring-workflow-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Refactoring Workflow Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-coding_link_github_issue-github-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. coding_link_github_issue (GitHub Integration)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-coding_generate_pr_description-github-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. coding_generate_pr_description (GitHub Integration)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-coding_get_issue_context-github-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      14. coding_get_issue_context (GitHub Integration)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#github-integration-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub Integration Workflow
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GitHub Integration Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#complete-workflow-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Workflow Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-detection-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auto-Detection Features
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requirements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-github-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      For GitHub Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#troubleshooting_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="coding-memory-ai-coding-assistant-memory-system">Coding Memory - AI Coding Assistant Memory System</h1>
+<p><strong>Status:</strong> Phase 1 Complete (v4.1.0)
+<strong>Target Users:</strong> AI Coding Assistants (Claude Code, Cursor, GitHub Copilot, etc.)</p>
+<h2 id="overview">Overview</h2>
+<p>Coding Memory is a specialized memory system for AI coding assistants that maintains context across sessions, learns from error patterns, and tracks project evolution.</p>
+<h3 id="key-features">Key Features</h3>
+<p>✅ <strong>Cross-Session Context</strong> - Remember coding decisions, errors, and patterns across sessions
+✅ <strong>Error Pattern Learning</strong> - Automatically suggest solutions based on past resolutions
+✅ <strong>Project Structure Understanding</strong> - Maintain comprehensive project context
+✅ <strong>Multimodal Support</strong> - Analyze error screenshots and architecture diagrams
+✅ <strong>Design Decision Tracking</strong> - Record and retrieve architectural decisions with rationale
+✅ <strong>Coding Session Management</strong> - Group related activities with AI-powered summaries
+✅ <strong>Plan Mode &amp; Approval Workflows</strong> - Cost estimation and approval before expensive operations
+✅ <strong>Multi-Provider Support</strong> - OpenAI (GPT-5), Google (Gemini 2.5), Anthropic (Claude)
+✅ <strong>Cost Tracking</strong> - Real-time cost monitoring and budget management</p>
+<h2 id="architecture">Architecture</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                  CodingMemoryManager                        │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│  (Extends base MemoryManager with coding features)         │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├─────────────────────────────────────────────────────────────┤
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  Scope: user_id + project_id                                │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│                                                              │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│  Storage:                                                    │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  ├─ Working Memory (active session)                        │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  ├─ Persistent Memory (SQLite/PostgreSQL)                  │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  ├─ RAG (ChromaDB) - Semantic search                       │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│  └─ Graph (NetworkX) - Relationships                       │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│                                                              │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│  LLM Integration:                                           │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│  ├─ Session summarization (GPT-4/Claude)                   │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│  ├─ Error pattern analysis                                  │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│  ├─ Solution suggestions                                    │
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│  ├─ Preference extraction                                   │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│  └─ Context compression (RFC-024)                          │
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│                                                              │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│  Vision Integration:                                        │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│  ├─ Error screenshot analysis                               │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│  ├─ Architecture diagram interpretation                     │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│  └─ Code extraction from images                            │
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>└─────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<h2 id="mcp-tools">MCP Tools</h2>
+<p>Kagura provides <strong>14 MCP tools</strong> for coding assistants:
+- <strong>Phase 1</strong>: 8 tools (basic memory + sessions)
+- <strong>Phase 2</strong>: 3 tools (dependency analysis)
+- <strong>GitHub</strong>: 3 tools (issue/PR integration)</p>
+<h3 id="1-coding_track_file_change">1. <code>coding_track_file_change</code></h3>
+<p>Track file modifications with context.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">await</span> <span class="n">coding_track_file_change</span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;src/auth.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">action</span><span class="o">=</span><span class="s2">&quot;edit&quot;</span><span class="p">,</span>  <span class="c1"># create, edit, delete, rename, refactor, test</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">diff</span><span class="o">=</span><span class="s2">&quot;+ def validate_token(token: str) -&gt; bool:</span><span class="se">\n</span><span class="s2">+     ...&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Add JWT token validation for auth middleware&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">related_files</span><span class="o">=</span><span class="s1">&#39;[&quot;src/middleware.py&quot;]&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">line_range</span><span class="o">=</span><span class="s2">&quot;42,57&quot;</span>  <span class="c1"># Optional</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="2-coding_record_error">2. <code>coding_record_error</code></h3>
+<p>Record errors with optional screenshots.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">await</span> <span class="n">coding_record_error</span><span class="p">(</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;TypeError&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;can&#39;t compare offset-naive and offset-aware datetimes&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">stack_trace</span><span class="o">=</span><span class="s2">&quot;Traceback:</span><span class="se">\n</span><span class="s2">  File &#39;auth.py&#39;, line 42...&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;src/auth.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">line_number</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">solution</span><span class="o">=</span><span class="s2">&quot;Use datetime.now(timezone.utc) consistently&quot;</span><span class="p">,</span>  <span class="c1"># After fixing</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">screenshot</span><span class="o">=</span><span class="s2">&quot;/path/to/error_screenshot.png&quot;</span><span class="p">,</span>  <span class="c1"># Optional</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">tags</span><span class="o">=</span><span class="s1">&#39;[&quot;datetime&quot;, &quot;timezone&quot;]&#39;</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="3-coding_record_decision">3. <code>coding_record_decision</code></h3>
+<p>Record design decisions with rationale.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">await</span> <span class="n">coding_record_decision</span><span class="p">(</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">decision</span><span class="o">=</span><span class="s2">&quot;Use JWT tokens for authentication&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">rationale</span><span class="o">=</span><span class="s2">&quot;Stateless auth enables horizontal scaling. No session storage needed.&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">alternatives</span><span class="o">=</span><span class="s1">&#39;[&quot;Session-based auth&quot;, &quot;OAuth only&quot;]&#39;</span><span class="p">,</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">impact</span><span class="o">=</span><span class="s2">&quot;Eliminates session store, requires key rotation strategy&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">tags</span><span class="o">=</span><span class="s1">&#39;[&quot;architecture&quot;, &quot;security&quot;]&#39;</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">related_files</span><span class="o">=</span><span class="s1">&#39;[&quot;src/auth.py&quot;, &quot;src/middleware.py&quot;]&#39;</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="n">confidence</span><span class="o">=</span><span class="mf">0.9</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="4-coding_start_session">4. <code>coding_start_session</code></h3>
+<p>Start a tracked coding session.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">session_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_start_session</span><span class="p">(</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Implement JWT authentication system&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">tags</span><span class="o">=</span><span class="s1">&#39;[&quot;feature&quot;, &quot;authentication&quot;]&#39;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="5-coding_end_session">5. <code>coding_end_session</code></h3>
+<p>End session with AI-generated summary.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_end_session</span><span class="p">(</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">summary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Let AI generate summary</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">success</span><span class="o">=</span><span class="kc">True</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">)</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;summary&#39;</span><span class="p">])</span>  <span class="c1"># AI-generated comprehensive summary</span>
+</code></pre></div>
+<h3 id="6-coding_search_errors">6. <code>coding_search_errors</code></h3>
+<p>Search past errors semantically.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">similar_errors</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_search_errors</span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">query</span><span class="o">=</span><span class="s2">&quot;TypeError comparing datetime objects&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">k</span><span class="o">=</span><span class="mi">5</span>  <span class="c1"># Return top 5 similar errors</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="7-coding_get_project_context">7. <code>coding_get_project_context</code></h3>
+<p>Get comprehensive project context.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">context</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_get_project_context</span><span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">focus</span><span class="o">=</span><span class="s2">&quot;authentication&quot;</span>  <span class="c1"># Optional focus area</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">)</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>  <span class="c1"># Project summary, tech stack, recent changes, decisions, patterns</span>
+</code></pre></div>
+<h3 id="8-coding_analyze_patterns">8. <code>coding_analyze_patterns</code></h3>
+<p>Analyze coding patterns and preferences.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">patterns</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_analyze_patterns</span><span class="p">(</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="p">)</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="nb">print</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span>  <span class="c1"># Language prefs, library choices, naming conventions, etc.</span>
+</code></pre></div>
+<h2 id="usage-example-typical-session">Usage Example: Typical Session</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># 1. Start session</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">session_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_start_session</span><span class="p">(</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Implement coding memory system&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">tags</span><span class="o">=</span><span class="s1">&#39;[&quot;feature&quot;, &quot;memory&quot;]&#39;</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="p">)</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="c1"># 2. Track file changes</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="k">await</span> <span class="n">coding_track_file_change</span><span class="p">(</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;src/kagura/core/memory/coding_memory.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="n">action</span><span class="o">=</span><span class="s2">&quot;create&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="n">diff</span><span class="o">=</span><span class="s2">&quot;New file: CodingMemoryManager class&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Create coding-specialized memory manager&quot;</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="p">)</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="c1"># 3. Record errors (if any)</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="k">await</span> <span class="n">coding_record_error</span><span class="p">(</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>    <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;ImportError&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No module named &#39;litellm&#39;&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>    <span class="n">stack_trace</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;src/kagura/llm/coding_analyzer.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>    <span class="n">line_number</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>    <span class="n">solution</span><span class="o">=</span><span class="s2">&quot;Added litellm to dependencies&quot;</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a><span class="p">)</span>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="c1"># 4. Record design decisions</span>
+<a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a><span class="k">await</span> <span class="n">coding_record_decision</span><span class="p">(</span>
+<a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a>    <span class="n">decision</span><span class="o">=</span><span class="s2">&quot;Use LiteLLM for model abstraction&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a>    <span class="n">rationale</span><span class="o">=</span><span class="s2">&quot;Unified interface for OpenAI, Anthropic, Google models&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a>    <span class="n">alternatives</span><span class="o">=</span><span class="s1">&#39;[&quot;Direct API calls&quot;, &quot;LangChain&quot;]&#39;</span><span class="p">,</span>
+<a id="__codelineno-9-38" name="__codelineno-9-38" href="#__codelineno-9-38"></a>    <span class="n">impact</span><span class="o">=</span><span class="s2">&quot;Easy model switching, better error handling&quot;</span>
+<a id="__codelineno-9-39" name="__codelineno-9-39" href="#__codelineno-9-39"></a><span class="p">)</span>
+<a id="__codelineno-9-40" name="__codelineno-9-40" href="#__codelineno-9-40"></a>
+<a id="__codelineno-9-41" name="__codelineno-9-41" href="#__codelineno-9-41"></a><span class="c1"># 5. End session with AI summary</span>
+<a id="__codelineno-9-42" name="__codelineno-9-42" href="#__codelineno-9-42"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_end_session</span><span class="p">(</span>
+<a id="__codelineno-9-43" name="__codelineno-9-43" href="#__codelineno-9-43"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-44" name="__codelineno-9-44" href="#__codelineno-9-44"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-45" name="__codelineno-9-45" href="#__codelineno-9-45"></a>    <span class="n">success</span><span class="o">=</span><span class="kc">True</span>
+<a id="__codelineno-9-46" name="__codelineno-9-46" href="#__codelineno-9-46"></a><span class="p">)</span>
+<a id="__codelineno-9-47" name="__codelineno-9-47" href="#__codelineno-9-47"></a>
+<a id="__codelineno-9-48" name="__codelineno-9-48" href="#__codelineno-9-48"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Session completed in </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;duration_minutes&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> minutes&quot;</span><span class="p">)</span>
+<a id="__codelineno-9-49" name="__codelineno-9-49" href="#__codelineno-9-49"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Summary:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;summary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="prompt-engineering">Prompt Engineering</h2>
+<p>Coding Memory uses carefully crafted prompts for high-quality LLM outputs:</p>
+<h3 id="session-summary-prompt">Session Summary Prompt</h3>
+<ul>
+<li><strong>Few-shot examples</strong> for consistency</li>
+<li><strong>Structured output</strong> (markdown with clear sections)</li>
+<li><strong>Chain-of-thought</strong> reasoning for decisions</li>
+<li><strong>Actionable recommendations</strong></li>
+</ul>
+<h3 id="error-pattern-analysis-prompt">Error Pattern Analysis Prompt</h3>
+<ul>
+<li><strong>Pattern recognition</strong> focus</li>
+<li><strong>Root cause analysis</strong> beyond symptoms</li>
+<li><strong>Prevention strategies</strong> with code examples</li>
+<li><strong>Quick fix</strong> step-by-step instructions</li>
+</ul>
+<h3 id="solution-suggestion-prompt">Solution Suggestion Prompt</h3>
+<ul>
+<li><strong>Case-based reasoning</strong> from past errors</li>
+<li><strong>Confidence scoring</strong> (high/medium/low)</li>
+<li><strong>Alternative approaches</strong> when applicable</li>
+<li><strong>Debugging tips</strong> if solution fails</li>
+</ul>
+<p>See <code>src/kagura/llm/prompts.py</code> for complete prompt templates.</p>
+<h2 id="configuration">Configuration</h2>
+<h3 id="environment-variables">Environment Variables</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Model Configuration</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CODING_MEMORY_MODEL</span><span class="o">=</span><span class="s2">&quot;gpt-5-mini&quot;</span><span class="w">  </span><span class="c1"># or &quot;gemini/gemini-2.5-flash&quot;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CODING_MEMORY_VISION_MODEL</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="w">  </span><span class="c1"># or &quot;gemini/gemini-2.0-flash-exp&quot;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="c1"># Cost Management</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CODING_MEMORY_AUTO_APPROVE</span><span class="o">=</span><span class="s2">&quot;false&quot;</span><span class="w">  </span><span class="c1"># Require approval</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CODING_MEMORY_COST_THRESHOLD</span><span class="o">=</span><span class="s2">&quot;0.10&quot;</span><span class="w">  </span><span class="c1"># Ask approval if &gt; $0.10</span>
+</code></pre></div>
+<h3 id="python-configuration">Python Configuration</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory.coding_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">CodingMemoryManager</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1"># Fast &amp; Affordable (Gemini) - RECOMMENDED</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">coding_mem</span> <span class="o">=</span> <span class="n">CodingMemoryManager</span><span class="p">(</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;my-project&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini/gemini-2.0-flash-exp&quot;</span><span class="p">,</span>  <span class="c1"># Free during preview</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    <span class="n">vision_model</span><span class="o">=</span><span class="s2">&quot;gemini/gemini-2.0-flash-exp&quot;</span><span class="p">,</span>  <span class="c1"># DEFAULT: Free + excellent quality</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    <span class="n">auto_approve</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Require approval</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="n">cost_threshold</span><span class="o">=</span><span class="mf">0.05</span>  <span class="c1"># Ask if &gt; $0.05</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="p">)</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="c1"># Balanced (GPT-5 + Gemini Vision)</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="n">coding_mem</span> <span class="o">=</span> <span class="n">CodingMemoryManager</span><span class="p">(</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;my-project&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-5-mini&quot;</span><span class="p">,</span>  <span class="c1"># Fast and affordable</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>    <span class="n">vision_model</span><span class="o">=</span><span class="s2">&quot;gemini/gemini-2.0-flash-exp&quot;</span><span class="p">,</span>  <span class="c1"># DEFAULT: Free vision</span>
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="p">)</span>
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a><span class="c1"># Premium (Claude + GPT-4o Vision)</span>
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a><span class="n">coding_mem</span> <span class="o">=</span> <span class="n">CodingMemoryManager</span><span class="p">(</span>
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;my-project&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-5&quot;</span><span class="p">,</span>  <span class="c1"># Best reasoning</span>
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>    <span class="n">vision_model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>  <span class="c1"># Best vision</span>
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>    <span class="n">auto_approve</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Skip approvals (富豪仕様)</span>
+<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="kaguratoml-optional">kagura.toml (Optional)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">[coding_memory]</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">max_session_duration_hours</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">24</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="n">auto_summarize_on_end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="n">enable_pattern_learning</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="k">[coding_memory.defaults]</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;gpt-5-mini&quot;</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="n">vision_model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;gpt-4o&quot;</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="n">auto_approve</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="n">cost_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.10</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="k">[coding_memory.costs]</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="n">max_monthly_budget_usd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">500.0</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="n">warn_at_percentage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">80.0</span>
+</code></pre></div>
+<h2 id="integration-with-claude-code">Integration with Claude Code</h2>
+<ol>
+<li><strong>Add to Claude Desktop config</strong> (<code>~/Library/Application Support/Claude/claude_desktop_config.json</code>):</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nt">&quot;kagura&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kagura&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">        </span><span class="nt">&quot;USER_ID&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">        </span><span class="nt">&quot;PROJECT_ID&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my-project&quot;</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="p">}</span>
+</code></pre></div>
+<ol>
+<li><strong>Use tools in Claude Code</strong>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>User: I&#39;m getting a TypeError when comparing datetimes
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>Claude: Let me check if we&#39;ve seen this before...
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>[calls coding_search_errors]
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>Claude: You&#39;ve encountered this 3 times before! The solution is to use datetime.now(timezone.utc) consistently. Should I apply that fix?
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>User: Yes, and start tracking this session
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>Claude: [calls coding_start_session]
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>Session started! I&#39;ll track all changes.
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>[After fixing...]
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>User: Fixed! End the session
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>Claude: [calls coding_end_session]
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>Session summary: Resolved datetime comparison TypeError (recurring pattern). Applied UTC timezone fix in src/auth.py. Recommend adding pre-commit hook to catch this pattern in future.
+</code></pre></div>
+<h2 id="plan-mode-cost-management">Plan Mode &amp; Cost Management</h2>
+<h3 id="approval-workflow">Approval Workflow</h3>
+<p>When <code>auto_approve=False</code> (default), expensive operations require approval:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># End session - shows cost estimate and asks approval</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">end_coding_session</span><span class="p">(</span><span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Output:</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="c1"># ┌─────────────────────────────────────────┐</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1"># │ ⚠️  Approval Required                    │</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="c1"># │                                          │</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="c1"># │ Generate AI-powered session summary     │</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="c1"># │                                          │</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="c1"># │ Estimated Cost: $0.25                   │</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="c1"># │ Input: ~3500 tokens, Model: gpt-5-mini │</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="c1"># └─────────────────────────────────────────┘</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="c1"># Approve? [Y/n]:</span>
+</code></pre></div>
+<h3 id="cost-threshold">Cost Threshold</h3>
+<p>Only ask approval if cost exceeds threshold:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">coding_mem</span> <span class="o">=</span> <span class="n">CodingMemoryManager</span><span class="p">(</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;my-project&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    <span class="n">cost_threshold</span><span class="o">=</span><span class="mf">0.50</span>  <span class="c1"># Only ask if &gt; $0.50</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="p">)</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Operations under $0.50 → auto-approved</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="c1"># Operations over $0.50 → ask for approval</span>
+</code></pre></div>
+<h3 id="auto-approve-mode-batch-processing">Auto-Approve Mode (Batch Processing)</h3>
+<p>For automated workflows or "富豪仕様":</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">coding_mem</span> <span class="o">=</span> <span class="n">CodingMemoryManager</span><span class="p">(</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;my-project&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="n">auto_approve</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Never ask, always execute</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="real-time-cost-tracking">Real-Time Cost Tracking</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Check cumulative costs</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total spent: $</span><span class="si">{</span><span class="n">coding_mem</span><span class="o">.</span><span class="n">coding_analyzer</span><span class="o">.</span><span class="n">total_cost</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total tokens: </span><span class="si">{</span><span class="n">coding_mem</span><span class="o">.</span><span class="n">coding_analyzer</span><span class="o">.</span><span class="n">total_tokens</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LLM calls: </span><span class="si">{</span><span class="n">coding_mem</span><span class="o">.</span><span class="n">coding_analyzer</span><span class="o">.</span><span class="n">call_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="c1"># Detailed breakdown</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">coding_analyzer</span><span class="o">.</span><span class="n">call_costs</span><span class="p">:</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">call</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">call</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> - $</span><span class="si">{</span><span class="n">call</span><span class="p">[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="cost-considerations">Cost Considerations</h2>
+<h3 id="model-comparison">Model Comparison</h3>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Model</th>
+<th>Input ($/1M)</th>
+<th>Output ($/1M)</th>
+<th>Speed</th>
+<th>Quality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI</td>
+<td>gpt-5-mini</td>
+<td>$0.15</td>
+<td>$0.60</td>
+<td>⚡️⚡️⚡️</td>
+<td>⭐️⭐️⭐️</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>gpt-5</td>
+<td>$2.50</td>
+<td>$10.00</td>
+<td>⚡️⚡️</td>
+<td>⭐️⭐️⭐️⭐️</td>
+</tr>
+<tr>
+<td>Google</td>
+<td>gemini-2.0-flash-exp</td>
+<td>Free</td>
+<td>Free</td>
+<td>⚡️⚡️⚡️</td>
+<td>⭐️⭐️⭐️</td>
+</tr>
+<tr>
+<td>Google</td>
+<td>gemini-2.5-flash</td>
+<td>$0.075</td>
+<td>$0.30</td>
+<td>⚡️⚡️⚡️</td>
+<td>⭐️⭐️⭐️⭐️</td>
+</tr>
+<tr>
+<td>Google</td>
+<td>gemini-2.5-pro</td>
+<td>$1.25</td>
+<td>$5.00</td>
+<td>⚡️⚡️</td>
+<td>⭐️⭐️⭐️⭐️⭐️</td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td>claude-sonnet-4-5</td>
+<td>$3.00</td>
+<td>$15.00</td>
+<td>⚡️⚡️</td>
+<td>⭐️⭐️⭐️⭐️⭐️</td>
+</tr>
+</tbody>
+</table>
+<h3 id="operation-cost-estimates">Operation Cost Estimates</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Tokens</th>
+<th>gpt-5-mini</th>
+<th>gemini-2.5-flash</th>
+<th>claude-sonnet-4-5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Session summary</td>
+<td>~5000</td>
+<td>$0.05</td>
+<td>$0.02</td>
+<td>$0.22</td>
+</tr>
+<tr>
+<td>Error analysis</td>
+<td>~3000</td>
+<td>$0.03</td>
+<td>$0.01</td>
+<td>$0.13</td>
+</tr>
+<tr>
+<td>Screenshot analysis</td>
+<td>~2000</td>
+<td>$0.02</td>
+<td>Free</td>
+<td>$0.09</td>
+</tr>
+<tr>
+<td>Pattern extraction</td>
+<td>~7000</td>
+<td>$0.08</td>
+<td>$0.03</td>
+<td>$0.31</td>
+</tr>
+</tbody>
+</table>
+<h3 id="monthly-cost-estimates">Monthly Cost Estimates</h3>
+<p><strong>Budget-Conscious (Gemini):</strong>
+- 100 sessions × $0.03 avg = <strong>~$3-5/month</strong></p>
+<p><strong>Balanced (GPT-5-mini):</strong>
+- 100 sessions × $0.05 avg = <strong>~$5-10/month</strong></p>
+<p><strong>Premium (Claude):</strong>
+- 100 sessions × $0.25 avg = <strong>~$25-50/month</strong></p>
+<p><strong>富豪仕様 (All Premium):</strong>
+- 500 sessions × $0.30 avg = <strong>~$150-200/month</strong></p>
+<h3 id="cost-reduction-tips">Cost Reduction Tips</h3>
+<ol>
+<li><strong>Use Gemini for most operations</strong> - Free during preview, very affordable after</li>
+<li><strong>Set cost thresholds</strong> - Only approve expensive operations</li>
+<li><strong>Use fast models for summaries</strong> - gpt-5-mini is 94% cheaper than Claude</li>
+<li><strong>Cache contexts</strong> - Reuse project context across sessions</li>
+<li><strong>Batch operations</strong> - Analyze patterns weekly, not per session</li>
+</ol>
+<h2 id="multimodal-features">Multimodal Features</h2>
+<h3 id="error-screenshot-analysis">Error Screenshot Analysis</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">await</span> <span class="n">coding_record_error</span><span class="p">(</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;Unknown&quot;</span><span class="p">,</span>  <span class="c1"># Vision AI will detect</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;See screenshot&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    <span class="n">stack_trace</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    <span class="n">line_number</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    <span class="n">screenshot</span><span class="o">=</span><span class="s2">&quot;/path/to/screenshot.png&quot;</span>  <span class="c1"># Vision AI extracts: error type, message, location, code context</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="p">)</span>
+</code></pre></div>
+<p>Vision AI automatically extracts:
+- Error type and message
+- File path and line number
+- Stack trace key frames
+- Visible code context
+- Suggested root cause</p>
+<h3 id="architecture-diagram-analysis">Architecture Diagram Analysis</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.llm.vision</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisionAnalyzer</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="n">vision</span> <span class="o">=</span> <span class="n">VisionAnalyzer</span><span class="p">()</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="n">arch_info</span> <span class="o">=</span> <span class="k">await</span> <span class="n">vision</span><span class="o">.</span><span class="n">analyze_architecture_diagram</span><span class="p">(</span><span class="s2">&quot;docs/architecture.png&quot;</span><span class="p">)</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="nb">print</span><span class="p">(</span><span class="n">arch_info</span><span class="p">[</span><span class="s1">&#39;components&#39;</span><span class="p">])</span>  <span class="c1"># [&#39;API Gateway&#39;, &#39;Auth Service&#39;, &#39;Database&#39;]</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">arch_info</span><span class="p">[</span><span class="s1">&#39;architecture_pattern&#39;</span><span class="p">])</span>  <span class="c1"># &#39;Microservices&#39;</span>
+</code></pre></div>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="1-always-provide-reason-for-changes">1. Always Provide Reason for Changes</h3>
+<p>❌ <strong>Bad:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">diff</span><span class="o">=</span><span class="s2">&quot;Added function&quot;</span><span class="p">,</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Update&quot;</span>
+</code></pre></div></p>
+<p>✅ <strong>Good:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">diff</span><span class="o">=</span><span class="s2">&quot;+ def validate_token(token: str) -&gt; bool:</span><span class="se">\n</span><span class="s2">+     return jwt.decode(...)&quot;</span><span class="p">,</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Add JWT validation to support stateless auth. Needed for mobile app integration.&quot;</span>
+</code></pre></div></p>
+<h3 id="2-record-errors-immediately">2. Record Errors Immediately</h3>
+<p>Record errors when they occur, then update with solution after fixing:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># When error occurs</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="n">error_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_record_error</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="c1"># After fixing (update with solution)</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="n">error</span> <span class="o">=</span> <span class="k">await</span> <span class="n">memory</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="n">error_id</span><span class="p">)</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="n">error</span><span class="o">.</span><span class="n">solution</span> <span class="o">=</span> <span class="s2">&quot;Fixed by using timezone-aware datetimes&quot;</span>
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="n">error</span><span class="o">.</span><span class="n">resolved</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="k">await</span> <span class="n">memory</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">error_id</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="3-use-sessions-for-coherent-work">3. Use Sessions for Coherent Work</h3>
+<p>Group related changes into sessions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Good: Feature implementation session</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="k">await</span> <span class="n">coding_start_session</span><span class="p">(</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Implement rate limiting for API endpoints&quot;</span><span class="p">,</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;feature&quot;</span><span class="p">,</span> <span class="s2">&quot;security&quot;</span><span class="p">,</span> <span class="s2">&quot;performance&quot;</span><span class="p">]</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="p">)</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="c1"># ... all changes tracked automatically ...</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="k">await</span> <span class="n">coding_end_session</span><span class="p">()</span>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="c1"># Also good: Debugging session</span>
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a><span class="k">await</span> <span class="n">coding_start_session</span><span class="p">(</span>
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Debug memory leak in background task&quot;</span><span class="p">,</span>
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>    <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;bugfix&quot;</span><span class="p">,</span> <span class="s2">&quot;performance&quot;</span><span class="p">]</span>
+<a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="4-leverage-semantic-search">4. Leverage Semantic Search</h3>
+<p>Use natural language queries to find relevant past errors:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1"># Instead of exact keywords, use descriptions</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="k">await</span> <span class="n">coding_search_errors</span><span class="p">(</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>    <span class="n">query</span><span class="o">=</span><span class="s2">&quot;problem with async database queries not working&quot;</span><span class="p">,</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>    <span class="n">k</span><span class="o">=</span><span class="mi">5</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="p">)</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="c1"># Finds errors related to async/await, database operations, even if wording differs</span>
+</code></pre></div>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="no-similar-errors-found">"No similar errors found"</h3>
+<ul>
+<li>Need more historical data (record errors as you encounter them)</li>
+<li>RAG might not be enabled (check <code>enable_rag=True</code>)</li>
+<li>Check project_id scope (errors are project-specific)</li>
+</ul>
+<h3 id="insufficient-data-for-pattern-analysis">"Insufficient data for pattern analysis"</h3>
+<ul>
+<li>Requires 10+ file changes for basic analysis</li>
+<li>30+ changes recommended for detailed insights</li>
+<li>Continue coding and tracking activities</li>
+</ul>
+<h3 id="session-already-active-error">"Session already active" error</h3>
+<ul>
+<li>Only one session can be active at a time</li>
+<li>End current session before starting new one:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">await</span> <span class="n">coding_end_session</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># End current</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="k">await</span> <span class="n">coding_start_session</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># Start new</span>
+</code></pre></div>
+<h2 id="roadmap">Roadmap</h2>
+<p><strong>Phase 2: Graph Integration</strong> (Issue #464)
+- Automatic dependency graph from imports
+- Error → solution relationship tracking
+- Design decision → implementation links</p>
+<p><strong>Phase 3: API &amp; CLI</strong>
+- REST API endpoints for non-MCP clients
+- CLI commands (<code>kagura coding start</code>, <code>kagura coding analyze-patterns</code>)
+- Export/import functionality</p>
+<p><strong>Phase 4: Advanced Features</strong>
+- Cross-file refactoring recommendations
+- Proactive error prevention suggestions
+- Team-level pattern aggregation
+- Custom pattern definition</p>
+<h2 id="see-also">See Also</h2>
+<ul>
+<li><a href="../ai_docs/CODING_MEMORY_DESIGN.md">CODING_MEMORY_DESIGN.md</a> - Technical design</li>
+<li><a href="../ai_docs/archive/rfcs/completed/RFC_024_CONTEXT_COMPRESSION.md">RFC-024: Context Compression</a></li>
+<li><a href="https://github.com/JFK/kagura-ai/issues/464">Issue #464</a> - Phase 1 implementation</li>
+<li><a href="../src/kagura/llm/prompts.py">prompts.py</a> - Prompt engineering</li>
+</ul>
+<hr />
+<p><strong>Contributing:</strong> This is a new feature! Please report issues or suggest improvements at <a href="https://github.com/JFK/kagura-ai/issues">GitHub Issues</a>.</p>
+<h3 id="9-coding_analyze_file_dependencies-phase-2">9. <code>coding_analyze_file_dependencies</code> (Phase 2)</h3>
+<p>Analyze Python file dependencies using AST parsing.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">await</span> <span class="n">coding_analyze_file_dependencies</span><span class="p">(</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;src/auth.py&quot;</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="p">)</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="c1"># Output:</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="c1"># 📊 Dependency Analysis: src/auth.py</span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="c1"># </span>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="c1"># Imports (2 files):</span>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="c1"># - src/models/user.py</span>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="c1"># - src/utils/jwt.py</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="c1">#</span>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="c1"># Imported By (3 files):</span>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="c1"># - src/main.py</span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="c1"># - src/api/auth.py</span>
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="c1"># - src/middleware.py</span>
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a><span class="c1">#</span>
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a><span class="c1"># Import Depth: 3</span>
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a><span class="c1"># ✅ No Circular Dependencies</span>
+</code></pre></div>
+<h3 id="10-coding_analyze_refactor_impact-phase-2">10. <code>coding_analyze_refactor_impact</code> (Phase 2)</h3>
+<p>Analyze refactoring impact with risk assessment.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="k">await</span> <span class="n">coding_analyze_refactor_impact</span><span class="p">(</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;src/models/user.py&quot;</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="p">)</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="c1"># Output:</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="c1"># 🔍 Refactoring Impact Analysis: src/models/user.py</span>
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="c1">#</span>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a><span class="c1"># Risk Level: 🚨 HIGH</span>
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a><span class="c1">#</span>
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a><span class="c1"># Affected Files (5):</span>
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a><span class="c1"># - src/auth.py</span>
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a><span class="c1"># - src/api/users.py</span>
+<a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a><span class="c1"># - src/api/posts.py</span>
+<a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a><span class="c1"># - src/middleware.py</span>
+<a id="__codelineno-28-17" name="__codelineno-28-17" href="#__codelineno-28-17"></a><span class="c1"># - src/main.py</span>
+<a id="__codelineno-28-18" name="__codelineno-28-18" href="#__codelineno-28-18"></a><span class="c1">#</span>
+<a id="__codelineno-28-19" name="__codelineno-28-19" href="#__codelineno-28-19"></a><span class="c1"># Recommendations:</span>
+<a id="__codelineno-28-20" name="__codelineno-28-20" href="#__codelineno-28-20"></a><span class="c1"># ⚠️  5 files depend on this - test thoroughly</span>
+<a id="__codelineno-28-21" name="__codelineno-28-21" href="#__codelineno-28-21"></a><span class="c1"># Consider adding integration tests before refactoring</span>
+</code></pre></div>
+<h3 id="11-coding_suggest_refactor_order-phase-2">11. <code>coding_suggest_refactor_order</code> (Phase 2)</h3>
+<p>Suggest safe refactoring order using topological sort.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="k">await</span> <span class="n">coding_suggest_refactor_order</span><span class="p">(</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;api-service&quot;</span><span class="p">,</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>    <span class="n">files</span><span class="o">=</span><span class="s1">&#39;[&quot;src/main.py&quot;, &quot;src/auth.py&quot;, &quot;src/models/user.py&quot;]&#39;</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="p">)</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="c1"># Output:</span>
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a><span class="c1"># 📋 Suggested Refactoring Order:</span>
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a><span class="c1">#</span>
+<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a><span class="c1"># 1. src/models/user.py</span>
+<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a><span class="c1"># 2. src/auth.py</span>
+<a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a><span class="c1"># 3. src/main.py</span>
+<a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a><span class="c1">#</span>
+<a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a><span class="c1"># 💡 Refactor in this order to minimize breaking changes.</span>
+<a id="__codelineno-29-15" name="__codelineno-29-15" href="#__codelineno-29-15"></a><span class="c1"># Leaf dependencies (files with no internal imports) come first.</span>
+</code></pre></div>
+<hr />
+<h2 id="phase-2-advanced-graph-features">Phase 2: Advanced Graph Features</h2>
+<h3 id="automatic-dependency-graph">Automatic Dependency Graph</h3>
+<p><strong>AST-Based Import Analysis:</strong>
+- Automatically parses Python <code>import</code> and <code>from ... import</code> statements
+- Builds dependency graph without manual configuration
+- Detects circular dependencies
+- Calculates import depth</p>
+<p><strong>Usage:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="c1"># Analyze before refactoring</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="n">deps</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">analyze_file_dependencies</span><span class="p">(</span><span class="s2">&quot;src/auth.py&quot;</span><span class="p">)</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="k">if</span> <span class="n">deps</span><span class="p">[</span><span class="s2">&quot;circular_deps&quot;</span><span class="p">]:</span>
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️  Circular dependency: </span><span class="si">{</span><span class="n">deps</span><span class="p">[</span><span class="s1">&#39;circular_deps&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>
+<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This file is imported by </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">deps</span><span class="p">[</span><span class="s1">&#39;imported_by&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> other files&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="error-solution-linking">Error → Solution Linking</h3>
+<p><strong>Automatic Graph Links:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="c1"># Record error with solution</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="n">error_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">record_error</span><span class="p">(</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>    <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;TypeError&quot;</span><span class="p">,</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;datetime comparison failed&quot;</span><span class="p">,</span>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>    <span class="n">stack_trace</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;src/auth.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>    <span class="n">line_number</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>    <span class="n">solution</span><span class="o">=</span><span class="s2">&quot;Use datetime.now(timezone.utc) consistently&quot;</span>
+<a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="p">)</span>
+<a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a>
+<a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a><span class="c1"># Graph automatically creates:</span>
+<a id="__codelineno-31-12" name="__codelineno-31-12" href="#__codelineno-31-12"></a><span class="c1"># - error node</span>
+<a id="__codelineno-31-13" name="__codelineno-31-13" href="#__codelineno-31-13"></a><span class="c1"># - solution node</span>
+<a id="__codelineno-31-14" name="__codelineno-31-14" href="#__codelineno-31-14"></a><span class="c1"># - error → solution edge (solved_by)</span>
+<a id="__codelineno-31-15" name="__codelineno-31-15" href="#__codelineno-31-15"></a>
+<a id="__codelineno-31-16" name="__codelineno-31-16" href="#__codelineno-31-16"></a><span class="c1"># Later, retrieve solutions for similar errors</span>
+<a id="__codelineno-31-17" name="__codelineno-31-17" href="#__codelineno-31-17"></a><span class="n">solutions</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">get_solutions_for_error</span><span class="p">(</span><span class="n">error_id</span><span class="p">)</span>
+<a id="__codelineno-31-18" name="__codelineno-31-18" href="#__codelineno-31-18"></a><span class="k">for</span> <span class="n">sol</span> <span class="ow">in</span> <span class="n">solutions</span><span class="p">:</span>
+<a id="__codelineno-31-19" name="__codelineno-31-19" href="#__codelineno-31-19"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solution: </span><span class="si">{</span><span class="n">sol</span><span class="p">[</span><span class="s1">&#39;solution&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (confidence: </span><span class="si">{</span><span class="n">sol</span><span class="p">[</span><span class="s1">&#39;confidence&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="decision-implementation-linking">Decision → Implementation Linking</h3>
+<p><strong>Track Implementation Progress:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="c1"># Record decision</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="n">decision_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">record_decision</span><span class="p">(</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>    <span class="n">decision</span><span class="o">=</span><span class="s2">&quot;Implement JWT authentication&quot;</span><span class="p">,</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>    <span class="n">rationale</span><span class="o">=</span><span class="s2">&quot;Stateless auth for scaling&quot;</span><span class="p">,</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>    <span class="n">related_files</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;src/auth.py&quot;</span><span class="p">,</span> <span class="s2">&quot;src/middleware.py&quot;</span><span class="p">,</span> <span class="s2">&quot;src/config.py&quot;</span><span class="p">]</span>
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a><span class="p">)</span>
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a>
+<a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a><span class="c1"># Implement in first file</span>
+<a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a><span class="k">await</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">track_file_change</span><span class="p">(</span>
+<a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a>    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;src/auth.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a>    <span class="n">action</span><span class="o">=</span><span class="s2">&quot;create&quot;</span><span class="p">,</span>
+<a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a>    <span class="n">diff</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+<a id="__codelineno-32-13" name="__codelineno-32-13" href="#__codelineno-32-13"></a>    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Implement JWT auth&quot;</span><span class="p">,</span>
+<a id="__codelineno-32-14" name="__codelineno-32-14" href="#__codelineno-32-14"></a>    <span class="n">implements_decision_id</span><span class="o">=</span><span class="n">decision_id</span>  <span class="c1"># Link to decision</span>
+<a id="__codelineno-32-15" name="__codelineno-32-15" href="#__codelineno-32-15"></a><span class="p">)</span>
+<a id="__codelineno-32-16" name="__codelineno-32-16" href="#__codelineno-32-16"></a>
+<a id="__codelineno-32-17" name="__codelineno-32-17" href="#__codelineno-32-17"></a><span class="c1"># Check implementation status</span>
+<a id="__codelineno-32-18" name="__codelineno-32-18" href="#__codelineno-32-18"></a><span class="n">status</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">get_decision_implementation_status</span><span class="p">(</span><span class="n">decision_id</span><span class="p">)</span>
+<a id="__codelineno-32-19" name="__codelineno-32-19" href="#__codelineno-32-19"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Progress: </span><span class="si">{</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;completion&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-32-20" name="__codelineno-32-20" href="#__codelineno-32-20"></a><span class="c1"># → &quot;Progress: 33%&quot; (1 of 3 files implemented)</span>
+<a id="__codelineno-32-21" name="__codelineno-32-21" href="#__codelineno-32-21"></a>
+<a id="__codelineno-32-22" name="__codelineno-32-22" href="#__codelineno-32-22"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pending: </span><span class="si">{</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;pending_files&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-32-23" name="__codelineno-32-23" href="#__codelineno-32-23"></a><span class="c1"># → &quot;Pending: [&#39;src/middleware.py&#39;, &#39;src/config.py&#39;]&quot;</span>
+</code></pre></div></p>
+<h3 id="refactoring-workflow-example">Refactoring Workflow Example</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="c1"># 1. Analyze impact before refactoring</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="n">impact</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">analyze_refactor_impact</span><span class="p">(</span><span class="s2">&quot;src/models/user.py&quot;</span><span class="p">)</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="k">if</span> <span class="n">impact</span><span class="p">[</span><span class="s2">&quot;risk_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;High risk refactoring!&quot;</span><span class="p">)</span>
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Affected files: </span><span class="si">{</span><span class="n">impact</span><span class="p">[</span><span class="s1">&#39;affected_files&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a>
+<a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a>    <span class="c1"># Ask user confirmation</span>
+<a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a>    <span class="n">proceed</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Continue? [y/N]: &quot;</span><span class="p">)</span>
+<a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a>    <span class="k">if</span> <span class="n">proceed</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+<a id="__codelineno-33-11" name="__codelineno-33-11" href="#__codelineno-33-11"></a>        <span class="n">exit</span><span class="p">()</span>
+<a id="__codelineno-33-12" name="__codelineno-33-12" href="#__codelineno-33-12"></a>
+<a id="__codelineno-33-13" name="__codelineno-33-13" href="#__codelineno-33-13"></a><span class="c1"># 2. If refactoring multiple files, get safe order</span>
+<a id="__codelineno-33-14" name="__codelineno-33-14" href="#__codelineno-33-14"></a><span class="n">files_to_refactor</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-33-15" name="__codelineno-33-15" href="#__codelineno-33-15"></a>    <span class="s2">&quot;src/models/user.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-33-16" name="__codelineno-33-16" href="#__codelineno-33-16"></a>    <span class="s2">&quot;src/auth.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-33-17" name="__codelineno-33-17" href="#__codelineno-33-17"></a>    <span class="s2">&quot;src/api/users.py&quot;</span>
+<a id="__codelineno-33-18" name="__codelineno-33-18" href="#__codelineno-33-18"></a><span class="p">]</span>
+<a id="__codelineno-33-19" name="__codelineno-33-19" href="#__codelineno-33-19"></a>
+<a id="__codelineno-33-20" name="__codelineno-33-20" href="#__codelineno-33-20"></a><span class="n">order</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">suggest_refactor_order</span><span class="p">(</span><span class="n">files_to_refactor</span><span class="p">)</span>
+<a id="__codelineno-33-21" name="__codelineno-33-21" href="#__codelineno-33-21"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Refactor in this order: </span><span class="si">{</span><span class="n">order</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-33-22" name="__codelineno-33-22" href="#__codelineno-33-22"></a>
+<a id="__codelineno-33-23" name="__codelineno-33-23" href="#__codelineno-33-23"></a><span class="c1"># 3. Track each refactoring</span>
+<a id="__codelineno-33-24" name="__codelineno-33-24" href="#__codelineno-33-24"></a><span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
+<a id="__codelineno-33-25" name="__codelineno-33-25" href="#__codelineno-33-25"></a>    <span class="k">await</span> <span class="n">coding_mem</span><span class="o">.</span><span class="n">track_file_change</span><span class="p">(</span>
+<a id="__codelineno-33-26" name="__codelineno-33-26" href="#__codelineno-33-26"></a>        <span class="n">file_path</span><span class="o">=</span><span class="n">file</span><span class="p">,</span>
+<a id="__codelineno-33-27" name="__codelineno-33-27" href="#__codelineno-33-27"></a>        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;refactor&quot;</span><span class="p">,</span>
+<a id="__codelineno-33-28" name="__codelineno-33-28" href="#__codelineno-33-28"></a>        <span class="n">diff</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+<a id="__codelineno-33-29" name="__codelineno-33-29" href="#__codelineno-33-29"></a>        <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Refactor </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2"> as part of user model update&quot;</span>
+<a id="__codelineno-33-30" name="__codelineno-33-30" href="#__codelineno-33-30"></a>    <span class="p">)</span>
+</code></pre></div>
+<h3 id="12-coding_link_github_issue-github-integration">12. <code>coding_link_github_issue</code> (GitHub Integration)</h3>
+<p>Link current coding session to a GitHub issue.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="c1"># Auto-detect from branch name (e.g., 464-feat-...)</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="k">await</span> <span class="n">coding_link_github_issue</span><span class="p">(</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span>
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="p">)</span>
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a>
+<a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a><span class="c1"># Or specify explicitly</span>
+<a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a><span class="k">await</span> <span class="n">coding_link_github_issue</span><span class="p">(</span>
+<a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span><span class="p">,</span>
+<a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>    <span class="n">issue_number</span><span class="o">=</span><span class="mi">464</span>
+<a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a><span class="p">)</span>
+<a id="__codelineno-34-13" name="__codelineno-34-13" href="#__codelineno-34-13"></a>
+<a id="__codelineno-34-14" name="__codelineno-34-14" href="#__codelineno-34-14"></a><span class="c1"># Output:</span>
+<a id="__codelineno-34-15" name="__codelineno-34-15" href="#__codelineno-34-15"></a><span class="c1"># ✅ Linked session to GitHub issue #464</span>
+<a id="__codelineno-34-16" name="__codelineno-34-16" href="#__codelineno-34-16"></a><span class="c1"># Title: feat(memory): Implement Coding-Specialized Memory System</span>
+<a id="__codelineno-34-17" name="__codelineno-34-17" href="#__codelineno-34-17"></a><span class="c1"># URL: https://github.com/JFK/kagura-ai/issues/464</span>
+<a id="__codelineno-34-18" name="__codelineno-34-18" href="#__codelineno-34-18"></a><span class="c1"># State: OPEN</span>
+<a id="__codelineno-34-19" name="__codelineno-34-19" href="#__codelineno-34-19"></a><span class="c1"># Labels: enhancement, memory</span>
+</code></pre></div>
+<h3 id="13-coding_generate_pr_description-github-integration">13. <code>coding_generate_pr_description</code> (GitHub Integration)</h3>
+<p>Generate AI-powered PR description from session activities.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="k">await</span> <span class="n">coding_generate_pr_description</span><span class="p">(</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="p">)</span>
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a><span class="c1"># Output:</span>
+<a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a><span class="c1"># 📝 Generated PR Description:</span>
+<a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a><span class="c1">#</span>
+<a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a><span class="c1"># ## Summary</span>
+<a id="__codelineno-35-10" name="__codelineno-35-10" href="#__codelineno-35-10"></a><span class="c1"># Implemented coding-specialized memory system with...</span>
+<a id="__codelineno-35-11" name="__codelineno-35-11" href="#__codelineno-35-11"></a><span class="c1">#</span>
+<a id="__codelineno-35-12" name="__codelineno-35-12" href="#__codelineno-35-12"></a><span class="c1"># ## Changes</span>
+<a id="__codelineno-35-13" name="__codelineno-35-13" href="#__codelineno-35-13"></a><span class="c1"># - Added CodingMemoryManager for project-scoped memory</span>
+<a id="__codelineno-35-14" name="__codelineno-35-14" href="#__codelineno-35-14"></a><span class="c1"># - Implemented 8 MCP tools for file/error/decision tracking</span>
+<a id="__codelineno-35-15" name="__codelineno-35-15" href="#__codelineno-35-15"></a><span class="c1"># ...</span>
+<a id="__codelineno-35-16" name="__codelineno-35-16" href="#__codelineno-35-16"></a><span class="c1">#</span>
+<a id="__codelineno-35-17" name="__codelineno-35-17" href="#__codelineno-35-17"></a><span class="c1"># ## Testing</span>
+<a id="__codelineno-35-18" name="__codelineno-35-18" href="#__codelineno-35-18"></a><span class="c1"># - Run pytest tests/core/memory/</span>
+<a id="__codelineno-35-19" name="__codelineno-35-19" href="#__codelineno-35-19"></a><span class="c1"># - Verify RAG search functionality</span>
+</code></pre></div>
+<h3 id="14-coding_get_issue_context-github-integration">14. <code>coding_get_issue_context</code> (GitHub Integration)</h3>
+<p>Get GitHub issue details for coding context.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="n">context</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_get_issue_context</span><span class="p">(</span><span class="mi">464</span><span class="p">)</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="c1"># Output:</span>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="c1"># # Issue #464: feat(memory): Implement Coding-Specialized Memory System</span>
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="c1">#</span>
+<a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a><span class="c1"># **URL:** https://github.com/JFK/kagura-ai/issues/464</span>
+<a id="__codelineno-36-7" name="__codelineno-36-7" href="#__codelineno-36-7"></a><span class="c1"># **State:** OPEN</span>
+<a id="__codelineno-36-8" name="__codelineno-36-8" href="#__codelineno-36-8"></a><span class="c1"># **Labels:** enhancement, memory</span>
+<a id="__codelineno-36-9" name="__codelineno-36-9" href="#__codelineno-36-9"></a><span class="c1"># **Assignees:** JFK</span>
+<a id="__codelineno-36-10" name="__codelineno-36-10" href="#__codelineno-36-10"></a><span class="c1">#</span>
+<a id="__codelineno-36-11" name="__codelineno-36-11" href="#__codelineno-36-11"></a><span class="c1"># ## Description</span>
+<a id="__codelineno-36-12" name="__codelineno-36-12" href="#__codelineno-36-12"></a><span class="c1"># Implement a coding-specialized memory system for AI coding assistants...</span>
+</code></pre></div>
+<hr />
+<h2 id="github-integration-workflow">GitHub Integration Workflow</h2>
+<h3 id="complete-workflow-example">Complete Workflow Example</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="c1"># 1. Get issue context at start</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="n">issue_context</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_get_issue_context</span><span class="p">(</span><span class="mi">464</span><span class="p">)</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="nb">print</span><span class="p">(</span><span class="n">issue_context</span><span class="p">)</span>  <span class="c1"># Understand requirements</span>
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a><span class="c1"># 2. Start session</span>
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a><span class="n">session_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_start_session</span><span class="p">(</span>
+<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Implement coding memory system (Issue #464)&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a>    <span class="n">tags</span><span class="o">=</span><span class="s1">&#39;[&quot;feature&quot;, &quot;memory&quot;, &quot;issue-464&quot;]&#39;</span>
+<a id="__codelineno-37-11" name="__codelineno-37-11" href="#__codelineno-37-11"></a><span class="p">)</span>
+<a id="__codelineno-37-12" name="__codelineno-37-12" href="#__codelineno-37-12"></a>
+<a id="__codelineno-37-13" name="__codelineno-37-13" href="#__codelineno-37-13"></a><span class="c1"># 3. Auto-link to GitHub issue</span>
+<a id="__codelineno-37-14" name="__codelineno-37-14" href="#__codelineno-37-14"></a><span class="k">await</span> <span class="n">coding_link_github_issue</span><span class="p">(</span>
+<a id="__codelineno-37-15" name="__codelineno-37-15" href="#__codelineno-37-15"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-16" name="__codelineno-37-16" href="#__codelineno-37-16"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span>
+<a id="__codelineno-37-17" name="__codelineno-37-17" href="#__codelineno-37-17"></a><span class="p">)</span>
+<a id="__codelineno-37-18" name="__codelineno-37-18" href="#__codelineno-37-18"></a><span class="c1"># → Automatically detects issue #464 from branch name</span>
+<a id="__codelineno-37-19" name="__codelineno-37-19" href="#__codelineno-37-19"></a>
+<a id="__codelineno-37-20" name="__codelineno-37-20" href="#__codelineno-37-20"></a><span class="c1"># 4. Do your work...</span>
+<a id="__codelineno-37-21" name="__codelineno-37-21" href="#__codelineno-37-21"></a><span class="k">await</span> <span class="n">coding_track_file_change</span><span class="p">(</span>
+<a id="__codelineno-37-22" name="__codelineno-37-22" href="#__codelineno-37-22"></a>    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;src/kagura/core/memory/coding_memory.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-23" name="__codelineno-37-23" href="#__codelineno-37-23"></a>    <span class="n">action</span><span class="o">=</span><span class="s2">&quot;create&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-24" name="__codelineno-37-24" href="#__codelineno-37-24"></a>    <span class="n">diff</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-25" name="__codelineno-37-25" href="#__codelineno-37-25"></a>    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Implement CodingMemoryManager&quot;</span>
+<a id="__codelineno-37-26" name="__codelineno-37-26" href="#__codelineno-37-26"></a><span class="p">)</span>
+<a id="__codelineno-37-27" name="__codelineno-37-27" href="#__codelineno-37-27"></a>
+<a id="__codelineno-37-28" name="__codelineno-37-28" href="#__codelineno-37-28"></a><span class="k">await</span> <span class="n">coding_record_decision</span><span class="p">(</span>
+<a id="__codelineno-37-29" name="__codelineno-37-29" href="#__codelineno-37-29"></a>    <span class="n">decision</span><span class="o">=</span><span class="s2">&quot;Use project-scoped memory (user_id + project_id)&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-30" name="__codelineno-37-30" href="#__codelineno-37-30"></a>    <span class="n">rationale</span><span class="o">=</span><span class="s2">&quot;Isolate memories by project for better organization&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-31" name="__codelineno-37-31" href="#__codelineno-37-31"></a>    <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;architecture&quot;</span><span class="p">]</span>
+<a id="__codelineno-37-32" name="__codelineno-37-32" href="#__codelineno-37-32"></a><span class="p">)</span>
+<a id="__codelineno-37-33" name="__codelineno-37-33" href="#__codelineno-37-33"></a>
+<a id="__codelineno-37-34" name="__codelineno-37-34" href="#__codelineno-37-34"></a><span class="c1"># 5. End session with AI summary</span>
+<a id="__codelineno-37-35" name="__codelineno-37-35" href="#__codelineno-37-35"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_end_session</span><span class="p">(</span>
+<a id="__codelineno-37-36" name="__codelineno-37-36" href="#__codelineno-37-36"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-37" name="__codelineno-37-37" href="#__codelineno-37-37"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-38" name="__codelineno-37-38" href="#__codelineno-37-38"></a>    <span class="n">success</span><span class="o">=</span><span class="kc">True</span>
+<a id="__codelineno-37-39" name="__codelineno-37-39" href="#__codelineno-37-39"></a><span class="p">)</span>
+<a id="__codelineno-37-40" name="__codelineno-37-40" href="#__codelineno-37-40"></a>
+<a id="__codelineno-37-41" name="__codelineno-37-41" href="#__codelineno-37-41"></a><span class="c1"># 6. Generate PR description</span>
+<a id="__codelineno-37-42" name="__codelineno-37-42" href="#__codelineno-37-42"></a><span class="n">pr_desc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coding_generate_pr_description</span><span class="p">(</span>
+<a id="__codelineno-37-43" name="__codelineno-37-43" href="#__codelineno-37-43"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;dev_john&quot;</span><span class="p">,</span>
+<a id="__codelineno-37-44" name="__codelineno-37-44" href="#__codelineno-37-44"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;kagura-ai&quot;</span>
+<a id="__codelineno-37-45" name="__codelineno-37-45" href="#__codelineno-37-45"></a><span class="p">)</span>
+<a id="__codelineno-37-46" name="__codelineno-37-46" href="#__codelineno-37-46"></a>
+<a id="__codelineno-37-47" name="__codelineno-37-47" href="#__codelineno-37-47"></a><span class="c1"># 7. Create PR with generated description</span>
+<a id="__codelineno-37-48" name="__codelineno-37-48" href="#__codelineno-37-48"></a><span class="c1"># (manually copy pr_desc or save to file)</span>
+<a id="__codelineno-37-49" name="__codelineno-37-49" href="#__codelineno-37-49"></a><span class="c1"># gh pr create --title &quot;feat(memory): Implement coding memory&quot; --body &quot;$pr_desc&quot;</span>
+</code></pre></div>
+<h3 id="auto-detection-features">Auto-Detection Features</h3>
+<p><strong>Branch Name → Issue Number:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>Branch: &quot;464-featmemory-implement-coding-specialized-memory-system&quot;
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>→ Auto-detects: Issue #464
+</code></pre></div></p>
+<p><strong>Session → GitHub Context:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>Session linked to Issue #464
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>→ Session summary includes:
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>  - Issue title
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>  - Issue labels
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a>  - Issue URL
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>  - Automatically adds &quot;Closes #464&quot; to PR description
+</code></pre></div></p>
+<h3 id="benefits">Benefits</h3>
+<ol>
+<li><strong>Traceability</strong>: Code → Session → Issue → PR (完全な追跡)</li>
+<li><strong>Context Preservation</strong>: Issue詳細がセッションコンテキストに含まれる</li>
+<li><strong>Automation</strong>: PR説明文自動生成</li>
+<li><strong>Graph Relationships</strong>: Issue-Session-PR の関係がグラフで管理</li>
+<li><strong>No Manual Work</strong>: Branch名から自動検出、手動入力不要</li>
+</ol>
+<hr />
+<h2 id="requirements">Requirements</h2>
+<h3 id="for-github-integration">For GitHub Integration</h3>
+<p><strong>Required:</strong>
+- <code>gh</code> CLI installed and authenticated
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="c1"># Install gh CLI</span>
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>brew<span class="w"> </span>install<span class="w"> </span>gh<span class="w">  </span><span class="c1"># macOS</span>
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="c1"># or download from: https://cli.github.com/</span>
+<a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a>
+<a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a><span class="c1"># Authenticate</span>
+<a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a>gh<span class="w"> </span>auth<span class="w"> </span>login
+</code></pre></div></p>
+<p><strong>Optional:</strong>
+- Git repository with GitHub remote
+- GitHub issue tracking enabled
+- Branch naming convention: <code>{issue_number}-{description}</code></p>
+<h3 id="troubleshooting_1">Troubleshooting</h3>
+<p><strong>"Failed to fetch issue":</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="c1"># Check gh authentication</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>gh<span class="w"> </span>auth<span class="w"> </span>status
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="c1"># Re-authenticate if needed</span>
+<a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>gh<span class="w"> </span>auth<span class="w"> </span>login
+<a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a>
+<a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a><span class="c1"># Test manually</span>
+<a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a>gh<span class="w"> </span>issue<span class="w"> </span>view<span class="w"> </span><span class="m">464</span><span class="w"> </span>--json<span class="w"> </span>title
+</code></pre></div></p>
+<p><strong>"Could not detect issue number":</strong>
+- Branch name must start with digits: <code>464-feat-...</code> ✅
+- Invalid: <code>feat-464</code>, <code>feature-branch</code> ❌
+- Rename branch: <code>git branch -m 464-feat-my-feature</code></p>
+<p><strong>"No active session":</strong>
+- Start session first: <code>await coding_start_session(...)</code>
+- Then link to issue: <code>await coding_link_github_issue(...)</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  ページトップへ戻る
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/JFK/kagura-ai" target="_blank" rel="noopener" title="GitHub Repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://pypi.org/project/kagura-ai/" target="_blank" rel="noopener" title="PyPI Package" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.instant", "navigation.tracking", "navigation.top"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f", "clipboard.copy": "\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u3078\u30b3\u30d4\u30fc", "search.result.more.one": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3082\u30461\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.more.other": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3042\u3068#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.none": "\u4f55\u3082\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f", "search.result.one": "1\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.other": "#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.placeholder": "\u691c\u7d22\u30ad\u30fc\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044", "search.result.term.missing": "\u691c\u7d22\u306b\u542b\u307e\u308c\u306a\u3044", "select.version": "\u30d0\u30fc\u30b8\u30e7\u30f3\u5207\u308a\u66ff\u3048"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="../../assets/custom.js"></script>
+      
+    
+  </body>
+</html>

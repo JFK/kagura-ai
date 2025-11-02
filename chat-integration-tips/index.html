@@ -1,0 +1,3205 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Universal AI Memory Platform - MCP-native memory for all your AIs">
+      
+      
+      
+        <link rel="canonical" href="https://www.kagura-ai.com/chat-integration-tips/">
+      
+      
+        <link rel="prev" href="../mcp-http-setup/">
+      
+      
+        <link rel="next" href="../self-hosting/">
+      
+      
+      <link rel="icon" href="../assets/kagura-icon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.21">
+    
+    
+      
+        <title>Chat Integration Tips - Kagura AI Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2a3383ac.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/custom.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="red">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Kagura AI Documentation" class="md-header__button md-logo" aria-label="Kagura AI Documentation" data-md-component="logo">
+      
+  <img src="../assets/kagura-icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kagura AI Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Chat Integration Tips
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../ja/chat-integration-tips/" hreflang="ja" class="md-select__link">
+              日本語
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kagura AI Documentation" class="md-nav__button md-logo" aria-label="Kagura AI Documentation" data-md-component="logo">
+      
+  <img src="../assets/kagura-icon.svg" alt="logo">
+
+    </a>
+    Kagura AI Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start (10 min)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MCP Integration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            MCP Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Desktop
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-claude-code-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Code
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-http-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remote MCP (ChatGPT)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            User Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Chat Integration Tips
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chat Integration Tips
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 概要
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 概要">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kagura-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kagura AIとは?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-mcp-vs-local-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote MCP vs Local MCP
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚡ クイックスタート
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚡ クイックスタート">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-kagura-remote-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Kagura Remote MCPサーバーを起動
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: AIプラットフォームを設定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: 試してみよう!
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remote-mcp-4956" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧰 Remote MCPツール (49/56)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧰 Remote MCPツール (49/56)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ 利用可能なツール
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ 利用可能なツール">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      メモリーツール (13ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#web-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Web検索ツール (5ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      アカデミック検索 (1ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#youtube-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      YouTubeツール (4ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      マルチモーダルツール (2ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      コーディングツール (14ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHubツール (6ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      テレメトリーツール (2ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      その他のツール (2ツール)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ ローカル専用ツール (7ツール)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      💡 推奨ワークフロー
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="💡 推奨ワークフロー">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      パターン1: 小さなデータ (コンテキストに保持) 🔵
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      パターン2: 重要なデータ (永続的メモリー) ⭐ 推奨
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-rag" class="md-nav__link">
+    <span class="md-ellipsis">
+      パターン3: 大きなデータ (マルチモーダルRAG) 🚀
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      📝 プロンプト例 (コピー&amp;ペースト)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📝 プロンプト例 (コピー&amp;ペースト)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      メモリー操作
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#web" class="md-nav__link">
+    <span class="md-ellipsis">
+      Web検索
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#youtube" class="md-nav__link">
+    <span class="md-ellipsis">
+      YouTube
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      コーディング
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌍 クロスプラットフォームメモリー
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🌍 クロスプラットフォームメモリー">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#user_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      user_id管理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      agent_nameスコーピング
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      メモリースコープ
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#faq" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❓ よくある質問 (FAQ)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="❓ よくある質問 (FAQ)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#q" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: なぜファイルを添付できないのですか?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: 会話が終わるとメモリーが消えてしまいます。なぜですか?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: 異なるAIプラットフォーム間でメモリーを共有するには?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: 検索結果が不正確です。どうすれば改善できますか?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: どのくらいコストがかかりますか?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: 私のデータはプライベートですか?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 トラブルシューティング
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 トラブルシューティング">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      メモリーが見つからない
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      検索結果が何も返さない
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      高いAPIコスト
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote MCP接続が失敗する
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 上級のヒント
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 上級のヒント">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-graphmemory" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. ナレッジディスカバリーのためのGraphMemory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. パターン分析
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. セッションサマリー
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ファクトチェックワークフロー
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 関連ドキュメント
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 追加リソース
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 追加リソース">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      公式リンク
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      コミュニティ
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../self-hosting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Self-Hosting Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory Export/Import
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rest-api-usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    REST API Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Architecture Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Workflow Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Workflow Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/chatgpt-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ChatGPT Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/claude-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    REST API & MCP Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    OpenAPI Specification
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            OpenAPI Specification
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/reference.yaml" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    YAML Spec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JFK/kagura-ai/tree/main/examples" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code Examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    For Developers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            For Developers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    How to Contribute
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/JFK/kagura-ai/blob/main/CODE_OF_CONDUCT.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code of Conduct
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 概要
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 概要">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kagura-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kagura AIとは?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-mcp-vs-local-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote MCP vs Local MCP
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚡ クイックスタート
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚡ クイックスタート">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-kagura-remote-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Kagura Remote MCPサーバーを起動
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: AIプラットフォームを設定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: 試してみよう!
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remote-mcp-4956" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧰 Remote MCPツール (49/56)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧰 Remote MCPツール (49/56)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ 利用可能なツール
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ 利用可能なツール">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      メモリーツール (13ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#web-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Web検索ツール (5ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      アカデミック検索 (1ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#youtube-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      YouTubeツール (4ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      マルチモーダルツール (2ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      コーディングツール (14ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHubツール (6ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      テレメトリーツール (2ツール)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      その他のツール (2ツール)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❌ ローカル専用ツール (7ツール)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      💡 推奨ワークフロー
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="💡 推奨ワークフロー">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      パターン1: 小さなデータ (コンテキストに保持) 🔵
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      パターン2: 重要なデータ (永続的メモリー) ⭐ 推奨
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-rag" class="md-nav__link">
+    <span class="md-ellipsis">
+      パターン3: 大きなデータ (マルチモーダルRAG) 🚀
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      📝 プロンプト例 (コピー&amp;ペースト)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📝 プロンプト例 (コピー&amp;ペースト)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      メモリー操作
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#web" class="md-nav__link">
+    <span class="md-ellipsis">
+      Web検索
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#youtube" class="md-nav__link">
+    <span class="md-ellipsis">
+      YouTube
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      コーディング
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌍 クロスプラットフォームメモリー
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🌍 クロスプラットフォームメモリー">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#user_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      user_id管理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      agent_nameスコーピング
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      メモリースコープ
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#faq" class="md-nav__link">
+    <span class="md-ellipsis">
+      ❓ よくある質問 (FAQ)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="❓ よくある質問 (FAQ)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#q" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: なぜファイルを添付できないのですか?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: 会話が終わるとメモリーが消えてしまいます。なぜですか?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: 異なるAIプラットフォーム間でメモリーを共有するには?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: 検索結果が不正確です。どうすれば改善できますか?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: どのくらいコストがかかりますか?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: 私のデータはプライベートですか?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 トラブルシューティング
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 トラブルシューティング">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      メモリーが見つからない
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      検索結果が何も返さない
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      高いAPIコスト
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote MCP接続が失敗する
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 上級のヒント
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 上級のヒント">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-graphmemory" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. ナレッジディスカバリーのためのGraphMemory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. パターン分析
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. セッションサマリー
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ファクトチェックワークフロー
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 関連ドキュメント
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 追加リソース
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 追加リソース">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      公式リンク
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      コミュニティ
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">チャット統合のヒントとベストプラクティス</h1>
+<blockquote>
+<p><strong>ChatGPT、Claude Chat、その他のAIプラットフォームでKagura AIを最大限に活用する</strong></p>
+</blockquote>
+<p>このガイドは、Remote MCP (Model Context Protocol) を使用してチャットベースのAIプラットフォームと統合する際に、Kagura AIを最大限に活用するためのものです。</p>
+<hr />
+<h2 id="_2">📋 概要</h2>
+<h3 id="kagura-ai">Kagura AIとは?</h3>
+<p>Kagura AIは、Claude、ChatGPT、Gemini、そしてすべてのAIエージェント間で会話とナレッジを<strong>共有できる</strong>、<strong>ユニバーサルメモリープラットフォーム</strong>です。</p>
+<p><strong>主な機能</strong>:
+- 🧠 <strong>ユニバーサルメモリー</strong>: すべてのAIプラットフォーム間で情報を保存・呼び出し
+- 🔍 <strong>スマート検索</strong>: ベクトル埋め込み + BM25によるセマンティック検索
+- 📊 <strong>ナレッジグラフ</strong>: メモリー間の関係を追跡
+- 🌐 <strong>Web統合</strong>: Web、YouTube、arXivを直接検索
+- 🎨 <strong>マルチモーダル</strong>: 画像、PDF、音声のインデックス化と検索
+- 💻 <strong>コーディングサポート</strong>: ファイル変更、エラー、設計決定を追跡</p>
+<h3 id="remote-mcp-vs-local-mcp">Remote MCP vs Local MCP</h3>
+<table>
+<thead>
+<tr>
+<th>機能</th>
+<th>Remote MCP</th>
+<th>Local MCP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>プラットフォーム</strong></td>
+<td>ChatGPT、Claude Chat、Gemini</td>
+<td>Claude Desktop、Claude Code、Cursor</td>
+</tr>
+<tr>
+<td><strong>トランスポート</strong></td>
+<td>HTTP/SSE</td>
+<td>stdio</td>
+</tr>
+<tr>
+<td><strong>ファイルアクセス</strong></td>
+<td>❌ なし</td>
+<td>✅ あり</td>
+</tr>
+<tr>
+<td><strong>メモリーツール</strong></td>
+<td>✅ 全て (49/56)</td>
+<td>✅ 全て (56/56)</td>
+</tr>
+<tr>
+<td><strong>セキュリティ</strong></td>
+<td>API Key必須</td>
+<td>ローカルのみ</td>
+</tr>
+</tbody>
+</table>
+<p><strong>このガイドはRemote MCP</strong> (ChatGPT、Claude Chatなど) に焦点を当てています。</p>
+<hr />
+<h2 id="_3">⚡ クイックスタート</h2>
+<h3 id="step-1-kagura-remote-mcp">Step 1: Kagura Remote MCPサーバーを起動</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Kaguraをインストール</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>full<span class="o">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Remote MCPサーバーを起動</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.prod.yml<span class="w"> </span>up<span class="w"> </span>-d
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># または開発モード</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>uvicorn<span class="w"> </span>kagura.api.server:app<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8080</span>
+</code></pre></div>
+<h3 id="step-2-ai">Step 2: AIプラットフォームを設定</h3>
+<p><strong>ChatGPT</strong> (MCP over HTTP/SSE経由):
+1. ChatGPT設定 → ツール を開く
+2. MCPサーバーを追加: <code>https://your-domain.com/mcp</code>
+3. API Keyを追加 (オプション、本番環境では推奨)</p>
+<p><strong>Claude Chat</strong> (将来サポート予定):
+- Anthropicは2026年にClaude Chat向けMCPサポートを発表</p>
+<p>参照: <a href="../mcp-http-setup/">MCP over HTTP/SSE セットアップガイド</a></p>
+<h3 id="step-3">Step 3: 試してみよう!</h3>
+<p>AIチャットで以下のプロンプトを試してください:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>&quot;こんにちは! memory_stats を実行してKaguraのステータスを表示できますか?&quot;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>&quot;私のお気に入りのプログラミング言語はPythonであることを覚えておいて&quot;
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>&quot;Python 3.13のリリースノートをWebで検索して&quot;
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>&quot;私の好みについて何を覚えていますか?&quot;
+</code></pre></div>
+<hr />
+<h2 id="remote-mcp-4956">🧰 Remote MCPツール (49/56)</h2>
+<h3 id="_4">✅ 利用可能なツール</h3>
+<h4 id="13">メモリーツール (13ツール)</h4>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>説明</th>
+<th>使用例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>memory_store</code></td>
+<td>情報を保存</td>
+<td>"Xを覚えておいて"</td>
+</tr>
+<tr>
+<td><code>memory_recall</code></td>
+<td>キーで取得</td>
+<td>"Yについて何と言いましたか?"</td>
+</tr>
+<tr>
+<td><code>memory_search</code></td>
+<td>セマンティック検索</td>
+<td>"Zに関するメモリーを検索"</td>
+</tr>
+<tr>
+<td><code>memory_list</code></td>
+<td>全メモリーをリスト</td>
+<td>"何を覚えていますか?"</td>
+</tr>
+<tr>
+<td><code>memory_delete</code></td>
+<td>情報を忘れる</td>
+<td>"Xについて忘れて"</td>
+</tr>
+<tr>
+<td><code>memory_feedback</code></td>
+<td>有用/古いとマーク</td>
+<td>自動</td>
+</tr>
+<tr>
+<td><code>memory_fetch</code></td>
+<td>特定のメモリーを取得</td>
+<td>内部使用</td>
+</tr>
+<tr>
+<td><code>memory_search_ids</code></td>
+<td>IDのみで検索</td>
+<td>低トークン検索</td>
+</tr>
+<tr>
+<td><code>memory_stats</code></td>
+<td>メモリー統計を取得</td>
+<td>"メモリー統計を表示"</td>
+</tr>
+<tr>
+<td><code>memory_get_related</code></td>
+<td>関連メモリーを取得</td>
+<td>グラフトラバーサル</td>
+</tr>
+<tr>
+<td><code>memory_get_user_pattern</code></td>
+<td>ユーザーパターンを分析</td>
+<td>"私の興味は何?"</td>
+</tr>
+<tr>
+<td><code>memory_record_interaction</code></td>
+<td>インタラクションを追跡</td>
+<td>自動</td>
+</tr>
+</tbody>
+</table>
+<h4 id="web-5">Web検索ツール (5ツール)</h4>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>brave_web_search</code></td>
+<td>一般的なWeb検索</td>
+</tr>
+<tr>
+<td><code>brave_image_search</code></td>
+<td>画像検索</td>
+</tr>
+<tr>
+<td><code>brave_video_search</code></td>
+<td>動画検索</td>
+</tr>
+<tr>
+<td><code>brave_news_search</code></td>
+<td>ニュース検索</td>
+</tr>
+<tr>
+<td><code>web_scrape</code></td>
+<td>Webページをスクレイピング</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注</strong>: <code>BRAVE_API_KEY</code> 環境変数が必要</p>
+<h4 id="1">アカデミック検索 (1ツール)</h4>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>arxiv_search</code></td>
+<td>arXivで学術論文を検索</td>
+</tr>
+</tbody>
+</table>
+<h4 id="youtube-4">YouTubeツール (4ツール)</h4>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>説明</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_youtube_transcript</code></td>
+<td>動画の文字起こしを取得</td>
+<td>"この動画を文字起こしして"</td>
+</tr>
+<tr>
+<td><code>get_youtube_metadata</code></td>
+<td>動画情報を取得</td>
+<td>"動画の詳細を取得"</td>
+</tr>
+<tr>
+<td><code>youtube_summarize</code></td>
+<td>動画を要約</td>
+<td>"このYouTube動画を要約して"</td>
+</tr>
+<tr>
+<td><code>youtube_fact_check</code></td>
+<td>主張を検証</td>
+<td>"この動画の主張を事実確認して"</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2">マルチモーダルツール (2ツール)</h4>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>説明</th>
+<th>注意</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>multimodal_index</code></td>
+<td>画像/PDF/音声をインデックス化</td>
+<td>Gemini API必須</td>
+</tr>
+<tr>
+<td><code>multimodal_search</code></td>
+<td>インデックス化されたコンテンツを検索</td>
+<td>Gemini API必須</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注</strong>: Remote MCP経由のファイルアップロードはv4.1で提供予定 (<a href="https://github.com/JFK/kagura-ai/issues/462">Issue #462</a>)</p>
+<h4 id="14">コーディングツール (14ツール)</h4>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>coding_start_session</code></td>
+<td>コーディングセッションを開始</td>
+</tr>
+<tr>
+<td><code>coding_end_session</code></td>
+<td>セッション終了 + AI要約</td>
+</tr>
+<tr>
+<td><code>coding_track_file_change</code></td>
+<td>ファイル変更を追跡</td>
+</tr>
+<tr>
+<td><code>coding_record_error</code></td>
+<td>スタックトレース付きでエラーを記録</td>
+</tr>
+<tr>
+<td><code>coding_search_errors</code></td>
+<td>過去の類似エラーを検索</td>
+</tr>
+<tr>
+<td><code>coding_record_decision</code></td>
+<td>設計決定を記録</td>
+</tr>
+<tr>
+<td><code>coding_analyze_patterns</code></td>
+<td>コーディング設定を分析</td>
+</tr>
+<tr>
+<td><code>coding_analyze_file_dependencies</code></td>
+<td>ASTベースの依存関係分析</td>
+</tr>
+<tr>
+<td><code>coding_analyze_refactor_impact</code></td>
+<td>リファクタリング影響評価</td>
+</tr>
+<tr>
+<td><code>coding_suggest_refactor_order</code></td>
+<td>安全なリファクタリング順序</td>
+</tr>
+<tr>
+<td><code>coding_get_project_context</code></td>
+<td>プロジェクト概要を取得</td>
+</tr>
+<tr>
+<td><code>coding_get_issue_context</code></td>
+<td>GitHub issue詳細を取得</td>
+</tr>
+<tr>
+<td><code>coding_link_github_issue</code></td>
+<td>セッションをissueにリンク</td>
+</tr>
+<tr>
+<td><code>coding_generate_pr_description</code></td>
+<td>AI生成PR説明</td>
+</tr>
+</tbody>
+</table>
+<h4 id="github-6">GitHubツール (6ツール)</h4>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>github_exec</code></td>
+<td>安全なGitHub CLI実行</td>
+</tr>
+<tr>
+<td><code>github_issue_list</code></td>
+<td>issueをリスト</td>
+</tr>
+<tr>
+<td><code>github_issue_view</code></td>
+<td>issue詳細を表示</td>
+</tr>
+<tr>
+<td><code>github_pr_view</code></td>
+<td>PR詳細を表示</td>
+</tr>
+<tr>
+<td><code>github_pr_create</code></td>
+<td>PRを作成</td>
+</tr>
+<tr>
+<td><code>github_pr_merge</code></td>
+<td>PRをマージ</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注</strong>: <code>gh</code> CLIのインストールと認証が必要</p>
+<h4 id="2_1">テレメトリーツール (2ツール)</h4>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>telemetry_stats</code></td>
+<td>使用統計を取得</td>
+</tr>
+<tr>
+<td><code>telemetry_cost</code></td>
+<td>コストサマリーを取得</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2_2">その他のツール (2ツール)</h4>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fact_check_claim</code></td>
+<td>Web検索を使用して主張を検証</td>
+</tr>
+<tr>
+<td><code>route_query</code></td>
+<td>適切なエージェントにルーティング (プレースホルダー)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="7">❌ ローカル専用ツール (7ツール)</h3>
+<p>これらのツールは<strong>Local MCPでのみ動作</strong>します (Claude Desktop、Claude Code、Cursor):</p>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>なぜローカル専用?</th>
+<th>代替手段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file_read</code></td>
+<td>直接ファイルシステムアクセス</td>
+<td>コンテンツをコピー&amp;ペースト</td>
+</tr>
+<tr>
+<td><code>file_write</code></td>
+<td>直接ファイルシステムアクセス</td>
+<td>出力をコピー&amp;ペースト</td>
+</tr>
+<tr>
+<td><code>dir_list</code></td>
+<td>直接ファイルシステムアクセス</td>
+<td>手動でファイルをリスト</td>
+</tr>
+<tr>
+<td><code>shell_exec</code></td>
+<td>シェルコマンド実行</td>
+<td>GitHub CLIは <code>github_exec</code> を使用</td>
+</tr>
+<tr>
+<td><code>media_open_image</code></td>
+<td>OSアプリケーションを開く</td>
+<td>該当なし</td>
+</tr>
+<tr>
+<td><code>media_open_audio</code></td>
+<td>OSアプリケーションを開く</td>
+<td>該当なし</td>
+</tr>
+<tr>
+<td><code>media_open_video</code></td>
+<td>OSアプリケーションを開く</td>
+<td>該当なし</td>
+</tr>
+</tbody>
+</table>
+<p><strong>将来</strong>: Remote MCP経由のファイルアップロードはv4.1で計画中 (<a href="https://github.com/JFK/kagura-ai/issues/462">Issue #462</a>)</p>
+<hr />
+<h2 id="_5">💡 推奨ワークフロー</h2>
+<h3 id="1_1">パターン1: 小さなデータ (コンテキストに保持) 🔵</h3>
+<p><strong>いつ使うか</strong>: 現在の会話でのみ必要な少量の情報</p>
+<p><strong>方法</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ユーザー: &quot;Python 3.13は2024年10月7日にリリースされました&quot;
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>AI: [会話コンテキストに保持、保存なし]
+</code></pre></div></p>
+<p><strong>メリット</strong>: 高速、オーバーヘッドなし
+<strong>デメリット</strong>: 会話終了後に失われる</p>
+<hr />
+<h3 id="2_3">パターン2: 重要なデータ (永続的メモリー) ⭐ 推奨</h3>
+<p><strong>いつ使うか</strong>: 長期的に覚えておきたい情報</p>
+<p><strong>方法</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ユーザー: &quot;バックエンドプロジェクトではDjangoよりもFastAPIを好むことを覚えておいて。
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>       これは重要で永続的である必要があります。&quot;
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>AI: [scope=&quot;persistent&quot;でmemory_storeを使用]
+</code></pre></div></p>
+<p><strong>後で</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ユーザー: &quot;新しいプロジェクトにはどのバックエンドフレームワークを使うべきですか?&quot;
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>AI: [memory_recall/searchを使用して設定を取得]
+</code></pre></div></p>
+<p><strong>メリット</strong>:
+- 会話を超えて存続
+- すべてのAIプラットフォームで動作
+- セマンティックに検索可能</p>
+<p><strong>デメリット</strong>: 覚えておくための明示的な指示が必要</p>
+<p><strong>ベストプラクティス</strong>:
+- "覚えて"、"保存"、"永続化"などのキーワードを使用
+- 明示的に: "これは重要です"
+- コンテキストを追加: "バックエンドプロジェクト用"</p>
+<hr />
+<h3 id="3-rag">パターン3: 大きなデータ (マルチモーダルRAG) 🚀</h3>
+<p><strong>いつ使うか</strong>: 大きなドキュメント、画像、複数ファイル</p>
+<p><strong>方法</strong> (Gemini API必須):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ユーザー: &quot;./photosディレクトリ内のすべての画像をインデックス化して&quot;
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>AI: [multimodal_indexを使用]
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>ユーザー: &quot;犬が写っている写真を検索して&quot;
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>AI: [multimodal_searchを使用]
+</code></pre></div></p>
+<p><strong>メリット</strong>:
+- 大規模なデータセットを処理
+- セマンティック画像検索
+- 多言語サポート</p>
+<p><strong>デメリット</strong>:
+- Gemini APIキーが必要
+- Remote MCP経由のファイルアップロードはまだ利用不可 (v4.1で提供予定)</p>
+<p><strong>現在の回避策</strong>: ファイルのインデックス化にはLocal MCP (Claude Desktop) を使用</p>
+<hr />
+<h2 id="_6">📝 プロンプト例 (コピー&amp;ペースト)</h2>
+<h3 id="_7">メモリー操作</h3>
+<p><strong>保存</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>&quot;私のプロジェクトの締切は2025年12月31日であることを覚えておいて。これは重要です。&quot;
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>&quot;この情報を保存: 私はAcme CorpでPython開発者として働いています&quot;
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>&quot;私のコーディングスタイルの設定を覚えておいて: 常に型ヒントとdocstringを使用&quot;
+</code></pre></div></p>
+<p><strong>検索</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>&quot;私のプロジェクトの締切について何を覚えていますか?&quot;
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>&quot;私のコーディング設定に関連するすべてのメモリーを検索&quot;
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>&quot;私について何を知っていますか?&quot;
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>&quot;&#39;python&#39;でタグ付けされたすべてのメモリーを表示&quot;
+</code></pre></div></p>
+<p><strong>削除</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>&quot;私の古いJavaScriptの設定について忘れて&quot;
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>&quot;私の前職についてのメモリーを削除&quot;
+</code></pre></div></p>
+<p><strong>統計</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>&quot;私についてのメモリーはいくつありますか?&quot;
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>&quot;メモリー統計を表示&quot;
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>&quot;私の最も一般的なトピックは何ですか?&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="web">Web検索</h3>
+<p><strong>最新ニュース</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>&quot;Pythonの最新バージョンは何ですか? Webを検索して。&quot;
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>&quot;FastAPIフレームワークに関する最近のニュースを検索&quot;
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>&quot;Python 3.13のリリースノートを検索&quot;
+</code></pre></div></p>
+<p><strong>比較</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>&quot;FastAPIとDjangoを比較。長所と短所をWebで検索して。&quot;
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>&quot;PostgreSQLとMySQLを比較するベンチマークを検索&quot;
+</code></pre></div></p>
+<p><strong>画像</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>&quot;&#39;ニューラルネットワークアーキテクチャ図&#39;の画像を検索&quot;
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>&quot;VSCodeテーマのスクリーンショットを検索&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="youtube">YouTube</h3>
+<p><strong>要約</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>&quot;このYouTube動画を要約して: https://www.youtube.com/watch?v=xxxxx&quot;
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>&quot;このチュートリアル動画から要点を教えて: [URL]&quot;
+</code></pre></div></p>
+<p><strong>ファクトチェック</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>&quot;この動画で主張されていることを事実確認して: [URL]&quot;
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>&quot;[URL]で言及されている統計が正確か検証して&quot;
+</code></pre></div></p>
+<p><strong>文字起こし</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>&quot;この動画の文字起こしを取得: [URL]&quot;
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>&quot;このチュートリアルからコード例を抽出: [URL]&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="_8">コーディング</h3>
+<p><strong>セッション開始</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>&quot;ユーザー認証の実装のためのコーディングセッションを開始&quot;
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>&quot;Issue #123での作業の追跡を開始&quot;
+</code></pre></div></p>
+<p><strong>変更の追跡</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>&quot;auth.pyを修正してOAuth2サポートを追加しました&quot;
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>&quot;データベース接続のバグを修正したことを記録&quot;
+</code></pre></div></p>
+<p><strong>エラーの記録</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>&quot;このエラーを記録: [スタックトレースを貼り付け]&quot;
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>&quot;スクリーンショット付きでこのTypeScriptエラーを記録&quot;
+</code></pre></div></p>
+<p><strong>過去のエラーを検索</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>&quot;この&#39;Connection refused&#39;エラーを以前見たことがありますか?&quot;
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>&quot;過去のセッションから類似のデータベースマイグレーションエラーを検索&quot;
+</code></pre></div></p>
+<p><strong>セッション終了</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>&quot;コーディングセッションを終了して要約を生成&quot;
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>&quot;セッションを終了してPR説明を作成&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="github">GitHub</h3>
+<p><strong>Issueのリスト</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>&quot;JFK/kagura-aiリポジトリのオープンなissueをリスト&quot;
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>&quot;&#39;bug&#39;と&#39;priority:high&#39;のラベルが付いたissueを表示&quot;
+</code></pre></div></p>
+<p><strong>詳細表示</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>&quot;issue #463の詳細を取得&quot;
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>&quot;PR #472を表示&quot;
+</code></pre></div></p>
+<p><strong>安全な実行</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>&quot;実行: gh issue list --repo JFK/kagura-ai --state open&quot;
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>&quot;実行: gh pr view 472&quot;
+</code></pre></div></p>
+<hr />
+<h2 id="_9">🌍 クロスプラットフォームメモリー</h2>
+<h3 id="user_id">user_id管理</h3>
+<p><strong>ベストプラクティス</strong>: 個人的なメモリーには常に <code>user_id</code> を指定</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># ✅ 良い</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">memory_store</span><span class="p">(</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;user_jfk&quot;</span><span class="p">,</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    <span class="n">key</span><span class="o">=</span><span class="s2">&quot;python_preference&quot;</span><span class="p">,</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>    <span class="n">value</span><span class="o">=</span><span class="s2">&quot;DjangoよりもFastAPIを好む&quot;</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="p">)</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="c1"># ❌ 悪い (デフォルトユーザーを使用)</span>
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="n">memory_store</span><span class="p">(</span>
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>    <span class="n">key</span><span class="o">=</span><span class="s2">&quot;python_preference&quot;</span><span class="p">,</span>
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>    <span class="n">value</span><span class="o">=</span><span class="s2">&quot;DjangoよりもFastAPIを好む&quot;</span>
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>プロンプト例</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>&quot;user_id=&#39;john_doe&#39;用にこれを覚えて: ダークモードを好みます&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="agent_name">agent_nameスコーピング</h3>
+<p><code>agent_name</code>でメモリースコープを制御:</p>
+<p><strong>グローバルメモリー</strong> (すべての会話で共有):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">memory_store</span><span class="p">(</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    <span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">,</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    <span class="n">key</span><span class="o">=</span><span class="s2">&quot;coding_style&quot;</span><span class="p">,</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>    <span class="n">value</span><span class="o">=</span><span class="s2">&quot;常に型ヒントを使用&quot;</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>スレッド固有メモリー</strong> (この会話のみ):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">memory_store</span><span class="p">(</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    <span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;thread_abc123&quot;</span><span class="p">,</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>    <span class="n">key</span><span class="o">=</span><span class="s2">&quot;temp_data&quot;</span><span class="p">,</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>    <span class="n">value</span><span class="o">=</span><span class="s2">&quot;...&quot;</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>プロンプト例</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>&quot;これをグローバルに覚えて: JavaScriptよりもPythonを好む&quot;
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>&quot;この会話だけのためにこれを覚えて: 現在のプロジェクトは&#39;kagura-ai&#39;&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="_10">メモリースコープ</h3>
+<p><strong>ワーキングメモリー</strong> (一時的、セッションのみ):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">memory_store</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;working&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>永続的メモリー</strong> (ディスクに保存、再起動後も存続):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">memory_store</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;persistent&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>プロンプト例</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>&quot;これを永久に覚えて: 私のメールアドレスはjohn@example.comです&quot;
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>&quot;これを一時的に保存: 現在のタスクは&#39;ドキュメント作成&#39;&quot;
+</code></pre></div></p>
+<hr />
+<h2 id="faq">❓ よくある質問 (FAQ)</h2>
+<h3 id="q">Q: なぜファイルを添付できないのですか?</h3>
+<p><strong>A</strong>: Remote MCP (ChatGPT、Claude Chat) は現在、ファイルアップロードをサポートしていません。</p>
+<p><strong>回避策</strong>:
+1. ファイルの内容をチャットに直接コピー&amp;ペースト
+2. ファイル操作にはLocal MCP (Claude Desktop、Claude Code) を使用
+3. v4.1のマルチモーダルアップロードAPIを待つ (<a href="https://github.com/JFK/kagura-ai/issues/462">Issue #462</a>)</p>
+<hr />
+<h3 id="q_1">Q: 会話が終わるとメモリーが消えてしまいます。なぜですか?</h3>
+<p><strong>A</strong>: <code>scope="working"</code> (一時データのデフォルト) を使用している可能性があります。</p>
+<p><strong>解決策</strong>: 明示的に永続化を依頼:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>&quot;これを永久に覚えて: [あなたのデータ]&quot;
+</code></pre></div></p>
+<p>またはプロンプトで指定:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>&quot;scope=&#39;persistent&#39;でこれを保存: [あなたのデータ]&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="q-ai">Q: 異なるAIプラットフォーム間でメモリーを共有するには?</h3>
+<p><strong>A</strong>: <code>user_id</code>を一貫して使用:</p>
+<ol>
+<li>
+<p><strong>ChatGPT</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>&quot;user_id=&#39;john&#39;用にこれを保存: Pythonを好む&quot;
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Claude Chat</strong> (同じuser_id):
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>&quot;user_id=&#39;john&#39;はどのプログラミング言語を好みますか?&quot;
+</code></pre></div></p>
+</li>
+</ol>
+<p>両方のAIが同じKaguraメモリーにアクセスします!</p>
+<hr />
+<h3 id="q_2">Q: 検索結果が不正確です。どうすれば改善できますか?</h3>
+<p><strong>A</strong>: より良い検索のためのヒント:</p>
+<ol>
+<li>
+<p><strong>セマンティック検索を使用</strong> (正確なキーワードではなく):
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>✅ &quot;バックエンド開発に関するメモリーを検索&quot;
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>❌ &quot;&#39;FastAPI Django比較&#39;を検索&quot;
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>保存時にタグを追加</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>&quot;tags=[&#39;python&#39;, &#39;backend&#39;, &#39;framework&#39;]でこれを覚えて:
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a> FastAPIを好む&quot;
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>ハイブリッド検索を使用</strong> (BM25 + ベクトル):
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>&quot;ハイブリッド検索を使用して&#39;FastAPI&#39;のメモリーを検索&quot;
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>フィードバックを提供</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>&quot;メモリー[key]を有用としてマーク&quot;
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>&quot;このメモリーは古くなっています&quot;
+</code></pre></div></p>
+</li>
+</ol>
+<hr />
+<h3 id="q_3">Q: どのくらいコストがかかりますか?</h3>
+<p><strong>A</strong>: Kagura AIはオープンソースで、セルフホストは無料です。</p>
+<p><strong>コスト</strong>:
+- <strong>セルフホスティング</strong>: 無料 (ローカルのChromaDBを使用)
+- <strong>クラウドホスティング</strong>: サーバーコスト (AWS、DigitalOceanなど)
+- <strong>AI API</strong>:
+  - 埋め込み用のOpenAI/Anthropic/Google API (オプション)
+  - Brave Search API (オプション、無料層あり)
+  - マルチモーダル用のGemini API (オプション)</p>
+<p><strong>コスト追跡</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>&quot;テレメトリーコストサマリーを表示&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="q_4">Q: 私のデータはプライベートですか?</h3>
+<p><strong>A</strong>: はい! Kaguraは<strong>プライバシー第一</strong>です:</p>
+<ul>
+<li>✅ <strong>セルフホスト</strong>: データはあなたのもの</li>
+<li>✅ <strong>ローカルストレージ</strong>: あなたのマシン上のSQLite + ChromaDB</li>
+<li>✅ <strong>ベンダーロックインなし</strong>: いつでもエクスポート (JSONL形式)</li>
+<li>✅ <strong>オープンソース</strong>: コードを自分で監査可能</li>
+</ul>
+<p><strong>データのエクスポート</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>kagura<span class="w"> </span>memory<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--output<span class="o">=</span>./backup<span class="w"> </span>--format<span class="o">=</span>jsonl
+</code></pre></div></p>
+<hr />
+<h2 id="_11">🔧 トラブルシューティング</h2>
+<h3 id="_12">メモリーが見つからない</h3>
+<p><strong>症状</strong>: "Xについてのメモリーがありません"</p>
+<p><strong>原因</strong>:
+1. 間違った <code>user_id</code>
+2. 間違った <code>agent_name</code>
+3. メモリーが <code>scope="working"</code> として保存され、セッションが終了した</p>
+<p><strong>デバッグ</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>&quot;すべてのメモリーをリスト&quot;
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>&quot;メモリー統計を表示&quot;
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>&quot;フィルターなしでメモリーを検索&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="_13">検索結果が何も返さない</h3>
+<p><strong>症状</strong>: <code>memory_search</code> が空の結果を返す</p>
+<p><strong>解決策</strong>:
+1. <strong>メモリーが存在するか確認</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>&quot;すべてのメモリーをリスト&quot;
+</code></pre></div></p>
+<ol>
+<li>
+<p><strong>異なる検索クエリを試す</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>✅ &quot;コーディングに関するメモリーを検索&quot;
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>❌ &quot;正確なキー&#39;python_coding_style_2024&#39;でメモリーを検索&quot;
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>正確なキーには<code>memory_recall</code>を使用</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>&quot;key=&#39;python_preference&#39;でメモリーを呼び出し&quot;
+</code></pre></div></p>
+</li>
+</ol>
+<hr />
+<h3 id="api">高いAPIコスト</h3>
+<p><strong>症状</strong>: 埋め込みAPIコストが高い</p>
+<p><strong>解決策</strong>:
+1. <strong>ローカル埋め込みを使用</strong> (sentence-transformers):
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="c1"># APIコストなし、ローカルで実行</span>
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>ai<span class="o">]</span>
+</code></pre></div></p>
+<ol>
+<li><strong>検索頻度を減らす</strong>:</li>
+<li><code>memory_search</code>の代わりに<code>memory_recall</code> (正確なキー) を使用</li>
+<li>
+<p><code>memory_search_ids</code> (低トークンモード) を使用</p>
+</li>
+<li>
+<p><strong>コストを監視</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>&quot;テレメトリーコストサマリーを表示&quot;
+</code></pre></div></p>
+</li>
+</ol>
+<hr />
+<h3 id="remote-mcp">Remote MCP接続が失敗する</h3>
+<p><strong>症状</strong>: AIがKaguraに接続できない</p>
+<p><strong>デバッグ</strong>:
+1. <strong>サーバーが実行中か確認</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>curl<span class="w"> </span>http://localhost:8080/api/v1/health
+</code></pre></div></p>
+<ol>
+<li>
+<p><strong>API keyを確認</strong> (認証を使用している場合):
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_KEY&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="w">     </span>http://localhost:8080/api/v1/health
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>ログを確認</strong>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>api
+</code></pre></div></p>
+</li>
+</ol>
+<p>参照: <a href="../troubleshooting/">トラブルシューティングガイド</a></p>
+<hr />
+<h2 id="_14">🚀 上級のヒント</h2>
+<h3 id="1-graphmemory">1. ナレッジディスカバリーのためのGraphMemory</h3>
+<p><strong>関連メモリーをリンク</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>&quot;私のPython設定メモリーをFastAPIチュートリアルメモリーとリンク&quot;
+<a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>
+<a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>&quot;&#39;バックエンド開発&#39;に関するすべてのメモリーをナレッジグラフに接続&quot;
+</code></pre></div></p>
+<p><strong>関係を発見</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>&quot;私のPython設定に関連するメモリーは何ですか?&quot;
+<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>
+<a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a>&quot;2ホップ以内で&#39;FastAPI&#39;に接続されているすべての概念を検索&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="2_4">2. パターン分析</h3>
+<p><strong>インタラクションを分析</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>&quot;過去のセッションから私のコーディングパターンを分析&quot;
+<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a>
+<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a>&quot;私の最も一般的なトピックは何ですか?&quot;
+<a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a>
+<a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a>&quot;私のインタラクション統計を表示&quot;
+</code></pre></div></p>
+<p><strong>インサイトを取得</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>&quot;私が最もよく使うプログラミング言語は何ですか?&quot;
+<a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a>
+<a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a>&quot;私が最も生産的な時間帯は?&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="3">3. セッションサマリー</h3>
+<p><strong>コーディングセッションを追跡</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>&quot;Issue #123のコーディングセッションを開始&quot;
+<a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a>
+<a id="__codelineno-55-3" name="__codelineno-55-3" href="#__codelineno-55-3"></a>[... コードを作業 ...]
+<a id="__codelineno-55-4" name="__codelineno-55-4" href="#__codelineno-55-4"></a>
+<a id="__codelineno-55-5" name="__codelineno-55-5" href="#__codelineno-55-5"></a>&quot;セッションを終了してコスト追跡付きのAI要約を生成&quot;
+</code></pre></div></p>
+<p><strong>PR説明を生成</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>&quot;現在のコーディングセッションからPR説明を生成&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="4">4. ファクトチェックワークフロー</h3>
+<p><strong>主張を検証</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>&quot;この主張を事実確認: Python 3.13は3.12より40%高速&quot;
+<a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a>
+<a id="__codelineno-57-3" name="__codelineno-57-3" href="#__codelineno-57-3"></a>&quot;このYouTube動画の統計を検証: [URL]&quot;
+</code></pre></div></p>
+<p><strong>ソースをクロスリファレンス</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>&quot;ニューラルネットワーク最適化に関する論文をarXivで検索&quot;
+<a id="__codelineno-58-2" name="__codelineno-58-2" href="#__codelineno-58-2"></a>
+<a id="__codelineno-58-3" name="__codelineno-58-3" href="#__codelineno-58-3"></a>&quot;最近のニュース記事と主張を比較&quot;
+</code></pre></div></p>
+<hr />
+<h2 id="_15">🔗 関連ドキュメント</h2>
+<ul>
+<li><strong>セットアップガイド</strong>:</li>
+<li><a href="../mcp-http-setup/">MCP over HTTP/SSE (ChatGPT)</a></li>
+<li><a href="../mcp-setup/">Claude Desktopセットアップ</a></li>
+<li>
+<p><a href="../mcp-claude-code-setup/">Claude Codeセットアップ</a></p>
+</li>
+<li>
+<p><strong>プラットフォーム固有のワークフロー</strong>:</p>
+</li>
+<li><a href="../examples/chatgpt-workflow/">ChatGPTワークフロー例</a></li>
+<li>
+<p><a href="../examples/claude-workflow/">Claudeワークフロー例</a></p>
+</li>
+<li>
+<p><strong>技術リファレンス</strong>:</p>
+</li>
+<li><a href="../api-reference/">REST APIリファレンス</a></li>
+<li><a href="../self-hosting/">セルフホスティングガイド</a></li>
+<li>
+<p><a href="../architecture/">アーキテクチャ概要</a></p>
+</li>
+<li>
+<p><strong>上級トピック</strong>:</p>
+</li>
+<li><a href="../memory-export/">メモリーエクスポート/インポート</a></li>
+<li><a href="../troubleshooting/">トラブルシューティングガイド</a></li>
+</ul>
+<hr />
+<h2 id="_16">📚 追加リソース</h2>
+<h3 id="_17">公式リンク</h3>
+<ul>
+<li><a href="https://github.com/JFK/kagura-ai">GitHubリポジトリ</a></li>
+<li><a href="https://pypi.org/project/kagura-ai/">PyPIパッケージ</a></li>
+<li><a href="https://modelcontextprotocol.io/">Model Context Protocol</a></li>
+</ul>
+<h3 id="_18">コミュニティ</h3>
+<ul>
+<li><a href="https://github.com/JFK/kagura-ai/issues">GitHub Issues</a> - バグレポート＆機能リクエスト</li>
+<li><a href="https://github.com/JFK/kagura-ai/discussions">GitHub Discussions</a> - Q&amp;A＆コミュニティ</li>
+</ul>
+<hr />
+<p><strong>Version</strong>: 4.0.0
+<strong>Last updated</strong>: 2025-11-02</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/JFK/kagura-ai" target="_blank" rel="noopener" title="GitHub Repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://pypi.org/project/kagura-ai/" target="_blank" rel="noopener" title="PyPI Package" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy", "navigation.instant", "navigation.tracking", "navigation.top"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="../assets/custom.js"></script>
+      
+    
+  </body>
+</html>
