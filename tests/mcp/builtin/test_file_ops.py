@@ -206,54 +206,50 @@ class TestShellExec:
     @pytest.mark.asyncio
     async def test_shell_exec_success(self) -> None:
         """Test executing a shell command successfully."""
-        from dataclasses import dataclass
-
-        @dataclass
-        class ExecResult:
-            """Mock exec result."""
-
-            stdout: str
-            stderr: str
-
-        mock_executor = AsyncMock()
-        mock_executor.exec.return_value = ExecResult(stdout="Command output", stderr="")
-
-        # ShellExecutor is imported dynamically inside the function
-        with patch("kagura.core.shell.ShellExecutor", return_value=mock_executor):
-            result = await shell_exec("echo test")
-
-            assert result == "Command output"
-            mock_executor.exec.assert_called_once_with("echo test")
-
-    @pytest.mark.asyncio
-    async def test_shell_exec_stderr(self) -> None:
-        """Test shell command that outputs to stderr."""
-        from dataclasses import dataclass
-
-        @dataclass
-        class ExecResult:
-            """Mock exec result."""
-
-            stdout: str
-            stderr: str
-
-        mock_executor = AsyncMock()
-        mock_executor.exec.return_value = ExecResult(stdout="", stderr="Error message")
-
-        # ShellExecutor is imported dynamically inside the function
-        with patch("kagura.core.shell.ShellExecutor", return_value=mock_executor):
-            result = await shell_exec("invalid_command")
-
-            assert result == "Error message"
-
-    @pytest.mark.asyncio
-    async def test_shell_exec_import_error(self) -> None:
-        """Test shell_exec handles ImportError gracefully."""
-        # ShellExecutor is imported dynamically inside the function
+        # Mock the shell_safe_exec agent (new implementation)
         with patch(
-            "kagura.core.shell.ShellExecutor",
-            side_effect=ImportError("Module not found"),
+            "kagura.builtin.shell_agent.shell_safe_exec",
+            return_value="Command output",
+        ):
+            result = await shell_exec("echo test")
+            assert result == "Command output"
+
+    @pytest.mark.asyncio
+    async def test_shell_exec_with_working_dir(self) -> None:
+        """Test shell_exec with working directory parameter."""
+        with patch(
+            "kagura.builtin.shell_agent.shell_safe_exec",
+            return_value="Directory output",
+        ) as mock_agent:
+            result = await shell_exec("ls", working_dir="/tmp")
+
+            assert result == "Directory output"
+            # Verify working_dir was passed
+            mock_agent.assert_called_once_with("ls", working_dir="/tmp", auto_confirm=False)
+
+    @pytest.mark.asyncio
+    async def test_shell_exec_with_force(self) -> None:
+        """Test shell_exec with force parameter."""
+        with patch(
+            "kagura.builtin.shell_agent.shell_safe_exec",
+            return_value="Forced execution",
+        ) as mock_agent:
+            result = await shell_exec("rm file", force=True)
+
+            assert result == "Forced execution"
+            # Verify auto_confirm=True was passed
+            mock_agent.assert_called_once_with(
+                "rm file", working_dir=".", auto_confirm=True
+            )
+
+    @pytest.mark.asyncio
+    async def test_shell_exec_error_handling(self) -> None:
+        """Test shell_exec handles errors gracefully."""
+        with patch(
+            "kagura.builtin.shell_agent.shell_safe_exec",
+            side_effect=Exception("Test error"),
         ):
             result = await shell_exec("test command")
 
             assert "Error executing command" in result
+            assert "Test error" in result
