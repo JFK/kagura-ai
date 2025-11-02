@@ -32,6 +32,17 @@ markdown_extensions:
 
 plugins:
   - search
+  - i18n:
+      docs_structure: folder
+      fallback_to_default: true
+      languages:
+        - locale: en
+          name: English
+          build: true
+          default: true
+        - locale: ja
+          name: 日本語
+          build: true
 
 nav:
   - Home: index.md
@@ -46,10 +57,16 @@ nav:
     - Remote MCP (ChatGPT): mcp-http-setup.md
 
   - User Guides:
+    - Chat Integration Tips: chat-integration-tips.md
     - Self-Hosting Guide: self-hosting.md
     - Memory Export/Import: memory-export.md
     - REST API Usage: rest-api-usage.md
+    - Troubleshooting: troubleshooting.md
     - Architecture Overview: architecture.md
+
+  - Workflow Examples:
+    - ChatGPT Workflows: examples/chatgpt-workflow.md
+    - Claude Workflows: examples/claude-workflow.md
 
   - API Reference:
     - REST API & MCP Tools: api-reference.md
@@ -57,7 +74,7 @@ nav:
       - Overview: api/index.md
       - YAML Spec: api/reference.yaml
 
-  - Examples: https://github.com/JFK/kagura-ai/tree/main/examples
+  - Code Examples: https://github.com/JFK/kagura-ai/tree/main/examples
 
   - For Developers:
     - How to Contribute: https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md

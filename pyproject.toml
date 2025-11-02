@@ -113,6 +113,7 @@ docs = [
     # Documentation building
     "mkdocs>=1.6",
     "mkdocs-material>=9.5",
+    "mkdocs-static-i18n>=1.2.0",  # Bilingual docs (en/ja)
     "pymdown-extensions>=10.0",
 ]
 
