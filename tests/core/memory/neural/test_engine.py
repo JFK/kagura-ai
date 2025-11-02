@@ -24,8 +24,9 @@ def mock_graph():
 def mock_rag():
     """Create mock RAG."""
     rag = MagicMock()
-    rag.recall = AsyncMock(return_value=[])
-    rag.store = AsyncMock(return_value="test_hash")
+    # MemoryRAG methods are sync, not async
+    rag.recall = Mock(return_value=[])
+    rag.store = Mock(return_value="test_hash")
     return rag
 
 
@@ -58,7 +59,7 @@ class TestNeuralMemoryEngine:
     @pytest.mark.asyncio
     async def test_recall_empty_results(self, engine, mock_rag):
         """Test recall with no RAG results."""
-        mock_rag.recall = AsyncMock(return_value=[])
+        mock_rag.recall = Mock(return_value=[])  # Sync, not async
 
         results = await engine.recall("user1", "test query")
 
@@ -67,8 +68,9 @@ class TestNeuralMemoryEngine:
     @pytest.mark.asyncio
     async def test_store(self, engine, mock_graph, mock_rag):
         """Test storing a memory."""
-        # Mock embedding function
-        with patch.object(engine, "_get_embedding", return_value=[0.1] * 1024):
+        # Mock embedding function (returns awaitable)
+        mock_embedding = AsyncMock(return_value=[0.1] * 1024)
+        with patch.object(engine, "_get_embedding", mock_embedding):
             node_id = await engine.store(
                 user_id="user1",
                 text="Python is great",
