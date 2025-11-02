@@ -13,7 +13,7 @@ import httpx
 class MCPDiagnostics:
     """MCP server diagnostics and health checks."""
 
-    def __init__(self, api_base_url: str = "http://localhost:8080"):
+    def __init__(self, api_base_url: str = "http://localhost:8000"):
         """Initialize diagnostics.
 
         Args:

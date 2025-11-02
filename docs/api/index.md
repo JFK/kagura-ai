@@ -27,13 +27,13 @@ Kagura Memory API provides RESTful endpoints for memory management, graph operat
 
 When running the Kagura API server:
 
-**Swagger UI**: [http://localhost:8080/docs](http://localhost:8080/docs)
+**Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
 - Interactive API testing
 - Try endpoints directly from browser
 - See request/response examples
 - Execute requests with authentication
 
-**ReDoc**: [http://localhost:8080/redoc](http://localhost:8080/redoc)
+**ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 - Clean, readable API documentation
 - Search functionality
 - Code samples
@@ -55,7 +55,7 @@ Download and use with your favorite tools:
 
 ```bash
 # Download spec
-curl http://localhost:8080/openapi.json > openapi.json
+curl http://localhost:8000/openapi.json > openapi.json
 
 # Generate client SDK
 npx @openapitools/openapi-generator-cli generate \
@@ -222,7 +222,7 @@ import httpx
 
 async with httpx.AsyncClient() as client:
     response = await client.post(
-        "http://localhost:8080/api/v1/memory",
+        "http://localhost:8000/api/v1/memory",
         json={"key": "test", "value": "data"},
         headers={"X-User-ID": "user_jfk"}
     )
@@ -230,7 +230,7 @@ async with httpx.AsyncClient() as client:
 
 **cURL**:
 ```bash
-curl -X POST http://localhost:8080/api/v1/memory \
+curl -X POST http://localhost:8000/api/v1/memory \
   -H "Content-Type: application/json" \
   -H "X-User-ID: user_jfk" \
   -d '{"key":"test","value":"data","scope":"persistent"}'
@@ -274,7 +274,7 @@ The OpenAPI spec can be regenerated from the running server:
 uvicorn kagura.api.server:app --port 8080
 
 # Download current spec
-curl http://localhost:8080/openapi.json > docs/api/reference.json
+curl http://localhost:8000/openapi.json > docs/api/reference.json
 
 # Convert to YAML (optional)
 python -c "import json, yaml; print(yaml.dump(json.load(open('docs/api/reference.json'))))" > docs/api/reference.yaml
