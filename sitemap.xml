@@ -113,6 +113,13 @@
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/rest-api-usage/"/>
     </url>
     <url>
+        <loc>https://www.kagura-ai.com/sdk-guide/</loc>
+        <lastmod>2025-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/sdk-guide/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/sdk-guide/"/>
+    </url>
+    <url>
         <loc>https://www.kagura-ai.com/self-hosting/</loc>
         <lastmod>2025-11-02</lastmod>
         <changefreq>daily</changefreq>
@@ -405,6 +412,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/rest-api-usage/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/rest-api-usage/"/>
+    </url>
+    <url>
+        <loc>https://www.kagura-ai.com/ja/sdk-guide/</loc>
+        <lastmod>2025-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/sdk-guide/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/sdk-guide/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/self-hosting/</loc>
