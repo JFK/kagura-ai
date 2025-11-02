@@ -20,7 +20,7 @@
     
     
       
-        <title>Migration Guide: v3.0 → v4.0 - Kagura AI Documentation</title>
+        <title>移行ガイド: v3.0 → v4.0 - Kagura AI Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#migration-guide-v30-v40" class="md-skip">
+        <a href="#v30-v40" class="md-skip">
           コンテンツにスキップ
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Migration Guide: v3.0 → v4.0
+              移行ガイド: v3.0 → v4.0
             
           </span>
         </div>
@@ -1026,22 +1026,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
-      🎯 Overview
+      🎯 概要
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#breaking-changes" class="md-nav__link">
+  <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
-      📋 Breaking Changes
+      📋 破壊的変更
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="📋 Breaking Changes">
+    <nav class="md-nav" aria-label="📋 破壊的変更">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1086,13 +1086,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#new-features" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
-      ✨ New Features
+      ✨ 新機能
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="✨ New Features">
+    <nav class="md-nav" aria-label="✨ 新機能">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1137,13 +1137,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-by-step-migration" class="md-nav__link">
+  <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
-      🔧 Step-by-Step Migration
+      🔧 ステップバイステップ移行
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🔧 Step-by-Step Migration">
+    <nav class="md-nav" aria-label="🔧 ステップバイステップ移行">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1206,13 +1206,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-updates" class="md-nav__link">
+  <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
-      🆕 Recommended Updates
+      🆕 推奨アップデート
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🆕 Recommended Updates">
+    <nav class="md-nav" aria-label="🆕 推奨アップデート">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1248,13 +1248,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
+  <a href="#_6" class="md-nav__link">
     <span class="md-ellipsis">
-      🐛 Troubleshooting
+      🐛 トラブルシューティング
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🐛 Troubleshooting">
+    <nav class="md-nav" aria-label="🐛 トラブルシューティング">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1299,27 +1299,27 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#additional-resources" class="md-nav__link">
+  <a href="#_7" class="md-nav__link">
     <span class="md-ellipsis">
-      📚 Additional Resources
+      📚 追加リソース
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#need-help" class="md-nav__link">
+  <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
-      💬 Need Help?
+      💬 ヘルプが必要ですか?
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#migration-checklist" class="md-nav__link">
+  <a href="#_9" class="md-nav__link">
     <span class="md-ellipsis">
-      ✅ Migration Checklist
+      ✅ 移行チェックリスト
     </span>
   </a>
   
@@ -1341,21 +1341,21 @@
 
 
 
-<h1 id="migration-guide-v30-v40">Migration Guide: v3.0 → v4.0</h1>
-<p>This guide helps you migrate from Kagura AI v3.0 to v4.0.</p>
-<p><strong>Target audience</strong>: Existing v3.0 users upgrading to v4.0</p>
+<h1 id="v30-v40">移行ガイド: v3.0 → v4.0</h1>
+<p>このガイドでは migrate from Kagura AI v3.0 to v4.0.</p>
+<p><strong>対象読者</strong>: v3.0からv4.0にアップグレードする既存ユーザー</p>
 <hr />
-<h2 id="overview">🎯 Overview</h2>
+<h2 id="_1">🎯 概要</h2>
 <p><strong>v4.0</strong> is a major release focusing on <strong>Universal AI Memory Platform</strong>:
 - REST API (FastAPI)
 - 34 MCP Tools (vs 15 in v3.0)
 - GraphMemory (knowledge graphs)
 - Remote MCP Server (HTTP/SSE)
 - Production-ready infrastructure</p>
-<p><strong>Upgrade effort</strong>: ~30 minutes
-<strong>Compatibility</strong>: Most v3.0 code works with minimal changes</p>
+<p><strong>アップグレード作業</strong>: 約30分
+<strong>互換性</strong>: ほとんどのv3.0コードは最小限の変更で動作します</p>
 <hr />
-<h2 id="breaking-changes">📋 Breaking Changes</h2>
+<h2 id="_2">📋 破壊的変更</h2>
 <h3 id="1-memory-api-user_id-now-required">1. Memory API: <code>user_id</code> Now Required</h3>
 <p><strong>v3.0</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
@@ -1450,7 +1450,7 @@
 </code></pre></div></p>
 <p><strong>Why</strong>: XDG Base Directory specification for better OS integration.</p>
 <hr />
-<h2 id="new-features">✨ New Features</h2>
+<h2 id="_3">✨ 新機能</h2>
 <h3 id="1-graphmemory-knowledge-graphs">1. GraphMemory (Knowledge Graphs)</h3>
 <p><strong>Not available in v3.0</strong>. Now you can:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">kagura.core.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
@@ -1510,7 +1510,7 @@
 - Caddy (HTTPS)
 - API key authentication</p>
 <hr />
-<h2 id="step-by-step-migration">🔧 Step-by-Step Migration</h2>
+<h2 id="_4">🔧 ステップバイステップ移行</h2>
 <h3 id="step-1-backup-v30-data">Step 1: Backup v3.0 Data</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Export memories (v3.0)</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>kagura<span class="w"> </span>memory<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--output<span class="o">=</span>./backup-v3-<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>
@@ -1571,7 +1571,7 @@
 <a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">test_migration</span><span class="p">())</span>
 </code></pre></div>
 <hr />
-<h2 id="recommended-updates">🆕 Recommended Updates</h2>
+<h2 id="_5">🆕 推奨アップデート</h2>
 <h3 id="1-enable-graphmemory">1. Enable GraphMemory</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">memory</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span>
 <a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;alice&quot;</span><span class="p">,</span>
@@ -1593,7 +1593,7 @@
 <a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>kagura<span class="w"> </span>api<span class="w"> </span>serve<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0
 </code></pre></div>
 <hr />
-<h2 id="troubleshooting">🐛 Troubleshooting</h2>
+<h2 id="_6">🐛 トラブルシューティング</h2>
 <h3 id="issue-user_id-is-required">Issue: "user_id is required"</h3>
 <p><strong>Error</strong>:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>TypeError: __init__() missing 1 required positional argument: &#39;user_id&#39;
@@ -1629,7 +1629,7 @@
 <a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>mv<span class="w"> </span>~/.kagura/memory.db<span class="w"> </span>~/.local/share/kagura/
 </code></pre></div></p>
 <hr />
-<h2 id="additional-resources">📚 Additional Resources</h2>
+<h2 id="_7">📚 追加リソース</h2>
 <ul>
 <li><a href="../CHANGELOG.md">v4.0 Release Notes</a></li>
 <li><a href="../ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md">v4.0 Implementation Roadmap</a></li>
@@ -1638,7 +1638,7 @@
 <li><a href="../api-reference/">API Reference</a></li>
 </ul>
 <hr />
-<h2 id="need-help">💬 Need Help?</h2>
+<h2 id="_8">💬 ヘルプが必要ですか?</h2>
 <ul>
 <li>📖 <strong>Documentation</strong>: https://docs.kagura.ai</li>
 <li>💬 <strong>Discussions</strong>: https://github.com/JFK/kagura-ai/discussions</li>
@@ -1646,7 +1646,7 @@
 <li>📧 <strong>Email</strong>: support@kagura.ai</li>
 </ul>
 <hr />
-<h2 id="migration-checklist">✅ Migration Checklist</h2>
+<h2 id="_9">✅ 移行チェックリスト</h2>
 <ul>
 <li>[ ] Backup v3.0 data (<code>kagura memory export</code>)</li>
 <li>[ ] Upgrade package (<code>pip install --upgrade kagura-ai[full]</code>)</li>
