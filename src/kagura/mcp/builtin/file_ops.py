@@ -157,7 +157,9 @@ async def shell_exec(command: str, working_dir: str = ".", force: bool = False) 
     try:
         from kagura.builtin.shell_agent import shell_safe_exec
 
-        result = await shell_safe_exec(command, working_dir=working_dir, auto_confirm=force)
+        result = await shell_safe_exec(
+            command, working_dir=working_dir, auto_confirm=force
+        )
         return result
     except Exception as e:
         return f"Error executing command: {e}"

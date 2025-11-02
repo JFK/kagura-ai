@@ -20,6 +20,7 @@ from typing import Any, Literal
 
 from kagura.config.memory_config import MemorySystemConfig
 from kagura.core.compression import CompressionPolicy
+from kagura.core.memory.coding_dependency import DependencyAnalyzer
 from kagura.core.memory.manager import MemoryManager
 from kagura.core.memory.models.coding import (
     CodingPattern,
@@ -29,7 +30,6 @@ from kagura.core.memory.models.coding import (
     FileChangeRecord,
     ProjectContext,
 )
-from kagura.core.memory.coding_dependency import DependencyAnalyzer
 from kagura.llm.coding_analyzer import CodingAnalyzer
 from kagura.llm.vision import VisionAnalyzer
 

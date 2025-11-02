@@ -54,8 +54,7 @@ class VisionAnalyzer:
         # Default to Gemini (free during preview, excellent vision quality)
         if model is None:
             model = (
-                os.getenv("CODING_MEMORY_VISION_MODEL")
-                or "gemini/gemini-2.0-flash-exp"
+                os.getenv("CODING_MEMORY_VISION_MODEL") or "gemini/gemini-2.0-flash-exp"
             )
 
         self.model = model

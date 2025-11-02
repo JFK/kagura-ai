@@ -409,6 +409,7 @@ def agent(
 
         # Add .stream() method if streaming is enabled
         if stream:
+
             async def stream_method(*args: P.args, **kwargs_inner: P.kwargs):
                 """Stream response in real-time (async generator)"""
                 # Make kwargs mutable
@@ -418,6 +419,7 @@ def agent(
                 telemetry_collector = None
                 if enable_telemetry:
                     from kagura.observability import get_global_telemetry
+
                     telemetry = get_global_telemetry()
                     telemetry_collector = telemetry.get_collector()
 

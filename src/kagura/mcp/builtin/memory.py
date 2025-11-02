@@ -35,10 +35,12 @@ def _get_memory_manager(
         Cached or new MemoryManager instance
     """
     import logging
+
     logger = logging.getLogger(__name__)
 
     logger.debug("_get_memory_manager: Importing MemoryManager...")
     from kagura.core.memory import MemoryManager
+
     logger.debug("_get_memory_manager: MemoryManager imported successfully")
 
     cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
@@ -1172,6 +1174,7 @@ async def memory_stats(
         JSON with statistics and recommendations
     """
     import logging
+
     logger = logging.getLogger(__name__)
 
     logger.debug(f"memory_stats: Starting for user={user_id}, agent={agent_name}")
@@ -1202,6 +1205,7 @@ async def memory_stats(
         # Analyze old memories (>90 days)
         logger.debug("memory_stats: Analyzing old memories")
         from datetime import datetime, timedelta
+
         old_threshold = datetime.now() - timedelta(days=90)
         old_count = 0
         for mem in persistent_mems:

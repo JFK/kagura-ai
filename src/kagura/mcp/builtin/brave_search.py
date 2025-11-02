@@ -298,9 +298,7 @@ async def brave_news_search(
     # Validate freshness parameter
     valid_freshness = ["pd", "pw", "pm", "py"]
     if freshness and freshness not in valid_freshness:
-        logger.warning(
-            f"Invalid freshness value '{freshness}', using None (all time)"
-        )
+        logger.warning(f"Invalid freshness value '{freshness}', using None (all time)")
         freshness = None
 
     try:

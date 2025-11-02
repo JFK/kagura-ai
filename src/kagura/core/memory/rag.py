@@ -52,6 +52,7 @@ class MemoryRAG:
             ImportError: If ChromaDB is not installed
         """
         import logging
+
         logger = logging.getLogger(__name__)
 
         logger.debug(f"MemoryRAG init: collection={collection_name}, dir={persist_dir}")

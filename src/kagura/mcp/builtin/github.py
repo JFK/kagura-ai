@@ -59,7 +59,6 @@ async def github_issue_view(issue_number: int) -> str:
     Example:
         github_issue_view(348)
     """
-    import json
 
     issue_data = await gh_issue_view_safe(issue_number)
 
@@ -102,7 +101,6 @@ async def github_pr_view(pr_number: int | None = None) -> str:
         github_pr_view(465)
         github_pr_view()  # Auto-detect from branch
     """
-    import json
 
     pr_data = await gh_pr_view_safe(pr_number)
 

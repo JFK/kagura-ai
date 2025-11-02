@@ -87,8 +87,7 @@ class CodingAnalyzer:
         # Default to Gemini for vision (free during preview, excellent vision)
         if vision_model is None:
             vision_model = (
-                os.getenv("CODING_MEMORY_VISION_MODEL")
-                or "gemini/gemini-2.0-flash-exp"
+                os.getenv("CODING_MEMORY_VISION_MODEL") or "gemini/gemini-2.0-flash-exp"
             )
 
         self.model = model
@@ -612,7 +611,7 @@ Recent Changes:
 Key Decisions:
 {decisions_text}
 
-Focus Area: {focus or 'general overview'}"""
+Focus Area: {focus or "general overview"}"""
 
         summary = await self._call_llm(
             system_prompt="You are a technical writer creating concise project summaries.",
@@ -680,8 +679,8 @@ Generate concise, informative PR descriptions that:
         user_prompt = f"""Generate a pull request description from this coding session.
 
 <session_info>
-<goal>{session_description or 'Code improvements and fixes'}</goal>
-<related_issue>{issue_ref or 'None'}</related_issue>
+<goal>{session_description or "Code improvements and fixes"}</goal>
+<related_issue>{issue_ref or "None"}</related_issue>
 </session_info>
 
 <file_changes count="{len(file_changes)}">

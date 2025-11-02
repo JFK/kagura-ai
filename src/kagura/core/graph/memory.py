@@ -437,6 +437,7 @@ class GraphMemory:
         # edges="links" ensures forward compatibility with NetworkX 3.6+
         # edges="links" ensures forward compatibility with NetworkX 3.6+
         self.graph: nx.DiGraph = nx.node_link_graph(data, edges="links")  # type: ignore[assignment]
+
     def stats(self) -> dict[str, Any]:
         """Get graph statistics.
 

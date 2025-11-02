@@ -7,7 +7,6 @@ dependency graphs automatically.
 import ast
 import logging
 from pathlib import Path
-from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -350,5 +349,7 @@ class DependencyAnalyzer:
             return list(reversed(list(nx.topological_sort(G))))
         except nx.NetworkXError:
             # Has cycles, return as-is with warning
-            logger.warning("Circular dependencies detected, cannot determine safe order")
+            logger.warning(
+                "Circular dependencies detected, cannot determine safe order"
+            )
             return files

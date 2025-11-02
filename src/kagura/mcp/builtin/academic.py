@@ -98,9 +98,7 @@ async def arxiv_search(
         # Extract results
         results = []
         for paper in client.results(search):
-            published_date = (
-                paper.published.isoformat() if paper.published else None
-            )
+            published_date = paper.published.isoformat() if paper.published else None
             results.append(
                 {
                     "title": paper.title,

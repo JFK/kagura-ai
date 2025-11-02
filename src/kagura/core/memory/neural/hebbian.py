@@ -257,7 +257,10 @@ class HebbianLearner:
                     dst_id=dst_id,
                     rel_type="learned_from",  # Use existing edge type for compatibility
                     weight=new_weight,
-                    metadata={"created_by": "hebbian_learning", "neural_association": True},
+                    metadata={
+                        "created_by": "hebbian_learning",
+                        "neural_association": True,
+                    },
                     confidence=1.0,
                 )
 

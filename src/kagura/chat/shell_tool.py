@@ -354,9 +354,9 @@ async def shell_exec_with_options(
     # Show options
     option_lines = []
     for i, opt in enumerate(options):
-        desc = opt.get('description', 'no description')
+        desc = opt.get("description", "no description")
         option_lines.append(
-            f"  [cyan]{i+1}. {opt['command']:20}[/cyan] [dim]({desc})[/dim]"
+            f"  [cyan]{i + 1}. {opt['command']:20}[/cyan] [dim]({desc})[/dim]"
         )
 
     console.print(
@@ -375,8 +375,7 @@ async def shell_exec_with_options(
     else:
         # Ask user
         console.print(
-            f"[yellow]⚠️  Execute which command? [1-{len(options)}/n]:[/] ",
-            end=""
+            f"[yellow]⚠️  Execute which command? [1-{len(options)}/n]:[/] ", end=""
         )
         sys.stdout.flush()
 
@@ -388,7 +387,7 @@ async def shell_exec_with_options(
 
             # Parse response
             response = response.strip().lower()
-            if response == 'n' or response == 'no':
+            if response == "n" or response == "no":
                 return "⚠️ Command execution cancelled by user"
 
             # Try to parse as number
@@ -396,12 +395,11 @@ async def shell_exec_with_options(
                 selected_idx = int(response) - 1
                 if selected_idx < 0 or selected_idx >= len(options):
                     return (
-                        f"❌ Error: Invalid selection "
-                        f"(must be 1-{len(options)} or 'n')"
+                        f"❌ Error: Invalid selection (must be 1-{len(options)} or 'n')"
                     )
             except ValueError:
                 # Default to first option if empty or invalid
-                if response == '' or response == 'y' or response == 'yes':
+                if response == "" or response == "y" or response == "yes":
                     selected_idx = 0
                 else:
                     return (
@@ -517,8 +515,7 @@ async def shell_exec_tool(
                             f"[yellow]💡 Suggested fix:[/] [cyan]{fixed_command}[/cyan]"
                         )
                         console.print(
-                            "[yellow]⚠️  Try fixed command? [Y/n]:[/] ",
-                            end=""
+                            "[yellow]⚠️  Try fixed command? [Y/n]:[/] ", end=""
                         )
                         sys.stdout.flush()
 
@@ -593,32 +590,33 @@ def _suggest_alternatives(
     if "not found" in error_message.lower() or "no such file" in error_message.lower():
         # Common command not found → suggest alternatives
         if "pwd" in failed_command:
-            alternatives.append({
-                "command": "echo $PWD",
-                "description": "using environment variable"
-            })
-            alternatives.append({
-                "command": "ls -la",
-                "description": "show directory contents instead"
-            })
+            alternatives.append(
+                {"command": "echo $PWD", "description": "using environment variable"}
+            )
+            alternatives.append(
+                {"command": "ls -la", "description": "show directory contents instead"}
+            )
 
         elif "tree" in failed_command:
-            alternatives.append({
-                "command": "ls -R",
-                "description": "recursive listing (tree alternative)"
-            })
-            alternatives.append({
-                "command": "find . -type d",
-                "description": "find all directories"
-            })
+            alternatives.append(
+                {
+                    "command": "ls -R",
+                    "description": "recursive listing (tree alternative)",
+                }
+            )
+            alternatives.append(
+                {"command": "find . -type d", "description": "find all directories"}
+            )
 
     # "Permission denied" errors
     elif "permission denied" in error_message.lower():
         # Suggest adding 2>/dev/null or alternative approach
         if failed_command.startswith("find"):
-            alternatives.append({
-                "command": f"{failed_command} 2>/dev/null",
-                "description": "ignore permission errors"
-            })
+            alternatives.append(
+                {
+                    "command": f"{failed_command} 2>/dev/null",
+                    "description": "ignore permission errors",
+                }
+            )
 
     return alternatives

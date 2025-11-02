@@ -479,7 +479,9 @@ def connect(
 
     # Validate URL
     if not api_base.startswith(("http://", "https://")):
-        console.print("[red]✗ Error: API base URL must start with http:// or https://[/red]")
+        console.print(
+            "[red]✗ Error: API base URL must start with http:// or https://[/red]"
+        )
         raise click.Abort()
 
     # Prepare config
@@ -749,9 +751,7 @@ def stats_command(
     since = (datetime.now() - timedelta(days=period)).timestamp()
 
     # Get executions
-    executions = store.get_executions(
-        agent_name=agent, since=since, limit=100000
-    )
+    executions = store.get_executions(agent_name=agent, since=since, limit=100000)
 
     if not executions:
         console.print("[yellow]No MCP tool usage data found[/yellow]")
@@ -832,9 +832,7 @@ def stats_command(
     table.add_column("Errors", justify="right", style="red")
 
     # Sort by call count
-    sorted_tools = sorted(
-        tool_stats.items(), key=lambda x: x[1]["calls"], reverse=True
-    )
+    sorted_tools = sorted(tool_stats.items(), key=lambda x: x[1]["calls"], reverse=True)
 
     for tool_name, stats in sorted_tools[:20]:  # Top 20
         calls = stats["calls"]

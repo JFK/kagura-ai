@@ -217,9 +217,7 @@ class MemoryExporter:
 
         return node_count, edge_count
 
-    async def _export_metadata(
-        self, output_file: Path, stats: dict[str, int]
-    ) -> None:
+    async def _export_metadata(self, output_file: Path, stats: dict[str, int]) -> None:
         """Export metadata about the export.
 
         Args:

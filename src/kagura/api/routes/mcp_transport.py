@@ -59,9 +59,7 @@ def get_mcp_server() -> Server:
             name="kagura-api-http",
             context="remote",  # Filter dangerous tools
         )
-        logger.info(
-            "Created MCP server instance for HTTP transport (remote context)"
-        )
+        logger.info("Created MCP server instance for HTTP transport (remote context)")
 
     return _mcp_server
 

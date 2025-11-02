@@ -74,8 +74,7 @@ class OAuth2Manager:
         self._setup_encryption()
 
         logger.debug(
-            f"Initialized OAuth2Manager for {provider} "
-            f"(config_dir: {self.config_dir})"
+            f"Initialized OAuth2Manager for {provider} (config_dir: {self.config_dir})"
         )
 
     def _setup_encryption(self) -> None:

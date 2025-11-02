@@ -525,9 +525,7 @@ async def stream_openai_direct(
 
                         # Progress: Show tool completion
                         if progress_callback:
-                            progress_callback(
-                                f"  └─ ✓ Complete ({tool_duration:.1f}s)"
-                            )
+                            progress_callback(f"  └─ ✓ Complete ({tool_duration:.1f}s)")
 
                         result_content = str(tool_result)
                     except Exception as e:

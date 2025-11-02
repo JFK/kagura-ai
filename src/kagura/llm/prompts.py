@@ -926,13 +926,13 @@ def build_session_summary_prompt(session_data: dict[str, Any]) -> dict[str, str]
 
     files_list = "\n".join(f"- {f}" for f in session_data.get("files_touched", []))
     errors_list = "\n\n".join(
-        f"**Error {i+1}:** {e.get('message', 'Unknown')}\n"
+        f"**Error {i + 1}:** {e.get('message', 'Unknown')}\n"
         f"File: {e.get('file_path', 'Unknown')}\n"
         f"Solution: {e.get('solution', 'Not yet resolved')}"
         for i, e in enumerate(session_data.get("errors", []))
     )
     decisions_list = "\n\n".join(
-        f"**Decision {i+1}:** {d.get('decision', 'Unknown')}\n"
+        f"**Decision {i + 1}:** {d.get('decision', 'Unknown')}\n"
         f"Rationale: {d.get('rationale', 'Not specified')}"
         for i, d in enumerate(session_data.get("decisions", []))
     )
@@ -965,7 +965,7 @@ def build_error_pattern_prompt(errors: list[dict[str, Any]]) -> dict[str, str]:
         Dictionary with 'system' and 'user' prompt keys
     """
     error_history = "\n\n".join(
-        f"### Error #{i+1}\n"
+        f"### Error #{i + 1}\n"
         f"**Type:** {e.get('error_type', 'Unknown')}\n"
         f"**Message:** {e.get('message', 'N/A')}\n"
         f"**Location:** {e.get('file_path', 'unknown')}:{e.get('line_number', 0)}\n"
@@ -1000,7 +1000,7 @@ def build_solution_prompt(
 
     similar_errors_text = (
         "\n\n".join(
-            f"### Past Error #{i+1} (Similarity: {e.get('similarity', 0):.1%})\n"
+            f"### Past Error #{i + 1} (Similarity: {e.get('similarity', 0):.1%})\n"
             f"**Type:** {e.get('error_type', 'Unknown')}\n"
             f"**Message:** {e.get('message', 'N/A')}\n"
             f"**Solution Applied:** {e.get('solution', 'No solution recorded')}\n"
@@ -1036,7 +1036,7 @@ def build_preference_extraction_prompt(
         Dictionary with 'system' and 'user' prompt keys
     """
     changes_text = "\n\n".join(
-        f"### Change #{i+1}\n"
+        f"### Change #{i + 1}\n"
         f"**File:** {c.get('file_path', 'unknown')}\n"
         f"**Action:** {c.get('action', 'unknown')}\n"
         f"**Reason:** {c.get('reason', 'Not specified')}\n"
@@ -1045,7 +1045,7 @@ def build_preference_extraction_prompt(
     )
 
     decisions_text = "\n\n".join(
-        f"### Decision #{i+1}\n"
+        f"### Decision #{i + 1}\n"
         f"**Decision:** {d.get('decision', 'Unknown')}\n"
         f"**Rationale:** {d.get('rationale', 'Not specified')}\n"
         f"**Alternatives:** {', '.join(d.get('alternatives', ['None']))}"
