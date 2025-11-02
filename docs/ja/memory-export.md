@@ -1,31 +1,31 @@
-# Memory Export/Import Guide
+# メモリーエクスポート/インポートガイド
 
 **Kagura AI v4.0.0** - Universal AI Memory Platform
 
-This guide explains how to export and import your Kagura memory data for backup, migration, or GDPR compliance.
+このガイドでは、バックアップ、移行、またはGDPRコンプライアンスのためにKaguraメモリーデータをエクスポート・インポートする方法を説明します。
 
 ---
 
-## 📋 Overview
+## 📋 概要
 
-Kagura provides export/import functionality in JSONL (JSON Lines) format:
+KaguraはJSONL(JSON Lines)形式でエクスポート/インポート機能を提供します:
 
-- **Human-readable** - Plain text JSON, one record per line
-- **Portable** - Works across different machines and versions
-- **Comprehensive** - Exports memories, graph data, and metadata
-- **GDPR-compliant** - Complete data export for user requests
+- **人間が読める** - プレーンテキストJSON、1行に1レコード
+- **ポータブル** - 異なるマシンやバージョン間で動作
+- **包括的** - メモリー、グラフデータ、メタデータをエクスポート
+- **GDPR準拠** - ユーザーリクエストの完全なデータエクスポート
 
 ---
 
-## 🚀 Quick Start
+## 🚀 クイックスタート
 
-### Export All Data
+### すべてのデータをエクスポート
 
 ```bash
-# Export everything to ./backup directory
+# ./backupディレクトリにすべてをエクスポート
 kagura memory export --output ./backup
 
-# Output:
+# 出力:
 # ✓ Export completed successfully!
 #
 # Exported:
@@ -39,13 +39,13 @@ kagura memory export --output ./backup
 #   • metadata.json
 ```
 
-### Import from Backup
+### バックアップからインポート
 
 ```bash
-# Import from backup directory
+# バックアップディレクトリからインポート
 kagura memory import --input ./backup
 
-# Output:
+# 出力:
 # ✓ Import completed successfully!
 #
 # Imported:
@@ -56,105 +56,105 @@ kagura memory import --input ./backup
 
 ---
 
-## 🔧 Export Options
+## 🔧 エクスポートオプション
 
-### Selective Export
+### 選択的エクスポート
 
 ```bash
-# Export only persistent memory (skip working memory)
+# 永続メモリーのみエクスポート(ワーキングメモリーはスキップ)
 kagura memory export --output ./backup --no-working
 
-# Export only working memory (skip persistent)
+# ワーキングメモリーのみエクスポート(永続メモリーはスキップ)
 kagura memory export --output ./backup --no-persistent
 
-# Export without graph data
+# グラフデータなしでエクスポート
 kagura memory export --output ./backup --no-graph
 ```
 
-### User-Specific Export
+### ユーザー固有のエクスポート
 
 ```bash
-# Export for specific user
+# 特定のユーザー用にエクスポート
 kagura memory export --output ./alice-backup --user-id user_alice
 
-# Export for specific agent
+# 特定のエージェント用にエクスポート
 kagura memory export --output ./backup --agent-name my_agent
 ```
 
 ---
 
-## 📥 Import Options
+## 📥 インポートオプション
 
-### Clear Existing Data
+### 既存データのクリア
 
 ```bash
-# Clear existing data before import (⚠️ DESTRUCTIVE)
+# インポート前に既存データをクリア(⚠️ 破壊的)
 kagura memory import --input ./backup --clear
 
-# WARNING: This will delete all existing memory data!
+# 警告: これはすべての既存メモリーデータを削除します!
 ```
 
-### Import for Specific User
+### 特定ユーザーへのインポート
 
 ```bash
-# Import into specific user's memory
+# 特定ユーザーのメモリーにインポート
 kagura memory import --input ./backup --user-id user_alice --agent-name global
 ```
 
 ---
 
-## 📁 Export Format
+## 📁 エクスポート形式
 
-### Directory Structure
+### ディレクトリ構造
 
 ```
 backup/
-├── memories.jsonl       # All memory records
-├── graph.jsonl          # Graph nodes and edges (if enabled)
-└── metadata.json        # Export metadata
+├── memories.jsonl       # すべてのメモリーレコード
+├── graph.jsonl          # グラフノードとエッジ(有効な場合)
+└── metadata.json        # エクスポートメタデータ
 ```
 
-### JSONL Format
+### JSONL形式
 
-#### Memory Records (`memories.jsonl`)
+#### メモリーレコード(`memories.jsonl`)
 
 ```jsonl
 {"type":"memory","scope":"working","key":"user_preference","value":"Python backend","user_id":"user_jfk","agent_name":"global","exported_at":"2025-10-27T10:30:00Z"}
 {"type":"memory","scope":"persistent","key":"api_key","value":"***","user_id":"user_jfk","agent_name":"global","created_at":"2025-10-26T12:00:00Z","updated_at":"2025-10-27T10:00:00Z","metadata":{"tags":["config"],"importance":0.9},"exported_at":"2025-10-27T10:30:00Z"}
 ```
 
-**Fields**:
-- `type`: Always "memory"
-- `scope`: "working" or "persistent"
-- `key`: Memory key
-- `value`: Stored value (any JSON type)
-- `user_id`: User identifier
-- `agent_name`: Agent name
-- `created_at`, `updated_at`: Timestamps (persistent only)
-- `metadata`: Optional metadata dict
-- `exported_at`: Export timestamp
+**フィールド**:
+- `type`: 常に"memory"
+- `scope`: "working"または"persistent"
+- `key`: メモリーキー
+- `value`: 保存された値(任意のJSON型)
+- `user_id`: ユーザー識別子
+- `agent_name`: エージェント名
+- `created_at`, `updated_at`: タイムスタンプ(永続メモリーのみ)
+- `metadata`: オプションのメタデータ辞書
+- `exported_at`: エクスポートタイムスタンプ
 
-#### Graph Records (`graph.jsonl`)
+#### グラフレコード(`graph.jsonl`)
 
 ```jsonl
 {"type":"node","id":"mem_001","node_type":"memory","data":{"key":"user_preference"},"exported_at":"2025-10-27T10:30:00Z"}
 {"type":"edge","src":"mem_001","dst":"mem_002","rel_type":"related_to","weight":0.8,"data":{},"exported_at":"2025-10-27T10:30:00Z"}
 ```
 
-**Node Fields**:
+**ノードフィールド**:
 - `type`: "node"
-- `id`: Node identifier
-- `node_type`: Node type (e.g., "memory", "user", "topic")
-- `data`: Node attributes
+- `id`: ノード識別子
+- `node_type`: ノードタイプ(例: "memory", "user", "topic")
+- `data`: ノード属性
 
-**Edge Fields**:
+**エッジフィールド**:
 - `type`: "edge"
-- `src`: Source node ID
-- `dst`: Destination node ID
-- `rel_type`: Relationship type
-- `weight`: Edge weight (0.0-1.0)
+- `src`: ソースノードID
+- `dst`: デスティネーションノードID
+- `rel_type`: 関係タイプ
+- `weight`: エッジウェイト(0.0-1.0)
 
-#### Metadata (`metadata.json`)
+#### メタデータ(`metadata.json`)
 
 ```json
 {
@@ -172,117 +172,117 @@ backup/
 
 ---
 
-## 🔄 Use Cases
+## 🔄 ユースケース
 
-### 1. Backup Before Major Changes
+### 1. 重要な変更前のバックアップ
 
 ```bash
-# Before upgrading Kagura
+# Kaguraアップグレード前
 kagura memory export --output ./backup-before-upgrade
 
-# Upgrade Kagura
+# Kaguraをアップグレード
 pip install --upgrade kagura-ai
 
-# If something goes wrong, restore
+# 問題が発生した場合、復元
 kagura memory import --input ./backup-before-upgrade --clear
 ```
 
-### 2. Migration to New Machine
+### 2. 新しいマシンへの移行
 
 ```bash
-# On old machine
+# 古いマシンで
 kagura memory export --output ./kagura-backup
 
-# Copy ./kagura-backup to new machine
+# ./kagura-backupを新しいマシンにコピー
 
-# On new machine
+# 新しいマシンで
 pip install kagura-ai
 kagura memory import --input ./kagura-backup
 ```
 
-### 3. GDPR Data Export
+### 3. GDPRデータエクスポート
 
 ```bash
-# Export all user data for GDPR request
+# GDPRリクエスト用にすべてのユーザーデータをエクスポート
 kagura memory export --output ./gdpr-export --user-id user_alice
 
-# Provide ./gdpr-export to user
+# ./gdpr-exportをユーザーに提供
 ```
 
-### 4. Selective Backup
+### 4. 選択的バックアップ
 
 ```bash
-# Daily backup (working memory only)
+# 日次バックアップ(ワーキングメモリーのみ)
 kagura memory export --output ./daily-backup-$(date +%Y%m%d) --no-persistent
 
-# Weekly full backup
+# 週次完全バックアップ
 kagura memory export --output ./weekly-backup-$(date +%Y%m%d)
 ```
 
 ---
 
-## ⚠️ Important Notes
+## ⚠️ 重要な注意事項
 
-### Data Loss Prevention
+### データ損失の防止
 
-- **Always backup before** using `--clear` flag
-- **Test import** on a copy first
-- **Verify roundtrip** with critical data
+- **必ずバックアップを取る** `--clear`フラグを使用する前に
+- **テストインポート** まずコピーで試す
+- **ラウンドトリップを検証** 重要なデータで
 
-### Large Exports
+### 大規模なエクスポート
 
-For large memory databases (>10,000 records):
-- Export may take several minutes
-- JSONL files can be large (100MB+)
-- Consider selective exports by user or scope
+大規模なメモリーデータベース(>10,000レコード)の場合:
+- エクスポートに数分かかる場合があります
+- JSONLファイルは大きくなる可能性があります(100MB+)
+- ユーザーまたはスコープごとの選択的エクスポートを検討してください
 
-### Version Compatibility
+### バージョン互換性
 
-- Format version 1.0 (current)
-- Future versions will maintain backward compatibility
-- Metadata includes `format_version` for validation
+- フォーマットバージョン1.0(現在)
+- 将来のバージョンは下位互換性を維持します
+- メタデータには検証用の`format_version`が含まれています
 
 ---
 
-## 🧪 Testing Export/Import
+## 🧪 エクスポート/インポートのテスト
 
-### Verify Export
+### エクスポートの検証
 
 ```bash
-# Export
+# エクスポート
 kagura memory export --output ./test-export
 
-# Check files exist
+# ファイルが存在することを確認
 ls -lh ./test-export/
 
-# Expected:
+# 期待される出力:
 # memories.jsonl
 # graph.jsonl
 # metadata.json
 ```
 
-### Verify Roundtrip
+### ラウンドトリップの検証
 
 ```bash
-# Store test data
+# テストデータを保存
 echo 'manager.working.set("test", "value")' | python -c "..."
 
-# Export
+# エクスポート
 kagura memory export --output ./roundtrip-test
 
-# Clear (⚠️ for testing only)
+# クリア(⚠️ テスト目的のみ)
 rm ~/.local/share/kagura/memory.db
 
-# Import
+# インポート
 kagura memory import --input ./roundtrip-test
 
-# Verify data restored
-# (check with kagura mcp tools)
+# データが復元されたことを確認
+# (kagura mcp toolsで確認)
 ```
 
 ---
 
-## 📚 API Reference
+## 📚 APIリファレンス
 
 ### Python API
 
@@ -290,10 +290,10 @@ kagura memory import --input ./roundtrip-test
 from kagura.core.memory import MemoryManager
 from kagura.core.memory.export import MemoryExporter, MemoryImporter
 
-# Create manager
+# マネージャーを作成
 manager = MemoryManager(user_id="user_jfk", agent_name="global")
 
-# Export
+# エクスポート
 exporter = MemoryExporter(manager)
 stats = await exporter.export_all(
     output_dir="./backup",
@@ -303,24 +303,24 @@ stats = await exporter.export_all(
 )
 print(f"Exported {stats['memories']} memories")
 
-# Import
+# インポート
 importer = MemoryImporter(manager)
 stats = await importer.import_all(
     input_dir="./backup",
-    clear_existing=False,  # Merge with existing data
+    clear_existing=False,  # 既存データとマージ
 )
 print(f"Imported {stats['memories']} memories")
 ```
 
 ---
 
-## 🔗 Related Documentation
+## 🔗 関連ドキュメント
 
-- [API Reference](./api-reference.md)
-- [Memory Management](./memory-management.md)
-- [Graph Memory](./graph-memory.md)
+- [APIリファレンス](./api-reference.md)
+- [メモリー管理](./memory-management.md)
+- [グラフメモリー](./graph-memory.md)
 
 ---
 
-**Last Updated**: 2025-10-27
-**Version**: 4.0.0
+**最終更新**: 2025-10-27
+**バージョン**: 4.0.0

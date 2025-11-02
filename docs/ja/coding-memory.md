@@ -1,13 +1,13 @@
-# Coding Memory - AI Coding Assistant Memory System
+# コーディングメモリー - AIコーディングアシスタントメモリーシステム
 
-**Status:** Phase 1 Complete (v4.1.0)
-**Target Users:** AI Coding Assistants (Claude Code, Cursor, GitHub Copilot, etc.)
+**ステータス:** フェーズ1完了(v4.1.0)
+**対象ユーザー:** AIコーディングアシスタント (Claude Code, Cursor, GitHub Copilot, etc.)
 
-## Overview
+## 概要
 
-Coding Memory is a specialized memory system for AI coding assistants that maintains context across sessions, learns from error patterns, and tracks project evolution.
+コーディングメモリーは専門的なメモリーシステムです for AI coding assistants that maintains context across sessions, learns from error patterns, and tracks project evolution.
 
-### Key Features
+### 主な機能
 
 ✅ **Cross-Session Context** - Remember coding decisions, errors, and patterns across sessions
 ✅ **Error Pattern Learning** - Automatically suggest solutions based on past resolutions
@@ -19,7 +19,7 @@ Coding Memory is a specialized memory system for AI coding assistants that maint
 ✅ **Multi-Provider Support** - OpenAI (GPT-5), Google (Gemini 2.5), Anthropic (Claude)
 ✅ **Cost Tracking** - Real-time cost monitoring and budget management
 
-## Architecture
+## アーキテクチャ
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -48,7 +48,7 @@ Coding Memory is a specialized memory system for AI coding assistants that maint
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## MCP Tools
+## MCPツール
 
 Kagura provides **14 MCP tools** for coding assistants:
 - **Phase 1**: 8 tools (basic memory + sessions)
@@ -177,7 +177,7 @@ patterns = await coding_analyze_patterns(
 print(patterns)  # Language prefs, library choices, naming conventions, etc.
 ```
 
-## Usage Example: Typical Session
+## 使用例: 一般的なセッション
 
 ```python
 # 1. Start session
@@ -231,7 +231,7 @@ print(f"Session completed in {result['duration_minutes']} minutes")
 print(f"Summary:\n{result['summary']}")
 ```
 
-## Prompt Engineering
+## プロンプトエンジニアリング
 
 Coding Memory uses carefully crafted prompts for high-quality LLM outputs:
 
@@ -255,9 +255,9 @@ Coding Memory uses carefully crafted prompts for high-quality LLM outputs:
 
 See `src/kagura/llm/prompts.py` for complete prompt templates.
 
-## Configuration
+## 設定
 
-### Environment Variables
+### 環境変数
 
 ```bash
 # Model Configuration
@@ -322,7 +322,7 @@ max_monthly_budget_usd = 500.0
 warn_at_percentage = 80.0
 ```
 
-## Integration with Claude Code
+## Claude Codeとの統合
 
 1. **Add to Claude Desktop config** (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -359,9 +359,9 @@ Claude: [calls coding_end_session]
 Session summary: Resolved datetime comparison TypeError (recurring pattern). Applied UTC timezone fix in src/auth.py. Recommend adding pre-commit hook to catch this pattern in future.
 ```
 
-## Plan Mode & Cost Management
+## プランモード&コスト管理
 
-### Approval Workflow
+### 承認ワークフロー
 
 When `auto_approve=False` (default), expensive operations require approval:
 
@@ -381,7 +381,7 @@ result = await coding_mem.end_coding_session(success=True)
 # Approve? [Y/n]:
 ```
 
-### Cost Threshold
+### コストしきい値
 
 Only ask approval if cost exceeds threshold:
 
@@ -396,7 +396,7 @@ coding_mem = CodingMemoryManager(
 # Operations over $0.50 → ask for approval
 ```
 
-### Auto-Approve Mode (Batch Processing)
+### 自動承認モード(バッチ処理)
 
 For automated workflows or "富豪仕様":
 
@@ -408,7 +408,7 @@ coding_mem = CodingMemoryManager(
 )
 ```
 
-### Real-Time Cost Tracking
+### リアルタイムコスト追跡
 
 ```python
 # Check cumulative costs
@@ -421,9 +421,9 @@ for call in coding_mem.coding_analyzer.call_costs:
     print(f"{call['timestamp']}: {call['model']} - ${call['cost']:.4f}")
 ```
 
-## Cost Considerations
+## コスト考慮事項
 
-### Model Comparison
+### モデル比較
 
 | Provider | Model | Input ($/1M) | Output ($/1M) | Speed | Quality |
 |----------|-------|--------------|---------------|-------|---------|
@@ -434,7 +434,7 @@ for call in coding_mem.coding_analyzer.call_costs:
 | Google | gemini-2.5-pro | $1.25 | $5.00 | ⚡️⚡️ | ⭐️⭐️⭐️⭐️⭐️ |
 | Anthropic | claude-sonnet-4-5 | $3.00 | $15.00 | ⚡️⚡️ | ⭐️⭐️⭐️⭐️⭐️ |
 
-### Operation Cost Estimates
+### 操作コスト見積もり
 
 | Operation | Tokens | gpt-5-mini | gemini-2.5-flash | claude-sonnet-4-5 |
 |-----------|--------|------------|------------------|-------------------|
@@ -443,7 +443,7 @@ for call in coding_mem.coding_analyzer.call_costs:
 | Screenshot analysis | ~2000 | $0.02 | Free | $0.09 |
 | Pattern extraction | ~7000 | $0.08 | $0.03 | $0.31 |
 
-### Monthly Cost Estimates
+### 月次コスト見積もり
 
 **Budget-Conscious (Gemini):**
 - 100 sessions × $0.03 avg = **~$3-5/month**
@@ -457,7 +457,7 @@ for call in coding_mem.coding_analyzer.call_costs:
 **富豪仕様 (All Premium):**
 - 500 sessions × $0.30 avg = **~$150-200/month**
 
-### Cost Reduction Tips
+### コスト削減のヒント
 
 1. **Use Gemini for most operations** - Free during preview, very affordable after
 2. **Set cost thresholds** - Only approve expensive operations
@@ -465,9 +465,9 @@ for call in coding_mem.coding_analyzer.call_costs:
 4. **Cache contexts** - Reuse project context across sessions
 5. **Batch operations** - Analyze patterns weekly, not per session
 
-## Multimodal Features
+## マルチモーダル機能
 
-### Error Screenshot Analysis
+### エラースクリーンショット分析
 
 ```python
 await coding_record_error(
@@ -489,7 +489,7 @@ Vision AI automatically extracts:
 - Visible code context
 - Suggested root cause
 
-### Architecture Diagram Analysis
+### アーキテクチャ Diagram Analysis
 
 ```python
 from kagura.llm.vision import VisionAnalyzer
@@ -501,7 +501,7 @@ print(arch_info['components'])  # ['API Gateway', 'Auth Service', 'Database']
 print(arch_info['architecture_pattern'])  # 'Microservices'
 ```
 
-## Best Practices
+## ベストプラクティス
 
 ### 1. Always Provide Reason for Changes
 
@@ -565,7 +565,7 @@ await coding_search_errors(
 # Finds errors related to async/await, database operations, even if wording differs
 ```
 
-## Troubleshooting
+## トラブルシューティング
 
 ### "No similar errors found"
 
@@ -589,7 +589,7 @@ await coding_end_session(...)  # End current
 await coding_start_session(...)  # Start new
 ```
 
-## Roadmap
+## ロードマップ
 
 **Phase 2: Graph Integration** (Issue #464)
 - Automatic dependency graph from imports
@@ -607,7 +607,7 @@ await coding_start_session(...)  # Start new
 - Team-level pattern aggregation
 - Custom pattern definition
 
-## See Also
+## 関連項目
 
 - [CODING_MEMORY_DESIGN.md](../ai_docs/CODING_MEMORY_DESIGN.md) - Technical design
 - [RFC-024: Context Compression](../ai_docs/archive/rfcs/completed/RFC_024_CONTEXT_COMPRESSION.md)
@@ -616,7 +616,7 @@ await coding_start_session(...)  # Start new
 
 ---
 
-**Contributing:** This is a new feature! Please report issues or suggest improvements at [GitHub Issues](https://github.com/JFK/kagura-ai/issues).
+**貢献:** This is a new feature! Please report issues or suggest improvements at [GitHub Issues](https://github.com/JFK/kagura-ai/issues).
 
 ### 9. `coding_analyze_file_dependencies` (Phase 2)
 
@@ -699,7 +699,7 @@ await coding_suggest_refactor_order(
 
 ## Phase 2: Advanced Graph Features
 
-### Automatic Dependency Graph
+### 自動依存関係グラフ
 
 **AST-Based Import Analysis:**
 - Automatically parses Python `import` and `from ... import` statements
@@ -718,7 +718,7 @@ if deps["circular_deps"]:
 print(f"This file is imported by {len(deps['imported_by'])} other files")
 ```
 
-### Error → Solution Linking
+### エラー→ソリューションリンク
 
 **Automatic Graph Links:**
 ```python
@@ -743,7 +743,7 @@ for sol in solutions:
     print(f"Solution: {sol['solution']} (confidence: {sol['confidence']})")
 ```
 
-### Decision → Implementation Linking
+### 意思決定→実装リンク
 
 **Track Implementation Progress:**
 ```python
@@ -772,7 +772,7 @@ print(f"Pending: {status['pending_files']}")
 # → "Pending: ['src/middleware.py', 'src/config.py']"
 ```
 
-### Refactoring Workflow Example
+### リファクタリングワークフロー例
 
 ```python
 # 1. Analyze impact before refactoring
@@ -855,7 +855,7 @@ await coding_generate_pr_description(
 # - Implemented 8 MCP tools for file/error/decision tracking
 # ...
 #
-# ## Testing
+# ## テスト
 # - Run pytest tests/core/memory/
 # - Verify RAG search functionality
 ```
@@ -881,9 +881,9 @@ context = await coding_get_issue_context(464)
 
 ---
 
-## GitHub Integration Workflow
+## GitHub統合ワークフロー
 
-### Complete Workflow Example
+### 完全なワークフロー例
 
 ```python
 # 1. Get issue context at start
@@ -937,7 +937,7 @@ pr_desc = await coding_generate_pr_description(
 # gh pr create --title "feat(memory): Implement coding memory" --body "$pr_desc"
 ```
 
-### Auto-Detection Features
+### 自動検出機能
 
 **Branch Name → Issue Number:**
 ```
@@ -955,7 +955,7 @@ Session linked to Issue #464
   - Automatically adds "Closes #464" to PR description
 ```
 
-### Benefits
+### メリット
 
 1. **Traceability**: Code → Session → Issue → PR (完全な追跡)
 2. **Context Preservation**: Issue詳細がセッションコンテキストに含まれる
@@ -965,9 +965,9 @@ Session linked to Issue #464
 
 ---
 
-## Requirements
+## 要件
 
-### For GitHub Integration
+### GitHub統合用
 
 **Required:**
 - `gh` CLI installed and authenticated
@@ -985,7 +985,7 @@ Session linked to Issue #464
 - GitHub issue tracking enabled
 - Branch naming convention: `{issue_number}-{description}`
 
-### Troubleshooting
+### トラブルシューティング
 
 **"Failed to fetch issue":**
 ```bash

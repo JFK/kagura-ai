@@ -1,28 +1,28 @@
-# MCP Setup Guide - Claude Desktop Integration
+# MCPセットアップガイド - Claude Desktop統合
 
-> **Connect Kagura to Claude Desktop in 2 minutes**
+> **2分でKaguraをClaude Desktopに接続**
 
-This guide shows how to integrate Kagura's universal memory with Claude Desktop using the Model Context Protocol (MCP).
-
----
-
-## 📋 Prerequisites
-
-- Kagura AI v4.0+ installed
-- Claude Desktop (supports MCP)
+このガイドでは、Model Context Protocol (MCP)を使用して、KaguraのユニバーサルメモリーシステムをClaude Desktopに統合する方法を説明します。
 
 ---
 
-## ⚡ Automatic Setup (Recommended)
+## 📋 前提条件
 
-Kagura can automatically configure Claude Desktop for you:
+- Kagura AI v4.0+がインストール済み
+- Claude Desktop (MCPをサポート)
+
+---
+
+## ⚡ 自動セットアップ (推奨)
+
+Kaguraは自動的にClaude Desktopを設定できます:
 
 ```bash
-# Install Kagura MCP server to Claude Desktop
+# Kagura MCPサーバーをClaude Desktopにインストール
 kagura mcp install
 ```
 
-**Output**:
+**出力**:
 ```
 ✅ Successfully installed!
 
@@ -37,15 +37,15 @@ Next steps:
   3. Try: 'Remember that I prefer Python'
 ```
 
-**That's it!** Kagura is now connected to Claude Desktop.
+**これだけです!** KaguraがClaude Desktopに接続されました。
 
 ---
 
-## 🔧 Manual Setup (Alternative)
+## 🔧 手動セットアップ (代替方法)
 
-If automatic setup doesn't work, you can manually edit the config file.
+自動セットアップが機能しない場合は、設定ファイルを手動で編集できます。
 
-### Step 1: Locate Claude Desktop Config
+### ステップ1: Claude Desktop設定ファイルの場所
 
 **macOS/Linux**:
 ```
@@ -57,9 +57,9 @@ If automatic setup doesn't work, you can manually edit the config file.
 %APPDATA%\Claude\claude_desktop_config.json
 ```
 
-### Step 2: Edit Configuration
+### ステップ2: 設定の編集
 
-Add Kagura to the `mcpServers` section:
+`mcpServers`セクションにKaguraを追加します:
 
 ```json
 {
@@ -73,7 +73,7 @@ Add Kagura to the `mcpServers` section:
 }
 ```
 
-**Full example**:
+**完全な例**:
 ```json
 {
   "mcpServers": {
@@ -90,98 +90,98 @@ Add Kagura to the `mcpServers` section:
 }
 ```
 
-### Step 3: Restart Claude Desktop
+### ステップ3: Claude Desktopの再起動
 
-Close and reopen Claude Desktop to apply changes.
+Claude Desktopを閉じて再度開き、変更を適用します。
 
 ---
 
-## ✅ Verify Integration
+## ✅ 統合の確認
 
-### Method 1: Ask Claude
+### 方法1: Claudeに質問する
 
-Start a new conversation in Claude Desktop and try:
+Claude Desktopで新しい会話を開始して試してみてください:
 
-> **You**: "Remember that I prefer Python over JavaScript for backend projects"
+> **あなた**: "Remember that I prefer Python over JavaScript for backend projects"
 
-Claude will use the `memory_store` tool to save this.
+Claudeは`memory_store`ツールを使用してこれを保存します。
 
-> **You**: "What programming languages do I prefer?"
+> **あなた**: "What programming languages do I prefer?"
 
-Claude will use `memory_recall` or `memory_search` to retrieve the information.
+Claudeは`memory_recall`または`memory_search`を使用して情報を取得します。
 
-### Method 2: Check Diagnostics
+### 方法2: 診断を確認
 
 ```bash
 kagura mcp doctor
 ```
 
-Look for:
+次の表示を確認してください:
 ```
 Claude Desktop │ ✅ configured │ Kagura MCP server configured
 ```
 
 ---
 
-## 🧠 Available Memory Tools
+## 🧠 利用可能なメモリーツール
 
-Once integrated, Claude has access to these memory tools:
+統合が完了すると、Claudeは以下のメモリーツールにアクセスできます:
 
-### Core Tools
+### コアツール
 
-| Tool | Purpose | Example |
+| ツール | 目的 | 使用例 |
 |------|---------|---------|
-| **memory_store** | Save information | "Remember X" |
-| **memory_recall** | Get by key | "What did I say about Y?" |
-| **memory_search** | Semantic search | "Find memories about Z" |
-| **memory_list** | List all memories | "What do you remember about me?" |
-| **memory_feedback** | Mark useful/outdated | Automatic |
-| **memory_delete** | Forget information | "Forget about X" |
+| **memory_store** | 情報を保存 | "Xを覚えて" |
+| **memory_recall** | キーで取得 | "Yについて何を言った?" |
+| **memory_search** | セマンティック検索 | "Zについてのメモリーを検索" |
+| **memory_list** | すべてのメモリーをリスト | "私について何を覚えている?" |
+| **memory_feedback** | 有用/古いとマーク | 自動 |
+| **memory_delete** | 情報を削除 | "Xについて忘れて" |
 
-### Memory Scopes
+### メモリースコープ
 
-- **working**: Temporary, session-only (default)
-- **persistent**: Saved to disk, survives restart
+- **working**: 一時的、セッションのみ (デフォルト)
+- **persistent**: ディスクに保存、再起動後も保持
 
-### Example Interactions
+### 使用例
 
-**Store persistent memory**:
+**永続的なメモリーを保存**:
 > "Remember that my favorite Python library is FastAPI. This is important and should be persistent."
 
-**Search memories**:
+**メモリーを検索**:
 > "What do you know about my coding preferences?"
 
-**Feedback** (automatic):
-> Claude automatically marks memories as "useful" when they help answer your questions.
+**フィードバック** (自動):
+> Claudeは、質問に答えるのに役立った場合、自動的にメモリーを"useful"としてマークします。
 
-**Delete**:
+**削除**:
 > "Forget about my old JavaScript preference"
 
 ---
 
-## 🔍 Troubleshooting
+## 🔍 トラブルシューティング
 
-### Claude Desktop doesn't see Kagura tools
+### Claude DesktopがKaguraツールを認識しない
 
-**Check 1**: Verify installation
+**確認1**: インストールを確認
 ```bash
 kagura mcp doctor
 ```
 
-**Check 2**: Restart Claude Desktop
-- Quit Claude Desktop completely
-- Reopen it
-- Start a new conversation
+**確認2**: Claude Desktopを再起動
+- Claude Desktopを完全に終了
+- 再度開く
+- 新しい会話を開始
 
-**Check 3**: Check logs
+**確認3**: ログを確認
 ```bash
-# Claude Desktop logs (macOS)
+# Claude Desktopログ (macOS)
 tail -f ~/Library/Logs/Claude/mcp*.log
 ```
 
 ### "kagura command not found"
 
-**Solution**: Use full path in config
+**解決方法**: 設定でフルパスを使用
 
 ```json
 {
@@ -194,42 +194,42 @@ tail -f ~/Library/Logs/Claude/mcp*.log
 }
 ```
 
-Find full path:
+フルパスを確認:
 ```bash
 which kagura
-# Output: /home/user/.local/bin/kagura
+# 出力: /home/user/.local/bin/kagura
 ```
 
-### Memory not persisting across conversations
+### メモリーが会話をまたいで保持されない
 
-**Cause**: Using `scope="working"` (default)
+**原因**: `scope="working"` (デフォルト)を使用
 
-**Solution**: Explicitly use `scope="persistent"`
+**解決方法**: 明示的に`scope="persistent"`を使用
 
-Or tell Claude:
+またはClaudeに伝えます:
 > "Remember this **permanently**: I prefer Python"
 
 ---
 
-## 🚫 Uninstall
+## 🚫 アンインストール
 
-To remove Kagura from Claude Desktop:
+Claude DesktopからKaguraを削除するには:
 
 ```bash
 kagura mcp uninstall
 ```
 
-This removes the configuration but **does not delete your stored memories**.
+これにより設定は削除されますが、**保存されたメモリーは削除されません**。
 
 ---
 
-## 🔗 Related
+## 🔗 関連
 
-- [Getting Started](./getting-started.md) - Installation guide
-- [API Reference](./api-reference.md) - REST API docs
-- [Architecture](./architecture.md) - System design
+- [Getting Started](./getting-started.md) - インストールガイド
+- [API Reference](./api-reference.md) - REST APIドキュメント
+- [Architecture](./architecture.md) - システム設計
 
 ---
 
-**Version**: 4.0.0a
-**Last updated**: 2025-10-26
+**バージョン**: 4.0.0a
+**最終更新**: 2025-10-26

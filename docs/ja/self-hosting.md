@@ -1,14 +1,14 @@
-# Self-Hosting Guide
+# セルフホスティングガイド
 
 **Kagura AI v4.0.0** - Universal AI Memory Platform
 
-This guide explains how to self-host Kagura AI for production use with Docker.
+このガイドでは self-host Kagura AI for production use with Docker.
 
 ---
 
 ## 📋 Overview
 
-Self-hosting Kagura AI gives you:
+Kagura AIをセルフホスティングすることで以下が得られます:
 - **Full control** over your data
 - **Multi-user support** with authentication
 - **Remote access** from any MCP client
@@ -22,9 +22,9 @@ Self-hosting Kagura AI gives you:
 
 ---
 
-## 🚀 Quick Start
+## 🚀 クイックスタート
 
-### Prerequisites
+### 前提条件
 
 - **Server**: Ubuntu 22.04 LTS (or similar)
 - **Docker**: 20.10+ and Docker Compose v2
@@ -94,9 +94,9 @@ curl https://your-domain.com/api/v1/health
 
 ---
 
-## 🔧 Configuration
+## 🔧 設定
 
-### Environment Variables
+### 環境変数
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
@@ -108,7 +108,7 @@ curl https://your-domain.com/api/v1/health
 | `CORS_ORIGINS` | No | * | Allowed CORS origins (comma-separated) |
 | `API_KEY_REQUIRED` | No | `false` | Require API key for all requests |
 
-### SSL/TLS Configuration
+### SSL/TLS設定
 
 Caddy automatically obtains SSL certificates from Let's Encrypt.
 
@@ -129,9 +129,9 @@ your-domain.com {
 
 ---
 
-## 🔐 Security
+## 🔐 セキュリティ
 
-### 1. API Key Authentication
+### 1. APIキー認証
 
 ```bash
 # Generate API key
@@ -145,7 +145,7 @@ curl -H "Authorization: Bearer kagura_abc123..." \
      https://your-domain.com/mcp
 ```
 
-### 2. Firewall Configuration
+### 2. ファイアウォール設定
 
 ```bash
 # Allow HTTP/HTTPS only
@@ -157,7 +157,7 @@ sudo ufw enable
 sudo ufw deny 5432/tcp
 ```
 
-### 3. Regular Updates
+### 3. 定期アップデート
 
 ```bash
 # Update Kagura
@@ -172,9 +172,9 @@ sudo apt-get update && sudo apt-get upgrade -y
 
 ---
 
-## 💾 Backup & Restore
+## 💾 バックアップ&リストア
 
-### Automated Backup
+### 自動バックアップ
 
 Create backup script `backup.sh`:
 
@@ -208,7 +208,7 @@ echo "Backup saved to $BACKUP_DIR.tar.gz"
 0 2 * * * /path/to/backup.sh
 ```
 
-### Restore from Backup
+### バックアップからの復元
 
 ```bash
 # Extract backup
@@ -225,9 +225,9 @@ docker compose -f docker-compose.prod.yml exec -T postgres \
 
 ---
 
-## 📊 Monitoring
+## 📊 監視
 
-### Health Checks
+### ヘルスチェック
 
 ```bash
 # API health
@@ -240,7 +240,7 @@ curl https://your-domain.com/api/v1/health
 docker compose -f docker-compose.prod.yml ps
 ```
 
-### Logs
+### ログ
 
 ```bash
 # All services
@@ -254,7 +254,7 @@ docker compose -f docker-compose.prod.yml exec caddy \
   tail -f /var/log/caddy/access.log
 ```
 
-### Metrics
+### メトリクス
 
 ```bash
 # Memory usage
@@ -271,9 +271,9 @@ curl https://your-domain.com/api/v1/metrics
 
 ---
 
-## 🔧 Maintenance
+## 🔧 メンテナンス
 
-### Update Kagura
+### Kaguraの更新
 
 ```bash
 cd kagura-ai
@@ -282,7 +282,7 @@ docker compose -f docker-compose.prod.yml build api
 docker compose -f docker-compose.prod.yml up -d api
 ```
 
-### Restart Services
+### サービスの再起動
 
 ```bash
 # Restart all
@@ -292,7 +292,7 @@ docker compose -f docker-compose.prod.yml restart
 docker compose -f docker-compose.prod.yml restart api
 ```
 
-### Database Maintenance
+### データベースメンテナンス
 
 ```bash
 # Vacuum database (cleanup)
@@ -306,9 +306,9 @@ docker compose -f docker-compose.prod.yml exec postgres \
 
 ---
 
-## 🌐 Connecting Clients
+## 🌐 クライアント接続
 
-### ChatGPT Connector
+### ChatGPTコネクター
 
 1. Enable Developer Mode in ChatGPT
 2. Add connector:
@@ -316,11 +316,11 @@ docker compose -f docker-compose.prod.yml exec postgres \
    - **URL**: `https://your-domain.com/mcp`
    - **Authentication**: Bearer token (if API key required)
 
-### Claude Desktop (Remote)
+### Claude Desktop(リモート)
 
 Coming soon - stdio → HTTP proxy connector
 
-### Custom MCP Clients
+### カスタムMCPクライアント
 
 ```python
 import httpx
@@ -340,7 +340,7 @@ response = httpx.post(
 
 ---
 
-## 🐛 Troubleshooting
+## 🐛 トラブルシューティング
 
 ### Issue: Caddy cannot obtain SSL certificate
 
@@ -381,9 +381,9 @@ response = httpx.post(
 
 ---
 
-## 📈 Performance Tuning
+## 📈 パフォーマンスチューニング
 
-### Database Optimization
+### データベース最適化
 
 ```bash
 # Increase connection pool
@@ -392,7 +392,7 @@ DATABASE_POOL_SIZE=20
 DATABASE_MAX_OVERFLOW=10
 ```
 
-### Redis Caching
+### Redisキャッシング
 
 ```bash
 # Configure Redis for caching
@@ -400,7 +400,7 @@ DATABASE_MAX_OVERFLOW=10
 command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
 ```
 
-### API Workers
+### APIワーカー
 
 ```bash
 # Use gunicorn for multiple workers
@@ -410,7 +410,7 @@ command: gunicorn kagura.api.server:app -w 4 -k uvicorn.workers.UvicornWorker -b
 
 ---
 
-## 🔗 Related Documentation
+## 🔗 関連ドキュメント
 
 - [MCP over HTTP/SSE Setup](./mcp-http-setup.md)
 - [API Authentication](./api-authentication.md) *(coming soon)*
@@ -419,12 +419,12 @@ command: gunicorn kagura.api.server:app -w 4 -k uvicorn.workers.UvicornWorker -b
 
 ---
 
-## 💬 Support
+## 💬 サポート
 
 - **Issues**: [GitHub Issues](https://github.com/YourUsername/kagura-ai/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/YourUsername/kagura-ai/discussions)
 
 ---
 
-**Last Updated**: 2025-10-27
+**最終更新**: 2025-10-27
 **Version**: 4.0.0

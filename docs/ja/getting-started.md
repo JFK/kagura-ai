@@ -1,115 +1,115 @@
-# Getting Started with Kagura AI v4.0
+# Kagura AI v4.0 はじめに
 
-> **Universal AI Memory Platform - 10-minute setup**
+> **Universal AI Memory Platform - 10分でセットアップ**
 
-Kagura is a universal memory layer that connects all your AI platforms (Claude, ChatGPT, Gemini, etc.) with shared context and memory.
+Kaguraは、すべてのAIプラットフォーム（Claude、ChatGPT、Gemini など）を共有コンテキストとメモリーで接続する、ユニバーサルメモリーレイヤーです。
 
 ---
 
-## 📋 What is Kagura v4.0?
+## 📋 Kagura v4.0とは？
 
 **Kagura v4.0** = **MCP-native Universal Memory**
 
-- **For Claude Desktop**: Local MCP server with all 31 tools
-- **For ChatGPT**: HTTP/SSE connector with memory access
-- **For Teams**: Self-hosted API with authentication
-- **For Developers**: REST API + Python SDK
+- **Claude Desktopユーザー向け**: 31個の全ツールを備えたローカルMCPサーバー
+- **ChatGPTユーザー向け**: メモリーアクセス可能なHTTP/SSEコネクタ
+- **チーム向け**: 認証機能付きセルフホストAPI
+- **開発者向け**: REST API + Python SDK
 
 ---
 
-## 🚀 Quick Start (Choose Your Path)
+## 🚀 クイックスタート（パスを選択）
 
-### Path 1: Claude Desktop User (Recommended)
+### パス1: Claude Desktopユーザー（推奨）
 
-**Setup time**: 5 minutes
+**セットアップ時間**: 5分
 
 ```bash
-# Install Kagura
+# Kaguraをインストール
 pip install kagura-ai[full]
 
-# Auto-configure Claude Desktop
+# Claude Desktopを自動設定
 kagura mcp install
 
-# Restart Claude Desktop
-# That's it! Kagura is now available in Claude
+# Claude Desktopを再起動
+# これで完了！KaguraがClaudeで利用可能になりました
 ```
 
-**Try it in Claude Desktop**:
+**Claude Desktopで試す**:
 ```
-"Remember: I prefer Python for backend development"
-"What do you know about my preferences?"
+「覚えておいて: バックエンド開発にはPythonが好きです」
+「私の好みについて何か知っていますか？」
 ```
 
-**See**: [MCP Setup Guide](mcp-setup.md)
+**参照**: [MCPセットアップガイド](mcp-setup.md)
 
 ---
 
-### Path 2: ChatGPT Connector User
+### パス2: ChatGPTコネクタユーザー
 
-**Setup time**: 10 minutes
+**セットアップ時間**: 10分
 
-1. **Start Kagura API**:
+1. **Kagura APIを起動**:
    ```bash
-   # Using Docker
+   # Dockerを使用
    docker compose up -d
 
-   # Or local
+   # またはローカル実行
    pip install kagura-ai[api]
    uvicorn kagura.api.server:app --port 8000
    ```
 
-2. **Expose with ngrok** (for testing):
+2. **ngrokで公開**（テスト用）:
    ```bash
    ngrok http 8000
-   # Get URL: https://abc123.ngrok.app
+   # URLを取得: https://abc123.ngrok.app
    ```
 
-3. **Configure ChatGPT**:
-   - Enable Developer Mode
-   - Add Connector:
+3. **ChatGPTを設定**:
+   - 開発者モードを有効化
+   - コネクタを追加:
      - URL: `https://abc123.ngrok.app/mcp`
-     - Name: Kagura Memory
+     - 名前: Kagura Memory
 
-**See**: [MCP over HTTP/SSE Guide](mcp-http-setup.md)
+**参照**: [MCP over HTTP/SSE ガイド](mcp-http-setup.md)
 
 ---
 
-### Path 3: Self-Hosted Production
+### パス3: セルフホスト本番環境
 
-**Setup time**: 30 minutes
+**セットアップ時間**: 30分
 
 ```bash
-# Clone repository
+# リポジトリをクローン
 git clone https://github.com/JFK/kagura-ai.git
 cd kagura-ai
 
-# Configure
+# 設定
 cp .env.example .env
-nano .env  # Set DOMAIN and POSTGRES_PASSWORD
+nano .env  # DOMAINとPOSTGRES_PASSWORDを設定
 
-# Deploy
+# デプロイ
 docker compose -f docker-compose.prod.yml up -d
 
-# Generate API key
+# APIキーを生成
 docker compose -f docker-compose.prod.yml exec api \
   kagura api create-key --name "production"
 
-# Verify
+# 確認
 curl https://your-domain.com/api/v1/health
 ```
 
-**See**: [Self-Hosting Guide](self-hosting.md)
+**参照**: [セルフホスティングガイド](self-hosting.md)
 
 ---
 
-## 🧩 Key Features
+## 🧩 主な機能
 
 ### 1. Universal Memory
 
-Store memories once, access from any AI:
+一度保存すれば、どのAIからでもアクセス可能:
 
 ```python
-# Via MCP tool (Claude Desktop, ChatGPT, etc.)
+# MCPツール経由（Claude Desktop、ChatGPT など）
 memory_store(
     user_id="jfk",
     agent_name="global",
@@ -122,10 +122,10 @@ memory_store(
 
 ### 2. Graph Memory
 
-Track relationships and patterns:
+関係性とパターンを追跡:
 
 ```python
-# Record interaction
+# インタラクションを記録
 memory_record_interaction(
     user_id="jfk",
     query="How do I write async functions?",
@@ -133,94 +133,94 @@ memory_record_interaction(
     metadata={"topic": "python", "skill_level": "intermediate"}
 )
 
-# Analyze patterns
+# パターンを分析
 memory_get_user_pattern(user_id="jfk")
 ```
 
-### 3. Remote Access
+### 3. リモートアクセス
 
-Access your memory from anywhere:
+どこからでもメモリーにアクセス:
 
-- **ChatGPT Connector**: HTTP/SSE transport
-- **API Keys**: Secure authentication
-- **Tool Filtering**: Automatic security (no file ops remotely)
+- **ChatGPTコネクタ**: HTTP/SSEトランスポート
+- **APIキー**: 安全な認証
+- **ツールフィルタリング**: 自動セキュリティ（リモートではファイル操作不可）
 
-### 4. Export/Import
+### 4. エクスポート/インポート
 
-Own your data completely:
+データを完全に所有:
 
 ```bash
-# Backup
+# バックアップ
 kagura memory export --output ./backup
 
-# Restore
+# 復元
 kagura memory import --input ./backup
 ```
 
 ---
 
-## 📚 Next Steps
+## 📚 次のステップ
 
-### For Claude Desktop Users
+### Claude Desktopユーザー向け
 
-1. [Complete MCP Setup](mcp-setup.md)
-2. Try built-in tools: `kagura mcp tools`
-3. Explore memory operations
+1. [完全なMCPセットアップ](mcp-setup.md)
+2. 組み込みツールを試す: `kagura mcp tools`
+3. メモリー操作を探索
 
-### For ChatGPT Users
+### ChatGPTユーザー向け
 
-1. [Setup HTTP/SSE Connector](mcp-http-setup.md)
-2. Generate API key: `kagura api create-key`
-3. Connect and test
+1. [HTTP/SSEコネクタのセットアップ](mcp-http-setup.md)
+2. APIキーを生成: `kagura api create-key`
+3. 接続してテスト
 
-### For Self-Hosters
+### セルフホスター向け
 
-1. [Follow Self-Hosting Guide](self-hosting.md)
-2. Configure SSL/TLS with Caddy
-3. Set up backups
+1. [セルフホスティングガイドに従う](self-hosting.md)
+2. CaddyでSSL/TLSを設定
+3. バックアップを設定
 
-### For Developers
+### 開発者向け
 
-1. [REST API Reference](api-reference.md)
-2. [Architecture Overview](architecture.md)
-3. [Memory Export/Import](memory-export.md)
+1. [REST APIリファレンス](api-reference.md)
+2. [アーキテクチャ概要](architecture.md)
+3. [メモリーエクスポート/インポート](memory-export.md)
 
 ---
 
-## 🔍 Available Commands
+## 🔍 利用可能なコマンド
 
 ```bash
-# MCP Management
-kagura mcp serve           # Start MCP server (Claude Desktop)
-kagura mcp install         # Auto-configure Claude Desktop
-kagura mcp tools           # List available tools
-kagura mcp doctor          # Run diagnostics
-kagura mcp connect         # Configure remote connection
-kagura mcp test-remote     # Test remote API
+# MCP管理
+kagura mcp serve           # MCPサーバーを起動（Claude Desktop）
+kagura mcp install         # Claude Desktopを自動設定
+kagura mcp tools           # 利用可能なツールをリスト
+kagura mcp doctor          # 診断を実行
+kagura mcp connect         # リモート接続を設定
+kagura mcp test-remote     # リモートAPIをテスト
 
-# API Key Management
-kagura api create-key      # Generate API key
-kagura api list-keys       # List all keys
-kagura api revoke-key      # Revoke key
+# APIキー管理
+kagura api create-key      # APIキーを生成
+kagura api list-keys       # 全キーをリスト
+kagura api revoke-key      # キーを無効化
 
-# Memory Management
-kagura memory export       # Export to JSONL
-kagura memory import       # Import from JSONL
+# メモリー管理
+kagura memory export       # JSONLにエクスポート
+kagura memory import       # JSONLからインポート
 
-# System
-kagura --version           # Show version
+# システム
+kagura --version           # バージョンを表示
 ```
 
 ---
 
-## 💬 Support
+## 💬 サポート
 
-- **Documentation**: https://kagura-ai.com/docs
+- **ドキュメント**: https://kagura-ai.com/docs
 - **GitHub Issues**: https://github.com/JFK/kagura-ai/issues
 - **Discussions**: https://github.com/JFK/kagura-ai/discussions
 
 ---
 
-**Version**: 4.0.0
-**Protocol**: MCP (Model Context Protocol)
-**License**: Apache 2.0
+**バージョン**: 4.0.0
+**プロトコル**: MCP (Model Context Protocol)
+**ライセンス**: Apache 2.0

@@ -1,34 +1,34 @@
-# Architecture - Kagura v4.0
+# アーキテクチャ - Kagura v4.0
 
-> **Universal AI Memory Platform - System Design**
+> **Universal AI Memory Platform - システム設計**
 
-This document describes the architecture of Kagura v4.0 after Phase C completion.
+このドキュメントは、Phase C完了後のKagura v4.0のアーキテクチャを説明します。
 
 ---
 
-## 🏗️ High-Level Overview
+## 🏗️ 高レベル概要
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                  AI Platforms (MCP Clients)                     │
+│                  AIプラットフォーム（MCPクライアント）              │
 │      Claude Desktop • ChatGPT • Gemini • Cursor • Cline         │
 └──────┬────────────────────────────────────────────────┬─────────┘
-       │ stdio (local)                    HTTP/SSE (remote)│
+       │ stdio（ローカル）              HTTP/SSE（リモート）│
        │                                                   │
 ┌──────▼─────────────┐                    ┌──────────────▼────────┐
-│  MCP Server        │                    │  MCP over HTTP/SSE    │
-│  (Local)           │                    │  (/mcp endpoint)      │
+│  MCPサーバー       │                    │  MCP over HTTP/SSE    │
+│  （ローカル）      │                    │  （/mcpエンドポイント）│
 │                    │                    │                       │
-│  All 31 tools ✅   │                    │  24 safe tools only   │
-│  File ops ✅       │                    │  File ops ❌          │
-│  Shell exec ✅     │                    │  Shell exec ❌        │
+│  全31ツール ✅     │                    │  24安全ツールのみ     │
+│  ファイル操作 ✅   │                    │  ファイル操作 ❌      │
+│  シェル実行 ✅     │                    │  シェル実行 ❌        │
 └──────┬─────────────┘                    └──────────────┬────────┘
        │                                                   │
-       │              Internal Python API                  │
+       │              内部Python API                       │
        └───────────────────────┬───────────────────────────┘
                                │
           ┌────────────────────▼─────────────────────┐
-          │         Memory Manager                   │
+          │         メモリーマネージャー             │
           │   (src/kagura/core/memory/manager.py)    │
           │                                          │
           │  ┌──────────┬───────────┬─────────────┐ │
@@ -41,33 +41,33 @@ This document describes the architecture of Kagura v4.0 after Phase C completion
           │  │  RAG (ChromaDB)                    │ │
           │  │  • Working RAG                     │ │
           │  │  • Persistent RAG                  │ │
-          │  │  • Semantic search                 │ │
+          │  │  • セマンティック検索              │ │
           │  └────────────────────────────────────┘ │
           │                                          │
           │  ┌────────────────────────────────────┐ │
-          │  │  Graph Memory (NetworkX)           │ │
-          │  │  • Relationships                   │ │
-          │  │  • Interaction history             │ │
-          │  │  • User patterns                   │ │
+          │  │  グラフメモリー (NetworkX)         │ │
+          │  │  • 関係性                          │ │
+          │  │  • インタラクション履歴            │ │
+          │  │  • ユーザーパターン                │ │
           │  └────────────────────────────────────┘ │
           └────────────────┬─────────────────────────┘
                            │
                   ┌────────▼────────┐
-                  │    Storage      │
+                  │    ストレージ   │
                   │  • SQLite       │
                   │  • ChromaDB     │
-                  │  • Pickle files │
+                  │  • Pickleファイル│
                   └─────────────────┘
 ```
 
 ---
 
-## 🆕 Phase C Architecture (Remote MCP Server)
+## 🆕 Phase Cアーキテクチャ（リモートMCPサーバー）
 
-### Remote Access Flow
+### リモートアクセスフロー
 
 ```
-ChatGPT                         Your Server
+ChatGPT                         あなたのサーバー
 ┌─────────┐                     ┌──────────────┐
 │ ChatGPT │  HTTPS/SSE          │    Caddy     │
 │Connector├────────────────────►│ (Port 443)   │
@@ -82,8 +82,8 @@ ChatGPT                         Your Server
                                └───────┬───────┘
                                        │
                               ┌────────▼────────┐
-                              │ Memory Manager  │
-                              │  + Graph        │
+                              │メモリーマネージャー│
+                              │  + グラフ       │
                               └────────┬────────┘
                                        │
                               ┌────────▼────────┐
@@ -92,257 +92,257 @@ ChatGPT                         Your Server
                               └─────────────────┘
 ```
 
-### Security Layers
+### セキュリティレイヤー
 
 ```
-1. API Key Authentication
-   ├─ SHA256 hashed storage
-   ├─ Optional expiration
-   └─ Audit trail (last_used_at)
+1. APIキー認証
+   ├─ SHA256ハッシュストレージ
+   ├─ オプショナルな有効期限
+   └─ 監査証跡（last_used_at）
 
-2. Tool Access Control
-   ├─ Local context: All 31 tools ✅
-   ├─ Remote context: 24 safe tools only
-   └─ Dangerous tools filtered:
+2. ツールアクセス制御
+   ├─ ローカルコンテキスト: 全31ツール ✅
+   ├─ リモートコンテキスト: 24安全ツールのみ
+   └─ 危険なツールをフィルタリング:
       • file_read, file_write
       • shell_exec
       • media_open_*
 
-3. Network Security
-   ├─ Caddy reverse proxy
-   ├─ Automatic HTTPS (Let's Encrypt)
-   ├─ CORS configuration
-   └─ Security headers (HSTS, XSS)
+3. ネットワークセキュリティ
+   ├─ Caddyリバースプロキシ
+   ├─ 自動HTTPS（Let's Encrypt）
+   ├─ CORS設定
+   └─ セキュリティヘッダー（HSTS、XSS）
 ```
 
 ---
 
-## 📦 Component Details
+## 📦 コンポーネント詳細
 
-### 1. MCP Server (src/kagura/mcp/)
+### 1. MCPサーバー (src/kagura/mcp/)
 
-**stdio Transport** (local):
-- **File**: `src/kagura/cli/mcp.py`
-- **Command**: `kagura mcp serve`
-- **Context**: `local` (all tools available)
-- **Clients**: Claude Desktop, Cursor, Cline
+**stdioトランスポート**（ローカル）:
+- **ファイル**: `src/kagura/cli/mcp.py`
+- **コマンド**: `kagura mcp serve`
+- **コンテキスト**: `local`（全ツール利用可能）
+- **クライアント**: Claude Desktop、Cursor、Cline
 
-**HTTP/SSE Transport** (remote):
-- **File**: `src/kagura/api/routes/mcp_transport.py`
-- **Endpoint**: `/mcp`
-- **Context**: `remote` (safe tools only)
-- **Clients**: ChatGPT Connector, web browsers
+**HTTP/SSEトランスポート**（リモート）:
+- **ファイル**: `src/kagura/api/routes/mcp_transport.py`
+- **エンドポイント**: `/mcp`
+- **コンテキスト**: `remote`（安全なツールのみ）
+- **クライアント**: ChatGPTコネクタ、ウェブブラウザ
 
-**Tool Permissions**:
-- **File**: `src/kagura/mcp/permissions.py`
-- **Logic**: `is_tool_allowed(tool_name, context)`
-- **Default**: Deny unknown tools (fail-safe)
-
----
-
-### 2. Memory Manager (src/kagura/core/memory/)
-
-**Components**:
-- `manager.py` - Main coordinator
-- `working.py` - In-memory temporary storage
-- `persistent.py` - SQLite-based long-term storage
-- `rag.py` - ChromaDB vector search
-- `export.py` - JSONL export/import
-
-**Storage Scopes**:
-- **Working**: Session-only, cleared after use
-- **Persistent**: Survives restarts, SQLite storage
-- **Both**: Indexed in RAG for semantic search
+**ツールパーミッション**:
+- **ファイル**: `src/kagura/mcp/permissions.py`
+- **ロジック**: `is_tool_allowed(tool_name, context)`
+- **デフォルト**: 未知のツールを拒否（フェイルセーフ）
 
 ---
 
-### 3. Graph Memory (src/kagura/core/graph/)
+### 2. メモリーマネージャー (src/kagura/core/memory/)
 
-**Implementation**: NetworkX-based
+**コンポーネント**:
+- `manager.py` - メインコーディネーター
+- `working.py` - インメモリー一時ストレージ
+- `persistent.py` - SQLiteベースの長期ストレージ
+- `rag.py` - ChromaDBベクトル検索
+- `export.py` - JSONLエクスポート/インポート
 
-**Node Types**:
-- `user` - User profiles
-- `topic` - Discussion topics
-- `memory` - Memory references
-- `interaction` - AI-User interactions
+**ストレージスコープ**:
+- **Working**: セッションのみ、使用後にクリア
+- **Persistent**: 再起動後も存続、SQLiteストレージ
+- **両方**: セマンティック検索のためRAGにインデックス
 
-**Edge Types**:
-- `related_to` - Related memories
-- `depends_on` - Dependencies
-- `learned_from` - Learning relationships
-- `works_on` - User activities
+---
 
-**Storage**: Pickle files (`~/.local/share/kagura/graph.pkl`)
+### 3. グラフメモリー (src/kagura/core/graph/)
+
+**実装**: NetworkXベース
+
+**ノードタイプ**:
+- `user` - ユーザープロファイル
+- `topic` - ディスカッショントピック
+- `memory` - メモリー参照
+- `interaction` - AI-ユーザーインタラクション
+
+**エッジタイプ**:
+- `related_to` - 関連メモリー
+- `depends_on` - 依存関係
+- `learned_from` - 学習関係
+- `works_on` - ユーザーアクティビティ
+
+**ストレージ**: Pickleファイル (`~/.local/share/kagura/graph.pkl`)
 
 ---
 
 ### 4. REST API (src/kagura/api/)
 
-**Framework**: FastAPI
+**フレームワーク**: FastAPI
 
-**Endpoints**:
-- `/api/v1/memory` - Memory CRUD
-- `/api/v1/recall` - Semantic search
-- `/api/v1/search` - Full-text search
-- `/api/v1/graph/*` - Graph operations
-- `/api/v1/health` - Health check
-- `/api/v1/metrics` - System metrics
-- `/mcp` - MCP over HTTP/SSE ⭐ NEW
+**エンドポイント**:
+- `/api/v1/memory` - メモリーCRUD
+- `/api/v1/recall` - セマンティック検索
+- `/api/v1/search` - 全文検索
+- `/api/v1/graph/*` - グラフ操作
+- `/api/v1/health` - ヘルスチェック
+- `/api/v1/metrics` - システムメトリクス
+- `/mcp` - MCP over HTTP/SSE ⭐ 新機能
 
-**Authentication**:
-- **File**: `src/kagura/api/auth.py`
-- **Method**: Bearer token (API keys)
-- **Storage**: SQLite (`~/.local/share/kagura/api_keys.db`)
-- **Hashing**: SHA256
-
----
-
-## 🔄 Data Flow
-
-### Memory Store Flow
-
-```
-1. MCP Client (Claude/ChatGPT)
-   └─► MCP Tool Call: memory_store(...)
-
-2. MCP Server (stdio or HTTP/SSE)
-   └─► Route to tool_registry
-
-3. Built-in Tool (src/kagura/mcp/builtin/memory.py)
-   └─► Call MemoryManager.store()
-
-4. Memory Manager
-   ├─► Working memory (if scope="working")
-   ├─► Persistent memory (if scope="persistent")
-   └─► RAG indexing (both scopes)
-
-5. Storage
-   ├─► SQLite (persistent)
-   ├─► ChromaDB (vectors)
-   └─► In-memory dict (working)
-```
-
-### Memory Recall Flow
-
-```
-1. MCP Tool Call: memory_recall(query="Python tips", k=5)
-
-2. Memory Manager
-   └─► Query RAG (vector similarity)
-
-3. RAG Search
-   ├─► Embed query (text-embedding-3-small)
-   ├─► Search ChromaDB collections
-   └─► Return top-k results
-
-4. Return to client
-   └─► Formatted results with scores
-```
+**認証**:
+- **ファイル**: `src/kagura/api/auth.py`
+- **メソッド**: Bearerトークン（APIキー）
+- **ストレージ**: SQLite (`~/.local/share/kagura/api_keys.db`)
+- **ハッシング**: SHA256
 
 ---
 
-## 🔐 Security Architecture
+## 🔄 データフロー
 
-### Authentication Flow
+### メモリー保存フロー
 
 ```
-1. Client Request
+1. MCPクライアント（Claude/ChatGPT）
+   └─► MCPツール呼び出し: memory_store(...)
+
+2. MCPサーバー（stdioまたはHTTP/SSE）
+   └─► tool_registryにルーティング
+
+3. 組み込みツール (src/kagura/mcp/builtin/memory.py)
+   └─► MemoryManager.store()を呼び出し
+
+4. メモリーマネージャー
+   ├─► Workingメモリー（scope="working"の場合）
+   ├─► Persistentメモリー（scope="persistent"の場合）
+   └─► RAGインデックス（両方のスコープ）
+
+5. ストレージ
+   ├─► SQLite（persistent）
+   ├─► ChromaDB（ベクトル）
+   └─► インメモリーdict（working）
+```
+
+### メモリー呼び出しフロー
+
+```
+1. MCPツール呼び出し: memory_recall(query="Python tips", k=5)
+
+2. メモリーマネージャー
+   └─► RAGをクエリ（ベクトル類似度）
+
+3. RAG検索
+   ├─► クエリを埋め込み（text-embedding-3-small）
+   ├─► ChromaDBコレクションを検索
+   └─► トップk結果を返す
+
+4. クライアントに返す
+   └─► スコア付きでフォーマットされた結果
+```
+
+---
+
+## 🔐 セキュリティアーキテクチャ
+
+### 認証フロー
+
+```
+1. クライアントリクエスト
    └─► Authorization: Bearer kagura_abc123...
 
-2. API Gateway (/mcp or /api/v1/*)
-   └─► Extract Bearer token
+2. APIゲートウェイ（/mcpまたは/api/v1/*）
+   └─► Bearerトークンを抽出
 
-3. API Key Manager (src/kagura/api/auth.py)
-   ├─► Hash provided key (SHA256)
-   ├─► Query api_keys.db
-   ├─► Check expiration & revocation
-   └─► Extract user_id
+3. APIキーマネージャー (src/kagura/api/auth.py)
+   ├─► 提供されたキーをハッシュ（SHA256）
+   ├─► api_keys.dbをクエリ
+   ├─► 有効期限と無効化をチェック
+   └─► user_idを抽出
 
-4. Request Processing
-   └─► Use authenticated user_id for memory operations
+4. リクエスト処理
+   └─► メモリー操作に認証されたuser_idを使用
 ```
 
-### Tool Filtering (Remote Context)
+### ツールフィルタリング（リモートコンテキスト）
 
 ```
 1. create_mcp_server(context="remote")
 
 2. handle_list_tools()
-   ├─► Get all registered tools (31 total)
-   ├─► Filter by TOOL_PERMISSIONS
-   └─► Return safe tools only (24)
+   ├─► 登録された全ツールを取得（合計31）
+   ├─► TOOL_PERMISSIONSでフィルタリング
+   └─► 安全なツールのみを返す（24）
 
-3. Client sees:
-   ✅ memory_* tools
-   ✅ web_* tools
-   ❌ file_* tools (blocked)
-   ❌ shell_exec (blocked)
+3. クライアントが見るもの:
+   ✅ memory_*ツール
+   ✅ web_*ツール
+   ❌ file_*ツール（ブロック）
+   ❌ shell_exec（ブロック）
 ```
 
 ---
 
-## 💾 Data Model
+## 💾 データモデル
 
-### Memory Record
+### メモリーレコード
 
 ```python
 {
-    "key": str,                  # Unique identifier
-    "value": Any,                # Stored data (JSON serializable)
-    "user_id": str,              # Owner (v4.0+)
-    "agent_name": str,           # Agent scope
+    "key": str,                  # 一意の識別子
+    "value": Any,                # 保存データ（JSONシリアライズ可能）
+    "user_id": str,              # オーナー（v4.0+）
+    "agent_name": str,           # エージェントスコープ
     "scope": "working|persistent",
-    "tags": List[str],           # Categorization
+    "tags": List[str],           # カテゴリー化
     "importance": float,         # 0.0-1.0
     "created_at": datetime,
     "updated_at": datetime,
-    "metadata": Dict[str, Any]   # Additional metadata
+    "metadata": Dict[str, Any]   # 追加メタデータ
 }
 ```
 
-### Graph Node
+### グラフノード
 
 ```python
 {
-    "id": str,                   # Node identifier
-    "type": str,                 # Node type (user, topic, memory, interaction)
-    "data": Dict[str, Any],      # Node attributes
+    "id": str,                   # ノード識別子
+    "type": str,                 # ノードタイプ（user、topic、memory、interaction）
+    "data": Dict[str, Any],      # ノード属性
 }
 ```
 
-### Graph Edge
+### グラフエッジ
 
 ```python
 {
-    "src": str,                  # Source node ID
-    "dst": str,                  # Destination node ID
-    "type": str,                 # Relationship type
+    "src": str,                  # ソースノードID
+    "dst": str,                  # デスティネーションノードID
+    "type": str,                 # 関係タイプ
     "weight": float,             # 0.0-1.0
 }
 ```
 
 ---
 
-## 📊 Deployment Architecture
+## 📊 デプロイメントアーキテクチャ
 
-### Local Development
+### ローカル開発
 
 ```
-Developer Machine
+開発者マシン
 ├── SQLite (~/.local/share/kagura/memory.db)
 ├── ChromaDB (~/.local/share/kagura/chromadb/)
-├── Graph pickle (~/.local/share/kagura/graph.pkl)
-└── API Keys (~/.local/share/kagura/api_keys.db)
+├── グラフpickle (~/.local/share/kagura/graph.pkl)
+└── APIキー (~/.local/share/kagura/api_keys.db)
 ```
 
-### Production Deployment
+### 本番デプロイメント
 
 ```
-Docker Stack (docker-compose.prod.yml)
+Dockerスタック (docker-compose.prod.yml)
 
 ┌─────────────────────────────────────────┐
 │            Caddy (Port 443)             │
-│     Automatic HTTPS, Reverse Proxy      │
+│     自動HTTPS、リバースプロキシ        │
 └──────────────────┬──────────────────────┘
                    │
 ┌──────────────────▼──────────────────────┐
@@ -352,70 +352,70 @@ Docker Stack (docker-compose.prod.yml)
        │                      │
 ┌──────▼──────────┐   ┌──────▼──────────┐
 │   PostgreSQL    │   │     Redis       │
-│   + pgvector    │   │   (Caching)     │
+│   + pgvector    │   │   (キャッシング)│
 └─────────────────┘   └─────────────────┘
 
-Volumes:
-├── postgres_data  - Database persistence
-├── redis_data     - Redis persistence
-├── kagura_data    - Memory exports, etc.
-└── caddy_data     - SSL certificates
+ボリューム:
+├── postgres_data  - データベース永続化
+├── redis_data     - Redis永続化
+├── kagura_data    - メモリーエクスポートなど
+└── caddy_data     - SSL証明書
 ```
 
 ---
 
-## 🔄 Export/Import System
+## 🔄 エクスポート/インポートシステム
 
-### Export Format (JSONL)
+### エクスポート形式（JSONL）
 
 ```
 backup/
-├── memories.jsonl      # All memory records
-├── graph.jsonl         # Graph nodes & edges
-└── metadata.json       # Export metadata
+├── memories.jsonl      # 全メモリーレコード
+├── graph.jsonl         # グラフノード & エッジ
+└── metadata.json       # エクスポートメタデータ
 ```
 
-**Example record**:
+**レコード例**:
 ```jsonl
 {"type":"memory","scope":"persistent","key":"python_tips","value":"Use type hints","user_id":"jfk","agent_name":"global","tags":["python"],"importance":0.8,"exported_at":"2025-10-27T10:00:00Z"}
 ```
 
 ---
 
-## 📐 Design Principles
+## 📐 設計原則
 
 ### 1. MCP-First
 
-All functionality exposed via MCP tools first, then REST API.
+すべての機能をまずMCPツール経由で公開し、その後REST API。
 
-### 2. Multi-User from Day 1
+### 2. 最初からマルチユーザー
 
-All operations scoped by `user_id` (Phase C foundation).
+すべての操作は`user_id`でスコープ（Phase Cの基盤）。
 
-### 3. Security by Default
+### 3. デフォルトでセキュア
 
-Remote access auto-filtered for safety.
+リモートアクセスは安全性のために自動的にフィルタリング。
 
-### 4. Data Portability
+### 4. データポータビリティ
 
-Complete export/import in human-readable JSONL.
+人間が読めるJSONL形式での完全なエクスポート/インポート。
 
-### 5. Fail-Safe
+### 5. フェイルセーフ
 
-Unknown tools denied by default in remote context.
+リモートコンテキストでは未知のツールをデフォルトで拒否。
 
 ---
 
-## 🔗 Related Documentation
+## 🔗 関連ドキュメント
 
-- [Getting Started](getting-started.md)
-- [MCP Setup Guide](mcp-setup.md)
+- [はじめに](getting-started.md)
+- [MCPセットアップガイド](mcp-setup.md)
 - [MCP over HTTP/SSE](mcp-http-setup.md)
-- [Self-Hosting Guide](self-hosting.md)
-- [API Reference](api-reference.md)
+- [セルフホスティングガイド](self-hosting.md)
+- [APIリファレンス](api-reference.md)
 
 ---
 
-**Last Updated**: 2025-10-27
-**Version**: 4.0.0
-**Phase**: C Complete
+**最終更新**: 2025-10-27
+**バージョン**: 4.0.0
+**フェーズ**: C完了

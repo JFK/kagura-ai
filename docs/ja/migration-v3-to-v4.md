@@ -1,12 +1,12 @@
-# Migration Guide: v3.0 → v4.0
+# 移行ガイド: v3.0 → v4.0
 
-This guide helps you migrate from Kagura AI v3.0 to v4.0.
+このガイドでは migrate from Kagura AI v3.0 to v4.0.
 
-**Target audience**: Existing v3.0 users upgrading to v4.0
+**対象読者**: v3.0からv4.0にアップグレードする既存ユーザー
 
 ---
 
-## 🎯 Overview
+## 🎯 概要
 
 **v4.0** is a major release focusing on **Universal AI Memory Platform**:
 - REST API (FastAPI)
@@ -15,12 +15,12 @@ This guide helps you migrate from Kagura AI v3.0 to v4.0.
 - Remote MCP Server (HTTP/SSE)
 - Production-ready infrastructure
 
-**Upgrade effort**: ~30 minutes
-**Compatibility**: Most v3.0 code works with minimal changes
+**アップグレード作業**: 約30分
+**互換性**: ほとんどのv3.0コードは最小限の変更で動作します
 
 ---
 
-## 📋 Breaking Changes
+## 📋 破壊的変更
 
 ### 1. Memory API: `user_id` Now Required
 
@@ -125,7 +125,7 @@ mv ~/.kagura/chromadb ~/.cache/kagura/
 
 ---
 
-## ✨ New Features
+## ✨ 新機能
 
 ### 1. GraphMemory (Knowledge Graphs)
 
@@ -209,7 +209,7 @@ docker compose -f docker-compose.prod.yml up -d
 
 ---
 
-## 🔧 Step-by-Step Migration
+## 🔧 ステップバイステップ移行
 
 ### Step 1: Backup v3.0 Data
 
@@ -292,7 +292,7 @@ asyncio.run(test_migration())
 
 ---
 
-## 🆕 Recommended Updates
+## 🆕 推奨アップデート
 
 ### 1. Enable GraphMemory
 
@@ -325,7 +325,7 @@ kagura api serve --host 0.0.0.0
 
 ---
 
-## 🐛 Troubleshooting
+## 🐛 トラブルシューティング
 
 ### Issue: "user_id is required"
 
@@ -383,7 +383,7 @@ mv ~/.kagura/memory.db ~/.local/share/kagura/
 
 ---
 
-## 📚 Additional Resources
+## 📚 追加リソース
 
 - [v4.0 Release Notes](../CHANGELOG.md)
 - [v4.0 Implementation Roadmap](../ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md)
@@ -393,7 +393,7 @@ mv ~/.kagura/memory.db ~/.local/share/kagura/
 
 ---
 
-## 💬 Need Help?
+## 💬 ヘルプが必要ですか?
 
 - 📖 **Documentation**: https://docs.kagura.ai
 - 💬 **Discussions**: https://github.com/JFK/kagura-ai/discussions
@@ -402,7 +402,7 @@ mv ~/.kagura/memory.db ~/.local/share/kagura/
 
 ---
 
-## ✅ Migration Checklist
+## ✅ 移行チェックリスト
 
 - [ ] Backup v3.0 data (`kagura memory export`)
 - [ ] Upgrade package (`pip install --upgrade kagura-ai[full]`)
