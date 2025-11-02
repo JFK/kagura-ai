@@ -87,8 +87,11 @@ class MCPDiagnostics:
         Returns:
             Status dict
         """
-        # Claude Desktop config path
-        config_path = Path.home() / ".config" / "claude" / "claude_desktop_config.json"
+        # Use MCPConfig to get platform-specific path
+        from kagura.mcp.config import MCPConfig
+
+        mcp_config = MCPConfig()
+        config_path = mcp_config.config_path
 
         if not config_path.exists():
             return {
