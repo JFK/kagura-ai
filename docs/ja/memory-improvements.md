@@ -1,19 +1,19 @@
-# Memory Accuracy Improvements (v4.0.0a0)
+# メモリー精度改善(v4.0.0a0)
 
-This document describes the memory accuracy improvements implemented in Kagura AI v4.0.0a0, consisting of three phases.
+このドキュメントでは the memory accuracy improvements implemented in Kagura AI v4.0.0a0, consisting of three phases.
 
-## Overview
+## 概要
 
-The memory system has been significantly enhanced with:
+メモリーシステムは以下で大幅に強化されました:
 - **Phase 1**: E5 multilingual embeddings, cross-encoder reranking, multi-dimensional recall scoring
 - **Phase 2**: Hybrid search (vector + lexical) with RRF fusion
 - **Phase 3**: Temporal graph for time-aware knowledge management
 
-**Expected precision improvement**: +40-60% overall
+**期待される精度改善**: +40-60% overall
 
 ---
 
-## Phase 1: Foundation (Embeddings & Reranking)
+## フェーズ1: 基盤(埋め込み&再ランキング)
 
 ### 1.1 E5 Multilingual Embeddings
 
@@ -98,7 +98,7 @@ config = RecallScorerConfig(
 
 ---
 
-## Phase 2: Hybrid Search (Vector + Lexical)
+## フェーズ2: ハイブリッド検索(ベクトル+字句)
 
 ### 2.1 BM25 Lexical Search
 
@@ -167,7 +167,7 @@ results = manager.recall_hybrid(
 
 ---
 
-## Phase 3: Temporal GraphMemory
+## フェーズ3: テンポラルGraphMemory
 
 ### 3.1 Time-Aware Knowledge Graph
 
@@ -239,9 +239,9 @@ result_now = graph.query_graph_temporal(["person_kiyota"], hops=2)
 
 ---
 
-## Configuration
+## 設定
 
-### Complete Configuration Example
+### 完全な設定例
 
 ```python
 from kagura.config.memory_config import MemorySystemConfig
@@ -286,7 +286,7 @@ manager = MemoryManager(
 
 ---
 
-## Performance Comparison
+## パフォーマンス比較
 
 | Method | Precision | Speed | Best For |
 |--------|-----------|-------|----------|
@@ -296,9 +296,9 @@ manager = MemoryManager(
 
 ---
 
-## Breaking Changes
+## 破壊的変更
 
-### Required Migration
+### 必須の移行
 
 **Re-index all memories**:
 ```bash
@@ -311,7 +311,7 @@ kagura memory reindex --model intfloat/multilingual-e5-large
 
 ---
 
-## Testing
+## テスト
 
 Run memory tests:
 ```bash
@@ -326,9 +326,9 @@ pytest tests/core/graph/test_memory.py::TestTemporal # Phase 3
 
 ---
 
-## References
+## 参考文献
 
-### Research Papers
+### 研究論文
 
 **Phase 1 (Neural Memory)**:
 - Graves et al. (2016) - Differentiable Neural Computer
@@ -342,7 +342,7 @@ pytest tests/core/graph/test_memory.py::TestTemporal # Phase 3
 - Microsoft GraphRAG (2024)
 - Zep Temporal KG (2024)
 
-### Models
+### モデル
 
 - **E5 Embeddings**: https://huggingface.co/intfloat/multilingual-e5-large
 - **Cross-Encoder**: https://huggingface.co/cross-encoder/ms-marco-MiniLM-L-6-v2
@@ -350,7 +350,7 @@ pytest tests/core/graph/test_memory.py::TestTemporal # Phase 3
 
 ---
 
-## Troubleshooting
+## トラブルシューティング
 
 ### Issue: Reindexing takes too long
 
@@ -375,9 +375,9 @@ pip install rank-bm25
 
 ---
 
-## Next Steps
+## 次のステップ
 
-### Future Enhancements (Post-v4.0.0a0)
+### 今後の機能拡張 (Post-v4.0.0a0)
 
 - **LLM Query Expansion**: Automatic query variant generation
 - **PGroonga Integration**: Better Japanese full-text search
@@ -386,9 +386,9 @@ pip install rank-bm25
 
 ---
 
-**Related Issues**:
+**関連Issue**:
 - #418 - Memory accuracy improvements (this document)
 - #417 - RAG accuracy improvements
 - #348 - Neural memory research
 
-**Last Updated**: 2025-10-27
+**最終更新**: 2025-10-27

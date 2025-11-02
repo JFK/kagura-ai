@@ -1,6 +1,6 @@
 ---
 title: Kagura AI - Universal AI Memory Platform
-description: Own your memory. Bring it to every AI. MCP-native memory for Claude, ChatGPT, Gemini, and all your AI platforms.
+description: あなたのメモリーを所有し、すべてのAIで活用。Claude、ChatGPT、Gemini、そしてすべてのAIプラットフォーム向けのMCP-nativeメモリー。
 keywords:
   - Universal Memory
   - AI Memory
@@ -14,7 +14,7 @@ robots: index, follow
 og_title: Kagura AI - Universal AI Memory Platform
 og_type: website
 og_url: https://www.kagura-ai.com
-og_description: Own your memory. Bring it to every AI. MCP-native universal memory for all your AI platforms.
+og_description: あなたのメモリーを所有し、すべてのAIで活用。すべてのAIプラットフォーム向けのMCP-nativeユニバーサルメモリー。
 og_image: assets/kagura-logo.svg
 twitter_card: summary_large_image
 twitter_site: "@kagura_ai"
@@ -27,63 +27,63 @@ twitter_creator: "@JFK"
 
 **Universal AI Memory Platform**
 
-> Own your memory. Bring it to every AI.
+> あなたのメモリーを所有し、すべてのAIで活用。
 
-MCP-native memory infrastructure that connects Claude Desktop, ChatGPT, Gemini, and all your AI platforms with shared context and memory.
+Claude Desktop、ChatGPT、Gemini、そしてすべてのAIプラットフォームを共有コンテキストとメモリーで接続する、MCP-nativeメモリーインフラストラクチャ。
 
 ---
 
-## What is Kagura AI v4.0?
+## Kagura AI v4.0とは？
 
-A universal memory layer that makes every AI remember your preferences, context, and history across all platforms.
+すべてのAIがあなたの好み、コンテキスト、履歴を全プラットフォームで記憶できるようにする、ユニバーサルメモリーレイヤーです。
 
 ```
-Morning: ChatGPT helps you plan your day
-         ↓ (remembers your preferences)
+朝: ChatGPTがあなたの一日の計画を支援
+     ↓ (あなたの好みを記憶)
 
-Afternoon: Claude Desktop writes code with you
-           ↓ (knows your coding style)
+午後: Claude Desktopがあなたとコードを書く
+      ↓ (あなたのコーディングスタイルを知っている)
 
-Evening: Gemini analyzes your documents
-         ↓ (recalls your project context)
+夕方: Geminiがあなたのドキュメントを分析
+      ↓ (あなたのプロジェクトコンテキストを思い出す)
 ```
 
-**One memory. Every AI.**
+**1つのメモリー。すべてのAI。**
 
 ---
 
-## Why Kagura AI?
+## なぜKagura AIなのか？
 
-### For Individuals
+### 個人向け
 
-- 🔒 **Privacy-first**: Local storage or self-hosted
-- 🚫 **No vendor lock-in**: Complete data export anytime
-- 🧠 **Smart recall**: Vector search + Knowledge graph
-- 🌐 **Universal**: Works with Claude, ChatGPT, Gemini, Cursor, Cline
+- 🔒 **プライバシー第一**: ローカルストレージまたはセルフホスト
+- 🚫 **ベンダーロックインなし**: いつでも完全なデータエクスポート
+- 🧠 **スマートな呼び出し**: ベクトル検索 + ナレッジグラフ
+- 🌐 **ユニバーサル**: Claude、ChatGPT、Gemini、Cursor、Clineで動作
 
-### For Developers
+### 開発者向け
 
-- 💻 **MCP-native**: 31 tools via Model Context Protocol
-- 🔌 **Easy integration**: `kagura mcp install` for Claude Desktop
-- 🛠️ **REST API**: FastAPI server with OpenAPI
-- 📦 **Production-ready**: Docker, authentication, monitoring
+- 💻 **MCP-native**: Model Context Protocol経由の31ツール
+- 🔌 **簡単な統合**: Claude Desktop向けの `kagura mcp install`
+- 🛠️ **REST API**: OpenAPI付きFastAPIサーバー
+- 📦 **本番環境対応**: Docker、認証、モニタリング
 
-### For Teams (Coming Soon)
+### チーム向け（近日公開）
 
-- 👥 **Shared knowledge**: Team-wide memory
-- 🔐 **Enterprise features**: SSO, BYOK, audit logs
-- 📈 **Analytics**: Track team AI usage patterns
+- 👥 **共有知識**: チーム全体のメモリー
+- 🔐 **エンタープライズ機能**: SSO、BYOK、監査ログ
+- 📈 **分析**: チームのAI使用パターンを追跡
 
 ---
 
-## Core Features
+## コア機能
 
 ### 1. Universal Memory
 
-Store once, access from any AI:
+一度保存すれば、どのAIからでもアクセス:
 
 ```python
-# Via MCP tool (works in Claude Desktop, ChatGPT, etc.)
+# MCPツール経由（Claude Desktop、ChatGPT などで動作）
 memory_store(
     user_id="jfk",
     agent_name="global",
@@ -94,135 +94,135 @@ memory_store(
 )
 ```
 
-### 2. MCP Integration
+### 2. MCP統合
 
-**Claude Desktop** (local, all 31 tools):
+**Claude Desktop**（ローカル、31個の全ツール）:
 ```bash
-kagura mcp install  # Auto-configure
-# All tools available: memory, files, web, shell, etc.
+kagura mcp install  # 自動設定
+# 利用可能なすべてのツール: メモリー、ファイル、ウェブ、シェル など
 ```
 
-**ChatGPT Connector** (remote, 24 safe tools):
+**ChatGPTコネクタ**（リモート、24個の安全なツール）:
 ```bash
 docker compose up -d
-# Connect ChatGPT to http://localhost:8000/mcp
-# Safe tools only (no file ops, no shell)
+# ChatGPTを http://localhost:8000/mcp に接続
+# 安全なツールのみ（ファイル操作なし、シェルなし）
 ```
 
-### 3. Knowledge Graph
+### 3. ナレッジグラフ
 
-Track relationships and patterns:
-- AI-User interaction history
-- Memory relationships
-- Learning patterns analysis
-- Topic clustering
+関係性とパターンを追跡:
+- AI-ユーザーインタラクション履歴
+- メモリーの関係性
+- 学習パターン分析
+- トピッククラスタリング
 
-### 4. Complete Data Portability
+### 4. 完全なデータポータビリティ
 
 ```bash
-# Export everything
+# すべてをエクスポート
 kagura memory export --output ./backup
 
-# Import anywhere
+# どこへでもインポート
 kagura memory import --input ./backup
 ```
 
 ---
 
-## Quick Start
+## クイックスタート
 
-### Option 1: Claude Desktop User
+### オプション1: Claude Desktopユーザー
 
 ```bash
 pip install kagura-ai[full]
 kagura mcp install
-# Restart Claude Desktop - Done!
+# Claude Desktopを再起動 - 完了！
 ```
 
-[Claude Desktop Setup →](mcp-setup.md)
+[Claude Desktopセットアップ →](mcp-setup.md)
 
-### Option 2: ChatGPT User
+### オプション2: ChatGPTユーザー
 
 ```bash
 docker compose up -d
-# Configure ChatGPT Connector: http://localhost:8000/mcp
+# ChatGPTコネクタを設定: http://localhost:8000/mcp
 ```
 
-[ChatGPT Connector Setup →](mcp-http-setup.md)
+[ChatGPTコネクタセットアップ →](mcp-http-setup.md)
 
-### Option 3: Self-Hosted Production
+### オプション3: セルフホスト本番環境
 
 ```bash
 git clone https://github.com/JFK/kagura-ai.git
 cd kagura-ai
-cp .env.example .env  # Configure DOMAIN, POSTGRES_PASSWORD
+cp .env.example .env  # DOMAIN、POSTGRES_PASSWORDを設定
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-[Self-Hosting Guide →](self-hosting.md)
+[セルフホスティングガイド →](self-hosting.md)
 
 ---
 
-## Available Tools (MCP)
+## 利用可能なツール（MCP）
 
-**Memory** (6 tools):
+**メモリー**（6ツール）:
 - memory_store, memory_recall, memory_search
 - memory_list, memory_delete, memory_feedback
 
-**Graph** (3 tools):
+**グラフ**（3ツール）:
 - memory_record_interaction
 - memory_get_related
 - memory_get_user_pattern
 
-**Web/API** (10+ tools):
+**ウェブ/API**（10以上のツール）:
 - web_search, web_scrape
 - youtube_summarize, get_youtube_transcript
 - brave_web_search, fact_check_claim
 
-**File Operations** (local only):
+**ファイル操作**（ローカルのみ）:
 - file_read, file_write, dir_list
 
-**System**:
-- shell_exec (local only)
+**システム**:
+- shell_exec（ローカルのみ）
 - telemetry_stats, telemetry_cost
 
 ---
 
-## Documentation
+## ドキュメント
 
-- [Getting Started](getting-started.md) - 10-minute setup
-- [API Reference](api-reference.md) - REST API + MCP tools
-- [Architecture](architecture.md) - System design
-- [Self-Hosting](self-hosting.md) - Production deployment
-- [Memory Export/Import](memory-export.md) - Backup guide
-
----
-
-## Community
-
-- [GitHub](https://github.com/JFK/kagura-ai) - Source code & issues
-- [PyPI](https://pypi.org/project/kagura-ai/) - Package downloads
-- [Examples](https://github.com/JFK/kagura-ai/tree/main/examples) - Usage examples
+- [はじめに](getting-started.md) - 10分セットアップ
+- [APIリファレンス](api-reference.md) - REST API + MCPツール
+- [アーキテクチャ](architecture.md) - システム設計
+- [セルフホスティング](self-hosting.md) - 本番デプロイメント
+- [メモリーエクスポート/インポート](memory-export.md) - バックアップガイド
 
 ---
 
-## Status: v4.0.0 (Phase C Complete)
+## コミュニティ
 
-**Recently Completed**:
+- [GitHub](https://github.com/JFK/kagura-ai) - ソースコード & Issues
+- [PyPI](https://pypi.org/project/kagura-ai/) - パッケージダウンロード
+- [サンプル](https://github.com/JFK/kagura-ai/tree/main/examples) - 使用例
+
+---
+
+## ステータス: v4.0.0（Phase C完了）
+
+**最近完了**:
 - ✅ Phase A: MCP-First Foundation
 - ✅ Phase B: Graph Memory
 - ✅ Phase C: Remote MCP Server + Export/Import
 
-**Features**:
-- ✅ 31 MCP tools
-- ✅ REST API (FastAPI)
-- ✅ MCP over HTTP/SSE (ChatGPT Connector)
-- ✅ API Key authentication
-- ✅ Memory export/import (JSONL)
-- ✅ Production Docker setup
+**機能**:
+- ✅ 31個のMCPツール
+- ✅ REST API（FastAPI）
+- ✅ MCP over HTTP/SSE（ChatGPTコネクタ）
+- ✅ APIキー認証
+- ✅ メモリーエクスポート/インポート（JSONL）
+- ✅ 本番環境Docker設定
 
-**Coming Next**: v4.0.0 stable release
+**次の予定**: v4.0.0安定版リリース
 
 ---
 
-**Built with ❤️ for universal AI memory**
+**ユニバーサルAIメモリーのために ❤️ を込めて構築**

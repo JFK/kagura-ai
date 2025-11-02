@@ -1,53 +1,53 @@
-# API Reference - Kagura v4.0
+# APIリファレンス - Kagura v4.0
 
-> **REST API & MCP Tools Documentation**
+> **REST API & MCPツール ドキュメント**
 
-Comprehensive reference for Kagura's REST API and MCP tools.
+KaguraのREST APIとMCPツールの包括的なリファレンス。
 
 ---
 
-## 📚 Table of Contents
+## 📚 目次
 
-1. [REST API](#rest-api) - HTTP endpoints
-2. [MCP over HTTP/SSE](#mcp-over-httpsse) - ChatGPT Connector
-3. [MCP Tools](#mcp-tools) - Claude Desktop, stdio
-4. [Authentication](#authentication) - API Keys
-5. [OpenAPI Specification](#openapi-specification)
+1. [REST API](#rest-api) - HTTPエンドポイント
+2. [MCP over HTTP/SSE](#mcp-over-httpsse) - ChatGPTコネクタ
+3. [MCPツール](#mcpツール) - Claude Desktop、stdio
+4. [認証](#認証) - APIキー
+5. [OpenAPI仕様](#openapi仕様)
 
 ---
 
 ## 🌐 REST API
 
-**Base URL**: `http://localhost:8000` (default)
+**ベースURL**: `http://localhost:8000`（デフォルト）
 
-**Interactive Docs**: http://localhost:8000/docs
+**インタラクティブドキュメント**: http://localhost:8000/docs
 
-### Authentication
+### 認証
 
-**v4.0.0**: Optional API Key authentication
+**v4.0.0**: オプショナルなAPIキー認証
 
 ```bash
-# With API key
+# APIキー付き
 curl -H "Authorization: Bearer kagura_abc123..." \
      http://localhost:8000/api/v1/memory
 
-# Without (uses default_user)
+# なし（default_userを使用）
 curl http://localhost:8000/api/v1/memory
 ```
 
-**Headers**:
-- `Authorization: Bearer <api_key>` - Optional API key
-- `X-User-ID: <user_id>` - Optional user identifier
+**ヘッダー**:
+- `Authorization: Bearer <api_key>` - オプショナルなAPIキー
+- `X-User-ID: <user_id>` - オプショナルなユーザー識別子
 
 ---
 
-## Memory Operations
+## メモリー操作
 
 ### POST /api/v1/memory
 
-Create or update a memory.
+メモリーを作成または更新。
 
-**Request**:
+**リクエスト**:
 ```json
 {
   "key": "python_tips",
@@ -58,7 +58,7 @@ Create or update a memory.
 }
 ```
 
-**Response** (201 Created):
+**レスポンス**（201 Created）:
 ```json
 {
   "key": "python_tips",
@@ -71,9 +71,9 @@ Create or update a memory.
 
 ### GET /api/v1/memory/{key}
 
-Retrieve a memory by key.
+キーでメモリーを取得。
 
-**Response** (200 OK):
+**レスポンス**（200 OK）:
 ```json
 {
   "key": "python_tips",
@@ -84,19 +84,19 @@ Retrieve a memory by key.
 
 ### DELETE /api/v1/memory/{key}
 
-Delete a memory.
+メモリーを削除。
 
-**Response** (204 No Content)
+**レスポンス**（204 No Content）
 
 ---
 
-## Search & Recall
+## 検索 & 呼び出し
 
 ### POST /api/v1/recall
 
-Semantic search using RAG.
+RAGを使用したセマンティック検索。
 
-**Request**:
+**リクエスト**:
 ```json
 {
   "query": "Python coding tips",
@@ -105,7 +105,7 @@ Semantic search using RAG.
 }
 ```
 
-**Response** (200 OK):
+**レスポンス**（200 OK）:
 ```json
 {
   "results": [
@@ -116,21 +116,21 @@ Semantic search using RAG.
 
 ### GET /api/v1/search
 
-Full-text search.
+全文検索。
 
-**Query params**:
-- `q`: Search query
-- `limit`: Max results (default: 10)
+**クエリパラメータ**:
+- `q`: 検索クエリ
+- `limit`: 最大結果数（デフォルト: 10）
 
 ---
 
-## Graph Operations
+## グラフ操作
 
 ### POST /api/v1/graph/interaction
 
-Record AI-User interaction.
+AI-ユーザーインタラクションを記録。
 
-**Request**:
+**リクエスト**:
 ```json
 {
   "user_id": "jfk",
@@ -142,9 +142,9 @@ Record AI-User interaction.
 
 ### GET /api/v1/graph/pattern/{user_id}
 
-Analyze user patterns.
+ユーザーパターンを分析。
 
-**Response**:
+**レスポンス**:
 ```json
 {
   "user_id": "jfk",
@@ -156,13 +156,13 @@ Analyze user patterns.
 
 ---
 
-## System Endpoints
+## システムエンドポイント
 
 ### GET /api/v1/health
 
-Health check.
+ヘルスチェック。
 
-**Response**:
+**レスポンス**:
 ```json
 {
   "status": "healthy",
@@ -175,9 +175,9 @@ Health check.
 
 ### GET /api/v1/metrics
 
-System metrics.
+システムメトリクス。
 
-**Response**:
+**レスポンス**:
 ```json
 {
   "memories_count": 150,
@@ -191,16 +191,16 @@ System metrics.
 
 ## 🔌 MCP over HTTP/SSE
 
-**Endpoint**: `/mcp`
+**エンドポイント**: `/mcp`
 
-**Protocol**: MCP (Model Context Protocol) over HTTP/SSE
+**プロトコル**: MCP (Model Context Protocol) over HTTP/SSE
 
-**Methods**:
-- `GET /mcp` - SSE streaming (server → client)
-- `POST /mcp` - JSON-RPC requests (client → server)
-- `DELETE /mcp` - Session termination
+**メソッド**:
+- `GET /mcp` - SSEストリーミング（サーバー → クライアント）
+- `POST /mcp` - JSON-RPCリクエスト（クライアント → サーバー）
+- `DELETE /mcp` - セッション終了
 
-**Authentication**:
+**認証**:
 ```bash
 curl -H "Authorization: Bearer kagura_abc123..." \
      -H "Content-Type: application/json" \
@@ -208,43 +208,43 @@ curl -H "Authorization: Bearer kagura_abc123..." \
      http://localhost:8000/mcp
 ```
 
-**See**: [MCP over HTTP/SSE Guide](mcp-http-setup.md)
+**参照**: [MCP over HTTP/SSE ガイド](mcp-http-setup.md)
 
 ---
 
-## 🛠️ MCP Tools
+## 🛠️ MCPツール
 
-**Available via**: Claude Desktop, stdio transport, HTTP/SSE
+**利用可能**: Claude Desktop、stdioトランスポート、HTTP/SSE
 
-### Remote MCP vs Local MCP
+### リモートMCP vs ローカルMCP
 
-| Feature | Remote MCP (HTTP/SSE) | Local MCP (stdio) |
+| 機能 | リモートMCP（HTTP/SSE） | ローカルMCP（stdio） |
 |---------|----------------------|-------------------|
-| **Platforms** | ChatGPT, Claude Chat (future) | Claude Desktop, Claude Code, Cursor |
-| **Transport** | HTTP/SSE over network | stdio (stdin/stdout) |
-| **File Access** | ❌ No | ✅ Yes |
-| **Available Tools** | 49/56 tools | 56/56 tools (all) |
-| **Authentication** | API Key required | Local only (no auth) |
+| **プラットフォーム** | ChatGPT、Claude Chat（将来） | Claude Desktop、Claude Code、Cursor |
+| **トランスポート** | ネットワーク経由HTTP/SSE | stdio（stdin/stdout） |
+| **ファイルアクセス** | ❌ なし | ✅ あり |
+| **利用可能ツール** | 49/56ツール | 56/56ツール（全て） |
+| **認証** | APIキー必須 | ローカルのみ（認証なし） |
 
-### Remote MCP Tools (49/56)
+### リモートMCPツール（49/56）
 
-These tools work with **both Remote and Local MCP**:
+これらのツールは**リモートとローカルMCPの両方**で動作します:
 
-#### ✅ Available for Remote MCP
+#### ✅ リモートMCPで利用可能
 
-**Memory Tools** (13):
+**メモリーツール**（13）:
 - `memory_store`, `memory_recall`, `memory_search`, `memory_list`, `memory_delete`
 - `memory_feedback`, `memory_fetch`, `memory_search_ids`, `memory_stats`
 - `memory_get_related`, `memory_get_user_pattern`, `memory_record_interaction`
 
-**Web Search** (5):
+**ウェブ検索**（5）:
 - `brave_web_search`, `brave_image_search`, `brave_video_search`, `brave_news_search`
 - `web_scrape`
 
-**YouTube** (4):
+**YouTube**（4）:
 - `get_youtube_transcript`, `get_youtube_metadata`, `youtube_summarize`, `youtube_fact_check`
 
-**Coding** (14):
+**コーディング**（14）:
 - `coding_start_session`, `coding_end_session`, `coding_track_file_change`
 - `coding_record_error`, `coding_search_errors`, `coding_record_decision`
 - `coding_analyze_patterns`, `coding_analyze_file_dependencies`
@@ -252,48 +252,48 @@ These tools work with **both Remote and Local MCP**:
 - `coding_get_project_context`, `coding_get_issue_context`
 - `coding_link_github_issue`, `coding_generate_pr_description`
 
-**GitHub** (6):
+**GitHub**（6）:
 - `github_exec`, `github_issue_list`, `github_issue_view`
 - `github_pr_view`, `github_pr_create`, `github_pr_merge`
 
-**Multimodal** (2):
+**マルチモーダル**（2）:
 - `multimodal_index`, `multimodal_search`
 
-**Other** (5):
+**その他**（5）:
 - `arxiv_search`, `fact_check_claim`, `telemetry_stats`, `telemetry_cost`, `route_query`
 
-#### ❌ Local-Only Tools (7)
+#### ❌ ローカル専用ツール（7）
 
-These tools **only work with Local MCP** (require file system access):
+これらのツールは**ローカルMCPでのみ動作**（ファイルシステムアクセスが必要）:
 
-- `file_read` - Read files from disk
-- `file_write` - Write files to disk
-- `dir_list` - List directory contents
-- `shell_exec` - Execute shell commands
-- `media_open_image` - Open image in OS app
-- `media_open_audio` - Open audio in OS app
-- `media_open_video` - Open video in OS app
+- `file_read` - ディスクからファイルを読み取り
+- `file_write` - ディスクへファイルを書き込み
+- `dir_list` - ディレクトリ内容をリスト
+- `shell_exec` - シェルコマンドを実行
+- `media_open_image` - OSアプリで画像を開く
+- `media_open_audio` - OSアプリで音声を開く
+- `media_open_video` - OSアプリで動画を開く
 
-**Note**: File upload for Remote MCP is planned for v4.1 ([Issue #462](https://github.com/JFK/kagura-ai/issues/462))
+**注意**: リモートMCP用のファイルアップロードはv4.1で予定（[Issue #462](https://github.com/JFK/kagura-ai/issues/462)）
 
 ---
 
-### Memory Tools
+### メモリーツール
 
 #### memory_store
 
-Store information in memory.
+メモリーに情報を保存。
 
-**Parameters**:
-- `user_id` (string, required) - User identifier
-- `agent_name` (string, required) - Agent name ("global" for cross-thread)
-- `key` (string, required) - Memory key
-- `value` (string, required) - Value to store
-- `scope` (string) - "working" or "persistent" (default: "working")
-- `tags` (string) - JSON array of tags (e.g., '["python"]')
-- `importance` (number) - 0.0-1.0 (default: 0.5)
+**パラメータ**:
+- `user_id`（string、必須） - ユーザー識別子
+- `agent_name`（string、必須） - エージェント名（スレッド間の場合は"global"）
+- `key`（string、必須） - メモリーキー
+- `value`（string、必須） - 保存する値
+- `scope`（string） - "working"または"persistent"（デフォルト: "working"）
+- `tags`（string） - タグのJSON配列（例: '["python"]'）
+- `importance`（number） - 0.0-1.0（デフォルト: 0.5）
 
-**Example**:
+**例**:
 ```json
 {
   "user_id": "jfk",
@@ -308,105 +308,105 @@ Store information in memory.
 
 #### memory_recall
 
-Search memories semantically.
+メモリーをセマンティックに検索。
 
-**Parameters**:
-- `user_id` (string, required)
-- `agent_name` (string, required)
-- `query` (string, required) - Search query
-- `k` (number) - Number of results (default: 5)
-- `scope` (string) - "working", "persistent", or "all"
+**パラメータ**:
+- `user_id`（string、必須）
+- `agent_name`（string、必須）
+- `query`（string、必須） - 検索クエリ
+- `k`（number） - 結果数（デフォルト: 5）
+- `scope`（string） - "working"、"persistent"、または"all"
 
 #### memory_search
 
-Full-text + semantic search.
+全文 + セマンティック検索。
 
-**Parameters**:
-- `user_id`, `agent_name` (required)
-- `query` (string, required)
-- `limit` (number) - Max results
+**パラメータ**:
+- `user_id`、`agent_name`（必須）
+- `query`（string、必須）
+- `limit`（number） - 最大結果数
 
 #### memory_list
 
-List all memories.
+すべてのメモリーをリスト。
 
 #### memory_delete
 
-Delete a memory with audit logging.
+監査ログ付きでメモリーを削除。
 
 #### memory_feedback
 
-Provide feedback on memory usefulness.
+メモリーの有用性にフィードバックを提供。
 
-**Parameters**:
-- `user_id`, `agent_name` (required)
-- `node_id` (string) - Memory to rate
-- `label` (string) - "useful", "irrelevant", or "outdated"
-- `weight` (number) - -1.0 to 1.0
+**パラメータ**:
+- `user_id`、`agent_name`（必須）
+- `node_id`（string） - 評価するメモリー
+- `label`（string） - "useful"、"irrelevant"、または"outdated"
+- `weight`（number） - -1.0から1.0
 
-### Graph Tools
+### グラフツール
 
 #### memory_record_interaction
 
-Record AI-User interaction.
+AI-ユーザーインタラクションを記録。
 
-**Parameters**:
-- `user_id` (required)
-- `query`, `response` (required)
-- `metadata` (object) - Optional metadata
+**パラメータ**:
+- `user_id`（必須）
+- `query`、`response`（必須）
+- `metadata`（object） - オプショナルなメタデータ
 
 #### memory_get_related
 
-Get related memories via graph.
+グラフ経由で関連メモリーを取得。
 
-**Parameters**:
-- `user_id`, `agent_name` (required)
-- `key` (string) - Starting memory
-- `depth` (number) - Traversal depth (default: 2)
+**パラメータ**:
+- `user_id`、`agent_name`（必須）
+- `key`（string） - 開始メモリー
+- `depth`（number） - トラバーサル深度（デフォルト: 2）
 
 #### memory_get_user_pattern
 
-Analyze user's interaction patterns.
+ユーザーのインタラクションパターンを分析。
 
-### Web/API Tools (Safe for Remote)
+### ウェブ/APIツール（リモート安全）
 
-- `brave_web_search` - Brave Search integration (replaces deprecated `web_search`)
-- `brave_local_search` - Brave Local Search for businesses/places
+- `brave_web_search` - Brave Search統合（非推奨の`web_search`を置き換え）
+- `brave_local_search` - ビジネス/場所用Brave Local Search
 - `brave_news_search` - Brave News Search
 - `brave_image_search` - Brave Image Search
 - `brave_video_search` - Brave Video Search
-- `web_scrape` - Scrape web pages
-- `youtube_summarize` - Summarize YouTube videos
-- `get_youtube_transcript` - Get video transcript
+- `web_scrape` - ウェブページをスクレイプ
+- `youtube_summarize` - YouTube動画を要約
+- `get_youtube_transcript` - 動画のトランスクリプトを取得
 
-### File Tools (Local Only)
+### ファイルツール（ローカルのみ）
 
-⛔ **Blocked remotely** for security:
-- `file_read` - Read local files
-- `file_write` - Write local files
-- `dir_list` - List directory contents
-- `shell_exec` - Execute shell commands
+⛔ セキュリティのため**リモートではブロック**:
+- `file_read` - ローカルファイルを読み取り
+- `file_write` - ローカルファイルを書き込み
+- `dir_list` - ディレクトリ内容をリスト
+- `shell_exec` - シェルコマンドを実行
 
-**Note**: These tools are only available via local stdio MCP server (`kagura mcp serve`), NOT via HTTP/SSE (`/mcp` endpoint).
+**注意**: これらのツールは、ローカルstdio MCPサーバー（`kagura mcp serve`）経由でのみ利用可能で、HTTP/SSE（`/mcp`エンドポイント）経由では利用できません。
 
 ---
 
-## 🔐 Authentication
+## 🔐 認証
 
-### API Key Management
+### APIキー管理
 
 ```bash
-# Create API key
+# APIキーを作成
 kagura api create-key --name "my-key"
 
-# List keys
+# キーをリスト
 kagura api list-keys
 
-# Revoke key
+# キーを無効化
 kagura api revoke-key --name "my-key"
 ```
 
-### Using API Keys
+### APIキーの使用
 
 **REST API**:
 ```bash
@@ -422,36 +422,36 @@ curl -H "Authorization: Bearer kagura_abc123..." \
      http://localhost:8000/mcp
 ```
 
-**User ID Extraction**:
-- API keys are associated with `user_id`
-- Authenticated requests automatically use the key's `user_id`
-- Fallback to `default_user` if no authentication
+**ユーザーID抽出**:
+- APIキーは`user_id`に関連付けられます
+- 認証済みリクエストは自動的にキーの`user_id`を使用します
+- 認証がない場合は`default_user`にフォールバック
 
 ---
 
-## 📄 OpenAPI Specification
+## 📄 OpenAPI仕様
 
-**Interactive Docs**: http://localhost:8000/docs
+**インタラクティブドキュメント**: http://localhost:8000/docs
 
 **OpenAPI JSON**: http://localhost:8000/openapi.json
 
-**Download**:
+**ダウンロード**:
 ```bash
 curl http://localhost:8000/openapi.json > openapi.json
 ```
 
 ---
 
-## 🔗 Related Documentation
+## 🔗 関連ドキュメント
 
-- [MCP Setup Guide](mcp-setup.md) - Claude Desktop
-- [MCP over HTTP/SSE](mcp-http-setup.md) - ChatGPT Connector
-- [Self-Hosting Guide](self-hosting.md) - Production deployment
-- [Memory Export/Import](memory-export.md) - Backup and migration
-- [Architecture](architecture.md) - System design
+- [MCPセットアップガイド](mcp-setup.md) - Claude Desktop
+- [MCP over HTTP/SSE](mcp-http-setup.md) - ChatGPTコネクタ
+- [セルフホスティングガイド](self-hosting.md) - 本番デプロイメント
+- [メモリーエクスポート/インポート](memory-export.md) - バックアップと移行
+- [アーキテクチャ](architecture.md) - システム設計
 
 ---
 
-**Last Updated**: 2025-10-27
-**Version**: 4.0.0
-**API Version**: v1
+**最終更新**: 2025-10-27
+**バージョン**: 4.0.0
+**APIバージョン**: v1
