@@ -239,7 +239,7 @@ async def daily_memory_snapshot():
 async def process_and_store(data):
     async with httpx.AsyncClient() as client:
         await client.post(
-            "http://kagura-api:8080/api/v1/memory",
+            "http://kagura-api:8000/api/v1/memory",
             json={
                 "key": f"user_{user_id}_preference",
                 "value": data,
@@ -251,7 +251,7 @@ async def process_and_store(data):
 async def fetch_user_preference(user_id):
     async with httpx.AsyncClient() as client:
         response = await client.get(
-            f"http://kagura-api:8080/api/v1/memory/user_{user_id}_preference"
+            f"http://kagura-api:8000/api/v1/memory/user_{user_id}_preference"
         )
         return response.json()
 ```
