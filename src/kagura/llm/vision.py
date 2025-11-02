@@ -185,7 +185,8 @@ class VisionAnalyzer:
 
 Extract the following information with high precision:
 
-1. **Error Type**: Identify the error class (e.g., TypeError, SyntaxError, AttributeError)
+1. **Error Type**: Identify the error class
+   (e.g., TypeError, SyntaxError, AttributeError)
    - If unclear, provide best guess with confidence level
 
 2. **Error Message**: Extract the complete error message text

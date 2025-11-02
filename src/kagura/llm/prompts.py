@@ -16,7 +16,8 @@ from typing import Any
 # SESSION SUMMARIZATION PROMPTS
 # =============================================================================
 
-SESSION_SUMMARY_SYSTEM = """You are an expert software engineering assistant specializing in analyzing coding sessions.
+SESSION_SUMMARY_SYSTEM = """You are an expert software engineering assistant
+specializing in analyzing coding sessions.
 
 <role>
 Your role is to:
@@ -42,7 +43,8 @@ Before providing your summary, think through:
 4. What recommendations would most help the developer?
 </reasoning_approach>"""
 
-SESSION_SUMMARY_USER_TEMPLATE = """Analyze the following coding session and generate a comprehensive summary.
+SESSION_SUMMARY_USER_TEMPLATE = """Analyze the following coding session and
+generate a comprehensive summary.
 
 <session_information>
 <duration>{duration_minutes:.1f} minutes ({duration_human})</duration>
@@ -114,13 +116,15 @@ Use markdown with clear sections. Be specific and actionable.
 # Session Summary: {session_id}
 
 ## Overview
-Implemented authentication middleware for FastAPI, including JWT token validation and role-based access control.
+Implemented authentication middleware for FastAPI, including JWT token
+validation and role-based access control.
 
 ## Key Technical Decisions
 
 ### 1. JWT vs Session-based Auth
 - **Decision:** Use JWT tokens with RS256 signing
-- **Rationale:** Stateless auth enables horizontal scaling, RS256 provides better security than HS256
+- **Rationale:** Stateless auth enables horizontal scaling, RS256 provides
+better security than HS256
 - **Impact:** No session storage needed, but requires key rotation strategy
 
 ### 2. Access Control Pattern
@@ -154,7 +158,8 @@ Implemented authentication middleware for FastAPI, including JWT token validatio
 
 ## Recommendations
 
-1. **Extract role definitions to Enum** - Replace string literals with `UserRole` enum for type safety
+1. **Extract role definitions to Enum** - Replace string literals with
+`UserRole` enum for type safety
 2. **Add integration tests** - Current tests are unit-only, add E2E auth flow tests
 3. **Implement token refresh** - Current JWT has no refresh mechanism
 4. **Document security assumptions** - Add security.md explaining threat model
@@ -192,7 +197,8 @@ Use chain-of-thought reasoning:
 4. Propose both immediate fixes and long-term prevention
 </reasoning_approach>"""
 
-ERROR_PATTERN_USER_TEMPLATE = """Analyze the following error history to identify recurring patterns.
+ERROR_PATTERN_USER_TEMPLATE = """Analyze the following error history to
+identify recurring patterns.
 
 ## Error History
 {error_history}
@@ -309,7 +315,8 @@ Now analyze the errors:"""
 # SOLUTION SUGGESTION PROMPTS
 # =============================================================================
 
-SOLUTION_SUGGESTION_SYSTEM = """You are an expert debugging assistant with deep knowledge of software patterns.
+SOLUTION_SUGGESTION_SYSTEM = """You are an expert debugging assistant with
+deep knowledge of software patterns.
 
 <role>
 Your role is to:
@@ -335,7 +342,8 @@ Use chain-of-thought reasoning:
 5. Consider edge cases and alternatives
 </reasoning_approach>"""
 
-SOLUTION_SUGGESTION_USER_TEMPLATE = """Suggest a solution for the current error based on past similar errors.
+SOLUTION_SUGGESTION_USER_TEMPLATE = """Suggest a solution for the current
+error based on past similar errors.
 
 ## Current Error
 **Type:** {error_type}
@@ -514,7 +522,8 @@ Now suggest a solution:"""
 # CODING PREFERENCE EXTRACTION PROMPTS
 # =============================================================================
 
-PREFERENCE_EXTRACTION_SYSTEM = """You are an expert at analyzing developer coding patterns and preferences.
+PREFERENCE_EXTRACTION_SYSTEM = """You are an expert at analyzing developer
+coding patterns and preferences.
 
 <role>
 Your role is to:
@@ -539,7 +548,8 @@ Use chain-of-thought analysis:
 4. Extract preferences that AI can apply to new code
 </reasoning_approach>"""
 
-PREFERENCE_EXTRACTION_USER_TEMPLATE = """Analyze coding patterns to extract developer preferences.
+PREFERENCE_EXTRACTION_USER_TEMPLATE = """Analyze coding patterns to extract
+developer preferences.
 
 ## File Changes (n={change_count})
 {file_changes}
@@ -730,7 +740,8 @@ Now extract preferences:"""
 # CONTEXT COMPRESSION PROMPTS (RFC-024)
 # =============================================================================
 
-CONTEXT_COMPRESSION_SYSTEM = """You are an expert at compressing technical context while preserving critical information.
+CONTEXT_COMPRESSION_SYSTEM = """You are an expert at compressing technical
+context while preserving critical information.
 
 <role>
 Your role is to:
@@ -755,7 +766,8 @@ Use systematic compression:
 4. Preserve all numerical data and specifics
 </reasoning_approach>"""
 
-CONTEXT_COMPRESSION_USER_TEMPLATE = """Compress the following coding context to approximately {target_tokens} tokens.
+CONTEXT_COMPRESSION_USER_TEMPLATE = """Compress the following coding context
+to approximately {target_tokens} tokens.
 
 ## Full Context ({original_tokens} tokens)
 {full_context}
@@ -783,7 +795,8 @@ Create a hierarchical summary with three levels:
 
 ## Guidelines
 - Use references: "Error #42 (TypeError in auth.py)" not full stack trace
-- Compress "We decided to use FastAPI because it's modern, async-first, has great docs, and Pydantic integration" → "Chose FastAPI for async + Pydantic"
+- Compress "We decided to use FastAPI because it's modern, async-first, has
+great docs, and Pydantic integration" → "Chose FastAPI for async + Pydantic"
 - Keep numbers: "91% test coverage" not "high coverage"
 - Preserve specifics: "bug in line 45" not "bug somewhere"
 - Remove filler: "it's important to note that", "basically", etc.
@@ -806,7 +819,8 @@ The main reasons for this decision were:
 4. We can easily implement role-based access control by including claims in the token
 
 During implementation, we encountered several errors. The first error was a TypeError
-when comparing datetime objects. This happened because we were comparing a timezone-aware
+when comparing datetime objects. This happened because we were comparing a
+timezone-aware
 datetime from the JWT with a naive datetime from datetime.now(). The solution was to
 use datetime.now(timezone.utc) consistently throughout the codebase. This same error
 had occurred before in a different module, which suggests we should add a linting rule

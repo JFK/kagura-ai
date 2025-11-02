@@ -165,7 +165,8 @@ async def coding_record_error(
     screenshot: str | None = None,
     tags: str = "[]",
 ) -> str:
-    """Record coding errors with stack traces and optional screenshots for pattern learning.
+    """Record coding errors with stack traces and optional screenshots
+    for pattern learning.
 
     Use this tool to record errors you encounter during development. The system will:
     1. Store error details for future reference
@@ -181,7 +182,8 @@ async def coding_record_error(
     Args:
         user_id: User identifier (developer)
         project_id: Project identifier
-        error_type: Error classification (e.g., "TypeError", "SyntaxError", "ImportError")
+        error_type: Error classification
+            (e.g., "TypeError", "SyntaxError", "ImportError")
         message: Full error message text
         stack_trace: Complete stack trace or key frames
         file_path: File where error occurred
@@ -217,7 +219,8 @@ async def coding_record_error(
             stack_trace="...",
             file_path="src/auth.py",
             line_number=42,
-            solution="Changed datetime.now() to datetime.now(timezone.utc) for consistency",
+            solution=("Changed datetime.now() to datetime.now(timezone.utc) "
+                      "for consistency"),
             tags='["datetime", "resolved"]'
         )
 
@@ -276,7 +279,8 @@ async def coding_record_decision(
     related_files: str = "[]",
     confidence: float = 0.8,
 ) -> str:
-    """Record design and architectural decisions with rationale for project context tracking.
+    """Record design and architectural decisions with rationale
+    for project context tracking.
 
     Use this tool to document important technical decisions. This helps:
     1. Future you remember WHY certain choices were made
@@ -294,7 +298,8 @@ async def coding_record_decision(
         project_id: Project identifier
         decision: Brief statement of the decision made (1-2 sentences)
         rationale: Detailed reasoning behind the decision
-        alternatives: JSON array of other options considered (e.g., '["Option A", "Option B"]')
+        alternatives: JSON array of other options considered
+            (e.g., '["Option A", "Option B"]')
         impact: Expected impact on the project (optional)
         tags: JSON array of categorization tags (e.g., '["architecture", "security"]')
         related_files: JSON array of files affected by this decision
@@ -304,8 +309,12 @@ async def coding_record_decision(
         Confirmation with decision ID
 
     Examples:
-        # Recording an architectural decision
-        await coding_record_decision(
+            rationale=(
+                "Stateless auth enables horizontal scaling without "
+                "session store. JWTs can be validated without database "
+                "lookups, improving performance. Better for planned "
+                "mobile app integration."
+            ),
             user_id="dev_john",
             project_id="api-service",
             decision="Use JWT tokens for authentication instead of sessions",
@@ -453,7 +462,8 @@ async def coding_end_session(
     summary: str | None = None,
     success: bool | None = None,
 ) -> str:
-    """End coding session and generate AI-powered summary of changes, decisions, and learnings.
+    """End coding session and generate AI-powered summary of changes,
+    decisions, and learnings.
 
     Use this tool when finishing a coherent work session. The system will:
     1. Collect all tracked activities (files, errors, decisions)
@@ -601,7 +611,8 @@ async def coding_get_project_context(
     project_id: str,
     focus: str | None = None,
 ) -> str:
-    """Get comprehensive project context including recent changes, patterns, and key decisions.
+    """Get comprehensive project context including recent changes,
+    patterns, and key decisions.
 
     Use this tool to get an AI-generated overview of the project state. Useful:
     - At the start of a session to refresh context
@@ -967,7 +978,8 @@ async def coding_link_github_issue(
 ) -> str:
     """Link current coding session to a GitHub issue for context tracking.
 
-    Auto-detects issue number from branch name if not provided (e.g., 464-feat-... → #464).
+    Auto-detects issue number from branch name if not provided
+    (e.g., 464-feat-... → #464).
     Fetches issue details via gh CLI and enriches session with title, labels, assignees.
 
     Requires: gh CLI authenticated (`gh auth login`)
