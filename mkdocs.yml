@@ -39,6 +39,7 @@ nav:
   - Getting Started:
     - Quick Start (10 min): getting-started.md
     - MCP Setup (Claude Desktop): mcp-setup.md
+    - MCP Setup (Claude Code): mcp-claude-code-setup.md
     - Installation: quickstart.md
 
   - User Guides:
