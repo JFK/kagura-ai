@@ -49,8 +49,7 @@ class BM25Searcher:
         """
         if not BM25_AVAILABLE:
             raise ImportError(
-                "rank-bm25 not installed. "
-                "Install with: pip install rank-bm25"
+                "rank-bm25 not installed. Install with: pip install rank-bm25"
             )
 
         self.corpus: list[list[str]] = []

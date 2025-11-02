@@ -135,21 +135,31 @@ def dir_list(path: str = ".", pattern: str = "*") -> str:
 
 
 @tool
-async def shell_exec(command: str) -> str:
-    """Execute shell command safely
+async def shell_exec(command: str, working_dir: str = ".", force: bool = False) -> str:
+    """Execute shell command safely with automatic danger detection.
+
+    Commands are analyzed for safety before execution.
+    Dangerous commands require force=True for confirmation.
 
     Args:
-        command: Shell command
+        command: Shell command to execute
+        working_dir: Working directory (default: current directory)
+        force: Skip safety confirmation for dangerous commands (default: False)
 
     Returns:
-        Command output or error message
+        Command output, error message, or safety warning
+
+    Examples:
+        shell_exec("ls -la")
+        shell_exec("pytest", working_dir="/home/project/tests")
+        shell_exec("rm -rf build", force=True)
     """
     try:
-        from kagura.core.shell import ShellExecutor
+        from kagura.builtin.shell_agent import shell_safe_exec
 
-        executor = ShellExecutor()
-        result = await executor.exec(command)
-
-        return result.stdout if result.stdout else result.stderr
+        result = await shell_safe_exec(
+            command, working_dir=working_dir, auto_confirm=force
+        )
+        return result
     except Exception as e:
         return f"Error executing command: {e}"

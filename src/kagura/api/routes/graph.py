@@ -44,8 +44,7 @@ async def record_interaction(
         raise HTTPException(
             status_code=503,
             detail=(
-                "GraphMemory not available. "
-                "Enable graph memory with enable_graph=True."
+                "GraphMemory not available. Enable graph memory with enable_graph=True."
             ),
         )
 
@@ -117,8 +116,7 @@ async def get_related_nodes(
         raise HTTPException(
             status_code=503,
             detail=(
-                "GraphMemory not available. "
-                "Enable graph memory with enable_graph=True."
+                "GraphMemory not available. Enable graph memory with enable_graph=True."
             ),
         )
 
@@ -177,8 +175,7 @@ async def get_user_pattern(
         raise HTTPException(
             status_code=503,
             detail=(
-                "GraphMemory not available. "
-                "Enable graph memory with enable_graph=True."
+                "GraphMemory not available. Enable graph memory with enable_graph=True."
             ),
         )
 

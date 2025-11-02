@@ -8,9 +8,7 @@ from rich.panel import Panel
 from kagura.config import ConfigManager, UserConfig
 
 
-def prompt_with_default(
-    session: PromptSession, message: str, default: str = ""
-) -> str:
+def prompt_with_default(session: PromptSession, message: str, default: str = "") -> str:
     """Prompt user with default value support
 
     Args:
@@ -177,10 +175,10 @@ def init(reset: bool) -> None:
     summary = f"""[cyan]Location:[/] {manager.config_path}
 
 [bold]Your Preferences:[/]
-  👤 Name: {config.name or '[dim](not set)[/]'}
-  📍 Location: {config.location or '[dim](not set)[/]'}
+  👤 Name: {config.name or "[dim](not set)[/]"}
+  📍 Location: {config.location or "[dim](not set)[/]"}
   🌐 Language: {config.language}
-  📰 News topics: {', '.join(config.news_topics)}
+  📰 News topics: {", ".join(config.news_topics)}
   🍳 Cuisines: {cuisines_display}
 """
 
@@ -191,7 +189,5 @@ def init(reset: bool) -> None:
     console.print("Try these commands in [cyan]kagura chat[/]:")
     console.print("  • '天気は？' - Uses your default location automatically")
     console.print("  • 'ニュース' - Shows news from your preferred topics")
-    console.print(
-        "  • 'レシピ' - Suggests recipes matching your cuisine preferences\n"
-    )
+    console.print("  • 'レシピ' - Suggests recipes matching your cuisine preferences\n")
     console.print("[dim]To update your config, run [cyan]kagura init[/] again.[/]")

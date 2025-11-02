@@ -7,7 +7,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [4.0.0] - 2025-11-02
+
+### ✨ Added
+
+- **Neural Memory Network** (#348) - 8 commits, 2,471 lines
+  - **Hebbian Learning-based adaptive memory** with graph neural architecture
+  - **Activation spreading**: 1-3 hop propagation with exponential decay
+  - **Co-activation tracking**: Automatic association discovery through usage patterns
+  - **Unified scoring**: 6-signal composite (semantic + graph + temporal + importance + trust - redundancy)
+  - **Forgetting mechanism**: Exponential weight decay, weak edge pruning, long-term consolidation
+  - **Security**: GDPR-compliant user sharding, trust-modulated learning, DP-SGD gradient clipping
+  - **Research-backed**: Implements Hopfield Networks, kNN-LM, RETRO, Memorizing Transformers
+  - **Formula**: `Δw_ij ← η·(a_i·C_i)·(a_j·C_j) - λ·w_ij` (trust-modulated Hebbian rule)
+  - **Testing**: 101 tests, 80% coverage, ruff/pyright compliant
+  - **Files**: `src/kagura/core/memory/neural/` (8 files: config, models, hebbian, activation, scoring, decay, co_activation, engine, utils)
+
+- **GitHub CLI & Safe Shell Execution** (#348) - 1 commit, 1,138 lines
+  - **6 MCP GitHub Tools**:
+    - `github_exec(command, force)`: General gh executor with safety
+    - `github_issue_view(number)`: Formatted issue viewing
+    - `github_pr_view(number)`: Formatted PR viewing
+    - `github_issue_list(state, limit)`: Issue listing
+    - `github_pr_create(title, body, draft, force)`: Safe PR creation
+    - `github_pr_merge(number, squash, force)`: Safe PR merging
+  - **3 GitHub Agents**: `gh_safe_exec`, `gh_issue_view_safe`, `gh_pr_view_safe`, `gh_pr_create_safe`, `gh_pr_merge_safe`, `gh_issue_list_safe`
+  - **2 Shell Agents**: `shell_safe_exec`, `cd_and_exec`
+  - **Command Safety System**: 4-level danger classification (HIGH, MEDIUM, LOW, SAFE)
+  - **Automatic danger detection**: Pattern-based + optional LLM analysis
+  - **Confirmation prompts**: Required for MEDIUM/HIGH danger commands
+  - **Risk explanations**: Detailed risk descriptions and safe alternatives
+  - **Working directory support**: `working_dir` parameter for all shell operations
+  - **Permission control**: Read operations remote-safe, write operations local-only
+  - **Testing**: 22 tests for safety system, 100% coverage on danger detection
+  - **Files**: `src/kagura/core/shell_safety.py`, `src/kagura/builtin/github_agent.py`, `src/kagura/builtin/shell_agent.py`, `src/kagura/mcp/builtin/github.py`
+
+- **Coding-Specialized Memory System** (#464, #466)
+  - **11 MCP Tools** for AI coding assistants (Claude Code, Cursor, etc.)
+    - Phase 1 (8 tools): File tracking, error recording, sessions, cost tracking
+    - Phase 2 (3 tools): Dependency analysis, refactoring impact, safe order suggestion
+  - **Project-scoped memory**: `user_id + project_id` hierarchy
+  - **AI-powered features**:
+    - Session summaries with LLM (GPT-5, Gemini, Claude)
+    - Error pattern detection and solution suggestions
+    - Coding preference extraction
+    - Vision AI for screenshot analysis
+  - **Plan Mode & Approval Workflows**:
+    - Cost estimation before expensive operations
+    - Rich UI approval prompts with timeout
+    - Configurable cost thresholds (default: $0.10)
+    - Auto-approve mode for batch operations
+  - **Automatic Dependency Graph** (AST-based):
+    - Parse Python imports automatically
+    - Build dependency graph
+    - Detect circular dependencies
+    - Calculate import depth
+    - Reverse dependency tracking
+  - **Refactoring Intelligence**:
+    - Cross-file impact analysis (risk: low/medium/high)
+    - Safe refactoring order (topological sort)
+    - Affected files identification
+  - **Graph Relationships**:
+    - Error → solution linking (`solved_by`)
+    - Decision → implementation tracking (`implements`)
+    - File → file dependencies (`imports`, `affects`)
+    - Session activity tracking (`includes`, `encountered`, `made`)
+  - **Multi-Provider Support**:
+    - OpenAI: gpt-5-mini, gpt-5, gpt-4o
+    - Google: gemini-2.0-flash-exp, gemini-2.5-flash, gemini-2.5-pro
+    - Anthropic: claude-sonnet-4-5
+  - **Prompt Engineering** (Claude Official Guidelines):
+    - XML tags for structure (`<role>`, `<task>`, `<thinking>`)
+    - Chain-of-thought reasoning prompts
+    - Few-shot examples with structured outputs
+  - **Cost Tracking**:
+    - Real-time cost monitoring via `observability.pricing`
+    - Per-call and cumulative tracking
+    - Budget estimates: $3-200/month depending on provider
+  - **Data Models**: 6 Pydantic models (FileChangeRecord, ErrorRecord, DesignDecision, CodingSession, CodingPattern, ProjectContext)
+  - **Testing**: 43 tests (models, MCP tools, E2E, dependency analysis)
+  - **Documentation**: Complete user guide + technical design document
 
 ### 🔒 Security
 

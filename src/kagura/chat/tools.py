@@ -537,9 +537,7 @@ async def youtube_metadata(video_url: str) -> str:
 # =============================================================================
 
 
-async def _video_extract_audio(
-    video_path: str, output_path: str | None = None
-) -> str:
+async def _video_extract_audio(video_path: str, output_path: str | None = None) -> str:
     """Extract audio from video file using ffmpeg (internal helper).
 
     Args:

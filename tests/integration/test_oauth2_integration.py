@@ -38,16 +38,19 @@ class TestOAuth2Integration:
 
         assert auth.provider == "google"
         assert auth.config_dir.exists()
-        assert auth.config_dir == Path.home() / ".kagura"
+        # XDG-compliant directory
+        assert auth.config_dir == Path.home() / ".config" / "kagura"
 
     def test_client_secrets_exists(self):
         """Test client_secrets.json exists and is readable"""
-        client_secrets = Path.home() / ".kagura" / "client_secrets.json"
+        # XDG-compliant directory
+        client_secrets = Path.home() / ".config" / "kagura" / "client_secrets.json"
 
-        assert client_secrets.exists(), (
-            "client_secrets.json not found. "
-            "Please download from Google Cloud Console."
-        )
+        if not client_secrets.exists():
+            pytest.skip(
+                "client_secrets.json not found. "
+                "This is optional for OAuth2 features."
+            )
 
         # Check file is readable
         import json
@@ -55,9 +58,9 @@ class TestOAuth2Integration:
         with open(client_secrets) as f:
             data = json.load(f)
 
-        # Verify it's an OAuth client secrets file
+        # Verify it's an OAuth client secrets file or service account
         assert (
-            "installed" in data or "web" in data
+            "installed" in data or "web" in data or "type" in data
         ), "Invalid client_secrets.json format"
 
     def test_authentication_status(self):

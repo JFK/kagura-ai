@@ -63,6 +63,7 @@ class MemoryManager:
             memory_config: Memory system configuration (v4.0.0a0+)
         """
         import logging
+
         logger = logging.getLogger(__name__)
 
         logger.debug(
@@ -721,8 +722,7 @@ class MemoryManager:
 
         if not self.lexical_searcher:
             raise ValueError(
-                "Lexical search not available. "
-                "Install rank-bm25: pip install rank-bm25"
+                "Lexical search not available. Install rank-bm25: pip install rank-bm25"
             )
 
         # Use config defaults if not specified
