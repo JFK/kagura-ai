@@ -161,6 +161,57 @@ Give **every AI** access to:
 
 ## 🚀 Quick Start
 
+### Quick Start: Chat Integration ⭐ RECOMMENDED
+
+**Use Kagura with ChatGPT, Claude Chat, or any AI platform**
+
+#### ChatGPT (via Remote MCP)
+```bash
+# 1. Start Kagura Remote MCP
+docker compose -f docker-compose.prod.yml up -d
+
+# 2. Configure ChatGPT
+#    Settings → Tools → Add MCP Server
+#    URL: https://your-domain.com/mcp
+
+# 3. Try it!
+"Hello! Run memory_stats to show Kagura status"
+"Remember that I prefer Python for backend projects"
+```
+
+**See**: [Chat Integration Tips](docs/chat-integration-tips.md) | [ChatGPT Workflows](docs/examples/chatgpt-workflow.md)
+
+#### Claude Desktop (Local MCP)
+```bash
+# 1. Install & Configure
+kagura mcp install
+
+# 2. Restart Claude Desktop
+
+# 3. Try it!
+"Remember permanently: I prefer FastAPI over Django"
+"What do you know about my preferences?"
+```
+
+**See**: [Claude Desktop Setup](docs/mcp-setup.md) | [Claude Workflows](docs/examples/claude-workflow.md)
+
+#### Claude Code (Local MCP)
+```bash
+# 1. Add MCP Server
+claude mcp add --transport stdio kagura -- kagura mcp serve
+
+# 2. Verify
+claude mcp list  # Should show: kagura ✓ Connected
+
+# 3. Try it!
+"Start coding session for 'implement authentication'"
+"Track file changes and generate AI summary"
+```
+
+**See**: [Claude Code Setup](docs/mcp-claude-code-setup.md)
+
+---
+
 ### Option 1: v3.0 SDK(Current Stable)
 
 ```bash

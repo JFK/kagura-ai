@@ -216,6 +216,68 @@ curl -H "Authorization: Bearer kagura_abc123..." \
 
 **Available via**: Claude Desktop, stdio transport, HTTP/SSE
 
+### Remote MCP vs Local MCP
+
+| Feature | Remote MCP (HTTP/SSE) | Local MCP (stdio) |
+|---------|----------------------|-------------------|
+| **Platforms** | ChatGPT, Claude Chat (future) | Claude Desktop, Claude Code, Cursor |
+| **Transport** | HTTP/SSE over network | stdio (stdin/stdout) |
+| **File Access** | ❌ No | ✅ Yes |
+| **Available Tools** | 49/56 tools | 56/56 tools (all) |
+| **Authentication** | API Key required | Local only (no auth) |
+
+### Remote MCP Tools (49/56)
+
+These tools work with **both Remote and Local MCP**:
+
+#### ✅ Available for Remote MCP
+
+**Memory Tools** (13):
+- `memory_store`, `memory_recall`, `memory_search`, `memory_list`, `memory_delete`
+- `memory_feedback`, `memory_fetch`, `memory_search_ids`, `memory_stats`
+- `memory_get_related`, `memory_get_user_pattern`, `memory_record_interaction`
+
+**Web Search** (5):
+- `brave_web_search`, `brave_image_search`, `brave_video_search`, `brave_news_search`
+- `web_scrape`
+
+**YouTube** (4):
+- `get_youtube_transcript`, `get_youtube_metadata`, `youtube_summarize`, `youtube_fact_check`
+
+**Coding** (14):
+- `coding_start_session`, `coding_end_session`, `coding_track_file_change`
+- `coding_record_error`, `coding_search_errors`, `coding_record_decision`
+- `coding_analyze_patterns`, `coding_analyze_file_dependencies`
+- `coding_analyze_refactor_impact`, `coding_suggest_refactor_order`
+- `coding_get_project_context`, `coding_get_issue_context`
+- `coding_link_github_issue`, `coding_generate_pr_description`
+
+**GitHub** (6):
+- `github_exec`, `github_issue_list`, `github_issue_view`
+- `github_pr_view`, `github_pr_create`, `github_pr_merge`
+
+**Multimodal** (2):
+- `multimodal_index`, `multimodal_search`
+
+**Other** (5):
+- `arxiv_search`, `fact_check_claim`, `telemetry_stats`, `telemetry_cost`, `route_query`
+
+#### ❌ Local-Only Tools (7)
+
+These tools **only work with Local MCP** (require file system access):
+
+- `file_read` - Read files from disk
+- `file_write` - Write files to disk
+- `dir_list` - List directory contents
+- `shell_exec` - Execute shell commands
+- `media_open_image` - Open image in OS app
+- `media_open_audio` - Open audio in OS app
+- `media_open_video` - Open video in OS app
+
+**Note**: File upload for Remote MCP is planned for v4.1 ([Issue #462](https://github.com/JFK/kagura-ai/issues/462))
+
+---
+
 ### Memory Tools
 
 #### memory_store

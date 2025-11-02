@@ -46,10 +46,16 @@ nav:
     - Remote MCP (ChatGPT): mcp-http-setup.md
 
   - User Guides:
+    - Chat Integration Tips: chat-integration-tips.md
     - Self-Hosting Guide: self-hosting.md
     - Memory Export/Import: memory-export.md
     - REST API Usage: rest-api-usage.md
+    - Troubleshooting: troubleshooting.md
     - Architecture Overview: architecture.md
+
+  - Workflow Examples:
+    - ChatGPT Workflows: examples/chatgpt-workflow.md
+    - Claude Workflows: examples/claude-workflow.md
 
   - API Reference:
     - REST API & MCP Tools: api-reference.md
@@ -57,7 +63,7 @@ nav:
       - Overview: api/index.md
       - YAML Spec: api/reference.yaml
 
-  - Examples: https://github.com/JFK/kagura-ai/tree/main/examples
+  - Code Examples: https://github.com/JFK/kagura-ai/tree/main/examples
 
   - For Developers:
     - How to Contribute: https://github.com/JFK/kagura-ai/blob/main/CONTRIBUTING.md
