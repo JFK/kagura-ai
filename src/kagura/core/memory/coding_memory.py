@@ -113,7 +113,7 @@ class CodingMemoryManager(MemoryManager):
             enable_graph=enable_graph,
             enable_compression=enable_compression,
             compression_policy=compression_policy,
-            model=model,
+            model=model or "gpt-4o-mini",  # Default if None
             memory_config=memory_config,
         )
 
@@ -913,7 +913,7 @@ class CodingMemoryManager(MemoryManager):
         # Method 1: Use graph if available
         if self.graph and self.graph.graph.has_node(session_id):
             # Get all nodes linked from session
-            for _, dst_id, edge_data in self.graph.graph.out_edges(
+            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
                 session_id, data=True
             ):
                 # Check if it's a file change
@@ -941,7 +941,7 @@ class CodingMemoryManager(MemoryManager):
 
         # Use graph if available
         if self.graph and self.graph.graph.has_node(session_id):
-            for _, dst_id, edge_data in self.graph.graph.out_edges(
+            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
                 session_id, data=True
             ):
                 # Check if it's an error
@@ -966,7 +966,7 @@ class CodingMemoryManager(MemoryManager):
 
         # Use graph if available
         if self.graph and self.graph.graph.has_node(session_id):
-            for _, dst_id, edge_data in self.graph.graph.out_edges(
+            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
                 session_id, data=True
             ):
                 # Check if it's a decision
@@ -1420,8 +1420,8 @@ class CodingMemoryManager(MemoryManager):
             return solutions
 
         # Find solution nodes linked from this error
-        for _, dst_id, edge_data in self.graph.graph.out_edges(error_id, data=True):
-            if edge_data.get("type") == "solved_by":
+        for _, dst_id, edge_data in self.graph.graph.out_edges(error_id, data=True):  # type: ignore[misc]
+            if edge_data and edge_data.get("type") == "solved_by":
                 # Get solution node data
                 if self.graph.graph.has_node(dst_id):
                     node_data = self.graph.graph.nodes[dst_id]
@@ -1471,8 +1471,8 @@ class CodingMemoryManager(MemoryManager):
 
         # Find file changes that implement this decision
         implemented = []
-        for src_id, _, edge_data in self.graph.graph.in_edges(decision_id, data=True):
-            if edge_data.get("type") == "implements":
+        for src_id, _, edge_data in self.graph.graph.in_edges(decision_id, data=True):  # type: ignore[misc]
+            if edge_data and edge_data.get("type") == "implements":
                 # This is a file change implementing the decision
                 if self.graph.graph.has_node(src_id):
                     change_data = self.graph.graph.nodes[src_id]
