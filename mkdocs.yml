@@ -64,6 +64,9 @@ nav:
     - Troubleshooting: troubleshooting.md
     - Architecture Overview: architecture.md
 
+  - Developer Guide:
+    - SDK Guide: sdk-guide.md
+
   - Workflow Examples:
     - ChatGPT Workflows: examples/chatgpt-workflow.md
     - Claude Workflows: examples/claude-workflow.md
