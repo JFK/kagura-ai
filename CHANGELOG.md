@@ -7,9 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.2] - 2025-11-02
+
+**Complete release** with both wheel and sdist. Identical functionality to v4.0.0.
+
+### 🐛 Fixed
+
+- **PyPI Release**: Complete package upload with both distribution files
+  - Previous v4.0.0 had only `.whl` file (sdist upload failed)
+  - v4.0.2 includes both `kagura_ai-4.0.2-py3-none-any.whl` and `kagura_ai-4.0.2.tar.gz`
+  - No functional changes from v4.0.0
+
+---
+
 ## [4.0.0] - 2025-11-02
 
 **Note**: Package name changed from `kagura-ai` to `kagura_ai` for PyPI compatibility. Users can still install with `pip install kagura-ai` (PyPI normalizes names).
+
+**Note**: v4.0.0 PyPI release was incomplete (missing sdist). Use v4.0.2 instead.
 
 ### 🔧 Package Changes
 
