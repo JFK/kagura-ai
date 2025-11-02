@@ -94,7 +94,8 @@ class CodingMemoryManager(MemoryManager):
                 - Fast: "gpt-5-mini", "gemini/gemini-2.0-flash-exp"
                 - Balanced: "gpt-5", "gemini/gemini-2.5-flash"
                 - Premium: "claude-sonnet-4-5", "gemini/gemini-2.5-pro"
-            vision_model: Vision model for image analysis (None = gemini-2.0-flash-exp default)
+            vision_model: Vision model for image analysis
+                (None = gemini-2.0-flash-exp default)
                 Recommended:
                 - Google: "gemini/gemini-2.0-flash-exp" (DEFAULT, free, excellent)
                 - Google: "gemini/gemini-2.5-flash" (production, $0.075/1M)
@@ -202,7 +203,8 @@ class CodingMemoryManager(MemoryManager):
             reason: Why this change was made
             related_files: Other affected/related files
             line_range: Lines affected (start, end)
-            implements_decision_id: ID of design decision this change implements (Phase 2)
+            implements_decision_id: ID of design decision this change implements
+                (Phase 2)
 
         Returns:
             Unique ID for this file change record
@@ -306,7 +308,8 @@ class CodingMemoryManager(MemoryManager):
                         weight=1.0,
                     )
                     logger.info(
-                        f"Linked file change {change_id} to decision {implements_decision_id}"
+                        f"Linked file change {change_id} "
+                        f"to decision {implements_decision_id}"
                     )
 
         logger.info(f"Tracked file change: {change_id} ({file_path})")
@@ -713,7 +716,10 @@ class CodingMemoryManager(MemoryManager):
             approved = await self._ask_approval_with_cost(
                 operation="Generate AI-powered session summary",
                 estimated_cost=estimated_cost,
-                details=f"Input: ~{estimated_tokens} tokens, Model: {self.coding_analyzer.model}",
+                details=(
+                    f"Input: ~{estimated_tokens} tokens, "
+                    f"Model: {self.coding_analyzer.model}"
+                ),
             )
 
             if not approved:
@@ -1220,7 +1226,8 @@ class CodingMemoryManager(MemoryManager):
         # Skip if below cost threshold
         if estimated_cost < self.cost_threshold:
             logger.info(
-                f"{operation}: ${estimated_cost:.2f} < threshold ${self.cost_threshold:.2f}, auto-approved"
+                f"{operation}: ${estimated_cost:.2f} < "
+                f"threshold ${self.cost_threshold:.2f}, auto-approved"
             )
             return True
 
@@ -1369,8 +1376,9 @@ class CodingMemoryManager(MemoryManager):
         if self.dependency_analyzer:
             deps_info = await self.analyze_file_dependencies(file_path)
             if deps_info["circular_deps"]:
+                circular_path = " → ".join(deps_info["circular_deps"][0])
                 recommendations.append(
-                    f"⚠️  Circular dependency detected: {' → '.join(deps_info['circular_deps'][0])}"
+                    f"⚠️  Circular dependency detected: {circular_path}"
                 )
                 risk_level = "high"  # Upgrade risk
 
@@ -1457,7 +1465,9 @@ class CodingMemoryManager(MemoryManager):
                 - completion: Percentage (0.0-1.0)
 
         Example:
-            >>> status = await coding_mem.get_decision_implementation_status("decision_xyz")
+            >>> status = await coding_mem.get_decision_implementation_status(
+            ...     "decision_xyz"
+            ... )
             >>> print(status)
             {
                 'implemented_files': ['src/auth.py'],
@@ -1531,7 +1541,8 @@ class CodingMemoryManager(MemoryManager):
         session_id = session_id or self.current_session_id
         if not session_id:
             raise RuntimeError(
-                "No active session to link. Start a session first with start_coding_session()"
+                "No active session to link. "
+                "Start a session first with start_coding_session()"
             )
 
         # Fetch issue details from GitHub
