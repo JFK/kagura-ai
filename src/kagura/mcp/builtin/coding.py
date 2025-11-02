@@ -204,7 +204,10 @@ async def coding_record_error(
             project_id="api-service",
             error_type="TypeError",
             message="can't compare offset-naive and offset-aware datetimes",
-            stack_trace="Traceback:\\n  File \\"auth.py\\", line 42, in validate\\n    ...",
+            stack_trace=(
+                'Traceback:\\n  File "auth.py", line 42, '
+                "in validate\\n    ..."
+            ),
             file_path="src/auth.py",
             line_number=42,
             tags='["datetime", "timezone"]'
@@ -318,11 +321,17 @@ async def coding_record_decision(
             user_id="dev_john",
             project_id="api-service",
             decision="Use JWT tokens for authentication instead of sessions",
-            rationale="Stateless auth enables horizontal scaling without session store. "
-                     "JWTs can be validated without database lookups, improving performance. "
-                     "Better for planned mobile app integration.",
+            rationale=(
+                "Stateless auth enables horizontal scaling without session store. "
+                "JWTs can be validated without database lookups, "
+                "improving performance. "
+                "Better for planned mobile app integration."
+            ),
             alternatives='["Session-based auth", "OAuth-only"]',
-            impact="Eliminates need for session storage. Requires key rotation strategy.",
+            impact=(
+                "Eliminates need for session storage. "
+                "Requires key rotation strategy."
+            ),
             tags='["architecture", "authentication", "security"]',
             related_files='["src/auth.py", "src/middleware.py"]',
             confidence=0.9
@@ -525,7 +534,8 @@ async def coding_end_session(
         f"{success_emoji} Coding session ended: {result['session_id']}\n"
         f"Duration: {duration_str}\n"
         f"Files touched: {len(result['files_touched'])}\n"
-        f"Errors: {result['errors_encountered']} encountered, {result['errors_fixed']} fixed\n"
+        f"Errors: {result['errors_encountered']} encountered, "
+        f"{result['errors_fixed']} fixed\n"
         f"Decisions: {result['decisions_made']}\n\n"
         f"📝 Summary:\n{result['summary']}\n\n"
         f"💾 Session data saved for future reference and pattern learning."
@@ -740,7 +750,8 @@ async def coding_analyze_patterns(
             f"⚠️ Insufficient data for reliable pattern analysis\n"
             f"Project: {project_id}\n\n"
             f"Continue coding and recording changes to build pattern history.\n"
-            f"Recommended: 10+ file changes for basic analysis, 30+ for detailed insights."
+            "Recommended: 10+ file changes for basic analysis, "
+            "30+ for detailed insights."
         )
 
     result = f"🔍 Coding Pattern Analysis: {project_id}\n\n"
@@ -750,7 +761,10 @@ async def coding_analyze_patterns(
         result += "**Language Preferences:**\n"
         for key, value in patterns["language_preferences"].items():
             if isinstance(value, dict) and "confidence" in value:
-                result += f"- {key}: {value.get('style', 'N/A')} (confidence: {value['confidence']})\n"
+                result += (
+                    f"- {key}: {value.get('style', 'N/A')} "
+                    f"(confidence: {value['confidence']})\n"
+                )
         result += "\n"
 
     # Library preferences
@@ -1027,7 +1041,8 @@ async def coding_link_github_issue(
         if issue_number is None:
             return (
                 "❌ Could not detect issue number from branch name.\n\n"
-                "Branch name should follow GitHub convention: {{issue}}-{{description}}\n"
+                "Branch name should follow GitHub convention: "
+                "{{issue}}-{{description}}\n"
                 "Example: '464-feat-implement-memory'\n\n"
                 "Please provide issue_number explicitly or rename your branch."
             )
