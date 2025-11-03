@@ -1211,3 +1211,4 @@ def doctor_command(user_id: str | None) -> None:
             "  • kagura memory index - Build RAG index\n"
             "  • kagura memory setup - Download models",
             style="blue",
+        )
