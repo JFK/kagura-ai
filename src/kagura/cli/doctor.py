@@ -259,7 +259,7 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
                         "Reranking not available. Install: "
                         "kagura memory setup --reranking"
                     )
-            except Exception:
+            except Exception:  # Ignore errors - operation is non-critical
                 status["reranking_model_installed"] = False
                 recommendations.append(
                     "Reranking not available. Install: kagura memory setup --reranking"
@@ -301,7 +301,7 @@ def _check_mcp_integration() -> tuple[str, str]:
 
                 if "mcpServers" in config and "kagura" in config["mcpServers"]:
                     return "ok", f"Configured in {path.name}"
-            except Exception:
+            except Exception:  # Ignore errors - operation is non-critical
                 pass
 
     return "warning", "Not configured (MCP server starts with Claude Desktop)"
@@ -343,7 +343,7 @@ def _check_coding_memory() -> dict[str, Any]:
             "sessions_count": len(sessions),
             "projects_count": len(projects),
         }
-    except Exception:
+    except Exception:  # Ignore errors - operation is non-critical
         return {
             "sessions_count": 0,
             "projects_count": 0,

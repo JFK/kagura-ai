@@ -829,7 +829,7 @@ def stats_command(
         if manager.persistent_rag:
             try:
                 rag_count = manager.persistent_rag.collection.count()
-            except Exception:
+            except Exception:  # Ignore errors - operation is non-critical
                 pass
 
         # Display table
@@ -912,7 +912,7 @@ def segments_command(user_id: str | None) -> None:
             try:
                 rag_count = manager.persistent_rag.collection.count()
                 rag_enabled = True
-            except Exception:
+            except Exception:  # Ignore errors - operation is non-critical
                 pass
 
         # Display detailed table
@@ -1039,7 +1039,7 @@ def index_command(
             # Clear existing collection
             try:
                 manager.persistent_rag.collection.delete()
-            except Exception:
+            except Exception:  # Ignore errors - operation is non-critical
                 pass
 
         # Index memories with progress bar

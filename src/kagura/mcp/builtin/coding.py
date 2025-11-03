@@ -2432,12 +2432,14 @@ async def claude_code_search_past_work(
         except Exception:
             date_str = timestamp
 
-        # Extract summary from content
-        summary = (
-            content.split("Summary:")[1].split("\n\n")[0].strip()
-            if "Summary:" in content
-            else ""
-        )
+        # Extract summary from content (with bounds checking)
+        summary = ""
+        if "Summary:" in content:
+            parts = content.split("Summary:")
+            if len(parts) > 1:
+                summary_parts = parts[1].split("\n\n")
+                if summary_parts:
+                    summary = summary_parts[0].strip()
 
         result += f"**{i}. [{date_str}] {title}**\n"
         result += f"   Score: {score:.3f}\n"
