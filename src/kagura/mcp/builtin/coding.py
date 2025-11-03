@@ -474,6 +474,7 @@ async def coding_end_session(
     summary: str | None = None,
     success: str | bool | None = None,
     save_to_github: str | bool = "false",
+    save_to_claude_code_history: str | bool = "true",
 ) -> str:
     """End coding session and generate AI-powered summary of changes,
     decisions, and learnings.
@@ -484,6 +485,7 @@ async def coding_end_session(
     3. Store session data for future reference
     4. Update coding patterns and preferences
     5. Optionally save to GitHub Issue (if save_to_github=true)
+    6. Optionally save to Claude Code history (if save_to_claude_code_history=true)
 
     The AI summary includes:
     - Session overview and objectives achieved
@@ -499,6 +501,8 @@ async def coding_end_session(
         success: Whether session objectives were met ("true"/"false", optional)
         save_to_github: Save session summary to GitHub Issue ("true"/"false",
             default: "false"). Requires gh CLI and active branch linked to issue.
+        save_to_claude_code_history: Save to Claude Code session history ("true"/"false",
+            default: "true"). Enables cross-session knowledge via claude_code_search_past_work()
 
     Returns:
         Session summary and statistics
@@ -507,7 +511,7 @@ async def coding_end_session(
         Error if no active session to end
 
     Examples:
-        # End session with AI-generated summary
+        # End session with AI-generated summary (auto-save to Claude Code history)
         await coding_end_session(
             user_id="dev_john",
             project_id="api-service",
@@ -522,12 +526,13 @@ async def coding_end_session(
             save_to_github="true"
         )
 
-        # End session with custom summary
+        # End session without Claude Code history
         await coding_end_session(
             user_id="dev_john",
             project_id="api-service",
             summary="Completed JWT auth implementation. All tests passing.",
-            success="true"
+            success="true",
+            save_to_claude_code_history="false"
         )
     """
     memory = _get_coding_memory(user_id, project_id)
@@ -544,6 +549,11 @@ async def coding_end_session(
         save_to_github_bool = save_to_github
     else:
         save_to_github_bool = save_to_github.lower() == "true"
+
+    if isinstance(save_to_claude_code_history, bool):
+        save_to_claude_code_history_bool = save_to_claude_code_history
+    else:
+        save_to_claude_code_history_bool = save_to_claude_code_history.lower() == "true"
 
     result = await memory.end_coding_session(
         summary=summary,
@@ -573,6 +583,73 @@ async def coding_end_session(
                 "(gh CLI not installed or no issue linked)"
             )
 
+    # Save to Claude Code history if requested
+    claude_code_status = ""
+    if save_to_claude_code_history_bool:
+        try:
+            # Prepare session data for Claude Code history
+            session_title = memory.current_session.description if memory.current_session else "Coding Session"
+            files_modified = [str(f) for f in result['files_touched']]
+
+            # Extract tags from session
+            tags = []
+            if memory.current_session and memory.current_session.tags:
+                tags = memory.current_session.tags
+
+            # Save using claude_code_save_session logic
+            from datetime import datetime
+
+            session_key = f"claude_code_session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+            session_doc = f"""
+Claude Code Session: {session_title}
+Project: {project_id}
+Date: {datetime.now().isoformat()}
+Duration: {duration_str}
+Files Modified: {', '.join(files_modified)}
+Success: {success_bool}
+
+Summary:
+{result['summary']}
+
+Statistics:
+- Files touched: {len(result['files_touched'])}
+- Errors encountered: {result['errors_encountered']}
+- Errors fixed: {result['errors_fixed']}
+- Decisions made: {result['decisions_made']}
+"""
+
+            metadata = {
+                "type": "claude_code_session",
+                "project_id": project_id,
+                "session_title": session_title,
+                "files_modified": files_modified,
+                "tags": tags,
+                "timestamp": datetime.now().isoformat(),
+                "importance": 0.8 if success_bool else 0.6,
+                "platform": "claude_code",
+                "session_id": result['session_id'],
+            }
+
+            # Store in memory
+            memory.manager.store(
+                key=session_key,
+                value=session_doc,
+                scope="persistent",
+                metadata=metadata,
+            )
+
+            # Store in RAG
+            memory.manager.store_semantic(
+                content=session_doc,
+                metadata=metadata,
+            )
+
+            claude_code_status = f"\n✅ Session saved to Claude Code history: {session_key}"
+
+        except Exception as e:
+            claude_code_status = f"\n⚠️ Failed to save to Claude Code history: {e}"
+
     return (
         f"{success_emoji} Coding session ended: {result['session_id']}\n"
         f"Duration: {duration_str}\n"
@@ -583,6 +660,7 @@ async def coding_end_session(
         f"📝 Summary:\n{result['summary']}\n\n"
         f"💾 Session data saved for future reference and pattern learning."
         f"{github_status}"
+        f"{claude_code_status}"
     )
 
 
@@ -1800,5 +1878,309 @@ async def coding_search_source_code(
         result += f"   Preview:\n```\n{content_preview}\n```\n\n"
 
     result += f"\n💡 **Tip:** Open files in your editor to see full implementation"
+
+    return result
+
+
+# Claude Code Integration Tools (Issue #491)
+
+
+@tool
+async def claude_code_save_session(
+    user_id: str,
+    project_id: str,
+    session_title: str,
+    work_summary: str,
+    files_modified: str = "[]",
+    conversation_context: str | None = None,
+    tags: str = "[]",
+    importance: str = "0.7",
+) -> str:
+    """Save Claude Code work session to Kagura Memory for future reference.
+
+    Records your Claude Code session with context, making it searchable across sessions.
+    Enables knowledge persistence and learning from past work.
+
+    Use this tool:
+    - At the end of a significant work session
+    - After solving a complex problem
+    - When making important decisions
+    - To preserve context for future sessions
+
+    Args:
+        user_id: User identifier (developer, e.g., "kiyota")
+        project_id: Project identifier (e.g., "kagura-ai")
+        session_title: Brief title of the work session
+        work_summary: Detailed summary of what was accomplished
+        files_modified: JSON array of file paths modified (e.g., '["src/auth.py"]')
+        conversation_context: Optional conversation snippets or key exchanges
+        tags: JSON array of tags (e.g., '["bug-fix", "authentication"]')
+        importance: Importance score 0.0-1.0 (default: 0.7)
+
+    Returns:
+        Confirmation with session ID
+
+    Examples:
+        # Save a debugging session
+        await claude_code_save_session(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            session_title="Fix memory search RAG integration",
+            work_summary=\"\"\"
+            - Investigated Issue #337
+            - Fixed memory_search to check both working and RAG
+            - Added test coverage
+            - All tests passing
+            \"\"\",
+            files_modified='["src/kagura/mcp/builtin/memory.py", "tests/test_memory.py"]',
+            tags='["bug-fix", "memory", "rag", "issue-337"]',
+            importance="0.9"
+        )
+
+        # Save a feature implementation
+        await claude_code_save_session(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            session_title="Implement CLI inspection commands",
+            work_summary="Added kagura memory list/search/stats commands for Issue #501",
+            files_modified='["src/kagura/cli/memory_cli.py"]',
+            tags='["feature", "cli", "issue-501"]'
+        )
+    """
+    import json
+    from datetime import datetime
+
+    # Parse parameters
+    files_list = _parse_json_list(files_modified, "files_modified")
+    tags_list = _parse_json_list(tags, "tags")
+
+    try:
+        importance_float = float(importance)
+    except ValueError:
+        importance_float = 0.7
+
+    # Get coding memory
+    memory = _get_coding_memory(user_id, project_id)
+
+    # Create session document for RAG
+    timestamp = datetime.now().isoformat()
+    session_doc = f"""
+Claude Code Session: {session_title}
+Project: {project_id}
+Date: {timestamp}
+Files Modified: {', '.join(files_list)}
+Tags: {', '.join(tags_list)}
+
+Summary:
+{work_summary}
+"""
+
+    if conversation_context:
+        session_doc += f"\nConversation Context:\n{conversation_context}"
+
+    # Store in memory with metadata
+    session_key = f"claude_code_session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+    metadata = {
+        "type": "claude_code_session",
+        "project_id": project_id,
+        "session_title": session_title,
+        "files_modified": files_list,
+        "tags": tags_list,
+        "timestamp": timestamp,
+        "importance": importance_float,
+        "platform": "claude_code",
+    }
+
+    # Store in persistent memory
+    memory.manager.store(
+        key=session_key,
+        value=session_doc,
+        scope="persistent",
+        metadata=metadata,
+    )
+
+    # Also store in RAG for semantic search
+    memory.manager.store_semantic(
+        content=session_doc,
+        metadata=metadata,
+    )
+
+    # Create graph relationships if session is active
+    if memory.current_session_id and memory.manager.graph:
+        # Link to current coding session
+        memory.manager.graph.add_edge(
+            session_key,
+            f"coding_session_{memory.current_session_id}",
+            relationship="claude_code_work",
+        )
+
+        # Link to modified files
+        for file in files_list:
+            memory.manager.graph.add_edge(
+                session_key,
+                f"file_{file}",
+                relationship="modified",
+            )
+
+    result = f"✅ Claude Code session saved: {session_key}\n\n"
+    result += f"**Project:** {project_id}\n"
+    result += f"**Title:** {session_title}\n"
+    result += f"**Files:** {len(files_list)} modified\n"
+    result += f"**Tags:** {', '.join(tags_list)}\n"
+    result += f"**Importance:** {importance_float}\n\n"
+    result += f"💡 **Search later with:** claude_code_search_past_work(query=\"{session_title.split()[0]}\")"
+
+    return result
+
+
+@tool
+async def claude_code_search_past_work(
+    user_id: str,
+    project_id: str,
+    query: str,
+    k: int = 5,
+    file_filter: str | None = None,
+    date_range: str | None = None,
+) -> str:
+    """Search past Claude Code work sessions semantically.
+
+    Find similar problems you've solved, decisions you've made, or work you've done
+    in previous Claude Code sessions.
+
+    Use this tool:
+    - When starting work on a new issue
+    - When encountering a familiar problem
+    - To recall how you solved something before
+    - To find related work context
+
+    Args:
+        user_id: User identifier
+        project_id: Project identifier
+        query: Search query (e.g., "memory search bug", "authentication implementation")
+        k: Number of results to return (default: 5)
+        file_filter: Optional file path filter (e.g., "src/kagura/core/**")
+        date_range: Optional time filter ("last_7_days", "last_30_days", "last_90_days")
+
+    Returns:
+        Past work sessions with summaries, files, and solutions
+
+    Examples:
+        # Find similar debugging sessions
+        await claude_code_search_past_work(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            query="memory search not returning results"
+        )
+
+        # Search recent work only
+        await claude_code_search_past_work(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            query="CLI implementation",
+            date_range="last_7_days"
+        )
+
+        # Search specific directory work
+        await claude_code_search_past_work(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            query="RAG integration",
+            file_filter="src/kagura/core/memory/**"
+        )
+    """
+    from datetime import datetime, timedelta
+
+    memory = _get_coding_memory(user_id, project_id)
+
+    # Perform semantic search
+    results = memory.manager.search(
+        query=query,
+        k=k * 2,  # Get more candidates for filtering
+        scope="persistent",
+    )
+
+    if not results:
+        return f"⚠️ No past work sessions found for query: '{query}'\n\nSave sessions with claude_code_save_session() to build history"
+
+    # Filter by type (Claude Code sessions only)
+    claude_sessions = [
+        r for r in results
+        if r.get("metadata", {}).get("type") == "claude_code_session"
+    ]
+
+    # Filter by date range if specified
+    if date_range:
+        days_map = {
+            "last_7_days": 7,
+            "last_30_days": 30,
+            "last_90_days": 90,
+        }
+        days = days_map.get(date_range, 30)
+        cutoff = datetime.now() - timedelta(days=days)
+
+        claude_sessions = [
+            r for r in claude_sessions
+            if datetime.fromisoformat(r.get("metadata", {}).get("timestamp", "2000-01-01"))
+            > cutoff
+        ]
+
+    # Filter by file if specified
+    if file_filter:
+        import fnmatch
+
+        claude_sessions = [
+            r for r in claude_sessions
+            if any(
+                fnmatch.fnmatch(f, file_filter)
+                for f in r.get("metadata", {}).get("files_modified", [])
+            )
+        ]
+
+    if not claude_sessions:
+        filters_msg = ""
+        if date_range:
+            filters_msg += f" (date: {date_range})"
+        if file_filter:
+            filters_msg += f" (files: {file_filter})"
+        return f"⚠️ No Claude Code sessions found{filters_msg}"
+
+    # Limit to k results
+    claude_sessions = claude_sessions[:k]
+
+    # Format results
+    result = f"🔍 Past Claude Code Work: '{query}'\n\n"
+    result += f"**Found {len(claude_sessions)} relevant sessions:**\n\n"
+
+    for i, session in enumerate(claude_sessions, 1):
+        metadata = session.get("metadata", {})
+        content = session.get("content", "")
+
+        title = metadata.get("session_title", "Untitled")
+        timestamp = metadata.get("timestamp", "")
+        files = metadata.get("files_modified", [])
+        tags = metadata.get("tags", [])
+        score = session.get("score", 0.0)
+
+        # Parse timestamp
+        try:
+            dt = datetime.fromisoformat(timestamp)
+            date_str = dt.strftime("%Y-%m-%d %H:%M")
+        except Exception:
+            date_str = timestamp
+
+        # Extract summary from content
+        summary = content.split("Summary:")[1].split("\n\n")[0].strip() if "Summary:" in content else ""
+
+        result += f"**{i}. [{date_str}] {title}**\n"
+        result += f"   Score: {score:.3f}\n"
+        result += f"   Files: {', '.join(files[:3])}"
+        if len(files) > 3:
+            result += f" (+{len(files) - 3} more)"
+        result += "\n"
+        result += f"   Tags: {', '.join(tags)}\n"
+        result += f"   Summary: {summary[:200]}...\n\n"
+
+    result += f"\n💡 **Tip:** Use this context to avoid repeating past work"
 
     return result
