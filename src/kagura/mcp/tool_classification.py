@@ -19,6 +19,10 @@ REMOTE_CAPABLE_TOOLS = {
     "memory_stats",
     "memory_search_ids",
     "memory_fetch",
+    # Memory - Enhanced Search (v4.0.6+)
+    "memory_search_hybrid",
+    "memory_timeline",
+    "memory_fuzzy_recall",
     # GitHub (API依存)
     "github_exec",
     "github_issue_view",
