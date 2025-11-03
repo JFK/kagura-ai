@@ -719,9 +719,10 @@ def search_command(
             )
         elif manager.persistent_rag:
             # Fallback to RAG-only search
-            results = manager.search_memory(
+            results = manager.recall_semantic(
                 query=query,
-                limit=top_k,
+                top_k=top_k,
+                scope="persistent",
             )
         else:
             console.print("[red]✗ RAG not available[/red]")
@@ -1172,21 +1173,44 @@ def doctor_command(user_id: str | None) -> None:
     console.print("[bold cyan]3. RAG Status[/]")
 
     try:
-        if manager.persistent_rag:
-            rag_count = manager.persistent_rag.collection.count()
-            console.print("   [green]✓[/] RAG enabled")
-            console.print(f"   [green]✓[/] Vectors indexed: {rag_count}")
+        import chromadb
 
-            if rag_count == 0 and persistent_count > 0:
-                console.print(
-                    f"   [yellow]⚠[/] Index empty but {persistent_count} memories exist"
-                )
-                console.print("   [dim]Run 'kagura memory index' to build index[/dim]")
-        else:
-            console.print("   [red]✗[/] RAG not available")
+        rag_count = 0
+
+        # Check multiple possible vector DB locations (like mcp doctor does)
+        from kagura.config.paths import get_cache_dir, get_data_dir
+
+        vector_db_paths = [
+            get_cache_dir() / "chromadb",  # Default CLI location
+            get_data_dir() / "sessions" / "memory" / "vector_db",
+            get_data_dir() / "api" / "default_user" / "vector_db",
+            get_data_dir() / "vector_db",  # Legacy location
+        ]
+
+        for vdb_path in vector_db_paths:
+            if vdb_path.exists():
+                try:
+                    client = chromadb.PersistentClient(path=str(vdb_path))
+                    for col in client.list_collections():
+                        rag_count += col.count()
+                except Exception:
+                    # Skip if collection read fails
+                    pass
+
+        console.print("   [green]✓[/] RAG enabled")
+        console.print(f"   [green]✓[/] Vectors indexed: {rag_count}")
+
+        if rag_count == 0 and persistent_count > 0:
             console.print(
-                "   [dim]Install: pip install chromadb sentence-transformers[/dim]"
+                f"   [yellow]⚠[/] Index empty but {persistent_count} memories exist"
             )
+            console.print("   [dim]Run 'kagura memory index' to build index[/dim]")
+
+    except ImportError:
+        console.print("   [red]✗[/] RAG not available")
+        console.print(
+            "   [dim]Install: pip install chromadb sentence-transformers[/dim]"
+        )
     except Exception as e:
         console.print(f"   [red]✗[/] Error: {e}")
 
