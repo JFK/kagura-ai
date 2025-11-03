@@ -663,6 +663,14 @@ def list_tools(
 
     console = Console()
 
+    # Validate conflicting flags
+    if remote_only and local_only:
+        console.print(
+            "[red]Error: --remote-only and --local-only are mutually exclusive.[/red]\n"
+        )
+        console.print("Use one or the other, not both.\n")
+        ctx.exit(1)
+
     # Auto-load built-in tools
     try:
         import kagura.mcp.builtin  # noqa: F401
