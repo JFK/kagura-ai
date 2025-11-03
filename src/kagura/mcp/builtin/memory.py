@@ -74,63 +74,25 @@ async def memory_store(
     importance: float = 0.5,
     metadata: str = "{}",
 ) -> str:
-    """Store information in agent memory
+    """Store information in agent memory.
 
-    💡 SMART DEFAULTS (v4.0.10):
-    - agent_name defaults to "global" (shared across all conversations)
-    - scope defaults to "persistent" (saved to disk)
-    - Use defaults for user preferences, facts, and settings
-
-    ⚠️ WHEN TO ASK USER:
-    - If memory seems temporary/task-specific → suggest thread-local
-    - If uncertain about permanence → ask user
-
-    Recommended questions:
-    "Should I remember this for all conversations (default) or just this one?"
-
-    Stores data in the specified memory scope. Use this tool when:
-    - User explicitly asks to 'remember' or 'save' something
-    - Important context needs to be preserved
-    - User preferences or settings should be stored
-
-    💡 IMPORTANT: Memory ownership model (v4.0)
-    - user_id: WHO owns this memory (e.g., "user_jfk", email, username)
-    - agent_name: WHERE to store
-      * "global" = ALL conversations (user preferences, facts)
-      * "thread_{id}" = ONLY this conversation (temporary context)
-
-    🌐 CROSS-PLATFORM: All memories are tied to user_id, enabling
-        true Universal Memory across Claude, ChatGPT, Gemini, etc.
-
-    Examples:
-        # Global memory (accessible from ALL conversations)
-        agent_name="global", key="user_language", value="Japanese",
-        tags='["preferences"]'
-
-        # Thread-specific memory (ONLY this conversation)
-        agent_name="thread_chat_123", key="current_topic",
-        value="Python tutorial", importance=0.8
+    When: User asks to remember/save something.
+    Defaults: agent_name="global", scope="persistent" (v4.0.10)
 
     Args:
-        user_id: User identifier (memory owner)
-        key: Memory key for retrieval
-        value: Information to store
-        agent_name: Storage location (default: "global" - shared across all conversations)
-            - "global": Best for user preferences, facts, settings
-            - "thread_{id}": For temporary, conversation-specific context
-        scope: Persistence (default: "persistent" - saved to disk)
-            - "persistent": Survives restarts (recommended)
-            - "working": In-memory only, cleared on restart
-        tags: JSON array string of tags (e.g., '["python", "coding"]')
-        importance: Importance score (0.0-1.0, default 0.5)
-        metadata: JSON object string of additional metadata
+        user_id: Memory owner ID
+        key: Memory key
+        value: Info to store
+        agent_name: "global" (all conversations) or "thread_{id}" (this conversation only)
+        scope: "persistent" (disk) or "working" (RAM, cleared on restart)
+        tags: JSON array '["tag1"]' (optional)
+        importance: 0.0-1.0 (default: 0.5)
+        metadata: JSON object (optional)
 
-    Returns:
-        Confirmation message with clear indication of storage scope
+    Returns: Confirmation with storage scope
 
-    Note:
-        Both working and persistent memory data are automatically indexed in RAG
-        for semantic search. Use memory_search() to find data stored with this function.
+    💡 TIP: Use defaults for user preferences. Override for temporary data.
+    🌐 Cross-platform: Memories shared across Claude, ChatGPT, Gemini via user_id.
     """
     # Always enable RAG for both working and persistent memory
     enable_rag = True
@@ -336,48 +298,23 @@ async def memory_search(
     scope: str = "all",
     mode: str = "full",
 ) -> str:
-    """Search agent memory using semantic RAG and key-value memory
+    """Search memories by concept/keyword match.
 
-    Search stored memories using semantic similarity and keyword matching.
-    Use this tool when:
-    - User asks about topics discussed before but doesn't specify exact key
-    - Need to find related memories without exact match
-    - Exploring what has been remembered about a topic
-
-    💡 IMPORTANT: Memory ownership model (v4.0)
-    - user_id: WHO owns these memories (searches only this user's data)
-    - agent_name: WHERE to search ("global" = all threads, "thread_X" = specific)
-
-    🌐 CROSS-PLATFORM: Searches are scoped by user_id, enabling
-        cross-platform memory search across all AI tools.
-
-    Examples:
-        # Search global memory for user
-        user_id="user_jfk", agent_name="global", query="user preferences"
-
-        # Search thread memory
-        user_id="user_jfk", agent_name="thread_chat_123", query="topics we discussed"
+    When: User recalls topic but not exact key.
+    Combines: Semantic (RAG) + keyword matching across all memory.
 
     Args:
-        user_id: User identifier (memory owner)
-        agent_name: Agent identifier (determines which memory space to search)
-        query: Search query (semantic and keyword matching)
-        k: Number of results from RAG per scope
-            (default: 3, reduced from 5 for token efficiency)
-        scope: Memory scope to search ("working", "persistent", or "all")
-        mode: Output mode - "summary" (compact, token-efficient) or
-            "full" (complete JSON, default for backward compatibility)
+        user_id: Memory owner ID
+        agent_name: "global" or "thread_{id}"
+        query: Search query (natural language)
+        k: Results per scope (default: 3)
+        scope: "all"|"working"|"persistent" (default: "all")
+        mode: "summary" (compact) or "full" (JSON, default)
 
-    Returns:
-        Search results in the specified format:
-        - summary mode: Compact text format with previews (~200 tokens)
-        - full mode: Complete JSON with all data (~1000 tokens)
+    Returns: Search results (RAG + key-value)
 
-    Note:
-        Searches data stored via memory_store() in:
-        - RAG (semantic search across working/persistent/all)
-        - Working memory (key-value, exact/partial key matches)
-        Results include "source" and "scope" fields.
+    💡 TIP: Searches by meaning, not exact words.
+    🌐 Cross-platform: Searches user's data across all AI tools.
     """
     # Ensure k is int (LLM might pass as string)
     if isinstance(k, str):
