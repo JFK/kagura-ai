@@ -5,6 +5,7 @@ Implements 2-level abstraction:
 - Level 2: Context abstraction (powerful LLM: gpt-5 / claude / gemini)
 """
 
+import json
 import logging
 from typing import Any, Literal
 
@@ -162,10 +163,7 @@ Return JSON:
         )
 
         # Parse response
-        import json
-
-        result = json.loads(response)
-        return result
+        return json.loads(response)
 
     def _fallback_level1(
         self, record_id: str, content: str, reference: str | None
@@ -305,10 +303,7 @@ Return JSON:
         )
 
         # Parse response
-        import json
-
-        result = json.loads(response)
-        return result
+        return json.loads(response)
 
     async def _downgrade_to_level1(
         self, context_id: str, interactions: list[Any]

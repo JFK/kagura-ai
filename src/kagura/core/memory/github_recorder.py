@@ -136,6 +136,15 @@ class GitHubRecorder:
             logger.error(f"Failed to record important event to GitHub: {e}")
             return False
 
+    @staticmethod
+    def _format_timestamp() -> str:
+        """Generate UTC timestamp string.
+
+        Returns:
+            Formatted timestamp (YYYY-MM-DD HH:MM UTC)
+        """
+        return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
     def _format_immediate_comment(
         self, interaction_record: Any, event_type: str
     ) -> str:
@@ -148,7 +157,7 @@ class GitHubRecorder:
         Returns:
             Markdown-formatted comment
         """
-        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+        timestamp = self._format_timestamp()
 
         # Emoji mapping
         emoji_map = {
@@ -236,7 +245,7 @@ class GitHubRecorder:
         Returns:
             Markdown-formatted comment
         """
-        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+        timestamp = self._format_timestamp()
 
         # Extract data
         total_interactions = summary_data.get("total_interactions", 0)

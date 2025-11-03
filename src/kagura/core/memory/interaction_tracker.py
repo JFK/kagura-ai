@@ -17,16 +17,10 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
-
-class InteractionType(str):
-    """Interaction type classification."""
-
-    QUESTION = "question"  # Low importance
-    DECISION = "decision"  # High importance
-    STRUGGLE = "struggle"  # High importance
-    DISCOVERY = "discovery"  # High importance
-    IMPLEMENTATION = "implementation"  # Medium importance
-    ERROR_FIX = "error_fix"  # High importance
+# Type for interaction classification
+InteractionType = Literal[
+    "question", "decision", "struggle", "discovery", "implementation", "error_fix"
+]
 
 
 class InteractionRecord(BaseModel):
@@ -46,9 +40,7 @@ class InteractionRecord(BaseModel):
     interaction_id: str = Field(default_factory=lambda: f"int_{uuid.uuid4().hex[:12]}")
     user_query: str
     ai_response: str
-    interaction_type: Literal[
-        "question", "decision", "struggle", "discovery", "implementation", "error_fix"
-    ]
+    interaction_type: InteractionType
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     importance: float = 5.0  # 0.0-10.0
     session_id: str | None = None
@@ -101,14 +93,7 @@ class InteractionTracker:
         self,
         user_query: str,
         ai_response: str,
-        interaction_type: Literal[
-            "question",
-            "decision",
-            "struggle",
-            "discovery",
-            "implementation",
-            "error_fix",
-        ],
+        interaction_type: InteractionType,
         session_id: str | None = None,
         metadata: dict[str, Any] | None = None,
         llm_classifier: Any | None = None,
@@ -152,24 +137,10 @@ class InteractionTracker:
 
         # 2. LLM importance classification (async, non-blocking)
         if llm_classifier:
-            importance_task = asyncio.create_task(
-                self._classify_importance(record, llm_classifier)
-            )
-            # Don't await - runs in background
-            importance_task.add_done_callback(
-                lambda t: logger.debug(
-                    f"Importance classified: {record.interaction_id} = "
-                    f"{record.importance}"
-                )
-            )
-
-        # 3. High importance → immediate GitHub record (async, non-blocking)
-        if record.importance >= self.importance_threshold and github_recorder:
-            asyncio.create_task(github_recorder.record_important_event(record))
-            logger.info(
-                f"High importance interaction ({record.importance}): "
-                f"async GitHub recording triggered"
-            )
+            # Start classification in background
+            asyncio.create_task(self._classify_and_record(
+                record, llm_classifier, github_recorder
+            ))
 
         # 4. Check flush conditions
         should_flush = (
@@ -184,6 +155,39 @@ class InteractionTracker:
 
         return record
 
+    async def _classify_and_record(
+        self,
+        record: InteractionRecord,
+        llm_classifier: Any,
+        github_recorder: Any | None,
+    ) -> None:
+        """Classify importance and conditionally record to GitHub.
+
+        This ensures GitHub recording only happens after classification completes.
+
+        Args:
+            record: Interaction record to classify
+            llm_classifier: LLM classifier instance
+            github_recorder: GitHub recorder (optional)
+        """
+        # Classify importance
+        importance = await self._classify_importance(record, llm_classifier)
+
+        logger.debug(
+            f"Importance classified: {record.interaction_id} = {importance}"
+        )
+
+        # Record to GitHub if high importance
+        if importance >= self.importance_threshold and github_recorder:
+            try:
+                await github_recorder.record_important_event(record)
+                logger.info(
+                    f"High importance interaction ({importance}): "
+                    f"recorded to GitHub"
+                )
+            except Exception as e:
+                logger.error(f"GitHub recording failed: {e}")
+
     async def _classify_importance(
         self, record: InteractionRecord, llm_classifier: Any
     ) -> float:
@@ -196,6 +200,16 @@ class InteractionTracker:
         Returns:
             Importance score (0.0-10.0)
         """
+        # Type-based heuristics (fallback scores)
+        type_scores = {
+            "question": 3.0,
+            "decision": 8.5,
+            "struggle": 7.5,
+            "discovery": 8.0,
+            "implementation": 6.0,
+            "error_fix": 7.0,
+        }
+
         try:
             importance = await llm_classifier.classify_importance(
                 user_query=record.user_query,
@@ -205,16 +219,8 @@ class InteractionTracker:
             record.importance = importance
             return importance
         except Exception as e:
-            logger.warning(f"LLM importance classification failed: {e}")
+            logger.warning(f"LLM importance classification failed: {e}, using fallback")
             # Fallback to type-based heuristics
-            type_scores = {
-                "question": 3.0,
-                "decision": 8.5,
-                "struggle": 7.5,
-                "discovery": 8.0,
-                "implementation": 6.0,
-                "error_fix": 7.0,
-            }
             record.importance = type_scores.get(record.interaction_type, 5.0)
             return record.importance
 
