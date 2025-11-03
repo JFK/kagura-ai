@@ -1912,11 +1912,11 @@ def _extract_code_chunks(
     if isinstance(tree, ast.Module) and hasattr(tree, "body"):
         for node in tree.body:
             if isinstance(node, ast.ClassDef):
-            classes_info[node.name] = {
-                "line_start": node.lineno,
-                "line_end": node.end_lineno or node.lineno,
-                "docstring": ast.get_docstring(node) or "",
-            }
+                classes_info[node.name] = {
+                    "line_start": node.lineno,
+                    "line_end": node.end_lineno or node.lineno,
+                    "docstring": ast.get_docstring(node) or "",
+                }
 
     # Functions and classes with overlap
     for node in ast.walk(tree):
