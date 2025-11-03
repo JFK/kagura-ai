@@ -997,10 +997,16 @@ def monitor_command(
         """Create dashboard table with current stats."""
         # Get recent events (last 5 minutes)
         cutoff = datetime.now() - timedelta(minutes=5)
-        events = store.query(since=cutoff.isoformat())
+        events = store.get_executions(
+            since=cutoff.timestamp(),
+            limit=1000
+        )
 
-        # Filter MCP tool events
-        mcp_events = [e for e in events if e.get("event_type") == "tool_call"]
+        # Filter MCP tool events (executions that have tool_name)
+        mcp_events = [
+            e for e in events
+            if e.get("metadata", {}).get("tool_name")
+        ]
 
         # Apply tool filter
         if tool:
@@ -1014,15 +1020,17 @@ def monitor_command(
         tool_stats = defaultdict(lambda: {"calls": 0, "errors": 0, "total_time": 0})
 
         for event in mcp_events:
-            tool_name = event.get("tool_name", "unknown")
+            metadata = event.get("metadata", {})
+            tool_name = metadata.get("tool_name", "unknown")
             tool_stats[tool_name]["calls"] += 1
 
-            if event.get("error"):
+            # Check for errors
+            if event.get("status") == "failed" or event.get("error"):
                 tool_stats[tool_name]["errors"] += 1
 
-            # Duration
-            duration = event.get("duration_ms", 0)
-            tool_stats[tool_name]["total_time"] += duration
+            # Duration (stored in seconds, convert to ms)
+            duration_sec = event.get("duration", 0)
+            tool_stats[tool_name]["total_time"] += duration_sec * 1000
 
         # Create table
         table = Table(title="MCP Tools - Live Monitor (Last 5 min)", show_header=True)

@@ -597,10 +597,16 @@ async def coding_get_current_session_status(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    if not memory.current_session:
+    if not memory.current_session_id:
         return "❌ No active coding session.\n\nStart one with: coding_start_session()"
 
-    session = memory.current_session
+    # Load current session from working memory
+    session_data = memory.working.get(f"session:{memory.current_session_id}")
+    if not session_data:
+        return "❌ Session data not found in working memory."
+
+    from kagura.core.memory.coding_memory import CodingSession
+    session = CodingSession.model_validate(session_data)
 
     # Calculate duration
     from datetime import datetime
@@ -2045,12 +2051,22 @@ async def coding_search_source_code(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    # Perform semantic search
-    results = memory.manager.search(
-        query=query,
-        k=k,
-        scope="persistent",
-    )
+    # Perform semantic search using appropriate method
+    if memory.manager.persistent_rag and memory.manager.lexical_searcher:
+        # Use hybrid search if available
+        results = memory.manager.recall_hybrid(
+            query=query,
+            top_k=k,
+            scope="persistent",
+        )
+    elif memory.manager.persistent_rag:
+        # Fallback to RAG-only search
+        results = memory.manager.search_memory(
+            query=query,
+            limit=k,
+        )
+    else:
+        return "❌ RAG not available. Semantic search requires ChromaDB and sentence-transformers."
 
     if not results:
         return f"⚠️ No results found for query: '{query}'\n\nMake sure you've indexed the source code first with coding_index_source_code()"
@@ -2306,12 +2322,22 @@ async def claude_code_search_past_work(
 
     memory = _get_coding_memory(user_id, project_id)
 
-    # Perform semantic search
-    results = memory.manager.search(
-        query=query,
-        k=k * 2,  # Get more candidates for filtering
-        scope="persistent",
-    )
+    # Perform semantic search using appropriate method
+    if memory.manager.persistent_rag and memory.manager.lexical_searcher:
+        # Use hybrid search if available
+        results = memory.manager.recall_hybrid(
+            query=query,
+            top_k=k * 2,  # Get more candidates for filtering
+            scope="persistent",
+        )
+    elif memory.manager.persistent_rag:
+        # Fallback to RAG-only search
+        results = memory.manager.search_memory(
+            query=query,
+            limit=k * 2,
+        )
+    else:
+        return "❌ RAG not available. Semantic search requires ChromaDB and sentence-transformers."
 
     if not results:
         return f"⚠️ No past work sessions found for query: '{query}'\n\nSave sessions with claude_code_save_session() to build history"
