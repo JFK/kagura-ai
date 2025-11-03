@@ -744,8 +744,16 @@ def search_command(
         # Handle different result formats
         for i, result in enumerate(results, 1):
             if isinstance(result, dict):
-                content = result.get("value", result.get("content", ""))[:200]
-                score = result.get("score", result.get("similarity", 0.0))
+                # Get content value (handle both string and dict)
+                content_val = result.get("value", result.get("content", ""))
+                if isinstance(content_val, str):
+                    content = content_val[:200]
+                else:
+                    # Handle dict or other types
+                    content = str(content_val)[:200]
+
+                # Get score (try different field names)
+                score = result.get("score", result.get("similarity", result.get("rrf_score", result.get("distance", 0.0))))
             else:
                 content = str(result)[:200]
                 score = 0.0
