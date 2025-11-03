@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### CLI Inspection & Management (#501, #504)
 - `kagura doctor` - Unified system health check (Python, disk, APIs, memory, MCP)
-- `kagura memory list/search/stats/segments` - Memory inspection commands
+- `kagura memory list/search/stats` - Memory inspection commands
 - `kagura memory index/doctor` - RAG index building and health check
 - `kagura init --setup-rag/--setup-reranking/--full` - Interactive setup
 - Model constants: `src/kagura/config/models.py`
@@ -42,6 +42,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Session management: Removed global cache → auto-detection
 - Activity retrieval: Graph-based → session_id queries
 - Search: Upgraded to hybrid search (BM25 + RAG)
+
+### 🗑️ Removed
+
+- `kagura memory segments` - Redundant with `kagura memory stats --breakdown-by all`
+  - Use `kagura memory stats` for basic statistics
+  - Use `kagura memory stats --breakdown-by user` for per-user breakdown
+  - Use `kagura memory stats --breakdown-by all` for full RAG collections breakdown
 
 ### 🐛 Fixed
 
