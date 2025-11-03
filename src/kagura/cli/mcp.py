@@ -1164,4 +1164,119 @@ def install_reranking(model: str):
     console.print()
 
 
+@mcp.command()
+@click.option(
+    "--tool", "-t", help="Filter by tool name pattern", type=str, default=None
+)
+@click.option(
+    "--interval",
+    "-i",
+    help="Refresh interval in seconds",
+    type=float,
+    default=1.0,
+)
+def monitor(tool: str | None, interval: float) -> None:
+    """Live MCP tool monitoring dashboard.
+
+    Shows real-time statistics for MCP tool calls with auto-refresh.
+
+    Examples:
+        kagura mcp monitor                    # Monitor all tools
+        kagura mcp monitor --tool memory_*    # Filter specific tools
+        kagura mcp monitor --interval 0.5     # Refresh every 0.5 seconds
+    """
+    import time
+
+    from rich.console import Console
+    from rich.live import Live
+    from rich.table import Table
+
+    from kagura.config.paths import get_data_dir
+
+    console = Console()
+    console.print("[bold]MCP Tool Monitor[/bold] - Press Ctrl+C to exit\n")
+
+    try:
+        import sqlite3
+
+        db_path = get_data_dir() / "telemetry.db"
+
+        if not db_path.exists():
+            console.print(
+                "[yellow]No telemetry data found. Start using MCP tools first.[/yellow]"
+            )
+            return
+
+        def generate_table() -> Table:
+            """Generate current statistics table."""
+            table = Table(title="Live MCP Tool Statistics", show_header=True)
+            table.add_column("Tool", style="cyan", width=30)
+            table.add_column("Calls", justify="right", width=8)
+            table.add_column("Success", justify="right", width=10)
+            table.add_column("Errors", justify="right", width=8)
+            table.add_column("Avg Time", justify="right", width=10)
+
+            conn = sqlite3.connect(db_path)
+
+            # Query recent tool stats (last 5 minutes)
+            query = """
+                SELECT
+                    agent_name as tool,
+                    COUNT(*) as calls,
+                    SUM(CASE WHEN error IS NULL THEN 1 ELSE 0 END) as success,
+                    SUM(CASE WHEN error IS NOT NULL THEN 1 ELSE 0 END) as errors,
+                    AVG(duration) as avg_duration
+                FROM executions
+                WHERE started_at >= datetime('now', '-5 minutes')
+            """
+
+            if tool:
+                query += f" AND agent_name LIKE '%{tool}%'"
+
+            query += """
+                GROUP BY agent_name
+                ORDER BY calls DESC
+                LIMIT 20
+            """
+
+            cursor = conn.execute(query)
+            rows = cursor.fetchall()
+
+            for row in rows:
+                tool_name, calls, success_count, errors_count, avg_dur = row
+                success_rate = (
+                    f"{(success_count / calls) * 100:.1f}%" if calls > 0 else "-"
+                )
+                avg_time = f"{avg_dur:.2f}s" if avg_dur else "-"
+
+                table.add_row(
+                    tool_name or "unknown",
+                    str(calls),
+                    success_rate,
+                    str(errors_count),
+                    avg_time,
+                )
+
+            conn.close()
+
+            if not rows:
+                table.add_row("No activity", "-", "-", "-", "-")
+
+            return table
+
+        # Live monitoring loop
+        with Live(
+            generate_table(), refresh_per_second=1 / interval, console=console
+        ) as live:
+            while True:
+                time.sleep(interval)
+                live.update(generate_table())
+
+    except KeyboardInterrupt:
+        console.print("\n[dim]Monitoring stopped.[/dim]")
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise
+
+
 __all__ = ["mcp"]

@@ -20,12 +20,80 @@ def coding():
     Useful for reviewing past work and restoring context.
 
     Examples:
+        kagura coding projects
         kagura coding sessions --project kagura-ai
         kagura coding decisions --project kagura-ai --recent 10
         kagura coding errors --project kagura-ai --unresolved
         kagura coding search --project kagura-ai --query "authentication"
     """
     pass
+
+
+@coding.command()
+@click.option("--user", "-u", default="kiyota", help="User ID (default: kiyota)")
+def projects(user: str):
+    """List all projects with coding memory.
+
+    Shows unique project names and session counts.
+
+    Example:
+        kagura coding projects
+        kagura coding projects --user kiyota
+    """
+    console = Console()
+
+    try:
+        from kagura.config.paths import get_data_dir
+
+        # Query database for all unique project IDs
+        data_dir = get_data_dir()
+        db_path = data_dir / "memory.db"
+
+        if not db_path.exists():
+            console.print("[yellow]No coding memory database found.[/yellow]")
+            return
+
+        import sqlite3
+
+        conn = sqlite3.connect(db_path)
+
+        # Extract unique project IDs from keys like "project:PROJECT_ID:..."
+        query = """
+            SELECT DISTINCT
+                SUBSTR(key, 9, INSTR(SUBSTR(key, 9), ':') - 1) as project_id,
+                COUNT(*) as memory_count
+            FROM memories
+            WHERE key LIKE 'project:%' AND user_id = ?
+            GROUP BY project_id
+            ORDER BY memory_count DESC
+        """
+
+        cursor = conn.execute(query, (user,))
+        rows = cursor.fetchall()
+        conn.close()
+
+        if not rows:
+            console.print(f"[yellow]No projects found for user '{user}'[/yellow]")
+            return
+
+        # Display table
+        table = Table(title=f"Coding Projects (user: {user})", show_header=True)
+        table.add_column("Project ID", style="cyan", width=30)
+        table.add_column("Memories", justify="right", width=12)
+
+        for project_id, count in rows:
+            if project_id:  # Skip empty project IDs
+                table.add_row(project_id, str(count))
+
+        console.print(table)
+        console.print(f"\n[dim]Total: {len(rows)} projects[/dim]")
+        console.print(
+            "[dim]Use: kagura coding sessions --project <PROJECT> to see details[/dim]"
+        )
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise
 
 
 @coding.command()
@@ -77,6 +145,11 @@ def sessions(project: str, user: str, limit: int, success: str, since: str | Non
                 data = (
                     json.loads(value_str) if isinstance(value_str, str) else value_str
                 )
+                # session_id should already be in data, but double-check
+                if "session_id" not in data:
+                    key = result.get("key", "")
+                    session_id = key.split(":")[-1] if ":" in key else "unknown"
+                    data["session_id"] = session_id
                 sessions_data.append(data)
             except json.JSONDecodeError:
                 continue
@@ -232,6 +305,10 @@ def decisions(
                 data = (
                     json.loads(value_str) if isinstance(value_str, str) else value_str
                 )
+                # Extract decision_id from key: project:PROJECT:decision:DECISION_ID
+                key = result.get("key", "")
+                decision_id = key.split(":")[-1] if ":" in key else "unknown"
+                data["decision_id"] = decision_id
                 decisions_data.append(data)
             except json.JSONDecodeError:
                 continue
@@ -388,6 +465,10 @@ def errors(
                 data = (
                     json.loads(value_str) if isinstance(value_str, str) else value_str
                 )
+                # Extract error_id from key: project:PROJECT:error:ERROR_ID
+                key = result.get("key", "")
+                error_id = key.split(":")[-1] if ":" in key else "unknown"
+                data["error_id"] = error_id
                 errors_data.append(data)
             except json.JSONDecodeError:
                 continue

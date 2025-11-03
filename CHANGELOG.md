@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ✨ Added
 
 - **Coding Memory CLI Commands** (#502)
+  - `kagura coding projects`: List all projects with memory counts
   - `kagura coding sessions`: List coding sessions with filters
   - `kagura coding session <ID>`: Show detailed session information
   - `kagura coding decisions`: Browse design decisions
@@ -19,7 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `kagura coding errors`: List errors with resolution status
   - `kagura coding error <ID>`: Show error details and solution
   - `kagura coding search`: Semantic search across all coding memory
-  - Filters: --success, --unresolved, --min-confidence, --tag, --since, --type
+  - Filters: --success, --unresolved, --min-confidence, --tag, --since, --type, --user
+
+- **MCP Live Monitoring** (#499)
+  - `kagura mcp monitor`: Live dashboard for MCP tool statistics
+  - Real-time tool call counts, success rates, average execution times
+  - Filter by tool name pattern (--tool)
+  - Configurable refresh interval (--interval)
+  - Shows last 5 minutes of activity
 
 ### 🐛 Fixed
 
