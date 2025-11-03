@@ -330,29 +330,69 @@ def session(session_id: str, project: str | None, user: str | None):
             console.print(f"[red]Session not found: {session_id}[/red]")
             return
 
-        # Display session details
-        console.print(f"\n[bold]Session: {session_id}[/bold]")
-        console.print(f"Project: {project}")
-        console.print(f"Description: {data.get('description', 'N/A')}")
-        console.print(f"Start: {data.get('start_time', 'N/A')}")
-        console.print(f"End: {data.get('end_time', 'N/A')}")
-        console.print(f"Duration: {data.get('duration_minutes', 0):.1f} minutes")
-        console.print(f"Success: {data.get('success', 'N/A')}")
+        # Display session details with Panel
+        from rich.panel import Panel
+        from rich.syntax import Syntax
 
-        console.print("\n[bold]Activities:[/bold]")
-        console.print(f"  Files touched: {len(data.get('files_touched', []))}")
-        console.print(f"  Errors encountered: {data.get('errors_encountered', 0)}")
-        console.print(f"  Errors fixed: {data.get('errors_fixed', 0)}")
-        console.print(f"  Decisions made: {data.get('decisions_made', 0)}")
+        # Header
+        success_status = data.get('success')
+        status_icon = "✅" if success_status else ("⚠️" if success_status is False else "ℹ️")
 
+        console.print(f"\n[bold cyan]Session: {session_id}[/bold cyan] {status_icon}")
+        console.print(f"[dim]Project: {project}[/dim]")
+        console.print()
+
+        # Overview panel
+        duration = data.get('duration_minutes', 0)
+        duration_str = f"{duration:.1f} minutes" if duration else "In progress"
+
+        overview = (
+            f"[bold]Description:[/bold] {data.get('description', 'N/A')}\n"
+            f"[bold]Start:[/bold] {data.get('start_time', 'N/A')}\n"
+            f"[bold]End:[/bold] {data.get('end_time', 'N/A')}\n"
+            f"[bold]Duration:[/bold] {duration_str}\n"
+            f"[bold]Success:[/bold] {success_status}"
+        )
+
+        console.print(Panel(overview, title="Overview", border_style="blue"))
+        console.print()
+
+        # Activities panel
+        files_touched = data.get('files_touched', [])
+        activities = (
+            f"[bold]Files touched:[/bold] {len(files_touched)}\n"
+            f"[bold]Errors encountered:[/bold] {data.get('errors_encountered', 0)}\n"
+            f"[bold]Errors fixed:[/bold] {data.get('errors_fixed', 0)}\n"
+            f"[bold]Decisions made:[/bold] {data.get('decisions_made', 0)}"
+        )
+
+        console.print(Panel(activities, title="Statistics", border_style="green"))
+        console.print()
+
+        # Files touched (detailed)
+        if files_touched:
+            console.print("[bold cyan]Files Modified:[/bold cyan]")
+            for i, file in enumerate(files_touched[:10], 1):
+                console.print(f"  {i}. {file}")
+            if len(files_touched) > 10:
+                console.print(f"  [dim]... and {len(files_touched) - 10} more[/dim]")
+            console.print()
+
+        # Tags
         if data.get("tags"):
-            console.print(f"\n[bold]Tags:[/bold] {', '.join(data['tags'])}")
+            console.print(f"[bold cyan]Tags:[/bold cyan] {', '.join(data['tags'])}")
+            console.print()
 
+        # Summary
         if data.get("summary"):
-            console.print("\n[bold]Summary:[/bold]")
-            console.print(data["summary"][:500])
-            if len(data["summary"]) > 500:
-                console.print("[dim]... (truncated)[/dim]")
+            console.print(Panel(data["summary"], title="AI-Generated Summary", border_style="yellow"))
+            console.print()
+
+        # Additional details link
+        console.print("[dim]For file changes, errors, and decisions, use:[/dim]")
+        console.print(f"[dim]  • kagura coding errors --project {project}[/dim]")
+        console.print(f"[dim]  • kagura coding decisions --project {project}[/dim]")
+        console.print()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
