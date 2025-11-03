@@ -123,7 +123,7 @@ Give **every AI** access to:
 
 ## ✅ v4.0 Status - Phase A/B/C Complete ✨
 
-**Current**: v4.0.0 (stable release candidate) - Universal AI Memory Platform
+**Current**: v4.0.9 (stable release) - Universal AI Memory Platform
 
 **Phase A/B/C Complete** - All v4.0 core features are production-ready:
 - ✅ **Phase A**: MCP-First Foundation ([#364](https://github.com/JFK/kagura-ai/issues/364))
