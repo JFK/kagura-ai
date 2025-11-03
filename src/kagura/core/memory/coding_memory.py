@@ -236,8 +236,8 @@ class CodingMemoryManager(MemoryManager):
 
                         # Ensure graph node exists for this session
                         if self.graph:
-                            try:
-                                # Try to add node (might already exist)
+                            # Check if node exists first
+                            if not self.graph.graph.has_node(session_id):
                                 self.graph.add_node(
                                     node_id=session_id,
                                     node_type="memory",
@@ -247,8 +247,6 @@ class CodingMemoryManager(MemoryManager):
                                         "active": True,
                                     },
                                 )
-                            except ValueError:  # Node already exists
-                                pass
 
                         return session_id
                 except json.JSONDecodeError:
@@ -820,11 +818,10 @@ class CodingMemoryManager(MemoryManager):
             )
 
             # Update graph (mark as active again)
-            if self.graph:
-                self.graph.update_node(
-                    node_id=session_id,
-                    data={"active": True, "resumed": True},
-                )
+            if self.graph and self.graph.graph.has_node(session_id):
+                # Update node data directly
+                self.graph.graph.nodes[session_id]["active"] = True
+                self.graph.graph.nodes[session_id]["resumed"] = True
 
             self.current_session_id = session_id
             logger.info(f"Resumed coding session: {session_id}")

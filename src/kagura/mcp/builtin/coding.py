@@ -529,11 +529,15 @@ async def coding_resume_session(
         result += f"**Original start:** {session.start_time}\n"
         result += f"**Tags:** {', '.join(session.tags)}\n\n"
 
-        # Show existing activities
+        # Show existing activities (fetch from storage)
+        file_changes = await memory._get_session_file_changes(session_id)
+        errors = await memory._get_session_errors(session_id)
+        decisions = await memory._get_session_decisions(session_id)
+
         result += f"**Existing activities:**\n"
-        result += f"  • File changes: {len(session.file_changes)}\n"
-        result += f"  • Errors recorded: {len(session.errors)}\n"
-        result += f"  • Decisions made: {len(session.decisions)}\n\n"
+        result += f"  • File changes: {len(file_changes)}\n"
+        result += f"  • Errors recorded: {len(errors)}\n"
+        result += f"  • Decisions made: {len(decisions)}\n\n"
 
         result += f"💡 **Continue where you left off:**\n"
         result += f"  • Track new changes: coding_track_file_change()\n"
@@ -1803,7 +1807,7 @@ async def coding_index_source_code(
                 }
 
                 # Store in RAG
-                memory.manager.store_semantic(content=content, metadata=metadata)
+                memory.store_semantic(content=content, metadata=metadata)
                 total_chunks += 1
 
             indexed_files += 1
@@ -2052,16 +2056,16 @@ async def coding_search_source_code(
     memory = _get_coding_memory(user_id, project_id)
 
     # Perform semantic search using appropriate method
-    if memory.manager.persistent_rag and memory.manager.lexical_searcher:
+    if memory.persistent_rag and memory.lexical_searcher:
         # Use hybrid search if available
-        results = memory.manager.recall_hybrid(
+        results = memory.recall_hybrid(
             query=query,
             top_k=k,
             scope="persistent",
         )
-    elif memory.manager.persistent_rag:
+    elif memory.persistent_rag:
         # Fallback to RAG-only search
-        results = memory.manager.search_memory(
+        results = memory.search_memory(
             query=query,
             limit=k,
         )
@@ -2222,7 +2226,7 @@ Summary:
     }
 
     # Store in persistent memory
-    memory.manager.store(
+    memory.store(
         key=session_key,
         value=session_doc,
         scope="persistent",
@@ -2230,26 +2234,26 @@ Summary:
     )
 
     # Also store in RAG for semantic search
-    memory.manager.store_semantic(
+    memory.store_semantic(
         content=session_doc,
         metadata=metadata,
     )
 
     # Create graph relationships if session is active
-    if memory.current_session_id and memory.manager.graph:
+    if memory.current_session_id and memory.graph:
         # Link to current coding session
-        memory.manager.graph.add_edge(
+        memory.graph.add_edge(
             session_key,
             f"coding_session_{memory.current_session_id}",
-            relationship="claude_code_work",
+            rel_type="claude_code_work",
         )
 
         # Link to modified files
         for file in files_list:
-            memory.manager.graph.add_edge(
+            memory.graph.add_edge(
                 session_key,
                 f"file_{file}",
-                relationship="modified",
+                rel_type="modified",
             )
 
     result = f"✅ Claude Code session saved: {session_key}\n\n"
@@ -2323,16 +2327,16 @@ async def claude_code_search_past_work(
     memory = _get_coding_memory(user_id, project_id)
 
     # Perform semantic search using appropriate method
-    if memory.manager.persistent_rag and memory.manager.lexical_searcher:
+    if memory.persistent_rag and memory.lexical_searcher:
         # Use hybrid search if available
-        results = memory.manager.recall_hybrid(
+        results = memory.recall_hybrid(
             query=query,
             top_k=k * 2,  # Get more candidates for filtering
             scope="persistent",
         )
-    elif memory.manager.persistent_rag:
+    elif memory.persistent_rag:
         # Fallback to RAG-only search
-        results = memory.manager.search_memory(
+        results = memory.search_memory(
             query=query,
             limit=k * 2,
         )
