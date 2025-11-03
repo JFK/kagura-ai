@@ -468,6 +468,108 @@ async def coding_start_session(
 
 
 @tool
+async def coding_get_current_session_status(
+    user_id: str,
+    project_id: str,
+) -> str:
+    """Get current coding session status and tracked activities.
+
+    Use this tool to check what has been recorded in the current session
+    before ending it. Helps you:
+    - See what will be included in the session summary
+    - Verify important items are tracked
+    - Decide if ready to end session
+
+    Returns current session information including:
+    - Session metadata (ID, description, duration, tags)
+    - Tracked activities count (files, errors, decisions, interactions)
+    - Recent activity summary
+    - Next steps recommendation
+
+    Args:
+        user_id: User identifier
+        project_id: Project identifier
+
+    Returns:
+        Current session status summary
+
+    Raises:
+        Error if no active session
+
+    Examples:
+        # Check status before ending
+        status = await coding_get_current_session_status(
+            user_id="kiyota",
+            project_id="kagura-ai"
+        )
+        # Review the output, then decide:
+        # await coding_end_session(...)
+    """
+    memory = _get_coding_memory(user_id, project_id)
+
+    if not memory.current_session:
+        return "❌ No active coding session.\n\nStart one with: coding_start_session()"
+
+    session = memory.current_session
+
+    # Calculate duration
+    from datetime import datetime
+    start = datetime.fromisoformat(session.start_time)
+    duration = (datetime.now() - start).total_seconds() / 60
+
+    # Count activities
+    file_changes = len(session.file_changes)
+    errors = len([e for e in session.errors if not e.solution])
+    errors_fixed = len([e for e in session.errors if e.solution])
+    decisions = len(session.decisions)
+    interactions = len(session.interactions) if hasattr(session, 'interactions') else 0
+
+    # Build status report
+    result = f"📊 Current Session Status\n\n"
+    result += f"**Session ID:** {session.session_id}\n"
+    result += f"**Project:** {project_id}\n"
+    result += f"**Description:** {session.description}\n"
+    result += f"**Duration:** {duration:.1f} minutes (started {session.start_time})\n"
+    result += f"**Tags:** {', '.join(session.tags)}\n\n"
+
+    result += f"**Tracked Activities:**\n"
+    result += f"  • File changes: {file_changes}\n"
+    result += f"  • Errors encountered: {errors + errors_fixed}\n"
+    result += f"  • Errors fixed: {errors_fixed}\n"
+    result += f"  • Decisions recorded: {decisions}\n"
+    result += f"  • Interactions tracked: {interactions}\n\n"
+
+    # Recent activity
+    if session.file_changes:
+        result += f"**Recent File Changes (last 3):**\n"
+        for change in session.file_changes[-3:]:
+            result += f"  • {change.action}: {change.file_path}\n"
+        result += "\n"
+
+    if session.decisions:
+        result += f"**Recent Decisions (last 2):**\n"
+        for decision in session.decisions[-2:]:
+            result += f"  • {decision.decision[:80]}...\n"
+        result += "\n"
+
+    # Recommendations
+    result += f"**Next Steps:**\n"
+
+    if file_changes == 0:
+        result += f"  ⚠️  No file changes tracked yet. Use coding_track_file_change()\n"
+
+    if errors > 0:
+        result += f"  ⚠️  {errors} unresolved errors. Add solutions before ending.\n"
+
+    result += f"  ✅ Ready to end? Confirm with user, then: coding_end_session()\n"
+
+    if file_changes > 0 or decisions > 0:
+        result += f"  💡 Consider: save_to_github='true' to record to GitHub Issue\n"
+
+    return result
+
+
+@tool
 async def coding_end_session(
     user_id: str,
     project_id: str,
