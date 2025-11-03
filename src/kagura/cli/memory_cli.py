@@ -665,7 +665,7 @@ def index_command(
 
         # Get all persistent memories
         memories = manager.persistent.fetch_all(
-            user_id=user_id,
+            user_id=user_id or "system",
             agent_name=agent_name,
             limit=100000,
         )
@@ -709,6 +709,7 @@ def index_command(
                         manager.persistent_rag.store(
                             content=content,
                             metadata=metadata or {},
+                            user_id=user_id or "system",
                         )
                         indexed_count += 1
                     else:
