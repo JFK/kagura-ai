@@ -1898,7 +1898,6 @@ def _extract_code_chunks(
     ):
         docstring = tree.body[0].value.value
         if isinstance(docstring, str):
-            module_docstring = docstring
             chunks.append(
                 {
                     "file_path": str(file_path),
