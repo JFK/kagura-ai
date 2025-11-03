@@ -262,21 +262,69 @@ def sessions(
         # Display table
         table = Table(title=f"Coding Sessions: {project}", show_header=True)
         table.add_column("Session ID", style="cyan", no_wrap=True)
-        table.add_column("Description", style="white", width=50)
+        table.add_column("Description", style="white", width=35)
+        table.add_column("Start", style="dim", width=16)
+        table.add_column("End", style="dim", width=16)
         table.add_column("Duration", justify="right", width=10)
-        table.add_column("Status", justify="center", width=8)
+        table.add_column("Status", justify="center", width=10)
 
         for session in sessions_data:
             session_id = session["session_id"]
-            description = session.get("description", "No description")[:40]
-            duration = session.get("duration_minutes", 0)
-            duration_str = f"{duration:.1f}m" if duration else "-"
-            success_status = session.get("success")
-            status_icon = (
-                "✅" if success_status else ("⚠️" if success_status is False else "ℹ️")
-            )
+            description = session.get("description", "No description")[:32]
 
-            table.add_row(session_id, description, duration_str, status_icon)
+            # Format timestamps
+            start_time = session.get("start_time", "")
+            end_time = session.get("end_time", "")
+
+            try:
+                start_dt = datetime.fromisoformat(start_time).strftime("%m-%d %H:%M")
+            except Exception:
+                start_dt = "-"
+
+            # Check if session is active (no end_time or end_time is None)
+            is_active = not end_time or end_time == "None"
+
+            if is_active:
+                end_dt = "[yellow]Active[/yellow]"
+                # Calculate ongoing duration from start time
+                try:
+                    start = datetime.fromisoformat(start_time)
+                    ongoing_duration = (
+                        datetime.now(timezone.utc) - start.replace(tzinfo=timezone.utc)
+                    ).total_seconds() / 60
+                    duration_str = f"[yellow]{ongoing_duration:.0f}m[/yellow]"
+                except Exception:
+                    duration_str = "[yellow]ongoing[/yellow]"
+            else:
+                try:
+                    end_dt = datetime.fromisoformat(end_time).strftime("%m-%d %H:%M")
+                except Exception:
+                    end_dt = "-"
+
+                # Calculate duration from stored value or compute from times
+                duration = session.get("duration_minutes", 0)
+                if not duration and start_time and end_time:
+                    try:
+                        start = datetime.fromisoformat(start_time)
+                        end = datetime.fromisoformat(end_time)
+                        duration = (end - start).total_seconds() / 60
+                    except Exception:
+                        duration = 0
+                duration_str = f"{duration:.0f}m" if duration else "-"
+
+            success_status = session.get("success")
+            if is_active:
+                status_icon = "[yellow]🔄 Active[/yellow]"
+            else:
+                status_icon = (
+                    "✅ Done"
+                    if success_status
+                    else ("⚠️ Issue" if success_status is False else "ℹ️ Info")
+                )
+
+            table.add_row(
+                session_id, description, start_dt, end_dt, duration_str, status_icon
+            )
 
         console.print(table)
         console.print(f"\n[dim]Total: {len(sessions_data)} sessions[/dim]")
@@ -330,29 +378,104 @@ def session(session_id: str, project: str | None, user: str | None):
             console.print(f"[red]Session not found: {session_id}[/red]")
             return
 
-        # Display session details
-        console.print(f"\n[bold]Session: {session_id}[/bold]")
-        console.print(f"Project: {project}")
-        console.print(f"Description: {data.get('description', 'N/A')}")
-        console.print(f"Start: {data.get('start_time', 'N/A')}")
-        console.print(f"End: {data.get('end_time', 'N/A')}")
-        console.print(f"Duration: {data.get('duration_minutes', 0):.1f} minutes")
-        console.print(f"Success: {data.get('success', 'N/A')}")
+        # Display session details with Panel
+        from rich.panel import Panel
 
-        console.print("\n[bold]Activities:[/bold]")
-        console.print(f"  Files touched: {len(data.get('files_touched', []))}")
-        console.print(f"  Errors encountered: {data.get('errors_encountered', 0)}")
-        console.print(f"  Errors fixed: {data.get('errors_fixed', 0)}")
-        console.print(f"  Decisions made: {data.get('decisions_made', 0)}")
+        # Header
+        success_status = data.get("success")
+        status_icon = (
+            "✅" if success_status else ("⚠️" if success_status is False else "ℹ️")
+        )
 
+        console.print(f"\n[bold cyan]Session: {session_id}[/bold cyan] {status_icon}")
+        console.print(f"[dim]Project: {project}[/dim]")
+        console.print()
+
+        # Overview panel
+        end_time = data.get("end_time")
+        is_active = not end_time or end_time == "None"
+
+        if is_active:
+            # Calculate ongoing duration
+            try:
+                from datetime import datetime, timezone
+
+                start = datetime.fromisoformat(data.get("start_time", ""))
+                if start.tzinfo is None:
+                    start = start.replace(tzinfo=timezone.utc)
+                now = datetime.now(timezone.utc)
+                duration = (now - start).total_seconds() / 60
+                duration_str = f"[yellow]{duration:.1f} minutes (ongoing)[/yellow]"
+                end_str = "[yellow]In progress[/yellow]"
+            except Exception:
+                duration_str = "[yellow]In progress[/yellow]"
+                end_str = "[yellow]In progress[/yellow]"
+        else:
+            duration = data.get("duration_minutes", 0)
+            if not duration and data.get("start_time") and end_time:
+                # Calculate from timestamps
+                try:
+                    from datetime import datetime
+
+                    start = datetime.fromisoformat(data.get("start_time"))
+                    end = datetime.fromisoformat(end_time)
+                    duration = (end - start).total_seconds() / 60
+                except Exception:
+                    duration = 0
+            duration_str = f"{duration:.1f} minutes" if duration else "Unknown"
+            end_str = end_time
+
+        overview = (
+            f"[bold]Description:[/bold] {data.get('description', 'N/A')}\n"
+            f"[bold]Start:[/bold] {data.get('start_time', 'N/A')}\n"
+            f"[bold]End:[/bold] {end_str}\n"
+            f"[bold]Duration:[/bold] {duration_str}\n"
+            f"[bold]Success:[/bold] {success_status if not is_active else '[yellow]In progress[/yellow]'}"
+        )
+
+        console.print(Panel(overview, title="Overview", border_style="blue"))
+        console.print()
+
+        # Activities panel
+        files_touched = data.get("files_touched", [])
+        activities = (
+            f"[bold]Files touched:[/bold] {len(files_touched)}\n"
+            f"[bold]Errors encountered:[/bold] {data.get('errors_encountered', 0)}\n"
+            f"[bold]Errors fixed:[/bold] {data.get('errors_fixed', 0)}\n"
+            f"[bold]Decisions made:[/bold] {data.get('decisions_made', 0)}"
+        )
+
+        console.print(Panel(activities, title="Statistics", border_style="green"))
+        console.print()
+
+        # Files touched (detailed)
+        if files_touched:
+            console.print("[bold cyan]Files Modified:[/bold cyan]")
+            for i, file in enumerate(files_touched[:10], 1):
+                console.print(f"  {i}. {file}")
+            if len(files_touched) > 10:
+                console.print(f"  [dim]... and {len(files_touched) - 10} more[/dim]")
+            console.print()
+
+        # Tags
         if data.get("tags"):
-            console.print(f"\n[bold]Tags:[/bold] {', '.join(data['tags'])}")
+            console.print(f"[bold cyan]Tags:[/bold cyan] {', '.join(data['tags'])}")
+            console.print()
 
+        # Summary
         if data.get("summary"):
-            console.print("\n[bold]Summary:[/bold]")
-            console.print(data["summary"][:500])
-            if len(data["summary"]) > 500:
-                console.print("[dim]... (truncated)[/dim]")
+            console.print(
+                Panel(
+                    data["summary"], title="AI-Generated Summary", border_style="yellow"
+                )
+            )
+            console.print()
+
+        # Additional details link
+        console.print("[dim]For file changes, errors, and decisions, use:[/dim]")
+        console.print(f"[dim]  • kagura coding errors --project {project}[/dim]")
+        console.print(f"[dim]  • kagura coding decisions --project {project}[/dim]")
+        console.print()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

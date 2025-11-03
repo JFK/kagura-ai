@@ -132,7 +132,8 @@ class CodingMemoryManager(MemoryManager):
         )
 
         self.project_id = project_id
-        self.current_session_id: str | None = None
+        # Auto-detect active session from working memory (v4.0.9 cache fix)
+        self.current_session_id: str | None = self._detect_active_session()
 
         # Initialize LLM analyzers
         # Note: CodingAnalyzer and VisionAnalyzer now accept None and use env defaults
@@ -196,6 +197,133 @@ class CodingMemoryManager(MemoryManager):
             f"interaction_tracking={enable_interaction_tracking}, "
             f"github_recording={enable_github_recording}, "
             f"abstraction={enable_memory_abstraction}"
+        )
+
+    def _detect_active_session(self) -> str | None:
+        """Auto-detect active session from persistent storage.
+
+        Scans persistent storage for sessions with no end_time (active sessions).
+        Returns the first active session found, or None.
+
+        Returns:
+            Active session ID or None
+        """
+        import json
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        try:
+            # Search persistent storage for sessions
+            key_pattern = f"project:{self.project_id}:session:%"
+            sessions = self.persistent.search(
+                query=key_pattern, user_id=self.user_id, limit=100
+            )
+
+            # Find active session (no end_time)
+            for sess in sessions:
+                value_str = sess.get("value", "{}")
+                try:
+                    data = (
+                        json.loads(value_str)
+                        if isinstance(value_str, str)
+                        else value_str
+                    )
+                    if data.get("end_time") is None:
+                        session_id = sess["key"].split(":")[-1]
+                        logger.info(f"Auto-detected active session: {session_id}")
+
+                        # Load session into working memory for fast access
+                        self.working.set(f"session:{session_id}", data)
+
+                        # Ensure graph node exists for this session
+                        if self.graph:
+                            # Check if node exists first
+                            if not self.graph.graph.has_node(session_id):
+                                self.graph.add_node(
+                                    node_id=session_id,
+                                    node_type="memory",
+                                    data={
+                                        "description": data.get("description", ""),
+                                        "project_id": self.project_id,
+                                        "active": True,
+                                    },
+                                )
+
+                        return session_id
+                except json.JSONDecodeError:
+                    continue
+
+        except Exception as e:
+            logger.warning(f"Failed to auto-detect active session: {e}")
+
+        return None
+
+    async def _auto_save_session_progress(self) -> None:
+        """Auto-save current session progress to Claude Code history.
+
+        Called after each file change to preserve work-in-progress.
+        Creates timestamped snapshot for crash recovery.
+
+        Note: Only saves if session has meaningful activity.
+        """
+        if not self.current_session_id:
+            return
+
+        # Get current session data
+        session_data = self.working.get(f"session:{self.current_session_id}")
+        if not session_data:
+            return
+
+        # Get current activities
+        file_changes = await self._get_session_file_changes(self.current_session_id)
+        decisions = await self._get_session_decisions(self.current_session_id)
+        errors = await self._get_session_errors(self.current_session_id)
+
+        # Skip if no meaningful activity
+        if not file_changes and not decisions and not errors:
+            return
+
+        # Create progress snapshot
+        from datetime import datetime
+
+        snapshot_key = (
+            f"claude_code_progress_{self.current_session_id}_"
+            f"{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
+
+        snapshot_doc = f"""
+Claude Code Progress Snapshot
+Session: {self.current_session_id}
+Project: {self.project_id}
+Saved: {datetime.now().isoformat()}
+
+Description: {session_data.get("description", "N/A")}
+Progress:
+- Files modified: {len(file_changes)}
+- Decisions made: {len(decisions)}
+- Errors encountered: {len(errors)}
+
+Recent file changes:
+{chr(10).join(f"- {fc.file_path}: {fc.action}" for fc in file_changes[-5:])}
+"""
+
+        metadata = {
+            "type": "claude_code_progress",
+            "session_id": self.current_session_id,
+            "project_id": self.project_id,
+            "file_count": len(file_changes),
+            "decision_count": len(decisions),
+            "error_count": len(errors),
+            "timestamp": datetime.now().isoformat(),
+        }
+
+        # Store snapshot in persistent memory
+        self.persistent.store(
+            key=snapshot_key,
+            value=snapshot_doc,
+            user_id=self.user_id,
+            metadata=metadata,
         )
 
     def _make_key(self, key: str) -> str:
@@ -358,6 +486,11 @@ class CodingMemoryManager(MemoryManager):
                     )
 
         logger.info(f"Tracked file change: {change_id} ({file_path})")
+
+        # Auto-save session progress after each file change (v4.0.9)
+        if self.current_session_id:
+            await self._auto_save_session_progress()
+
         return change_id
 
     async def record_error(
@@ -691,6 +824,82 @@ class CodingMemoryManager(MemoryManager):
 
             self.current_session_id = session_id
             logger.info(f"Started coding session: {session_id}")
+            return session_id
+
+    async def resume_coding_session(self, session_id: str) -> str:
+        """Resume a previously ended coding session.
+
+        Loads the previous session state and sets it as the current active session.
+        New activities will be appended to the existing session.
+
+        Args:
+            session_id: ID of the session to resume
+
+        Returns:
+            Session ID with confirmation message
+
+        Raises:
+            RuntimeError: If a session is already active
+            ValueError: If session_id doesn't exist or is still active
+
+        Example:
+            >>> await coding_mem.resume_coding_session("session_abc123")
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        async with self._session_lock:
+            if self.current_session_id:
+                raise RuntimeError(
+                    f"Session already active: {self.current_session_id}. "
+                    "End current session before resuming another."
+                )
+
+            # Load session from persistent storage
+            key = self._make_key(f"session:{session_id}")
+            session_data = self.persistent.recall(key=key, user_id=self.user_id)
+
+            if not session_data:
+                raise ValueError(
+                    f"Session not found: {session_id}. "
+                    "Check session ID with: kagura coding sessions"
+                )
+
+            # Parse session data
+            session = CodingSession.model_validate(session_data)
+
+            # Check if session is already ended
+            if session.end_time is None:
+                raise ValueError(
+                    f"Session {session_id} is still active. "
+                    "Cannot resume an active session."
+                )
+
+            # Resume session by clearing end_time
+            session.end_time = None
+            session.success = None
+
+            # Store resumed session in working memory
+            self.working.set(f"session:{session_id}", session.model_dump(mode="json"))
+
+            # Update persistent storage
+            self.persistent.store(
+                key=key,
+                value=session.model_dump(mode="json"),
+                user_id=self.user_id,
+                metadata={"resumed": True, "resumed_at": datetime.utcnow().isoformat()},
+            )
+
+            # Update graph (mark as active again)
+            if self.graph and self.graph.graph.has_node(session_id):
+                # Update node data directly
+                self.graph.graph.nodes[session_id]["active"] = True
+                self.graph.graph.nodes[session_id]["resumed"] = True
+
+            self.current_session_id = session_id
+            logger.info(f"Resumed coding session: {session_id}")
+
             return session_id
 
     async def end_coding_session(
@@ -1094,6 +1303,65 @@ class CodingMemoryManager(MemoryManager):
 
     # Helper methods
 
+    async def _get_session_records(
+        self,
+        session_id: str,
+        record_type: str,
+        record_class: type,
+    ) -> list:
+        """Generic method to get session records by type.
+
+        Extracted common pattern from _get_session_file_changes/errors/decisions.
+
+        Args:
+            session_id: Session ID
+            record_type: Type prefix (e.g., "file_change", "error", "decision")
+            record_class: Record class for validation
+
+        Returns:
+            List of records associated with session
+        """
+        import json
+
+        records = []
+
+        # Query persistent storage by session_id (primary method)
+        pattern = f"project:{self.project_id}:{record_type}:%"
+        all_records = self.persistent.search(
+            query=pattern, user_id=self.user_id, limit=1000
+        )
+
+        for record_data in all_records:
+            try:
+                value_str = record_data.get("value", "{}")
+                data = (
+                    json.loads(value_str) if isinstance(value_str, str) else value_str
+                )
+                if data.get("session_id") == session_id:
+                    records.append(record_class(**data))
+            except (json.JSONDecodeError, TypeError, ValueError):
+                continue
+
+        # Fallback: Use graph if available and no records found
+        if not records and self.graph and self.graph.graph.has_node(session_id):
+            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
+                session_id, data=True
+            ):
+                # Map record_type to node ID prefix
+                prefix_map = {
+                    "file_change": "change_",
+                    "error": "error_",
+                    "decision": "decision_",
+                }
+                prefix = prefix_map.get(record_type, f"{record_type}_")
+                if dst_id.startswith(prefix):
+                    key = self._make_key(f"{record_type}:{dst_id}")
+                    data = self.persistent.recall(key=key, user_id=self.user_id)
+                    if data:
+                        records.append(record_class(**data))
+
+        return records
+
     async def _get_session_file_changes(
         self, session_id: str
     ) -> list[FileChangeRecord]:
@@ -1105,25 +1373,11 @@ class CodingMemoryManager(MemoryManager):
         Returns:
             List of file changes associated with session
         """
-        file_changes = []
-
-        # Method 1: Use graph if available
-        if self.graph and self.graph.graph.has_node(session_id):
-            # Get all nodes linked from session
-            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
-                session_id, data=True
-            ):
-                # Check if it's a file change
-                if dst_id.startswith("change_"):
-                    key = self._make_key(f"file_change:{dst_id}")
-                    data = self.persistent.recall(key=key, user_id=self.user_id)
-                    if data:
-                        file_changes.append(FileChangeRecord(**data))
-
-        # Method 2: Fallback - query persistent storage by prefix
-        # (not implemented - would require scanning all keys)
-
-        return file_changes
+        return await self._get_session_records(
+            session_id=session_id,
+            record_type="file_change",
+            record_class=FileChangeRecord,
+        )
 
     async def _get_session_errors(self, session_id: str) -> list[ErrorRecord]:
         """Get errors for session.
@@ -1134,21 +1388,9 @@ class CodingMemoryManager(MemoryManager):
         Returns:
             List of errors associated with session
         """
-        errors = []
-
-        # Use graph if available
-        if self.graph and self.graph.graph.has_node(session_id):
-            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
-                session_id, data=True
-            ):
-                # Check if it's an error
-                if dst_id.startswith("error_"):
-                    key = self._make_key(f"error:{dst_id}")
-                    data = self.persistent.recall(key=key, user_id=self.user_id)
-                    if data:
-                        errors.append(ErrorRecord(**data))
-
-        return errors
+        return await self._get_session_records(
+            session_id=session_id, record_type="error", record_class=ErrorRecord
+        )
 
     async def _get_session_decisions(self, session_id: str) -> list[DesignDecision]:
         """Get decisions for session.
@@ -1159,21 +1401,9 @@ class CodingMemoryManager(MemoryManager):
         Returns:
             List of decisions associated with session
         """
-        decisions = []
-
-        # Use graph if available
-        if self.graph and self.graph.graph.has_node(session_id):
-            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
-                session_id, data=True
-            ):
-                # Check if it's a decision
-                if dst_id.startswith("decision_"):
-                    key = self._make_key(f"decision:{dst_id}")
-                    data = self.persistent.recall(key=key, user_id=self.user_id)
-                    if data:
-                        decisions.append(DesignDecision(**data))
-
-        return decisions
+        return await self._get_session_records(
+            session_id=session_id, record_type="decision", record_class=DesignDecision
+        )
 
     async def _get_recent_file_changes(self, limit: int = 30) -> list[FileChangeRecord]:
         """Get recent file changes.

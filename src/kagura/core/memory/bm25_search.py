@@ -200,9 +200,7 @@ class BM25Search:
 
             # BM25 formula
             numerator = tf * (self.k1 + 1)
-            denominator = tf + self.k1 * (
-                1 - self.b + self.b * (doc_len / self.avgdl)
-            )
+            denominator = tf + self.k1 * (1 - self.b + self.b * (doc_len / self.avgdl))
 
             score += idf * (numerator / denominator)
 

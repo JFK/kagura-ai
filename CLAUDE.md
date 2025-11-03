@@ -1,8 +1,92 @@
-# Claude Code Instructions - Kagura AI v4.0
+# Claude Code Instructions - Kagura AI v4.0.9
 
-AI開発者向けの開発ガイド。v4.0: Universal AI Memory Platform
+AI開発者向けの開発ガイド。v4.0.9: CLI Inspection, Source Code RAG, Claude Code Integration
 
-**Phase C Complete** (Oct 2025) - Remote MCP Server + Export/Import ✅
+**v4.0.9 Complete** (Nov 2025) - Session Auto-save, Code RAG, MCP Monitor ✅
+
+---
+
+## 🤖 For AI Assistants (Claude Code, Cursor, etc.)
+
+### Kagura Coding Session Auto-Management Protocol
+
+**IMPORTANT**: すべての開発作業でKagura Coding Sessionを使用してください。
+
+#### 🚀 Auto-start Criteria (自動でセッション開始)
+
+以下の場合、**必ず**セッションを開始:
+- ユーザーが機能実装を依頼
+- バグ修正を依頼
+- コード変更を伴うタスク
+- Issue番号が含まれる依頼
+
+**開始方法:**
+\`\`\`python
+coding_start_session(
+    user_id="kiyota",
+    project_id="kagura-ai",
+    description="[User's task description]",
+    tags='["feature", "bug-fix", etc.]'
+)
+\`\`\`
+
+#### 📝 Auto-track Criteria (自動で記録)
+
+作業中、以下を**必ず**記録:
+- ファイル編集/作成 → `coding_track_file_change()`
+- エラー修正 → `coding_record_error()`
+- 設計決定 → `coding_record_decision()`
+
+**注意**: v4.0.9以降、これらはactive session必須です。
+
+#### ✅ Auto-checkpoint (自動保存)
+
+- ファイル変更ごとに自動保存される（v4.0.9）
+- 手動チェックポイント: `coding_get_current_session_status()`
+
+#### 🏁 Auto-end Criteria (自動で終了)
+
+以下の場合、セッションを終了:
+- タスク完了
+- ユーザーが満足
+- 次の変更予定なし
+
+**終了方法:**
+\`\`\`python
+# ユーザーに確認してから:
+coding_end_session(
+    user_id="kiyota",
+    project_id="kagura-ai",
+    success='true',
+    save_to_github='true'  # GitHub Issueに記録
+)
+\`\`\`
+
+#### 💡 Example Auto-flow
+
+\`\`\`
+User: "Issue #510のバグを修正して"
+
+Claude (自動実行):
+1. 🤖 coding_start_session(description="Fix Issue #510 bug", tags=["bug-fix", "issue-510"])
+2. [コード調査・修正]
+3. 🤖 coding_track_file_change(file="src/memory.py", action="edit", reason="Fix #510")
+4. 🤖 coding_record_error(error_type="AttributeError", solution="Added None check")
+5. [テスト確認]
+6. User: "動いた！"
+7. 🤖 "セッションを終了しますか？" (確認)
+8. User: "はい"
+9. 🤖 coding_end_session(success='true', save_to_github='true')
+
+Result: Issue #510に包括的なサマリーが自動投稿される
+\`\`\`
+
+#### ⚠️ Important Notes
+
+- **Session必須**: track/record toolsはactive session必須（v4.0.9+）
+- **確認必須**: end_session前にユーザー確認を取る
+- **Auto-save**: ファイル変更ごとに進捗が自動保存される
+- **検索可能**: 過去のセッションは`claude_code_search_past_work()`で検索可能
 
 ---
 

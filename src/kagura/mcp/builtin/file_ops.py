@@ -167,7 +167,7 @@ async def shell_exec(
 
     if return_code:
         # Return executable Python code
-        return f'''import subprocess
+        return f"""import subprocess
 result = subprocess.run(
     {repr(command)},
     shell=True,
@@ -176,7 +176,7 @@ result = subprocess.run(
     text=True
 )
 print(result.stdout if result.returncode == 0 else result.stderr)
-'''
+"""
 
     # Return explanation with safety analysis
     explanation = f"""# Command: {command}

@@ -240,9 +240,7 @@ class CodingAnalyzer:
             summary_parts.append(f"Modified files: {files_str}")
 
         if decision_topics:
-            summary_parts.append(
-                f"Key decisions: {', '.join(decision_topics)}"
-            )
+            summary_parts.append(f"Key decisions: {', '.join(decision_topics)}")
 
         if focus:
             summary_parts.append(f"Focus area: {focus}")
@@ -675,8 +673,7 @@ Focus Area: {focus or "general overview"}"""
         except (ValueError, Exception) as e:
             # Fallback to template-based summary if LLM fails
             logger.warning(
-                f"LLM failed to generate project context: {e}, "
-                "using template fallback"
+                f"LLM failed to generate project context: {e}, using template fallback"
             )
 
             # Generate template-based summary

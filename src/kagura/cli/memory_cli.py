@@ -490,9 +490,7 @@ def setup_command(model: str | None, provider: str | None) -> None:
             client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
             with console.status("[bold green]Testing OpenAI API..."):
-                response = client.embeddings.create(
-                    input=["test"], model=model
-                )
+                response = client.embeddings.create(input=["test"], model=model)
 
             console.print("[green]✓ OpenAI API configured successfully![/green]")
             console.print()
@@ -537,3 +535,686 @@ def setup_command(model: str | None, provider: str | None) -> None:
         except Exception as e:
             console.print(f"\n[red]✗ Setup failed: {e}[/red]")
             raise click.Abort()
+
+
+@memory_group.command(name="list")
+@click.option(
+    "--user-id",
+    default=None,
+    help="Filter by user ID (default: all users)",
+)
+@click.option(
+    "--agent-name",
+    default=None,
+    help="Filter by agent name (default: all agents)",
+)
+@click.option(
+    "--scope",
+    type=click.Choice(["working", "persistent", "all"]),
+    default="all",
+    help="Memory scope to list",
+)
+@click.option(
+    "--limit",
+    default=20,
+    type=int,
+    help="Maximum number of memories to show (default: 20)",
+)
+def list_command(
+    user_id: str | None,
+    agent_name: str | None,
+    scope: str,
+    limit: int,
+) -> None:
+    """List stored memories.
+
+    Shows keys, values (truncated), and metadata for stored memories.
+
+    Examples:
+        # List all memories
+        kagura memory list
+
+        # List for specific user
+        kagura memory list --user-id kiyota
+
+        # List persistent memories only
+        kagura memory list --scope persistent --limit 50
+    """
+    from rich.table import Table
+
+    from kagura.core.memory import MemoryManager
+
+    console.print("\n[cyan]Memory List[/cyan]")
+    console.print()
+
+    try:
+        manager = MemoryManager(
+            user_id=user_id or "system",
+            agent_name=agent_name or "global",
+        )
+
+        # Get memories based on scope
+        memories = []
+
+        if scope in ["working", "all"]:
+            # Working memory
+            for key, value in manager.working._data.items():
+                memories.append(
+                    {
+                        "scope": "working",
+                        "key": key,
+                        "value": str(value)[:100],
+                        "user": user_id or "system",
+                    }
+                )
+
+        if scope in ["persistent", "all"]:
+            # Persistent memory
+            persistent_memories = manager.persistent.search(
+                query="%",
+                user_id=user_id or "system",
+                agent_name=agent_name,
+                limit=limit,
+            )
+
+            for mem in persistent_memories:
+                memories.append(
+                    {
+                        "scope": "persistent",
+                        "key": mem.get("key", ""),
+                        "value": str(mem.get("value", ""))[:100],
+                        "user": mem.get("user_id", ""),
+                    }
+                )
+
+        if not memories:
+            console.print("[yellow]No memories found[/yellow]")
+            return
+
+        # Show only first `limit` memories
+        memories = memories[:limit]
+
+        # Display table
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("Scope", style="cyan")
+        table.add_column("Key", style="white")
+        table.add_column("Value (truncated)", style="dim")
+        table.add_column("User", style="green")
+
+        for mem in memories:
+            table.add_row(
+                mem["scope"],
+                mem["key"],
+                mem["value"],
+                mem["user"],
+            )
+
+        console.print(table)
+        console.print(
+            f"\n[dim]Showing {len(memories)} of {len(memories)} memories[/dim]"
+        )
+        console.print()
+
+    except Exception as e:
+        console.print(f"\n[red]✗ Failed to list memories: {e}[/red]")
+        raise click.Abort()
+
+
+@memory_group.command(name="search")
+@click.argument("query")
+@click.option(
+    "--user-id",
+    default=None,
+    help="Filter by user ID (default: system)",
+)
+@click.option(
+    "--agent-name",
+    default=None,
+    help="Filter by agent name",
+)
+@click.option(
+    "--top-k",
+    default=10,
+    type=int,
+    help="Number of results to return (default: 10)",
+)
+def search_command(
+    query: str,
+    user_id: str | None,
+    agent_name: str | None,
+    top_k: int,
+) -> None:
+    """Search memories semantically.
+
+    Uses RAG (semantic search) to find relevant memories.
+
+    Examples:
+        # Search all memories
+        kagura memory search "authentication decision"
+
+        # Search for specific user
+        kagura memory search "bug fix" --user-id kiyota --top-k 5
+    """
+    from rich.table import Table
+
+    from kagura.core.memory import MemoryManager
+
+    console.print(f'\n[cyan]Searching for: "{query}"[/cyan]')
+    console.print()
+
+    try:
+        manager = MemoryManager(
+            user_id=user_id or "system",
+            agent_name=agent_name or "global",
+            enable_rag=True,
+        )
+
+        # Perform semantic search (use hybrid if available)
+        if manager.persistent_rag and manager.lexical_searcher:
+            # Use hybrid search (BM25 + RAG + reranking)
+            results = manager.recall_hybrid(
+                query=query,
+                top_k=top_k,
+                scope="persistent",
+            )
+        elif manager.persistent_rag:
+            # Fallback to RAG-only search
+            results = manager.search_memory(
+                query=query,
+                limit=top_k,
+            )
+        else:
+            console.print("[red]✗ RAG not available[/red]")
+            console.print(
+                "[dim]Install: pip install chromadb sentence-transformers[/dim]"
+            )
+            return
+
+        if not results:
+            console.print("[yellow]No results found[/yellow]")
+            return
+
+        # Display results
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("#", style="cyan", width=3)
+        table.add_column("Content", style="white")
+        table.add_column("Score", style="green", width=8)
+
+        # Handle different result formats
+        for i, result in enumerate(results, 1):
+            if isinstance(result, dict):
+                content = result.get("value", result.get("content", ""))[:200]
+                score = result.get("score", result.get("similarity", 0.0))
+            else:
+                content = str(result)[:200]
+                score = 0.0
+
+            table.add_row(
+                str(i),
+                content,
+                f"{score:.3f}",
+            )
+
+        console.print(table)
+        console.print(f"\n[dim]Found {len(results)} results[/dim]")
+        search_type = "Hybrid (BM25 + RAG)" if manager.lexical_searcher else "RAG only"
+        console.print(f"[dim]Search type: {search_type}[/dim]")
+        console.print()
+
+    except Exception as e:
+        console.print(f"\n[red]✗ Search failed: {e}[/red]")
+        raise click.Abort()
+
+
+@memory_group.command(name="stats")
+@click.option(
+    "--user-id",
+    default=None,
+    help="Filter by user ID (default: all users)",
+)
+@click.option(
+    "--breakdown-by",
+    default="scope",
+    type=click.Choice(["scope", "user", "agent", "all"]),
+    help="How to break down statistics (default: scope)",
+)
+def stats_command(
+    user_id: str | None,
+    breakdown_by: str,
+) -> None:
+    """Show memory statistics.
+
+    Displays counts and sizes for different memory types.
+
+    Examples:
+        # System-wide stats
+        kagura memory stats
+
+        # Stats by user
+        kagura memory stats --breakdown-by user
+
+        # Stats for specific user
+        kagura memory stats --user-id kiyota --breakdown-by scope
+    """
+    from rich.table import Table
+
+    from kagura.config.paths import get_data_dir
+    from kagura.core.memory import MemoryManager
+
+    console.print("\n[cyan]Memory Statistics[/cyan]")
+    console.print()
+
+    try:
+        manager = MemoryManager(
+            user_id=user_id or "system",
+            agent_name="stats",
+            enable_rag=True,
+        )
+
+        # Get database size
+        db_path = get_data_dir() / "memory.db"
+        db_size_mb = 0.0
+        if db_path.exists():
+            db_size_mb = db_path.stat().st_size / (1024**2)
+
+        # Count memories
+        working_count = len(manager.working._data)
+
+        if user_id:
+            persistent_count = manager.persistent.count(user_id=user_id)
+        else:
+            persistent_count = manager.persistent.count()
+
+        rag_count = 0
+        if manager.persistent_rag:
+            try:
+                rag_count = manager.persistent_rag.collection.count()
+            except Exception:  # Ignore errors - operation is non-critical
+                pass
+
+        # Display table
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("Segment", style="cyan")
+        table.add_column("Count", style="white", justify="right")
+        table.add_column("Details", style="dim")
+
+        table.add_row("Working", str(working_count), "Temporary session data")
+        table.add_row(
+            "Persistent", str(persistent_count), f"SQLite DB ({db_size_mb:.2f} MB)"
+        )
+        table.add_row("RAG Index", str(rag_count), "Vector embeddings")
+
+        console.print(table)
+        console.print()
+
+        # Show recommendations
+        if persistent_count > 0 and rag_count == 0:
+            console.print(
+                "[yellow]⚠ Tip: Run 'kagura memory index' to enable semantic search[/yellow]"
+            )
+            console.print()
+
+    except Exception as e:
+        console.print(f"\n[red]✗ Failed to get stats: {e}[/red]")
+        raise click.Abort()
+
+
+@memory_group.command(name="segments")
+@click.option(
+    "--user-id",
+    default=None,
+    help="Filter by user ID (default: all users)",
+)
+def segments_command(user_id: str | None) -> None:
+    """Show memory segmentation breakdown.
+
+    Displays detailed breakdown of memory types, sizes, and RAG indexing status.
+
+    Examples:
+        # System-wide segmentation
+        kagura memory segments
+
+        # For specific user
+        kagura memory segments --user-id kiyota
+    """
+    from rich.table import Table
+
+    from kagura.config.paths import get_data_dir
+    from kagura.core.memory import MemoryManager
+
+    console.print("\n[cyan]Memory Segmentation[/cyan]")
+    console.print()
+
+    try:
+        manager = MemoryManager(
+            user_id=user_id or "system",
+            agent_name="segments",
+            enable_rag=True,
+        )
+
+        # Get sizes
+        db_path = get_data_dir() / "memory.db"
+        db_size_mb = 0.0
+        if db_path.exists():
+            db_size_mb = db_path.stat().st_size / (1024**2)
+
+        # Counts
+        working_count = len(manager.working._data)
+
+        if user_id:
+            persistent_count = manager.persistent.count(user_id=user_id)
+        else:
+            persistent_count = manager.persistent.count()
+
+        rag_count = 0
+        rag_enabled = False
+        if manager.persistent_rag:
+            try:
+                rag_count = manager.persistent_rag.collection.count()
+                rag_enabled = True
+            except Exception:  # Ignore errors - operation is non-critical
+                pass
+
+        # Display detailed table
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("Segment", style="cyan")
+        table.add_column("Count", style="white", justify="right")
+        table.add_column("Size", style="white", justify="right")
+        table.add_column("RAG Index", style="green")
+
+        table.add_row("Working", str(working_count), "-", "-")
+        table.add_row(
+            "Persistent",
+            str(persistent_count),
+            f"{db_size_mb:.2f} MB",
+            f"✅ {rag_count}" if rag_enabled else "❌ 0",
+        )
+
+        console.print(table)
+        console.print()
+
+        # Summary
+        if persistent_count > 0 and rag_count == 0:
+            console.print(
+                "[yellow]⚠ RAG index is empty. Run 'kagura memory index' to enable semantic search[/yellow]"
+            )
+            console.print()
+
+    except Exception as e:
+        console.print(f"\n[red]✗ Failed to get segmentation: {e}[/red]")
+        raise click.Abort()
+
+
+# Commands from PR #505 (#504) - Index and Doctor
+@memory_group.command(name="index")
+@click.option(
+    "--user-id",
+    default=None,
+    help="Index specific user only (default: all users)",
+)
+@click.option(
+    "--agent-name",
+    default=None,
+    help="Index specific agent only (default: all agents)",
+)
+@click.option(
+    "--rebuild",
+    is_flag=True,
+    help="Rebuild index from scratch (clear existing vectors)",
+)
+def index_command(
+    user_id: str | None,
+    agent_name: str | None,
+    rebuild: bool,
+) -> None:
+    """Build RAG vector index from existing memories.
+
+    Reads memories from persistent storage and creates vector embeddings
+    for semantic search. Run this after:
+    - Installing RAG dependencies
+    - Importing memories from backup
+    - Adding many new memories manually
+
+    Examples:
+        # Index all memories
+        kagura memory index
+
+        # Index specific user
+        kagura memory index --user-id kiyota
+
+        # Rebuild index from scratch
+        kagura memory index --rebuild
+
+    Notes:
+        - Requires chromadb and sentence-transformers
+        - May take several minutes for large databases
+        - Existing vectors will be skipped unless --rebuild is used
+    """
+    from rich.progress import Progress, SpinnerColumn, TextColumn
+
+    from kagura.core.memory import MemoryManager
+
+    console.print("\n[cyan]Memory Index Builder[/cyan]")
+    console.print()
+
+    # Check dependencies
+    try:
+        import chromadb  # type: ignore # noqa: F401
+        import sentence_transformers  # type: ignore # noqa: F401
+    except ImportError as e:
+        console.print(f"[red]✗ Missing dependency: {e}[/red]")
+        console.print("\nInstall with: pip install chromadb sentence-transformers")
+        raise click.Abort()
+
+    if rebuild:
+        console.print(
+            "[yellow]⚠️  Rebuilding index (existing vectors will be cleared)[/yellow]"
+        )
+        console.print()
+
+    try:
+        # Create MemoryManager
+        manager = MemoryManager(
+            user_id=user_id or "system",
+            agent_name=agent_name or "indexer",
+            enable_rag=True,
+        )
+
+        # Get all persistent memories
+        memories = manager.persistent.fetch_all(
+            user_id=user_id or "system",
+            agent_name=agent_name,
+            limit=100000,
+        )
+
+        if not memories:
+            console.print("[yellow]No memories found to index[/yellow]")
+            return
+
+        console.print(f"Found {len(memories)} memories to index")
+        console.print()
+
+        if rebuild and manager.persistent_rag:
+            console.print("Clearing existing index...")
+            # Clear existing collection
+            try:
+                manager.persistent_rag.collection.delete()
+            except Exception:  # Ignore errors - operation is non-critical
+                pass
+
+        # Index memories with progress bar
+        indexed_count = 0
+        skipped_count = 0
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task(
+                f"Indexing {len(memories)} memories...",
+                total=len(memories),
+            )
+
+            for mem in memories:
+                try:
+                    content = f"{mem['key']}: {mem['value']}"
+                    metadata = mem.get("metadata", {})
+
+                    # Store in persistent RAG (not working memory)
+                    if manager.persistent_rag:
+                        manager.persistent_rag.store(
+                            content=content,
+                            metadata=metadata or {},
+                            user_id=user_id or "system",
+                        )
+                        indexed_count += 1
+                    else:
+                        skipped_count += 1
+
+                except Exception:  # Skip duplicates or malformed data
+                    # Store operation can fail for duplicate IDs or invalid content
+                    skipped_count += 1
+
+                progress.update(task, advance=1)
+
+        console.print()
+        console.print("[green]✓ Indexing complete![/green]")
+        console.print()
+        console.print(f"  Indexed: {indexed_count}")
+        if skipped_count > 0:
+            console.print(f"  Skipped: {skipped_count} (duplicates or errors)")
+        console.print()
+
+    except Exception as e:
+        console.print(f"\n[red]✗ Indexing failed: {e}[/red]")
+        raise click.Abort()
+
+
+@memory_group.command(name="doctor")
+@click.option(
+    "--user-id",
+    default=None,
+    help="Check specific user (default: system-wide)",
+)
+def doctor_command(user_id: str | None) -> None:
+    """Run memory system health check.
+
+    Checks:
+    - Database status and size
+    - RAG availability and vector count
+    - Reranking model status
+    - Memory counts by scope
+
+    Examples:
+        # System-wide check
+        kagura memory doctor
+
+        # Check specific user
+        kagura memory doctor --user-id kiyota
+    """
+    from rich.panel import Panel
+
+    from kagura.config.paths import get_data_dir
+    from kagura.core.memory import MemoryManager
+
+    console.print("\n")
+    console.print(
+        Panel(
+            "[bold]Memory System Health Check[/]\n"
+            "Checking database, RAG, and reranking status...",
+            style="blue",
+        )
+    )
+    console.print()
+
+    # Database check
+    console.print("[bold cyan]1. Database Status[/]")
+    db_path = get_data_dir() / "memory.db"
+
+    if db_path.exists():
+        size_mb = db_path.stat().st_size / (1024**2)
+        console.print(f"   [green]✓[/] Database exists: {db_path}")
+        console.print(f"   [green]✓[/] Size: {size_mb:.2f} MB")
+    else:
+        console.print(f"   [yellow]⊘[/] Database not initialized: {db_path}")
+
+    console.print()
+
+    # Memory counts
+    console.print("[bold cyan]2. Memory Counts[/]")
+
+    try:
+        manager = MemoryManager(
+            user_id=user_id or "system",
+            agent_name="doctor",
+            enable_rag=True,
+        )
+
+        # Count persistent memories
+        if user_id:
+            persistent_count = manager.persistent.count(user_id=user_id)
+        else:
+            persistent_count = manager.persistent.count()
+
+        console.print(f"   [green]✓[/] Persistent memories: {persistent_count}")
+
+        # Count working memories
+        working_count = len(manager.working._data)
+        console.print(f"   [green]✓[/] Working memories: {working_count}")
+
+    except Exception as e:
+        console.print(f"   [red]✗[/] Error: {e}")
+
+    console.print()
+
+    # RAG status
+    console.print("[bold cyan]3. RAG Status[/]")
+
+    try:
+        if manager.persistent_rag:
+            rag_count = manager.persistent_rag.collection.count()
+            console.print("   [green]✓[/] RAG enabled")
+            console.print(f"   [green]✓[/] Vectors indexed: {rag_count}")
+
+            if rag_count == 0 and persistent_count > 0:
+                console.print(
+                    f"   [yellow]⚠[/] Index empty but {persistent_count} memories exist"
+                )
+                console.print("   [dim]Run 'kagura memory index' to build index[/dim]")
+        else:
+            console.print("   [red]✗[/] RAG not available")
+            console.print(
+                "   [dim]Install: pip install chromadb sentence-transformers[/dim]"
+            )
+    except Exception as e:
+        console.print(f"   [red]✗[/] Error: {e}")
+
+    console.print()
+
+    # Reranking status
+    console.print("[bold cyan]4. Reranking Status[/]")
+
+    import os
+
+    reranking_enabled = os.getenv("KAGURA_ENABLE_RERANKING", "").lower() == "true"
+
+    if reranking_enabled:
+        console.print("   [green]✓[/] Reranking enabled")
+    else:
+        console.print("   [yellow]⊘[/] Reranking not enabled")
+        console.print("   [dim]Set: export KAGURA_ENABLE_RERANKING=true[/dim]")
+
+    console.print()
+
+    # Summary
+    console.print(
+        Panel(
+            "[bold]Health Check Complete[/]\n\n"
+            "For more details, run:\n"
+            "  • kagura doctor - Comprehensive system check\n"
+            "  • kagura memory index - Build RAG index\n"
+            "  • kagura memory setup - Download models",
+            style="blue",
+        )
+    )

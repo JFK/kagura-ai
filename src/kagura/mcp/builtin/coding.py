@@ -6,7 +6,9 @@ like Claude Code, Cursor, and others.
 
 from __future__ import annotations
 
+import ast
 import json
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from kagura import tool
@@ -14,20 +16,20 @@ from kagura import tool
 if TYPE_CHECKING:
     from kagura.core.memory.coding_memory import CodingMemoryManager
 
-# Global cache for CodingMemoryManager instances
-# Key: f"{user_id}:{project_id}"
-_coding_memory_cache: dict[str, CodingMemoryManager] = {}
-
 
 def _get_coding_memory(user_id: str, project_id: str) -> CodingMemoryManager:
-    """Get or create cached CodingMemoryManager instance.
+    """Get CodingMemoryManager instance (no caching for session synchronization).
+
+    Note: Cache removed in v4.0.9 to fix session synchronization issues.
+    Each call creates a fresh instance that loads current session state
+    from persistent storage.
 
     Args:
         user_id: User identifier (developer)
         project_id: Project identifier
 
     Returns:
-        Cached or new CodingMemoryManager instance
+        New CodingMemoryManager instance with current session state
     """
     import logging
 
@@ -35,24 +37,17 @@ def _get_coding_memory(user_id: str, project_id: str) -> CodingMemoryManager:
 
     from kagura.core.memory.coding_memory import CodingMemoryManager
 
-    cache_key = f"{user_id}:{project_id}"
-    logger.debug(f"_get_coding_memory: cache_key={cache_key}")
+    logger.debug(
+        f"_get_coding_memory: Creating CodingMemoryManager for {user_id}:{project_id}"
+    )
 
-    if cache_key not in _coding_memory_cache:
-        logger.debug(
-            f"_get_coding_memory: Creating CodingMemoryManager for {cache_key}"
-        )
-        _coding_memory_cache[cache_key] = CodingMemoryManager(
-            user_id=user_id,
-            project_id=project_id,
-            enable_rag=True,  # Always enable for semantic search
-            enable_graph=True,  # Always enable for relationships
-        )
-        logger.debug("_get_coding_memory: CodingMemoryManager created")
-    else:
-        logger.debug("_get_coding_memory: Using cached CodingMemoryManager")
-
-    return _coding_memory_cache[cache_key]
+    # Always create new instance to ensure fresh session state
+    return CodingMemoryManager(
+        user_id=user_id,
+        project_id=project_id,
+        enable_rag=True,  # Always enable for semantic search
+        enable_graph=True,  # Always enable for relationships
+    )
 
 
 @tool
@@ -468,15 +463,240 @@ async def coding_start_session(
 
 
 @tool
+async def coding_resume_session(
+    user_id: str,
+    project_id: str,
+    session_id: str,
+) -> str:
+    """Resume a previously ended coding session.
+
+    Allows you to continue work from where you left off, useful for:
+    - Multi-day projects (continue tomorrow)
+    - Recovery after interruption (crash, close, etc.)
+    - Switching between tasks and coming back
+    - Keeping related work in one session
+
+    When you resume a session:
+    - All previous activities (files, errors, decisions) are preserved
+    - New tracking is appended to the session
+    - Final summary includes both old and new work
+    - Original start time is preserved, end time is cleared
+
+    Args:
+        user_id: User identifier
+        project_id: Project identifier
+        session_id: ID of the session to resume (from kagura coding sessions)
+
+    Returns:
+        Confirmation with session context
+
+    Raises:
+        RuntimeError: If another session is already active
+        ValueError: If session doesn't exist or is still active
+
+    Examples:
+        # List past sessions
+        # (Use kagura coding sessions --project kagura-ai)
+
+        # Resume a specific session
+        await coding_resume_session(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            session_id="session_abc123"
+        )
+
+        # Continue adding activities
+        await coding_track_file_change(...)
+        await coding_record_decision(...)
+
+        # End when done (includes all activities)
+        await coding_end_session(success="true")
+    """
+    memory = _get_coding_memory(user_id, project_id)
+
+    try:
+        session_id_returned = await memory.resume_coding_session(session_id)
+
+        # Get session details from working memory
+        session_data = memory.working.get(f"session:{session_id_returned}")
+        if not session_data:
+            return f"❌ Failed to load resumed session: {session_id}"
+
+        from kagura.core.memory.coding_memory import CodingSession
+
+        session = CodingSession.model_validate(session_data)
+
+        # Calculate original duration if applicable
+
+        result = f"✅ Session resumed: {session_id_returned}\n\n"
+        result += f"**Project:** {project_id}\n"
+        result += f"**Description:** {session.description}\n"
+        result += f"**Original start:** {session.start_time}\n"
+        result += f"**Tags:** {', '.join(session.tags)}\n\n"
+
+        # Show existing activities (fetch from storage)
+        file_changes = await memory._get_session_file_changes(session_id)
+        errors = await memory._get_session_errors(session_id)
+        decisions = await memory._get_session_decisions(session_id)
+
+        result += "**Existing activities:**\n"
+        result += f"  • File changes: {len(file_changes)}\n"
+        result += f"  • Errors recorded: {len(errors)}\n"
+        result += f"  • Decisions made: {len(decisions)}\n\n"
+
+        result += "💡 **Continue where you left off:**\n"
+        result += "  • Track new changes: coding_track_file_change()\n"
+        result += "  • Record new decisions: coding_record_decision()\n"
+        result += "  • Check status: coding_get_current_session_status()\n"
+        result += "  • End when done: coding_end_session()\n"
+
+        return result
+
+    except RuntimeError as e:
+        return f"❌ Cannot resume session: {e}"
+    except ValueError as e:
+        return f"❌ Invalid session: {e}"
+
+
+@tool
+async def coding_get_current_session_status(
+    user_id: str,
+    project_id: str,
+) -> str:
+    """Get current coding session status and tracked activities.
+
+    Use this tool to check what has been recorded in the current session
+    before ending it. Helps you:
+    - See what will be included in the session summary
+    - Verify important items are tracked
+    - Decide if ready to end session
+
+    Returns current session information including:
+    - Session metadata (ID, description, duration, tags)
+    - Tracked activities count (files, errors, decisions, interactions)
+    - Recent activity summary
+    - Next steps recommendation
+
+    Args:
+        user_id: User identifier
+        project_id: Project identifier
+
+    Returns:
+        Current session status summary
+
+    Raises:
+        Error if no active session
+
+    Examples:
+        # Check status before ending
+        status = await coding_get_current_session_status(
+            user_id="kiyota",
+            project_id="kagura-ai"
+        )
+        # Review the output, then decide:
+        # await coding_end_session(...)
+    """
+    memory = _get_coding_memory(user_id, project_id)
+
+    if not memory.current_session_id:
+        return "❌ No active coding session.\n\nStart one with: coding_start_session()"
+
+    # Load current session from working memory
+    session_data = memory.working.get(f"session:{memory.current_session_id}")
+    if not session_data:
+        return "❌ Session data not found in working memory."
+
+    from kagura.core.memory.coding_memory import CodingSession
+
+    session = CodingSession.model_validate(session_data)
+
+    # Calculate duration
+    from datetime import datetime, timezone
+
+    # Handle both datetime and string formats
+    if isinstance(session.start_time, str):
+        start = datetime.fromisoformat(session.start_time)
+    else:
+        start = session.start_time
+
+    # Ensure timezone-aware comparison
+    now = datetime.now(timezone.utc)
+    if start.tzinfo is None:
+        # Assume UTC if naive
+        start = start.replace(tzinfo=timezone.utc)
+
+    duration = (now - start).total_seconds() / 60
+
+    # Count activities (CodingSession doesn't store these, need to fetch from memory)
+    # For now, fetch from persistent storage
+    file_changes_records = await memory._get_session_file_changes(session.session_id)
+    errors_records = await memory._get_session_errors(session.session_id)
+    decisions_records = await memory._get_session_decisions(session.session_id)
+
+    file_changes = len(file_changes_records)
+    errors = len([e for e in errors_records if not e.solution])
+    errors_fixed = len([e for e in errors_records if e.solution])
+    decisions = len(decisions_records)
+    interactions = 0  # Not yet tracked separately
+
+    # Build status report
+    result = "📊 Current Session Status\n\n"
+    result += f"**Session ID:** {session.session_id}\n"
+    result += f"**Project:** {project_id}\n"
+    result += f"**Description:** {session.description}\n"
+    result += f"**Duration:** {duration:.1f} minutes (started {session.start_time})\n"
+    result += f"**Tags:** {', '.join(session.tags)}\n\n"
+
+    result += "**Tracked Activities:**\n"
+    result += f"  • File changes: {file_changes}\n"
+    result += f"  • Errors encountered: {errors + errors_fixed}\n"
+    result += f"  • Errors fixed: {errors_fixed}\n"
+    result += f"  • Decisions recorded: {decisions}\n"
+    result += f"  • Interactions tracked: {interactions}\n\n"
+
+    # Recent activity
+    if file_changes_records:
+        result += "**Recent File Changes (last 3):**\n"
+        for change in file_changes_records[-3:]:
+            result += f"  • {change.action}: {change.file_path}\n"
+        result += "\n"
+
+    if decisions_records:
+        result += "**Recent Decisions (last 2):**\n"
+        for decision in decisions_records[-2:]:
+            result += f"  • {decision.decision[:80]}...\n"
+        result += "\n"
+
+    # Recommendations
+    result += "**Next Steps:**\n"
+
+    if file_changes == 0:
+        result += "  ⚠️  No file changes tracked yet. Use coding_track_file_change()\n"
+
+    if errors > 0:
+        result += f"  ⚠️  {errors} unresolved errors. Add solutions before ending.\n"
+
+    result += "  ✅ Ready to end? Confirm with user, then: coding_end_session()\n"
+
+    if file_changes > 0 or decisions > 0:
+        result += "  💡 Consider: save_to_github='true' to record to GitHub Issue\n"
+
+    return result
+
+
+@tool
 async def coding_end_session(
     user_id: str,
     project_id: str,
     summary: str | None = None,
     success: str | bool | None = None,
     save_to_github: str | bool = "false",
+    save_to_claude_code_history: str | bool = "true",
 ) -> str:
     """End coding session and generate AI-powered summary of changes,
     decisions, and learnings.
+
+    ⚠️ IMPORTANT: This action cannot be undone. Make sure you're ready to end the session.
 
     Use this tool when finishing a coherent work session. The system will:
     1. Collect all tracked activities (files, errors, decisions, interactions)
@@ -484,6 +704,9 @@ async def coding_end_session(
     3. Store session data for future reference
     4. Update coding patterns and preferences
     5. Optionally save to GitHub Issue (if save_to_github=true)
+    6. Optionally save to Claude Code history (if save_to_claude_code_history=true)
+
+    ⚠️ Recommendation: Confirm with the user before calling this tool.
 
     The AI summary includes:
     - Session overview and objectives achieved
@@ -499,6 +722,8 @@ async def coding_end_session(
         success: Whether session objectives were met ("true"/"false", optional)
         save_to_github: Save session summary to GitHub Issue ("true"/"false",
             default: "false"). Requires gh CLI and active branch linked to issue.
+        save_to_claude_code_history: Save to Claude Code session history ("true"/"false",
+            default: "true"). Enables cross-session knowledge via claude_code_search_past_work()
 
     Returns:
         Session summary and statistics
@@ -507,7 +732,7 @@ async def coding_end_session(
         Error if no active session to end
 
     Examples:
-        # End session with AI-generated summary
+        # End session with AI-generated summary (auto-save to Claude Code history)
         await coding_end_session(
             user_id="dev_john",
             project_id="api-service",
@@ -522,12 +747,13 @@ async def coding_end_session(
             save_to_github="true"
         )
 
-        # End session with custom summary
+        # End session without Claude Code history
         await coding_end_session(
             user_id="dev_john",
             project_id="api-service",
             summary="Completed JWT auth implementation. All tests passing.",
-            success="true"
+            success="true",
+            save_to_claude_code_history="false"
         )
     """
     memory = _get_coding_memory(user_id, project_id)
@@ -545,15 +771,18 @@ async def coding_end_session(
     else:
         save_to_github_bool = save_to_github.lower() == "true"
 
+    if isinstance(save_to_claude_code_history, bool):
+        save_to_claude_code_history_bool = save_to_claude_code_history
+    else:
+        save_to_claude_code_history_bool = save_to_claude_code_history.lower() == "true"
+
     result = await memory.end_coding_session(
         summary=summary,
         success=success_bool,
         save_to_github=save_to_github_bool,
     )
 
-    success_emoji = (
-        "✅" if success_bool else ("⚠️" if success_bool is False else "ℹ️")
-    )
+    success_emoji = "✅" if success_bool else ("⚠️" if success_bool is False else "ℹ️")
     duration_str = (
         f"{result['duration_minutes']:.1f} minutes"
         if result["duration_minutes"]
@@ -573,6 +802,79 @@ async def coding_end_session(
                 "(gh CLI not installed or no issue linked)"
             )
 
+    # Save to Claude Code history if requested
+    claude_code_status = ""
+    if save_to_claude_code_history_bool:
+        try:
+            # Prepare session data for Claude Code history
+            # Use result data since session just ended
+            session_title = result.get("description", "Coding Session")
+            files_modified = [str(f) for f in result["files_touched"]]
+
+            # Extract tags from result
+            tags = result.get("tags", [])
+
+            # Save using claude_code_save_session logic
+            from datetime import datetime
+
+            session_key = (
+                f"claude_code_session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            )
+
+            session_doc = f"""
+Claude Code Session: {session_title}
+Project: {project_id}
+Date: {datetime.now().isoformat()}
+Duration: {duration_str}
+Files Modified: {", ".join(files_modified)}
+Success: {success_bool}
+
+Summary:
+{result["summary"]}
+
+Statistics:
+- Files touched: {len(result["files_touched"])}
+- Errors encountered: {result["errors_encountered"]}
+- Errors fixed: {result["errors_fixed"]}
+- Decisions made: {result["decisions_made"]}
+"""
+
+            metadata = {
+                "type": "claude_code_session",
+                "project_id": project_id,
+                "session_title": session_title,
+                "files_modified": files_modified,
+                "tags": tags,
+                "timestamp": datetime.now().isoformat(),
+                "importance": 0.8 if success_bool else 0.6,
+                "platform": "claude_code",
+                "session_id": result["session_id"],
+            }
+
+            # Store in persistent memory
+            mem_key = f"claude_code_{session_key}"
+            memory.persistent.store(
+                key=mem_key,
+                value=session_doc,
+                user_id=user_id,
+                metadata=metadata,
+            )
+
+            # Store in RAG for semantic search
+            if memory.persistent_rag:
+                memory.persistent_rag.store(
+                    content=session_doc,
+                    metadata=metadata,
+                    user_id=user_id,
+                )
+
+            claude_code_status = (
+                f"\n✅ Session saved to Claude Code history: {session_key}"
+            )
+
+        except Exception as e:
+            claude_code_status = f"\n⚠️ Failed to save to Claude Code history: {e}"
+
     return (
         f"{success_emoji} Coding session ended: {result['session_id']}\n"
         f"Duration: {duration_str}\n"
@@ -583,6 +885,7 @@ async def coding_end_session(
         f"📝 Summary:\n{result['summary']}\n\n"
         f"💾 Session data saved for future reference and pattern learning."
         f"{github_status}"
+        f"{claude_code_status}"
     )
 
 
@@ -1377,3 +1680,774 @@ async def coding_track_interaction(
     except Exception as e:
         logger.error(f"Failed to track interaction: {e}", exc_info=True)
         return f"❌ Failed to track interaction: {e}"
+
+
+# Source Code RAG Tools (Issue #490)
+
+
+@tool
+async def coding_index_source_code(
+    user_id: str,
+    project_id: str,
+    directory: str,
+    file_patterns: str = '["**/*.py"]',
+    exclude_patterns: str = '["**/__pycache__/**", "**/test_*.py", "**/.venv/**"]',
+    language: str = "python",
+) -> str:
+    """Index source code files into RAG for semantic code search.
+
+    Scans a directory for source files, parses them (using AST for Python),
+    chunks by function/class, and stores in RAG with metadata.
+
+    Use this tool to enable semantic code search across your project.
+    Useful for:
+    - Understanding large codebases
+    - Finding implementation examples
+    - Locating where features are implemented
+    - Cross-referencing related code
+
+    Args:
+        user_id: User identifier (developer)
+        project_id: Project identifier
+        directory: Root directory to scan (e.g., "src/", "/path/to/project/src")
+        file_patterns: JSON array of glob patterns to include (default: ["**/*.py"])
+        exclude_patterns: JSON array of glob patterns to exclude
+        language: Programming language (currently only "python" supported)
+
+    Returns:
+        Indexing summary with file count, chunks, and stats
+
+    Examples:
+        # Index Python source code
+        await coding_index_source_code(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            directory="/home/jfk/works/kagura-ai/src"
+        )
+
+        # Index with custom patterns
+        await coding_index_source_code(
+            user_id="kiyota",
+            project_id="my-project",
+            directory="./src",
+            file_patterns='["**/*.py", "**/*.pyx"]',
+            exclude_patterns='["**/tests/**", "**/__pycache__/**"]'
+        )
+    """
+    import ast
+    import logging
+    from pathlib import Path
+
+    logger = logging.getLogger(__name__)
+
+    # Parse patterns
+    include_patterns = _parse_json_list(file_patterns, "file_patterns")
+    exclude_patterns_list = _parse_json_list(exclude_patterns, "exclude_patterns")
+
+    if language != "python":
+        return (
+            f"❌ Error: Only 'python' language is currently supported (got: {language})"
+        )
+
+    # Get CodingMemoryManager
+    memory = _get_coding_memory(user_id, project_id)
+
+    # Scan directory for files
+    dir_path = Path(directory).resolve()
+    if not dir_path.exists():
+        return f"❌ Error: Directory not found: {directory}"
+
+    logger.info(f"Scanning directory: {dir_path}")
+
+    # Find matching files
+    matched_files = []
+    for pattern in include_patterns:
+        matched_files.extend(dir_path.glob(pattern))
+
+    # Filter exclusions
+    filtered_files = []
+    for file in matched_files:
+        should_exclude = False
+        for exclude_pattern in exclude_patterns_list:
+            import fnmatch
+
+            if fnmatch.fnmatch(str(file), exclude_pattern):
+                should_exclude = True
+                break
+        if not should_exclude and file.is_file():
+            filtered_files.append(file)
+
+    if not filtered_files:
+        return f"⚠️ No files found matching patterns in {directory}"
+
+    logger.info(f"Found {len(filtered_files)} files to index")
+
+    # Index each file
+    total_chunks = 0
+    indexed_files = 0
+    errors = []
+
+    for file_path in filtered_files:
+        try:
+            # Read file content
+            with open(file_path, "r", encoding="utf-8") as f:
+                source = f.read()
+
+            # Parse AST
+            tree = ast.parse(source, filename=str(file_path))
+
+            # Extract chunks (functions, classes, module docstring)
+            chunks = _extract_code_chunks(source, tree, file_path)
+
+            # Store each chunk in RAG
+            for chunk in chunks:
+                content = (
+                    f"File: {chunk['file_path']}\n"
+                    f"Type: {chunk['type']}\n"
+                    f"Name: {chunk['name']}\n"
+                    f"Lines: {chunk['line_start']}-{chunk['line_end']}\n\n"
+                    f"{chunk['content']}"
+                )
+
+                metadata = {
+                    "type": "source_code",
+                    "file_path": str(chunk["file_path"]),
+                    "line_start": chunk["line_start"],
+                    "line_end": chunk["line_end"],
+                    "chunk_type": chunk["type"],
+                    "name": chunk["name"],
+                    "language": language,
+                }
+
+                # Store in RAG
+                memory.store_semantic(content=content, metadata=metadata)
+                total_chunks += 1
+
+            indexed_files += 1
+
+        except SyntaxError as e:
+            errors.append(f"{file_path.name}: Syntax error at line {e.lineno}")
+        except Exception as e:
+            errors.append(f"{file_path.name}: {str(e)[:100]}")
+
+    # Build result
+    result = "✅ Source Code Indexing Complete\n\n"
+    result += f"**Project:** {project_id}\n"
+    result += f"**Directory:** {directory}\n"
+    result += f"**Files indexed:** {indexed_files}/{len(filtered_files)}\n"
+    result += f"**Code chunks:** {total_chunks}\n"
+    result += f"**Language:** {language}\n\n"
+
+    if errors:
+        result += f"**Errors ({len(errors)}):**\n"
+        for error in errors[:5]:
+            result += f"- {error}\n"
+        if len(errors) > 5:
+            result += f"- ... and {len(errors) - 5} more\n"
+        result += "\n"
+
+    result += "💡 **Next:** Use coding_search_source_code() to find code semantically"
+
+    return result
+
+
+def _extract_code_chunks(
+    source: str,
+    tree: ast.AST,
+    file_path: Path,
+    overlap_lines: int = 5,
+) -> list[dict]:
+    """Extract code chunks from AST for indexing with overlap.
+
+    Args:
+        source: Source code string
+        tree: AST tree
+        file_path: Path to source file
+        overlap_lines: Number of lines to overlap before/after (default: 5)
+
+    Returns:
+        List of chunk dictionaries with overlapping context
+    """
+    import ast
+
+    chunks = []
+    source_lines = source.splitlines()
+    total_lines = len(source_lines)
+
+    # Extract imports for context
+    imports = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imports.append(alias.name)
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            for alias in node.names:
+                imports.append(f"{module}.{alias.name}")
+
+    imports_context = "Imports: " + ", ".join(imports[:10]) if imports else ""
+
+    # Module-level docstring + imports (full file overview)
+    if (
+        isinstance(tree, ast.Module)
+        and hasattr(tree, "body")
+        and tree.body
+        and isinstance(tree.body[0], ast.Expr)
+        and isinstance(tree.body[0].value, ast.Constant)
+    ):
+        docstring = tree.body[0].value.value
+        if isinstance(docstring, str):
+            chunks.append(
+                {
+                    "file_path": str(file_path),
+                    "type": "module",
+                    "name": file_path.stem,
+                    "line_start": 1,
+                    "line_end": len(docstring.split("\n")),
+                    "content": f"{docstring}\n\n{imports_context}",
+                    "imports": imports,
+                }
+            )
+
+    # Find all top-level classes for context
+    classes_info = {}
+    if isinstance(tree, ast.Module) and hasattr(tree, "body"):
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef):
+                classes_info[node.name] = {
+                    "line_start": node.lineno,
+                    "line_end": node.end_lineno or node.lineno,
+                    "docstring": ast.get_docstring(node) or "",
+                }
+
+    # Functions and classes with overlap
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            # Function/method
+            func_name = node.name
+            line_start = node.lineno
+            line_end = node.end_lineno or line_start
+
+            # Add overlap context
+            overlap_start = max(1, line_start - overlap_lines)
+            overlap_end = min(total_lines, line_end + overlap_lines)
+
+            # Extract function with overlap
+            func_source_with_overlap = "\n".join(
+                source_lines[overlap_start - 1 : overlap_end]
+            )
+
+            # Get docstring
+            docstring = ast.get_docstring(node) or ""
+
+            # Find parent class if method
+            parent_class = None
+            for class_name, class_info in classes_info.items():
+                if (
+                    line_start >= class_info["line_start"]
+                    and line_end <= class_info["line_end"]
+                ):
+                    parent_class = class_name
+                    break
+
+            context = f"Function: {func_name}"
+            if parent_class:
+                context = f"Class: {parent_class}, Method: {func_name}"
+
+            chunks.append(
+                {
+                    "file_path": str(file_path),
+                    "type": "function" if not parent_class else "method",
+                    "name": func_name,
+                    "line_start": line_start,
+                    "line_end": line_end,
+                    "content": (
+                        f"{context}\n"
+                        f"{imports_context}\n\n"
+                        f"Code (with {overlap_lines}-line overlap):\n"
+                        f"{func_source_with_overlap}\n\n"
+                        f"Docstring:\n{docstring}"
+                    ),
+                    "parent_class": parent_class,
+                    "imports": imports,
+                }
+            )
+
+        elif isinstance(node, ast.ClassDef):
+            # Class definition with all methods
+            class_name = node.name
+            line_start = node.lineno
+            line_end = node.end_lineno or line_start
+
+            # Add overlap
+            overlap_start = max(1, line_start - overlap_lines)
+            overlap_end = min(total_lines, line_end + overlap_lines)
+
+            # Extract class source with overlap
+            class_source = "\n".join(source_lines[overlap_start - 1 : overlap_end])
+
+            # Get docstring
+            docstring = ast.get_docstring(node) or ""
+
+            # List methods with signatures
+            methods = []
+            for m in node.body:
+                if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    # Get method signature
+                    args = [a.arg for a in m.args.args]
+                    methods.append(f"{m.name}({', '.join(args)})")
+
+            chunks.append(
+                {
+                    "file_path": str(file_path),
+                    "type": "class",
+                    "name": class_name,
+                    "line_start": line_start,
+                    "line_end": line_end,
+                    "content": (
+                        f"Class: {class_name}\n"
+                        f"{imports_context}\n\n"
+                        f"Code (with {overlap_lines}-line overlap):\n"
+                        f"{class_source}\n\n"
+                        f"Docstring:\n{docstring}\n\n"
+                        f"Methods ({len(methods)}):\n"
+                        + "\n".join(f"- {m}" for m in methods)
+                    ),
+                    "methods": methods,
+                    "imports": imports,
+                }
+            )
+
+    return chunks
+
+
+@tool
+async def coding_search_source_code(
+    user_id: str,
+    project_id: str,
+    query: str,
+    k: int = 5,
+    file_filter: str | None = None,
+) -> str:
+    """Search indexed source code semantically.
+
+    Finds code chunks relevant to the query using semantic search.
+    Returns file paths, line ranges, and code snippets.
+
+    Use this tool to:
+    - Find implementation examples
+    - Locate where a feature is implemented
+    - Understand how something works
+    - Find related code across the project
+
+    Args:
+        user_id: User identifier
+        project_id: Project identifier
+        query: Search query (e.g., "memory manager implementation", "authentication logic")
+        k: Number of results to return (default: 5)
+        file_filter: Optional file path filter (e.g., "src/kagura/core/**")
+
+    Returns:
+        Search results with file paths, line numbers, and code snippets
+
+    Examples:
+        # Find memory implementation
+        await coding_search_source_code(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            query="memory manager store implementation"
+        )
+
+        # Search in specific directory
+        await coding_search_source_code(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            query="RAG search",
+            file_filter="src/kagura/core/**"
+        )
+    """
+    memory = _get_coding_memory(user_id, project_id)
+
+    # Perform semantic search using appropriate method
+    if memory.persistent_rag and memory.lexical_searcher:
+        # Use hybrid search if available
+        results = memory.recall_hybrid(
+            query=query,
+            top_k=k,
+            scope="persistent",
+        )
+    elif memory.persistent_rag:
+        # Fallback to RAG-only search
+        results = memory.search_memory(
+            query=query,
+            limit=k,
+        )
+    else:
+        return "❌ RAG not available. Semantic search requires ChromaDB and sentence-transformers."
+
+    if not results:
+        return f"⚠️ No results found for query: '{query}'\n\nMake sure you've indexed the source code first with coding_index_source_code()"
+
+    # Filter by file path if specified
+    if file_filter:
+        import fnmatch
+
+        results = [
+            r
+            for r in results
+            if fnmatch.fnmatch(r.get("metadata", {}).get("file_path", ""), file_filter)
+        ]
+
+    if not results:
+        return f"⚠️ No results found matching file filter: {file_filter}"
+
+    # Format results
+    result = f"🔍 Source Code Search Results: '{query}'\n\n"
+    result += f"**Found {len(results)} relevant code chunks:**\n\n"
+
+    for i, res in enumerate(results, 1):
+        metadata = res.get("metadata", {})
+        if metadata.get("type") != "source_code":
+            continue  # Skip non-source-code memories
+
+        file_path = metadata.get("file_path", "unknown")
+        line_start = metadata.get("line_start", 0)
+        line_end = metadata.get("line_end", 0)
+        chunk_type = metadata.get("chunk_type", "unknown")
+        name = metadata.get("name", "")
+        score = res.get("score", 0.0)
+
+        content_preview = res.get("content", "")[:300]
+
+        result += f"**{i}. {file_path}:{line_start}-{line_end}**\n"
+        result += f"   Type: {chunk_type} `{name}`\n"
+        result += f"   Score: {score:.3f}\n"
+        result += f"   Preview:\n```\n{content_preview}\n```\n\n"
+
+    result += "\n💡 **Tip:** Open files in your editor to see full implementation"
+
+    return result
+
+
+# Claude Code Integration Tools (Issue #491)
+
+
+@tool
+async def claude_code_save_session(
+    user_id: str,
+    project_id: str,
+    session_title: str,
+    work_summary: str,
+    files_modified: str = "[]",
+    conversation_context: str | None = None,
+    tags: str = "[]",
+    importance: str = "0.7",
+) -> str:
+    """Save Claude Code work session to Kagura Memory for future reference.
+
+    Records your Claude Code session with context, making it searchable across sessions.
+    Enables knowledge persistence and learning from past work.
+
+    Use this tool:
+    - At the end of a significant work session
+    - After solving a complex problem
+    - When making important decisions
+    - To preserve context for future sessions
+
+    Args:
+        user_id: User identifier (developer, e.g., "kiyota")
+        project_id: Project identifier (e.g., "kagura-ai")
+        session_title: Brief title of the work session
+        work_summary: Detailed summary of what was accomplished
+        files_modified: JSON array of file paths modified (e.g., '["src/auth.py"]')
+        conversation_context: Optional conversation snippets or key exchanges
+        tags: JSON array of tags (e.g., '["bug-fix", "authentication"]')
+        importance: Importance score 0.0-1.0 (default: 0.7)
+
+    Returns:
+        Confirmation with session ID
+
+    Examples:
+        # Save a debugging session
+        await claude_code_save_session(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            session_title="Fix memory search RAG integration",
+            work_summary=\"\"\"
+            - Investigated Issue #337
+            - Fixed memory_search to check both working and RAG
+            - Added test coverage
+            - All tests passing
+            \"\"\",
+            files_modified='["src/kagura/mcp/builtin/memory.py", "tests/test_memory.py"]',
+            tags='["bug-fix", "memory", "rag", "issue-337"]',
+            importance="0.9"
+        )
+
+        # Save a feature implementation
+        await claude_code_save_session(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            session_title="Implement CLI inspection commands",
+            work_summary="Added kagura memory list/search/stats commands for Issue #501",
+            files_modified='["src/kagura/cli/memory_cli.py"]',
+            tags='["feature", "cli", "issue-501"]'
+        )
+    """
+    from datetime import datetime
+
+    # Parse parameters
+    files_list = _parse_json_list(files_modified, "files_modified")
+    tags_list = _parse_json_list(tags, "tags")
+
+    try:
+        importance_float = float(importance)
+    except ValueError:
+        importance_float = 0.7
+
+    # Get coding memory
+    memory = _get_coding_memory(user_id, project_id)
+
+    # Create session document for RAG
+    timestamp = datetime.now().isoformat()
+    session_doc = f"""
+Claude Code Session: {session_title}
+Project: {project_id}
+Date: {timestamp}
+Files Modified: {", ".join(files_list)}
+Tags: {", ".join(tags_list)}
+
+Summary:
+{work_summary}
+"""
+
+    if conversation_context:
+        session_doc += f"\nConversation Context:\n{conversation_context}"
+
+    # Store in memory with metadata
+    session_key = f"claude_code_session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+    metadata = {
+        "type": "claude_code_session",
+        "project_id": project_id,
+        "session_title": session_title,
+        "files_modified": files_list,
+        "tags": tags_list,
+        "timestamp": timestamp,
+        "importance": importance_float,
+        "platform": "claude_code",
+    }
+
+    # Store in persistent memory
+    memory.persistent.store(
+        key=session_key,
+        value=session_doc,
+        user_id=user_id,
+        metadata=metadata,
+    )
+
+    # Also store in RAG for semantic search
+    if memory.persistent_rag:
+        memory.persistent_rag.store(
+            content=session_doc,
+            metadata=metadata,
+            user_id=user_id,
+        )
+
+    # Create graph relationships if session is active
+    if memory.current_session_id and memory.graph:
+        # Link to current coding session
+        memory.graph.add_edge(
+            session_key,
+            f"coding_session_{memory.current_session_id}",
+            rel_type="claude_code_work",
+        )
+
+        # Link to modified files
+        for file in files_list:
+            memory.graph.add_edge(
+                session_key,
+                f"file_{file}",
+                rel_type="modified",
+            )
+
+    result = f"✅ Claude Code session saved: {session_key}\n\n"
+    result += f"**Project:** {project_id}\n"
+    result += f"**Title:** {session_title}\n"
+    result += f"**Files:** {len(files_list)} modified\n"
+    result += f"**Tags:** {', '.join(tags_list)}\n"
+    result += f"**Importance:** {importance_float}\n\n"
+    result += f'💡 **Search later with:** claude_code_search_past_work(query="{session_title.split()[0]}")'
+
+    return result
+
+
+@tool
+async def claude_code_search_past_work(
+    user_id: str,
+    project_id: str,
+    query: str,
+    k: int = 5,
+    file_filter: str | None = None,
+    date_range: str | None = None,
+) -> str:
+    """Search past Claude Code work sessions semantically.
+
+    Find similar problems you've solved, decisions you've made, or work you've done
+    in previous Claude Code sessions.
+
+    Use this tool:
+    - When starting work on a new issue
+    - When encountering a familiar problem
+    - To recall how you solved something before
+    - To find related work context
+
+    Args:
+        user_id: User identifier
+        project_id: Project identifier
+        query: Search query (e.g., "memory search bug", "authentication implementation")
+        k: Number of results to return (default: 5)
+        file_filter: Optional file path filter (e.g., "src/kagura/core/**")
+        date_range: Optional time filter ("last_7_days", "last_30_days", "last_90_days")
+
+    Returns:
+        Past work sessions with summaries, files, and solutions
+
+    Examples:
+        # Find similar debugging sessions
+        await claude_code_search_past_work(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            query="memory search not returning results"
+        )
+
+        # Search recent work only
+        await claude_code_search_past_work(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            query="CLI implementation",
+            date_range="last_7_days"
+        )
+
+        # Search specific directory work
+        await claude_code_search_past_work(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            query="RAG integration",
+            file_filter="src/kagura/core/memory/**"
+        )
+    """
+    from datetime import datetime, timedelta
+
+    memory = _get_coding_memory(user_id, project_id)
+
+    # Perform semantic search using appropriate method
+    if memory.persistent_rag and memory.lexical_searcher:
+        # Use hybrid search if available
+        results = memory.recall_hybrid(
+            query=query,
+            top_k=k * 2,  # Get more candidates for filtering
+            scope="persistent",
+        )
+    elif memory.persistent_rag:
+        # Fallback to RAG-only search
+        results = memory.search_memory(
+            query=query,
+            limit=k * 2,
+        )
+    else:
+        return "❌ RAG not available. Semantic search requires ChromaDB and sentence-transformers."
+
+    if not results:
+        return f"⚠️ No past work sessions found for query: '{query}'\n\nSave sessions with claude_code_save_session() to build history"
+
+    # Filter by type (Claude Code sessions only)
+    claude_sessions = [
+        r for r in results if r.get("metadata", {}).get("type") == "claude_code_session"
+    ]
+
+    # Filter by date range if specified
+    if date_range:
+        days_map = {
+            "last_7_days": 7,
+            "last_30_days": 30,
+            "last_90_days": 90,
+        }
+        days = days_map.get(date_range, 30)
+        cutoff = datetime.now() - timedelta(days=days)
+
+        claude_sessions = [
+            r
+            for r in claude_sessions
+            if datetime.fromisoformat(
+                r.get("metadata", {}).get("timestamp", "2000-01-01")
+            )
+            > cutoff
+        ]
+
+    # Filter by file if specified
+    if file_filter:
+        import fnmatch
+
+        claude_sessions = [
+            r
+            for r in claude_sessions
+            if any(
+                fnmatch.fnmatch(f, file_filter)
+                for f in r.get("metadata", {}).get("files_modified", [])
+            )
+        ]
+
+    if not claude_sessions:
+        filters_msg = ""
+        if date_range:
+            filters_msg += f" (date: {date_range})"
+        if file_filter:
+            filters_msg += f" (files: {file_filter})"
+        return f"⚠️ No Claude Code sessions found{filters_msg}"
+
+    # Limit to k results
+    claude_sessions = claude_sessions[:k]
+
+    # Format results
+    result = f"🔍 Past Claude Code Work: '{query}'\n\n"
+    result += f"**Found {len(claude_sessions)} relevant sessions:**\n\n"
+
+    for i, session in enumerate(claude_sessions, 1):
+        metadata = session.get("metadata", {})
+        content = session.get("content", "")
+
+        title = metadata.get("session_title", "Untitled")
+        timestamp = metadata.get("timestamp", "")
+        files = metadata.get("files_modified", [])
+        tags = metadata.get("tags", [])
+        score = session.get("score", 0.0)
+
+        # Parse timestamp
+        try:
+            dt = datetime.fromisoformat(timestamp)
+            date_str = dt.strftime("%Y-%m-%d %H:%M")
+        except Exception:
+            date_str = timestamp
+
+        # Extract summary from content (with bounds checking)
+        summary = ""
+        if "Summary:" in content:
+            parts = content.split("Summary:")
+            if len(parts) > 1:
+                summary_parts = parts[1].split("\n\n")
+                if summary_parts:
+                    summary = summary_parts[0].strip()
+
+        result += f"**{i}. [{date_str}] {title}**\n"
+        result += f"   Score: {score:.3f}\n"
+        result += f"   Files: {', '.join(files[:3])}"
+        if len(files) > 3:
+            result += f" (+{len(files) - 3} more)"
+        result += "\n"
+        result += f"   Tags: {', '.join(tags)}\n"
+        result += f"   Summary: {summary[:200]}...\n\n"
+
+    result += "\n💡 **Tip:** Use this context to avoid repeating past work"
+
+    return result

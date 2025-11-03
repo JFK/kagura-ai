@@ -358,9 +358,7 @@ https://github.com/JFK/kagura-ai
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(
                 None,
-                lambda: subprocess.run(
-                    cmd, check=True, capture_output=True, text=True
-                ),
+                lambda: subprocess.run(cmd, check=True, capture_output=True, text=True),
             )
             logger.debug(f"Successfully posted comment from {temp_file}")
 
