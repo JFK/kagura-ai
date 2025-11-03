@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.7] - 2025-11-03
+
+### ✨ Added
+
+- **Coding Memory and General Memory Integration** (#493)
+  - `InteractionTracker`: Hybrid buffering strategy for AI-User interactions
+    - Immediate: Buffer all interactions in Working Memory
+    - High importance (>= 8.0): Async GitHub Issue recording (non-blocking)
+    - Periodic: Auto-flush to Persistent Memory (10 interactions or 5 minutes)
+    - Session end: Full LLM summary + comprehensive GitHub comment
+  - `GitHubRecorder`: 2-stage GitHub Issue integration
+    - Stage 1: Immediate high-importance event recording (concise comments)
+    - Stage 2: Session-end comprehensive summary (full context)
+    - Auto-detects issue number from branch name
+    - Uses `gh` CLI for GitHub API access
+  - `MemoryAbstractor`: 2-level memory abstraction
+    - Level 1: External record → summary + keywords (lightweight LLM: gpt-5-mini)
+    - Level 2: Context → patterns + concepts (powerful LLM: gpt-5 / claude / gemini)
+    - Configurable LLM models for cost/quality trade-off
+  - `CodingMemoryManager` integration: New optional components
+    - `enable_github_recording`: Enable/disable GitHub integration
+    - `enable_interaction_tracking`: Enable/disable interaction tracking
+    - `enable_memory_abstraction`: Enable/disable abstraction
+    - Configurable abstraction models: `abstraction_level1_model`, `abstraction_level2_model`
+
+### 🏗️ Architecture
+
+- **4+2 Tier Memory Hierarchy** (Foundation for Issue #493)
+  - Layer 1: External Artifacts (GitHub Issues, Docs, Code Comments)
+  - Layer 2: External Memory Index (Persistent Memory + RAG)
+  - Layer 3: Working Context (Working Memory + RAG)
+  - Layer 4: Abstracted Context (Persistent Memory + RAG)
+  - Layer 5: Relationship Graph (GraphMemory)
+  - Layer 6: Dependency Analysis (AST-based)
+
+### 🎯 Performance
+
+- **Non-blocking Architecture**
+  - All external recording operations are async (non-blocking)
+  - LLM importance classification runs in background
+  - Periodic buffer flushing doesn't block user interactions
+  - GitHub API calls use executor pattern to avoid blocking event loop
+
+### 📝 Implementation Notes
+
+- This release implements the **foundation** for Issue #493 (Phase 1 core components)
+- MCP tools integration (coding_track_interaction) planned for v4.0.8
+- Issue #491 integration (Claude Code auto-save) planned for v4.1.0
+- Comprehensive tests (65+ tests) planned for v4.1.0
+- Full documentation update planned for v4.1.0
+
+### 🧪 Tests
+
+- Type check (pyright): 0 errors on new files
+- Lint (ruff): All checks passed on new files
+- Full test suite: Pending (planned for v4.1.0)
+
+---
+
 ## [4.0.6] - 2025-11-03
 
 ### ✨ Added

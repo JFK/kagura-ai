@@ -21,7 +21,10 @@ from typing import Any, Literal
 from kagura.config.memory_config import MemorySystemConfig
 from kagura.core.compression import CompressionPolicy
 from kagura.core.memory.coding_dependency import DependencyAnalyzer
+from kagura.core.memory.github_recorder import GitHubRecordConfig, GitHubRecorder
+from kagura.core.memory.interaction_tracker import InteractionTracker
 from kagura.core.memory.manager import MemoryManager
+from kagura.core.memory.memory_abstractor import MemoryAbstractor
 from kagura.core.memory.models.coding import (
     CodingPattern,
     CodingSession,
@@ -76,6 +79,11 @@ class CodingMemoryManager(MemoryManager):
         auto_approve: bool = False,
         cost_threshold: float = 0.10,
         memory_config: MemorySystemConfig | None = None,
+        enable_github_recording: bool = True,
+        enable_interaction_tracking: bool = True,
+        enable_memory_abstraction: bool = True,
+        abstraction_level1_model: str = "gpt-5-mini",
+        abstraction_level2_model: str = "gpt-5",
     ) -> None:
         """Initialize coding memory manager.
 
@@ -103,6 +111,11 @@ class CodingMemoryManager(MemoryManager):
             auto_approve: Skip approval prompts (default: False)
             cost_threshold: Ask approval if operation costs > this (USD, default: 0.10)
             memory_config: Memory system configuration
+            enable_github_recording: Enable GitHub Issue recording (default: True)
+            enable_interaction_tracking: Enable interaction tracking (default: True)
+            enable_memory_abstraction: Enable memory abstraction (default: True)
+            abstraction_level1_model: LLM for level 1 abstraction (default: gpt-5-mini)
+            abstraction_level2_model: LLM for level 2 abstraction (default: gpt-5)
         """
         # Initialize base memory manager with user_id
         super().__init__(
@@ -149,8 +162,40 @@ class CodingMemoryManager(MemoryManager):
         # Instance-level lock for session management (prevents race conditions)
         self._session_lock = asyncio.Lock()
 
+        # v4.0.7: Initialize new components for Issue #493
+        # InteractionTracker for hybrid buffering
+        self.interaction_tracker: InteractionTracker | None = None
+        if enable_interaction_tracking:
+            self.interaction_tracker = InteractionTracker(
+                importance_threshold=8.0,
+                flush_interval_seconds=300,  # 5 minutes
+                flush_count_threshold=10,
+            )
+
+        # GitHubRecorder for external recording
+        self.github_recorder: GitHubRecorder | None = None
+        if enable_github_recording:
+            github_config = GitHubRecordConfig(
+                repo=None,  # Auto-detect
+                auto_detect_issue=True,
+                enabled=True,
+            )
+            self.github_recorder = GitHubRecorder(config=github_config)
+
+        # MemoryAbstractor for 2-level abstraction
+        self.memory_abstractor: MemoryAbstractor | None = None
+        if enable_memory_abstraction:
+            self.memory_abstractor = MemoryAbstractor(
+                level1_model=abstraction_level1_model,
+                level2_model=abstraction_level2_model,
+                enable_level2=True,
+            )
+
         logger.info(
-            f"CodingMemoryManager initialized: user={user_id}, project={project_id}"
+            f"CodingMemoryManager initialized: user={user_id}, project={project_id}, "
+            f"interaction_tracking={enable_interaction_tracking}, "
+            f"github_recording={enable_github_recording}, "
+            f"abstraction={enable_memory_abstraction}"
         )
 
     def _make_key(self, key: str) -> str:
