@@ -784,13 +784,15 @@ def error(error_id: str, project: str | None, user: str | None):
 def search(
     project: str | None, user: str | None, query: str, search_type: str, limit: int
 ):
-    """Search coding memory semantically.
+    """Search coding memory with hybrid search (BM25 + RAG).
 
+    Uses both keyword matching and semantic search for best results.
     Searches across sessions, decisions, errors, and file changes.
 
     Examples:
         kagura coding search --project kagura-ai --query "authentication"
-        kagura coding search --project kagura-ai --query "memory leak" --type error
+        kagura coding search --query "issue-502"  # Finds exact matches
+        kagura coding search --query "memory leak fix" --type error
     """
     console = Console()
 
@@ -807,19 +809,30 @@ def search(
             user_id=user, project_id=project, enable_rag=True
         )
 
-        if not coding_mem.persistent_rag:
-            console.print(
-                "[yellow]RAG not enabled. Install with: uv sync --all-extras[/yellow]"
+        # Use hybrid search (BM25 + RAG) for best results
+        try:
+            results = coding_mem.recall_hybrid(
+                query=query,
+                top_k=limit * 2,  # Get more for filtering
+                scope="persistent",  # Search persistent memory only
+                enable_rerank=True,  # Use reranking if available
             )
-            return
+        except Exception as e:
+            # Fallback to RAG only if hybrid fails
+            console.print(
+                f"[yellow]Hybrid search unavailable ({e}), using RAG only[/yellow]"
+            )
+            if not coding_mem.persistent_rag:
+                msg = "RAG not enabled. Install with: uv sync --all-extras"
+                console.print(f"[yellow]{msg}[/yellow]")
+                return
 
-        # Search using RAG
-        results = coding_mem.persistent_rag.recall(
-            query=query,
-            user_id=user,
-            top_k=limit * 2,  # Get more for filtering
-            agent_name=coding_mem.agent_name,
-        )
+            results = coding_mem.persistent_rag.recall(
+                query=query,
+                user_id=user,
+                top_k=limit * 2,
+                agent_name=coding_mem.agent_name,
+            )
 
         # Filter by type
         if search_type != "all":
@@ -853,7 +866,10 @@ def search(
             result_type = metadata.get("type", "unknown")
             # RAG uses 'content' key, not 'value'
             content = str(result.get("content", result.get("value", "")))[:60]
-            score = result.get("distance", result.get("score", 0))
+            # Hybrid search uses rrf_score, RAG uses distance
+            score = result.get(
+                "rrf_score", result.get("distance", result.get("score", 0))
+            )
 
             table.add_row(result_type, content, f"{score:.3f}")
 
