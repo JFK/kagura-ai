@@ -136,9 +136,9 @@ class TestMemoryRecall:
         agent = "multi_key_agent"
 
         # Store multiple values
-        await memory_store(user_id, agent, "name", "Alice")
-        await memory_store(user_id, agent, "age", "25")
-        await memory_store(user_id, agent, "city", "Tokyo")
+        await memory_store(user_id=user_id, agent_name=agent, key="name", value="Alice")
+        await memory_store(user_id=user_id, agent_name=agent, key="age", value="25")
+        await memory_store(user_id=user_id, agent_name=agent, key="city", value="Tokyo")
 
         # Recall all values
         name_result = await memory_recall(user_id, agent, "name")
@@ -193,14 +193,14 @@ class TestMemoryCaching:
     async def test_cache_reuses_instance(self) -> None:
         """Test that same user_id + agent_name reuses MemoryManager instance"""
         # First call creates instance
-        await memory_store("test_user", "cached_agent", "key1", "value1")
+        await memory_store(user_id="test_user", agent_name="cached_agent", key="key1", value="value1")
 
         # Check cache has entry
         assert len(_memory_cache) == 1
         assert "test_user:cached_agent:rag=True" in _memory_cache
 
         # Second call should reuse instance
-        await memory_store("test_user", "cached_agent", "key2", "value2")
+        await memory_store(user_id="test_user", agent_name="cached_agent", key="key2", value="value2")
 
         # Cache should still have only 1 entry
         assert len(_memory_cache) == 1
@@ -209,7 +209,7 @@ class TestMemoryCaching:
     async def test_cache_separate_rag_instances(self) -> None:
         """Test that RAG and non-RAG instances are cached separately"""
         # Regular memory call
-        await memory_store("test_user", "agent_rag", "key1", "value1")
+        await memory_store(user_id="test_user", agent_name="agent_rag", key="key1", value="value1")
 
         # RAG memory call
         await memory_search("test_user", "agent_rag", "query", k=5)
@@ -279,9 +279,9 @@ class TestMemorySearchIntegration:
 
         try:
             # Store multiple data points
-            await memory_store("test_user", "combined_agent", "user_name", "Bob")
-            await memory_store("test_user", "combined_agent", "user_age", "30")
-            await memory_store("test_user", "combined_agent", "user_city", "Tokyo")
+            await memory_store(user_id="test_user", agent_name="combined_agent", key="user_name", value="Bob")
+            await memory_store(user_id="test_user", agent_name="combined_agent", key="user_age", value="30")
+            await memory_store(user_id="test_user", agent_name="combined_agent", key="user_city", value="Tokyo")
 
             # Search with a query that should match keys
             search_result = await memory_search(
@@ -316,7 +316,7 @@ class TestMemorySearchIntegration:
         import json
 
         # Store data
-        await memory_store("test_user", "no_rag_agent", "test_key", "test_value")
+        await memory_store(user_id="test_user", agent_name="no_rag_agent", key="test_key", value="test_value")
 
         # Try to search - should handle missing ChromaDB gracefully
         search_result = await memory_search("test_user", "no_rag_agent", "test", k=5)
@@ -494,11 +494,11 @@ class TestMemoryList:
         from kagura.mcp.builtin.memory import memory_list
 
         # Store some working memories
-        await memory_store(
-            "test_user", "test_list_agent", "key1", "value1", scope="working"
+        await memory_store(user_id=
+            "test_user", agent_name="test_list_agent", key="key1", value="value1", scope="working"
         )
-        await memory_store(
-            "test_user", "test_list_agent", "key2", "value2", scope="working"
+        await memory_store(user_id=
+            "test_user", agent_name="test_list_agent", key="key2", value="value2", scope="working"
         )
 
         # List them
@@ -525,11 +525,11 @@ class TestMemoryList:
         from kagura.mcp.builtin.memory import memory_list
 
         # Store some persistent memories
-        await memory_store(
-            "test_user", "test_list_persistent", "pkey1", "pvalue1", scope="persistent"
+        await memory_store(user_id=
+            "test_user", agent_name="test_list_persistent", key="pkey1", value="pvalue1", scope="persistent"
         )
-        await memory_store(
-            "test_user", "test_list_persistent", "pkey2", "pvalue2", scope="persistent"
+        await memory_store(user_id=
+            "test_user", agent_name="test_list_persistent", key="pkey2", value="pvalue2", scope="persistent"
         )
 
         # List them
@@ -580,12 +580,12 @@ class TestMemoryList:
         from kagura.mcp.builtin.memory import memory_list
 
         # Store for different agents
-        await memory_store("test_user", "agent_a", "key_a", "value_a")
-        await memory_store("test_user", "agent_b", "key_b", "value_b")
+        await memory_store(user_id="test_user", agent_name="agent_a", key="key_a", value="value_a")
+        await memory_store(user_id="test_user", agent_name="agent_b", key="key_b", value="value_b")
 
-        # List for agent_a
+        # List for agent_a (use persistent since store defaults to persistent now)
         result_a = await memory_list(
-            user_id="test_user", agent_name="agent_a", scope="working"
+            user_id="test_user", agent_name="agent_a", scope="persistent"
         )
         data_a = json.loads(result_a)
 
@@ -596,7 +596,7 @@ class TestMemoryList:
 
         # List for agent_b
         result_b = await memory_list(
-            user_id="test_user", agent_name="agent_b", scope="working"
+            user_id="test_user", agent_name="agent_b", scope="persistent"
         )
         data_b = json.loads(result_b)
 
