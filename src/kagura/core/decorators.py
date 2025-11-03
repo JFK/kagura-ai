@@ -859,8 +859,35 @@ def tool(
                         f"Tool '{tool_name}' called with invalid arguments: {e}"
                     ) from e
 
+                # Get telemetry collector
+                telemetry_collector = None
+                try:
+                    from kagura.observability import get_global_telemetry
+
+                    telemetry = get_global_telemetry()
+                    telemetry_collector = telemetry.get_collector()
+                except Exception:
+                    # Telemetry not available, continue without it
+                    pass
+
+                # Track tool execution start time
+                import time
+
+                start_time = time.time()
+
                 # Execute the tool function
                 result = await func(*bound.args, **bound.kwargs)  # type: ignore
+
+                # Calculate duration
+                duration = time.time() - start_time
+
+                # Record tool call in telemetry
+                if telemetry_collector:
+                    telemetry_collector.record_tool_call(
+                        tool_name=tool_name,
+                        duration=duration,
+                        **dict(bound.arguments),
+                    )
 
                 # Validate return type if annotated
                 return_type = sig.return_annotation
@@ -882,8 +909,35 @@ def tool(
                         f"Tool '{tool_name}' called with invalid arguments: {e}"
                     ) from e
 
+                # Get telemetry collector
+                telemetry_collector = None
+                try:
+                    from kagura.observability import get_global_telemetry
+
+                    telemetry = get_global_telemetry()
+                    telemetry_collector = telemetry.get_collector()
+                except Exception:
+                    # Telemetry not available, continue without it
+                    pass
+
+                # Track tool execution start time
+                import time
+
+                start_time = time.time()
+
                 # Execute the tool function
                 result = func(*bound.args, **bound.kwargs)
+
+                # Calculate duration
+                duration = time.time() - start_time
+
+                # Record tool call in telemetry
+                if telemetry_collector:
+                    telemetry_collector.record_tool_call(
+                        tool_name=tool_name,
+                        duration=duration,
+                        **dict(bound.arguments),
+                    )
 
                 # Validate return type if annotated
                 return_type = sig.return_annotation
