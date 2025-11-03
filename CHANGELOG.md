@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.5] - 2025-11-03
+
+### 🐛 Fixed
+
+- **Coding Memory Tools**: Fixed 3 critical runtime errors (#494)
+  - `coding_record_decision`: Handle string confidence values (format error fix)
+  - `coding_track_file_change`: Normalize action synonyms (`add`→`create`, `modify`→`edit`, etc.)
+  - `coding_get_project_context`: Add template-based fallback when LLM fails
+  - All errors now handled gracefully with helpful messages
+
+### ✨ Added
+
+- **Remote-Capable Tool Indicator** (#492)
+  - `kagura mcp tools` now shows "Remote" column (✓/✗ indicators)
+  - New filters: `--remote-only`, `--local-only`, `--category <name>`
+  - Tool classification: 42 remote-capable, 14 local-only
+  - Helps API Key permission design and remote MCP server usage
+  - Created `tool_classification.py` for centralized tool metadata
+
+### 🧪 Tests
+
+- Added `test_action_synonym_mapping` for action normalization
+- All 29 coding memory tests pass
+- Type check (pyright): 0 errors
+- Lint (ruff): All checks passed
+
+---
+
 ## [4.0.4] - 2025-11-03
 
 ### ✨ Added
