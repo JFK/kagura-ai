@@ -181,7 +181,7 @@ async def gh_pr_view_safe(
         return json.loads(result)
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse gh output as JSON: {result[:200]}")
-        raise ValueError(f"Failed to parse dict from response: {e}")
+        raise ValueError(f"Failed to parse PR data as JSON: {e}")
 
 
 @agent
