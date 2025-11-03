@@ -835,19 +835,21 @@ Statistics:
                 "session_id": result["session_id"],
             }
 
-            # Store in memory
-            memory.manager.store(
-                key=session_key,
+            # Store in persistent memory
+            mem_key = f"claude_code_{session_key}"
+            memory.persistent.store(
+                key=mem_key,
                 value=session_doc,
-                scope="persistent",
+                user_id=user_id,
                 metadata=metadata,
             )
 
-            # Store in RAG
-            memory.manager.store_semantic(
-                content=session_doc,
-                metadata=metadata,
-            )
+            # Store in RAG for semantic search
+            if memory.persistent_rag:
+                memory.persistent_rag.store(
+                    content=session_doc,
+                    metadata=metadata,
+                )
 
             claude_code_status = (
                 f"\n✅ Session saved to Claude Code history: {session_key}"
