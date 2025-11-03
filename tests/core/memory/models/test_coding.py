@@ -67,6 +67,44 @@ class TestFileChangeRecord:
                 reason="test",
             )
 
+    def test_action_synonym_mapping(self):
+        """Test action synonyms are normalized correctly."""
+        # Test "add" → "create"
+        record1 = FileChangeRecord(
+            file_path="new_file.py",
+            action="add",  # type: ignore
+            diff="New file added",
+            reason="Initial creation",
+        )
+        assert record1.action == "create"
+
+        # Test "modify" → "edit"
+        record2 = FileChangeRecord(
+            file_path="existing.py",
+            action="modify",  # type: ignore
+            diff="Modified code",
+            reason="Bug fix",
+        )
+        assert record2.action == "edit"
+
+        # Test "remove" → "delete"
+        record3 = FileChangeRecord(
+            file_path="old.py",
+            action="remove",  # type: ignore
+            diff="File removed",
+            reason="Cleanup",
+        )
+        assert record3.action == "delete"
+
+        # Test "move" → "rename"
+        record4 = FileChangeRecord(
+            file_path="relocated.py",
+            action="move",  # type: ignore
+            diff="File moved",
+            reason="Reorganization",
+        )
+        assert record4.action == "rename"
+
 
 class TestErrorRecord:
     """Test ErrorRecord model."""

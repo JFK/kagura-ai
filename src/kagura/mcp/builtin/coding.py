@@ -378,10 +378,13 @@ async def coding_record_decision(
         confidence=confidence,
     )
 
+    # Ensure confidence is float for formatting
+    confidence_float = float(confidence) if isinstance(confidence, str) else confidence
+
     return (
         f"✅ Decision recorded: {decision_id}\n"
         f"Decision: {decision}\n"
-        f"Confidence: {confidence:.0%}\n"
+        f"Confidence: {confidence_float:.0%}\n"
         f"Project: {project_id}\n"
         f"Tags: {', '.join(tags_list) if tags_list else 'None'}"
     )

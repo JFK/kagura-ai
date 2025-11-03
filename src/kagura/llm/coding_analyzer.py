@@ -203,6 +203,52 @@ class CodingAnalyzer:
             logger.error(f"LLM call failed: {e}")
             raise
 
+    def _generate_template_summary(
+        self,
+        project_id: str,
+        file_changes: list[FileChangeRecord],
+        decisions: list[DesignDecision],
+        focus: str | None = None,
+    ) -> str:
+        """Generate template-based summary when LLM fails.
+
+        Args:
+            project_id: Project identifier
+            file_changes: Recent file modifications
+            decisions: Key design decisions
+            focus: Optional focus area
+
+        Returns:
+            Template-based project summary
+        """
+        # Count activities
+        num_changes = len(file_changes)
+
+        # Extract key info
+        changed_files = list({c.file_path for c in file_changes[:5]})
+        decision_topics = [d.decision.split(":")[0][:50] for d in decisions[:3]]
+
+        # Build summary
+        summary_parts = [
+            f"Project '{project_id}' with {num_changes} recent file change(s)"
+        ]
+
+        if changed_files:
+            files_str = ", ".join(changed_files[:3])
+            if len(changed_files) > 3:
+                files_str += f", +{len(changed_files) - 3} more"
+            summary_parts.append(f"Modified files: {files_str}")
+
+        if decision_topics:
+            summary_parts.append(
+                f"Key decisions: {', '.join(decision_topics)}"
+            )
+
+        if focus:
+            summary_parts.append(f"Focus area: {focus}")
+
+        return ". ".join(summary_parts) + "."
+
     async def summarize_session(
         self,
         session: CodingSession,
@@ -616,14 +662,27 @@ Key Decisions:
 
 Focus Area: {focus or "general overview"}"""
 
-        summary = await self._call_llm(
-            system_prompt=(
-                "You are a technical writer creating concise project summaries."
-            ),
-            user_prompt=summary_prompt,
-            temperature=0.4,
-            max_tokens=256,
-        )
+        # Try LLM generation with fallback to template
+        try:
+            summary = await self._call_llm(
+                system_prompt=(
+                    "You are a technical writer creating concise project summaries."
+                ),
+                user_prompt=summary_prompt,
+                temperature=0.4,
+                max_tokens=256,
+            )
+        except (ValueError, Exception) as e:
+            # Fallback to template-based summary if LLM fails
+            logger.warning(
+                f"LLM failed to generate project context: {e}, "
+                "using template fallback"
+            )
+
+            # Generate template-based summary
+            summary = self._generate_template_summary(
+                project_id, file_changes, decisions, focus
+            )
 
         return ProjectContext(
             project_id=project_id,
