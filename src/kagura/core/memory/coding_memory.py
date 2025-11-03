@@ -784,8 +784,12 @@ Recent file changes:
         async with self._session_lock:
             if self.current_session_id:
                 raise RuntimeError(
-                    f"Session already active: {self.current_session_id}. "
-                    "End current session before starting a new one."
+                    f"❌ A coding session is already active: {self.current_session_id}\n\n"
+                    "You can only have one active session at a time.\n\n"
+                    "Options:\n"
+                    "  1. End current session: coding_end_session()\n"
+                    "  2. Check session status: coding_get_current_session_status()\n\n"
+                    "💡 TIP: Always end sessions when done to preserve your work history"
                 )
 
             session_id = f"session_{uuid.uuid4().hex[:12]}"
@@ -932,7 +936,12 @@ Recent file changes:
             Implemented JWT auth with RS256 signing...
         """
         if not self.current_session_id:
-            raise RuntimeError("No active session to end")
+            raise RuntimeError(
+                "❌ No active coding session to end.\n\n"
+                "You need to start a session first:\n"
+                "  coding_start_session(description='...', project_id='...')\n\n"
+                "💡 TIP: Check if a session exists with coding_get_current_session_status()"
+            )
 
         session_id = self.current_session_id
 

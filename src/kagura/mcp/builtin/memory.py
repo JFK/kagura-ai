@@ -66,69 +66,33 @@ def _get_memory_manager(
 @tool
 async def memory_store(
     user_id: str,
-    agent_name: str,
     key: str,
     value: str,
-    scope: str = "working",
+    agent_name: str = "global",
+    scope: str = "persistent",
     tags: str = "[]",
     importance: float = 0.5,
     metadata: str = "{}",
 ) -> str:
-    """Store information in agent memory
+    """Store information in agent memory.
 
-    ⚠️ BEFORE CALLING THIS TOOL: Always ask the user whether they want to store
-    the memory globally (accessible from all conversations) or locally (only this
-    conversation). Never assume without asking!
-
-    Question to ask user:
-    "Should I remember this globally (accessible from all conversations) or just
-    for this conversation?"
-
-    Stores data in the specified memory scope. Use this tool when:
-    - User explicitly asks to 'remember' or 'save' something
-    - Important context needs to be preserved
-    - User preferences or settings should be stored
-
-    💡 IMPORTANT: Memory ownership model (v4.0)
-    - user_id: WHO owns this memory (e.g., "user_jfk", email, username)
-    - agent_name: WHERE to store
-      * "global" = ALL conversations (user preferences, facts)
-      * "thread_{id}" = ONLY this conversation (temporary context)
-
-    🌐 CROSS-PLATFORM: All memories are tied to user_id, enabling
-        true Universal Memory across Claude, ChatGPT, Gemini, etc.
-
-    Examples:
-        # Global memory (accessible from ALL conversations)
-        agent_name="global", key="user_language", value="Japanese",
-        tags='["preferences"]'
-
-        # Thread-specific memory (ONLY this conversation)
-        agent_name="thread_chat_123", key="current_topic",
-        value="Python tutorial", importance=0.8
+    When: User asks to remember/save something.
+    Defaults: agent_name="global", scope="persistent" (v4.0.10)
 
     Args:
-        user_id: User identifier (memory owner)
-        agent_name: ⚠️ CRITICAL CHOICE - Ask user first!
-            - "global": Accessible from ALL conversations (use for preferences,
-              user facts, long-term knowledge)
-            - "thread_{thread_id}": Only THIS conversation (use for temporary
-              context, current task state)
-        key: Memory key for retrieval
-        value: Information to store
-        scope: Memory scope - "persistent" (disk, survives restart)
-            or "working" (in-memory, cleared on restart)
-        tags: JSON array string of tags (e.g., '["python", "coding"]')
-        importance: Importance score (0.0-1.0, default 0.5)
-        metadata: JSON object string of additional metadata
-            (e.g., '{"project": "kagura"}')
+        user_id: Memory owner ID
+        key: Memory key
+        value: Info to store
+        agent_name: "global" (all conversations) or "thread_{id}" (this conversation only)
+        scope: "persistent" (disk) or "working" (RAM, cleared on restart)
+        tags: JSON array '["tag1"]' (optional)
+        importance: 0.0-1.0 (default: 0.5)
+        metadata: JSON object (optional)
 
-    Returns:
-        Confirmation message with clear indication of storage scope
+    Returns: Confirmation with storage scope
 
-    Note:
-        Both working and persistent memory data are automatically indexed in RAG
-        for semantic search. Use memory_search() to find data stored with this function.
+    💡 TIP: Use defaults for user preferences. Override for temporary data.
+    🌐 Cross-platform: Memories shared across Claude, ChatGPT, Gemini via user_id.
     """
     # Always enable RAG for both working and persistent memory
     enable_rag = True
@@ -248,7 +212,7 @@ async def memory_store(
 
 @tool
 async def memory_recall(
-    user_id: str, agent_name: str, key: str, scope: str = "working"
+    user_id: str, agent_name: str, key: str, scope: str = "persistent"
 ) -> str:
     """Recall information from agent memory
 
@@ -334,48 +298,23 @@ async def memory_search(
     scope: str = "all",
     mode: str = "full",
 ) -> str:
-    """Search agent memory using semantic RAG and key-value memory
+    """Search memories by concept/keyword match.
 
-    Search stored memories using semantic similarity and keyword matching.
-    Use this tool when:
-    - User asks about topics discussed before but doesn't specify exact key
-    - Need to find related memories without exact match
-    - Exploring what has been remembered about a topic
-
-    💡 IMPORTANT: Memory ownership model (v4.0)
-    - user_id: WHO owns these memories (searches only this user's data)
-    - agent_name: WHERE to search ("global" = all threads, "thread_X" = specific)
-
-    🌐 CROSS-PLATFORM: Searches are scoped by user_id, enabling
-        cross-platform memory search across all AI tools.
-
-    Examples:
-        # Search global memory for user
-        user_id="user_jfk", agent_name="global", query="user preferences"
-
-        # Search thread memory
-        user_id="user_jfk", agent_name="thread_chat_123", query="topics we discussed"
+    When: User recalls topic but not exact key.
+    Combines: Semantic (RAG) + keyword matching across all memory.
 
     Args:
-        user_id: User identifier (memory owner)
-        agent_name: Agent identifier (determines which memory space to search)
-        query: Search query (semantic and keyword matching)
-        k: Number of results from RAG per scope
-            (default: 3, reduced from 5 for token efficiency)
-        scope: Memory scope to search ("working", "persistent", or "all")
-        mode: Output mode - "summary" (compact, token-efficient) or
-            "full" (complete JSON, default for backward compatibility)
+        user_id: Memory owner ID
+        agent_name: "global" or "thread_{id}"
+        query: Search query (natural language)
+        k: Results per scope (default: 3)
+        scope: "all"|"working"|"persistent" (default: "all")
+        mode: "summary" (compact) or "full" (JSON, default)
 
-    Returns:
-        Search results in the specified format:
-        - summary mode: Compact text format with previews (~200 tokens)
-        - full mode: Complete JSON with all data (~1000 tokens)
+    Returns: Search results (RAG + key-value)
 
-    Note:
-        Searches data stored via memory_store() in:
-        - RAG (semantic search across working/persistent/all)
-        - Working memory (key-value, exact/partial key matches)
-        Results include "source" and "scope" fields.
+    💡 TIP: Searches by meaning, not exact words.
+    🌐 Cross-platform: Searches user's data across all AI tools.
     """
     # Ensure k is int (LLM might pass as string)
     if isinstance(k, str):

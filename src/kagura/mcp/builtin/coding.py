@@ -61,58 +61,22 @@ async def coding_track_file_change(
     related_files: str = "[]",
     line_range: str | None = None,
 ) -> str:
-    """Track file modifications during coding sessions with context and reasoning.
+    """Track file changes with WHY they were made.
 
-    Use this tool to record file changes with WHY they were made, not just WHAT changed.
-    This enables AI assistants to understand project evolution across sessions.
-
-    When to use:
-    - After making significant changes to a file
-    - When refactoring code structure
-    - When creating new files/modules
-    - When decisions affect multiple files
+    When: After editing files during coding session.
+    Records: file_path, action (create/edit/delete/refactor), diff, reason.
 
     Args:
-        user_id: User identifier (developer, e.g., "dev_john")
-        project_id: Project identifier (e.g., "kagura-ai", "my-web-app")
-        file_path: Path to modified file (e.g., "src/auth.py")
-        action: Type of modification:
-            - "create": New file created
-            - "edit": Existing file modified
-            - "delete": File removed
-            - "rename": File renamed/moved
-            - "refactor": Code restructured
-            - "test": Test file added/modified
-        diff: Summary of changes or git-style diff (be concise but informative)
-        reason: WHY this change was made (critical for context)
-        related_files: JSON array of related file paths (e.g., '["src/middleware.py"]')
-        line_range: Optional line range affected (e.g., "42,57" for lines 42-57)
+        user_id: Developer ID
+        project_id: Project ID
+        file_path: Modified file path
+        action: create|edit|delete|rename|refactor|test
+        diff: Change summary (concise)
+        reason: WHY changed (critical for context)
+        related_files: JSON array '["file1.py"]' (optional)
+        line_range: "start,end" (optional)
 
-    Returns:
-        Confirmation with unique change ID
-
-    Examples:
-        # Recording a new feature
-        await coding_track_file_change(
-            user_id="dev_john",
-            project_id="api-service",
-            file_path="src/auth.py",
-            action="edit",
-            diff="+ def validate_token(token: str) -> bool:\\n+     ...",
-            reason="Add JWT token validation for new auth middleware",
-            related_files='["src/middleware.py", "src/models/user.py"]'
-        )
-
-        # Recording a refactor
-        await coding_track_file_change(
-            user_id="dev_john",
-            project_id="api-service",
-            file_path="src/utils/helpers.py",
-            action="refactor",
-            diff="Extracted 3 helper functions into separate module",
-            reason="Reduce file size and improve modularity",
-            line_range="1,150"
-        )
+    Returns: Confirmation with change ID
     """
     memory = _get_coding_memory(user_id, project_id)
 
@@ -392,52 +356,21 @@ async def coding_start_session(
     description: str,
     tags: str = "[]",
 ) -> str:
-    """Start a tracked coding session to maintain context across related changes.
+    """Start tracked coding session.
 
-    Use this tool at the beginning of a coherent work session (e.g., implementing
-    a feature, fixing a bug, refactoring a module). The session will automatically
-    track all file changes, errors, and decisions until you end it.
-
-    Benefits:
-    - Groups related activities together
-    - Automatic session summary with AI analysis
-    - Better context for future work
-    - Pattern learning from session outcomes
-
-    When to use:
-    - Starting work on a new feature
-    - Beginning a debugging session
-    - Starting a refactoring task
-    - Any coherent block of work
+    When: Beginning feature/bugfix/refactor work.
+    Auto-tracks: File changes, errors, decisions until coding_end_session().
 
     Args:
-        user_id: User identifier (developer)
-        project_id: Project identifier
-        description: Brief description of session goals (what you plan to do)
-        tags: JSON array of session tags (e.g., '["feature", "authentication"]')
+        user_id: Developer ID
+        project_id: Project ID
+        description: Session goals (what you plan to do)
+        tags: JSON array '["feature", "auth"]' (optional)
 
-    Returns:
-        Session ID and confirmation
+    Returns: Session ID and confirmation
 
-    Raises:
-        Error if a session is already active (end it first!)
-
-    Examples:
-        # Starting a feature implementation session
-        await coding_start_session(
-            user_id="dev_john",
-            project_id="api-service",
-            description="Implement JWT authentication system with RS256 signing",
-            tags='["feature", "authentication", "security"]'
-        )
-
-        # Starting a debugging session
-        await coding_start_session(
-            user_id="dev_john",
-            project_id="api-service",
-            description="Debug database connection timeout issues",
-            tags='["bugfix", "database", "performance"]'
-        )
+    💡 Groups related work, generates AI summary on end.
+    ⚠️ Error if session already active - end it first!
     """
     memory = _get_coding_memory(user_id, project_id)
 
@@ -693,68 +626,23 @@ async def coding_end_session(
     save_to_github: str | bool = "false",
     save_to_claude_code_history: str | bool = "true",
 ) -> str:
-    """End coding session and generate AI-powered summary of changes,
-    decisions, and learnings.
+    """End session and generate AI summary.
 
-    ⚠️ IMPORTANT: This action cannot be undone. Make sure you're ready to end the session.
-
-    Use this tool when finishing a coherent work session. The system will:
-    1. Collect all tracked activities (files, errors, decisions, interactions)
-    2. Generate comprehensive AI summary (if not provided)
-    3. Store session data for future reference
-    4. Update coding patterns and preferences
-    5. Optionally save to GitHub Issue (if save_to_github=true)
-    6. Optionally save to Claude Code history (if save_to_claude_code_history=true)
-
-    ⚠️ Recommendation: Confirm with the user before calling this tool.
-
-    The AI summary includes:
-    - Session overview and objectives achieved
-    - Key technical decisions and rationale
-    - Challenges faced and solutions applied
-    - Patterns observed (good and bad practices)
-    - Recommendations for future sessions
+    When: Finishing work session.
+    Generates: AI summary of changes, decisions, learnings.
 
     Args:
-        user_id: User identifier (developer)
-        project_id: Project identifier
-        summary: Optional user-provided summary (if None, AI generates it)
-        success: Whether session objectives were met ("true"/"false", optional)
-        save_to_github: Save session summary to GitHub Issue ("true"/"false",
-            default: "false"). Requires gh CLI and active branch linked to issue.
-        save_to_claude_code_history: Save to Claude Code session history ("true"/"false",
-            default: "true"). Enables cross-session knowledge via claude_code_search_past_work()
+        user_id: Developer ID
+        project_id: Project ID
+        summary: Custom summary (default: AI generates)
+        success: "true"|"false" (optional)
+        save_to_github: "true"|"false" (default: "false", needs gh CLI + linked issue)
+        save_to_claude_code_history: "true"|"false" (default: "true")
 
-    Returns:
-        Session summary and statistics
+    Returns: Summary and statistics
 
-    Raises:
-        Error if no active session to end
-
-    Examples:
-        # End session with AI-generated summary (auto-save to Claude Code history)
-        await coding_end_session(
-            user_id="dev_john",
-            project_id="api-service",
-            success="true"
-        )
-
-        # End session with GitHub recording
-        await coding_end_session(
-            user_id="kiyota",
-            project_id="kagura-ai",
-            success="true",
-            save_to_github="true"
-        )
-
-        # End session without Claude Code history
-        await coding_end_session(
-            user_id="dev_john",
-            project_id="api-service",
-            summary="Completed JWT auth implementation. All tests passing.",
-            success="true",
-            save_to_claude_code_history="false"
-        )
+    ⚠️ Cannot be undone! Confirm with user first.
+    💡 Auto-saves to Claude Code history for cross-session knowledge.
     """
     memory = _get_coding_memory(user_id, project_id)
 

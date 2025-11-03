@@ -572,7 +572,14 @@ class MemoryManager:
             ValueError: If RAG is not enabled
         """
         if not self.rag:
-            raise ValueError("RAG not enabled. Set enable_rag=True")
+            raise ValueError(
+                "RAG (semantic search) is not enabled.\n\n"
+                "To enable RAG:\n"
+                "  1. Install dependencies: pip install kagura-ai[ai]\n"
+                "  2. Set enable_rag=True when creating MemoryManager\n"
+                "  3. Or use memory_search (auto-enables RAG)\n\n"
+                "💡 RAG allows semantic search like 'find conversations about authentication'"
+            )
         return self.rag.store(content, self.user_id, metadata, self.agent_name)
 
     def recall_semantic(
@@ -592,7 +599,13 @@ class MemoryManager:
             ValueError: If RAG is not enabled
         """
         if not self.rag and not self.persistent_rag:
-            raise ValueError("RAG not enabled. Set enable_rag=True")
+            raise ValueError(
+                "RAG (semantic search) is not enabled.\n\n"
+                "To enable RAG:\n"
+                "  1. Install: pip install kagura-ai[ai]\n"
+                "  2. Set enable_rag=True when creating MemoryManager\n\n"
+                "💡 Semantic search finds memories by meaning, not exact keywords"
+            )
 
         results = []
 
@@ -718,11 +731,21 @@ class MemoryManager:
             - Queries requiring both semantic and exact matching
         """
         if not self.rag and not self.persistent_rag:
-            raise ValueError("RAG not enabled. Set enable_rag=True")
+            raise ValueError(
+                "RAG (semantic search) is not enabled.\n\n"
+                "To enable RAG:\n"
+                "  1. Install: pip install kagura-ai[ai]\n"
+                "  2. Set enable_rag=True when creating MemoryManager\n\n"
+                "💡 Semantic search finds memories by meaning, not exact keywords"
+            )
 
         if not self.lexical_searcher:
             raise ValueError(
-                "Lexical search not available. Install rank-bm25: pip install rank-bm25"
+                "Lexical (keyword) search is not available.\n\n"
+                "To enable lexical search:\n"
+                "  Install: pip install rank-bm25\n"
+                "  Or: pip install kagura-ai[ai] (includes all search features)\n\n"
+                "💡 Lexical search uses BM25 algorithm for exact keyword matching"
             )
 
         # Use config defaults if not specified
