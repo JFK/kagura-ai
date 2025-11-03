@@ -178,8 +178,8 @@ def sessions(project: str, user: str, limit: int, success: str, since: str | Non
 
         # Display table
         table = Table(title=f"Coding Sessions: {project}", show_header=True)
-        table.add_column("Session ID", style="cyan", width=20)
-        table.add_column("Description", style="white", width=40)
+        table.add_column("Session ID", style="cyan", no_wrap=True)
+        table.add_column("Description", style="white", width=50)
         table.add_column("Duration", justify="right", width=10)
         table.add_column("Status", justify="center", width=8)
 
@@ -331,7 +331,7 @@ def decisions(
 
         # Display table
         table = Table(title=f"Design Decisions: {project}", show_header=True)
-        table.add_column("Decision ID", style="cyan", width=18)
+        table.add_column("Decision ID", style="cyan", no_wrap=True)
         table.add_column("Decision", style="white", width=50)
         table.add_column("Confidence", justify="right", width=10)
         table.add_column("Date", width=12)
@@ -493,7 +493,7 @@ def errors(
 
         # Display table
         table = Table(title=f"Errors: {project}", show_header=True)
-        table.add_column("Error ID", style="cyan", width=18)
+        table.add_column("Error ID", style="cyan", no_wrap=True)
         table.add_column("Type", style="red", width=15)
         table.add_column("Location", style="yellow", width=30)
         table.add_column("Status", justify="center", width=8)
