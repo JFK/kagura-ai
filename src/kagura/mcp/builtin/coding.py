@@ -479,6 +479,8 @@ async def coding_end_session(
     """End coding session and generate AI-powered summary of changes,
     decisions, and learnings.
 
+    ⚠️ IMPORTANT: This action cannot be undone. Make sure you're ready to end the session.
+
     Use this tool when finishing a coherent work session. The system will:
     1. Collect all tracked activities (files, errors, decisions, interactions)
     2. Generate comprehensive AI summary (if not provided)
@@ -486,6 +488,8 @@ async def coding_end_session(
     4. Update coding patterns and preferences
     5. Optionally save to GitHub Issue (if save_to_github=true)
     6. Optionally save to Claude Code history (if save_to_claude_code_history=true)
+
+    ⚠️ Recommendation: Confirm with the user before calling this tool.
 
     The AI summary includes:
     - Session overview and objectives achieved
