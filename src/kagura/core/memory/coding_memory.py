@@ -1229,6 +1229,59 @@ class CodingMemoryManager(MemoryManager):
 
     # Helper methods
 
+    async def _get_session_records(
+        self,
+        session_id: str,
+        record_type: str,
+        record_class: type,
+    ) -> list:
+        """Generic method to get session records by type.
+
+        Extracted common pattern from _get_session_file_changes/errors/decisions.
+
+        Args:
+            session_id: Session ID
+            record_type: Type prefix (e.g., "file_change", "error", "decision")
+            record_class: Record class for validation
+
+        Returns:
+            List of records associated with session
+        """
+        import json
+
+        records = []
+
+        # Query persistent storage by session_id (primary method)
+        pattern = f"project:{self.project_id}:{record_type}:%"
+        all_records = self.persistent.search(
+            query=pattern,
+            user_id=self.user_id,
+            limit=1000
+        )
+
+        for record_data in all_records:
+            try:
+                value_str = record_data.get("value", "{}")
+                data = json.loads(value_str) if isinstance(value_str, str) else value_str
+                if data.get("session_id") == session_id:
+                    records.append(record_class(**data))
+            except (json.JSONDecodeError, TypeError, ValueError):
+                continue
+
+        # Fallback: Use graph if available and no records found
+        if not records and self.graph and self.graph.graph.has_node(session_id):
+            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
+                session_id, data=True
+            ):
+                prefix = record_type.replace("_", "_") + "_"
+                if dst_id.startswith(prefix.replace("file_change", "change")):
+                    key = self._make_key(f"{record_type}:{dst_id}")
+                    data = self.persistent.recall(key=key, user_id=self.user_id)
+                    if data:
+                        records.append(record_class(**data))
+
+        return records
+
     async def _get_session_file_changes(
         self, session_id: str
     ) -> list[FileChangeRecord]:
@@ -1240,39 +1293,11 @@ class CodingMemoryManager(MemoryManager):
         Returns:
             List of file changes associated with session
         """
-        import json
-
-        file_changes = []
-
-        # Method 1: Query persistent storage by session_id (v4.0.9 - more reliable)
-        pattern = f"project:{self.project_id}:file_change:%"
-        all_changes = self.persistent.search(
-            query=pattern,
-            user_id=self.user_id,
-            limit=1000
+        return await self._get_session_records(
+            session_id=session_id,
+            record_type="file_change",
+            record_class=FileChangeRecord
         )
-
-        for change_record in all_changes:
-            try:
-                value_str = change_record.get("value", "{}")
-                data = json.loads(value_str) if isinstance(value_str, str) else value_str
-                if data.get("session_id") == session_id:
-                    file_changes.append(FileChangeRecord(**data))
-            except (json.JSONDecodeError, TypeError, ValueError):
-                continue
-
-        # Method 2: Use graph if available (legacy, less reliable)
-        if not file_changes and self.graph and self.graph.graph.has_node(session_id):
-            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
-                session_id, data=True
-            ):
-                if dst_id.startswith("change_"):
-                    key = self._make_key(f"file_change:{dst_id}")
-                    data = self.persistent.recall(key=key, user_id=self.user_id)
-                    if data:
-                        file_changes.append(FileChangeRecord(**data))
-
-        return file_changes
 
     async def _get_session_errors(self, session_id: str) -> list[ErrorRecord]:
         """Get errors for session.
@@ -1283,39 +1308,11 @@ class CodingMemoryManager(MemoryManager):
         Returns:
             List of errors associated with session
         """
-        import json
-
-        errors = []
-
-        # Method 1: Query persistent storage by session_id (v4.0.9)
-        pattern = f"project:{self.project_id}:error:%"
-        all_errors = self.persistent.search(
-            query=pattern,
-            user_id=self.user_id,
-            limit=1000
+        return await self._get_session_records(
+            session_id=session_id,
+            record_type="error",
+            record_class=ErrorRecord
         )
-
-        for error_record in all_errors:
-            try:
-                value_str = error_record.get("value", "{}")
-                data = json.loads(value_str) if isinstance(value_str, str) else value_str
-                if data.get("session_id") == session_id:
-                    errors.append(ErrorRecord(**data))
-            except (json.JSONDecodeError, TypeError, ValueError):
-                continue
-
-        # Method 2: Use graph if available (legacy fallback)
-        if not errors and self.graph and self.graph.graph.has_node(session_id):
-            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
-                session_id, data=True
-            ):
-                if dst_id.startswith("error_"):
-                    key = self._make_key(f"error:{dst_id}")
-                    data = self.persistent.recall(key=key, user_id=self.user_id)
-                    if data:
-                        errors.append(ErrorRecord(**data))
-
-        return errors
 
     async def _get_session_decisions(self, session_id: str) -> list[DesignDecision]:
         """Get decisions for session.
@@ -1326,39 +1323,11 @@ class CodingMemoryManager(MemoryManager):
         Returns:
             List of decisions associated with session
         """
-        import json
-
-        decisions = []
-
-        # Method 1: Query persistent storage by session_id (v4.0.9)
-        pattern = f"project:{self.project_id}:decision:%"
-        all_decisions = self.persistent.search(
-            query=pattern,
-            user_id=self.user_id,
-            limit=1000
+        return await self._get_session_records(
+            session_id=session_id,
+            record_type="decision",
+            record_class=DesignDecision
         )
-
-        for decision_record in all_decisions:
-            try:
-                value_str = decision_record.get("value", "{}")
-                data = json.loads(value_str) if isinstance(value_str, str) else value_str
-                if data.get("session_id") == session_id:
-                    decisions.append(DesignDecision(**data))
-            except (json.JSONDecodeError, TypeError, ValueError):
-                continue
-
-        # Method 2: Use graph if available (legacy fallback)
-        if not decisions and self.graph and self.graph.graph.has_node(session_id):
-            for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
-                session_id, data=True
-            ):
-                if dst_id.startswith("decision_"):
-                    key = self._make_key(f"decision:{dst_id}")
-                    data = self.persistent.recall(key=key, user_id=self.user_id)
-                    if data:
-                        decisions.append(DesignDecision(**data))
-
-        return decisions
 
     async def _get_recent_file_changes(self, limit: int = 30) -> list[FileChangeRecord]:
         """Get recent file changes.
