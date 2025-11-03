@@ -495,7 +495,7 @@ def errors(
         table = Table(title=f"Errors: {project}", show_header=True)
         table.add_column("Error ID", style="cyan", no_wrap=True)
         table.add_column("Type", style="red", width=15)
-        table.add_column("Location", style="yellow", width=30)
+        table.add_column("Location", style="yellow", no_wrap=True)
         table.add_column("Status", justify="center", width=8)
         table.add_column("Date", width=12)
 
@@ -513,7 +513,7 @@ def errors(
             table.add_row(
                 error_id,
                 err_type,
-                location[:30],
+                location,  # Show full path (no truncation)
                 status_icon,
                 date_str,
             )
