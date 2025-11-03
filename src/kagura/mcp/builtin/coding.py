@@ -457,6 +457,10 @@ async def coding_start_session(
         tags=tags_list,
     )
 
+    # Update cache to reflect new session state (fix cache synchronization)
+    cache_key = f"{user_id}:{project_id}"
+    _coding_memory_cache[cache_key] = memory
+
     return (
         f"✅ Coding session started: {session_id}\n"
         f"Project: {project_id}\n"
@@ -522,11 +526,17 @@ async def coding_resume_session(
     try:
         session_id_returned = await memory.resume_coding_session(session_id)
 
-        # Get session details
-        session = memory.current_session
+        # Update cache to reflect resumed session state
+        cache_key = f"{user_id}:{project_id}"
+        _coding_memory_cache[cache_key] = memory
 
-        if not session:
-            return f"❌ Failed to resume session: {session_id}"
+        # Get session details from working memory
+        session_data = memory.working.get(f"session:{session_id_returned}")
+        if not session_data:
+            return f"❌ Failed to load resumed session: {session_id}"
+
+        from kagura.core.memory.coding_memory import CodingSession
+        session = CodingSession.model_validate(session_data)
 
         # Calculate original duration if applicable
         from datetime import datetime
