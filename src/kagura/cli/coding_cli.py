@@ -385,15 +385,43 @@ def session(session_id: str, project: str | None, user: str | None):
         console.print()
 
         # Overview panel
-        duration = data.get('duration_minutes', 0)
-        duration_str = f"{duration:.1f} minutes" if duration else "In progress"
+        end_time = data.get('end_time')
+        is_active = not end_time or end_time == 'None'
+
+        if is_active:
+            # Calculate ongoing duration
+            try:
+                from datetime import datetime, timezone
+                start = datetime.fromisoformat(data.get('start_time', ''))
+                if start.tzinfo is None:
+                    start = start.replace(tzinfo=timezone.utc)
+                now = datetime.now(timezone.utc)
+                duration = (now - start).total_seconds() / 60
+                duration_str = f"[yellow]{duration:.1f} minutes (ongoing)[/yellow]"
+                end_str = "[yellow]In progress[/yellow]"
+            except Exception:
+                duration_str = "[yellow]In progress[/yellow]"
+                end_str = "[yellow]In progress[/yellow]"
+        else:
+            duration = data.get('duration_minutes', 0)
+            if not duration and data.get('start_time') and end_time:
+                # Calculate from timestamps
+                try:
+                    from datetime import datetime
+                    start = datetime.fromisoformat(data.get('start_time'))
+                    end = datetime.fromisoformat(end_time)
+                    duration = (end - start).total_seconds() / 60
+                except Exception:
+                    duration = 0
+            duration_str = f"{duration:.1f} minutes" if duration else "Unknown"
+            end_str = end_time
 
         overview = (
             f"[bold]Description:[/bold] {data.get('description', 'N/A')}\n"
             f"[bold]Start:[/bold] {data.get('start_time', 'N/A')}\n"
-            f"[bold]End:[/bold] {data.get('end_time', 'N/A')}\n"
+            f"[bold]End:[/bold] {end_str}\n"
             f"[bold]Duration:[/bold] {duration_str}\n"
-            f"[bold]Success:[/bold] {success_status}"
+            f"[bold]Success:[/bold] {success_status if not is_active else '[yellow]In progress[/yellow]'}"
         )
 
         console.print(Panel(overview, title="Overview", border_style="blue"))
