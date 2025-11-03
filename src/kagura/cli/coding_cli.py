@@ -663,8 +663,9 @@ def search(project: str, user: str, query: str, search_type: str, limit: int):
         for result in results:
             metadata = result.get("metadata", {})
             result_type = metadata.get("type", "unknown")
-            content = str(result.get("value", ""))[:60]
-            score = result.get("score", 0)
+            # RAG uses 'content' key, not 'value'
+            content = str(result.get("content", result.get("value", "")))[:60]
+            score = result.get("distance", result.get("score", 0))
 
             table.add_row(result_type, content, f"{score:.3f}")
 
