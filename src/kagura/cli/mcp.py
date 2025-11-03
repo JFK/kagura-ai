@@ -940,6 +940,134 @@ def stats_command(
     console.print()
 
 
+@mcp.command(name="monitor")
+@click.option("--tool", "-t", help="Filter by tool name pattern", type=str, default=None)
+@click.option(
+    "--refresh",
+    "-r",
+    help="Refresh interval in seconds",
+    type=float,
+    default=1.0,
+)
+@click.option(
+    "--db", help="Path to telemetry database", type=click.Path(), default=None
+)
+@click.pass_context
+def monitor_command(
+    ctx: click.Context,
+    tool: str | None,
+    refresh: float,
+    db: str | None,
+):
+    """Live monitoring dashboard for MCP tools
+
+    Shows real-time MCP tool usage statistics with auto-refresh.
+    Similar to 'kagura monitor' but for MCP tools specifically.
+
+    \b
+    Examples:
+        kagura mcp monitor                     # Monitor all tools
+        kagura mcp monitor --tool memory_*     # Monitor memory tools
+        kagura mcp monitor --refresh 2         # Refresh every 2 seconds
+    """
+    import time
+    from collections import defaultdict
+    from datetime import datetime, timedelta
+    from pathlib import Path
+
+    from rich.console import Console
+    from rich.live import Live
+    from rich.table import Table
+
+    from kagura.observability import EventStore
+
+    console = Console()
+
+    # Load event store
+    db_path = Path(db) if db else None
+    store = EventStore(db_path)
+
+    console.print("\n[cyan]Starting MCP Monitor... (Press Ctrl+C to exit)[/cyan]")
+    console.print()
+    time.sleep(0.5)
+
+    def create_dashboard() -> Table:
+        """Create dashboard table with current stats."""
+        # Get recent events (last 5 minutes)
+        cutoff = datetime.now() - timedelta(minutes=5)
+        events = store.query(since=cutoff.isoformat())
+
+        # Filter MCP tool events
+        mcp_events = [
+            e for e in events
+            if e.get("event_type") == "tool_call"
+        ]
+
+        # Apply tool filter
+        if tool:
+            import fnmatch
+            mcp_events = [
+                e for e in mcp_events
+                if fnmatch.fnmatch(e.get("tool_name", ""), tool)
+            ]
+
+        # Calculate statistics
+        tool_stats = defaultdict(lambda: {"calls": 0, "errors": 0, "total_time": 0})
+
+        for event in mcp_events:
+            tool_name = event.get("tool_name", "unknown")
+            tool_stats[tool_name]["calls"] += 1
+
+            if event.get("error"):
+                tool_stats[tool_name]["errors"] += 1
+
+            # Duration
+            duration = event.get("duration_ms", 0)
+            tool_stats[tool_name]["total_time"] += duration
+
+        # Create table
+        table = Table(title=f"MCP Tools - Live Monitor (Last 5 min)", show_header=True)
+        table.add_column("Tool Name", style="cyan")
+        table.add_column("Calls", justify="right", style="white")
+        table.add_column("Success Rate", justify="right", style="green")
+        table.add_column("Avg Time", justify="right", style="yellow")
+        table.add_column("Errors", justify="right", style="red")
+
+        # Sort by call count
+        sorted_tools = sorted(
+            tool_stats.items(),
+            key=lambda x: x[1]["calls"],
+            reverse=True
+        )
+
+        for tool_name, stats in sorted_tools[:15]:  # Top 15 tools
+            calls = stats["calls"]
+            errors = stats["errors"]
+            success_rate = ((calls - errors) / calls * 100) if calls > 0 else 0
+            avg_time = (stats["total_time"] / calls) if calls > 0 else 0
+
+            table.add_row(
+                tool_name,
+                str(calls),
+                f"{success_rate:.1f}%",
+                f"{avg_time:.0f}ms",
+                str(errors) if errors > 0 else "-",
+            )
+
+        if not sorted_tools:
+            table.add_row("No activity", "-", "-", "-", "-")
+
+        return table
+
+    try:
+        with Live(create_dashboard(), refresh_per_second=1/refresh, console=console) as live:
+            while True:
+                time.sleep(refresh)
+                live.update(create_dashboard())
+    except KeyboardInterrupt:
+        console.print("\n[cyan]Monitor stopped.[/cyan]\n")
+
+
 @mcp.command(name="log")
 @click.option(
     "--tail", "-n", help="Number of lines (default: 50)", type=int, default=50
