@@ -791,17 +791,12 @@ async def coding_end_session(
     if save_to_claude_code_history_bool:
         try:
             # Prepare session data for Claude Code history
-            session_title = (
-                memory.current_session.description
-                if memory.current_session
-                else "Coding Session"
-            )
+            # Use result data since session just ended
+            session_title = result.get("description", "Coding Session")
             files_modified = [str(f) for f in result["files_touched"]]
 
-            # Extract tags from session
-            tags = []
-            if memory.current_session and memory.current_session.tags:
-                tags = memory.current_session.tags
+            # Extract tags from result
+            tags = result.get("tags", [])
 
             # Save using claude_code_save_session logic
             from datetime import datetime
