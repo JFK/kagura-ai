@@ -212,7 +212,7 @@ async def memory_store(
 
 @tool
 async def memory_recall(
-    user_id: str, agent_name: str, key: str, scope: str = "working"
+    user_id: str, agent_name: str, key: str, scope: str = "persistent"
 ) -> str:
     """Recall information from agent memory
 
