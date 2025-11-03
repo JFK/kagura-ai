@@ -43,13 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integrated Coding Session into standard workflow
   - Emphasizes using Kagura memory over ephemeral Claude context
 
-### 🎯 Impact
-
-- **Self-Improvement Loop**: Kagura developers can now use Kagura's memory for development
-- **CLI Access**: Query coding memory from terminal (no Claude Desktop needed)
-- **Context Restoration**: Review past sessions, decisions, errors before starting work
-- **Dogfooding**: Kagura using Kagura for its own development
-
 ### 🧪 Tests
 
 - Type check: 0 errors (pyright)

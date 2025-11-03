@@ -71,10 +71,9 @@ class MCPDiagnostics:
             if db_path.exists():
                 import sqlite3
 
-                conn = sqlite3.connect(db_path)
-                cursor = conn.execute("SELECT COUNT(*) FROM memories")
-                persistent_count = cursor.fetchone()[0]
-                conn.close()
+                with sqlite3.connect(db_path) as conn:
+                    cursor = conn.execute("SELECT COUNT(*) FROM memories")
+                    persistent_count = cursor.fetchone()[0]
 
             # Count RAG vectors from ChromaDB (all collections)
             rag_count = 0
@@ -98,9 +97,14 @@ class MCPDiagnostics:
                             client = chromadb.PersistentClient(path=str(vdb_path))
                             for col in client.list_collections():
                                 rag_count += col.count()
-                        except Exception:
+                        except Exception as e:
                             # Skip if collection read fails
-                            pass
+                            import logging
+
+                            logger = logging.getLogger(__name__)
+                            logger.debug(
+                                f"Failed to read collection from {vdb_path}: {e}"
+                            )
 
             except ImportError:
                 rag_enabled = False

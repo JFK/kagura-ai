@@ -249,7 +249,8 @@ def sessions(
             sessions_data = [
                 s
                 for s in sessions_data
-                if datetime.fromisoformat(s["start_time"]) >= cutoff_time
+                if datetime.fromisoformat(s["start_time"]).replace(tzinfo=timezone.utc)
+                >= cutoff_time
             ]
 
         # Sort by start_time (newest first)
@@ -836,11 +837,19 @@ def search(
 
         # Filter by type
         if search_type != "all":
+            # Map plural to singular for metadata type matching
+            plural_to_singular = {
+                "sessions": "session",
+                "decisions": "decision",
+                "errors": "error",
+                "changes": "change",
+            }
+            singular_type = plural_to_singular.get(search_type, search_type)
             type_prefix = f"project:{project}:{search_type}:"
             results = [
                 r
                 for r in results
-                if r.get("metadata", {}).get("type") == search_type.rstrip("s")
+                if r.get("metadata", {}).get("type") == singular_type
                 or r.get("id", "").startswith(type_prefix)
             ]
 
