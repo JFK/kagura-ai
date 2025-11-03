@@ -623,19 +623,43 @@ def test_remote(ctx: click.Context):
 
 
 @mcp.command(name="tools")
+@click.option(
+    "--remote-only",
+    is_flag=True,
+    help="Show only remote-capable tools",
+)
+@click.option(
+    "--local-only",
+    is_flag=True,
+    help="Show only local-only tools",
+)
+@click.option(
+    "--category",
+    "-c",
+    help="Filter by category",
+    type=str,
+)
 @click.pass_context
-def list_tools(ctx: click.Context):
+def list_tools(
+    ctx: click.Context,
+    remote_only: bool,
+    local_only: bool,
+    category: str | None,
+):
     """List available MCP tools
 
-    Shows all MCP tools that Kagura provides.
+    Shows all MCP tools that Kagura provides, with remote capability indicators.
 
-    Example:
+    Examples:
       kagura mcp tools
+      kagura mcp tools --remote-only
+      kagura mcp tools --category memory --remote-only
     """
     from rich.console import Console
     from rich.table import Table
 
     from kagura.core.registry import tool_registry
+    from kagura.mcp.tool_classification import is_remote_capable
 
     console = Console()
 
@@ -653,13 +677,6 @@ def list_tools(ctx: click.Context):
         console.print("[dim]Example: from kagura.mcp.builtin import memory[/dim]\n")
         return
 
-    console.print(f"\n[bold]Kagura MCP Tools ({len(all_tools)})[/bold]\n")
-
-    table = Table(show_header=True, header_style="bold magenta")
-    table.add_column("Tool Name", style="cyan")
-    table.add_column("Category", style="dim")
-    table.add_column("Description")
-
     # Categorize tools
     categories = {
         "memory": [
@@ -674,25 +691,83 @@ def list_tools(ctx: click.Context):
         "youtube": ["youtube_transcript", "youtube_metadata"],
         "file": ["file_read", "file_write", "file_list"],
         "multimodal": ["gemini_vision", "gemini_audio"],
+        "github": ["github_issue_view", "github_pr_view", "github_pr_create"],
+        "coding": [
+            "coding_track_file_change",
+            "coding_record_error",
+            "coding_record_decision",
+            "coding_start_session",
+            "coding_end_session",
+        ],
     }
 
-    for tool_name, tool_func in sorted(all_tools.items()):
+    # Filter tools
+    filtered_tools = {}
+    for tool_name, tool_func in all_tools.items():
+        # Filter by remote/local
+        if remote_only and not is_remote_capable(tool_name):
+            continue
+        if local_only and is_remote_capable(tool_name):
+            continue
+
+        # Filter by category
+        if category:
+            tool_category = "other"
+            for cat, tool_names in categories.items():
+                if tool_name in tool_names:
+                    tool_category = cat
+                    break
+            if tool_category != category:
+                continue
+
+        filtered_tools[tool_name] = tool_func
+
+    if not filtered_tools:
+        console.print("[yellow]No tools match the specified filters.[/yellow]")
+        return
+
+    # Count remote vs local
+    remote_count = sum(1 for name in filtered_tools if is_remote_capable(name))
+    local_count = len(filtered_tools) - remote_count
+
+    console.print(f"\n[bold]Kagura MCP Tools ({len(filtered_tools)})[/bold]")
+    console.print(
+        f"[dim]Remote-capable: {remote_count} | Local-only: {local_count}[/dim]\n"
+    )
+
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("Tool Name", style="cyan")
+    table.add_column("Category", style="dim")
+    table.add_column("Remote", justify="center", style="bold")
+    table.add_column("Description")
+
+    for tool_name, tool_func in sorted(filtered_tools.items()):
         # Determine category
-        category = "other"
+        tool_category = "other"
         for cat, tool_names in categories.items():
             if tool_name in tool_names:
-                category = cat
+                tool_category = cat
                 break
+
+        # Remote indicator
+        remote_indicator = "✓" if is_remote_capable(tool_name) else "✗"
+        remote_style = "green" if is_remote_capable(tool_name) else "red"
 
         # Get description from docstring
         description = tool_func.__doc__ or "No description"
         description = description.strip().split("\n")[0]
-        if len(description) > 60:
-            description = description[:57] + "..."
+        if len(description) > 50:
+            description = description[:47] + "..."
 
-        table.add_row(tool_name, category, description)
+        table.add_row(
+            tool_name,
+            tool_category,
+            f"[{remote_style}]{remote_indicator}[/{remote_style}]",
+            description,
+        )
 
     console.print(table)
+    console.print("\n[dim]Legend: ✓ = Remote-capable | ✗ = Local-only[/dim]")
     console.print()
 
 

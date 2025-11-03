@@ -7,7 +7,7 @@ errors, design decisions, and learned patterns.
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class FileChangeRecord(BaseModel):
@@ -42,6 +42,50 @@ class FileChangeRecord(BaseModel):
     line_range: tuple[int, int] | None = Field(
         None, description="Line numbers affected (start, end)"
     )
+
+    @field_validator("action", mode="before")
+    @classmethod
+    def normalize_action(cls, v: str | None) -> str:
+        """Normalize common action synonyms to valid action types.
+
+        Args:
+            v: Action value (may be synonym)
+
+        Returns:
+            Normalized action value
+
+        Raises:
+            ValueError: If action is invalid after normalization
+        """
+        if v is None:
+            raise ValueError("action is required")
+
+        # Map common synonyms to valid actions
+        action_mapping = {
+            "add": "create",
+            "new": "create",
+            "modify": "edit",
+            "update": "edit",
+            "change": "edit",
+            "remove": "delete",
+            "del": "delete",
+            "move": "rename",
+            "mv": "rename",
+        }
+
+        # Normalize: lowercase and map
+        normalized = action_mapping.get(v.lower(), v.lower())
+
+        # Validate against allowed values
+        allowed = {"create", "edit", "delete", "rename", "refactor", "test"}
+        if normalized not in allowed:
+            raise ValueError(
+                f"Invalid action '{v}'. Must be one of: {', '.join(sorted(allowed))}. "
+                f"Common synonyms: add/new → create, modify/update/change → edit, "
+                f"remove/del → delete, move/mv → rename"
+            )
+
+        return normalized
 
 
 class ErrorRecord(BaseModel):
