@@ -694,15 +694,20 @@ class CodingMemoryManager(MemoryManager):
             return session_id
 
     async def end_coding_session(
-        self, summary: str | None = None, success: bool | None = None
+        self,
+        summary: str | None = None,
+        success: bool | None = None,
+        save_to_github: bool = False,
     ) -> dict[str, Any]:
         """End coding session and generate summary.
 
         Ends the active session and optionally generates AI-powered summary.
+        Can also save session summary to GitHub Issue.
 
         Args:
             summary: User-provided summary (if None, auto-generate with LLM)
             success: Whether session objectives were met
+            save_to_github: Save session summary to GitHub Issue (default: False)
 
         Returns:
             Dictionary with session data and summary
@@ -819,6 +824,62 @@ class CodingMemoryManager(MemoryManager):
 
         self.current_session_id = None
         logger.info(f"Ended coding session: {session_id}")
+
+        # Save to GitHub if requested
+        if save_to_github and self.github_recorder:
+            if self.github_recorder.is_available():
+                try:
+                    # Collect interaction summary if available
+                    interaction_summary = {}
+                    if self.interaction_tracker:
+                        interaction_summary = (
+                            await self.interaction_tracker.get_session_summary(
+                                session_id, llm_summarizer=self.coding_analyzer
+                            )
+                        )
+
+                    # Prepare summary data
+                    summary_data = {
+                        "total_interactions": interaction_summary.get(
+                            "total_interactions", 0
+                        ),
+                        "by_type": interaction_summary.get("by_type", {}),
+                        "file_changes": [
+                            {
+                                "file_path": fc.file_path,
+                                "action": fc.action,
+                                "reason": fc.reason,
+                            }
+                            for fc in file_changes
+                        ],
+                        "decisions": [
+                            {"decision": d.decision, "rationale": d.rationale}
+                            for d in decisions
+                        ],
+                        "errors": [
+                            {
+                                "error_type": e.error_type,
+                                "message": e.message,
+                                "solution": e.solution,
+                            }
+                            for e in errors
+                        ],
+                    }
+
+                    # Record to GitHub
+                    await self.github_recorder.record_session_summary(
+                        session_id=session_id,
+                        summary_data=summary_data,
+                        llm_summary=summary,
+                    )
+                    logger.info("Session summary recorded to GitHub Issue")
+                except Exception as e:
+                    logger.error(f"Failed to save session to GitHub: {e}")
+            else:
+                logger.warning(
+                    "GitHub recording not available (gh CLI not installed or "
+                    "no issue number set)"
+                )
 
         return {
             "session_id": session_id,
@@ -952,6 +1013,80 @@ class CodingMemoryManager(MemoryManager):
         )
 
         return preferences
+
+    async def track_interaction(
+        self,
+        user_query: str,
+        ai_response: str,
+        interaction_type: str,
+        metadata: dict[str, Any] | None = None,
+    ) -> str:
+        """Track AI-User interaction with automatic importance classification.
+
+        Records interaction in InteractionTracker with hybrid buffering strategy.
+        High importance interactions (≥8.0) are automatically recorded to GitHub.
+
+        Args:
+            user_query: User's input/question
+            ai_response: AI's response
+            interaction_type: Type of interaction
+                - "question": Low importance
+                - "decision": High importance
+                - "struggle": High importance
+                - "discovery": High importance
+                - "implementation": Medium importance
+                - "error_fix": High importance
+            metadata: Additional context (optional)
+
+        Returns:
+            Interaction ID
+
+        Example:
+            >>> interaction_id = await coding_mem.track_interaction(
+            ...     user_query="How do I fix this TypeError?",
+            ...     ai_response="Use timezone-aware datetime...",
+            ...     interaction_type="error_fix"
+            ... )
+        """
+        if not self.interaction_tracker:
+            logger.warning("InteractionTracker not enabled, skipping")
+            return ""
+
+        # Import here to avoid circular dependency
+        from kagura.core.memory.interaction_tracker import InteractionType
+
+        # Validate interaction type
+        valid_types: list[InteractionType] = [
+            "question",
+            "decision",
+            "struggle",
+            "discovery",
+            "implementation",
+            "error_fix",
+        ]
+        if interaction_type not in valid_types:
+            raise ValueError(
+                f"Invalid interaction_type: {interaction_type}. "
+                f"Must be one of: {valid_types}"
+            )
+
+        # Track interaction
+        record = await self.interaction_tracker.track_interaction(
+            user_query=user_query,
+            ai_response=ai_response,
+            interaction_type=interaction_type,  # type: ignore
+            session_id=self.current_session_id,
+            metadata=metadata,
+            llm_classifier=self.coding_analyzer if self.coding_analyzer else None,
+            github_recorder=self.github_recorder if self.github_recorder else None,
+        )
+
+        logger.info(
+            f"Tracked interaction {record.interaction_id}: "
+            f"{interaction_type} (importance: {record.importance})"
+        )
+
+        return record.interaction_id
 
     # Helper methods
 

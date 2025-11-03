@@ -194,9 +194,11 @@ async def gh_pr_create_safe(
 ) -> str:
     """Create GitHub PR with safety confirmation.
 
+    Uses temporary markdown file for PR body to avoid escaping issues.
+
     Args:
         title: PR title
-        body: PR description
+        body: PR description (markdown)
         base: Base branch (default: main)
         draft: Create as draft (default: True, safer)
         auto_confirm: Skip confirmation prompt
@@ -211,13 +213,104 @@ async def gh_pr_create_safe(
         ...     draft=True
         ... )
     """
-    draft_flag = "--draft" if draft else ""
-    cmd = (
-        f'gh pr create --title "{title}" --body "{body}" '
-        f'--base {base} {draft_flag}'
-    ).strip()
+    import tempfile
+    import uuid
+    from pathlib import Path
 
-    return await gh_safe_exec(cmd, auto_confirm=auto_confirm)
+    # Create temporary file for PR body
+    temp_dir = Path(tempfile.gettempdir())
+    temp_file = temp_dir / f"kagura_pr_body_{uuid.uuid4().hex[:8]}.md"
+
+    try:
+        # Write body to temp file
+        temp_file.write_text(body, encoding="utf-8")
+
+        # Build command with --body-file
+        draft_flag = "--draft" if draft else ""
+        cmd = (
+            f'gh pr create --title "{title}" --body-file {temp_file} '
+            f"--base {base} {draft_flag}"
+        ).strip()
+
+        result = await gh_safe_exec(cmd, auto_confirm=auto_confirm)
+        return result
+
+    finally:
+        # Always cleanup temp file
+        if temp_file.exists():
+            temp_file.unlink()
+
+
+@agent
+async def gh_issue_create_safe(
+    title: str,
+    body: str,
+    labels: list[str] | None = None,
+    assignees: list[str] | None = None,
+    auto_confirm: bool = False,
+) -> str:
+    """Create GitHub Issue with safety confirmation.
+
+    Uses temporary markdown file for issue body to avoid escaping issues.
+
+    Args:
+        title: Issue title
+        body: Issue description (markdown)
+        labels: Labels to add (optional)
+        assignees: Usernames to assign (optional)
+        auto_confirm: Skip confirmation prompt
+
+    Returns:
+        Issue creation result or confirmation prompt
+
+    Example:
+        >>> result = await gh_issue_create_safe(
+        ...     title="bug: Fix memory leak",
+        ...     body="Memory usage increases over time...",
+        ...     labels=["bug", "priority:high"]
+        ... )
+    """
+    import tempfile
+    import uuid
+    from pathlib import Path
+
+    # Create temporary file for issue body
+    temp_dir = Path(tempfile.gettempdir())
+    temp_file = temp_dir / f"kagura_issue_body_{uuid.uuid4().hex[:8]}.md"
+
+    try:
+        # Write body to temp file
+        temp_file.write_text(body, encoding="utf-8")
+
+        # Build command with --body-file
+        cmd_parts = [
+            "gh",
+            "issue",
+            "create",
+            "--title",
+            f'"{title}"',
+            "--body-file",
+            str(temp_file),
+        ]
+
+        # Add labels if provided
+        if labels:
+            for label in labels:
+                cmd_parts.extend(["--label", label])
+
+        # Add assignees if provided
+        if assignees:
+            for assignee in assignees:
+                cmd_parts.extend(["--assignee", assignee])
+
+        cmd = " ".join(cmd_parts)
+        result = await gh_safe_exec(cmd, auto_confirm=auto_confirm)
+        return result
+
+    finally:
+        # Always cleanup temp file
+        if temp_file.exists():
+            temp_file.unlink()
 
 
 @agent

@@ -50,19 +50,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Periodic buffer flushing doesn't block user interactions
   - GitHub API calls use executor pattern to avoid blocking event loop
 
+### ✨ MCP Tools
+
+- **coding_track_interaction**: Track AI-User conversations with importance classification
+  - Automatic GitHub recording for high importance (≥8.0)
+  - Background LLM classification (non-blocking)
+  - Supports all 6 interaction types (question, decision, struggle, discovery, implementation, error_fix)
+
+- **coding_end_session** (extended): Added GitHub integration
+  - New parameter: `save_to_github` (default: false)
+  - Records comprehensive session summary to GitHub Issue
+  - Includes interactions, file changes, decisions, errors
+
+### 🔧 Improvements
+
+- **Cost Monitoring Integration**:
+  - InteractionTracker: Tracks LLM cost for importance classification
+  - MemoryAbstractor: Tracks level 1 and level 2 abstraction costs separately
+  - Integrates with existing `kagura.observability.pricing` system
+
+- **GitHub Operations**:
+  - **gh_pr_create_safe**: Now uses `--body-file` for safer PR creation
+  - **gh_issue_create_safe**: New function with `--body-file` support
+  - **gh_issue_comment**: Uses `--body-file` to avoid special character escaping
+  - All operations use temporary markdown files for reliability
+
 ### 📝 Implementation Notes
 
-- This release implements the **foundation** for Issue #493 (Phase 1 core components)
-- MCP tools integration (coding_track_interaction) planned for v4.0.8
+- This release implements **complete Phase 1** for Issue #493
+- 57 new tests added and passing
 - Issue #491 integration (Claude Code auto-save) planned for v4.1.0
-- Comprehensive tests (65+ tests) planned for v4.1.0
 - Full documentation update planned for v4.1.0
 
 ### 🧪 Tests
 
-- Type check (pyright): 0 errors on new files
-- Lint (ruff): All checks passed on new files
-- Full test suite: Pending (planned for v4.1.0)
+- **57 new tests added** (all passing)
+  - InteractionTracker: 16 tests
+  - GitHubRecorder: 19 tests
+  - MemoryAbstractor: 14 tests
+  - MCP tools integration: 8 tests
+- Type check (pyright): 0 errors
+- Lint (ruff): All checks passed
 
 ---
 

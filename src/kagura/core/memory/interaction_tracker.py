@@ -62,6 +62,8 @@ class InteractionTracker:
         importance_threshold: Threshold for immediate GitHub recording (default: 8.0)
         flush_interval_seconds: Seconds between automatic flushes (default: 300)
         flush_count_threshold: Number of interactions before auto-flush (default: 10)
+        total_cost: Total LLM cost for importance classification (USD)
+        total_tokens: Total tokens used for LLM operations
     """
 
     def __init__(
@@ -82,6 +84,10 @@ class InteractionTracker:
         self.importance_threshold = importance_threshold
         self.flush_interval_seconds = flush_interval_seconds
         self.flush_count_threshold = flush_count_threshold
+
+        # Cost tracking for LLM operations
+        self.total_cost = 0.0
+        self.total_tokens = 0
 
         logger.info(
             f"InteractionTracker initialized: threshold={importance_threshold}, "
@@ -217,6 +223,13 @@ class InteractionTracker:
                 interaction_type=record.interaction_type,
             )
             record.importance = importance
+
+            # Track cost if available
+            if hasattr(llm_classifier, "last_cost"):
+                self.total_cost += llm_classifier.last_cost
+            if hasattr(llm_classifier, "last_tokens"):
+                self.total_tokens += llm_classifier.last_tokens
+
             return importance
         except Exception as e:
             logger.warning(f"LLM importance classification failed: {e}, using fallback")

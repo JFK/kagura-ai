@@ -59,6 +59,10 @@ class MemoryAbstractor:
         level1_model: Model for level 1 abstraction (default: gpt-5-mini)
         level2_model: Model for level 2 abstraction (default: gpt-5)
         enable_level2: Enable expensive level 2 abstraction
+        total_cost: Total LLM cost for all abstractions (USD)
+        total_tokens: Total tokens used for LLM operations
+        level1_cost: Cost for level 1 abstractions only (USD)
+        level2_cost: Cost for level 2 abstractions only (USD)
     """
 
     def __init__(
@@ -79,6 +83,12 @@ class MemoryAbstractor:
         self.level1_model = level1_model
         self.level2_model = level2_model
         self.enable_level2 = enable_level2
+
+        # Cost tracking for LLM operations
+        self.total_cost = 0.0
+        self.total_tokens = 0
+        self.level1_cost = 0.0
+        self.level2_cost = 0.0
 
         logger.info(
             f"MemoryAbstractor initialized: "
@@ -116,6 +126,15 @@ class MemoryAbstractor:
         if llm_client:
             try:
                 result = await self._llm_abstract_level1(raw_content, llm_client)
+
+                # Track cost if available
+                if hasattr(llm_client, "last_cost"):
+                    cost = llm_client.last_cost
+                    self.total_cost += cost
+                    self.level1_cost += cost
+                if hasattr(llm_client, "last_tokens"):
+                    self.total_tokens += llm_client.last_tokens
+
                 return AbstractedMemory(
                     original_id=record_id,
                     abstraction_level="summary",
@@ -229,6 +248,15 @@ Return JSON:
                 result = await self._llm_abstract_level2(
                     interactions, existing_abstractions or [], llm_client
                 )
+
+                # Track cost if available
+                if hasattr(llm_client, "last_cost"):
+                    cost = llm_client.last_cost
+                    self.total_cost += cost
+                    self.level2_cost += cost
+                if hasattr(llm_client, "last_tokens"):
+                    self.total_tokens += llm_client.last_tokens
+
                 return AbstractedMemory(
                     original_id=context_id,
                     abstraction_level="concept",
