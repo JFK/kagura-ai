@@ -74,6 +74,10 @@ LOCAL_ONLY_TOOLS = {
     "dir_list",
     # Shell (セキュリティリスク大)
     "shell_exec",
+    # GitHub CLI (ローカルgh CLIを使用)
+    "gh_safe_exec",
+    "gh_pr_create_safe",
+    "gh_pr_merge_safe",
     # Media (ローカルファイル操作)
     "media_open_image",
     "media_open_video",

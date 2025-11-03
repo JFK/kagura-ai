@@ -699,6 +699,7 @@ def list_tools(
             "coding_": "coding",
             "claude_code_": "coding",
             "github_": "github",
+            "gh_": "github",  # Legacy gh_*_safe tools
             "brave_": "brave_search",
             "youtube_": "youtube",
             "get_youtube_": "youtube",
