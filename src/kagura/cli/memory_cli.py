@@ -814,17 +814,51 @@ def stats_command(
     console.print()
 
     try:
-        manager = MemoryManager(
-            user_id=user_id or "system",
-            agent_name="stats",
-            enable_rag=True,
-        )
-
-        # Get database size
+        # Get database info first (before creating MemoryManager)
         db_path = get_data_dir() / "memory.db"
         db_size_mb = 0.0
         if db_path.exists():
             db_size_mb = db_path.stat().st_size / (1024**2)
+
+        # Scan all ChromaDB locations for RAG counts (before creating MemoryManager to avoid locks)
+        rag_count = 0
+        rag_by_collection = {}
+
+        try:
+            import chromadb
+
+            from kagura.config.paths import get_cache_dir
+
+            vector_db_paths = [
+                get_cache_dir() / "chromadb",  # Default CLI location
+                get_data_dir() / "sessions" / "memory" / "vector_db",
+                get_data_dir() / "api" / "default_user" / "vector_db",
+                get_data_dir() / "vector_db",  # Legacy location
+            ]
+
+            for vdb_path in vector_db_paths:
+                if vdb_path.exists():
+                    try:
+                        client = chromadb.PersistentClient(path=str(vdb_path))
+                        for col in client.list_collections():
+                            count = col.count()
+                            if count > 0:  # Only count non-empty collections
+                                rag_count += count
+                                # Aggregate counts if collection name already exists
+                                rag_by_collection[col.name] = (
+                                    rag_by_collection.get(col.name, 0) + count
+                                )
+                    except Exception:
+                        pass
+        except ImportError:
+            pass
+
+        # Now create MemoryManager to count memories
+        manager = MemoryManager(
+            user_id=user_id or "system",
+            agent_name="stats",
+            enable_rag=False,  # Don't enable RAG to avoid locking ChromaDB
+        )
 
         # Count memories
         working_count = len(manager.working._data)
@@ -834,14 +868,7 @@ def stats_command(
         else:
             persistent_count = manager.persistent.count()
 
-        rag_count = 0
-        if manager.persistent_rag:
-            try:
-                rag_count = manager.persistent_rag.collection.count()
-            except Exception:  # Ignore errors - operation is non-critical
-                pass
-
-        # Display table
+        # Display main table
         table = Table(show_header=True, header_style="bold magenta")
         table.add_column("Segment", style="cyan")
         table.add_column("Count", style="white", justify="right")
@@ -855,6 +882,55 @@ def stats_command(
 
         console.print(table)
         console.print()
+
+        # Show per-user breakdown if requested
+        if breakdown_by in ["user", "all"] and not user_id:
+            import sqlite3
+
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT user_id, COUNT(*) as count FROM memories "
+                "WHERE user_id IS NOT NULL GROUP BY user_id ORDER BY count DESC"
+            )
+            user_stats = cursor.fetchall()
+            conn.close()
+
+            if user_stats:
+                console.print("[cyan]By User:[/cyan]")
+                user_table = Table(show_header=True, header_style="bold magenta")
+                user_table.add_column("User ID", style="cyan")
+                user_table.add_column("Memories", style="white", justify="right")
+                user_table.add_column("RAG Indexed", style="green", justify="right")
+
+                for user, count in user_stats:
+                    # Count RAG vectors for this user
+                    user_rag = sum(
+                        v
+                        for k, v in rag_by_collection.items()
+                        if user in k or "global" in k
+                    )
+                    user_table.add_row(
+                        user, str(count), str(user_rag) if user_rag > 0 else "-"
+                    )
+
+                console.print(user_table)
+                console.print()
+
+        # Show RAG collections breakdown if there are any
+        if rag_by_collection and breakdown_by in ["all"]:
+            console.print("[cyan]RAG Collections:[/cyan]")
+            rag_table = Table(show_header=True, header_style="bold magenta")
+            rag_table.add_column("Collection", style="cyan")
+            rag_table.add_column("Vectors", style="white", justify="right")
+
+            for col_name, count in sorted(
+                rag_by_collection.items(), key=lambda x: x[1], reverse=True
+            ):
+                rag_table.add_row(col_name, str(count))
+
+            console.print(rag_table)
+            console.print()
 
         # Show recommendations
         if persistent_count > 0 and rag_count == 0:
