@@ -773,6 +773,11 @@ async def coding_end_session(
         save_to_github=save_to_github_bool,
     )
 
+    # Clear cache after ending session (no longer active)
+    cache_key = f"{user_id}:{project_id}"
+    if cache_key in _coding_memory_cache:
+        del _coding_memory_cache[cache_key]
+
     success_emoji = "✅" if success_bool else ("⚠️" if success_bool is False else "ℹ️")
     duration_str = (
         f"{result['duration_minutes']:.1f} minutes"
