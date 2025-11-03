@@ -14,20 +14,19 @@ from kagura import tool
 if TYPE_CHECKING:
     from kagura.core.memory.coding_memory import CodingMemoryManager
 
-# Global cache for CodingMemoryManager instances
-# Key: f"{user_id}:{project_id}"
-_coding_memory_cache: dict[str, CodingMemoryManager] = {}
-
-
 def _get_coding_memory(user_id: str, project_id: str) -> CodingMemoryManager:
-    """Get or create cached CodingMemoryManager instance.
+    """Get CodingMemoryManager instance (no caching for session synchronization).
+
+    Note: Cache removed in v4.0.9 to fix session synchronization issues.
+    Each call creates a fresh instance that loads current session state
+    from persistent storage.
 
     Args:
         user_id: User identifier (developer)
         project_id: Project identifier
 
     Returns:
-        Cached or new CodingMemoryManager instance
+        New CodingMemoryManager instance with current session state
     """
     import logging
 
@@ -35,24 +34,15 @@ def _get_coding_memory(user_id: str, project_id: str) -> CodingMemoryManager:
 
     from kagura.core.memory.coding_memory import CodingMemoryManager
 
-    cache_key = f"{user_id}:{project_id}"
-    logger.debug(f"_get_coding_memory: cache_key={cache_key}")
+    logger.debug(f"_get_coding_memory: Creating CodingMemoryManager for {user_id}:{project_id}")
 
-    if cache_key not in _coding_memory_cache:
-        logger.debug(
-            f"_get_coding_memory: Creating CodingMemoryManager for {cache_key}"
-        )
-        _coding_memory_cache[cache_key] = CodingMemoryManager(
-            user_id=user_id,
-            project_id=project_id,
-            enable_rag=True,  # Always enable for semantic search
-            enable_graph=True,  # Always enable for relationships
-        )
-        logger.debug("_get_coding_memory: CodingMemoryManager created")
-    else:
-        logger.debug("_get_coding_memory: Using cached CodingMemoryManager")
-
-    return _coding_memory_cache[cache_key]
+    # Always create new instance to ensure fresh session state
+    return CodingMemoryManager(
+        user_id=user_id,
+        project_id=project_id,
+        enable_rag=True,  # Always enable for semantic search
+        enable_graph=True,  # Always enable for relationships
+    )
 
 
 @tool
@@ -457,10 +447,6 @@ async def coding_start_session(
         tags=tags_list,
     )
 
-    # Update cache to reflect new session state (fix cache synchronization)
-    cache_key = f"{user_id}:{project_id}"
-    _coding_memory_cache[cache_key] = memory
-
     return (
         f"✅ Coding session started: {session_id}\n"
         f"Project: {project_id}\n"
@@ -525,10 +511,6 @@ async def coding_resume_session(
 
     try:
         session_id_returned = await memory.resume_coding_session(session_id)
-
-        # Update cache to reflect resumed session state
-        cache_key = f"{user_id}:{project_id}"
-        _coding_memory_cache[cache_key] = memory
 
         # Get session details from working memory
         session_data = memory.working.get(f"session:{session_id_returned}")
@@ -620,15 +602,26 @@ async def coding_get_current_session_status(
 
     # Calculate duration
     from datetime import datetime
-    start = datetime.fromisoformat(session.start_time)
+
+    # Handle both datetime and string formats
+    if isinstance(session.start_time, str):
+        start = datetime.fromisoformat(session.start_time)
+    else:
+        start = session.start_time
+
     duration = (datetime.now() - start).total_seconds() / 60
 
-    # Count activities
-    file_changes = len(session.file_changes)
-    errors = len([e for e in session.errors if not e.solution])
-    errors_fixed = len([e for e in session.errors if e.solution])
-    decisions = len(session.decisions)
-    interactions = len(session.interactions) if hasattr(session, 'interactions') else 0
+    # Count activities (CodingSession doesn't store these, need to fetch from memory)
+    # For now, fetch from persistent storage
+    file_changes_records = await memory._get_session_file_changes(session.session_id)
+    errors_records = await memory._get_session_errors(session.session_id)
+    decisions_records = await memory._get_session_decisions(session.session_id)
+
+    file_changes = len(file_changes_records)
+    errors = len([e for e in errors_records if not e.solution])
+    errors_fixed = len([e for e in errors_records if e.solution])
+    decisions = len(decisions_records)
+    interactions = 0  # Not yet tracked separately
 
     # Build status report
     result = f"📊 Current Session Status\n\n"
@@ -646,15 +639,15 @@ async def coding_get_current_session_status(
     result += f"  • Interactions tracked: {interactions}\n\n"
 
     # Recent activity
-    if session.file_changes:
+    if file_changes_records:
         result += f"**Recent File Changes (last 3):**\n"
-        for change in session.file_changes[-3:]:
+        for change in file_changes_records[-3:]:
             result += f"  • {change.action}: {change.file_path}\n"
         result += "\n"
 
-    if session.decisions:
+    if decisions_records:
         result += f"**Recent Decisions (last 2):**\n"
-        for decision in session.decisions[-2:]:
+        for decision in decisions_records[-2:]:
             result += f"  • {decision.decision[:80]}...\n"
         result += "\n"
 
@@ -772,11 +765,6 @@ async def coding_end_session(
         success=success_bool,
         save_to_github=save_to_github_bool,
     )
-
-    # Clear cache after ending session (no longer active)
-    cache_key = f"{user_id}:{project_id}"
-    if cache_key in _coding_memory_cache:
-        del _coding_memory_cache[cache_key]
 
     success_emoji = "✅" if success_bool else ("⚠️" if success_bool is False else "ℹ️")
     duration_str = (

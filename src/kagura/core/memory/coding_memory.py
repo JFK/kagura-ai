@@ -132,7 +132,8 @@ class CodingMemoryManager(MemoryManager):
         )
 
         self.project_id = project_id
-        self.current_session_id: str | None = None
+        # Auto-detect active session from working memory (v4.0.9 cache fix)
+        self.current_session_id: str | None = self._detect_active_session()
 
         # Initialize LLM analyzers
         # Note: CodingAnalyzer and VisionAnalyzer now accept None and use env defaults
@@ -197,6 +198,66 @@ class CodingMemoryManager(MemoryManager):
             f"github_recording={enable_github_recording}, "
             f"abstraction={enable_memory_abstraction}"
         )
+
+    def _detect_active_session(self) -> str | None:
+        """Auto-detect active session from persistent storage.
+
+        Scans persistent storage for sessions with no end_time (active sessions).
+        Returns the first active session found, or None.
+
+        Returns:
+            Active session ID or None
+        """
+        import json
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        try:
+            # Search persistent storage for sessions
+            key_pattern = f"project:{self.project_id}:session:%"
+            sessions = self.persistent.search(
+                query=key_pattern,
+                user_id=self.user_id,
+                limit=100
+            )
+
+            # Find active session (no end_time)
+            for sess in sessions:
+                value_str = sess.get("value", "{}")
+                try:
+                    data = json.loads(value_str) if isinstance(value_str, str) else value_str
+                    if data.get("end_time") is None:
+                        session_id = sess["key"].split(":")[-1]
+                        logger.info(f"Auto-detected active session: {session_id}")
+
+                        # Load session into working memory for fast access
+                        self.working.set(f"session:{session_id}", data)
+
+                        # Ensure graph node exists for this session
+                        if self.graph:
+                            try:
+                                # Try to add node (might already exist)
+                                self.graph.add_node(
+                                    node_id=session_id,
+                                    node_type="memory",
+                                    data={
+                                        "description": data.get("description", ""),
+                                        "project_id": self.project_id,
+                                        "active": True,
+                                    },
+                                )
+                            except ValueError:  # Node already exists
+                                pass
+
+                        return session_id
+                except json.JSONDecodeError:
+                    continue
+
+        except Exception as e:
+            logger.warning(f"Failed to auto-detect active session: {e}")
+
+        return None
 
     def _make_key(self, key: str) -> str:
         """Create project-scoped key.
@@ -1182,23 +1243,37 @@ class CodingMemoryManager(MemoryManager):
         Returns:
             List of file changes associated with session
         """
+        import json
+
         file_changes = []
 
-        # Method 1: Use graph if available
-        if self.graph and self.graph.graph.has_node(session_id):
-            # Get all nodes linked from session
+        # Method 1: Query persistent storage by session_id (v4.0.9 - more reliable)
+        pattern = f"project:{self.project_id}:file_change:%"
+        all_changes = self.persistent.search(
+            query=pattern,
+            user_id=self.user_id,
+            limit=1000
+        )
+
+        for change_record in all_changes:
+            try:
+                value_str = change_record.get("value", "{}")
+                data = json.loads(value_str) if isinstance(value_str, str) else value_str
+                if data.get("session_id") == session_id:
+                    file_changes.append(FileChangeRecord(**data))
+            except (json.JSONDecodeError, TypeError, ValueError):
+                continue
+
+        # Method 2: Use graph if available (legacy, less reliable)
+        if not file_changes and self.graph and self.graph.graph.has_node(session_id):
             for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
                 session_id, data=True
             ):
-                # Check if it's a file change
                 if dst_id.startswith("change_"):
                     key = self._make_key(f"file_change:{dst_id}")
                     data = self.persistent.recall(key=key, user_id=self.user_id)
                     if data:
                         file_changes.append(FileChangeRecord(**data))
-
-        # Method 2: Fallback - query persistent storage by prefix
-        # (not implemented - would require scanning all keys)
 
         return file_changes
 
@@ -1211,14 +1286,32 @@ class CodingMemoryManager(MemoryManager):
         Returns:
             List of errors associated with session
         """
+        import json
+
         errors = []
 
-        # Use graph if available
-        if self.graph and self.graph.graph.has_node(session_id):
+        # Method 1: Query persistent storage by session_id (v4.0.9)
+        pattern = f"project:{self.project_id}:error:%"
+        all_errors = self.persistent.search(
+            query=pattern,
+            user_id=self.user_id,
+            limit=1000
+        )
+
+        for error_record in all_errors:
+            try:
+                value_str = error_record.get("value", "{}")
+                data = json.loads(value_str) if isinstance(value_str, str) else value_str
+                if data.get("session_id") == session_id:
+                    errors.append(ErrorRecord(**data))
+            except (json.JSONDecodeError, TypeError, ValueError):
+                continue
+
+        # Method 2: Use graph if available (legacy fallback)
+        if not errors and self.graph and self.graph.graph.has_node(session_id):
             for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
                 session_id, data=True
             ):
-                # Check if it's an error
                 if dst_id.startswith("error_"):
                     key = self._make_key(f"error:{dst_id}")
                     data = self.persistent.recall(key=key, user_id=self.user_id)
@@ -1236,14 +1329,32 @@ class CodingMemoryManager(MemoryManager):
         Returns:
             List of decisions associated with session
         """
+        import json
+
         decisions = []
 
-        # Use graph if available
-        if self.graph and self.graph.graph.has_node(session_id):
+        # Method 1: Query persistent storage by session_id (v4.0.9)
+        pattern = f"project:{self.project_id}:decision:%"
+        all_decisions = self.persistent.search(
+            query=pattern,
+            user_id=self.user_id,
+            limit=1000
+        )
+
+        for decision_record in all_decisions:
+            try:
+                value_str = decision_record.get("value", "{}")
+                data = json.loads(value_str) if isinstance(value_str, str) else value_str
+                if data.get("session_id") == session_id:
+                    decisions.append(DesignDecision(**data))
+            except (json.JSONDecodeError, TypeError, ValueError):
+                continue
+
+        # Method 2: Use graph if available (legacy fallback)
+        if not decisions and self.graph and self.graph.graph.has_node(session_id):
             for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
                 session_id, data=True
             ):
-                # Check if it's a decision
                 if dst_id.startswith("decision_"):
                     key = self._make_key(f"decision:{dst_id}")
                     data = self.persistent.recall(key=key, user_id=self.user_id)
