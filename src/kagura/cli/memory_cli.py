@@ -537,3 +537,273 @@ def setup_command(model: str | None, provider: str | None) -> None:
         except Exception as e:
             console.print(f"\n[red]✗ Setup failed: {e}[/red]")
             raise click.Abort()
+
+
+@memory_group.command(name="index")
+@click.option(
+    "--user-id",
+    default=None,
+    help="Index specific user only (default: all users)",
+)
+@click.option(
+    "--agent-name",
+    default=None,
+    help="Index specific agent only (default: all agents)",
+)
+@click.option(
+    "--rebuild",
+    is_flag=True,
+    help="Rebuild index from scratch (clear existing vectors)",
+)
+def index_command(
+    user_id: str | None,
+    agent_name: str | None,
+    rebuild: bool,
+) -> None:
+    """Build RAG vector index from existing memories.
+
+    Reads memories from persistent storage and creates vector embeddings
+    for semantic search. Run this after:
+    - Installing RAG dependencies
+    - Importing memories from backup
+    - Adding many new memories manually
+
+    Examples:
+        # Index all memories
+        kagura memory index
+
+        # Index specific user
+        kagura memory index --user-id kiyota
+
+        # Rebuild index from scratch
+        kagura memory index --rebuild
+
+    Notes:
+        - Requires chromadb and sentence-transformers
+        - May take several minutes for large databases
+        - Existing vectors will be skipped unless --rebuild is used
+    """
+    from rich.progress import Progress, SpinnerColumn, TextColumn
+
+    from kagura.core.memory import MemoryManager
+
+    console.print("\n[cyan]Memory Index Builder[/cyan]")
+    console.print()
+
+    # Check dependencies
+    try:
+        import chromadb  # type: ignore # noqa: F401
+        import sentence_transformers  # type: ignore # noqa: F401
+    except ImportError as e:
+        console.print(f"[red]✗ Missing dependency: {e}[/red]")
+        console.print("\nInstall with: pip install chromadb sentence-transformers")
+        raise click.Abort()
+
+    if rebuild:
+        console.print("[yellow]⚠️  Rebuilding index (existing vectors will be cleared)[/yellow]")
+        console.print()
+
+    try:
+        # Create MemoryManager
+        manager = MemoryManager(
+            user_id=user_id or "system",
+            agent_name=agent_name or "indexer",
+            enable_rag=True,
+        )
+
+        # Get all persistent memories
+        memories = manager.persistent.search(
+            pattern="%",
+            user_id=user_id,
+            agent_name=agent_name,
+            limit=100000,
+        )
+
+        if not memories:
+            console.print("[yellow]No memories found to index[/yellow]")
+            return
+
+        console.print(f"Found {len(memories)} memories to index")
+        console.print()
+
+        if rebuild and manager.persistent_rag:
+            console.print("Clearing existing index...")
+            # Clear existing collection
+            try:
+                manager.persistent_rag.collection.delete()
+            except Exception:
+                pass
+
+        # Index memories with progress bar
+        indexed_count = 0
+        skipped_count = 0
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task(
+                f"Indexing {len(memories)} memories...",
+                total=len(memories),
+            )
+
+            for mem in memories:
+                try:
+                    content = f"{mem['key']}: {mem['value']}"
+                    metadata = mem.get("metadata", {})
+
+                    # Store in RAG
+                    manager.store_semantic(
+                        content=content,
+                        metadata=metadata,
+                        scope="persistent",
+                    )
+                    indexed_count += 1
+
+                except Exception as e:
+                    # Skip on error (might be duplicate)
+                    skipped_count += 1
+
+                progress.update(task, advance=1)
+
+        console.print()
+        console.print("[green]✓ Indexing complete![/green]")
+        console.print()
+        console.print(f"  Indexed: {indexed_count}")
+        if skipped_count > 0:
+            console.print(f"  Skipped: {skipped_count} (duplicates or errors)")
+        console.print()
+
+    except Exception as e:
+        console.print(f"\n[red]✗ Indexing failed: {e}[/red]")
+        raise click.Abort()
+
+
+@memory_group.command(name="doctor")
+@click.option(
+    "--user-id",
+    default=None,
+    help="Check specific user (default: system-wide)",
+)
+def doctor_command(user_id: str | None) -> None:
+    """Run memory system health check.
+
+    Checks:
+    - Database status and size
+    - RAG availability and vector count
+    - Reranking model status
+    - Memory counts by scope
+
+    Examples:
+        # System-wide check
+        kagura memory doctor
+
+        # Check specific user
+        kagura memory doctor --user-id kiyota
+    """
+    from rich.panel import Panel
+    from rich.table import Table
+
+    from kagura.config.paths import get_data_dir
+    from kagura.core.memory import MemoryManager
+
+    console.print("\n")
+    console.print(
+        Panel(
+            "[bold]Memory System Health Check[/]\n"
+            "Checking database, RAG, and reranking status...",
+            style="blue",
+        )
+    )
+    console.print()
+
+    # Database check
+    console.print("[bold cyan]1. Database Status[/]")
+    db_path = get_data_dir() / "memory.db"
+
+    if db_path.exists():
+        size_mb = db_path.stat().st_size / (1024**2)
+        console.print(f"   [green]✓[/] Database exists: {db_path}")
+        console.print(f"   [green]✓[/] Size: {size_mb:.2f} MB")
+    else:
+        console.print(f"   [yellow]⊘[/] Database not initialized: {db_path}")
+
+    console.print()
+
+    # Memory counts
+    console.print("[bold cyan]2. Memory Counts[/]")
+
+    try:
+        manager = MemoryManager(
+            user_id=user_id or "system",
+            agent_name="doctor",
+            enable_rag=True,
+        )
+
+        # Count persistent memories
+        if user_id:
+            persistent_count = manager.persistent.count(user_id=user_id)
+        else:
+            persistent_count = manager.persistent.count()
+
+        console.print(f"   [green]✓[/] Persistent memories: {persistent_count}")
+
+        # Count working memories
+        working_count = len(manager.working._data)
+        console.print(f"   [green]✓[/] Working memories: {working_count}")
+
+    except Exception as e:
+        console.print(f"   [red]✗[/] Error: {e}")
+
+    console.print()
+
+    # RAG status
+    console.print("[bold cyan]3. RAG Status[/]")
+
+    try:
+        if manager.persistent_rag:
+            rag_count = manager.persistent_rag.collection.count()
+            console.print(f"   [green]✓[/] RAG enabled")
+            console.print(f"   [green]✓[/] Vectors indexed: {rag_count}")
+
+            if rag_count == 0 and persistent_count > 0:
+                console.print(
+                    f"   [yellow]⚠[/] Index empty but {persistent_count} memories exist"
+                )
+                console.print("   [dim]Run 'kagura memory index' to build index[/dim]")
+        else:
+            console.print(f"   [red]✗[/] RAG not available")
+            console.print("   [dim]Install: pip install chromadb sentence-transformers[/dim]")
+    except Exception as e:
+        console.print(f"   [red]✗[/] Error: {e}")
+
+    console.print()
+
+    # Reranking status
+    console.print("[bold cyan]4. Reranking Status[/]")
+
+    import os
+
+    reranking_enabled = os.getenv("KAGURA_ENABLE_RERANKING", "").lower() == "true"
+
+    if reranking_enabled:
+        console.print("   [green]✓[/] Reranking enabled")
+    else:
+        console.print("   [yellow]⊘[/] Reranking not enabled")
+        console.print("   [dim]Set: export KAGURA_ENABLE_RERANKING=true[/dim]")
+
+    console.print()
+
+    # Summary
+    console.print(
+        Panel(
+            "[bold]Health Check Complete[/]\n\n"
+            "For more details, run:\n"
+            "  • kagura doctor - Comprehensive system check\n"
+            "  • kagura memory index - Build RAG index\n"
+            "  • kagura memory setup - Download models",
+            style="blue",
+        )
+    )
+    console.print()

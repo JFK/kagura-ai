@@ -19,6 +19,11 @@ from .lazy import LazyGroup
             "init",
             "Setup user preferences (name, location, topics)",
         ),
+        "doctor": (
+            "kagura.cli.doctor",
+            "doctor",
+            "Run comprehensive system health check",
+        ),
         "chat": (
             "kagura.cli.chat",
             "chat",
