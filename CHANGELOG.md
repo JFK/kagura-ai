@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.6] - 2025-11-03
+
+### ✨ Added
+
+- **Enhanced Memory Recall Tools** (#496)
+  - `memory_search_hybrid`: BM25 keyword + RAG semantic hybrid search with weighted RRF fusion
+  - `memory_timeline`: Time-based memory retrieval (last_24h, last_week, date ranges)
+  - `memory_fuzzy_recall`: Fuzzy key matching for partial/typo-tolerant recall
+  - BM25Search implementation for keyword-based ranking (no LLM dependency)
+  - Addresses "記憶はするが、思い出してくれない" user feedback
+  - Pattern A architecture: Client-driven with enhanced search toolkit
+
+### 🎯 Improvements
+
+- **Memory Search Quality**
+  - Hybrid search combines keyword matching (BM25) and semantic search (RAG)
+  - Reciprocal Rank Fusion (RRF) for optimal result ranking
+  - Fuzzy key matching with configurable similarity threshold
+  - Timeline search with flexible time range specifications
+  - All new tools are remote-capable (45 total remote tools)
+
+### 🧪 Tests
+
+- All 35 memory tests pass
+- Type check (pyright): 0 errors
+- Lint (ruff): All checks passed
+
+---
+
 ## [4.0.5] - 2025-11-03
 
 ### 🐛 Fixed
