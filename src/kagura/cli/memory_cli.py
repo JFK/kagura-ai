@@ -736,27 +736,30 @@ def search_command(
 
         # Display results
         table = Table(show_header=True, header_style="bold magenta")
-            table.add_column("#", style="cyan", width=3)
-            table.add_column("Content", style="white")
-            table.add_column("Score", style="green", width=8)
+        table.add_column("#", style="cyan", width=3)
+        table.add_column("Content", style="white")
+        table.add_column("Score", style="green", width=8)
 
-            for i, result in enumerate(results, 1):
-                content = result.get("content", "")[:200]
-                score = result.get("score", 0.0)
-                table.add_row(
-                    str(i),
-                    content,
-                    f"{score:.3f}",
-                )
+        # Handle different result formats
+        for i, result in enumerate(results, 1):
+            if isinstance(result, dict):
+                content = result.get("value", result.get("content", ""))[:200]
+                score = result.get("score", result.get("similarity", 0.0))
+            else:
+                content = str(result)[:200]
+                score = 0.0
 
-            console.print(table)
-            console.print(f"\n[dim]Found {len(results)} results[/dim]")
-            console.print()
-        else:
-            console.print("[red]✗ RAG not available[/red]")
-            console.print(
-                "[dim]Install: pip install chromadb sentence-transformers[/dim]"
+            table.add_row(
+                str(i),
+                content,
+                f"{score:.3f}",
             )
+
+        console.print(table)
+        console.print(f"\n[dim]Found {len(results)} results[/dim]")
+        search_type = "Hybrid (BM25 + RAG)" if manager.lexical_searcher else "RAG only"
+        console.print(f"[dim]Search type: {search_type}[/dim]")
+        console.print()
 
     except Exception as e:
         console.print(f"\n[red]✗ Search failed: {e}[/red]")
