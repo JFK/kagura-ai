@@ -66,23 +66,27 @@ def _get_memory_manager(
 @tool
 async def memory_store(
     user_id: str,
-    agent_name: str,
     key: str,
     value: str,
-    scope: str = "working",
+    agent_name: str = "global",
+    scope: str = "persistent",
     tags: str = "[]",
     importance: float = 0.5,
     metadata: str = "{}",
 ) -> str:
     """Store information in agent memory
 
-    ⚠️ BEFORE CALLING THIS TOOL: Always ask the user whether they want to store
-    the memory globally (accessible from all conversations) or locally (only this
-    conversation). Never assume without asking!
+    💡 SMART DEFAULTS (v4.0.10):
+    - agent_name defaults to "global" (shared across all conversations)
+    - scope defaults to "persistent" (saved to disk)
+    - Use defaults for user preferences, facts, and settings
 
-    Question to ask user:
-    "Should I remember this globally (accessible from all conversations) or just
-    for this conversation?"
+    ⚠️ WHEN TO ASK USER:
+    - If memory seems temporary/task-specific → suggest thread-local
+    - If uncertain about permanence → ask user
+
+    Recommended questions:
+    "Should I remember this for all conversations (default) or just this one?"
 
     Stores data in the specified memory scope. Use this tool when:
     - User explicitly asks to 'remember' or 'save' something
@@ -109,19 +113,17 @@ async def memory_store(
 
     Args:
         user_id: User identifier (memory owner)
-        agent_name: ⚠️ CRITICAL CHOICE - Ask user first!
-            - "global": Accessible from ALL conversations (use for preferences,
-              user facts, long-term knowledge)
-            - "thread_{thread_id}": Only THIS conversation (use for temporary
-              context, current task state)
         key: Memory key for retrieval
         value: Information to store
-        scope: Memory scope - "persistent" (disk, survives restart)
-            or "working" (in-memory, cleared on restart)
+        agent_name: Storage location (default: "global" - shared across all conversations)
+            - "global": Best for user preferences, facts, settings
+            - "thread_{id}": For temporary, conversation-specific context
+        scope: Persistence (default: "persistent" - saved to disk)
+            - "persistent": Survives restarts (recommended)
+            - "working": In-memory only, cleared on restart
         tags: JSON array string of tags (e.g., '["python", "coding"]')
         importance: Importance score (0.0-1.0, default 0.5)
         metadata: JSON object string of additional metadata
-            (e.g., '{"project": "kagura"}')
 
     Returns:
         Confirmation message with clear indication of storage scope
