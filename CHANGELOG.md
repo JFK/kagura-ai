@@ -45,24 +45,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Fixed
 
+#### Critical Issues
 - **Critical**: Session cache synchronization
 - **Critical**: Memory index → persistent RAG
 - **Critical**: Duration timezone handling
 - EventStore/MemoryManager API compatibility
-- UnboundLocalError in doctor
-- 25+ pyright type errors
-- Unreachable code, IndexError risks
-- No-op operations
+
+#### CLI Improvements (#509)
+- `kagura memory search`: Now uses RAG semantic search instead of SQL LIKE queries
+- `kagura memory doctor`: Shows accurate RAG vector counts across all ChromaDB locations
+- `kagura memory doctor`: Improved reranking status check (validates installation + model cache)
+- `kagura memory doctor`: Guard against UnboundLocalError when MemoryManager initialization fails
+- `kagura memory search`: Handle dict-type content values to prevent TypeError
+- `kagura memory stats`: Scan all ChromaDB paths for accurate RAG counts (now shows 239 vectors instead of 0)
+- `kagura memory stats`: Add `--breakdown-by user/all` for per-user memory and RAG statistics
+- `kagura memory stats`: Display RAG collections breakdown
+
+#### Telemetry (#507)
+- `@tool` decorator: Add tool_name logging for `kagura mcp monitor` visibility
+- Both sync and async tool wrappers now record telemetry events
+
+#### Type Safety & Code Quality
+- 25+ pyright type errors fixed
+- Unreachable code removed
+- IndexError risks eliminated
+- No-op operations removed
 
 ### 📝 Documentation
 
-- Updated CHANGELOG for v4.0.9
-- Created Issues #507, #508 for v4.0.10
-
-### Known Limitations
-
-- MCP monitor telemetry (#507)
-- Session summary detail (#508)
+- Updated CHANGELOG for v4.0.9 final release
+- Updated version to 4.0.9 in pyproject.toml
+- Closed Issues #466, #491, #499, #501, #507
 
 ---
 
