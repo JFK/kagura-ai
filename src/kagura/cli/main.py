@@ -59,6 +59,11 @@ from .lazy import LazyGroup
             "coding",
             "Coding memory inspection commands",
         ),
+        "telemetry": (
+            "kagura.cli.telemetry_cli",
+            "telemetry_group",
+            "Telemetry and usage analysis commands",
+        ),
         "config": (
             "kagura.cli.config_cli",
             "app",
