@@ -382,4 +382,4 @@ async def gh_issue_list_safe(
         return json.loads(result)
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse gh output as JSON: {result[:200]}")
-        raise ValueError(f"Failed to parse list[dict] from response: {e}")
+        raise ValueError(f"Failed to parse issue list as JSON: {e}")
