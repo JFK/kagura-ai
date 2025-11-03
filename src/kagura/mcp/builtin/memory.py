@@ -1212,9 +1212,7 @@ async def memory_stats(
         logger.debug(f"memory_stats: Working count = {working_count}")
 
         logger.debug("memory_stats: Searching persistent memories")
-        persistent_mems = memory.persistent.search(
-            "%", user_id, agent_name, limit=1000
-        )
+        persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
         persistent_count = len(persistent_mems)
         logger.debug(f"memory_stats: Persistent count = {persistent_count}")
 
@@ -1601,9 +1599,7 @@ async def memory_search_hybrid(
         kw_ranked = [
             {"id": r["id"], "rank": idx + 1} for idx, r in enumerate(keyword_results)
         ]
-        sem_ranked = [
-            {"id": r["id"], "rank": r["rank"]} for r in semantic_results
-        ]
+        sem_ranked = [{"id": r["id"], "rank": r["rank"]} for r in semantic_results]
 
         # Fuse
         fused_scores = weighted_rrf_fusion(
@@ -1794,15 +1790,11 @@ async def memory_timeline(
         for key in memory.working.keys():
             if not key.startswith("_meta_"):
                 value = memory.working.get(key)
-                all_memories.append(
-                    {"key": key, "value": str(value), "metadata": {}}
-                )
+                all_memories.append({"key": key, "value": str(value), "metadata": {}})
 
     if scope in ["persistent", "all"]:
         # Search all persistent memories
-        persistent_mems = memory.persistent.search(
-            "%", user_id, agent_name, limit=1000
-        )
+        persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
         all_memories.extend(persistent_mems)
 
     # Filter by time and event type
@@ -1919,15 +1911,11 @@ async def memory_fuzzy_recall(
         for key in memory.working.keys():
             if not key.startswith("_meta_"):
                 value = memory.working.get(key)
-                all_memories.append(
-                    {"key": key, "value": str(value), "metadata": {}}
-                )
+                all_memories.append({"key": key, "value": str(value), "metadata": {}})
 
     if scope in ["persistent", "all"]:
         # Search all persistent memories
-        persistent_mems = memory.persistent.search(
-            "%", user_id, agent_name, limit=1000
-        )
+        persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
         all_memories.extend(persistent_mems)
 
     if not all_memories:

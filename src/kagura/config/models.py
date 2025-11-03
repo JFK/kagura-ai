@@ -17,7 +17,7 @@ DEFAULT_RERANKING_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 # Model Aliases
 EMBEDDING_MODELS = {
     "e5-large": "intfloat/multilingual-e5-large",  # 1024-dim, best quality
-    "e5-base": "intfloat/multilingual-e5-base",    # 768-dim, faster
+    "e5-base": "intfloat/multilingual-e5-base",  # 768-dim, faster
     "e5-small": "intfloat/multilingual-e5-small",  # 384-dim, fastest
 }
 

@@ -357,9 +357,8 @@ Return JSON:
             for itype, count in by_type.items()
         ]
         interaction_word = "interaction" + ("s" if len(interactions) != 1 else "")
-        summary = (
-            f"Session with {len(interactions)} {interaction_word}: "
-            + ", ".join(type_descriptions)
+        summary = f"Session with {len(interactions)} {interaction_word}: " + ", ".join(
+            type_descriptions
         )
 
         keywords = list(by_type.keys())

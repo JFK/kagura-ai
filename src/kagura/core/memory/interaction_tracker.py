@@ -145,9 +145,9 @@ class InteractionTracker:
         # 2. LLM importance classification (async, non-blocking)
         if llm_classifier:
             # Start classification in background
-            asyncio.create_task(self._classify_and_record(
-                record, llm_classifier, github_recorder
-            ))
+            asyncio.create_task(
+                self._classify_and_record(record, llm_classifier, github_recorder)
+            )
 
         # 4. Check flush conditions
         should_flush = (
@@ -180,17 +180,14 @@ class InteractionTracker:
         # Classify importance
         importance = await self._classify_importance(record, llm_classifier)
 
-        logger.debug(
-            f"Importance classified: {record.interaction_id} = {importance}"
-        )
+        logger.debug(f"Importance classified: {record.interaction_id} = {importance}")
 
         # Record to GitHub if high importance
         if importance >= self.importance_threshold and github_recorder:
             try:
                 await github_recorder.record_important_event(record)
                 logger.info(
-                    f"High importance interaction ({importance}): "
-                    f"recorded to GitHub"
+                    f"High importance interaction ({importance}): recorded to GitHub"
                 )
             except Exception as e:
                 logger.error(f"GitHub recording failed: {e}")
