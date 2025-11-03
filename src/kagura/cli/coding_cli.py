@@ -35,6 +35,25 @@ def _get_default_user() -> str:
     return os.getenv("KAGURA_DEFAULT_USER", "kiyota")
 
 
+def _check_project_required(project: str | None, console: Console) -> str | None:
+    """Check and return project, show error if missing.
+
+    Args:
+        project: Project ID (may be None)
+        console: Rich console for output
+
+    Returns:
+        Project ID or None (if error shown)
+    """
+    proj = project or _get_default_project()
+    if not proj:
+        console.print(
+            "[red]Error: No project specified and $KAGURA_DEFAULT_PROJECT not set[/red]"
+        )
+        console.print("[dim]Set: export KAGURA_DEFAULT_PROJECT=your-project[/dim]")
+    return proj
+
+
 @click.group()
 def coding():
     """Coding memory inspection commands.
@@ -179,9 +198,7 @@ def sessions(
             "[red]Error: No project specified and $KAGURA_DEFAULT_PROJECT not set[/red]"
         )
         console.print("[dim]Usage: kagura coding sessions --project PROJECT[/dim]")
-        console.print(
-            "[dim]Or set: export KAGURA_DEFAULT_PROJECT=your-project[/dim]"
-        )
+        console.print("[dim]Or set: export KAGURA_DEFAULT_PROJECT=your-project[/dim]")
         return
 
     try:
@@ -271,15 +288,31 @@ def sessions(
 
 @coding.command()
 @click.argument("session_id")
-@click.option("--project", "-p", required=True, help="Project ID")
-@click.option("--user", "-u", default="kiyota", help="User ID")
-def session(session_id: str, project: str, user: str):
+@click.option(
+    "--project",
+    "-p",
+    default=None,
+    help="Project ID (default: $KAGURA_DEFAULT_PROJECT)",
+)
+@click.option(
+    "--user",
+    "-u",
+    default=None,
+    help="User ID (default: $KAGURA_DEFAULT_USER or kiyota)",
+)
+def session(session_id: str, project: str | None, user: str | None):
     """Show detailed session information.
 
     Example:
         kagura coding session session_abc123 --project kagura-ai
     """
     console = Console()
+
+    # Use environment variable defaults
+    project = _check_project_required(project, console)
+    user = user or _get_default_user()
+    if not project:
+        return
 
     try:
         from kagura.core.memory.coding_memory import CodingMemoryManager
@@ -326,13 +359,27 @@ def session(session_id: str, project: str, user: str):
 
 
 @coding.command()
-@click.option("--project", "-p", required=True, help="Project ID")
-@click.option("--user", "-u", default="kiyota", help="User ID")
+@click.option(
+    "--project",
+    "-p",
+    default=None,
+    help="Project ID (default: $KAGURA_DEFAULT_PROJECT)",
+)
+@click.option(
+    "--user",
+    "-u",
+    default=None,
+    help="User ID (default: $KAGURA_DEFAULT_USER or kiyota)",
+)
 @click.option("--limit", "-n", default=10, help="Maximum results")
 @click.option("--min-confidence", type=float, help="Minimum confidence (0.0-1.0)")
 @click.option("--tag", help="Filter by tag")
 def decisions(
-    project: str, user: str, limit: int, min_confidence: float | None, tag: str | None
+    project: str | None,
+    user: str | None,
+    limit: int,
+    min_confidence: float | None,
+    tag: str | None,
 ):
     """List design decisions for a project.
 
@@ -342,6 +389,12 @@ def decisions(
         kagura coding decisions --project kagura-ai --tag architecture
     """
     console = Console()
+
+    # Use environment variable defaults
+    project = _check_project_required(project, console)
+    user = user or _get_default_user()
+    if not project:
+        return
 
     try:
         from kagura.core.memory.coding_memory import CodingMemoryManager
@@ -427,15 +480,31 @@ def decisions(
 
 @coding.command()
 @click.argument("decision_id")
-@click.option("--project", "-p", required=True, help="Project ID")
-@click.option("--user", "-u", default="kiyota", help="User ID")
-def decision(decision_id: str, project: str, user: str):
+@click.option(
+    "--project",
+    "-p",
+    default=None,
+    help="Project ID (default: $KAGURA_DEFAULT_PROJECT)",
+)
+@click.option(
+    "--user",
+    "-u",
+    default=None,
+    help="User ID (default: $KAGURA_DEFAULT_USER or kiyota)",
+)
+def decision(decision_id: str, project: str | None, user: str | None):
     """Show detailed decision information.
 
     Example:
         kagura coding decision decision_abc123 --project kagura-ai
     """
     console = Console()
+
+    # Use environment variable defaults
+    project = _check_project_required(project, console)
+    user = user or _get_default_user()
+    if not project:
+        return
 
     try:
         from kagura.core.memory.coding_memory import CodingMemoryManager
@@ -488,13 +557,27 @@ def decision(decision_id: str, project: str, user: str):
 
 
 @coding.command()
-@click.option("--project", "-p", required=True, help="Project ID")
-@click.option("--user", "-u", default="kiyota", help="User ID")
+@click.option(
+    "--project",
+    "-p",
+    default=None,
+    help="Project ID (default: $KAGURA_DEFAULT_PROJECT)",
+)
+@click.option(
+    "--user",
+    "-u",
+    default=None,
+    help="User ID (default: $KAGURA_DEFAULT_USER or kiyota)",
+)
 @click.option("--limit", "-n", default=20, help="Maximum results")
 @click.option("--unresolved", is_flag=True, help="Show only unresolved errors")
 @click.option("--type", "error_type", help="Filter by error type (e.g., TypeError)")
 def errors(
-    project: str, user: str, limit: int, unresolved: bool, error_type: str | None
+    project: str | None,
+    user: str | None,
+    limit: int,
+    unresolved: bool,
+    error_type: str | None,
 ):
     """List errors encountered in a project.
 
@@ -504,6 +587,12 @@ def errors(
         kagura coding errors --project kagura-ai --type TypeError
     """
     console = Console()
+
+    # Use environment variable defaults
+    project = _check_project_required(project, console)
+    user = user or _get_default_user()
+    if not project:
+        return
 
     try:
         from kagura.core.memory.coding_memory import CodingMemoryManager
@@ -595,15 +684,31 @@ def errors(
 
 @coding.command()
 @click.argument("error_id")
-@click.option("--project", "-p", required=True, help="Project ID")
-@click.option("--user", "-u", default="kiyota", help="User ID")
-def error(error_id: str, project: str, user: str):
+@click.option(
+    "--project",
+    "-p",
+    default=None,
+    help="Project ID (default: $KAGURA_DEFAULT_PROJECT)",
+)
+@click.option(
+    "--user",
+    "-u",
+    default=None,
+    help="User ID (default: $KAGURA_DEFAULT_USER or kiyota)",
+)
+def error(error_id: str, project: str | None, user: str | None):
     """Show detailed error information including solution.
 
     Example:
         kagura coding error error_abc123 --project kagura-ai
     """
     console = Console()
+
+    # Use environment variable defaults
+    project = _check_project_required(project, console)
+    user = user or _get_default_user()
+    if not project:
+        return
 
     try:
         from kagura.core.memory.coding_memory import CodingMemoryManager
@@ -655,8 +760,18 @@ def error(error_id: str, project: str, user: str):
 
 
 @coding.command()
-@click.option("--project", "-p", required=True, help="Project ID")
-@click.option("--user", "-u", default="kiyota", help="User ID")
+@click.option(
+    "--project",
+    "-p",
+    default=None,
+    help="Project ID (default: $KAGURA_DEFAULT_PROJECT)",
+)
+@click.option(
+    "--user",
+    "-u",
+    default=None,
+    help="User ID (default: $KAGURA_DEFAULT_USER or kiyota)",
+)
 @click.option("--query", "-q", required=True, help="Search query")
 @click.option(
     "--type",
@@ -666,7 +781,9 @@ def error(error_id: str, project: str, user: str):
     help="Search scope",
 )
 @click.option("--limit", "-n", default=10, help="Maximum results")
-def search(project: str, user: str, query: str, search_type: str, limit: int):
+def search(
+    project: str | None, user: str | None, query: str, search_type: str, limit: int
+):
     """Search coding memory semantically.
 
     Searches across sessions, decisions, errors, and file changes.
@@ -676,6 +793,12 @@ def search(project: str, user: str, query: str, search_type: str, limit: int):
         kagura coding search --project kagura-ai --query "memory leak" --type error
     """
     console = Console()
+
+    # Use environment variable defaults
+    project = _check_project_required(project, console)
+    user = user or _get_default_user()
+    if not project:
+        return
 
     try:
         from kagura.core.memory.coding_memory import CodingMemoryManager
