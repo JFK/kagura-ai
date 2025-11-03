@@ -80,6 +80,7 @@ class InteractionTracker:
             flush_count_threshold: Interactions count before auto-flush
         """
         self.buffer: list[InteractionRecord] = []
+        self.flushed_interactions: list[InteractionRecord] = []  # Preserve flushed data
         self.last_flush_time = datetime.now(timezone.utc)
         self.importance_threshold = importance_threshold
         self.flush_interval_seconds = flush_interval_seconds
@@ -237,28 +238,49 @@ class InteractionTracker:
             record.importance = type_scores.get(record.interaction_type, 5.0)
             return record.importance
 
-    async def _flush_buffer(self) -> None:
+    async def _flush_buffer(
+        self, persistent_storage: Any | None = None
+    ) -> list[InteractionRecord]:
         """Flush buffered interactions to Persistent Memory.
 
         Background task, non-blocking.
+
+        IMPORTANT: Flushed interactions are preserved in flushed_interactions list
+        to prevent data loss until proper persistent storage integration.
+
+        Args:
+            persistent_storage: Storage backend (optional, for future integration)
+
+        Returns:
+            List of flushed interactions
         """
         if not self.buffer:
-            return
+            return []
 
         # Get interactions to flush
         to_flush = self.buffer.copy()
         self.buffer.clear()
         self.last_flush_time = datetime.now(timezone.utc)
 
-        logger.info(f"Flushing {len(to_flush)} interactions to Persistent Memory")
+        # Preserve flushed data to prevent loss (critical fix for Copilot P1 issue)
+        self.flushed_interactions.extend(to_flush)
 
-        # TODO: Actual flush to Persistent Memory
-        # This will be implemented when integrating with CodingMemoryManager
+        logger.info(
+            f"Flushed {len(to_flush)} interactions "
+            f"(total preserved: {len(self.flushed_interactions)})"
+        )
+
+        # TODO: Integrate with CodingMemoryManager.persistent storage
+        # When integrated, write to_flush to persistent storage here
+
+        return to_flush
 
     async def get_session_summary(
         self, session_id: str, llm_summarizer: Any | None = None
     ) -> dict[str, Any]:
         """Get summary of all interactions in a session.
+
+        Includes both buffered and flushed interactions to prevent data loss.
 
         Args:
             session_id: Coding session ID
@@ -267,7 +289,11 @@ class InteractionTracker:
         Returns:
             Summary dict with statistics and LLM-generated summary
         """
-        session_interactions = [r for r in self.buffer if r.session_id == session_id]
+        # Include both buffer and flushed interactions (critical: prevents data loss)
+        all_interactions = self.buffer + self.flushed_interactions
+        session_interactions = [
+            r for r in all_interactions if r.session_id == session_id
+        ]
 
         if not session_interactions:
             return {

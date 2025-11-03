@@ -472,8 +472,8 @@ async def coding_end_session(
     user_id: str,
     project_id: str,
     summary: str | None = None,
-    success: str | None = None,
-    save_to_github: str = "false",
+    success: str | bool | None = None,
+    save_to_github: str | bool = "false",
 ) -> str:
     """End coding session and generate AI-powered summary of changes,
     decisions, and learnings.
@@ -532,9 +532,18 @@ async def coding_end_session(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    # Convert string parameters to appropriate types
-    success_bool = None if success is None else success.lower() == "true"
-    save_to_github_bool = save_to_github.lower() == "true"
+    # Convert parameters to appropriate types (handle both str and bool)
+    if success is None:
+        success_bool = None
+    elif isinstance(success, bool):
+        success_bool = success
+    else:
+        success_bool = success.lower() == "true"
+
+    if isinstance(save_to_github, bool):
+        save_to_github_bool = save_to_github
+    else:
+        save_to_github_bool = save_to_github.lower() == "true"
 
     result = await memory.end_coding_session(
         summary=summary,
