@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.8] - 2025-11-03
+
+### ✨ Added
+
+- **Coding Memory CLI Commands** (#502)
+  - `kagura coding sessions`: List coding sessions with filters
+  - `kagura coding session <ID>`: Show detailed session information
+  - `kagura coding decisions`: Browse design decisions
+  - `kagura coding decision <ID>`: Show decision details with rationale
+  - `kagura coding errors`: List errors with resolution status
+  - `kagura coding error <ID>`: Show error details and solution
+  - `kagura coding search`: Semantic search across all coding memory
+  - Filters: --success, --unresolved, --min-confidence, --tag, --since, --type
+
+### 🐛 Fixed
+
+- **Doctor Command** (#500): Now shows actual memory counts
+  - Before: `Persistent: 0, RAG: 0` (always showed 0)
+  - After: `Persistent: 471, RAG: 17` (actual counts across all users)
+  - Queries all ChromaDB collections (sessions, API, legacy)
+
+### 📝 Documentation
+
+- **CLAUDE.md**: Updated workflow to recommend Kagura Coding Sessions
+  - Added section: "過去の作業を参照" with CLI examples
+  - Integrated Coding Session into standard workflow
+  - Emphasizes using Kagura memory over ephemeral Claude context
+
+### 🎯 Impact
+
+- **Self-Improvement Loop**: Kagura developers can now use Kagura's memory for development
+- **CLI Access**: Query coding memory from terminal (no Claude Desktop needed)
+- **Context Restoration**: Review past sessions, decisions, errors before starting work
+- **Dogfooding**: Kagura using Kagura for its own development
+
+### 🧪 Tests
+
+- Type check: 0 errors (pyright)
+- Lint: All checks passed (ruff)
+- Manual verification: All commands working correctly
+
+---
+
 ## [4.0.7] - 2025-11-03
 
 ### ✨ Added

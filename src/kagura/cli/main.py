@@ -49,6 +49,11 @@ from .lazy import LazyGroup
             "memory_group",
             "Memory management commands",
         ),
+        "coding": (
+            "kagura.cli.coding_cli",
+            "coding",
+            "Coding memory inspection commands",
+        ),
         "config": (
             "kagura.cli.config_cli",
             "app",
