@@ -1353,6 +1353,7 @@ def monitor(tool: str | None, interval: float) -> None:
             conn = sqlite3.connect(db_path)
 
             # Query recent tool stats (last 5 minutes)
+            # Note: started_at is Unix timestamp (REAL), so use unixepoch() or strftime()
             query = """
                 SELECT
                     agent_name as tool,
@@ -1361,7 +1362,7 @@ def monitor(tool: str | None, interval: float) -> None:
                     SUM(CASE WHEN error IS NOT NULL THEN 1 ELSE 0 END) as errors,
                     AVG(duration) as avg_duration
                 FROM executions
-                WHERE started_at >= datetime('now', '-5 minutes')
+                WHERE started_at >= (strftime('%s', 'now') - 300)
             """
 
             if tool:
