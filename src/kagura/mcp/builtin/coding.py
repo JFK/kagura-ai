@@ -561,9 +561,7 @@ async def coding_end_session(
         save_to_github=save_to_github_bool,
     )
 
-    success_emoji = (
-        "✅" if success_bool else ("⚠️" if success_bool is False else "ℹ️")
-    )
+    success_emoji = "✅" if success_bool else ("⚠️" if success_bool is False else "ℹ️")
     duration_str = (
         f"{result['duration_minutes']:.1f} minutes"
         if result["duration_minutes"]
@@ -588,8 +586,12 @@ async def coding_end_session(
     if save_to_claude_code_history_bool:
         try:
             # Prepare session data for Claude Code history
-            session_title = memory.current_session.description if memory.current_session else "Coding Session"
-            files_modified = [str(f) for f in result['files_touched']]
+            session_title = (
+                memory.current_session.description
+                if memory.current_session
+                else "Coding Session"
+            )
+            files_modified = [str(f) for f in result["files_touched"]]
 
             # Extract tags from session
             tags = []
@@ -599,24 +601,26 @@ async def coding_end_session(
             # Save using claude_code_save_session logic
             from datetime import datetime
 
-            session_key = f"claude_code_session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            session_key = (
+                f"claude_code_session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            )
 
             session_doc = f"""
 Claude Code Session: {session_title}
 Project: {project_id}
 Date: {datetime.now().isoformat()}
 Duration: {duration_str}
-Files Modified: {', '.join(files_modified)}
+Files Modified: {", ".join(files_modified)}
 Success: {success_bool}
 
 Summary:
-{result['summary']}
+{result["summary"]}
 
 Statistics:
-- Files touched: {len(result['files_touched'])}
-- Errors encountered: {result['errors_encountered']}
-- Errors fixed: {result['errors_fixed']}
-- Decisions made: {result['decisions_made']}
+- Files touched: {len(result["files_touched"])}
+- Errors encountered: {result["errors_encountered"]}
+- Errors fixed: {result["errors_fixed"]}
+- Decisions made: {result["decisions_made"]}
 """
 
             metadata = {
@@ -628,7 +632,7 @@ Statistics:
                 "timestamp": datetime.now().isoformat(),
                 "importance": 0.8 if success_bool else 0.6,
                 "platform": "claude_code",
-                "session_id": result['session_id'],
+                "session_id": result["session_id"],
             }
 
             # Store in memory
@@ -645,7 +649,9 @@ Statistics:
                 metadata=metadata,
             )
 
-            claude_code_status = f"\n✅ Session saved to Claude Code history: {session_key}"
+            claude_code_status = (
+                f"\n✅ Session saved to Claude Code history: {session_key}"
+            )
 
         except Exception as e:
             claude_code_status = f"\n⚠️ Failed to save to Claude Code history: {e}"
@@ -1520,7 +1526,9 @@ async def coding_index_source_code(
     exclude_patterns_list = _parse_json_list(exclude_patterns, "exclude_patterns")
 
     if language != "python":
-        return f"❌ Error: Only 'python' language is currently supported (got: {language})"
+        return (
+            f"❌ Error: Only 'python' language is currently supported (got: {language})"
+        )
 
     # Get CodingMemoryManager
     memory = _get_coding_memory(user_id, project_id)
@@ -1543,6 +1551,7 @@ async def coding_index_source_code(
         should_exclude = False
         for exclude_pattern in exclude_patterns_list:
             import fnmatch
+
             if fnmatch.fnmatch(str(file), exclude_pattern):
                 should_exclude = True
                 break
@@ -1603,7 +1612,7 @@ async def coding_index_source_code(
             errors.append(f"{file_path.name}: {str(e)[:100]}")
 
     # Build result
-    result = f"✅ Source Code Indexing Complete\n\n"
+    result = "✅ Source Code Indexing Complete\n\n"
     result += f"**Project:** {project_id}\n"
     result += f"**Directory:** {directory}\n"
     result += f"**Files indexed:** {indexed_files}/{len(filtered_files)}\n"
@@ -1618,7 +1627,7 @@ async def coding_index_source_code(
             result += f"- ... and {len(errors) - 5} more\n"
         result += "\n"
 
-    result += f"💡 **Next:** Use coding_search_source_code() to find code semantically"
+    result += "💡 **Next:** Use coding_search_source_code() to find code semantically"
 
     return result
 
@@ -1670,15 +1679,17 @@ def _extract_code_chunks(
         docstring = tree.body[0].value.value
         if isinstance(docstring, str):
             module_docstring = docstring
-            chunks.append({
-                "file_path": str(file_path),
-                "type": "module",
-                "name": file_path.stem,
-                "line_start": 1,
-                "line_end": len(docstring.split("\n")),
-                "content": f"{docstring}\n\n{imports_context}",
-                "imports": imports,
-            })
+            chunks.append(
+                {
+                    "file_path": str(file_path),
+                    "type": "module",
+                    "name": file_path.stem,
+                    "line_start": 1,
+                    "line_end": len(docstring.split("\n")),
+                    "content": f"{docstring}\n\n{imports_context}",
+                    "imports": imports,
+                }
+            )
 
     # Find all top-level classes for context
     classes_info = {}
@@ -1724,22 +1735,24 @@ def _extract_code_chunks(
             if parent_class:
                 context = f"Class: {parent_class}, Method: {func_name}"
 
-            chunks.append({
-                "file_path": str(file_path),
-                "type": "function" if not parent_class else "method",
-                "name": func_name,
-                "line_start": line_start,
-                "line_end": line_end,
-                "content": (
-                    f"{context}\n"
-                    f"{imports_context}\n\n"
-                    f"Code (with {overlap_lines}-line overlap):\n"
-                    f"{func_source_with_overlap}\n\n"
-                    f"Docstring:\n{docstring}"
-                ),
-                "parent_class": parent_class,
-                "imports": imports,
-            })
+            chunks.append(
+                {
+                    "file_path": str(file_path),
+                    "type": "function" if not parent_class else "method",
+                    "name": func_name,
+                    "line_start": line_start,
+                    "line_end": line_end,
+                    "content": (
+                        f"{context}\n"
+                        f"{imports_context}\n\n"
+                        f"Code (with {overlap_lines}-line overlap):\n"
+                        f"{func_source_with_overlap}\n\n"
+                        f"Docstring:\n{docstring}"
+                    ),
+                    "parent_class": parent_class,
+                    "imports": imports,
+                }
+            )
 
         elif isinstance(node, ast.ClassDef):
             # Class definition with all methods
@@ -1765,23 +1778,26 @@ def _extract_code_chunks(
                     args = [a.arg for a in m.args.args]
                     methods.append(f"{m.name}({', '.join(args)})")
 
-            chunks.append({
-                "file_path": str(file_path),
-                "type": "class",
-                "name": class_name,
-                "line_start": line_start,
-                "line_end": line_end,
-                "content": (
-                    f"Class: {class_name}\n"
-                    f"{imports_context}\n\n"
-                    f"Code (with {overlap_lines}-line overlap):\n"
-                    f"{class_source}\n\n"
-                    f"Docstring:\n{docstring}\n\n"
-                    f"Methods ({len(methods)}):\n" + "\n".join(f"- {m}" for m in methods)
-                ),
-                "methods": methods,
-                "imports": imports,
-            })
+            chunks.append(
+                {
+                    "file_path": str(file_path),
+                    "type": "class",
+                    "name": class_name,
+                    "line_start": line_start,
+                    "line_end": line_end,
+                    "content": (
+                        f"Class: {class_name}\n"
+                        f"{imports_context}\n\n"
+                        f"Code (with {overlap_lines}-line overlap):\n"
+                        f"{class_source}\n\n"
+                        f"Docstring:\n{docstring}\n\n"
+                        f"Methods ({len(methods)}):\n"
+                        + "\n".join(f"- {m}" for m in methods)
+                    ),
+                    "methods": methods,
+                    "imports": imports,
+                }
+            )
 
     return chunks
 
@@ -1846,8 +1862,10 @@ async def coding_search_source_code(
     # Filter by file path if specified
     if file_filter:
         import fnmatch
+
         results = [
-            r for r in results
+            r
+            for r in results
             if fnmatch.fnmatch(r.get("metadata", {}).get("file_path", ""), file_filter)
         ]
 
@@ -1877,7 +1895,7 @@ async def coding_search_source_code(
         result += f"   Score: {score:.3f}\n"
         result += f"   Preview:\n```\n{content_preview}\n```\n\n"
 
-    result += f"\n💡 **Tip:** Open files in your editor to see full implementation"
+    result += "\n💡 **Tip:** Open files in your editor to see full implementation"
 
     return result
 
@@ -1947,7 +1965,6 @@ async def claude_code_save_session(
             tags='["feature", "cli", "issue-501"]'
         )
     """
-    import json
     from datetime import datetime
 
     # Parse parameters
@@ -1968,8 +1985,8 @@ async def claude_code_save_session(
 Claude Code Session: {session_title}
 Project: {project_id}
 Date: {timestamp}
-Files Modified: {', '.join(files_list)}
-Tags: {', '.join(tags_list)}
+Files Modified: {", ".join(files_list)}
+Tags: {", ".join(tags_list)}
 
 Summary:
 {work_summary}
@@ -2029,7 +2046,7 @@ Summary:
     result += f"**Files:** {len(files_list)} modified\n"
     result += f"**Tags:** {', '.join(tags_list)}\n"
     result += f"**Importance:** {importance_float}\n\n"
-    result += f"💡 **Search later with:** claude_code_search_past_work(query=\"{session_title.split()[0]}\")"
+    result += f'💡 **Search later with:** claude_code_search_past_work(query="{session_title.split()[0]}")'
 
     return result
 
@@ -2105,8 +2122,7 @@ async def claude_code_search_past_work(
 
     # Filter by type (Claude Code sessions only)
     claude_sessions = [
-        r for r in results
-        if r.get("metadata", {}).get("type") == "claude_code_session"
+        r for r in results if r.get("metadata", {}).get("type") == "claude_code_session"
     ]
 
     # Filter by date range if specified
@@ -2120,8 +2136,11 @@ async def claude_code_search_past_work(
         cutoff = datetime.now() - timedelta(days=days)
 
         claude_sessions = [
-            r for r in claude_sessions
-            if datetime.fromisoformat(r.get("metadata", {}).get("timestamp", "2000-01-01"))
+            r
+            for r in claude_sessions
+            if datetime.fromisoformat(
+                r.get("metadata", {}).get("timestamp", "2000-01-01")
+            )
             > cutoff
         ]
 
@@ -2130,7 +2149,8 @@ async def claude_code_search_past_work(
         import fnmatch
 
         claude_sessions = [
-            r for r in claude_sessions
+            r
+            for r in claude_sessions
             if any(
                 fnmatch.fnmatch(f, file_filter)
                 for f in r.get("metadata", {}).get("files_modified", [])
@@ -2170,7 +2190,11 @@ async def claude_code_search_past_work(
             date_str = timestamp
 
         # Extract summary from content
-        summary = content.split("Summary:")[1].split("\n\n")[0].strip() if "Summary:" in content else ""
+        summary = (
+            content.split("Summary:")[1].split("\n\n")[0].strip()
+            if "Summary:" in content
+            else ""
+        )
 
         result += f"**{i}. [{date_str}] {title}**\n"
         result += f"   Score: {score:.3f}\n"
@@ -2181,6 +2205,6 @@ async def claude_code_search_past_work(
         result += f"   Tags: {', '.join(tags)}\n"
         result += f"   Summary: {summary[:200]}...\n\n"
 
-    result += f"\n💡 **Tip:** Use this context to avoid repeating past work"
+    result += "\n💡 **Tip:** Use this context to avoid repeating past work"
 
     return result

@@ -490,9 +490,7 @@ def setup_command(model: str | None, provider: str | None) -> None:
             client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
             with console.status("[bold green]Testing OpenAI API..."):
-                response = client.embeddings.create(
-                    input=["test"], model=model
-                )
+                response = client.embeddings.create(input=["test"], model=model)
 
             console.print("[green]✓ OpenAI API configured successfully![/green]")
             console.print()
@@ -601,12 +599,14 @@ def list_command(
         if scope in ["working", "all"]:
             # Working memory
             for key, value in manager.working._data.items():
-                memories.append({
-                    "scope": "working",
-                    "key": key,
-                    "value": str(value)[:100],
-                    "user": user_id or "system",
-                })
+                memories.append(
+                    {
+                        "scope": "working",
+                        "key": key,
+                        "value": str(value)[:100],
+                        "user": user_id or "system",
+                    }
+                )
 
         if scope in ["persistent", "all"]:
             # Persistent memory
@@ -618,12 +618,14 @@ def list_command(
             )
 
             for mem in persistent_memories:
-                memories.append({
-                    "scope": "persistent",
-                    "key": mem.get("key", ""),
-                    "value": str(mem.get("value", ""))[:100],
-                    "user": mem.get("user_id", ""),
-                })
+                memories.append(
+                    {
+                        "scope": "persistent",
+                        "key": mem.get("key", ""),
+                        "value": str(mem.get("value", ""))[:100],
+                        "user": mem.get("user_id", ""),
+                    }
+                )
 
         if not memories:
             console.print("[yellow]No memories found[/yellow]")
@@ -648,7 +650,9 @@ def list_command(
             )
 
         console.print(table)
-        console.print(f"\n[dim]Showing {len(memories)} of {len(memories)} memories[/dim]")
+        console.print(
+            f"\n[dim]Showing {len(memories)} of {len(memories)} memories[/dim]"
+        )
         console.print()
 
     except Exception as e:
@@ -737,7 +741,9 @@ def search_command(
             console.print()
         else:
             console.print("[red]✗ RAG not available[/red]")
-            console.print("[dim]Install: pip install chromadb sentence-transformers[/dim]")
+            console.print(
+                "[dim]Install: pip install chromadb sentence-transformers[/dim]"
+            )
 
     except Exception as e:
         console.print(f"\n[red]✗ Search failed: {e}[/red]")
@@ -793,7 +799,7 @@ def stats_command(
         db_path = get_data_dir() / "memory.db"
         db_size_mb = 0.0
         if db_path.exists():
-            db_size_mb = db_path.stat().st_size / (1024 ** 2)
+            db_size_mb = db_path.stat().st_size / (1024**2)
 
         # Count memories
         working_count = len(manager.working._data)
@@ -817,7 +823,9 @@ def stats_command(
         table.add_column("Details", style="dim")
 
         table.add_row("Working", str(working_count), "Temporary session data")
-        table.add_row("Persistent", str(persistent_count), f"SQLite DB ({db_size_mb:.2f} MB)")
+        table.add_row(
+            "Persistent", str(persistent_count), f"SQLite DB ({db_size_mb:.2f} MB)"
+        )
         table.add_row("RAG Index", str(rag_count), "Vector embeddings")
 
         console.print(table)
@@ -872,7 +880,7 @@ def segments_command(user_id: str | None) -> None:
         db_path = get_data_dir() / "memory.db"
         db_size_mb = 0.0
         if db_path.exists():
-            db_size_mb = db_path.stat().st_size / (1024 ** 2)
+            db_size_mb = db_path.stat().st_size / (1024**2)
 
         # Counts
         working_count = len(manager.working._data)
@@ -898,17 +906,12 @@ def segments_command(user_id: str | None) -> None:
         table.add_column("Size", style="white", justify="right")
         table.add_column("RAG Index", style="green")
 
-        table.add_row(
-            "Working",
-            str(working_count),
-            "-",
-            "-"
-        )
+        table.add_row("Working", str(working_count), "-", "-")
         table.add_row(
             "Persistent",
             str(persistent_count),
             f"{db_size_mb:.2f} MB",
-            f"✅ {rag_count}" if rag_enabled else "❌ 0"
+            f"✅ {rag_count}" if rag_enabled else "❌ 0",
         )
 
         console.print(table)

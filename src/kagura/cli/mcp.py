@@ -941,7 +941,9 @@ def stats_command(
 
 
 @mcp.command(name="monitor")
-@click.option("--tool", "-t", help="Filter by tool name pattern", type=str, default=None)
+@click.option(
+    "--tool", "-t", help="Filter by tool name pattern", type=str, default=None
+)
 @click.option(
     "--refresh",
     "-r",
@@ -998,17 +1000,14 @@ def monitor_command(
         events = store.query(since=cutoff.isoformat())
 
         # Filter MCP tool events
-        mcp_events = [
-            e for e in events
-            if e.get("event_type") == "tool_call"
-        ]
+        mcp_events = [e for e in events if e.get("event_type") == "tool_call"]
 
         # Apply tool filter
         if tool:
             import fnmatch
+
             mcp_events = [
-                e for e in mcp_events
-                if fnmatch.fnmatch(e.get("tool_name", ""), tool)
+                e for e in mcp_events if fnmatch.fnmatch(e.get("tool_name", ""), tool)
             ]
 
         # Calculate statistics
@@ -1026,7 +1025,7 @@ def monitor_command(
             tool_stats[tool_name]["total_time"] += duration
 
         # Create table
-        table = Table(title=f"MCP Tools - Live Monitor (Last 5 min)", show_header=True)
+        table = Table(title="MCP Tools - Live Monitor (Last 5 min)", show_header=True)
         table.add_column("Tool Name", style="cyan")
         table.add_column("Calls", justify="right", style="white")
         table.add_column("Success Rate", justify="right", style="green")
@@ -1035,9 +1034,7 @@ def monitor_command(
 
         # Sort by call count
         sorted_tools = sorted(
-            tool_stats.items(),
-            key=lambda x: x[1]["calls"],
-            reverse=True
+            tool_stats.items(), key=lambda x: x[1]["calls"], reverse=True
         )
 
         for tool_name, stats in sorted_tools[:15]:  # Top 15 tools
@@ -1060,7 +1057,9 @@ def monitor_command(
         return table
 
     try:
-        with Live(create_dashboard(), refresh_per_second=1/refresh, console=console) as live:
+        with Live(
+            create_dashboard(), refresh_per_second=1 / refresh, console=console
+        ) as live:
             while True:
                 time.sleep(refresh)
                 live.update(create_dashboard())
