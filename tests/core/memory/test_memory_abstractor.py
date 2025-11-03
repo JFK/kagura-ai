@@ -245,7 +245,7 @@ class TestMemoryAbstractor:
 
         # Should downgrade to level 1
         assert result.abstraction_level == "summary"
-        assert "1 interactions" in result.summary
+        assert "1 interaction" in result.summary  # Singular for count=1
 
     @pytest.mark.asyncio
     async def test_downgrade_to_level1_multiple_types(self, abstractor):

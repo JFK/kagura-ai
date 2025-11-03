@@ -832,9 +832,13 @@ class CodingMemoryManager(MemoryManager):
                     # Collect interaction summary if available
                     interaction_summary = {}
                     if self.interaction_tracker:
+                        # Only pass analyzer if it exists
+                        llm_summarizer = (
+                            self.coding_analyzer if self.coding_analyzer else None
+                        )
                         interaction_summary = (
                             await self.interaction_tracker.get_session_summary(
-                                session_id, llm_summarizer=self.coding_analyzer
+                                session_id, llm_summarizer=llm_summarizer
                             )
                         )
 

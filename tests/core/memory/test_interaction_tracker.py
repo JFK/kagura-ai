@@ -115,7 +115,7 @@ class TestInteractionTracker:
     @pytest.mark.asyncio
     async def test_classify_importance_with_llm(self, tracker, mock_llm_classifier):
         """Test LLM importance classification."""
-        record = await tracker.track_interaction(
+        await tracker.track_interaction(
             user_query="Important decision",
             ai_response="Let's use approach X",
             interaction_type="decision",
@@ -159,7 +159,7 @@ class TestInteractionTracker:
         # Set LLM to return high importance
         mock_llm_classifier.classify_importance = AsyncMock(return_value=9.0)
 
-        record = await tracker.track_interaction(
+        await tracker.track_interaction(
             user_query="Critical decision",
             ai_response="Choose architecture X",
             interaction_type="decision",

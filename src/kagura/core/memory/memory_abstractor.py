@@ -351,8 +351,15 @@ Return JSON:
             itype = getattr(i, "interaction_type", "unknown")
             by_type[itype] = by_type.get(itype, 0) + 1
 
-        summary = f"Session with {len(interactions)} interactions: " + ", ".join(
-            [f"{count} {itype}" for itype, count in by_type.items()]
+        # Format with proper pluralization
+        type_descriptions = [
+            f"{count} {itype}{'s' if count != 1 else ''}"
+            for itype, count in by_type.items()
+        ]
+        interaction_word = "interaction" + ("s" if len(interactions) != 1 else "")
+        summary = (
+            f"Session with {len(interactions)} {interaction_word}: "
+            + ", ".join(type_descriptions)
         )
 
         keywords = list(by_type.keys())
