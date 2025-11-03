@@ -187,8 +187,9 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
         )
 
     # Check memory counts
+    persistent_count = 0
     try:
-        manager = MemoryManager(user_id="kiyota", agent_name="system")
+        manager = MemoryManager(user_id="system", agent_name="doctor")
 
         # Count persistent memories
         persistent_count = manager.persistent.count()
@@ -206,7 +207,7 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
                         "RAG index is empty but memories exist. "
                         "Run 'kagura memory index' to build index"
                     )
-            except Exception:
+            except Exception:  # ChromaDB collection.count() can fail if not initialized
                 status["rag_enabled"] = False
                 status["rag_count"] = 0
                 recommendations.append(
@@ -222,7 +223,12 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
 
     except Exception as e:
         status["error"] = str(e)
+        status["persistent_count"] = 0
+        status["rag_enabled"] = False
+        status["rag_count"] = 0
         recommendations.append(f"Memory system error: {e}")
+        # Early return to avoid accessing undefined manager
+        return status, recommendations
 
     # Check reranking
     import os
@@ -310,12 +316,12 @@ def _check_coding_memory() -> dict[str, Any]:
     from kagura.core.memory import MemoryManager
 
     try:
-        manager = MemoryManager(user_id="kiyota", agent_name="coding-memory")
+        manager = MemoryManager(user_id="system", agent_name="coding-memory")
 
         # Count sessions - search in persistent storage
         sessions = manager.persistent.search(
-            pattern="%session%",
-            user_id="kiyota",
+            query="%session%",
+            user_id="system",
             agent_name="coding-memory",
             limit=1000,
         )
@@ -329,7 +335,7 @@ def _check_coding_memory() -> dict[str, Any]:
                     metadata = json.loads(session.get("metadata", "{}"))
                     if "project_id" in metadata:
                         projects.add(metadata["project_id"])
-                except Exception:
+                except Exception:  # JSON parsing can fail for invalid metadata
                     pass
 
         return {

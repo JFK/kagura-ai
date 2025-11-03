@@ -80,8 +80,10 @@ def _setup_rag_environment(console: Console) -> None:
     console.print()
 
     # Step 2: Download embedding model
+    from kagura.config.models import DEFAULT_EMBEDDING_MODEL
+
     console.print("[bold cyan]Step 2/3: Downloading embedding model...[/]")
-    console.print("   Model: intfloat/multilingual-e5-large (~1.5 GB)")
+    console.print(f"   Model: {DEFAULT_EMBEDDING_MODEL} (~1.5 GB)")
     console.print()
 
     if click.confirm("Download now?", default=True):
@@ -94,7 +96,7 @@ def _setup_rag_environment(console: Console) -> None:
             try:
                 from sentence_transformers import SentenceTransformer  # type: ignore
 
-                model = SentenceTransformer("intfloat/multilingual-e5-large")
+                _ = SentenceTransformer(DEFAULT_EMBEDDING_MODEL)
                 progress.update(task, completed=True)
                 console.print("   [green]✓[/] Model downloaded")
             except Exception as e:
@@ -150,13 +152,15 @@ def _setup_reranking(console: Console) -> None:
     Args:
         console: Rich console for output
     """
+    from kagura.config.models import DEFAULT_RERANKING_MODEL
+
     console.print("\n")
     console.print(
         Panel(
             "[bold]Reranking Model Setup[/]\n\n"
             "This will download the cross-encoder reranking model\n"
             "to improve search quality (highly recommended).\n\n"
-            "Model: cross-encoder/ms-marco-MiniLM-L-6-v2 (~80 MB)",
+            f"Model: {DEFAULT_RERANKING_MODEL} (~80 MB)",
             style="blue",
         )
     )
@@ -180,7 +184,7 @@ def _setup_reranking(console: Console) -> None:
             try:
                 from sentence_transformers import CrossEncoder  # type: ignore
 
-                model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+                _ = CrossEncoder(DEFAULT_RERANKING_MODEL)
                 progress.update(task, completed=True)
                 console.print("   [green]✓[/] Model downloaded")
             except Exception as e:

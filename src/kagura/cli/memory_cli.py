@@ -664,9 +664,8 @@ def index_command(
         )
 
         # Get all persistent memories
-        memories = manager.persistent.search(
-            query="%",
-            user_id=user_id or "system",
+        memories = manager.persistent.fetch_all(
+            user_id=user_id,
             agent_name=agent_name,
             limit=100000,
         )
@@ -705,15 +704,18 @@ def index_command(
                     content = f"{mem['key']}: {mem['value']}"
                     metadata = mem.get("metadata", {})
 
-                    # Store in RAG
-                    manager.store_semantic(
-                        content=content,
-                        metadata=metadata,
-                    )
-                    indexed_count += 1
+                    # Store in persistent RAG (not working memory)
+                    if manager.persistent_rag:
+                        manager.persistent_rag.store(
+                            content=content,
+                            metadata=metadata or {},
+                        )
+                        indexed_count += 1
+                    else:
+                        skipped_count += 1
 
-                except Exception:
-                    # Skip on error (might be duplicate)
+                except Exception:  # Skip duplicates or malformed data
+                    # Store operation can fail for duplicate IDs or invalid content
                     skipped_count += 1
 
                 progress.update(task, advance=1)
