@@ -6,7 +6,9 @@ like Claude Code, Cursor, and others.
 
 from __future__ import annotations
 
+import ast
 import json
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from kagura import tool
@@ -853,6 +855,7 @@ Statistics:
                 memory.persistent_rag.store(
                     content=session_doc,
                     metadata=metadata,
+                    user_id=user_id,
                 )
 
             claude_code_status = (
@@ -1878,6 +1881,7 @@ def _extract_code_chunks(
     module_docstring = ""
     if (
         isinstance(tree, ast.Module)
+        and hasattr(tree, "body")
         and tree.body
         and isinstance(tree.body[0], ast.Expr)
         and isinstance(tree.body[0].value, ast.Constant)
@@ -2226,18 +2230,20 @@ Summary:
     }
 
     # Store in persistent memory
-    memory.store(
+    memory.persistent.store(
         key=session_key,
         value=session_doc,
-        scope="persistent",
+        user_id=user_id,
         metadata=metadata,
     )
 
     # Also store in RAG for semantic search
-    memory.store_semantic(
-        content=session_doc,
-        metadata=metadata,
-    )
+    if memory.persistent_rag:
+        memory.persistent_rag.store(
+            content=session_doc,
+            metadata=metadata,
+            user_id=user_id,
+        )
 
     # Create graph relationships if session is active
     if memory.current_session_id and memory.graph:
