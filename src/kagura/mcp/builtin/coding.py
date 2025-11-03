@@ -1888,7 +1888,6 @@ def _extract_code_chunks(
     imports_context = "Imports: " + ", ".join(imports[:10]) if imports else ""
 
     # Module-level docstring + imports (full file overview)
-    module_docstring = ""
     if (
         isinstance(tree, ast.Module)
         and hasattr(tree, "body")
