@@ -709,17 +709,28 @@ def search_command(
             enable_rag=True,
         )
 
-        # Perform semantic search
-        if manager.persistent_rag:
-            results = manager.search(
+        # Perform semantic search (use hybrid if available)
+        if manager.persistent_rag and manager.lexical_searcher:
+            # Use hybrid search (BM25 + RAG + reranking)
+            results = manager.recall_hybrid(
                 query=query,
-                k=top_k,
+                top_k=top_k,
                 scope="persistent",
             )
+        elif manager.persistent_rag:
+            # Fallback to RAG-only search
+            results = manager.search_memory(
+                query=query,
+                limit=top_k,
+            )
+        else:
+            console.print("[red]✗ RAG not available[/red]")
+            console.print("[dim]Install: pip install chromadb sentence-transformers[/dim]")
+            return
 
-            if not results:
-                console.print("[yellow]No results found[/yellow]")
-                return
+        if not results:
+            console.print("[yellow]No results found[/yellow]")
+            return
 
             # Display results
             table = Table(show_header=True, header_style="bold magenta")
