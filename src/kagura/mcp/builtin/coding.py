@@ -607,7 +607,7 @@ async def coding_get_current_session_status(
     session = CodingSession.model_validate(session_data)
 
     # Calculate duration
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     # Handle both datetime and string formats
     if isinstance(session.start_time, str):
@@ -615,7 +615,13 @@ async def coding_get_current_session_status(
     else:
         start = session.start_time
 
-    duration = (datetime.now() - start).total_seconds() / 60
+    # Ensure timezone-aware comparison
+    now = datetime.now(timezone.utc)
+    if start.tzinfo is None:
+        # Assume UTC if naive
+        start = start.replace(tzinfo=timezone.utc)
+
+    duration = (now - start).total_seconds() / 60
 
     # Count activities (CodingSession doesn't store these, need to fetch from memory)
     # For now, fetch from persistent storage
