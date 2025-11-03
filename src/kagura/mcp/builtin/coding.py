@@ -472,16 +472,18 @@ async def coding_end_session(
     user_id: str,
     project_id: str,
     summary: str | None = None,
-    success: bool | None = None,
+    success: str | bool | None = None,
+    save_to_github: str | bool = "false",
 ) -> str:
     """End coding session and generate AI-powered summary of changes,
     decisions, and learnings.
 
     Use this tool when finishing a coherent work session. The system will:
-    1. Collect all tracked activities (files, errors, decisions)
+    1. Collect all tracked activities (files, errors, decisions, interactions)
     2. Generate comprehensive AI summary (if not provided)
     3. Store session data for future reference
     4. Update coding patterns and preferences
+    5. Optionally save to GitHub Issue (if save_to_github=true)
 
     The AI summary includes:
     - Session overview and objectives achieved
@@ -494,7 +496,9 @@ async def coding_end_session(
         user_id: User identifier (developer)
         project_id: Project identifier
         summary: Optional user-provided summary (if None, AI generates it)
-        success: Whether session objectives were met (optional)
+        success: Whether session objectives were met ("true"/"false", optional)
+        save_to_github: Save session summary to GitHub Issue ("true"/"false",
+            default: "false"). Requires gh CLI and active branch linked to issue.
 
     Returns:
         Session summary and statistics
@@ -507,31 +511,67 @@ async def coding_end_session(
         await coding_end_session(
             user_id="dev_john",
             project_id="api-service",
-            success=True
+            success="true"
+        )
+
+        # End session with GitHub recording
+        await coding_end_session(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            success="true",
+            save_to_github="true"
         )
 
         # End session with custom summary
         await coding_end_session(
             user_id="dev_john",
             project_id="api-service",
-            summary="Completed JWT auth implementation. All tests passing. "
-                   "Need to add refresh token mechanism in next session.",
-            success=True
+            summary="Completed JWT auth implementation. All tests passing.",
+            success="true"
         )
     """
     memory = _get_coding_memory(user_id, project_id)
 
+    # Convert parameters to appropriate types (handle both str and bool)
+    if success is None:
+        success_bool = None
+    elif isinstance(success, bool):
+        success_bool = success
+    else:
+        success_bool = success.lower() == "true"
+
+    if isinstance(save_to_github, bool):
+        save_to_github_bool = save_to_github
+    else:
+        save_to_github_bool = save_to_github.lower() == "true"
+
     result = await memory.end_coding_session(
         summary=summary,
-        success=success,
+        success=success_bool,
+        save_to_github=save_to_github_bool,
     )
 
-    success_emoji = "✅" if success else ("⚠️" if success is False else "ℹ️")
+    success_emoji = (
+        "✅" if success_bool else ("⚠️" if success_bool is False else "ℹ️")
+    )
     duration_str = (
         f"{result['duration_minutes']:.1f} minutes"
         if result["duration_minutes"]
         else "Unknown"
     )
+
+    github_status = ""
+    if save_to_github_bool:
+        if memory.github_recorder and memory.github_recorder.is_available():
+            github_status = (
+                f"\n✅ Session summary recorded to GitHub Issue "
+                f"#{memory.github_recorder.current_issue_number}"
+            )
+        else:
+            github_status = (
+                "\n⚠️ GitHub recording requested but not available "
+                "(gh CLI not installed or no issue linked)"
+            )
 
     return (
         f"{success_emoji} Coding session ended: {result['session_id']}\n"
@@ -542,6 +582,7 @@ async def coding_end_session(
         f"Decisions: {result['decisions_made']}\n\n"
         f"📝 Summary:\n{result['summary']}\n\n"
         f"💾 Session data saved for future reference and pattern learning."
+        f"{github_status}"
     )
 
 
@@ -1219,3 +1260,120 @@ def _parse_json_list(value: str, param_name: str = "parameter") -> list:
     except json.JSONDecodeError as e:
         logger.warning(f"Invalid JSON for {param_name}: {e}, returning empty list")
         return []
+
+
+def _parse_json_dict(value: str, param_name: str = "parameter") -> dict:
+    """Parse JSON dict parameter from MCP tools.
+
+    Handles JSON parsing with error recovery for MCP tool parameters.
+
+    Args:
+        value: JSON string or already-parsed dict
+        param_name: Parameter name for error messages
+
+    Returns:
+        Parsed dict (empty dict if parsing fails)
+    """
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    try:
+        parsed = json.loads(value) if isinstance(value, str) else value
+        if not isinstance(parsed, dict):
+            logger.warning(f"{param_name} is not a dict, returning empty dict")
+            return {}
+        return parsed
+    except json.JSONDecodeError as e:
+        logger.warning(f"Invalid JSON for {param_name}: {e}, returning empty dict")
+        return {}
+
+
+@tool
+async def coding_track_interaction(
+    user_id: str,
+    project_id: str,
+    user_query: str,
+    ai_response: str,
+    interaction_type: str,
+    metadata: str = "{}",
+) -> str:
+    """Track AI-User interaction with automatic importance classification.
+
+    Records conversations during coding sessions for cross-session context.
+    High importance interactions (≥8.0) are automatically recorded to GitHub.
+
+    **When to use:**
+    - After important Q&A exchanges
+    - When making design decisions through conversation
+    - When struggling with a problem and finding solution
+    - When discovering important insights
+    - During implementation discussions
+
+    Args:
+        user_id: User identifier (developer, e.g., "kiyota")
+        project_id: Project identifier (e.g., "kagura-ai")
+        user_query: User's question or input
+        ai_response: AI assistant's response
+        interaction_type: Type of interaction:
+            - "question": General questions (low importance)
+            - "decision": Design/architecture decisions (high importance)
+            - "struggle": Problem-solving discussions (high importance)
+            - "discovery": New insights or findings (high importance)
+            - "implementation": Code implementation discussions (medium)
+            - "error_fix": Error resolution discussions (high importance)
+        metadata: JSON object with additional context (optional)
+
+    Returns:
+        Confirmation with interaction ID
+
+    Examples:
+        # Record an error resolution discussion
+        await coding_track_interaction(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            user_query="Why does memory_search_hybrid fail with 'str' vs 'int'?",
+            ai_response="MCP tools receive params as strings. Convert to float/int.",
+            interaction_type="error_fix"
+        )
+
+        # Record a design decision
+        await coding_track_interaction(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            user_query="Should we use --body or --body-file for GitHub comments?",
+            ai_response="Use --body-file for safety and reliability...",
+            interaction_type="decision",
+            metadata='{"context": "GitHub integration"}'
+        )
+    """
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    coding_mem = _get_coding_memory(user_id, project_id)
+
+    # Parse metadata
+    metadata_dict = _parse_json_dict(metadata, "metadata")
+
+    try:
+        interaction_id = await coding_mem.track_interaction(
+            user_query=user_query,
+            ai_response=ai_response,
+            interaction_type=interaction_type,
+            metadata=metadata_dict,
+        )
+
+        return (
+            f"✅ Interaction tracked: {interaction_id}\n"
+            f"Type: {interaction_type}\n"
+            f"Session: {coding_mem.current_session_id or 'No active session'}\n"
+            f"\nNote: Importance will be classified in background. "
+            f"High importance (≥8.0) interactions are automatically recorded to GitHub."
+        )
+    except ValueError as e:
+        logger.error(f"Invalid interaction type: {e}")
+        return f"❌ Error: {e}"
+    except Exception as e:
+        logger.error(f"Failed to track interaction: {e}", exc_info=True)
+        return f"❌ Failed to track interaction: {e}"

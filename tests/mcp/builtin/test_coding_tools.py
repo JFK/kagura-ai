@@ -13,6 +13,7 @@ from kagura.mcp.builtin.coding import (
     coding_search_errors,
     coding_start_session,
     coding_track_file_change,
+    coding_track_interaction,
 )
 
 
@@ -236,3 +237,187 @@ class TestCodingAnalyzePatterns:
 
         # Should show insufficient data message
         assert "⚠️" in result or "🔍" in result
+
+
+class TestCodingTrackInteraction:
+    """Test coding_track_interaction MCP tool."""
+
+    @pytest.mark.asyncio
+    async def test_track_interaction_basic(self):
+        """Test basic interaction tracking."""
+        result = await coding_track_interaction(
+            user_id="test_user_int",
+            project_id="test_project_int",
+            user_query="How to fix this bug?",
+            ai_response="Try using async/await pattern",
+            interaction_type="question",
+        )
+
+        assert "✅ Interaction tracked" in result
+        assert "question" in result
+        assert "int_" in result  # interaction ID
+
+    @pytest.mark.asyncio
+    async def test_track_interaction_with_metadata(self):
+        """Test tracking with metadata."""
+        result = await coding_track_interaction(
+            user_id="test_user_int2",
+            project_id="test_project_int2",
+            user_query="Should we use FastAPI?",
+            ai_response="Yes, FastAPI is better for async",
+            interaction_type="decision",
+            metadata='{"context": "architecture", "file": "api.py"}',
+        )
+
+        assert "✅ Interaction tracked" in result
+        assert "decision" in result
+
+    @pytest.mark.asyncio
+    async def test_track_interaction_invalid_type(self):
+        """Test tracking with invalid interaction type."""
+        result = await coding_track_interaction(
+            user_id="test_user_int3",
+            project_id="test_project_int3",
+            user_query="Test",
+            ai_response="Response",
+            interaction_type="invalid_type",
+        )
+
+        assert "❌" in result
+        assert "Error" in result or "Invalid" in result
+
+    @pytest.mark.asyncio
+    async def test_track_interaction_all_types(self):
+        """Test all valid interaction types."""
+        types = [
+            "question",
+            "decision",
+            "struggle",
+            "discovery",
+            "implementation",
+            "error_fix",
+        ]
+
+        for itype in types:
+            result = await coding_track_interaction(
+                user_id=f"test_user_{itype}",
+                project_id=f"test_project_{itype}",
+                user_query=f"Test {itype} query",
+                ai_response=f"Test {itype} response",
+                interaction_type=itype,
+            )
+
+            assert "✅ Interaction tracked" in result
+            assert itype in result
+
+    @pytest.mark.asyncio
+    async def test_track_interaction_within_session(self):
+        """Test interaction tracking within active session."""
+        # Start a session first
+        session_result = await coding_start_session(
+            user_id="test_user_session_int",
+            project_id="test_project_session_int",
+            description="Test session for interactions",
+        )
+        assert "✅ Coding session started" in session_result
+
+        # Track interaction
+        result = await coding_track_interaction(
+            user_id="test_user_session_int",
+            project_id="test_project_session_int",
+            user_query="Test query in session",
+            ai_response="Test response",
+            interaction_type="implementation",
+        )
+
+        assert "✅ Interaction tracked" in result
+        assert "session_" in result  # Should mention session ID
+
+        # Clean up
+        await coding_end_session(
+            user_id="test_user_session_int",
+            project_id="test_project_session_int",
+        )
+
+
+class TestCodingEndSessionExtended:
+    """Test extended coding_end_session with GitHub integration."""
+
+    @pytest.mark.asyncio
+    async def test_end_session_with_github_disabled(self):
+        """Test ending session without GitHub save."""
+        # Start session
+        await coding_start_session(
+            user_id="test_user_end1",
+            project_id="test_project_end1",
+            description="Test session",
+        )
+
+        # End without GitHub
+        result = await coding_end_session(
+            user_id="test_user_end1",
+            project_id="test_project_end1",
+            success="true",
+            save_to_github="false",
+        )
+
+        assert "✅ Coding session ended" in result or "ℹ️" in result
+        assert "session_" in result
+        # Should NOT mention GitHub
+        assert "GitHub" not in result or "not available" in result
+
+    @pytest.mark.asyncio
+    async def test_end_session_with_github_enabled(self):
+        """Test GitHub save enabled (may succeed or warn)."""
+        # Start session
+        await coding_start_session(
+            user_id="test_user_end2",
+            project_id="test_project_end2",
+            description="Test session",
+        )
+
+        # End with GitHub enabled
+        result = await coding_end_session(
+            user_id="test_user_end2",
+            project_id="test_project_end2",
+            success="true",
+            save_to_github="true",
+        )
+
+        assert "Coding session ended" in result
+        # Either succeeds or warns (depends on gh CLI availability)
+        # Just check it doesn't crash
+
+    @pytest.mark.asyncio
+    async def test_end_session_success_param_parsing(self):
+        """Test success parameter parsing (string to bool)."""
+        # Start session
+        await coding_start_session(
+            user_id="test_user_end3",
+            project_id="test_project_end3",
+            description="Test",
+        )
+
+        # Test with "true"
+        result_true = await coding_end_session(
+            user_id="test_user_end3",
+            project_id="test_project_end3",
+            success="true",
+        )
+        assert "✅" in result_true
+
+        # Start another session for "false" test
+        await coding_start_session(
+            user_id="test_user_end4",
+            project_id="test_project_end4",
+            description="Test",
+        )
+
+        # Test with "false"
+        result_false = await coding_end_session(
+            user_id="test_user_end4",
+            project_id="test_project_end4",
+            success="false",
+        )
+        assert "⚠️" in result_false
+

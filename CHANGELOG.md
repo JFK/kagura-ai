@@ -7,6 +7,93 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.7] - 2025-11-03
+
+### ✨ Added
+
+- **Coding Memory and General Memory Integration** (#493)
+  - `InteractionTracker`: Hybrid buffering strategy for AI-User interactions
+    - Immediate: Buffer all interactions in Working Memory
+    - High importance (>= 8.0): Async GitHub Issue recording (non-blocking)
+    - Periodic: Auto-flush to Persistent Memory (10 interactions or 5 minutes)
+    - Session end: Full LLM summary + comprehensive GitHub comment
+  - `GitHubRecorder`: 2-stage GitHub Issue integration
+    - Stage 1: Immediate high-importance event recording (concise comments)
+    - Stage 2: Session-end comprehensive summary (full context)
+    - Auto-detects issue number from branch name
+    - Uses `gh` CLI for GitHub API access
+  - `MemoryAbstractor`: 2-level memory abstraction
+    - Level 1: External record → summary + keywords (lightweight LLM: gpt-5-mini)
+    - Level 2: Context → patterns + concepts (powerful LLM: gpt-5 / claude / gemini)
+    - Configurable LLM models for cost/quality trade-off
+  - `CodingMemoryManager` integration: New optional components
+    - `enable_github_recording`: Enable/disable GitHub integration
+    - `enable_interaction_tracking`: Enable/disable interaction tracking
+    - `enable_memory_abstraction`: Enable/disable abstraction
+    - Configurable abstraction models: `abstraction_level1_model`, `abstraction_level2_model`
+
+### 🏗️ Architecture
+
+- **4+2 Tier Memory Hierarchy** (Foundation for Issue #493)
+  - Layer 1: External Artifacts (GitHub Issues, Docs, Code Comments)
+  - Layer 2: External Memory Index (Persistent Memory + RAG)
+  - Layer 3: Working Context (Working Memory + RAG)
+  - Layer 4: Abstracted Context (Persistent Memory + RAG)
+  - Layer 5: Relationship Graph (GraphMemory)
+  - Layer 6: Dependency Analysis (AST-based)
+
+### 🎯 Performance
+
+- **Non-blocking Architecture**
+  - All external recording operations are async (non-blocking)
+  - LLM importance classification runs in background
+  - Periodic buffer flushing doesn't block user interactions
+  - GitHub API calls use executor pattern to avoid blocking event loop
+
+### ✨ MCP Tools
+
+- **coding_track_interaction**: Track AI-User conversations with importance classification
+  - Automatic GitHub recording for high importance (≥8.0)
+  - Background LLM classification (non-blocking)
+  - Supports all 6 interaction types (question, decision, struggle, discovery, implementation, error_fix)
+
+- **coding_end_session** (extended): Added GitHub integration
+  - New parameter: `save_to_github` (default: false)
+  - Records comprehensive session summary to GitHub Issue
+  - Includes interactions, file changes, decisions, errors
+
+### 🔧 Improvements
+
+- **Cost Monitoring Integration**:
+  - InteractionTracker: Tracks LLM cost for importance classification
+  - MemoryAbstractor: Tracks level 1 and level 2 abstraction costs separately
+  - Integrates with existing `kagura.observability.pricing` system
+
+- **GitHub Operations**:
+  - **gh_pr_create_safe**: Now uses `--body-file` for safer PR creation
+  - **gh_issue_create_safe**: New function with `--body-file` support
+  - **gh_issue_comment**: Uses `--body-file` to avoid special character escaping
+  - All operations use temporary markdown files for reliability
+
+### 📝 Implementation Notes
+
+- This release implements **complete Phase 1** for Issue #493
+- 57 new tests added and passing
+- Issue #491 integration (Claude Code auto-save) planned for v4.1.0
+- Full documentation update planned for v4.1.0
+
+### 🧪 Tests
+
+- **57 new tests added** (all passing)
+  - InteractionTracker: 16 tests
+  - GitHubRecorder: 19 tests
+  - MemoryAbstractor: 14 tests
+  - MCP tools integration: 8 tests
+- Type check (pyright): 0 errors
+- Lint (ruff): All checks passed
+
+---
+
 ## [4.0.6] - 2025-11-03
 
 ### ✨ Added

@@ -21,7 +21,10 @@ from typing import Any, Literal
 from kagura.config.memory_config import MemorySystemConfig
 from kagura.core.compression import CompressionPolicy
 from kagura.core.memory.coding_dependency import DependencyAnalyzer
+from kagura.core.memory.github_recorder import GitHubRecordConfig, GitHubRecorder
+from kagura.core.memory.interaction_tracker import InteractionTracker
 from kagura.core.memory.manager import MemoryManager
+from kagura.core.memory.memory_abstractor import MemoryAbstractor
 from kagura.core.memory.models.coding import (
     CodingPattern,
     CodingSession,
@@ -76,6 +79,11 @@ class CodingMemoryManager(MemoryManager):
         auto_approve: bool = False,
         cost_threshold: float = 0.10,
         memory_config: MemorySystemConfig | None = None,
+        enable_github_recording: bool = True,
+        enable_interaction_tracking: bool = True,
+        enable_memory_abstraction: bool = True,
+        abstraction_level1_model: str = "gpt-5-mini",
+        abstraction_level2_model: str = "gpt-5",
     ) -> None:
         """Initialize coding memory manager.
 
@@ -103,6 +111,11 @@ class CodingMemoryManager(MemoryManager):
             auto_approve: Skip approval prompts (default: False)
             cost_threshold: Ask approval if operation costs > this (USD, default: 0.10)
             memory_config: Memory system configuration
+            enable_github_recording: Enable GitHub Issue recording (default: True)
+            enable_interaction_tracking: Enable interaction tracking (default: True)
+            enable_memory_abstraction: Enable memory abstraction (default: True)
+            abstraction_level1_model: LLM for level 1 abstraction (default: gpt-5-mini)
+            abstraction_level2_model: LLM for level 2 abstraction (default: gpt-5)
         """
         # Initialize base memory manager with user_id
         super().__init__(
@@ -149,8 +162,40 @@ class CodingMemoryManager(MemoryManager):
         # Instance-level lock for session management (prevents race conditions)
         self._session_lock = asyncio.Lock()
 
+        # v4.0.7: Initialize new components for Issue #493
+        # InteractionTracker for hybrid buffering
+        self.interaction_tracker: InteractionTracker | None = None
+        if enable_interaction_tracking:
+            self.interaction_tracker = InteractionTracker(
+                importance_threshold=8.0,
+                flush_interval_seconds=300,  # 5 minutes
+                flush_count_threshold=10,
+            )
+
+        # GitHubRecorder for external recording
+        self.github_recorder: GitHubRecorder | None = None
+        if enable_github_recording:
+            github_config = GitHubRecordConfig(
+                repo=None,  # Auto-detect
+                auto_detect_issue=True,
+                enabled=True,
+            )
+            self.github_recorder = GitHubRecorder(config=github_config)
+
+        # MemoryAbstractor for 2-level abstraction
+        self.memory_abstractor: MemoryAbstractor | None = None
+        if enable_memory_abstraction:
+            self.memory_abstractor = MemoryAbstractor(
+                level1_model=abstraction_level1_model,
+                level2_model=abstraction_level2_model,
+                enable_level2=True,
+            )
+
         logger.info(
-            f"CodingMemoryManager initialized: user={user_id}, project={project_id}"
+            f"CodingMemoryManager initialized: user={user_id}, project={project_id}, "
+            f"interaction_tracking={enable_interaction_tracking}, "
+            f"github_recording={enable_github_recording}, "
+            f"abstraction={enable_memory_abstraction}"
         )
 
     def _make_key(self, key: str) -> str:
@@ -649,15 +694,20 @@ class CodingMemoryManager(MemoryManager):
             return session_id
 
     async def end_coding_session(
-        self, summary: str | None = None, success: bool | None = None
+        self,
+        summary: str | None = None,
+        success: bool | None = None,
+        save_to_github: bool = False,
     ) -> dict[str, Any]:
         """End coding session and generate summary.
 
         Ends the active session and optionally generates AI-powered summary.
+        Can also save session summary to GitHub Issue.
 
         Args:
             summary: User-provided summary (if None, auto-generate with LLM)
             success: Whether session objectives were met
+            save_to_github: Save session summary to GitHub Issue (default: False)
 
         Returns:
             Dictionary with session data and summary
@@ -774,6 +824,66 @@ class CodingMemoryManager(MemoryManager):
 
         self.current_session_id = None
         logger.info(f"Ended coding session: {session_id}")
+
+        # Save to GitHub if requested
+        if save_to_github and self.github_recorder:
+            if self.github_recorder.is_available():
+                try:
+                    # Collect interaction summary if available
+                    interaction_summary = {}
+                    if self.interaction_tracker:
+                        # Only pass analyzer if it exists
+                        llm_summarizer = (
+                            self.coding_analyzer if self.coding_analyzer else None
+                        )
+                        interaction_summary = (
+                            await self.interaction_tracker.get_session_summary(
+                                session_id, llm_summarizer=llm_summarizer
+                            )
+                        )
+
+                    # Prepare summary data
+                    summary_data = {
+                        "total_interactions": interaction_summary.get(
+                            "total_interactions", 0
+                        ),
+                        "by_type": interaction_summary.get("by_type", {}),
+                        "file_changes": [
+                            {
+                                "file_path": fc.file_path,
+                                "action": fc.action,
+                                "reason": fc.reason,
+                            }
+                            for fc in file_changes
+                        ],
+                        "decisions": [
+                            {"decision": d.decision, "rationale": d.rationale}
+                            for d in decisions
+                        ],
+                        "errors": [
+                            {
+                                "error_type": e.error_type,
+                                "message": e.message,
+                                "solution": e.solution,
+                            }
+                            for e in errors
+                        ],
+                    }
+
+                    # Record to GitHub
+                    await self.github_recorder.record_session_summary(
+                        session_id=session_id,
+                        summary_data=summary_data,
+                        llm_summary=summary,
+                    )
+                    logger.info("Session summary recorded to GitHub Issue")
+                except Exception as e:
+                    logger.error(f"Failed to save session to GitHub: {e}")
+            else:
+                logger.warning(
+                    "GitHub recording not available (gh CLI not installed or "
+                    "no issue number set)"
+                )
 
         return {
             "session_id": session_id,
@@ -907,6 +1017,80 @@ class CodingMemoryManager(MemoryManager):
         )
 
         return preferences
+
+    async def track_interaction(
+        self,
+        user_query: str,
+        ai_response: str,
+        interaction_type: str,
+        metadata: dict[str, Any] | None = None,
+    ) -> str:
+        """Track AI-User interaction with automatic importance classification.
+
+        Records interaction in InteractionTracker with hybrid buffering strategy.
+        High importance interactions (≥8.0) are automatically recorded to GitHub.
+
+        Args:
+            user_query: User's input/question
+            ai_response: AI's response
+            interaction_type: Type of interaction
+                - "question": Low importance
+                - "decision": High importance
+                - "struggle": High importance
+                - "discovery": High importance
+                - "implementation": Medium importance
+                - "error_fix": High importance
+            metadata: Additional context (optional)
+
+        Returns:
+            Interaction ID
+
+        Example:
+            >>> interaction_id = await coding_mem.track_interaction(
+            ...     user_query="How do I fix this TypeError?",
+            ...     ai_response="Use timezone-aware datetime...",
+            ...     interaction_type="error_fix"
+            ... )
+        """
+        if not self.interaction_tracker:
+            logger.warning("InteractionTracker not enabled, skipping")
+            return ""
+
+        # Import here to avoid circular dependency
+        from kagura.core.memory.interaction_tracker import InteractionType
+
+        # Validate interaction type
+        valid_types: list[InteractionType] = [
+            "question",
+            "decision",
+            "struggle",
+            "discovery",
+            "implementation",
+            "error_fix",
+        ]
+        if interaction_type not in valid_types:
+            raise ValueError(
+                f"Invalid interaction_type: {interaction_type}. "
+                f"Must be one of: {valid_types}"
+            )
+
+        # Track interaction
+        record = await self.interaction_tracker.track_interaction(
+            user_query=user_query,
+            ai_response=ai_response,
+            interaction_type=interaction_type,  # type: ignore
+            session_id=self.current_session_id,
+            metadata=metadata,
+            llm_classifier=self.coding_analyzer if self.coding_analyzer else None,
+            github_recorder=self.github_recorder if self.github_recorder else None,
+        )
+
+        logger.info(
+            f"Tracked interaction {record.interaction_id}: "
+            f"{interaction_type} (importance: {record.importance})"
+        )
+
+        return record.interaction_id
 
     # Helper methods
 
