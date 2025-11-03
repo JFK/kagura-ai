@@ -420,13 +420,19 @@ def reindex_command(
     default=None,
     help="Force provider: 'openai' (API) or 'local' (sentence-transformers)",
 )
-def setup_command(model: str | None, provider: str | None) -> None:
-    """Pre-download embeddings model to avoid MCP timeout.
+@click.option(
+    "--reranking",
+    is_flag=True,
+    help="Download reranking model instead of embedding model",
+)
+def setup_command(model: str | None, provider: str | None, reranking: bool) -> None:
+    """Pre-download embeddings model or reranking model.
 
-    Downloads and initializes the embedding model used for semantic search.
+    Downloads and initializes the embedding model used for semantic search,
+    or the reranking model for improved search quality.
     Run this once before using MCP memory tools to prevent first-time timeouts.
 
-    Provider auto-detection:
+    Provider auto-detection (embedding models only):
     - If OPENAI_API_KEY is set → OpenAI Embeddings API (text-embedding-3-large)
     - Otherwise → Local model (intfloat/multilingual-e5-large, ~500MB download)
 
@@ -443,6 +449,9 @@ def setup_command(model: str | None, provider: str | None) -> None:
 
         # Specific model
         kagura memory setup --model intfloat/multilingual-e5-base
+
+        # Download reranking model
+        kagura memory setup --reranking
     """
     import os
 
@@ -450,6 +459,49 @@ def setup_command(model: str | None, provider: str | None) -> None:
 
     console.print("\n[cyan]Kagura Memory Setup[/cyan]")
     console.print()
+
+    # Handle reranking setup
+    if reranking:
+        console.print("[bold]Reranking Model Setup[/]")
+        console.print()
+
+        # Check sentence-transformers
+        try:
+            import sentence_transformers  # type: ignore # noqa: F401
+        except ImportError:
+            console.print("[red]✗ sentence-transformers not installed[/red]")
+            console.print("\nInstall with: pip install sentence-transformers")
+            raise click.Abort()
+
+        from rich.progress import Progress, SpinnerColumn, TextColumn
+
+        console.print("Downloading cross-encoder reranking model (~80 MB)...")
+        console.print("Model: cross-encoder/ms-marco-MiniLM-L-6-v2")
+        console.print()
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task("Downloading model...", total=None)
+            try:
+                from sentence_transformers import CrossEncoder  # type: ignore
+
+                _ = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+                progress.update(task, completed=True)
+                console.print("[green]✓ Model downloaded successfully![/green]")
+            except Exception as e:
+                console.print(f"\n[red]✗ Download failed: {e}[/red]")
+                raise click.Abort()
+
+        console.print()
+        console.print("[bold]To enable reranking:[/]")
+        console.print("  [cyan]export KAGURA_ENABLE_RERANKING=true[/]")
+        console.print()
+        console.print("[dim]Add this to your .bashrc or .zshrc to make it permanent[/]")
+        console.print()
+        return
 
     # Auto-detect provider if not specified
     has_openai_key = bool(os.getenv("OPENAI_API_KEY"))
@@ -490,9 +542,7 @@ def setup_command(model: str | None, provider: str | None) -> None:
             client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
             with console.status("[bold green]Testing OpenAI API..."):
-                response = client.embeddings.create(
-                    input=["test"], model=model
-                )
+                response = client.embeddings.create(input=["test"], model=model)
 
             console.print("[green]✓ OpenAI API configured successfully![/green]")
             console.print()
@@ -600,7 +650,9 @@ def index_command(
         raise click.Abort()
 
     if rebuild:
-        console.print("[yellow]⚠️  Rebuilding index (existing vectors will be cleared)[/yellow]")
+        console.print(
+            "[yellow]⚠️  Rebuilding index (existing vectors will be cleared)[/yellow]"
+        )
         console.print()
 
     try:
@@ -613,8 +665,8 @@ def index_command(
 
         # Get all persistent memories
         memories = manager.persistent.search(
-            pattern="%",
-            user_id=user_id,
+            query="%",
+            user_id=user_id or "system",
             agent_name=agent_name,
             limit=100000,
         )
@@ -657,11 +709,10 @@ def index_command(
                     manager.store_semantic(
                         content=content,
                         metadata=metadata,
-                        scope="persistent",
                     )
                     indexed_count += 1
 
-                except Exception as e:
+                except Exception:
                     # Skip on error (might be duplicate)
                     skipped_count += 1
 
@@ -703,7 +754,6 @@ def doctor_command(user_id: str | None) -> None:
         kagura memory doctor --user-id kiyota
     """
     from rich.panel import Panel
-    from rich.table import Table
 
     from kagura.config.paths import get_data_dir
     from kagura.core.memory import MemoryManager
@@ -764,7 +814,7 @@ def doctor_command(user_id: str | None) -> None:
     try:
         if manager.persistent_rag:
             rag_count = manager.persistent_rag.collection.count()
-            console.print(f"   [green]✓[/] RAG enabled")
+            console.print("   [green]✓[/] RAG enabled")
             console.print(f"   [green]✓[/] Vectors indexed: {rag_count}")
 
             if rag_count == 0 and persistent_count > 0:
@@ -773,8 +823,10 @@ def doctor_command(user_id: str | None) -> None:
                 )
                 console.print("   [dim]Run 'kagura memory index' to build index[/dim]")
         else:
-            console.print(f"   [red]✗[/] RAG not available")
-            console.print("   [dim]Install: pip install chromadb sentence-transformers[/dim]")
+            console.print("   [red]✗[/] RAG not available")
+            console.print(
+                "   [dim]Install: pip install chromadb sentence-transformers[/dim]"
+            )
     except Exception as e:
         console.print(f"   [red]✗[/] Error: {e}")
 

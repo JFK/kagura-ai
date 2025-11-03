@@ -11,7 +11,6 @@ Provides comprehensive system diagnostics including:
 from __future__ import annotations
 
 import asyncio
-import platform
 import shutil
 import sys
 from pathlib import Path
@@ -20,7 +19,6 @@ from typing import Any
 import click
 from rich.console import Console
 from rich.panel import Panel
-from rich.table import Table
 
 from kagura.config.env import (
     get_anthropic_api_key,
@@ -74,6 +72,7 @@ def _check_dependencies() -> list[tuple[str, str, str]]:
     # ChromaDB (required for RAG)
     try:
         import chromadb  # type: ignore
+
         version = chromadb.__version__
         results.append(("chromadb", "ok", f"v{version}"))
     except ImportError:
@@ -82,6 +81,7 @@ def _check_dependencies() -> list[tuple[str, str, str]]:
     # Sentence Transformers (required for RAG embeddings)
     try:
         import sentence_transformers  # type: ignore
+
         version = sentence_transformers.__version__
         results.append(("sentence-transformers", "ok", f"v{version}"))
     except ImportError:
@@ -124,7 +124,9 @@ async def _check_api_configuration() -> list[tuple[str, str, str]]:
             )
             results.append(("Anthropic", "ok", "Configured and reachable"))
         except ImportError:
-            results.append(("Anthropic", "warning", "Configured (litellm not installed)"))
+            results.append(
+                ("Anthropic", "warning", "Configured (litellm not installed)")
+            )
         except Exception as e:
             error_msg = str(e)
             if "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
@@ -180,7 +182,9 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
         status["database_size_mb"] = db_path.stat().st_size / (1024**2)
     else:
         status["database_exists"] = False
-        recommendations.append("Database not initialized (will be created on first use)")
+        recommendations.append(
+            "Database not initialized (will be created on first use)"
+        )
 
     # Check memory counts
     try:
@@ -206,7 +210,8 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
                 status["rag_enabled"] = False
                 status["rag_count"] = 0
                 recommendations.append(
-                    "RAG not available. Install: pip install chromadb sentence-transformers"
+                    "RAG not available. Install: "
+                    "pip install chromadb sentence-transformers"
                 )
         else:
             status["rag_enabled"] = False
@@ -228,12 +233,11 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
     if not reranking_enabled:
         # Check if model is installed by trying to import
         try:
-            from sentence_transformers import CrossEncoder  # type: ignore
+            import sentence_transformers  # type: ignore # noqa: F401
 
             # Try to load the model (this will fail if not downloaded)
             try:
                 # Check if model exists in cache
-                model_name = "cross-encoder/ms-marco-MiniLM-L-6-v2"
                 cache_dir = get_data_dir() / "models"
                 model_path = cache_dir / "cross-encoder_ms-marco-MiniLM-L-6-v2"
 
@@ -246,7 +250,8 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
                 else:
                     status["reranking_model_installed"] = False
                     recommendations.append(
-                        "Reranking not available. Install: kagura memory setup --reranking"
+                        "Reranking not available. Install: "
+                        "kagura memory setup --reranking"
                     )
             except Exception:
                 status["reranking_model_installed"] = False
@@ -273,7 +278,11 @@ def _check_mcp_integration() -> tuple[str, str]:
     # Check Claude Desktop config
     config_paths = [
         Path.home() / ".config" / "claude-code" / "mcp.json",
-        Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json",
+        Path.home()
+        / "Library"
+        / "Application Support"
+        / "Claude"
+        / "claude_desktop_config.json",
     ]
 
     for path in config_paths:
@@ -303,18 +312,25 @@ def _check_coding_memory() -> dict[str, Any]:
     try:
         manager = MemoryManager(user_id="kiyota", agent_name="coding-memory")
 
-        # Count sessions
-        sessions = manager.search(
-            query="session",
-            k=1000,
-            scope="persistent",
+        # Count sessions - search in persistent storage
+        sessions = manager.persistent.search(
+            pattern="%session%",
+            user_id="kiyota",
+            agent_name="coding-memory",
+            limit=1000,
         )
 
         # Try to identify unique projects
         projects: set[str] = set()
-        for result in sessions:
-            if "metadata" in result and "project_id" in result["metadata"]:
-                projects.add(result["metadata"]["project_id"])
+        for session in sessions:
+            if "metadata" in session:
+                try:
+                    import json
+                    metadata = json.loads(session.get("metadata", "{}"))
+                    if "project_id" in metadata:
+                        projects.add(metadata["project_id"])
+                except Exception:
+                    pass
 
         return {
             "sessions_count": len(sessions),
@@ -430,7 +446,9 @@ def doctor(ctx: click.Context, fix: bool) -> None:
     if mem_status.get("rag_enabled"):
         rag_count = mem_status.get("rag_count", 0)
         rag_icon = "ok" if rag_count > 0 else "warning"
-        console.print(f"   {_get_status_icon(rag_icon)} RAG: {rag_count} vectors indexed")
+        console.print(
+            f"   {_get_status_icon(rag_icon)} RAG: {rag_count} vectors indexed"
+        )
     else:
         console.print(f"   {_get_status_icon('warning')} RAG: Not available")
 
@@ -442,7 +460,9 @@ def doctor(ctx: click.Context, fix: bool) -> None:
             "Model installed but not enabled"
         )
     else:
-        console.print(f"   {_get_status_icon('info')} Reranking: Not installed (optional)")
+        console.print(
+            f"   {_get_status_icon('info')} Reranking: Not installed (optional)"
+        )
 
     recommendations.extend(mem_recommendations)
 

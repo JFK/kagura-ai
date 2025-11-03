@@ -37,6 +37,7 @@ def _setup_rag_environment(console: Console) -> None:
     missing_deps = []
     try:
         import chromadb  # type: ignore # noqa: F401
+
         console.print("   [green]✓[/] chromadb: Installed")
     except ImportError:
         console.print("   [red]✗[/] chromadb: Not installed")
@@ -44,6 +45,7 @@ def _setup_rag_environment(console: Console) -> None:
 
     try:
         import sentence_transformers  # type: ignore # noqa: F401
+
         console.print("   [green]✓[/] sentence-transformers: Installed")
     except ImportError:
         console.print("   [red]✗[/] sentence-transformers: Not installed")
@@ -51,7 +53,9 @@ def _setup_rag_environment(console: Console) -> None:
 
     if missing_deps:
         console.print()
-        if click.confirm(f"Install missing packages: {', '.join(missing_deps)}?", default=True):
+        if click.confirm(
+            f"Install missing packages: {', '.join(missing_deps)}?", default=True
+        ):
             with Progress(
                 SpinnerColumn(),
                 TextColumn("[progress.description]{task.description}"),
@@ -118,7 +122,9 @@ def _setup_rag_environment(console: Console) -> None:
                 # Note: Index building logic would go here
                 # This is a placeholder - actual implementation would iterate through memories
                 console.print("   [yellow]⚠[/] Index building not yet implemented")
-                console.print("   [dim]Run 'kagura memory index' manually after setup[/]")
+                console.print(
+                    "   [dim]Run 'kagura memory index' manually after setup[/]"
+                )
         else:
             console.print("   [dim]No memories to index yet[/]")
     except Exception as e:
@@ -129,8 +135,12 @@ def _setup_rag_environment(console: Console) -> None:
     console.print()
     console.print("[bold]Next steps:[/]")
     console.print("  1. Test search: [cyan]kagura coding search --query 'test'[/]")
-    console.print("  2. Enable reranking (optional): [cyan]kagura init --setup-reranking[/]")
-    console.print("  3. Set env vars: [cyan]export KAGURA_DEFAULT_PROJECT=your-project[/]")
+    console.print(
+        "  2. Enable reranking (optional): [cyan]kagura init --setup-reranking[/]"
+    )
+    console.print(
+        "  3. Set env vars: [cyan]export KAGURA_DEFAULT_PROJECT=your-project[/]"
+    )
     console.print()
 
 
