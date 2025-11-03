@@ -1229,6 +1229,10 @@ def doctor_command(user_id: str | None) -> None:
     # Memory counts
     console.print("[bold cyan]2. Memory Counts[/]")
 
+    # Initialize variables with safe defaults
+    manager = None
+    persistent_count = 0
+
     try:
         manager = MemoryManager(
             user_id=user_id or "system",
@@ -1250,6 +1254,7 @@ def doctor_command(user_id: str | None) -> None:
 
     except Exception as e:
         console.print(f"   [red]✗[/] Error: {e}")
+        console.print("   [dim]Continuing with partial diagnostics...[/dim]")
 
     console.print()
 
