@@ -685,29 +685,41 @@ def list_tools(
         console.print("[dim]Example: from kagura.mcp.builtin import memory[/dim]\n")
         return
 
-    # Categorize tools
-    categories = {
-        "memory": [
-            "memory_store",
-            "memory_recall",
-            "memory_search",
-            "memory_list",
-            "memory_feedback",
-            "memory_delete",
-        ],
-        "web": ["web_search", "brave_search"],
-        "youtube": ["youtube_transcript", "youtube_metadata"],
-        "file": ["file_read", "file_write", "file_list"],
-        "multimodal": ["gemini_vision", "gemini_audio"],
-        "github": ["github_issue_view", "github_pr_view", "github_pr_create"],
-        "coding": [
-            "coding_track_file_change",
-            "coding_record_error",
-            "coding_record_decision",
-            "coding_start_session",
-            "coding_end_session",
-        ],
-    }
+    def infer_category(tool_name: str) -> str:
+        """Infer category from tool name prefix.
+
+        Args:
+            tool_name: Name of the tool
+
+        Returns:
+            Category name
+        """
+        prefix_mapping = {
+            "memory_": "memory",
+            "coding_": "coding",
+            "claude_code_": "coding",
+            "github_": "github",
+            "brave_": "brave_search",
+            "youtube_": "youtube",
+            "get_youtube_": "youtube",
+            "file_": "file",
+            "dir_": "file",
+            "multimodal_": "multimodal",
+            "arxiv_": "academic",
+            "fact_check_": "fact_check",
+            "media_": "media",
+            "meta_": "meta",
+            "telemetry_": "observability",
+            "route_": "routing",
+            "web_": "web",
+            "shell_": "shell",
+        }
+
+        for prefix, cat in prefix_mapping.items():
+            if tool_name.startswith(prefix):
+                return cat
+
+        return "other"
 
     # Filter tools
     filtered_tools = {}
@@ -720,11 +732,7 @@ def list_tools(
 
         # Filter by category
         if category:
-            tool_category = "other"
-            for cat, tool_names in categories.items():
-                if tool_name in tool_names:
-                    tool_category = cat
-                    break
+            tool_category = infer_category(tool_name)
             if tool_category != category:
                 continue
 
@@ -750,12 +758,8 @@ def list_tools(
     table.add_column("Description")
 
     for tool_name, tool_func in sorted(filtered_tools.items()):
-        # Determine category
-        tool_category = "other"
-        for cat, tool_names in categories.items():
-            if tool_name in tool_names:
-                tool_category = cat
-                break
+        # Determine category using inference
+        tool_category = infer_category(tool_name)
 
         # Remote indicator
         remote_indicator = "✓" if is_remote_capable(tool_name) else "✗"

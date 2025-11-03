@@ -48,12 +48,17 @@ REMOTE_CAPABLE_TOOLS = {
     "coding_record_decision",
     "coding_start_session",
     "coding_end_session",
+    "coding_resume_session",  # メモリーのみ操作
+    "coding_get_current_session_status",  # メモリーのみ操作
     "coding_search_errors",
     "coding_get_project_context",
     "coding_analyze_patterns",
     "coding_link_github_issue",
     "coding_generate_pr_description",
     "coding_get_issue_context",
+    # Claude Code Integration (メモリーのみ操作)
+    "claude_code_save_session",
+    "claude_code_search_past_work",
     # Meta
     "meta_create_agent",
     "telemetry_stats",
@@ -77,6 +82,12 @@ LOCAL_ONLY_TOOLS = {
     "coding_analyze_file_dependencies",
     "coding_analyze_refactor_impact",
     "coding_suggest_refactor_order",
+    "coding_track_interaction",  # ローカルメタデータを記録
+    "coding_index_source_code",  # ローカルソースコードを読み込み
+    "coding_search_source_code",  # インデックスされたローカルコードを検索
+    # YouTube (ローカルでトランスクリプト取得)
+    "get_youtube_transcript",
+    "get_youtube_metadata",
     # Multimodal (ローカルファイル読み込み)
     "multimodal_index",
     "multimodal_search",
