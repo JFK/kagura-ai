@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.9] - 2025-11-03
+
+### ✨ Added
+
+#### CLI Inspection & Management (#501, #504)
+- `kagura doctor` - Unified system health check (Python, disk, APIs, memory, MCP)
+- `kagura memory list/search/stats/segments` - Memory inspection commands
+- `kagura memory index/doctor` - RAG index building and health check
+- `kagura init --setup-rag/--setup-reranking/--full` - Interactive setup
+- Model constants: `src/kagura/config/models.py`
+
+#### MCP Monitoring (#499)
+- `kagura mcp monitor` - Real-time MCP tool dashboard
+
+#### Source Code RAG (#490)
+- `coding_index_source_code` - AST-based indexing with 5-line overlap
+- `coding_search_source_code` - Semantic code search
+
+#### Claude Code Integration (#491)
+- `claude_code_save_session/search_past_work` - Session persistence
+- `coding_end_session` - Auto-save to history (default: enabled)
+- `coding_resume_session` - Resume ended sessions
+- `coding_get_current_session_status` - Check progress
+- Auto-save snapshots after each file change
+
+#### Session Enhancements
+- Enhanced table: start/end times, duration, active indicators
+- Rich panel display for session details
+- Session requirement enforcement for tracking tools
+
+### 🔧 Changed
+
+- Session management: Removed global cache → auto-detection
+- Activity retrieval: Graph-based → session_id queries
+- Search: Upgraded to hybrid search (BM25 + RAG)
+
+### 🐛 Fixed
+
+- **Critical**: Session cache synchronization
+- **Critical**: Memory index → persistent RAG
+- **Critical**: Duration timezone handling
+- EventStore/MemoryManager API compatibility
+- UnboundLocalError in doctor
+- 25+ pyright type errors
+- Unreachable code, IndexError risks
+- No-op operations
+
+### 📝 Documentation
+
+- Updated CHANGELOG for v4.0.9
+- Created Issues #507, #508 for v4.0.10
+
+### Known Limitations
+
+- MCP monitor telemetry (#507)
+- Session summary detail (#508)
+
+---
+
 ## [4.0.8] - 2025-11-03
 
 ### ✨ Added
