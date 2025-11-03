@@ -674,9 +674,6 @@ Focus Area: {focus or "general overview"}"""
             )
         except (ValueError, Exception) as e:
             # Fallback to template-based summary if LLM fails
-            import logging
-
-            logger = logging.getLogger(__name__)
             logger.warning(
                 f"LLM failed to generate project context: {e}, "
                 "using template fallback"
