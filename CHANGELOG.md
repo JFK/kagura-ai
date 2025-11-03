@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.10] - 2025-11-04
+
+### ✨ Added
+
+#### Tool Usage Analysis (#522)
+- `kagura telemetry tools` - Analyze MCP tool usage patterns
+- Shows: calls, percentage, success rate, average duration
+- Export to CSV/JSON for further analysis
+- Categorizes: high/medium/low usage, deprecation candidates
+
+#### Documentation (#521)
+- Tool Selection Guide (`docs/en/tool-selection-guide.md`)
+- 90/10 rule: Common (10 tools) vs Specialized (59 tools)
+- Decision flowcharts for quick tool selection
+- Usage patterns and anti-patterns
+- Best practices for memory/coding/GitHub workflows
+
+### 🔧 Changed
+
+#### Smart Defaults (#516)
+- `memory_store`: `agent_name` defaults to "global" (was required parameter)
+- `memory_store`: `scope` defaults to "persistent" (was "working")
+- `memory_recall`: `scope` defaults to "persistent" (was "working")
+- Parameter reordering: required params first (user_id, key, value)
+- **Impact**: Simpler API, safer defaults, backward compatible
+
+#### Tool Description Optimization (#520)
+- Optimized 5 high-usage tools (35% reduction)
+  - coding_track_file_change: 52 → 17 lines (67%)
+  - coding_start_session: 47 → 15 lines (68%)
+  - coding_end_session: 63 → 18 lines (71%)
+  - memory_store: 58 → 20 lines (66%)
+  - memory_search: 50 → 18 lines (64%)
+- Total: ~250 lines removed, ~1500 tokens saved per session
+- Applied structured format: When/Args/Returns
+
+### 🐛 Fixed
+
+#### Error Messages (#518)
+- Improved 5 critical errors with actionable guidance:
+  1. RAG not enabled (3 occurrences) - now includes install steps
+  2. Lexical search unavailable - includes BM25 explanation
+  3. Session already active - lists recovery options
+  4. No active session - shows how to start
+  5. Session data not found - debugging hints
+- Added emoji indicators, tips, step-by-step solutions
+
+### 📝 Documentation
+
+- Updated CHANGELOG for v4.0.10
+- Updated version to 4.0.10 in pyproject.toml
+- Closed Issues #516, #518, #520, #521, #522
+- Closed Issues #515, #517, #519 (determined not needed)
+
+---
+
 ## [4.0.9] - 2025-11-03
 
 ### ✨ Added
