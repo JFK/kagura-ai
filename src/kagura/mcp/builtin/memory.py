@@ -1461,10 +1461,10 @@ async def memory_search_hybrid(
     user_id: str,
     agent_name: str,
     query: str,
-    keyword_weight: float = 0.4,
-    semantic_weight: float = 0.6,
+    keyword_weight: str = "0.4",
+    semantic_weight: str = "0.6",
     scope: str = "persistent",
-    k: int = 10,
+    k: str = "10",
 ) -> str:
     """Search agent memory using hybrid approach (keyword + semantic).
 
@@ -1514,13 +1514,18 @@ async def memory_search_hybrid(
         - Requires RAG to be enabled for semantic search
         - Falls back to keyword-only if RAG unavailable
     """
+    # Convert string parameters to appropriate types
+    keyword_weight_f = float(keyword_weight)
+    semantic_weight_f = float(semantic_weight)
+    k_int = int(k)
+
     memory = _get_memory_manager(user_id, agent_name, enable_rag=True)
 
     results: list[dict[str, Any]] = []
 
     # 1. BM25 Keyword Search
     keyword_results: list[dict[str, Any]] = []
-    if keyword_weight > 0:
+    if keyword_weight_f > 0:
         try:
             # Get all memories for keyword search
             all_memories = []
@@ -1550,7 +1555,7 @@ async def memory_search_hybrid(
                 bm25.build_index(bm25_docs)
 
                 # Search
-                keyword_results = bm25.search(query, k=k * 2)
+                keyword_results = bm25.search(query, k=k_int * 2)
 
         except Exception as e:
             import logging
@@ -1560,12 +1565,12 @@ async def memory_search_hybrid(
 
     # 2. RAG Semantic Search
     semantic_results: list[dict[str, Any]] = []
-    if semantic_weight > 0 and memory.persistent_rag:
+    if semantic_weight_f > 0 and memory.persistent_rag:
         try:
             rag_results = memory.persistent_rag.recall(
                 query=query,
                 user_id=user_id,
-                top_k=k * 2,
+                top_k=k_int * 2,
                 agent_name=agent_name,
             )
 
@@ -1605,12 +1610,12 @@ async def memory_search_hybrid(
             sem_ranked,
             kw_ranked,
             k=60,
-            vector_weight=semantic_weight,
-            lexical_weight=keyword_weight,
+            vector_weight=semantic_weight_f,
+            lexical_weight=keyword_weight_f,
         )
 
         # Retrieve full documents
-        for doc_id, rrf_score in fused_scores[:k]:
+        for doc_id, rrf_score in fused_scores[:k_int]:
             # Find in either result set
             doc = next(
                 (r for r in keyword_results if r.get("id") == doc_id),
@@ -1651,7 +1656,7 @@ async def memory_search_hybrid(
                 "keyword_score": r.get("bm25_score", 0),
                 "semantic_score": 0,
             }
-            for r in keyword_results[:k]
+            for r in keyword_results[:k_int]
         ]
 
     elif semantic_results:
@@ -1664,7 +1669,7 @@ async def memory_search_hybrid(
                 "keyword_score": 0,
                 "semantic_score": r.get("score", 0),
             }
-            for r in semantic_results[:k]
+            for r in semantic_results[:k_int]
         ]
 
     # Format output
