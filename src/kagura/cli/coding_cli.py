@@ -262,21 +262,63 @@ def sessions(
         # Display table
         table = Table(title=f"Coding Sessions: {project}", show_header=True)
         table.add_column("Session ID", style="cyan", no_wrap=True)
-        table.add_column("Description", style="white", width=50)
+        table.add_column("Description", style="white", width=35)
+        table.add_column("Start", style="dim", width=16)
+        table.add_column("End", style="dim", width=16)
         table.add_column("Duration", justify="right", width=10)
-        table.add_column("Status", justify="center", width=8)
+        table.add_column("Status", justify="center", width=10)
 
         for session in sessions_data:
             session_id = session["session_id"]
-            description = session.get("description", "No description")[:40]
-            duration = session.get("duration_minutes", 0)
-            duration_str = f"{duration:.1f}m" if duration else "-"
-            success_status = session.get("success")
-            status_icon = (
-                "✅" if success_status else ("⚠️" if success_status is False else "ℹ️")
-            )
+            description = session.get("description", "No description")[:32]
 
-            table.add_row(session_id, description, duration_str, status_icon)
+            # Format timestamps
+            start_time = session.get("start_time", "")
+            end_time = session.get("end_time", "")
+
+            try:
+                start_dt = datetime.fromisoformat(start_time).strftime("%m-%d %H:%M")
+            except Exception:
+                start_dt = "-"
+
+            # Check if session is active (no end_time or end_time is None)
+            is_active = not end_time or end_time == "None"
+
+            if is_active:
+                end_dt = "[yellow]Active[/yellow]"
+                # Calculate ongoing duration from start time
+                try:
+                    start = datetime.fromisoformat(start_time)
+                    ongoing_duration = (datetime.now(timezone.utc) - start.replace(tzinfo=timezone.utc)).total_seconds() / 60
+                    duration_str = f"[yellow]{ongoing_duration:.0f}m[/yellow]"
+                except Exception:
+                    duration_str = "[yellow]ongoing[/yellow]"
+            else:
+                try:
+                    end_dt = datetime.fromisoformat(end_time).strftime("%m-%d %H:%M")
+                except Exception:
+                    end_dt = "-"
+
+                # Calculate duration from stored value or compute from times
+                duration = session.get("duration_minutes", 0)
+                if not duration and start_time and end_time:
+                    try:
+                        start = datetime.fromisoformat(start_time)
+                        end = datetime.fromisoformat(end_time)
+                        duration = (end - start).total_seconds() / 60
+                    except Exception:
+                        duration = 0
+                duration_str = f"{duration:.0f}m" if duration else "-"
+
+            success_status = session.get("success")
+            if is_active:
+                status_icon = "[yellow]🔄 Active[/yellow]"
+            else:
+                status_icon = (
+                    "✅ Done" if success_status else ("⚠️ Issue" if success_status is False else "ℹ️ Info")
+                )
+
+            table.add_row(session_id, description, start_dt, end_dt, duration_str, status_icon)
 
         console.print(table)
         console.print(f"\n[dim]Total: {len(sessions_data)} sessions[/dim]")

@@ -693,6 +693,83 @@ class CodingMemoryManager(MemoryManager):
             logger.info(f"Started coding session: {session_id}")
             return session_id
 
+    async def resume_coding_session(self, session_id: str) -> str:
+        """Resume a previously ended coding session.
+
+        Loads the previous session state and sets it as the current active session.
+        New activities will be appended to the existing session.
+
+        Args:
+            session_id: ID of the session to resume
+
+        Returns:
+            Session ID with confirmation message
+
+        Raises:
+            RuntimeError: If a session is already active
+            ValueError: If session_id doesn't exist or is still active
+
+        Example:
+            >>> await coding_mem.resume_coding_session("session_abc123")
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        async with self._session_lock:
+            if self.current_session_id:
+                raise RuntimeError(
+                    f"Session already active: {self.current_session_id}. "
+                    "End current session before resuming another."
+                )
+
+            # Load session from persistent storage
+            key = self._make_key(f"session:{session_id}")
+            session_data = self.persistent.recall(key=key, user_id=self.user_id)
+
+            if not session_data:
+                raise ValueError(
+                    f"Session not found: {session_id}. "
+                    "Check session ID with: kagura coding sessions"
+                )
+
+            # Parse session data
+            session = CodingSession.model_validate(session_data)
+
+            # Check if session is already ended
+            if session.end_time is None:
+                raise ValueError(
+                    f"Session {session_id} is still active. "
+                    "Cannot resume an active session."
+                )
+
+            # Resume session by clearing end_time
+            session.end_time = None
+            session.success = None
+
+            # Store resumed session in working memory
+            self.working.set(f"session:{session_id}", session.model_dump(mode="json"))
+
+            # Update persistent storage
+            self.persistent.store(
+                key=key,
+                value=session.model_dump(mode="json"),
+                user_id=self.user_id,
+                metadata={"resumed": True, "resumed_at": datetime.utcnow().isoformat()},
+            )
+
+            # Update graph (mark as active again)
+            if self.graph:
+                self.graph.update_node(
+                    node_id=session_id,
+                    data={"active": True, "resumed": True},
+                )
+
+            self.current_session_id = session_id
+            logger.info(f"Resumed coding session: {session_id}")
+
+            return session_id
+
     async def end_coding_session(
         self,
         summary: str | None = None,

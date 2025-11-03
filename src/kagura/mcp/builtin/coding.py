@@ -468,6 +468,96 @@ async def coding_start_session(
 
 
 @tool
+async def coding_resume_session(
+    user_id: str,
+    project_id: str,
+    session_id: str,
+) -> str:
+    """Resume a previously ended coding session.
+
+    Allows you to continue work from where you left off, useful for:
+    - Multi-day projects (continue tomorrow)
+    - Recovery after interruption (crash, close, etc.)
+    - Switching between tasks and coming back
+    - Keeping related work in one session
+
+    When you resume a session:
+    - All previous activities (files, errors, decisions) are preserved
+    - New tracking is appended to the session
+    - Final summary includes both old and new work
+    - Original start time is preserved, end time is cleared
+
+    Args:
+        user_id: User identifier
+        project_id: Project identifier
+        session_id: ID of the session to resume (from kagura coding sessions)
+
+    Returns:
+        Confirmation with session context
+
+    Raises:
+        RuntimeError: If another session is already active
+        ValueError: If session doesn't exist or is still active
+
+    Examples:
+        # List past sessions
+        # (Use kagura coding sessions --project kagura-ai)
+
+        # Resume a specific session
+        await coding_resume_session(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            session_id="session_abc123"
+        )
+
+        # Continue adding activities
+        await coding_track_file_change(...)
+        await coding_record_decision(...)
+
+        # End when done (includes all activities)
+        await coding_end_session(success="true")
+    """
+    memory = _get_coding_memory(user_id, project_id)
+
+    try:
+        session_id_returned = await memory.resume_coding_session(session_id)
+
+        # Get session details
+        session = memory.current_session
+
+        if not session:
+            return f"❌ Failed to resume session: {session_id}"
+
+        # Calculate original duration if applicable
+        from datetime import datetime
+
+        result = f"✅ Session resumed: {session_id_returned}\n\n"
+        result += f"**Project:** {project_id}\n"
+        result += f"**Description:** {session.description}\n"
+        result += f"**Original start:** {session.start_time}\n"
+        result += f"**Tags:** {', '.join(session.tags)}\n\n"
+
+        # Show existing activities
+        result += f"**Existing activities:**\n"
+        result += f"  • File changes: {len(session.file_changes)}\n"
+        result += f"  • Errors recorded: {len(session.errors)}\n"
+        result += f"  • Decisions made: {len(session.decisions)}\n\n"
+
+        result += f"💡 **Continue where you left off:**\n"
+        result += f"  • Track new changes: coding_track_file_change()\n"
+        result += f"  • Record new decisions: coding_record_decision()\n"
+        result += f"  • Check status: coding_get_current_session_status()\n"
+        result += f"  • End when done: coding_end_session()\n"
+
+        return result
+
+    except RuntimeError as e:
+        return f"❌ Cannot resume session: {e}"
+    except ValueError as e:
+        return f"❌ Invalid session: {e}"
+
+
+@tool
 async def coding_get_current_session_status(
     user_id: str,
     project_id: str,
