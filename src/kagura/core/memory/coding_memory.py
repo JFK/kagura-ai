@@ -1347,8 +1347,14 @@ Recent file changes:
             for _, dst_id, edge_data in self.graph.graph.out_edges(  # type: ignore[misc]
                 session_id, data=True
             ):
-                prefix = record_type.replace("_", "_") + "_"
-                if dst_id.startswith(prefix.replace("file_change", "change")):
+                # Map record_type to node ID prefix
+                prefix_map = {
+                    "file_change": "change_",
+                    "error": "error_",
+                    "decision": "decision_",
+                }
+                prefix = prefix_map.get(record_type, f"{record_type}_")
+                if dst_id.startswith(prefix):
                     key = self._make_key(f"{record_type}:{dst_id}")
                     data = self.persistent.recall(key=key, user_id=self.user_id)
                     if data:

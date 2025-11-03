@@ -734,8 +734,8 @@ def search_command(
             console.print("[yellow]No results found[/yellow]")
             return
 
-            # Display results
-            table = Table(show_header=True, header_style="bold magenta")
+        # Display results
+        table = Table(show_header=True, header_style="bold magenta")
             table.add_column("#", style="cyan", width=3)
             table.add_column("Content", style="white")
             table.add_column("Score", style="green", width=8)
