@@ -133,11 +133,16 @@ async def gh_issue_view_safe(
 
     result = await gh_safe_exec(cmd, auto_confirm=True)  # Read-only, safe
 
+    # Check if result is an error or warning message
+    if result.startswith("❌") or result.startswith("⚠️") or result.startswith("🚨"):
+        logger.error(f"gh command failed: {result}")
+        raise ValueError(f"Failed to view issue: {result}")
+
     try:
         return json.loads(result)
-    except json.JSONDecodeError:
-        logger.error(f"Failed to parse gh output: {result}")
-        return {"error": "Failed to parse response", "raw": result}
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse gh output as JSON: {result[:200]}")
+        raise ValueError(f"Failed to parse dict from response: {e}")
 
 
 @agent
@@ -167,11 +172,16 @@ async def gh_pr_view_safe(
 
     result = await gh_safe_exec(cmd, auto_confirm=True)  # Read-only, safe
 
+    # Check if result is an error or warning message
+    if result.startswith("❌") or result.startswith("⚠️") or result.startswith("🚨"):
+        logger.error(f"gh command failed: {result}")
+        raise ValueError(f"Failed to view PR: {result}")
+
     try:
         return json.loads(result)
-    except json.JSONDecodeError:
-        logger.error(f"Failed to parse gh output: {result}")
-        return {"error": "Failed to parse response", "raw": result}
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse gh output as JSON: {result[:200]}")
+        raise ValueError(f"Failed to parse dict from response: {e}")
 
 
 @agent
@@ -270,8 +280,13 @@ async def gh_issue_list_safe(
 
     result = await gh_safe_exec(cmd, auto_confirm=True)  # Read-only, safe
 
+    # Check if result is an error or warning message
+    if result.startswith("❌") or result.startswith("⚠️") or result.startswith("🚨"):
+        logger.error(f"gh command failed: {result}")
+        raise ValueError(f"Failed to list issues: {result}")
+
     try:
         return json.loads(result)
-    except json.JSONDecodeError:
-        logger.error(f"Failed to parse gh output: {result}")
-        return []
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse gh output as JSON: {result[:200]}")
+        raise ValueError(f"Failed to parse list[dict] from response: {e}")
