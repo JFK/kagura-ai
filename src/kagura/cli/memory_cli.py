@@ -1223,11 +1223,47 @@ def doctor_command(user_id: str | None) -> None:
 
     reranking_enabled = os.getenv("KAGURA_ENABLE_RERANKING", "").lower() == "true"
 
-    if reranking_enabled:
-        console.print("   [green]✓[/] Reranking enabled")
-    else:
-        console.print("   [yellow]⊘[/] Reranking not enabled")
-        console.print("   [dim]Set: export KAGURA_ENABLE_RERANKING=true[/dim]")
+    # Check sentence-transformers installation and model availability
+    try:
+        import sentence_transformers
+
+        st_version = sentence_transformers.__version__
+        console.print(f"   [green]✓[/] sentence-transformers v{st_version}")
+
+        # Check if reranking model is cached
+        from kagura.config.memory_config import MemorySystemConfig
+        from kagura.core.memory.reranker import is_reranker_available
+
+        config = MemorySystemConfig()
+        model = config.rerank.model
+
+        if is_reranker_available(model):
+            console.print(f"   [green]✓[/] Model cached: {model}")
+
+            if reranking_enabled:
+                console.print("   [green]✓[/] Reranking enabled")
+            else:
+                console.print("   [yellow]⊘[/] Not enabled (but ready)")
+                console.print(
+                    "   [dim]Set: export KAGURA_ENABLE_RERANKING=true[/dim]"
+                )
+        else:
+            console.print(f"   [yellow]⊘[/] Model not cached: {model}")
+            console.print("   [dim]Install: kagura mcp install-reranking[/dim]")
+
+            if reranking_enabled:
+                console.print(
+                    "   [red]✗[/] Enabled but model missing (will fail!)[/red]"
+                )
+
+    except ImportError:
+        console.print("   [red]✗[/] sentence-transformers not installed")
+        console.print("   [dim]Install: pip install sentence-transformers[/dim]")
+
+        if reranking_enabled:
+            console.print(
+                "   [red]✗[/] Enabled but dependencies missing (will fail!)[/red]"
+            )
 
     console.print()
 
