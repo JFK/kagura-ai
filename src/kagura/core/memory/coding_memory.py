@@ -257,6 +257,73 @@ class CodingMemoryManager(MemoryManager):
 
         return None
 
+    async def _auto_save_session_progress(self) -> None:
+        """Auto-save current session progress to Claude Code history.
+
+        Called after each file change to preserve work-in-progress.
+        Creates timestamped snapshot for crash recovery.
+
+        Note: Only saves if session has meaningful activity.
+        """
+        if not self.current_session_id:
+            return
+
+        # Get current session data
+        session_data = self.working.get(f"session:{self.current_session_id}")
+        if not session_data:
+            return
+
+        # Get current activities
+        file_changes = await self._get_session_file_changes(self.current_session_id)
+        decisions = await self._get_session_decisions(self.current_session_id)
+        errors = await self._get_session_errors(self.current_session_id)
+
+        # Skip if no meaningful activity
+        if not file_changes and not decisions and not errors:
+            return
+
+        # Create progress snapshot
+        from datetime import datetime
+
+        snapshot_key = (
+            f"claude_code_progress_{self.current_session_id}_"
+            f"{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
+
+        snapshot_doc = f"""
+Claude Code Progress Snapshot
+Session: {self.current_session_id}
+Project: {self.project_id}
+Saved: {datetime.now().isoformat()}
+
+Description: {session_data.get('description', 'N/A')}
+Progress:
+- Files modified: {len(file_changes)}
+- Decisions made: {len(decisions)}
+- Errors encountered: {len(errors)}
+
+Recent file changes:
+{chr(10).join(f'- {fc.file_path}: {fc.action}' for fc in file_changes[-5:])}
+"""
+
+        metadata = {
+            "type": "claude_code_progress",
+            "session_id": self.current_session_id,
+            "project_id": self.project_id,
+            "file_count": len(file_changes),
+            "decision_count": len(decisions),
+            "error_count": len(errors),
+            "timestamp": datetime.now().isoformat(),
+        }
+
+        # Store snapshot in persistent memory
+        self.persistent.store(
+            key=snapshot_key,
+            value=snapshot_doc,
+            user_id=self.user_id,
+            metadata=metadata,
+        )
+
     def _make_key(self, key: str) -> str:
         """Create project-scoped key.
 
@@ -417,6 +484,11 @@ class CodingMemoryManager(MemoryManager):
                     )
 
         logger.info(f"Tracked file change: {change_id} ({file_path})")
+
+        # Auto-save session progress after each file change (v4.0.9)
+        if self.current_session_id:
+            await self._auto_save_session_progress()
+
         return change_id
 
     async def record_error(
