@@ -420,19 +420,13 @@ def reindex_command(
     default=None,
     help="Force provider: 'openai' (API) or 'local' (sentence-transformers)",
 )
-@click.option(
-    "--reranking",
-    is_flag=True,
-    help="Download reranking model instead of embedding model",
-)
-def setup_command(model: str | None, provider: str | None, reranking: bool) -> None:
-    """Pre-download embeddings model or reranking model.
+def setup_command(model: str | None, provider: str | None) -> None:
+    """Pre-download embeddings model to avoid MCP timeout.
 
-    Downloads and initializes the embedding model used for semantic search,
-    or the reranking model for improved search quality.
+    Downloads and initializes the embedding model used for semantic search.
     Run this once before using MCP memory tools to prevent first-time timeouts.
 
-    Provider auto-detection (embedding models only):
+    Provider auto-detection:
     - If OPENAI_API_KEY is set → OpenAI Embeddings API (text-embedding-3-large)
     - Otherwise → Local model (intfloat/multilingual-e5-large, ~500MB download)
 
@@ -449,9 +443,6 @@ def setup_command(model: str | None, provider: str | None, reranking: bool) -> N
 
         # Specific model
         kagura memory setup --model intfloat/multilingual-e5-base
-
-        # Download reranking model
-        kagura memory setup --reranking
     """
     import os
 
@@ -459,49 +450,6 @@ def setup_command(model: str | None, provider: str | None, reranking: bool) -> N
 
     console.print("\n[cyan]Kagura Memory Setup[/cyan]")
     console.print()
-
-    # Handle reranking setup
-    if reranking:
-        console.print("[bold]Reranking Model Setup[/]")
-        console.print()
-
-        # Check sentence-transformers
-        try:
-            import sentence_transformers  # type: ignore # noqa: F401
-        except ImportError:
-            console.print("[red]✗ sentence-transformers not installed[/red]")
-            console.print("\nInstall with: pip install sentence-transformers")
-            raise click.Abort()
-
-        from rich.progress import Progress, SpinnerColumn, TextColumn
-
-        console.print("Downloading cross-encoder reranking model (~80 MB)...")
-        console.print("Model: cross-encoder/ms-marco-MiniLM-L-6-v2")
-        console.print()
-
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console,
-        ) as progress:
-            task = progress.add_task("Downloading model...", total=None)
-            try:
-                from sentence_transformers import CrossEncoder  # type: ignore
-
-                _ = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-                progress.update(task, completed=True)
-                console.print("[green]✓ Model downloaded successfully![/green]")
-            except Exception as e:
-                console.print(f"\n[red]✗ Download failed: {e}[/red]")
-                raise click.Abort()
-
-        console.print()
-        console.print("[bold]To enable reranking:[/]")
-        console.print("  [cyan]export KAGURA_ENABLE_RERANKING=true[/]")
-        console.print()
-        console.print("[dim]Add this to your .bashrc or .zshrc to make it permanent[/]")
-        console.print()
-        return
 
     # Auto-detect provider if not specified
     has_openai_key = bool(os.getenv("OPENAI_API_KEY"))
@@ -589,279 +537,58 @@ def setup_command(model: str | None, provider: str | None, reranking: bool) -> N
             raise click.Abort()
 
 
-@memory_group.command(name="index")
+@memory_group.command(name="list")
 @click.option(
     "--user-id",
     default=None,
-    help="Index specific user only (default: all users)",
+    help="Filter by user ID (default: all users)",
 )
 @click.option(
     "--agent-name",
     default=None,
-    help="Index specific agent only (default: all agents)",
+    help="Filter by agent name (default: all agents)",
 )
 @click.option(
-    "--rebuild",
-    is_flag=True,
-    help="Rebuild index from scratch (clear existing vectors)",
+    "--scope",
+    type=click.Choice(["working", "persistent", "all"]),
+    default="all",
+    help="Memory scope to list",
 )
-def index_command(
+@click.option(
+    "--limit",
+    default=20,
+    type=int,
+    help="Maximum number of memories to show (default: 20)",
+)
+def list_command(
     user_id: str | None,
     agent_name: str | None,
-    rebuild: bool,
+    scope: str,
+    limit: int,
 ) -> None:
-    """Build RAG vector index from existing memories.
+    """List stored memories.
 
-    Reads memories from persistent storage and creates vector embeddings
-    for semantic search. Run this after:
-    - Installing RAG dependencies
-    - Importing memories from backup
-    - Adding many new memories manually
+    Shows keys, values (truncated), and metadata for stored memories.
 
     Examples:
-        # Index all memories
-        kagura memory index
+        # List all memories
+        kagura memory list
 
-        # Index specific user
-        kagura memory index --user-id kiyota
+        # List for specific user
+        kagura memory list --user-id kiyota
 
-        # Rebuild index from scratch
-        kagura memory index --rebuild
-
-    Notes:
-        - Requires chromadb and sentence-transformers
-        - May take several minutes for large databases
-        - Existing vectors will be skipped unless --rebuild is used
+        # List persistent memories only
+        kagura memory list --scope persistent --limit 50
     """
-    from rich.progress import Progress, SpinnerColumn, TextColumn
+    from rich.table import Table
 
     from kagura.core.memory import MemoryManager
 
-    console.print("\n[cyan]Memory Index Builder[/cyan]")
+    console.print("\n[cyan]Memory List[/cyan]")
     console.print()
-
-    # Check dependencies
-    try:
-        import chromadb  # type: ignore # noqa: F401
-        import sentence_transformers  # type: ignore # noqa: F401
-    except ImportError as e:
-        console.print(f"[red]✗ Missing dependency: {e}[/red]")
-        console.print("\nInstall with: pip install chromadb sentence-transformers")
-        raise click.Abort()
-
-    if rebuild:
-        console.print(
-            "[yellow]⚠️  Rebuilding index (existing vectors will be cleared)[/yellow]"
-        )
-        console.print()
-
-    try:
-        # Create MemoryManager
-        manager = MemoryManager(
-            user_id=user_id or "system",
-            agent_name=agent_name or "indexer",
-            enable_rag=True,
-        )
-
-        # Get all persistent memories
-        memories = manager.persistent.fetch_all(
-            user_id=user_id or "system",
-            agent_name=agent_name,
-            limit=100000,
-        )
-
-        if not memories:
-            console.print("[yellow]No memories found to index[/yellow]")
-            return
-
-        console.print(f"Found {len(memories)} memories to index")
-        console.print()
-
-        if rebuild and manager.persistent_rag:
-            console.print("Clearing existing index...")
-            # Clear existing collection
-            try:
-                manager.persistent_rag.collection.delete()
-            except Exception:
-                pass
-
-        # Index memories with progress bar
-        indexed_count = 0
-        skipped_count = 0
-
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console,
-        ) as progress:
-            task = progress.add_task(
-                f"Indexing {len(memories)} memories...",
-                total=len(memories),
-            )
-
-            for mem in memories:
-                try:
-                    content = f"{mem['key']}: {mem['value']}"
-                    metadata = mem.get("metadata", {})
-
-                    # Store in persistent RAG (not working memory)
-                    if manager.persistent_rag:
-                        manager.persistent_rag.store(
-                            content=content,
-                            metadata=metadata or {},
-                            user_id=user_id or "system",
-                        )
-                        indexed_count += 1
-                    else:
-                        skipped_count += 1
-
-                except Exception:  # Skip duplicates or malformed data
-                    # Store operation can fail for duplicate IDs or invalid content
-                    skipped_count += 1
-
-                progress.update(task, advance=1)
-
-        console.print()
-        console.print("[green]✓ Indexing complete![/green]")
-        console.print()
-        console.print(f"  Indexed: {indexed_count}")
-        if skipped_count > 0:
-            console.print(f"  Skipped: {skipped_count} (duplicates or errors)")
-        console.print()
-
-    except Exception as e:
-        console.print(f"\n[red]✗ Indexing failed: {e}[/red]")
-        raise click.Abort()
-
-
-@memory_group.command(name="doctor")
-@click.option(
-    "--user-id",
-    default=None,
-    help="Check specific user (default: system-wide)",
-)
-def doctor_command(user_id: str | None) -> None:
-    """Run memory system health check.
-
-    Checks:
-    - Database status and size
-    - RAG availability and vector count
-    - Reranking model status
-    - Memory counts by scope
-
-    Examples:
-        # System-wide check
-        kagura memory doctor
-
-        # Check specific user
-        kagura memory doctor --user-id kiyota
-    """
-    from rich.panel import Panel
-
-    from kagura.config.paths import get_data_dir
-    from kagura.core.memory import MemoryManager
-
-    console.print("\n")
-    console.print(
-        Panel(
-            "[bold]Memory System Health Check[/]\n"
-            "Checking database, RAG, and reranking status...",
-            style="blue",
-        )
-    )
-    console.print()
-
-    # Database check
-    console.print("[bold cyan]1. Database Status[/]")
-    db_path = get_data_dir() / "memory.db"
-
-    if db_path.exists():
-        size_mb = db_path.stat().st_size / (1024**2)
-        console.print(f"   [green]✓[/] Database exists: {db_path}")
-        console.print(f"   [green]✓[/] Size: {size_mb:.2f} MB")
-    else:
-        console.print(f"   [yellow]⊘[/] Database not initialized: {db_path}")
-
-    console.print()
-
-    # Memory counts
-    console.print("[bold cyan]2. Memory Counts[/]")
 
     try:
         manager = MemoryManager(
-            user_id=user_id or "system",
-            agent_name="doctor",
-            enable_rag=True,
-        )
-
-        # Count persistent memories
-        if user_id:
-            persistent_count = manager.persistent.count(user_id=user_id)
-        else:
-            persistent_count = manager.persistent.count()
-
-        console.print(f"   [green]✓[/] Persistent memories: {persistent_count}")
-
-        # Count working memories
-        working_count = len(manager.working._data)
-        console.print(f"   [green]✓[/] Working memories: {working_count}")
-
-    except Exception as e:
-        console.print(f"   [red]✗[/] Error: {e}")
-
-    console.print()
-
-    # RAG status
-    console.print("[bold cyan]3. RAG Status[/]")
-
-    try:
-        if manager.persistent_rag:
-            rag_count = manager.persistent_rag.collection.count()
-            console.print("   [green]✓[/] RAG enabled")
-            console.print(f"   [green]✓[/] Vectors indexed: {rag_count}")
-
-            if rag_count == 0 and persistent_count > 0:
-                console.print(
-                    f"   [yellow]⚠[/] Index empty but {persistent_count} memories exist"
-                )
-                console.print("   [dim]Run 'kagura memory index' to build index[/dim]")
-        else:
-            console.print("   [red]✗[/] RAG not available")
-            console.print(
-                "   [dim]Install: pip install chromadb sentence-transformers[/dim]"
-            )
-    except Exception as e:
-        console.print(f"   [red]✗[/] Error: {e}")
-
-    console.print()
-
-    # Reranking status
-    console.print("[bold cyan]4. Reranking Status[/]")
-
-    import os
-
-    reranking_enabled = os.getenv("KAGURA_ENABLE_RERANKING", "").lower() == "true"
-
-    if reranking_enabled:
-        console.print("   [green]✓[/] Reranking enabled")
-    else:
-        console.print("   [yellow]⊘[/] Reranking not enabled")
-        console.print("   [dim]Set: export KAGURA_ENABLE_RERANKING=true[/dim]")
-
-    console.print()
-
-    # Summary
-    console.print(
-        Panel(
-            "[bold]Health Check Complete[/]\n\n"
-            "For more details, run:\n"
-            "  • kagura doctor - Comprehensive system check\n"
-            "  • kagura memory index - Build RAG index\n"
-            "  • kagura memory setup - Download models",
-            style="blue",
-        )
-    )
-    console.print()
             user_id=user_id or "system",
             agent_name=agent_name or "global",
         )
