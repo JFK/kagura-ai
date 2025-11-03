@@ -1909,8 +1909,9 @@ def _extract_code_chunks(
 
     # Find all top-level classes for context
     classes_info = {}
-    for node in tree.body:
-        if isinstance(node, ast.ClassDef):
+    if isinstance(tree, ast.Module) and hasattr(tree, "body"):
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef):
             classes_info[node.name] = {
                 "line_start": node.lineno,
                 "line_end": node.end_lineno or node.lineno,
