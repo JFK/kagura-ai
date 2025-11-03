@@ -2,14 +2,37 @@
 
 Provides terminal access to coding sessions, decisions, errors, and file changes
 stored in Kagura's Coding Memory system.
+
+Environment Variables:
+    KAGURA_DEFAULT_PROJECT: Default project ID for all commands
+    KAGURA_DEFAULT_USER: Default user ID (default: kiyota)
 """
 
 import json
+import os
 from datetime import datetime, timedelta, timezone
 
 import click
 from rich.console import Console
 from rich.table import Table
+
+
+def _get_default_project() -> str | None:
+    """Get default project from environment variable.
+
+    Returns:
+        Default project ID or None
+    """
+    return os.getenv("KAGURA_DEFAULT_PROJECT")
+
+
+def _get_default_user() -> str:
+    """Get default user from environment variable.
+
+    Returns:
+        Default user ID (default: kiyota)
+    """
+    return os.getenv("KAGURA_DEFAULT_USER", "kiyota")
 
 
 @click.group()
@@ -30,8 +53,13 @@ def coding():
 
 
 @coding.command()
-@click.option("--user", "-u", default="kiyota", help="User ID (default: kiyota)")
-def projects(user: str):
+@click.option(
+    "--user",
+    "-u",
+    default=None,
+    help="User ID (default: $KAGURA_DEFAULT_USER or kiyota)",
+)
+def projects(user: str | None):
     """List all projects with coding memory.
 
     Shows unique project names and session counts.
@@ -39,8 +67,15 @@ def projects(user: str):
     Example:
         kagura coding projects
         kagura coding projects --user kiyota
+
+        # Or set default:
+        export KAGURA_DEFAULT_USER=kiyota
+        kagura coding projects
     """
     console = Console()
+
+    # Use environment variable default
+    user = user or _get_default_user()
 
     try:
         from kagura.config.paths import get_data_dir
@@ -97,8 +132,18 @@ def projects(user: str):
 
 
 @coding.command()
-@click.option("--project", "-p", required=True, help="Project ID")
-@click.option("--user", "-u", default="kiyota", help="User ID (default: kiyota)")
+@click.option(
+    "--project",
+    "-p",
+    default=None,
+    help="Project ID (default: $KAGURA_DEFAULT_PROJECT)",
+)
+@click.option(
+    "--user",
+    "-u",
+    default=None,
+    help="User ID (default: $KAGURA_DEFAULT_USER or kiyota)",
+)
 @click.option("--limit", "-n", default=20, help="Maximum results (default: 20)")
 @click.option(
     "--success",
@@ -107,17 +152,37 @@ def projects(user: str):
     help="Filter by success status",
 )
 @click.option("--since", help="Time filter (e.g., 7d, 30d, 2024-11-01)")
-def sessions(project: str, user: str, limit: int, success: str, since: str | None):
+def sessions(
+    project: str | None, user: str | None, limit: int, success: str, since: str | None
+):
     """List coding sessions for a project.
 
     Shows session history with descriptions, durations, and outcomes.
 
     Examples:
         kagura coding sessions --project kagura-ai
-        kagura coding sessions --project kagura-ai --success true --limit 10
-        kagura coding sessions --project kagura-ai --since 7d
+        kagura coding sessions --success true  # Uses $KAGURA_DEFAULT_PROJECT
+        kagura coding sessions --since 7d
+
+        # Set defaults:
+        export KAGURA_DEFAULT_PROJECT=kagura-ai
+        export KAGURA_DEFAULT_USER=kiyota
     """
     console = Console()
+
+    # Use environment variable defaults
+    project = project or _get_default_project()
+    user = user or _get_default_user()
+
+    if not project:
+        console.print(
+            "[red]Error: No project specified and $KAGURA_DEFAULT_PROJECT not set[/red]"
+        )
+        console.print("[dim]Usage: kagura coding sessions --project PROJECT[/dim]")
+        console.print(
+            "[dim]Or set: export KAGURA_DEFAULT_PROJECT=your-project[/dim]"
+        )
+        return
 
     try:
         from kagura.core.memory.coding_memory import CodingMemoryManager
