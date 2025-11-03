@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.8] - 2025-11-03
+
+### ✨ Added
+
+- **Coding Memory CLI Commands** (#502)
+  - `kagura coding projects`: List all projects with memory counts
+  - `kagura coding sessions`: List coding sessions with filters
+  - `kagura coding session <ID>`: Show detailed session information
+  - `kagura coding decisions`: Browse design decisions
+  - `kagura coding decision <ID>`: Show decision details with rationale
+  - `kagura coding errors`: List errors with resolution status
+  - `kagura coding error <ID>`: Show error details and solution
+  - `kagura coding search`: Semantic search across all coding memory
+  - Filters: --success, --unresolved, --min-confidence, --tag, --since, --type, --user
+
+- **MCP Live Monitoring** (#499)
+  - `kagura mcp monitor`: Live dashboard for MCP tool statistics
+  - Real-time tool call counts, success rates, average execution times
+  - Filter by tool name pattern (--tool)
+  - Configurable refresh interval (--interval)
+  - Shows last 5 minutes of activity
+
+### 🐛 Fixed
+
+- **Doctor Command** (#500): Now shows actual memory counts
+  - Before: `Persistent: 0, RAG: 0` (always showed 0)
+  - After: `Persistent: 471, RAG: 17` (actual counts across all users)
+  - Queries all ChromaDB collections (sessions, API, legacy)
+
+### 📝 Documentation
+
+- **CLAUDE.md**: Updated workflow to recommend Kagura Coding Sessions
+  - Added section: "過去の作業を参照" with CLI examples
+  - Integrated Coding Session into standard workflow
+  - Emphasizes using Kagura memory over ephemeral Claude context
+
+### 🧪 Tests
+
+- Type check: 0 errors (pyright)
+- Lint: All checks passed (ruff)
+- Manual verification: All commands working correctly
+
+---
+
 ## [4.0.7] - 2025-11-03
 
 ### ✨ Added

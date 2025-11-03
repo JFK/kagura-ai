@@ -53,27 +53,67 @@ class MCPDiagnostics:
             return {"status": "error", "details": str(e), "url": self.api_base_url}
 
     async def check_memory_manager(self) -> dict[str, Any]:
-        """Check MemoryManager initialization.
+        """Check MemoryManager initialization and count all stored memories.
+
+        Counts total memories across ALL users (not just test user).
 
         Returns:
-            Status dict
+            Status dict with total memory counts
         """
         try:
-            from kagura.core.memory import MemoryManager
+            from kagura.config.paths import get_data_dir
 
-            manager = MemoryManager(
-                user_id="system", agent_name="diagnostics", enable_rag=True
-            )
+            # Count persistent memories from SQLite (all users)
+            persistent_count = 0
+            data_dir = get_data_dir()
+            db_path = data_dir / "memory.db"
 
-            # Count memories
-            persistent_count = manager.persistent.count("system", "diagnostics")
-            rag_count = manager.rag.count("diagnostics") if manager.rag else 0
+            if db_path.exists():
+                import sqlite3
+
+                with sqlite3.connect(db_path) as conn:
+                    cursor = conn.execute("SELECT COUNT(*) FROM memories")
+                    persistent_count = cursor.fetchone()[0]
+
+            # Count RAG vectors from ChromaDB (all collections)
+            rag_count = 0
+            rag_enabled = False
+
+            try:
+                import chromadb
+
+                rag_enabled = True
+
+                # Check multiple possible vector DB locations
+                vector_db_paths = [
+                    data_dir / "sessions" / "memory" / "vector_db",
+                    data_dir / "api" / "default_user" / "vector_db",
+                    data_dir / "vector_db",  # Legacy location
+                ]
+
+                for vdb_path in vector_db_paths:
+                    if vdb_path.exists():
+                        try:
+                            client = chromadb.PersistentClient(path=str(vdb_path))
+                            for col in client.list_collections():
+                                rag_count += col.count()
+                        except Exception as e:
+                            # Skip if collection read fails
+                            import logging
+
+                            logger = logging.getLogger(__name__)
+                            logger.debug(
+                                f"Failed to read collection from {vdb_path}: {e}"
+                            )
+
+            except ImportError:
+                rag_enabled = False
 
             return {
                 "status": "healthy",
                 "persistent_count": persistent_count,
                 "rag_count": rag_count,
-                "rag_enabled": manager.rag is not None,
+                "rag_enabled": rag_enabled,
             }
         except ImportError as e:
             return {"status": "error", "details": f"Import error: {e}"}
