@@ -8,7 +8,10 @@ Implements 2-stage recording strategy:
 import asyncio
 import logging
 import subprocess
+import tempfile
+import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel
@@ -316,34 +319,56 @@ https://github.com/JFK/kagura-ai
     async def _post_comment(self, comment: str) -> None:
         """Post comment to GitHub issue via gh CLI.
 
+        Uses --body-file for safety and reliability with complex content.
+        This avoids special character escaping issues and command-line length limits.
+
         Args:
             comment: Markdown comment text
 
         Raises:
             subprocess.CalledProcessError: If gh command fails
+            ValueError: If no issue number is set
         """
         if not self.current_issue_number:
             raise ValueError("No issue number set")
 
-        # Use gh issue comment via subprocess (async)
-        cmd = [
-            "gh",
-            "issue",
-            "comment",
-            str(self.current_issue_number),
-            "--body",
-            comment,
-        ]
+        # Create temporary markdown file with unique name
+        temp_dir = Path(tempfile.gettempdir())
+        temp_file = temp_dir / f"kagura_comment_{uuid.uuid4().hex[:8]}.md"
 
-        if self.config.repo:
-            cmd.extend(["--repo", self.config.repo])
+        try:
+            # Write content to temp file
+            temp_file.write_text(comment, encoding="utf-8")
+            logger.debug(f"Created temp comment file: {temp_file}")
 
-        # Run in executor to avoid blocking
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(
-            None,
-            lambda: subprocess.run(cmd, check=True, capture_output=True, text=True),
-        )
+            # Use --body-file instead of --body
+            cmd = [
+                "gh",
+                "issue",
+                "comment",
+                str(self.current_issue_number),
+                "--body-file",
+                str(temp_file),
+            ]
+
+            if self.config.repo:
+                cmd.extend(["--repo", self.config.repo])
+
+            # Run in executor to avoid blocking
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(
+                None,
+                lambda: subprocess.run(
+                    cmd, check=True, capture_output=True, text=True
+                ),
+            )
+            logger.debug(f"Successfully posted comment from {temp_file}")
+
+        finally:
+            # Always cleanup temp file
+            if temp_file.exists():
+                temp_file.unlink()
+                logger.debug(f"Cleaned up temp file: {temp_file}")
 
     def is_available(self) -> bool:
         """Check if GitHub recording is available.
