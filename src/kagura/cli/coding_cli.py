@@ -289,7 +289,9 @@ def sessions(
                 # Calculate ongoing duration from start time
                 try:
                     start = datetime.fromisoformat(start_time)
-                    ongoing_duration = (datetime.now(timezone.utc) - start.replace(tzinfo=timezone.utc)).total_seconds() / 60
+                    ongoing_duration = (
+                        datetime.now(timezone.utc) - start.replace(tzinfo=timezone.utc)
+                    ).total_seconds() / 60
                     duration_str = f"[yellow]{ongoing_duration:.0f}m[/yellow]"
                 except Exception:
                     duration_str = "[yellow]ongoing[/yellow]"
@@ -315,10 +317,14 @@ def sessions(
                 status_icon = "[yellow]🔄 Active[/yellow]"
             else:
                 status_icon = (
-                    "✅ Done" if success_status else ("⚠️ Issue" if success_status is False else "ℹ️ Info")
+                    "✅ Done"
+                    if success_status
+                    else ("⚠️ Issue" if success_status is False else "ℹ️ Info")
                 )
 
-            table.add_row(session_id, description, start_dt, end_dt, duration_str, status_icon)
+            table.add_row(
+                session_id, description, start_dt, end_dt, duration_str, status_icon
+            )
 
         console.print(table)
         console.print(f"\n[dim]Total: {len(sessions_data)} sessions[/dim]")
@@ -374,25 +380,27 @@ def session(session_id: str, project: str | None, user: str | None):
 
         # Display session details with Panel
         from rich.panel import Panel
-        from rich.syntax import Syntax
 
         # Header
-        success_status = data.get('success')
-        status_icon = "✅" if success_status else ("⚠️" if success_status is False else "ℹ️")
+        success_status = data.get("success")
+        status_icon = (
+            "✅" if success_status else ("⚠️" if success_status is False else "ℹ️")
+        )
 
         console.print(f"\n[bold cyan]Session: {session_id}[/bold cyan] {status_icon}")
         console.print(f"[dim]Project: {project}[/dim]")
         console.print()
 
         # Overview panel
-        end_time = data.get('end_time')
-        is_active = not end_time or end_time == 'None'
+        end_time = data.get("end_time")
+        is_active = not end_time or end_time == "None"
 
         if is_active:
             # Calculate ongoing duration
             try:
                 from datetime import datetime, timezone
-                start = datetime.fromisoformat(data.get('start_time', ''))
+
+                start = datetime.fromisoformat(data.get("start_time", ""))
                 if start.tzinfo is None:
                     start = start.replace(tzinfo=timezone.utc)
                 now = datetime.now(timezone.utc)
@@ -403,12 +411,13 @@ def session(session_id: str, project: str | None, user: str | None):
                 duration_str = "[yellow]In progress[/yellow]"
                 end_str = "[yellow]In progress[/yellow]"
         else:
-            duration = data.get('duration_minutes', 0)
-            if not duration and data.get('start_time') and end_time:
+            duration = data.get("duration_minutes", 0)
+            if not duration and data.get("start_time") and end_time:
                 # Calculate from timestamps
                 try:
                     from datetime import datetime
-                    start = datetime.fromisoformat(data.get('start_time'))
+
+                    start = datetime.fromisoformat(data.get("start_time"))
                     end = datetime.fromisoformat(end_time)
                     duration = (end - start).total_seconds() / 60
                 except Exception:
@@ -428,7 +437,7 @@ def session(session_id: str, project: str | None, user: str | None):
         console.print()
 
         # Activities panel
-        files_touched = data.get('files_touched', [])
+        files_touched = data.get("files_touched", [])
         activities = (
             f"[bold]Files touched:[/bold] {len(files_touched)}\n"
             f"[bold]Errors encountered:[/bold] {data.get('errors_encountered', 0)}\n"
@@ -455,7 +464,11 @@ def session(session_id: str, project: str | None, user: str | None):
 
         # Summary
         if data.get("summary"):
-            console.print(Panel(data["summary"], title="AI-Generated Summary", border_style="yellow"))
+            console.print(
+                Panel(
+                    data["summary"], title="AI-Generated Summary", border_style="yellow"
+                )
+            )
             console.print()
 
         # Additional details link

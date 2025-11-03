@@ -16,6 +16,7 @@ from kagura import tool
 if TYPE_CHECKING:
     from kagura.core.memory.coding_memory import CodingMemoryManager
 
+
 def _get_coding_memory(user_id: str, project_id: str) -> CodingMemoryManager:
     """Get CodingMemoryManager instance (no caching for session synchronization).
 
@@ -36,7 +37,9 @@ def _get_coding_memory(user_id: str, project_id: str) -> CodingMemoryManager:
 
     from kagura.core.memory.coding_memory import CodingMemoryManager
 
-    logger.debug(f"_get_coding_memory: Creating CodingMemoryManager for {user_id}:{project_id}")
+    logger.debug(
+        f"_get_coding_memory: Creating CodingMemoryManager for {user_id}:{project_id}"
+    )
 
     # Always create new instance to ensure fresh session state
     return CodingMemoryManager(
@@ -520,10 +523,10 @@ async def coding_resume_session(
             return f"❌ Failed to load resumed session: {session_id}"
 
         from kagura.core.memory.coding_memory import CodingSession
+
         session = CodingSession.model_validate(session_data)
 
         # Calculate original duration if applicable
-        from datetime import datetime
 
         result = f"✅ Session resumed: {session_id_returned}\n\n"
         result += f"**Project:** {project_id}\n"
@@ -536,16 +539,16 @@ async def coding_resume_session(
         errors = await memory._get_session_errors(session_id)
         decisions = await memory._get_session_decisions(session_id)
 
-        result += f"**Existing activities:**\n"
+        result += "**Existing activities:**\n"
         result += f"  • File changes: {len(file_changes)}\n"
         result += f"  • Errors recorded: {len(errors)}\n"
         result += f"  • Decisions made: {len(decisions)}\n\n"
 
-        result += f"💡 **Continue where you left off:**\n"
-        result += f"  • Track new changes: coding_track_file_change()\n"
-        result += f"  • Record new decisions: coding_record_decision()\n"
-        result += f"  • Check status: coding_get_current_session_status()\n"
-        result += f"  • End when done: coding_end_session()\n"
+        result += "💡 **Continue where you left off:**\n"
+        result += "  • Track new changes: coding_track_file_change()\n"
+        result += "  • Record new decisions: coding_record_decision()\n"
+        result += "  • Check status: coding_get_current_session_status()\n"
+        result += "  • End when done: coding_end_session()\n"
 
         return result
 
@@ -604,6 +607,7 @@ async def coding_get_current_session_status(
         return "❌ Session data not found in working memory."
 
     from kagura.core.memory.coding_memory import CodingSession
+
     session = CodingSession.model_validate(session_data)
 
     # Calculate duration
@@ -636,14 +640,14 @@ async def coding_get_current_session_status(
     interactions = 0  # Not yet tracked separately
 
     # Build status report
-    result = f"📊 Current Session Status\n\n"
+    result = "📊 Current Session Status\n\n"
     result += f"**Session ID:** {session.session_id}\n"
     result += f"**Project:** {project_id}\n"
     result += f"**Description:** {session.description}\n"
     result += f"**Duration:** {duration:.1f} minutes (started {session.start_time})\n"
     result += f"**Tags:** {', '.join(session.tags)}\n\n"
 
-    result += f"**Tracked Activities:**\n"
+    result += "**Tracked Activities:**\n"
     result += f"  • File changes: {file_changes}\n"
     result += f"  • Errors encountered: {errors + errors_fixed}\n"
     result += f"  • Errors fixed: {errors_fixed}\n"
@@ -652,30 +656,30 @@ async def coding_get_current_session_status(
 
     # Recent activity
     if file_changes_records:
-        result += f"**Recent File Changes (last 3):**\n"
+        result += "**Recent File Changes (last 3):**\n"
         for change in file_changes_records[-3:]:
             result += f"  • {change.action}: {change.file_path}\n"
         result += "\n"
 
     if decisions_records:
-        result += f"**Recent Decisions (last 2):**\n"
+        result += "**Recent Decisions (last 2):**\n"
         for decision in decisions_records[-2:]:
             result += f"  • {decision.decision[:80]}...\n"
         result += "\n"
 
     # Recommendations
-    result += f"**Next Steps:**\n"
+    result += "**Next Steps:**\n"
 
     if file_changes == 0:
-        result += f"  ⚠️  No file changes tracked yet. Use coding_track_file_change()\n"
+        result += "  ⚠️  No file changes tracked yet. Use coding_track_file_change()\n"
 
     if errors > 0:
         result += f"  ⚠️  {errors} unresolved errors. Add solutions before ending.\n"
 
-    result += f"  ✅ Ready to end? Confirm with user, then: coding_end_session()\n"
+    result += "  ✅ Ready to end? Confirm with user, then: coding_end_session()\n"
 
     if file_changes > 0 or decisions > 0:
-        result += f"  💡 Consider: save_to_github='true' to record to GitHub Issue\n"
+        result += "  💡 Consider: save_to_github='true' to record to GitHub Issue\n"
 
     return result
 

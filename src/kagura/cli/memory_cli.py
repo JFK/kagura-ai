@@ -725,7 +725,9 @@ def search_command(
             )
         else:
             console.print("[red]✗ RAG not available[/red]")
-            console.print("[dim]Install: pip install chromadb sentence-transformers[/dim]")
+            console.print(
+                "[dim]Install: pip install chromadb sentence-transformers[/dim]"
+            )
             return
 
         if not results:

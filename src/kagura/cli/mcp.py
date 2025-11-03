@@ -997,16 +997,10 @@ def monitor_command(
         """Create dashboard table with current stats."""
         # Get recent events (last 5 minutes)
         cutoff = datetime.now() - timedelta(minutes=5)
-        events = store.get_executions(
-            since=cutoff.timestamp(),
-            limit=1000
-        )
+        events = store.get_executions(since=cutoff.timestamp(), limit=1000)
 
         # Filter MCP tool events (executions that have tool_name)
-        mcp_events = [
-            e for e in events
-            if e.get("metadata", {}).get("tool_name")
-        ]
+        mcp_events = [e for e in events if e.get("metadata", {}).get("tool_name")]
 
         # Apply tool filter
         if tool:

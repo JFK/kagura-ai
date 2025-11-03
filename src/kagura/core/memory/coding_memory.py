@@ -217,16 +217,18 @@ class CodingMemoryManager(MemoryManager):
             # Search persistent storage for sessions
             key_pattern = f"project:{self.project_id}:session:%"
             sessions = self.persistent.search(
-                query=key_pattern,
-                user_id=self.user_id,
-                limit=100
+                query=key_pattern, user_id=self.user_id, limit=100
             )
 
             # Find active session (no end_time)
             for sess in sessions:
                 value_str = sess.get("value", "{}")
                 try:
-                    data = json.loads(value_str) if isinstance(value_str, str) else value_str
+                    data = (
+                        json.loads(value_str)
+                        if isinstance(value_str, str)
+                        else value_str
+                    )
                     if data.get("end_time") is None:
                         session_id = sess["key"].split(":")[-1]
                         logger.info(f"Auto-detected active session: {session_id}")
@@ -296,14 +298,14 @@ Session: {self.current_session_id}
 Project: {self.project_id}
 Saved: {datetime.now().isoformat()}
 
-Description: {session_data.get('description', 'N/A')}
+Description: {session_data.get("description", "N/A")}
 Progress:
 - Files modified: {len(file_changes)}
 - Decisions made: {len(decisions)}
 - Errors encountered: {len(errors)}
 
 Recent file changes:
-{chr(10).join(f'- {fc.file_path}: {fc.action}' for fc in file_changes[-5:])}
+{chr(10).join(f"- {fc.file_path}: {fc.action}" for fc in file_changes[-5:])}
 """
 
         metadata = {
@@ -1326,15 +1328,15 @@ Recent file changes:
         # Query persistent storage by session_id (primary method)
         pattern = f"project:{self.project_id}:{record_type}:%"
         all_records = self.persistent.search(
-            query=pattern,
-            user_id=self.user_id,
-            limit=1000
+            query=pattern, user_id=self.user_id, limit=1000
         )
 
         for record_data in all_records:
             try:
                 value_str = record_data.get("value", "{}")
-                data = json.loads(value_str) if isinstance(value_str, str) else value_str
+                data = (
+                    json.loads(value_str) if isinstance(value_str, str) else value_str
+                )
                 if data.get("session_id") == session_id:
                     records.append(record_class(**data))
             except (json.JSONDecodeError, TypeError, ValueError):
@@ -1368,7 +1370,7 @@ Recent file changes:
         return await self._get_session_records(
             session_id=session_id,
             record_type="file_change",
-            record_class=FileChangeRecord
+            record_class=FileChangeRecord,
         )
 
     async def _get_session_errors(self, session_id: str) -> list[ErrorRecord]:
@@ -1381,9 +1383,7 @@ Recent file changes:
             List of errors associated with session
         """
         return await self._get_session_records(
-            session_id=session_id,
-            record_type="error",
-            record_class=ErrorRecord
+            session_id=session_id, record_type="error", record_class=ErrorRecord
         )
 
     async def _get_session_decisions(self, session_id: str) -> list[DesignDecision]:
@@ -1396,9 +1396,7 @@ Recent file changes:
             List of decisions associated with session
         """
         return await self._get_session_records(
-            session_id=session_id,
-            record_type="decision",
-            record_class=DesignDecision
+            session_id=session_id, record_type="decision", record_class=DesignDecision
         )
 
     async def _get_recent_file_changes(self, limit: int = 30) -> list[FileChangeRecord]:

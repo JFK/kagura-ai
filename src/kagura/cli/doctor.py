@@ -332,6 +332,7 @@ def _check_coding_memory() -> dict[str, Any]:
             if "metadata" in session:
                 try:
                     import json
+
                     metadata = json.loads(session.get("metadata", "{}"))
                     if "project_id" in metadata:
                         projects.add(metadata["project_id"])
