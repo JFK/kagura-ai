@@ -2,8 +2,20 @@
 
 ## Requirements
 
-- Python 3.11 or higher
-- pip or uv package manager
+- **Python**: 3.11, 3.12, or 3.13
+  - ⚠️ **Intel Mac (x86_64) users**: Python 3.13 is **not supported** with AI features due to PyTorch limitations. Use Python 3.11 or 3.12.
+- **Package manager**: pip or uv
+
+### Platform-Specific Requirements
+
+| Platform | Python 3.11 | Python 3.12 | Python 3.13 |
+|----------|-------------|-------------|-------------|
+| macOS Intel (x86_64) | ✅ | ✅ | ❌ * |
+| macOS Apple Silicon (ARM64) | ✅ | ✅ | ✅ |
+| Linux (x86_64 / ARM64) | ✅ | ✅ | ✅ |
+| Windows | ✅ | ✅ | ✅ |
+
+\* **Why?** PyTorch 2.3+ dropped Intel Mac support. For AI features (`[ai]` extra) on Intel Mac, use Python 3.11 or 3.12. Core features work with all versions.
 
 ## Install from PyPI
 
@@ -366,6 +378,47 @@ If pyright shows errors in your IDE:
 1. Make sure your Python interpreter is set to 3.11+
 2. Ensure kagura-ai is installed in your environment
 3. Restart your IDE/language server
+
+### Intel Mac (x86_64) Installation Issues
+
+If you're on an Intel Mac and encounter installation failures with AI features (`[ai]` extra):
+
+```
+ERROR: Could not find a version that satisfies the requirement torch
+ERROR: No matching distribution found for torch
+```
+
+**Cause**: PyTorch 2.3+ dropped Intel Mac support. Kagura AI uses PyTorch 2.2.2 (last version with Intel Mac wheels).
+
+**Solutions**:
+
+#### Option 1: Use Python 3.11 or 3.12 (Recommended)
+```bash
+# Check your Python version
+python --version
+
+# If using Python 3.13, switch to 3.12
+pyenv install 3.12
+pyenv local 3.12
+
+# Reinstall Kagura with AI features
+pip install kagura-ai[ai]
+```
+
+#### Option 2: Use Docker (Supports Python 3.13)
+```bash
+git clone https://github.com/your-org/kagura-ai.git
+cd kagura-ai
+docker-compose up -d
+```
+
+#### Option 3: Use Core Features Only (No PyTorch)
+```bash
+# Install without AI features - still get MCP server, CLI, API
+pip install kagura-ai
+```
+
+**Note**: Core features (MCP server, CLI, REST API) work on all platforms with Python 3.11-3.13. Only the `[ai]` extra (embeddings, RAG) requires PyTorch.
 
 ## Upgrading
 

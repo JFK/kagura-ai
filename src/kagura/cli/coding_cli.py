@@ -4,35 +4,35 @@ Provides terminal access to coding sessions, decisions, errors, and file changes
 stored in Kagura's Coding Memory system.
 
 Environment Variables:
-    KAGURA_DEFAULT_PROJECT: Default project ID for all commands
-    KAGURA_DEFAULT_USER: Default user ID (default: kiyota)
+    KAGURA_DEFAULT_PROJECT: Override auto-detected project ID
+    KAGURA_DEFAULT_USER: Override auto-detected user ID
+
+Configuration Files:
+    pyproject.toml: [tool.kagura] project = "name", user = "username"
+
+Auto-detection:
+    - Project: Git repository name (from remote URL or directory)
+    - User: Git user.name config
 """
 
 import json
-import os
 from datetime import datetime, timedelta, timezone
 
 import click
 from rich.console import Console
 from rich.table import Table
 
-
-def _get_default_project() -> str | None:
-    """Get default project from environment variable.
-
-    Returns:
-        Default project ID or None
-    """
-    return os.getenv("KAGURA_DEFAULT_PROJECT")
+from kagura.config.project import get_default_project as _get_default_project
+from kagura.config.project import get_default_user as _get_default_user_impl
 
 
 def _get_default_user() -> str:
-    """Get default user from environment variable.
+    """Get default user with fallback.
 
     Returns:
-        Default user ID (default: kiyota)
+        Default user ID (auto-detected or 'kiyota')
     """
-    return os.getenv("KAGURA_DEFAULT_USER", "kiyota")
+    return _get_default_user_impl() or "kiyota"
 
 
 def _check_project_required(project: str | None, console: Console) -> str | None:
@@ -48,9 +48,13 @@ def _check_project_required(project: str | None, console: Console) -> str | None
     proj = project or _get_default_project()
     if not proj:
         console.print(
-            "[red]Error: No project specified and $KAGURA_DEFAULT_PROJECT not set[/red]"
+            "[red]Error: No project detected and $KAGURA_DEFAULT_PROJECT not set[/red]"
         )
-        console.print("[dim]Set: export KAGURA_DEFAULT_PROJECT=your-project[/dim]")
+        console.print("[yellow]💡 Tip: Auto-detection works when you:[/yellow]")
+        console.print("[dim]  1. Run in a git repository (uses repo name)[/dim]")
+        console.print("[dim]  2. Add to pyproject.toml: [tool.kagura] project = \"your-project\"[/dim]")
+        console.print("[dim]  3. Set environment: export KAGURA_DEFAULT_PROJECT=your-project[/dim]")
+        console.print("[dim]  4. Use flag: --project your-project[/dim]")
     return proj
 
 
@@ -1033,3 +1037,205 @@ def _parse_time_filter(since: str) -> datetime:
     else:
         # ISO date
         return datetime.fromisoformat(since).replace(tzinfo=timezone.utc)
+
+
+@coding.command()
+def doctor() -> None:
+    """Check Coding Memory configuration and auto-detection.
+
+    Diagnoses project/user detection and shows Coding Memory statistics.
+
+    Example:
+        kagura coding doctor
+    """
+    import os
+    from pathlib import Path
+
+    from rich.panel import Panel
+
+    from kagura.config.project import detect_git_repo_name, load_pyproject_config
+
+    console = Console()
+    console.print("\n")
+    console.print(
+        Panel(
+            "[bold]Coding Memory Configuration Check 🔧[/]\n"
+            "Checking auto-detection and statistics...",
+            style="blue",
+        )
+    )
+    console.print()
+
+    # 1. Auto-detection Status
+    console.print("[bold cyan]1. Auto-detection Status[/]")
+
+    # Project detection
+    detected_project = _get_default_project()
+    env_project = os.getenv("KAGURA_DEFAULT_PROJECT")
+    pyproject_config = load_pyproject_config()
+    git_repo = detect_git_repo_name()
+
+    if detected_project:
+        console.print(f"   [green]✓[/] Project: [bold]{detected_project}[/bold]")
+
+        # Show source
+        if env_project:
+            console.print("     [dim]└─ Source: Environment variable ($KAGURA_DEFAULT_PROJECT)[/dim]")
+        elif pyproject_config.get("project"):
+            console.print("     [dim]└─ Source: pyproject.toml [tool.kagura][/dim]")
+        elif git_repo:
+            console.print("     [dim]└─ Source: Git repository auto-detection[/dim]")
+    else:
+        console.print("   [red]✗[/] Project: Not detected")
+        console.print("     [yellow]💡 Tip: Run in a git repo or add to pyproject.toml[/yellow]")
+
+    # User detection
+    detected_user = _get_default_user()
+    env_user = os.getenv("KAGURA_DEFAULT_USER")
+    git_user = None
+    try:
+        import subprocess
+
+        result = subprocess.run(
+            ["git", "config", "user.name"],
+            capture_output=True,
+            text=True,
+            timeout=1,
+            check=False,
+        )
+        if result.returncode == 0:
+            git_user = result.stdout.strip()
+    except Exception:  # Git not available or config not set
+        pass
+
+    console.print(f"   [green]✓[/] User: [bold]{detected_user}[/bold]")
+    if env_user:
+        console.print("     [dim]└─ Source: Environment variable ($KAGURA_DEFAULT_USER)[/dim]")
+    elif pyproject_config.get("user"):
+        console.print("     [dim]└─ Source: pyproject.toml [tool.kagura][/dim]")
+    elif git_user:
+        console.print("     [dim]└─ Source: Git user.name config[/dim]")
+    else:
+        console.print("     [dim]└─ Source: Default (kiyota)[/dim]")
+
+    console.print()
+
+    # 2. Configuration Sources
+    console.print("[bold cyan]2. Configuration Sources[/]")
+
+    # Environment variables (reuse already-retrieved values)
+    if env_project or env_user:
+        console.print("   [green]✓[/] Environment Variables:")
+        if env_project:
+            console.print(f"     • KAGURA_DEFAULT_PROJECT={env_project}")
+        if env_user:
+            console.print(f"     • KAGURA_DEFAULT_USER={env_user}")
+    else:
+        console.print("   [dim]⊘[/] Environment Variables: Not set")
+
+    # pyproject.toml
+    if pyproject_config:
+        console.print("   [green]✓[/] pyproject.toml [tool.kagura]:")
+        for key, value in pyproject_config.items():
+            console.print(f"     • {key} = {value}")
+    else:
+        pyproject_path = Path.cwd() / "pyproject.toml"
+        if pyproject_path.exists():
+            console.print("   [dim]⊘[/] pyproject.toml: No [tool.kagura] section")
+        else:
+            console.print("   [dim]⊘[/] pyproject.toml: Not found")
+
+    # Git repository
+    if git_repo:
+        console.print(f"   [green]✓[/] Git Repository: {git_repo}")
+        try:
+            import subprocess
+
+            result = subprocess.run(
+                ["git", "remote", "get-url", "origin"],
+                capture_output=True,
+                text=True,
+                timeout=1,
+                check=False,
+            )
+            if result.returncode == 0:
+                console.print(f"     [dim]└─ Remote: {result.stdout.strip()}[/dim]")
+        except Exception:  # Git not available
+            pass
+    else:
+        console.print("   [dim]⊘[/] Git Repository: Not detected")
+
+    console.print()
+
+    # 3. Coding Memory Statistics
+    if not detected_project:
+        console.print("[bold cyan]3. Coding Memory Statistics[/]")
+        console.print("   [yellow]⊘[/] Cannot check: No project detected")
+        console.print()
+        return
+
+    console.print("[bold cyan]3. Coding Memory Statistics[/]")
+
+    from kagura.core.memory import MemoryManager
+
+    try:
+        manager = MemoryManager(user_id=detected_user, agent_name="coding-memory")
+
+        # Count sessions
+        sessions = manager.persistent.search(
+            query=f"project_id:{detected_project}",
+            user_id=detected_user,
+            agent_name="coding-memory",
+            limit=1000,
+        )
+
+        # Count different types
+        session_count = sum(1 for s in sessions if "session" in s.get("key", ""))
+        error_count = sum(1 for s in sessions if "error" in s.get("key", ""))
+        decision_count = sum(1 for s in sessions if "decision" in s.get("key", ""))
+        change_count = sum(1 for s in sessions if "change" in s.get("key", ""))
+
+        console.print(f"   [green]✓[/] Sessions: {session_count}")
+        console.print(f"   [green]✓[/] Errors recorded: {error_count}")
+        console.print(f"   [green]✓[/] Decisions: {decision_count}")
+        console.print(f"   [green]✓[/] File changes: {change_count}")
+
+    except Exception as e:
+        console.print(f"   [yellow]⊘[/] Could not load: {e}")
+
+    console.print()
+
+    # 4. Recommendations
+    console.print("[bold cyan]4. Recommendations[/]")
+
+    recommendations = []
+
+    if not pyproject_config and Path.cwd().joinpath("pyproject.toml").exists():
+        recommendations.append(
+            "Add [tool.kagura] to pyproject.toml for explicit project/user config"
+        )
+
+    if not git_repo and not pyproject_config.get("project"):
+        recommendations.append(
+            "Initialize git repository or set project explicitly for auto-detection"
+        )
+
+    if recommendations:
+        for rec in recommendations:
+            console.print(f"   [yellow]💡[/] {rec}")
+    else:
+        console.print("   [green]✓[/] Configuration looks good!")
+
+    console.print()
+
+    # Summary
+    console.print(
+        Panel(
+            f"[bold]Configuration Check Complete[/]\n\n"
+            f"Project: [cyan]{detected_project or 'Not detected'}[/cyan]\n"
+            f"User: [cyan]{detected_user}[/cyan]",
+            style="green" if detected_project else "yellow",
+        )
+    )
+    console.print()
+

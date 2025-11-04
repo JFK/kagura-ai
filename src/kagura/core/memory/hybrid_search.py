@@ -21,7 +21,7 @@ Example:
 """
 
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 
@@ -186,7 +186,8 @@ def apply_time_decay(
 
     Args:
         results: Search results with 'score' and 'created_at' fields
-        decay_days: Half-life for time decay (default: 30.0 days)
+        decay_days: Time constant for exponential decay (default: 30.0 days)
+            At decay_days, memories decay by ~63% (1 - 1/e), not 50%
 
     Returns:
         Results with time-decayed scores, re-sorted by new scores
@@ -206,7 +207,7 @@ def apply_time_decay(
         - Higher decay_days = weaker recency bias
         - If 'created_at' is missing, assumes current time (no decay)
     """
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     decayed_results = []
 
     for result in results:
@@ -235,7 +236,13 @@ def apply_time_decay(
         decay_factor = math.exp(-days_old / decay_days)
 
         # Get original score (try multiple field names)
-        original_score = result.get("score", 0.0) or result.get("rrf_score", 0.0)
+        # Use explicit None checking to handle score=0.0 correctly
+        score = result.get("score")
+        if score is not None:
+            original_score = score
+        else:
+            rrf_score = result.get("rrf_score")
+            original_score = rrf_score if rrf_score is not None else 0.0
 
         # Apply decay
         result_copy["score"] = original_score * decay_factor

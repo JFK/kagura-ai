@@ -7,9 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.0.11] - 2025-11-04
+## [Unreleased]
 
 ### ✨ Added
+
+#### Auto-detect Project & User (#536)
+- **Smart Defaults**: Auto-detect project and user for coding commands
+  - Project detection priority: env var → pyproject.toml → git repo name → git directory
+  - User detection priority: env var → pyproject.toml → git user.name → default (kiyota)
+  - **Zero configuration** for most use cases (works in any git repository)
+  - `kagura coding doctor` - New command to check auto-detection status
+
+- **pyproject.toml Support**: Configure via `[tool.kagura]` section
+  ```toml
+  [tool.kagura]
+  project = "your-project"
+  user = "your-username"
+  enable_reranking = true
+  ```
+
+### 🔧 Changed
+
+#### Configuration Loading
+- `KAGURA_ENABLE_RERANKING` now loads from pyproject.toml and environment
+- Seamless multi-repository workflows (no need to change env vars per repo)
+- Backward compatible: Environment variables still work (highest priority)
+
+### 📝 Documentation
+
+- Added auto-detection documentation
+- Updated coding command help texts
+- Added pyproject.toml configuration examples
+
+---
+
+## [4.0.11] - 2025-11-04
+
+### 🐛 Fixed
+
+#### Intel Mac (x86_64) Installation (#533)
+- **Critical**: Fixed installation failure on Intel Mac due to PyTorch compatibility
+  - Cap `torch` at `<2.3` (last version with Intel Mac x86_64 wheels)
+  - Cap `sentence-transformers` at `<5.2` to ensure compatible torch version
+  - Cap `numpy` at `<2.0` for torch 2.2.2 compatibility
+  - **Impact**: Eliminates mandatory NVIDIA CUDA dependencies (~12 packages, several GB)
+  - **Benefit**: All CPU-only users get smaller installation size
+  - **Limitation**: Python 3.13 not supported on Intel Mac (torch 2.2.2 lacks Python 3.13 wheels for macOS x86_64)
+
+### ✨ Added
+
+#### Python 3.13 Support (#532)
+- **Official Python 3.13 support** (Linux, Windows, macOS Apple Silicon)
+  - Added Python 3.13 classifier to `pyproject.toml`
+  - CI now tests Python 3.11, 3.12, and 3.13 in parallel
+  - **Note**: Intel Mac (x86_64) users must use Python 3.11 or 3.12 for AI features
+  - **Core features** (MCP, CLI, API) work with Python 3.13 on all platforms
 
 #### RAG Performance Improvements (#525 - Quick Wins)
 - **Time-decay boosting**: Recent memories automatically ranked higher
@@ -23,25 +75,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🔧 Changed
 
 #### RAG Defaults (#525)
-- **Reranking enabled by default** (was disabled!)
-  - `RerankConfig.enabled` changed from `False` to `True`
-  - Expected impact: +10-15% precision improvement out-of-the-box
-  - Latency: +50-100ms (acceptable for MCP)
-  - Model: `cross-encoder/ms-marco-MiniLM-L-6-v2`
 - **BM25 parameters optimized** for short texts
   - k1: 1.5 → 1.2 (reduced term frequency saturation)
   - b: 0.75 → 0.4 (reduced length normalization)
   - Expected impact: +2-5% precision improvement
   - Rationale: Memory entries are typically short (< 100 words)
+  - Note: Reranking remains disabled by default for offline compatibility
 
 ### 📈 Performance
 
-**Total Expected Improvement**: +15-27% RAG precision
-- Reranking: +10-15%
+**Expected Improvement**: +5-12% RAG precision
 - BM25 optimization: +2-5%
 - Time-decay: +3-7%
-
-**Latency Impact**: +50-100ms (reranking only, one-time model download)
 
 ### 📝 Documentation
 

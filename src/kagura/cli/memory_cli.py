@@ -1012,25 +1012,53 @@ def index_command(
         console.print()
 
     try:
-        # Create MemoryManager
-        manager = MemoryManager(
-            user_id=user_id or "system",
-            agent_name=agent_name or "indexer",
-            enable_rag=True,
-        )
+        # Get all user_ids if not specified
+        if user_id is None:
+            import sqlite3
 
-        # Get all persistent memories
-        memories = manager.persistent.fetch_all(
-            user_id=user_id or "system",
-            agent_name=agent_name,
-            limit=100000,
-        )
+            from kagura.config.paths import get_data_dir
 
-        if not memories:
+            db_path = get_data_dir() / "memory.db"
+            conn = sqlite3.connect(db_path)
+            cursor = conn.execute("SELECT DISTINCT user_id FROM memories")
+            user_ids = [row[0] for row in cursor.fetchall()]
+            conn.close()
+
+            if not user_ids:
+                console.print("[yellow]No memories found to index[/yellow]")
+                return
+        else:
+            user_ids = [user_id]
+
+        # Collect memories from all users
+        all_memories = []
+        for uid in user_ids:
+            manager = MemoryManager(
+                user_id=uid,
+                agent_name=agent_name or "indexer",
+                enable_rag=True,
+            )
+
+            memories = manager.persistent.fetch_all(
+                user_id=uid,
+                agent_name=agent_name,
+                limit=100000,
+            )
+            all_memories.extend(memories)
+
+        if not all_memories:
             console.print("[yellow]No memories found to index[/yellow]")
             return
 
-        console.print(f"Found {len(memories)} memories to index")
+        console.print(f"Found {len(all_memories)} memories across {len(user_ids)} user(s) to index")
+        memories = all_memories
+
+        # Use first user's manager for indexing
+        manager = MemoryManager(
+            user_id=user_ids[0],
+            agent_name=agent_name or "indexer",
+            enable_rag=True,
+        )
         console.print()
 
         if rebuild and manager.persistent_rag:
@@ -1222,9 +1250,9 @@ def doctor_command(user_id: str | None) -> None:
     # Reranking status
     console.print("[bold cyan]4. Reranking Status[/]")
 
-    import os
+    from kagura.config.project import get_reranking_enabled
 
-    reranking_enabled = os.getenv("KAGURA_ENABLE_RERANKING", "").lower() == "true"
+    reranking_enabled = get_reranking_enabled()
 
     # Check sentence-transformers installation and model availability
     try:

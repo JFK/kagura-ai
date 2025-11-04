@@ -57,8 +57,12 @@ class RerankConfig(BaseModel):
     """
 
     enabled: bool = Field(
-        default=True,
-        description="Enable reranking (requires sentence-transformers, slow first run)",
+        default=False,  # Conservative default: avoid crashes in offline/restricted envs
+        description=(
+            "Enable reranking (requires sentence-transformers, slow first run). "
+            "Recommended for +10-15% precision, but may fail in offline environments. "
+            "Enable with: config.rerank.enabled = True or KAGURA_ENABLE_RERANKING=true"
+        ),
     )
     model: str = Field(
         default="cross-encoder/ms-marco-MiniLM-L-6-v2",
@@ -92,7 +96,8 @@ class RecallScorerConfig(BaseModel):
         recency_decay_days: Days until memory importance decays by ~63% (exp decay)
         frequency_saturation: Access count at which frequency score saturates
         enable_time_decay: Apply exponential time decay to search results (v4.0.11)
-        time_decay_days: Half-life for time decay in days (v4.0.11)
+        time_decay_days: Time constant for exponential decay in days (v4.0.11)
+            At this value, memories decay by ~63% (1 - 1/e), not 50%
     """
 
     weights: dict[str, float] = Field(
@@ -218,10 +223,11 @@ class MemorySystemConfig(BaseModel):
 
     def model_post_init(self, __context) -> None:
         """Post-initialization hook to apply environment variables"""
-        import os
 
-        # Check environment variable for reranking
-        if os.environ.get("KAGURA_ENABLE_RERANKING", "").lower() == "true":
+        # Check reranking config (env var + pyproject.toml + .env)
+        from kagura.config.project import get_reranking_enabled
+
+        if get_reranking_enabled():
             self.rerank.enabled = True
 
     @classmethod
