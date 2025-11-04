@@ -1,8 +1,92 @@
-# Claude Code Instructions - Kagura AI v4.0
+# Claude Code Instructions - Kagura AI v4.0.9
 
-AI開発者向けの開発ガイド。v4.0: Universal AI Memory Platform
+AI開発者向けの開発ガイド。v4.0.9: CLI Inspection, Source Code RAG, Claude Code Integration
 
-**Phase C Complete** (Oct 2025) - Remote MCP Server + Export/Import ✅
+**v4.0.9 Complete** (Nov 2025) - Session Auto-save, Code RAG, MCP Monitor ✅
+
+---
+
+## 🤖 For AI Assistants (Claude Code, Cursor, etc.)
+
+### Kagura Coding Session Auto-Management Protocol
+
+**IMPORTANT**: すべての開発作業でKagura Coding Sessionを使用してください。
+
+#### 🚀 Auto-start Criteria (自動でセッション開始)
+
+以下の場合、**必ず**セッションを開始:
+- ユーザーが機能実装を依頼
+- バグ修正を依頼
+- コード変更を伴うタスク
+- Issue番号が含まれる依頼
+
+**開始方法:**
+\`\`\`python
+coding_start_session(
+    user_id="kiyota",
+    project_id="kagura-ai",
+    description="[User's task description]",
+    tags='["feature", "bug-fix", etc.]'
+)
+\`\`\`
+
+#### 📝 Auto-track Criteria (自動で記録)
+
+作業中、以下を**必ず**記録:
+- ファイル編集/作成 → `coding_track_file_change()`
+- エラー修正 → `coding_record_error()`
+- 設計決定 → `coding_record_decision()`
+
+**注意**: v4.0.9以降、これらはactive session必須です。
+
+#### ✅ Auto-checkpoint (自動保存)
+
+- ファイル変更ごとに自動保存される（v4.0.9）
+- 手動チェックポイント: `coding_get_current_session_status()`
+
+#### 🏁 Auto-end Criteria (自動で終了)
+
+以下の場合、セッションを終了:
+- タスク完了
+- ユーザーが満足
+- 次の変更予定なし
+
+**終了方法:**
+\`\`\`python
+# ユーザーに確認してから:
+coding_end_session(
+    user_id="kiyota",
+    project_id="kagura-ai",
+    success='true',
+    save_to_github='true'  # GitHub Issueに記録
+)
+\`\`\`
+
+#### 💡 Example Auto-flow
+
+\`\`\`
+User: "Issue #510のバグを修正して"
+
+Claude (自動実行):
+1. 🤖 coding_start_session(description="Fix Issue #510 bug", tags=["bug-fix", "issue-510"])
+2. [コード調査・修正]
+3. 🤖 coding_track_file_change(file="src/memory.py", action="edit", reason="Fix #510")
+4. 🤖 coding_record_error(error_type="AttributeError", solution="Added None check")
+5. [テスト確認]
+6. User: "動いた！"
+7. 🤖 "セッションを終了しますか？" (確認)
+8. User: "はい"
+9. 🤖 coding_end_session(success='true', save_to_github='true')
+
+Result: Issue #510に包括的なサマリーが自動投稿される
+\`\`\`
+
+#### ⚠️ Important Notes
+
+- **Session必須**: track/record toolsはactive session必須（v4.0.9+）
+- **確認必須**: end_session前にユーザー確認を取る
+- **Auto-save**: ファイル変更ごとに進捗が自動保存される
+- **検索可能**: 過去のセッションは`claude_code_search_past_work()`で検索可能
 
 ---
 
@@ -72,21 +156,65 @@ gh pr merge [PR番号] --squash
 
 ---
 
-## 🔄 作業フロー
+## 🔄 作業フロー（Kagura Coding Session推奨）
 
 ```
 1. Issue作成（必須）
    ↓
 2. ブランチ作成（GitHub Issue経由）
    ↓
-3. 実装（TDD推奨）
+3. 🆕 Coding Session開始（Kagura MCP）
+   coding_start_session(
+       user_id="kiyota",
+       project_id="kagura-ai",
+       description="Implement Issue #XXX: ..."
+   )
    ↓
-4. テスト（pytest, pyright, ruff）
+4. 実装（TDD推奨）
+   ├─ 重要な会話を記録: coding_track_interaction()
+   ├─ ファイル変更を記録: coding_track_file_change()
+   ├─ 設計決定を記録: coding_record_decision()
+   └─ エラーを記録: coding_record_error()
    ↓
-5. Draft PR作成
+5. テスト（pytest, pyright, ruff）
    ↓
-6. CI通過 → Ready → Merge
+6. 🆕 Session終了 & GitHub記録
+   coding_end_session(
+       success=True,
+       save_to_github=True  # GitHub Issueに自動記録
+   )
+   ↓
+7. Draft PR作成
+   ↓
+8. CI通過 → Ready → Merge
 ```
+
+**💡 Coding Session のメリット:**
+- ✅ 作業内容が自動的にKaguraメモリーに保存
+- ✅ 重要な決定・エラー解決法が検索可能に
+- ✅ GitHub Issueに包括的サマリーを自動投稿
+- ✅ セッション間でコンテキストが保持される
+- ✅ `kagura coding sessions`でいつでも過去の作業を確認可能
+
+### 🔍 過去の作業を参照（v4.0.8+）
+
+実装開始前に、Kaguraメモリーから過去の知識を取得:
+
+```bash
+# 最近のセッション確認
+kagura coding sessions --project kagura-ai --limit 10
+
+# 過去の設計決定を確認
+kagura coding decisions --project kagura-ai --tag architecture
+
+# 似たようなエラーの解決法を検索
+kagura coding errors --project kagura-ai --type TypeError
+
+# セマンティック検索
+kagura coding search --project kagura-ai --query "memory integration"
+```
+
+**重要**: Claudeの一時的なコンテキストだけに頼らず、**Kaguraメモリーを積極的に活用**してください。
 
 ---
 
@@ -194,9 +322,23 @@ gh pr merge [PR番号] --squash
 
 ## 🚨 エラー発生時
 
-1. **エラー内容を記録**（全文・スタックトレース）
-2. **Issueにコメント**
-3. **人間の指示を待つ**（推測で進めない）
+1. **🆕 Kaguraメモリーで過去の解決法を検索**
+   ```bash
+   kagura coding errors --project kagura-ai --type {ErrorType}
+   kagura coding search --project kagura-ai --query "{error message}"
+   ```
+
+2. **エラーをCoding Memoryに記録**
+   ```python
+   coding_record_error(
+       error_type="TypeError",
+       message="...",
+       solution="...",  # 解決後に追加
+   )
+   ```
+
+3. **Issueにコメント**（または`save_to_github=True`で自動記録）
+
 4. **解決後にドキュメント更新**
 
 ---

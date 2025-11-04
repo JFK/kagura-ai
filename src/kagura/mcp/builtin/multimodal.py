@@ -12,22 +12,33 @@ from kagura import tool
 
 
 @tool
-async def multimodal_index(directory: str, collection_name: str = "default") -> str:
-    """Index multimodal files (images, PDFs, audio)
+async def multimodal_index(
+    directory: str, collection_name: str = "default", language: str = "en"
+) -> str:
+    """Index multimodal files (images, PDFs, audio) with language support.
 
     Args:
         directory: Directory path to index
         collection_name: RAG collection name
+        language: Content language ("en" or "ja") for transcription/analysis
 
     Returns:
         Indexing status or error
+
+    Example:
+        # English content
+        multimodal_index("/path/to/docs")
+
+        # Japanese content
+        multimodal_index("/path/to/docs", language="ja")
     """
     try:
         from kagura.core.memory import MultimodalRAG
 
         rag = MultimodalRAG(directory=Path(directory), collection_name=collection_name)
 
-        await rag.build_index()
+        # Build index with language support
+        await rag.build_index(language=language)
 
         return f"Indexed directory '{directory}' into collection '{collection_name}'"
     except ImportError:
@@ -41,18 +52,30 @@ async def multimodal_index(directory: str, collection_name: str = "default") -> 
 
 @tool
 def multimodal_search(
-    directory: str, query: str, collection_name: str = "default", k: int = 3
+    directory: str,
+    query: str,
+    collection_name: str = "default",
+    k: int = 3,
+    language: str = "en",
 ) -> str:
-    """Search multimodal content
+    """Search multimodal content with language support.
 
     Args:
         directory: Directory path (required for initialization)
-        query: Search query
+        query: Search query (in English or Japanese)
         collection_name: RAG collection name
         k: Number of results
+        language: Query/response language ("en" or "ja")
 
     Returns:
         JSON string of search results or error
+
+    Example:
+        # English search
+        multimodal_search("/docs", "authentication flow")
+
+        # Japanese search
+        multimodal_search("/docs", "認証の仕組み", language="ja")
     """
     # Ensure k is int (LLM might pass as string)
     if isinstance(k, str):

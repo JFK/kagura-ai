@@ -1,7 +1,7 @@
 # Kagura AI - Universal AI Memory Platform
 
 <p align="center">
-  <img src="docs/assets/kagura-logo.svg" alt="Kagura AI Logo" width="400">
+  <img src="https://raw.githubusercontent.com/JFK/kagura-ai/main/docs/assets/kagura-logo.svg" alt="Kagura AI Logo" width="400">
 </p>
 
 <p align="center">
@@ -14,7 +14,7 @@
   <a href="https://pypi.org/project/kagura-ai/"><img src="https://img.shields.io/pypi/v/kagura-ai.svg" alt="PyPI version"></a>
   <a href="https://pypi.org/project/kagura-ai/"><img src="https://img.shields.io/pypi/dm/kagura-ai.svg" alt="Downloads"></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/protocol-MCP-blue.svg" alt="MCP"></a>
-  <img src="https://img.shields.io/badge/status-beta-yellow.svg" alt="Status">
+  <img src="https://img.shields.io/badge/status-stable-green.svg" alt="Status">
 </p>
 
 **Kagura** is an open-source **MCP-enabled memory platform** that allows your **context and memories** to be **shared across** Claude, ChatGPT, Gemini, and all your AI agents.
@@ -73,7 +73,8 @@ Give **every AI** access to:
 **For developers**:
 - 🔌 **REST API**: Query memory from any agent, any language
 - 🐍 **Python SDK**: Build AI agents with unified memory access
-- 📦 **MCP Tools**: 34 built-in tools for Claude, Cursor, Cline
+- 📦 **MCP Tools**: 56 built-in tools (15 Memory + 15 Coding + 6 GitHub + 5 Brave + 4 YouTube + 11 others)
+- 🧠 **Neural Memory**: Hebbian learning, activation spreading, adaptive associations
 - 🛠️ **Extensible**: Custom connectors, workflows, integrations
 
 **One memory. Every AI. Every developer.**
@@ -89,13 +90,29 @@ Give **every AI** access to:
 - 📊 **Insights**: Visualize your learning patterns
 
 ### For Developers
-- 💻 **"Vibe Coding" memory**: Track coding patterns, GitHub integration
+- 🧠 **Neural Memory Network (NEW v4.0)**:
+  - Hebbian learning-based adaptive memory
+  - Activation spreading (1-3 hop graph propagation)
+  - Trust-modulated learning (poisoning defense)
+  - GDPR-compliant with automatic forgetting
+  - Research-backed: Hopfield Networks, kNN-LM, RETRO
+- 💻 **Coding-Specialized Memory (v4.0)**:
+  - Track file changes, errors, design decisions
+  - AI-powered session summaries with cost tracking
+  - Automatic dependency analysis (AST-based)
+  - Refactoring impact assessment
+  - **14 MCP tools** for Claude Code, Cursor, etc.
+- 🔧 **GitHub CLI Integration (v4.0)**:
+  - Safe shell execution with danger detection
+  - Issue/PR operations via MCP (6 tools)
+  - Automatic confirmation for dangerous commands
+  - Working directory support for all shell operations
 - 🔌 **MCP-native**: Works with Claude Desktop, Cursor, Cline, etc.
 - 🐍 **Python SDK**: Build agents that share memory across platforms
 - 🌐 **REST API**: Access memory from any language, any agent
 - 🔗 **Agent orchestration**: Your custom agents can reference each other's memory
 - 🛠️ **Extensible**: Custom connectors, tools, workflows
-- 📦 **Production-ready**: Docker, API, full test coverage (1,400+ tests)
+- 📦 **Production-ready**: Docker, API, full test coverage (1,450+ tests)
 
 ### For Teams(Coming in v4.2)
 - 👥 **Shared knowledge**: Team-wide memory
@@ -106,7 +123,7 @@ Give **every AI** access to:
 
 ## ✅ v4.0 Status - Phase A/B/C Complete ✨
 
-**Current**: v4.0.0 (stable release candidate) - Universal AI Memory Platform
+**Current**: v4.0.9 (stable release) - Universal AI Memory Platform
 
 **Phase A/B/C Complete** - All v4.0 core features are production-ready:
 - ✅ **Phase A**: MCP-First Foundation ([#364](https://github.com/JFK/kagura-ai/issues/364))
@@ -136,13 +153,64 @@ Give **every AI** access to:
 **Test Coverage**: 1,451+ tests passing | 90%+ coverage
 
 **What's Next**:
-- 🎯 **v4.0.0 stable** (November 2025): Final release & documentation
+- 🎯 **v4.0.0 stable** (October 2025): Final release & documentation
 - 🔜 **v4.1.0** (Q2 2026): Smart Forgetting, Auto-recall, PostgreSQL backend
 - 🔜 **v4.2.0** (Q3-Q4 2026): Cloud SaaS, Enterprise features
 
 ---
 
 ## 🚀 Quick Start
+
+### Quick Start: Chat Integration ⭐ RECOMMENDED
+
+**Use Kagura with ChatGPT, Claude Chat, or any AI platform**
+
+#### ChatGPT (via Remote MCP)
+```bash
+# 1. Start Kagura Remote MCP
+docker compose -f docker-compose.prod.yml up -d
+
+# 2. Configure ChatGPT
+#    Settings → Tools → Add MCP Server
+#    URL: https://your-domain.com/mcp
+
+# 3. Try it!
+"Hello! Run memory_stats to show Kagura status"
+"Remember that I prefer Python for backend projects"
+```
+
+**See**: [Chat Integration Tips](docs/chat-integration-tips.md) | [ChatGPT Workflows](docs/examples/chatgpt-workflow.md)
+
+#### Claude Desktop (Local MCP)
+```bash
+# 1. Install & Configure
+kagura mcp install
+
+# 2. Restart Claude Desktop
+
+# 3. Try it!
+"Remember permanently: I prefer FastAPI over Django"
+"What do you know about my preferences?"
+```
+
+**See**: [Claude Desktop Setup](docs/mcp-setup.md) | [Claude Workflows](docs/examples/claude-workflow.md)
+
+#### Claude Code (Local MCP)
+```bash
+# 1. Add MCP Server
+claude mcp add --transport stdio kagura -- kagura mcp serve
+
+# 2. Verify
+claude mcp list  # Should show: kagura ✓ Connected
+
+# 3. Try it!
+"Start coding session for 'implement authentication'"
+"Track file changes and generate AI summary"
+```
+
+**See**: [Claude Code Setup](docs/mcp-claude-code-setup.md)
+
+---
 
 ### Option 1: v3.0 SDK(Current Stable)
 
@@ -189,6 +257,21 @@ kagura mcp serve
 ```
 
 **See**: [MCP Setup Guide](docs/mcp-setup.md)
+
+### Option 3b: MCP with Claude Code (v4.0.0) ⭐ NEW
+
+```bash
+# Install Kagura
+pip install kagura-ai[full]
+
+# Add to Claude Code
+claude mcp add --transport stdio kagura -- kagura mcp serve
+
+# Verify
+claude mcp list
+```
+
+**See**: [Claude Code MCP Setup](docs/mcp-claude-code-setup.md)
 
 ### Option 4: Self-Hosted Production (v4.0.0) ⭐ NEW
 
@@ -486,7 +569,7 @@ export KAGURA_CONFIG_DIR=/custom/config/path
 - **User Pattern Analysis** (Interaction tracking, topic analysis) ✅
 - **Documentation** (Getting Started, API Reference, MCP Setup) ✅
 
-### 🎯 v4.0.0 (Stable - November 2025)
+### 🎯 v4.0.0 (Stable - October 2025)
 **Status**: Phase A/B/C Complete - Ready for stable release
 
 **Core Features** (All Complete):

@@ -135,21 +135,69 @@ def dir_list(path: str = ".", pattern: str = "*") -> str:
 
 
 @tool
-async def shell_exec(command: str) -> str:
-    """Execute shell command safely
+async def shell_exec(
+    command: str,
+    working_dir: str = ".",
+    force: bool = False,
+    return_code: bool = False,
+) -> str:
+    """Generate Python code for shell command (does NOT execute directly).
+
+    Returns implementation code instead of executing. Allows review before running.
 
     Args:
-        command: Shell command
+        command: Shell command to show implementation for
+        working_dir: Working directory context
+        force: Whether safety checks would be skipped (for documentation)
+        return_code: If True, return executable code; if False, return explanation
 
     Returns:
-        Command output or error message
+        Python implementation code or safety explanation
+
+    Examples:
+        # Get explanation
+        shell_exec("gh issue view 348")
+
+        # Get executable code
+        shell_exec("ls -la", return_code=True)
     """
-    try:
-        from kagura.core.shell import ShellExecutor
+    from kagura.core.shell_safety import check_command_safety
 
-        executor = ShellExecutor()
-        result = await executor.exec(command)
+    safety = await check_command_safety(command)
 
-        return result.stdout if result.stdout else result.stderr
-    except Exception as e:
-        return f"Error executing command: {e}"
+    if return_code:
+        # Return executable Python code
+        return f"""import subprocess
+result = subprocess.run(
+    {repr(command)},
+    shell=True,
+    cwd={repr(working_dir)},
+    capture_output=True,
+    text=True
+)
+print(result.stdout if result.returncode == 0 else result.stderr)
+"""
+
+    # Return explanation with safety analysis
+    explanation = f"""# Command: {command}
+# Working Dir: {working_dir}
+# Safety: {safety.level.value}
+
+{safety.reasoning}
+
+## Python Implementation
+```python
+import subprocess
+result = subprocess.run({repr(command)}, shell=True, cwd={repr(working_dir)},
+                       capture_output=True, text=True)
+print(result.stdout if result.returncode == 0 else result.stderr)
+```
+"""
+
+    if safety.risks:
+        explanation += "\n## Risks\n" + "\n".join(f"- {r}" for r in safety.risks)
+
+    if safety.safe_alternative:
+        explanation += f"\n\n## Safer: {safety.safe_alternative}"
+
+    return explanation

@@ -19,6 +19,11 @@ from .lazy import LazyGroup
             "init",
             "Setup user preferences (name, location, topics)",
         ),
+        "doctor": (
+            "kagura.cli.doctor",
+            "doctor",
+            "Run comprehensive system health check",
+        ),
         "chat": (
             "kagura.cli.chat",
             "chat",
@@ -48,6 +53,16 @@ from .lazy import LazyGroup
             "kagura.cli.memory_cli",
             "memory_group",
             "Memory management commands",
+        ),
+        "coding": (
+            "kagura.cli.coding_cli",
+            "coding",
+            "Coding memory inspection commands",
+        ),
+        "telemetry": (
+            "kagura.cli.telemetry_cli",
+            "telemetry_group",
+            "Telemetry and usage analysis commands",
         ),
         "config": (
             "kagura.cli.config_cli",

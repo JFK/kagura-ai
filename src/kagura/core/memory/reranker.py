@@ -99,6 +99,7 @@ class MemoryReranker:
             ImportError: If sentence-transformers is not installed
         """
         import logging
+
         logger = logging.getLogger(__name__)
 
         self.config = config or RerankConfig()
@@ -107,6 +108,7 @@ class MemoryReranker:
         try:
             logger.debug("MemoryReranker: Importing sentence_transformers...")
             from sentence_transformers import CrossEncoder
+
             logger.debug("MemoryReranker: sentence_transformers imported")
 
             logger.debug(f"MemoryReranker: Loading CrossEncoder '{self.config.model}'")

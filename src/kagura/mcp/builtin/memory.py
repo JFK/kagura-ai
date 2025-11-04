@@ -6,7 +6,7 @@ Exposes Kagura's memory management features via MCP.
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from kagura import tool
 
@@ -35,10 +35,12 @@ def _get_memory_manager(
         Cached or new MemoryManager instance
     """
     import logging
+
     logger = logging.getLogger(__name__)
 
     logger.debug("_get_memory_manager: Importing MemoryManager...")
     from kagura.core.memory import MemoryManager
+
     logger.debug("_get_memory_manager: MemoryManager imported successfully")
 
     cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
@@ -46,6 +48,11 @@ def _get_memory_manager(
 
     if cache_key not in _memory_cache:
         logger.debug(f"_get_memory_manager: Creating MemoryManager rag={enable_rag}")
+        if enable_rag:
+            logger.info(
+                f"First-time RAG initialization for {agent_name}. "
+                "Downloading embeddings model (~500MB, may take 30-60s)..."
+            )
         _memory_cache[cache_key] = MemoryManager(
             user_id=user_id, agent_name=agent_name, enable_rag=enable_rag
         )
@@ -59,75 +66,51 @@ def _get_memory_manager(
 @tool
 async def memory_store(
     user_id: str,
-    agent_name: str,
     key: str,
     value: str,
-    scope: str = "working",
+    agent_name: str = "global",
+    scope: str = "persistent",
     tags: str = "[]",
     importance: float = 0.5,
     metadata: str = "{}",
 ) -> str:
-    """Store information in agent memory
+    """Store information in agent memory.
 
-    ⚠️ BEFORE CALLING THIS TOOL: Always ask the user whether they want to store
-    the memory globally (accessible from all conversations) or locally (only this
-    conversation). Never assume without asking!
-
-    Question to ask user:
-    "Should I remember this globally (accessible from all conversations) or just
-    for this conversation?"
-
-    Stores data in the specified memory scope. Use this tool when:
-    - User explicitly asks to 'remember' or 'save' something
-    - Important context needs to be preserved
-    - User preferences or settings should be stored
-
-    💡 IMPORTANT: Memory ownership model (v4.0)
-    - user_id: WHO owns this memory (e.g., "user_jfk", email, username)
-    - agent_name: WHERE to store
-      * "global" = ALL conversations (user preferences, facts)
-      * "thread_{id}" = ONLY this conversation (temporary context)
-
-    🌐 CROSS-PLATFORM: All memories are tied to user_id, enabling
-        true Universal Memory across Claude, ChatGPT, Gemini, etc.
-
-    Examples:
-        # Global memory (accessible from ALL conversations)
-        agent_name="global", key="user_language", value="Japanese",
-        tags='["preferences"]'
-
-        # Thread-specific memory (ONLY this conversation)
-        agent_name="thread_chat_123", key="current_topic",
-        value="Python tutorial", importance=0.8
+    When: User asks to remember/save something.
+    Defaults: agent_name="global", scope="persistent" (v4.0.10)
 
     Args:
-        user_id: User identifier (memory owner)
-        agent_name: ⚠️ CRITICAL CHOICE - Ask user first!
-            - "global": Accessible from ALL conversations (use for preferences,
-              user facts, long-term knowledge)
-            - "thread_{thread_id}": Only THIS conversation (use for temporary
-              context, current task state)
-        key: Memory key for retrieval
-        value: Information to store
-        scope: Memory scope - "persistent" (disk, survives restart)
-            or "working" (in-memory, cleared on restart)
-        tags: JSON array string of tags (e.g., '["python", "coding"]')
-        importance: Importance score (0.0-1.0, default 0.5)
-        metadata: JSON object string of additional metadata
-            (e.g., '{"project": "kagura"}')
+        user_id: Memory owner ID
+        key: Memory key
+        value: Info to store
+        agent_name: "global" (all conversations) or "thread_{id}" (this conversation only)
+        scope: "persistent" (disk) or "working" (RAM, cleared on restart)
+        tags: JSON array '["tag1"]' (optional)
+        importance: 0.0-1.0 (default: 0.5)
+        metadata: JSON object (optional)
 
-    Returns:
-        Confirmation message with clear indication of storage scope
+    Returns: Confirmation with storage scope
 
-    Note:
-        Both working and persistent memory data are automatically indexed in RAG
-        for semantic search. Use memory_search() to find data stored with this function.
+    💡 TIP: Use defaults for user preferences. Override for temporary data.
+    🌐 Cross-platform: Memories shared across Claude, ChatGPT, Gemini via user_id.
     """
     # Always enable RAG for both working and persistent memory
     enable_rag = True
 
     try:
+        cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
+        is_first_init = cache_key not in _memory_cache
+
+        # If first initialization, this may download embeddings model (~500MB)
+        # which can take 30-60 seconds
+        if is_first_init:
+            # Note: We can't send intermediate progress via MCP tool return value,
+            # but we can include a notice in the final response
+            pass
+
         memory = _get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
+        initialization_note = " (initialized embeddings)" if is_first_init else ""
+
     except ImportError:
         # If RAG dependencies not available, create without RAG
         # But keep enable_rag=True for cache key consistency
@@ -139,6 +122,10 @@ async def memory_store(
                 user_id=user_id, agent_name=agent_name, enable_rag=False
             )
         memory = _memory_cache[cache_key]
+        initialization_note = ""
+    except Exception as e:
+        # Catch any initialization errors (timeouts, download failures, etc.)
+        return f"[ERROR] Failed to initialize memory: {str(e)[:200]}"
 
     # Parse tags and metadata from JSON strings
     try:
@@ -219,12 +206,13 @@ async def memory_store(
     scope_badge = "global" if agent_name == "global" else "local"
     rag_badge = "RAG:OK" if rag_available else "RAG:NO"
 
-    return f"[OK] Stored: {key} ({scope}, {scope_badge}, {rag_badge})"
+    result = f"[OK] Stored: {key} ({scope}, {scope_badge}, {rag_badge})"
+    return result + initialization_note
 
 
 @tool
 async def memory_recall(
-    user_id: str, agent_name: str, key: str, scope: str = "working"
+    user_id: str, agent_name: str, key: str, scope: str = "persistent"
 ) -> str:
     """Recall information from agent memory
 
@@ -310,48 +298,23 @@ async def memory_search(
     scope: str = "all",
     mode: str = "full",
 ) -> str:
-    """Search agent memory using semantic RAG and key-value memory
+    """Search memories by concept/keyword match.
 
-    Search stored memories using semantic similarity and keyword matching.
-    Use this tool when:
-    - User asks about topics discussed before but doesn't specify exact key
-    - Need to find related memories without exact match
-    - Exploring what has been remembered about a topic
-
-    💡 IMPORTANT: Memory ownership model (v4.0)
-    - user_id: WHO owns these memories (searches only this user's data)
-    - agent_name: WHERE to search ("global" = all threads, "thread_X" = specific)
-
-    🌐 CROSS-PLATFORM: Searches are scoped by user_id, enabling
-        cross-platform memory search across all AI tools.
-
-    Examples:
-        # Search global memory for user
-        user_id="user_jfk", agent_name="global", query="user preferences"
-
-        # Search thread memory
-        user_id="user_jfk", agent_name="thread_chat_123", query="topics we discussed"
+    When: User recalls topic but not exact key.
+    Combines: Semantic (RAG) + keyword matching across all memory.
 
     Args:
-        user_id: User identifier (memory owner)
-        agent_name: Agent identifier (determines which memory space to search)
-        query: Search query (semantic and keyword matching)
-        k: Number of results from RAG per scope
-            (default: 3, reduced from 5 for token efficiency)
-        scope: Memory scope to search ("working", "persistent", or "all")
-        mode: Output mode - "summary" (compact, token-efficient) or
-            "full" (complete JSON, default for backward compatibility)
+        user_id: Memory owner ID
+        agent_name: "global" or "thread_{id}"
+        query: Search query (natural language)
+        k: Results per scope (default: 3)
+        scope: "all"|"working"|"persistent" (default: "all")
+        mode: "summary" (compact) or "full" (JSON, default)
 
-    Returns:
-        Search results in the specified format:
-        - summary mode: Compact text format with previews (~200 tokens)
-        - full mode: Complete JSON with all data (~1000 tokens)
+    Returns: Search results (RAG + key-value)
 
-    Note:
-        Searches data stored via memory_store() in:
-        - RAG (semantic search across working/persistent/all)
-        - Working memory (key-value, exact/partial key matches)
-        Results include "source" and "scope" fields.
+    💡 TIP: Searches by meaning, not exact words.
+    🌐 Cross-platform: Searches user's data across all AI tools.
     """
     # Ensure k is int (LLM might pass as string)
     if isinstance(k, str):
@@ -1172,6 +1135,7 @@ async def memory_stats(
         JSON with statistics and recommendations
     """
     import logging
+
     logger = logging.getLogger(__name__)
 
     logger.debug(f"memory_stats: Starting for user={user_id}, agent={agent_name}")
@@ -1202,6 +1166,7 @@ async def memory_stats(
         # Analyze old memories (>90 days)
         logger.debug("memory_stats: Analyzing old memories")
         from datetime import datetime, timedelta
+
         old_threshold = datetime.now() - timedelta(days=90)
         old_count = 0
         for mem in persistent_mems:
@@ -1426,3 +1391,510 @@ async def memory_fetch(
     """
     # Delegate to memory_recall
     return await memory_recall(user_id, agent_name, key, scope)
+
+
+@tool
+async def memory_search_hybrid(
+    user_id: str,
+    agent_name: str,
+    query: str,
+    keyword_weight: str = "0.4",
+    semantic_weight: str = "0.6",
+    scope: str = "persistent",
+    k: str = "10",
+) -> str:
+    """Search agent memory using hybrid approach (keyword + semantic).
+
+    Combines BM25 keyword search with RAG semantic search for better recall.
+    Uses Reciprocal Rank Fusion (RRF) to merge results.
+
+    Args:
+        user_id: User identifier (memory owner)
+        agent_name: Agent identifier
+        query: Search query (any language)
+        keyword_weight: Weight for BM25 keyword search (0.0-1.0, default: 0.4)
+        semantic_weight: Weight for RAG semantic search (0.0-1.0, default: 0.6)
+        scope: Memory scope ("working", "persistent", or "all")
+        k: Number of results to return (default: 10)
+
+    Returns:
+        JSON string with search results ranked by hybrid score
+
+    Examples:
+        # Balanced hybrid search
+        await memory_search_hybrid(
+            user_id="user_001",
+            agent_name="coding",
+            query="meeting yesterday roadmap"
+        )
+
+        # Keyword-heavy search (exact terms important)
+        await memory_search_hybrid(
+            user_id="user_001",
+            agent_name="coding",
+            query="API key configuration",
+            keyword_weight=0.7,
+            semantic_weight=0.3
+        )
+
+        # Semantic-heavy search (concepts important)
+        await memory_search_hybrid(
+            user_id="user_001",
+            agent_name="coding",
+            query="how to improve performance",
+            keyword_weight=0.2,
+            semantic_weight=0.8
+        )
+
+    Note:
+        - Weights should sum to 1.0 for normalized scores
+        - Requires RAG to be enabled for semantic search
+        - Falls back to keyword-only if RAG unavailable
+    """
+    # Convert string parameters to appropriate types
+    keyword_weight_f = float(keyword_weight)
+    semantic_weight_f = float(semantic_weight)
+    k_int = int(k)
+
+    memory = _get_memory_manager(user_id, agent_name, enable_rag=True)
+
+    results: list[dict[str, Any]] = []
+
+    # 1. BM25 Keyword Search
+    keyword_results: list[dict[str, Any]] = []
+    if keyword_weight_f > 0:
+        try:
+            # Get all memories for keyword search
+            all_memories = []
+            if scope in ["working", "all"]:
+                # Get all working memory keys
+                for key in memory.working.keys():
+                    if not key.startswith("_meta_"):
+                        value = memory.working.get(key)
+                        all_memories.append({"key": key, "value": str(value)})
+
+            if scope in ["persistent", "all"]:
+                # Search all persistent memories
+                persistent_mems = memory.persistent.search(
+                    "%", user_id, agent_name, limit=1000
+                )
+                all_memories.extend(persistent_mems)
+
+            if all_memories:
+                # Build BM25 index
+                from kagura.core.memory.bm25_search import BM25Search
+
+                bm25 = BM25Search()
+                bm25_docs = [
+                    {"id": m["key"], "content": str(m.get("value", ""))}
+                    for m in all_memories
+                ]
+                bm25.build_index(bm25_docs)
+
+                # Search
+                keyword_results = bm25.search(query, k=k_int * 2)
+
+        except Exception as e:
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.warning(f"BM25 search failed: {e}, skipping keyword search")
+
+    # 2. RAG Semantic Search
+    semantic_results: list[dict[str, Any]] = []
+    if semantic_weight_f > 0 and memory.persistent_rag:
+        try:
+            rag_results = memory.persistent_rag.recall(
+                query=query,
+                user_id=user_id,
+                top_k=k_int * 2,
+                agent_name=agent_name,
+            )
+
+            # Convert to standard format
+            semantic_results = [
+                {
+                    "id": r.get("key", ""),
+                    "rank": idx + 1,
+                    "score": r.get("score", 0.0),
+                    "content": r.get("value", ""),
+                    "metadata": r.get("metadata", {}),
+                }
+                for idx, r in enumerate(rag_results)
+            ]
+
+        except Exception as e:
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.warning(f"RAG search failed: {e}, skipping semantic search")
+
+    # 3. Hybrid Fusion
+    if keyword_results and semantic_results:
+        # Use weighted RRF fusion
+        from kagura.core.memory.hybrid_search import weighted_rrf_fusion
+
+        # Prepare results with ranks
+        kw_ranked = [
+            {"id": r["id"], "rank": idx + 1} for idx, r in enumerate(keyword_results)
+        ]
+        sem_ranked = [{"id": r["id"], "rank": r["rank"]} for r in semantic_results]
+
+        # Fuse
+        fused_scores = weighted_rrf_fusion(
+            sem_ranked,
+            kw_ranked,
+            k=60,
+            vector_weight=semantic_weight_f,
+            lexical_weight=keyword_weight_f,
+        )
+
+        # Retrieve full documents
+        for doc_id, rrf_score in fused_scores[:k_int]:
+            # Find in either result set
+            doc = next(
+                (r for r in keyword_results if r.get("id") == doc_id),
+                next((r for r in semantic_results if r.get("id") == doc_id), None),
+            )
+            if doc:
+                result = {
+                    "key": doc_id,
+                    "value": doc.get("content", ""),
+                    "hybrid_score": rrf_score,
+                    "keyword_score": next(
+                        (
+                            r.get("bm25_score", 0)
+                            for r in keyword_results
+                            if r.get("id") == doc_id
+                        ),
+                        0,
+                    ),
+                    "semantic_score": next(
+                        (
+                            r.get("score", 0)
+                            for r in semantic_results
+                            if r.get("id") == doc_id
+                        ),
+                        0,
+                    ),
+                    "metadata": doc.get("metadata", {}),
+                }
+                results.append(result)
+
+    elif keyword_results:
+        # Keyword-only fallback
+        results = [
+            {
+                "key": r["id"],
+                "value": r.get("content", ""),
+                "hybrid_score": r.get("bm25_score", 0),
+                "keyword_score": r.get("bm25_score", 0),
+                "semantic_score": 0,
+            }
+            for r in keyword_results[:k_int]
+        ]
+
+    elif semantic_results:
+        # Semantic-only fallback
+        results = [
+            {
+                "key": r["id"],
+                "value": r.get("content", ""),
+                "hybrid_score": r.get("score", 0),
+                "keyword_score": 0,
+                "semantic_score": r.get("score", 0),
+            }
+            for r in semantic_results[:k_int]
+        ]
+
+    # Format output
+    if not results:
+        return json.dumps(
+            {"found": 0, "results": [], "message": "No matching memories found"}
+        )
+
+    return json.dumps(
+        {
+            "found": len(results),
+            "results": results,
+            "search_type": "hybrid",
+            "weights": {"keyword": keyword_weight, "semantic": semantic_weight},
+        },
+        indent=2,
+    )
+
+
+@tool
+async def memory_timeline(
+    user_id: str,
+    agent_name: str,
+    time_range: str,
+    event_type: str | None = None,
+    scope: str = "persistent",
+    k: int = 20,
+) -> str:
+    """Retrieve memories from specific time range.
+
+    Search memories by timestamp, optionally filtering by event type.
+    Useful for answering "what happened yesterday?" or "last week's decisions".
+
+    Args:
+        user_id: User identifier (memory owner)
+        agent_name: Agent identifier
+        time_range: Time range specification:
+            - "last_24h" or "last_day": Last 24 hours
+            - "last_week": Last 7 days
+            - "last_month": Last 30 days
+            - "YYYY-MM-DD": Specific date
+            - "YYYY-MM-DD:YYYY-MM-DD": Date range
+        event_type: Optional event type filter (e.g., "meeting", "decision", "error")
+        scope: Memory scope ("working", "persistent", or "all")
+        k: Maximum number of results (default: 20)
+
+    Returns:
+        JSON string with memories from the time range,
+        sorted by timestamp (newest first)
+
+    Examples:
+        # Yesterday's memories
+        await memory_timeline(
+            user_id="user_001",
+            agent_name="coding",
+            time_range="last_24h"
+        )
+
+        # This week's meetings
+        await memory_timeline(
+            user_id="user_001",
+            agent_name="coding",
+            time_range="last_week",
+            event_type="meeting"
+        )
+
+        # Specific date range
+        await memory_timeline(
+            user_id="user_001",
+            agent_name="coding",
+            time_range="2025-11-01:2025-11-03"
+        )
+
+    Note:
+        - Memories must have "timestamp" in metadata for time filtering
+        - Results are sorted by timestamp (newest first)
+        - Event type matching is case-insensitive substring match
+    """
+    from datetime import datetime, timedelta
+
+    memory = _get_memory_manager(user_id, agent_name, enable_rag=True)
+
+    # Parse time range
+    now = datetime.utcnow()
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+
+    if time_range == "last_24h" or time_range == "last_day":
+        start_time = now - timedelta(days=1)
+        end_time = now
+    elif time_range == "last_week":
+        start_time = now - timedelta(days=7)
+        end_time = now
+    elif time_range == "last_month":
+        start_time = now - timedelta(days=30)
+        end_time = now
+    elif ":" in time_range:
+        # Date range: "YYYY-MM-DD:YYYY-MM-DD"
+        start_str, end_str = time_range.split(":")
+        start_time = datetime.fromisoformat(start_str)
+        end_time = datetime.fromisoformat(end_str)
+    else:
+        # Single date: "YYYY-MM-DD"
+        try:
+            start_time = datetime.fromisoformat(time_range)
+            end_time = start_time + timedelta(days=1)
+        except ValueError:
+            return json.dumps(
+                {
+                    "error": f"Invalid time_range format: {time_range}",
+                    "expected": (
+                        "last_24h, last_week, last_month, YYYY-MM-DD, "
+                        "or YYYY-MM-DD:YYYY-MM-DD"
+                    ),
+                }
+            )
+
+    # Collect memories
+    all_memories = []
+    if scope in ["working", "all"]:
+        # Get all working memory keys
+        for key in memory.working.keys():
+            if not key.startswith("_meta_"):
+                value = memory.working.get(key)
+                all_memories.append({"key": key, "value": str(value), "metadata": {}})
+
+    if scope in ["persistent", "all"]:
+        # Search all persistent memories
+        persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
+        all_memories.extend(persistent_mems)
+
+    # Filter by time and event type
+    filtered_results = []
+    for mem in all_memories:
+        metadata = mem.get("metadata", {})
+
+        # Check timestamp
+        timestamp_str = metadata.get("timestamp")
+        if not timestamp_str:
+            continue
+
+        try:
+            timestamp = datetime.fromisoformat(timestamp_str)
+        except (ValueError, TypeError):
+            continue
+
+        if start_time and timestamp < start_time:
+            continue
+        if end_time and timestamp > end_time:
+            continue
+
+        # Check event type
+        if event_type:
+            mem_type = metadata.get("type", "").lower()
+            if event_type.lower() not in mem_type:
+                continue
+
+        filtered_results.append(
+            {
+                "key": mem.get("key", ""),
+                "value": mem.get("value", ""),
+                "timestamp": timestamp_str,
+                "type": metadata.get("type", ""),
+                "metadata": metadata,
+            }
+        )
+
+    # Sort by timestamp (newest first)
+    filtered_results.sort(key=lambda x: x["timestamp"], reverse=True)
+
+    # Limit to k results
+    final_results = filtered_results[:k]
+
+    return json.dumps(
+        {
+            "found": len(final_results),
+            "time_range": {
+                "start": start_time.isoformat() if start_time else None,
+                "end": end_time.isoformat() if end_time else None,
+                "query": time_range,
+            },
+            "event_type": event_type,
+            "results": final_results,
+        },
+        indent=2,
+    )
+
+
+@tool
+async def memory_fuzzy_recall(
+    user_id: str,
+    agent_name: str,
+    key_pattern: str,
+    similarity_threshold: float = 0.6,
+    scope: str = "persistent",
+    k: int = 10,
+) -> str:
+    """Recall memories using fuzzy key matching.
+
+    Find memories when you don't remember the exact key.
+    Uses string similarity (Levenshtein distance) for matching.
+
+    Args:
+        user_id: User identifier (memory owner)
+        agent_name: Agent identifier
+        key_pattern: Partial key or pattern to search for
+        similarity_threshold: Minimum similarity score (0.0-1.0, default: 0.6)
+        scope: Memory scope ("working", "persistent", or "all")
+        k: Maximum number of results (default: 10)
+
+    Returns:
+        JSON string with fuzzy-matched memories ranked by key similarity
+
+    Examples:
+        # Partial key recall
+        await memory_fuzzy_recall(
+            user_id="user_001",
+            agent_name="coding",
+            key_pattern="meeting"  # Matches "meeting_2025-11-02", "team_meeting", etc.
+        )
+
+        # Fuzzy match with typo tolerance
+        await memory_fuzzy_recall(
+            user_id="user_001",
+            agent_name="coding",
+            key_pattern="roadmap",  # Matches "roadmap", "road_map", "v4_roadmap"
+            similarity_threshold=0.5  # Lower threshold for more results
+        )
+
+    Note:
+        - Uses Ratcliff-Obershelp algorithm for similarity
+        - Case-insensitive matching
+        - Returns results sorted by similarity score
+    """
+    from difflib import SequenceMatcher
+
+    memory = _get_memory_manager(user_id, agent_name, enable_rag=False)
+
+    # Collect all keys
+    all_memories = []
+    if scope in ["working", "all"]:
+        # Get all working memory keys
+        for key in memory.working.keys():
+            if not key.startswith("_meta_"):
+                value = memory.working.get(key)
+                all_memories.append({"key": key, "value": str(value), "metadata": {}})
+
+    if scope in ["persistent", "all"]:
+        # Search all persistent memories
+        persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
+        all_memories.extend(persistent_mems)
+
+    if not all_memories:
+        return json.dumps(
+            {"found": 0, "results": [], "message": "No memories in specified scope"}
+        )
+
+    # Calculate similarity scores
+    matches = []
+    key_pattern_lower = key_pattern.lower()
+
+    for mem in all_memories:
+        mem_key = mem.get("key", "")
+        mem_key_lower = mem_key.lower()
+
+        # Calculate similarity
+        similarity = SequenceMatcher(None, key_pattern_lower, mem_key_lower).ratio()
+
+        if similarity >= similarity_threshold:
+            matches.append(
+                {
+                    "key": mem_key,
+                    "value": mem.get("value", ""),
+                    "similarity": similarity,
+                    "metadata": mem.get("metadata", {}),
+                }
+            )
+
+    # Sort by similarity (descending)
+    matches.sort(key=lambda x: x["similarity"], reverse=True)
+
+    # Limit to k results
+    final_results = matches[:k]
+
+    return json.dumps(
+        {
+            "found": len(final_results),
+            "key_pattern": key_pattern,
+            "similarity_threshold": similarity_threshold,
+            "results": final_results,
+        },
+        indent=2,
+    )

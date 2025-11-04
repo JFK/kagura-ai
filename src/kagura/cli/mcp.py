@@ -211,7 +211,7 @@ def list(ctx: click.Context):
 
 
 @mcp.command()
-@click.option("--api-url", default="http://localhost:8080", help="API server URL")
+@click.option("--api-url", default="http://localhost:8000", help="API server URL")
 @click.pass_context
 def doctor(ctx: click.Context, api_url: str):
     """Run MCP diagnostics
@@ -479,7 +479,9 @@ def connect(
 
     # Validate URL
     if not api_base.startswith(("http://", "https://")):
-        console.print("[red]✗ Error: API base URL must start with http:// or https://[/red]")
+        console.print(
+            "[red]✗ Error: API base URL must start with http:// or https://[/red]"
+        )
         raise click.Abort()
 
     # Prepare config
@@ -621,21 +623,53 @@ def test_remote(ctx: click.Context):
 
 
 @mcp.command(name="tools")
+@click.option(
+    "--remote-only",
+    is_flag=True,
+    help="Show only remote-capable tools",
+)
+@click.option(
+    "--local-only",
+    is_flag=True,
+    help="Show only local-only tools",
+)
+@click.option(
+    "--category",
+    "-c",
+    help="Filter by category",
+    type=str,
+)
 @click.pass_context
-def list_tools(ctx: click.Context):
+def list_tools(
+    ctx: click.Context,
+    remote_only: bool,
+    local_only: bool,
+    category: str | None,
+):
     """List available MCP tools
 
-    Shows all MCP tools that Kagura provides.
+    Shows all MCP tools that Kagura provides, with remote capability indicators.
 
-    Example:
+    Examples:
       kagura mcp tools
+      kagura mcp tools --remote-only
+      kagura mcp tools --category memory --remote-only
     """
     from rich.console import Console
     from rich.table import Table
 
     from kagura.core.registry import tool_registry
+    from kagura.mcp.tool_classification import is_remote_capable
 
     console = Console()
+
+    # Validate conflicting flags
+    if remote_only and local_only:
+        console.print(
+            "[red]Error: --remote-only and --local-only are mutually exclusive.[/red]\n"
+        )
+        console.print("Use one or the other, not both.\n")
+        ctx.exit(1)
 
     # Auto-load built-in tools
     try:
@@ -651,46 +685,102 @@ def list_tools(ctx: click.Context):
         console.print("[dim]Example: from kagura.mcp.builtin import memory[/dim]\n")
         return
 
-    console.print(f"\n[bold]Kagura MCP Tools ({len(all_tools)})[/bold]\n")
+    def infer_category(tool_name: str) -> str:
+        """Infer category from tool name prefix.
+
+        Args:
+            tool_name: Name of the tool
+
+        Returns:
+            Category name
+        """
+        prefix_mapping = {
+            "memory_": "memory",
+            "coding_": "coding",
+            "claude_code_": "coding",
+            "github_": "github",
+            "gh_": "github",  # Legacy gh_*_safe tools
+            "brave_": "brave_search",
+            "youtube_": "youtube",
+            "get_youtube_": "youtube",
+            "file_": "file",
+            "dir_": "file",
+            "multimodal_": "multimodal",
+            "arxiv_": "academic",
+            "fact_check_": "fact_check",
+            "media_": "media",
+            "meta_": "meta",
+            "telemetry_": "observability",
+            "route_": "routing",
+            "web_": "web",
+            "shell_": "shell",
+        }
+
+        for prefix, cat in prefix_mapping.items():
+            if tool_name.startswith(prefix):
+                return cat
+
+        return "other"
+
+    # Filter tools
+    filtered_tools = {}
+    for tool_name, tool_func in all_tools.items():
+        # Filter by remote/local
+        if remote_only and not is_remote_capable(tool_name):
+            continue
+        if local_only and is_remote_capable(tool_name):
+            continue
+
+        # Filter by category
+        if category:
+            tool_category = infer_category(tool_name)
+            if tool_category != category:
+                continue
+
+        filtered_tools[tool_name] = tool_func
+
+    if not filtered_tools:
+        console.print("[yellow]No tools match the specified filters.[/yellow]")
+        return
+
+    # Count remote vs local
+    remote_count = sum(1 for name in filtered_tools if is_remote_capable(name))
+    local_count = len(filtered_tools) - remote_count
+
+    console.print(f"\n[bold]Kagura MCP Tools ({len(filtered_tools)})[/bold]")
+    console.print(
+        f"[dim]Remote-capable: {remote_count} | Local-only: {local_count}[/dim]\n"
+    )
 
     table = Table(show_header=True, header_style="bold magenta")
     table.add_column("Tool Name", style="cyan")
     table.add_column("Category", style="dim")
+    table.add_column("Remote", justify="center", style="bold")
     table.add_column("Description")
 
-    # Categorize tools
-    categories = {
-        "memory": [
-            "memory_store",
-            "memory_recall",
-            "memory_search",
-            "memory_list",
-            "memory_feedback",
-            "memory_delete",
-        ],
-        "web": ["web_search", "brave_search"],
-        "youtube": ["youtube_transcript", "youtube_metadata"],
-        "file": ["file_read", "file_write", "file_list"],
-        "multimodal": ["gemini_vision", "gemini_audio"],
-    }
+    for tool_name, tool_func in sorted(filtered_tools.items()):
+        # Determine category using inference
+        tool_category = infer_category(tool_name)
 
-    for tool_name, tool_func in sorted(all_tools.items()):
-        # Determine category
-        category = "other"
-        for cat, tool_names in categories.items():
-            if tool_name in tool_names:
-                category = cat
-                break
+        # Remote indicator
+        remote_indicator = "✓" if is_remote_capable(tool_name) else "✗"
+        remote_style = "green" if is_remote_capable(tool_name) else "red"
 
         # Get description from docstring
         description = tool_func.__doc__ or "No description"
         description = description.strip().split("\n")[0]
-        if len(description) > 60:
-            description = description[:57] + "..."
+        if len(description) > 50:
+            description = description[:47] + "..."
 
-        table.add_row(tool_name, category, description)
+        table.add_row(
+            tool_name,
+            tool_category,
+            f"[{remote_style}]{remote_indicator}[/{remote_style}]",
+            description,
+        )
 
     console.print(table)
+    console.print("\n[dim]Legend: ✓ = Remote-capable | ✗ = Local-only[/dim]")
     console.print()
 
 
@@ -749,9 +839,7 @@ def stats_command(
     since = (datetime.now() - timedelta(days=period)).timestamp()
 
     # Get executions
-    executions = store.get_executions(
-        agent_name=agent, since=since, limit=100000
-    )
+    executions = store.get_executions(agent_name=agent, since=since, limit=100000)
 
     if not executions:
         console.print("[yellow]No MCP tool usage data found[/yellow]")
@@ -832,9 +920,7 @@ def stats_command(
     table.add_column("Errors", justify="right", style="red")
 
     # Sort by call count
-    sorted_tools = sorted(
-        tool_stats.items(), key=lambda x: x[1]["calls"], reverse=True
-    )
+    sorted_tools = sorted(tool_stats.items(), key=lambda x: x[1]["calls"], reverse=True)
 
     for tool_name, stats in sorted_tools[:20]:  # Top 20
         calls = stats["calls"]
@@ -857,6 +943,135 @@ def stats_command(
     for i, (tool_name, stats) in enumerate(sorted_tools[:5], start=1):
         console.print(f"  {i}. {tool_name} ({stats['calls']} calls)")
     console.print()
+
+
+@mcp.command(name="monitor")
+@click.option(
+    "--tool", "-t", help="Filter by tool name pattern", type=str, default=None
+)
+@click.option(
+    "--refresh",
+    "-r",
+    help="Refresh interval in seconds",
+    type=float,
+    default=1.0,
+)
+@click.option(
+    "--db", help="Path to telemetry database", type=click.Path(), default=None
+)
+@click.pass_context
+def monitor_command(
+    ctx: click.Context,
+    tool: str | None,
+    refresh: float,
+    db: str | None,
+):
+    """Live monitoring dashboard for MCP tools
+
+    Shows real-time MCP tool usage statistics with auto-refresh.
+    Similar to 'kagura monitor' but for MCP tools specifically.
+
+    \b
+    Examples:
+        kagura mcp monitor                     # Monitor all tools
+        kagura mcp monitor --tool memory_*     # Monitor memory tools
+        kagura mcp monitor --refresh 2         # Refresh every 2 seconds
+    """
+    import time
+    from collections import defaultdict
+    from datetime import datetime, timedelta
+    from pathlib import Path
+
+    from rich.console import Console
+    from rich.live import Live
+    from rich.table import Table
+
+    from kagura.observability import EventStore
+
+    console = Console()
+
+    # Load event store
+    db_path = Path(db) if db else None
+    store = EventStore(db_path)
+
+    console.print("\n[cyan]Starting MCP Monitor... (Press Ctrl+C to exit)[/cyan]")
+    console.print()
+    time.sleep(0.5)
+
+    def create_dashboard() -> Table:
+        """Create dashboard table with current stats."""
+        # Get recent events (last 5 minutes)
+        cutoff = datetime.now() - timedelta(minutes=5)
+        events = store.get_executions(since=cutoff.timestamp(), limit=1000)
+
+        # Filter MCP tool events (executions that have tool_name)
+        mcp_events = [e for e in events if e.get("metadata", {}).get("tool_name")]
+
+        # Apply tool filter
+        if tool:
+            import fnmatch
+
+            mcp_events = [
+                e for e in mcp_events if fnmatch.fnmatch(e.get("tool_name", ""), tool)
+            ]
+
+        # Calculate statistics
+        tool_stats = defaultdict(lambda: {"calls": 0, "errors": 0, "total_time": 0})
+
+        for event in mcp_events:
+            metadata = event.get("metadata", {})
+            tool_name = metadata.get("tool_name", "unknown")
+            tool_stats[tool_name]["calls"] += 1
+
+            # Check for errors
+            if event.get("status") == "failed" or event.get("error"):
+                tool_stats[tool_name]["errors"] += 1
+
+            # Duration (stored in seconds, convert to ms)
+            duration_sec = event.get("duration", 0)
+            tool_stats[tool_name]["total_time"] += duration_sec * 1000
+
+        # Create table
+        table = Table(title="MCP Tools - Live Monitor (Last 5 min)", show_header=True)
+        table.add_column("Tool Name", style="cyan")
+        table.add_column("Calls", justify="right", style="white")
+        table.add_column("Success Rate", justify="right", style="green")
+        table.add_column("Avg Time", justify="right", style="yellow")
+        table.add_column("Errors", justify="right", style="red")
+
+        # Sort by call count
+        sorted_tools = sorted(
+            tool_stats.items(), key=lambda x: x[1]["calls"], reverse=True
+        )
+
+        for tool_name, stats in sorted_tools[:15]:  # Top 15 tools
+            calls = stats["calls"]
+            errors = stats["errors"]
+            success_rate = ((calls - errors) / calls * 100) if calls > 0 else 0
+            avg_time = (stats["total_time"] / calls) if calls > 0 else 0
+
+            table.add_row(
+                tool_name,
+                str(calls),
+                f"{success_rate:.1f}%",
+                f"{avg_time:.0f}ms",
+                str(errors) if errors > 0 else "-",
+            )
+
+        if not sorted_tools:
+            table.add_row("No activity", "-", "-", "-", "-")
+
+        return table
+
+    try:
+        with Live(
+            create_dashboard(), refresh_per_second=1 / refresh, console=console
+        ) as live:
+            while True:
+                time.sleep(refresh)
+                live.update(create_dashboard())
+    except KeyboardInterrupt:
+        console.print("\n[cyan]Monitor stopped.[/cyan]\n")
 
 
 @mcp.command(name="log")
@@ -1081,6 +1296,122 @@ def install_reranking(model: str):
     console.print("    [cyan]config = MemorySystemConfig()[/cyan]")
     console.print("    [cyan]config.rerank.enabled = True[/cyan]")
     console.print()
+
+
+@mcp.command()
+@click.option(
+    "--tool", "-t", help="Filter by tool name pattern", type=str, default=None
+)
+@click.option(
+    "--interval",
+    "-i",
+    help="Refresh interval in seconds",
+    type=float,
+    default=1.0,
+)
+def monitor(tool: str | None, interval: float) -> None:
+    """Live MCP tool monitoring dashboard.
+
+    Shows real-time statistics for MCP tool calls with auto-refresh.
+
+    Examples:
+        kagura mcp monitor                    # Monitor all tools
+        kagura mcp monitor --tool memory_*    # Filter specific tools
+        kagura mcp monitor --interval 0.5     # Refresh every 0.5 seconds
+    """
+    import time
+
+    from rich.console import Console
+    from rich.live import Live
+    from rich.table import Table
+
+    from kagura.config.paths import get_data_dir
+
+    console = Console()
+    console.print("[bold]MCP Tool Monitor[/bold] - Press Ctrl+C to exit\n")
+
+    try:
+        import sqlite3
+
+        db_path = get_data_dir() / "telemetry.db"
+
+        if not db_path.exists():
+            console.print(
+                "[yellow]No telemetry data found. Start using MCP tools first.[/yellow]"
+            )
+            return
+
+        def generate_table() -> Table:
+            """Generate current statistics table."""
+            table = Table(title="Live MCP Tool Statistics", show_header=True)
+            table.add_column("Tool", style="cyan", width=30)
+            table.add_column("Calls", justify="right", width=8)
+            table.add_column("Success", justify="right", width=10)
+            table.add_column("Errors", justify="right", width=8)
+            table.add_column("Avg Time", justify="right", width=10)
+
+            conn = sqlite3.connect(db_path)
+
+            # Query recent tool stats (last 5 minutes)
+            # Note: started_at is Unix timestamp (REAL), so use unixepoch() or strftime()
+            query = """
+                SELECT
+                    agent_name as tool,
+                    COUNT(*) as calls,
+                    SUM(CASE WHEN error IS NULL THEN 1 ELSE 0 END) as success,
+                    SUM(CASE WHEN error IS NOT NULL THEN 1 ELSE 0 END) as errors,
+                    AVG(duration) as avg_duration
+                FROM executions
+                WHERE started_at >= (strftime('%s', 'now') - 300)
+            """
+
+            if tool:
+                query += f" AND agent_name LIKE '%{tool}%'"
+
+            query += """
+                GROUP BY agent_name
+                ORDER BY calls DESC
+                LIMIT 20
+            """
+
+            cursor = conn.execute(query)
+            rows = cursor.fetchall()
+
+            for row in rows:
+                tool_name, calls, success_count, errors_count, avg_dur = row
+                success_rate = (
+                    f"{(success_count / calls) * 100:.1f}%" if calls > 0 else "-"
+                )
+                avg_time = f"{avg_dur:.2f}s" if avg_dur else "-"
+
+                table.add_row(
+                    tool_name or "unknown",
+                    str(calls),
+                    success_rate,
+                    str(errors_count),
+                    avg_time,
+                )
+
+            conn.close()
+
+            if not rows:
+                table.add_row("No activity", "-", "-", "-", "-")
+
+            return table
+
+        # Live monitoring loop
+        with Live(
+            generate_table(), refresh_per_second=1 / interval, console=console
+        ) as live:
+            while True:
+                time.sleep(interval)
+                live.update(generate_table())
+
+    except KeyboardInterrupt:
+        console.print("\n[dim]Monitoring stopped.[/dim]")
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise
 
 
 __all__ = ["mcp"]

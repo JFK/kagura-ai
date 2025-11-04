@@ -128,9 +128,7 @@ def setup_external_library_logging(
     """
     # Don't override if already set
     if env_var_name in os.environ:
-        logger.debug(
-            f"{library_name}: Using existing log path from {env_var_name}"
-        )
+        logger.debug(f"{library_name}: Using existing log path from {env_var_name}")
         return os.environ[env_var_name]
 
     try:

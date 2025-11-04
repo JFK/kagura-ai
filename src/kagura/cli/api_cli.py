@@ -70,8 +70,7 @@ def create_key(name: str, user_id: str, expires: int | None) -> None:
         console.print("\n[green]✓ API key created successfully![/green]")
         console.print()
         console.print(
-            "[yellow]⚠️  Save this key securely - "
-            "it won't be shown again:[/yellow]"
+            "[yellow]⚠️  Save this key securely - it won't be shown again:[/yellow]"
         )
         console.print()
         console.print(f"  [bold white]{api_key}[/bold white]")
@@ -131,8 +130,7 @@ def list_keys(user_id: str | None) -> None:
             console.print("\n[yellow]No API keys found[/yellow]")
             console.print()
             console.print(
-                "Create a key with: "
-                "[cyan]kagura api create-key --name <name>[/cyan]"
+                "Create a key with: [cyan]kagura api create-key --name <name>[/cyan]"
             )
             console.print()
             return
@@ -152,6 +150,7 @@ def list_keys(user_id: str | None) -> None:
                 status = "[red]Revoked[/red]"
             elif key["expires_at"]:
                 from datetime import datetime
+
                 expires_dt = datetime.fromisoformat(key["expires_at"])
                 if datetime.now() > expires_dt:
                     status = "[red]Expired[/red]"
@@ -179,8 +178,10 @@ def list_keys(user_id: str | None) -> None:
 
         # Show summary
         active_count = sum(
-            1 for k in keys
-            if not k["revoked_at"] and (
+            1
+            for k in keys
+            if not k["revoked_at"]
+            and (
                 not k["expires_at"]
                 or datetime.fromisoformat(k["expires_at"]) > datetime.now()
             )

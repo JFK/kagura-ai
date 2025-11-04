@@ -204,56 +204,36 @@ class TestShellExec:
     """Test shell_exec MCP tool."""
 
     @pytest.mark.asyncio
-    async def test_shell_exec_success(self) -> None:
-        """Test executing a shell command successfully."""
-        from dataclasses import dataclass
+    async def test_shell_exec_returns_explanation(self) -> None:
+        """Test shell_exec returns implementation explanation (default mode)."""
+        result = await shell_exec("ls -la")
 
-        @dataclass
-        class ExecResult:
-            """Mock exec result."""
-
-            stdout: str
-            stderr: str
-
-        mock_executor = AsyncMock()
-        mock_executor.exec.return_value = ExecResult(stdout="Command output", stderr="")
-
-        # ShellExecutor is imported dynamically inside the function
-        with patch("kagura.core.shell.ShellExecutor", return_value=mock_executor):
-            result = await shell_exec("echo test")
-
-            assert result == "Command output"
-            mock_executor.exec.assert_called_once_with("echo test")
+        # Should return explanation, not execute
+        assert "# Command:" in result or "Python Implementation" in result
+        assert "ls -la" in result
 
     @pytest.mark.asyncio
-    async def test_shell_exec_stderr(self) -> None:
-        """Test shell command that outputs to stderr."""
-        from dataclasses import dataclass
+    async def test_shell_exec_returns_code(self) -> None:
+        """Test shell_exec returns executable Python code."""
+        result = await shell_exec("echo test", return_code=True)
 
-        @dataclass
-        class ExecResult:
-            """Mock exec result."""
-
-            stdout: str
-            stderr: str
-
-        mock_executor = AsyncMock()
-        mock_executor.exec.return_value = ExecResult(stdout="", stderr="Error message")
-
-        # ShellExecutor is imported dynamically inside the function
-        with patch("kagura.core.shell.ShellExecutor", return_value=mock_executor):
-            result = await shell_exec("invalid_command")
-
-            assert result == "Error message"
+        # Should return Python code
+        assert "import subprocess" in result
+        assert "echo test" in result
+        assert "subprocess.run" in result
 
     @pytest.mark.asyncio
-    async def test_shell_exec_import_error(self) -> None:
-        """Test shell_exec handles ImportError gracefully."""
-        # ShellExecutor is imported dynamically inside the function
-        with patch(
-            "kagura.core.shell.ShellExecutor",
-            side_effect=ImportError("Module not found"),
-        ):
-            result = await shell_exec("test command")
+    async def test_shell_exec_with_working_dir(self) -> None:
+        """Test shell_exec includes working_dir in output."""
+        result = await shell_exec("ls", working_dir="/tmp")
 
-            assert "Error executing command" in result
+        # Should mention working directory
+        assert "/tmp" in result
+
+    @pytest.mark.asyncio
+    async def test_shell_exec_safety_analysis(self) -> None:
+        """Test shell_exec includes safety analysis."""
+        result = await shell_exec("rm -rf /")
+
+        # Should include danger warning
+        assert "HIGH" in result or "CRITICAL" in result or "DANGER" in result

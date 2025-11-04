@@ -635,9 +635,7 @@ async def _shell_exec_tool_wrapper(command: str, user_intent: str = "") -> str:
         return result
 
 
-async def _shell_exec_with_options_wrapper(
-    options: list[dict[str, str]]
-) -> str:
+async def _shell_exec_with_options_wrapper(options: list[dict[str, str]]) -> str:
     """Execute shell command from multiple options with user selection.
 
     Args:
@@ -1583,8 +1581,7 @@ Daily assistance with real-time streaming:
         # Find agent
         if agent_name not in self.custom_agents:
             self.console.print(
-                f"[red]Agent not found: {agent_name}[/]\n"
-                "[yellow]Available agents:[/]"
+                f"[red]Agent not found: {agent_name}[/]\n[yellow]Available agents:[/]"
             )
             for name in self.custom_agents.keys():
                 self.console.print(f"  • {name}")
@@ -1650,8 +1647,7 @@ Daily assistance with real-time streaming:
                 self.console.print("  • claude-3-5-sonnet-20241022\n")
             else:
                 self.console.print(
-                    "  [dim]Anthropic:[/] "
-                    "[yellow](⚠ ANTHROPIC_API_KEY not set)[/]\n"
+                    "  [dim]Anthropic:[/] [yellow](⚠ ANTHROPIC_API_KEY not set)[/]\n"
                 )
 
             # Google models
@@ -1661,8 +1657,7 @@ Daily assistance with real-time streaming:
                 self.console.print("  • gemini/gemini-1.5-pro-latest - Pro\n")
             else:
                 self.console.print(
-                    "  [dim]Google Gemini:[/] "
-                    "[yellow](⚠ GOOGLE_API_KEY not set)[/]\n"
+                    "  [dim]Google Gemini:[/] [yellow](⚠ GOOGLE_API_KEY not set)[/]\n"
                 )
 
             self.console.print(

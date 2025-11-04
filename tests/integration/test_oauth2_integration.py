@@ -43,8 +43,6 @@ class TestOAuth2Integration:
 
     def test_client_secrets_exists(self):
         """Test client_secrets.json exists and is readable"""
-        import pytest
-
         # XDG-compliant directory
         client_secrets = Path.home() / ".config" / "kagura" / "client_secrets.json"
 

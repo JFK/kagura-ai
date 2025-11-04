@@ -1,7 +1,7 @@
 # Kagura AI - ユニバーサルAIメモリープラットフォーム
 
 <p align="center">
-  <img src="docs/assets/kagura-logo.svg" alt="Kagura AI Logo" width="400">
+  <img src="https://raw.githubusercontent.com/JFK/kagura-ai/main/docs/assets/kagura-logo.svg" alt="Kagura AI Logo" width="400">
 </p>
 
 <p align="center">
@@ -14,7 +14,7 @@
   <a href="https://pypi.org/project/kagura-ai/"><img src="https://img.shields.io/pypi/v/kagura-ai.svg" alt="PyPI version"></a>
   <a href="https://pypi.org/project/kagura-ai/"><img src="https://img.shields.io/pypi/dm/kagura-ai.svg" alt="Downloads"></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/protocol-MCP-blue.svg" alt="MCP"></a>
-  <img src="https://img.shields.io/badge/status-beta-yellow.svg" alt="Status">
+  <img src="https://img.shields.io/badge/status-stable-green.svg" alt="Status">
 
 **Kagura** は、あなたの**コンテキストと記憶**を、Claude/ChatGPT/Gemini/各種AIエージェントから**横断参照**できるようにする、オープンソースの **MCP対応メモリ基盤**です。
 

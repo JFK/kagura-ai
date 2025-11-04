@@ -52,6 +52,7 @@ class MemoryRAG:
             ImportError: If ChromaDB is not installed
         """
         import logging
+
         logger = logging.getLogger(__name__)
 
         logger.debug(f"MemoryRAG init: collection={collection_name}, dir={persist_dir}")
@@ -168,6 +169,7 @@ class MemoryRAG:
             for i, doc in enumerate(results["documents"][0]):
                 memories.append(
                     {
+                        "id": results["ids"][0][i],  # ChromaDB content hash
                         "content": doc,
                         "distance": results["distances"][0][i],
                         "metadata": (

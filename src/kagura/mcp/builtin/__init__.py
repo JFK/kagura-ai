@@ -6,10 +6,13 @@ Web) via MCP for single-config Claude Desktop integration.
 
 # Auto-import all builtin tools
 from . import (
+    academic,  # noqa: F401
     brave_search,  # noqa: F401
     cache,  # noqa: F401
+    coding,  # noqa: F401
     fact_check,  # noqa: F401
     file_ops,  # noqa: F401
+    github,  # noqa: F401
     media,  # noqa: F401
     memory,  # noqa: F401
     meta,  # noqa: F401
@@ -26,16 +29,19 @@ except ImportError:
     pass
 
 __all__ = [
-    "memory",
-    "routing",
-    "multimodal",
-    "web",
-    "file_ops",
-    "observability",
-    "meta",
-    "youtube",
-    "media",
-    "fact_check",
+    "academic",
     "brave_search",
     "cache",
+    "coding",
+    "fact_check",
+    "file_ops",
+    "github",
+    "media",
+    "memory",
+    "meta",
+    "multimodal",
+    "observability",
+    "routing",
+    "web",
+    "youtube",
 ]

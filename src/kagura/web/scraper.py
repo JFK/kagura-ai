@@ -252,7 +252,7 @@ class WebScraper:
         results = [elem.get_text(strip=True) for elem in elements]
 
         logger.info(
-            f"Scraped {len(results)} elements from {url} " f"with selector '{selector}'"
+            f"Scraped {len(results)} elements from {url} with selector '{selector}'"
         )
         return results
 

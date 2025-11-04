@@ -23,11 +23,8 @@ class TestWorkingMemoryMetadata:
     async def test_meta_keys_not_visible_in_list(self):
         """Test that _meta_ keys are excluded from memory_list."""
         # Store memories with metadata
-        await memory_store(
-            "test_user",
-            "test_agent",
-            "user_pref",
-            "Python",
+        await memory_store(user_id=
+            "test_user", agent_name="test_agent", key="user_pref", value="Python",
             scope="working",
             tags='["language"]',
             importance=0.9,
@@ -46,8 +43,8 @@ class TestWorkingMemoryMetadata:
     @pytest.mark.asyncio
     async def test_recall_with_meta_key_fails_gracefully(self):
         """Test that trying to recall _meta_ key fails gracefully."""
-        await memory_store(
-            "test_user", "test_agent", "normal_key", "value", scope="working"
+        await memory_store(user_id=
+            "test_user", agent_name="test_agent", key="normal_key", value="value", scope="working"
         )
 
         # Try to recall the internal metadata key
@@ -63,11 +60,8 @@ class TestWorkingMemoryMetadata:
     async def test_delete_removes_both_value_and_meta(self):
         """Test that delete removes both value and metadata."""
         # Store with metadata
-        await memory_store(
-            "test_user",
-            "test_agent",
-            "to_delete",
-            "value",
+        await memory_store(user_id=
+            "test_user", agent_name="test_agent", key="to_delete", value="value",
             scope="working",
             tags='["test"]',
             importance=0.7,
@@ -91,11 +85,8 @@ class TestWorkingMemoryMetadata:
     async def test_search_does_not_return_meta_keys(self):
         """Test that search results don't include _meta_ entries."""
         # Store memories
-        await memory_store(
-            "test_user",
-            "test_agent",
-            "searchable",
-            "Python programming",
+        await memory_store(user_id=
+            "test_user", agent_name="test_agent", key="searchable", value="Python programming",
             scope="working",
             tags='["python"]',
         )
@@ -119,11 +110,8 @@ class TestPersistentMemoryMetadata:
     async def test_persistent_memory_stores_metadata_in_db(self):
         """Test that persistent memory metadata is stored in DB, not separate key."""
         # Store persistent memory with metadata
-        await memory_store(
-            "test_user",
-            "test_agent",
-            "persistent_key",
-            "persistent value",
+        await memory_store(user_id=
+            "test_user", agent_name="test_agent", key="persistent_key", value="persistent value",
             scope="persistent",
             tags='["persistent"]',
             importance=0.8,
@@ -149,11 +137,8 @@ class TestPersistentMemoryMetadata:
     @pytest.mark.asyncio
     async def test_persistent_memory_recall_returns_metadata(self):
         """Persistent recall should include metadata payload."""
-        await memory_store(
-            "test_user",
-            "test_agent",
-            "persistent_meta",
-            "persistent value",
+        await memory_store(user_id=
+            "test_user", agent_name="test_agent", key="persistent_meta", value="persistent value",
             scope="persistent",
             tags='["persistent", "meta"]',
             importance=0.7,
@@ -180,11 +165,8 @@ class TestMetadataIntegrity:
     async def test_update_via_store_preserves_metadata(self):
         """Test that re-storing with new metadata works."""
         # Store initial
-        await memory_store(
-            "test_user",
-            "test_agent",
-            "update_test",
-            "original",
+        await memory_store(user_id=
+            "test_user", agent_name="test_agent", key="update_test", value="original",
             scope="working",
             tags='["v1"]',
             importance=0.5,
@@ -198,11 +180,8 @@ class TestMetadataIntegrity:
     async def test_metadata_survives_recall(self):
         """Test that metadata doesn't interfere with recall."""
         # Store with rich metadata
-        await memory_store(
-            "test_user",
-            "test_agent",
-            "rich_meta",
-            "value with metadata",
+        await memory_store(user_id=
+            "test_user", agent_name="test_agent", key="rich_meta", value="value with metadata",
             scope="working",
             tags='["tag1", "tag2"]',
             importance=0.95,
