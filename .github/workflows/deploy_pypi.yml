@@ -47,37 +47,37 @@ jobs:
   #   3. ls dist/  # Verify: kagura_ai-X.Y.Z-py3-none-any.whl, kagura_ai-X.Y.Z.tar.gz
   #   4. python -m twine upload dist/*
   #
-  # publish-to-pypi:
-  #   needs: [checks]
-  #   runs-on: ubuntu-latest
-  #   environment: pypi
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version-file: ".python-version"
-  #
-  #     - name: Install dependencies
-  #       run: |
-  #         python -m pip install --upgrade pip
-  #         pip install build twine
-  #
-  #     - name: Build package
-  #       run: python -m build
-  #
-  #     - name: Publish to TestPyPI for prerelease
-  #       if: github.event.release.prerelease
-  #       env:
-  #         TWINE_USERNAME: __token__
-  #         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
-  #       run: |
-  #         python -m twine upload --repository testpypi dist/*
-  #
-  #     - name: Publish to PyPI for full release
-  #       if: "!github.event.release.prerelease"
-  #       env:
-  #         TWINE_USERNAME: __token__
-  #         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-  #       run: twine upload dist/*
+  publish-to-pypi:
+    needs: [checks]
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+  
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+  
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+  
+      - name: Build package
+        run: python -m build
+  
+      - name: Publish to TestPyPI for prerelease
+        if: github.event.release.prerelease
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: |
+          python -m twine upload --repository testpypi dist/*
+  
+      - name: Publish to PyPI for full release
+        if: "!github.event.release.prerelease"
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload dist/*

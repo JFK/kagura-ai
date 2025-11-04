@@ -129,10 +129,10 @@ def test_memory_manager_rag_not_enabled(tmp_path):
     )
 
     # Should raise error
-    with pytest.raises(ValueError, match="RAG not enabled"):
+    with pytest.raises(ValueError, match="RAG.*not enabled"):
         memory.store_semantic("Some content")
 
-    with pytest.raises(ValueError, match="RAG not enabled"):
+    with pytest.raises(ValueError, match="RAG.*not enabled"):
         memory.recall_semantic("Some query")
 
 
@@ -204,7 +204,7 @@ def test_memory_manager_auto_detect_rag_disabled(tmp_path):
     assert memory.persistent_rag is None, "Persistent RAG should be auto-disabled"
 
     # Should raise error when trying to use RAG
-    with pytest.raises(ValueError, match="RAG not enabled"):
+    with pytest.raises(ValueError, match="RAG.*not enabled"):
         memory.store_semantic("Test")
 
 
