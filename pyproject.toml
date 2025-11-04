@@ -19,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Typing :: Typed",
@@ -52,11 +53,12 @@ kagura_testing = "kagura.testing.plugin"
 ai = [
     # Core AI features: Memory, Routing, Context Compression
     "chromadb>=0.4.0",           # Vector storage for memory & RAG
-    "sentence-transformers>=2.2.0",  # Embeddings (E5) & reranking (v4.0.0a0)
+    "torch>=2.0.0,<2.3",         # PyTorch <2.3 for Intel Mac x86_64 compatibility & no mandatory CUDA deps. See #533
+    "sentence-transformers>=2.2.0,<5.2",  # Embeddings (E5) & reranking. See #533
+    "numpy>=1.24.0,<2.0",        # NumPy <2.0 for torch 2.2.2 compatibility. See #533
     "rank-bm25>=0.2.2",          # BM25 lexical search (v4.0.0a0 Phase 2)
     "semantic-router>=0.1.11",   # Semantic routing
     "tiktoken>=0.7.0",           # Token counting for context compression
-    "numpy>=1.24.0",             # Neural memory scoring computations (v4.1.0)
 ]
 api = [
     # v4.0 REST API Server (Phase A)
