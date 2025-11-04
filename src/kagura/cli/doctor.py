@@ -192,35 +192,53 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
             "Database not initialized (will be created on first use)"
         )
 
-    # Check memory counts
+    # Check memory counts (aggregate across all users)
     persistent_count = 0
+    rag_count = 0
     try:
-        manager = MemoryManager(user_id="system", agent_name="doctor")
+        # Get total memory count from database
+        import sqlite3
 
-        # Count persistent memories
-        persistent_count = manager.persistent.count()
+        db_path = get_data_dir() / "memory.db"
+        if db_path.exists():
+            conn = sqlite3.connect(db_path)
+            cursor = conn.execute("SELECT COUNT(*) FROM memories")
+            persistent_count = cursor.fetchone()[0]
+            conn.close()
+
         status["persistent_count"] = persistent_count
 
-        # Check RAG
-        if manager.persistent_rag is not None:
-            try:
-                rag_count = manager.persistent_rag.collection.count()
-                status["rag_count"] = rag_count
-                status["rag_enabled"] = True
+        # Check RAG (count all collections across all users)
+        try:
+            import chromadb
 
-                if rag_count == 0 and persistent_count > 0:
-                    recommendations.append(
-                        "RAG index is empty but memories exist. "
-                        "Run 'kagura memory index' to build index"
-                    )
-            except Exception:  # ChromaDB collection.count() can fail if not initialized
-                status["rag_enabled"] = False
-                status["rag_count"] = 0
+            from kagura.config.paths import get_cache_dir
+
+            rag_count = 0
+            vector_db_paths = [
+                get_cache_dir() / "chromadb",  # Default CLI location
+                get_data_dir() / "chromadb",  # Alternative location
+            ]
+
+            for vdb_path in vector_db_paths:
+                if vdb_path.exists():
+                    try:
+                        client = chromadb.PersistentClient(path=str(vdb_path))
+                        for col in client.list_collections():
+                            rag_count += col.count()
+                    except Exception:
+                        pass
+
+            status["rag_enabled"] = True
+            status["rag_count"] = rag_count
+
+            if rag_count == 0 and persistent_count > 0:
                 recommendations.append(
-                    "RAG not available. Install: "
-                    "pip install chromadb sentence-transformers"
+                    "RAG index is empty but memories exist. "
+                    "Run 'kagura memory index' to build index"
                 )
-        else:
+
+        except ImportError:
             status["rag_enabled"] = False
             status["rag_count"] = 0
             recommendations.append(
@@ -561,6 +579,8 @@ def doctor(ctx: click.Context, fix: bool) -> None:
             "For more help:\n"
             "  • kagura config doctor - API configuration only\n"
             "  • kagura mcp doctor - MCP integration only\n"
+            "  • kagura memory doctor - Memory system health check\n"
+            "  • kagura coding doctor - Coding memory auto-detection\n"
             "  • kagura memory --help - Memory management",
             style="blue",
         )
