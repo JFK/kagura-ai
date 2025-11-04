@@ -117,9 +117,9 @@ async def _check_api_configuration() -> list[tuple[str, str, str]]:
             model = get_anthropic_default_model()
             await acompletion(
                 model=model,
-                messages=[{"role": "user", "content": "test"}],
+                messages=[{"role": "user", "content": "hi"}],
                 api_key=anthropic_key,
-                max_tokens=1,
+                max_tokens=10,  # Increased for safety
                 timeout=10,
             )
             results.append(("Anthropic", "ok", "Configured and reachable"))
@@ -129,7 +129,10 @@ async def _check_api_configuration() -> list[tuple[str, str, str]]:
             )
         except Exception as e:
             error_msg = str(e)
-            if "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
+            # Max tokens error means API works (connection successful)
+            if "max_tokens" in error_msg.lower() or "output limit" in error_msg.lower():
+                results.append(("Anthropic", "ok", "Configured and reachable"))
+            elif "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
                 results.append(("Anthropic", "error", "Invalid API key"))
             else:
                 results.append(("Anthropic", "error", f"Unreachable: {error_msg[:50]}"))
@@ -146,9 +149,9 @@ async def _check_api_configuration() -> list[tuple[str, str, str]]:
             model = get_openai_default_model()
             await acompletion(
                 model=model,
-                messages=[{"role": "user", "content": "test"}],
+                messages=[{"role": "user", "content": "hi"}],
                 api_key=openai_key,
-                max_tokens=1,
+                max_tokens=10,  # Increased for reasoning models (gpt-5-mini, o1-mini)
                 timeout=10,
             )
             results.append(("OpenAI", "ok", "Configured and reachable"))
@@ -156,7 +159,10 @@ async def _check_api_configuration() -> list[tuple[str, str, str]]:
             results.append(("OpenAI", "warning", "Configured (litellm not installed)"))
         except Exception as e:
             error_msg = str(e)
-            if "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
+            # Max tokens error from reasoning models is actually success (API works)
+            if "max_tokens" in error_msg.lower() or "output limit" in error_msg.lower():
+                results.append(("OpenAI", "ok", "Configured and reachable (reasoning model)"))
+            elif "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
                 results.append(("OpenAI", "error", "Invalid API key"))
             else:
                 results.append(("OpenAI", "error", f"Unreachable: {error_msg[:50]}"))
