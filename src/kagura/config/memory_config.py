@@ -57,8 +57,12 @@ class RerankConfig(BaseModel):
     """
 
     enabled: bool = Field(
-        default=False,
-        description="Enable reranking (requires sentence-transformers, slow first run)",
+        default=False,  # Conservative default: avoid crashes in offline/restricted envs
+        description=(
+            "Enable reranking (requires sentence-transformers, slow first run). "
+            "Recommended for +10-15% precision, but may fail in offline environments. "
+            "Enable with: config.rerank.enabled = True or KAGURA_ENABLE_RERANKING=true"
+        ),
     )
     model: str = Field(
         default="cross-encoder/ms-marco-MiniLM-L-6-v2",
@@ -91,6 +95,9 @@ class RecallScorerConfig(BaseModel):
         weights: Weight for each scoring dimension (should sum to ~1.0)
         recency_decay_days: Days until memory importance decays by ~63% (exp decay)
         frequency_saturation: Access count at which frequency score saturates
+        enable_time_decay: Apply exponential time decay to search results (v4.0.11)
+        time_decay_days: Time constant for exponential decay in days (v4.0.11)
+            At this value, memories decay by ~63% (1 - 1/e), not 50%
     """
 
     weights: dict[str, float] = Field(
@@ -109,6 +116,37 @@ class RecallScorerConfig(BaseModel):
     frequency_saturation: int = Field(
         default=100, description="Access count saturation point", ge=1
     )
+    enable_time_decay: bool = Field(
+        default=True,
+        description="Apply exponential time decay boost to search results (v4.0.11)",
+    )
+    time_decay_days: float = Field(
+        default=30.0,
+        description="Half-life for time decay in days (v4.0.11)",
+        ge=1.0,
+    )
+
+
+class BM25Config(BaseModel):
+    """BM25 keyword search configuration.
+
+    Attributes:
+        k1: Term frequency saturation parameter (default: 1.2, optimized for short texts)
+        b: Length normalization parameter (default: 0.4, reduced for memory entries)
+    """
+
+    k1: float = Field(
+        default=1.2,
+        description="Term frequency saturation (1.2-2.0, lower for short texts)",
+        ge=0.0,
+        le=3.0,
+    )
+    b: float = Field(
+        default=0.4,
+        description="Length normalization (0.0-1.0, lower for short texts)",
+        ge=0.0,
+        le=1.0,
+    )
 
 
 class HybridSearchConfig(BaseModel):
@@ -124,6 +162,7 @@ class HybridSearchConfig(BaseModel):
         vector_weight: Weight for vector search results (0.0-1.0)
         candidates_k: Number of candidates from each search method
         min_lexical_score: Minimum BM25 score threshold
+        bm25: BM25 algorithm parameters
     """
 
     enabled: bool = Field(default=True, description="Enable hybrid search (v4.0.0a0)")
@@ -141,6 +180,9 @@ class HybridSearchConfig(BaseModel):
     )
     min_lexical_score: float = Field(
         default=0.0, description="Minimum BM25 score threshold", ge=0.0
+    )
+    bm25: BM25Config = Field(
+        default_factory=BM25Config, description="BM25 parameters (v4.0.11)"
     )
 
 

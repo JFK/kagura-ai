@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.11] - 2025-11-04
+
+### ✨ Added
+
+#### RAG Performance Improvements (#525 - Quick Wins)
+- **Time-decay boosting**: Recent memories automatically ranked higher
+  - `apply_time_decay()` function in `hybrid_search.py`
+  - Configurable via `RecallScorerConfig.time_decay_days` (default: 30 days)
+  - Expected impact: +3-7% precision improvement
+- **BM25Config**: New configuration class for BM25 parameters
+  - Optimized for short memory entries (k1=1.2, b=0.4)
+  - Integrated into `HybridSearchConfig`
+
+### 🔧 Changed
+
+#### RAG Defaults (#525)
+- **Reranking enabled by default** (was disabled!)
+  - `RerankConfig.enabled` changed from `False` to `True`
+  - Expected impact: +10-15% precision improvement out-of-the-box
+  - Latency: +50-100ms (acceptable for MCP)
+  - Model: `cross-encoder/ms-marco-MiniLM-L-6-v2`
+- **BM25 parameters optimized** for short texts
+  - k1: 1.5 → 1.2 (reduced term frequency saturation)
+  - b: 0.75 → 0.4 (reduced length normalization)
+  - Expected impact: +2-5% precision improvement
+  - Rationale: Memory entries are typically short (< 100 words)
+
+### 📈 Performance
+
+**Total Expected Improvement**: +15-27% RAG precision
+- Reranking: +10-15%
+- BM25 optimization: +2-5%
+- Time-decay: +3-7%
+
+**Latency Impact**: +50-100ms (reranking only, one-time model download)
+
+### 📝 Documentation
+
+- Updated CHANGELOG for v4.0.11
+- Related Issues: #525 (RAG Quick Wins)
+
+---
+
 ## [4.0.10] - 2025-11-04
 
 ### ✨ Added

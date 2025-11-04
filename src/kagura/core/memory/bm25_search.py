@@ -6,7 +6,10 @@ complementing semantic search for hybrid retrieval.
 
 import logging
 from collections import Counter
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from kagura.config.memory_config import BM25Config
 
 logger = logging.getLogger(__name__)
 
@@ -17,15 +20,28 @@ class BM25Search:
     Uses Okapi BM25 algorithm for keyword-based ranking without external dependencies.
     """
 
-    def __init__(self, k1: float = 1.5, b: float = 0.75):
+    def __init__(
+        self,
+        k1: float = 1.2,
+        b: float = 0.4,
+        config: "BM25Config | None" = None,
+    ):
         """Initialize BM25 search.
 
         Args:
-            k1: Term frequency saturation parameter (default: 1.5)
-            b: Length normalization parameter (default: 0.75)
+            k1: Term frequency saturation parameter (default: 1.2, optimized for short texts)
+                Ignored if config is provided
+            b: Length normalization parameter (default: 0.4, reduced for memory entries)
+                Ignored if config is provided
+            config: BM25Config instance (recommended, overrides k1/b if provided)
         """
-        self.k1 = k1
-        self.b = b
+        # Use config if provided, otherwise fall back to parameters
+        if config is not None:
+            self.k1 = config.k1
+            self.b = config.b
+        else:
+            self.k1 = k1
+            self.b = b
         self.corpus: list[dict[str, Any]] = []
         self.corpus_size = 0
         self.avgdl = 0.0
