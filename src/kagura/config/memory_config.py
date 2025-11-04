@@ -223,10 +223,11 @@ class MemorySystemConfig(BaseModel):
 
     def model_post_init(self, __context) -> None:
         """Post-initialization hook to apply environment variables"""
-        import os
 
-        # Check environment variable for reranking
-        if os.environ.get("KAGURA_ENABLE_RERANKING", "").lower() == "true":
+        # Check reranking config (env var + pyproject.toml + .env)
+        from kagura.config.project import get_reranking_enabled
+
+        if get_reranking_enabled():
             self.rerank.enabled = True
 
     @classmethod

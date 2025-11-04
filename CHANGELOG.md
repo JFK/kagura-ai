@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### ✨ Added
+
+#### Auto-detect Project & User (#536)
+- **Smart Defaults**: Auto-detect project and user for coding commands
+  - Project detection priority: env var → pyproject.toml → git repo name → git directory
+  - User detection priority: env var → pyproject.toml → git user.name → default (kiyota)
+  - **Zero configuration** for most use cases (works in any git repository)
+  - `kagura coding doctor` - New command to check auto-detection status
+
+- **pyproject.toml Support**: Configure via `[tool.kagura]` section
+  ```toml
+  [tool.kagura]
+  project = "your-project"
+  user = "your-username"
+  enable_reranking = true
+  ```
+
+### 🔧 Changed
+
+#### Configuration Loading
+- `KAGURA_ENABLE_RERANKING` now loads from pyproject.toml and environment
+- Seamless multi-repository workflows (no need to change env vars per repo)
+- Backward compatible: Environment variables still work (highest priority)
+
+### 📝 Documentation
+
+- Added auto-detection documentation
+- Updated coding command help texts
+- Added pyproject.toml configuration examples
+
+---
+
 ## [4.0.11] - 2025-11-04
 
 ### 🐛 Fixed
