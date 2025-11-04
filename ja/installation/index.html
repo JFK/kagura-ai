@@ -1100,6 +1100,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform-specific-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Platform-Specific Requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1442,6 +1457,48 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#intel-mac-x86_64-installation-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Intel Mac (x86_64) Installation Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Intel Mac (x86_64) Installation Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-1-use-python-311-or-312-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 1: Use Python 3.11 or 3.12 (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-use-docker-supports-python-313" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 2: Use Docker (Supports Python 3.13)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-3-use-core-features-only-no-pytorch" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 3: Use Core Features Only (No PyTorch)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1517,9 +1574,48 @@
 <h1 id="installation">Installation</h1>
 <h2 id="requirements">Requirements</h2>
 <ul>
-<li>Python 3.11 or higher</li>
-<li>pip or uv package manager</li>
+<li><strong>Python</strong>: 3.11, 3.12, or 3.13</li>
+<li>⚠️ <strong>Intel Mac (x86_64) users</strong>: Python 3.13 is <strong>not supported</strong> with AI features due to PyTorch limitations. Use Python 3.11 or 3.12.</li>
+<li><strong>Package manager</strong>: pip or uv</li>
 </ul>
+<h3 id="platform-specific-requirements">Platform-Specific Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Python 3.11</th>
+<th>Python 3.12</th>
+<th>Python 3.13</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS Intel (x86_64)</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌ *</td>
+</tr>
+<tr>
+<td>macOS Apple Silicon (ARM64)</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Linux (x86_64 / ARM64)</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p>* <strong>Why?</strong> PyTorch 2.3+ dropped Intel Mac support. For AI features (<code>[ai]</code> extra) on Intel Mac, use Python 3.11 or 3.12. Core features work with all versions.</p>
 <h2 id="install-from-pypi">Install from PyPI</h2>
 <h3 id="using-pip">Using pip</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai
@@ -1791,23 +1887,51 @@
 <li>Ensure kagura-ai is installed in your environment</li>
 <li>Restart your IDE/language server</li>
 </ol>
+<h3 id="intel-mac-x86_64-installation-issues">Intel Mac (x86_64) Installation Issues</h3>
+<p>If you're on an Intel Mac and encounter installation failures with AI features (<code>[ai]</code> extra):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>ERROR: Could not find a version that satisfies the requirement torch
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>ERROR: No matching distribution found for torch
+</code></pre></div>
+<p><strong>Cause</strong>: PyTorch 2.3+ dropped Intel Mac support. Kagura AI uses PyTorch 2.2.2 (last version with Intel Mac wheels).</p>
+<p><strong>Solutions</strong>:</p>
+<h4 id="option-1-use-python-311-or-312-recommended">Option 1: Use Python 3.11 or 3.12 (Recommended)</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="c1"># Check your Python version</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>python<span class="w"> </span>--version
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="c1"># If using Python 3.13, switch to 3.12</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>pyenv<span class="w"> </span>install<span class="w"> </span><span class="m">3</span>.12
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>pyenv<span class="w"> </span><span class="nb">local</span><span class="w"> </span><span class="m">3</span>.12
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a><span class="c1"># Reinstall Kagura with AI features</span>
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai<span class="o">[</span>ai<span class="o">]</span>
+</code></pre></div>
+<h4 id="option-2-use-docker-supports-python-313">Option 2: Use Docker (Supports Python 3.13)</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/your-org/kagura-ai.git
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="nb">cd</span><span class="w"> </span>kagura-ai
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+<h4 id="option-3-use-core-features-only-no-pytorch">Option 3: Use Core Features Only (No PyTorch)</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="c1"># Install without AI features - still get MCP server, CLI, API</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>pip<span class="w"> </span>install<span class="w"> </span>kagura-ai
+</code></pre></div>
+<p><strong>Note</strong>: Core features (MCP server, CLI, REST API) work on all platforms with Python 3.11-3.13. Only the <code>[ai]</code> extra (embeddings, RAG) requires PyTorch.</p>
 <h2 id="upgrading">Upgrading</h2>
 <h3 id="from-pypi">From PyPI</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>kagura-ai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>kagura-ai
 </code></pre></div>
 <p>or with uv:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>uv<span class="w"> </span>add<span class="w"> </span>kagura-ai<span class="w"> </span>--upgrade
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>uv<span class="w"> </span>add<span class="w"> </span>kagura-ai<span class="w"> </span>--upgrade
 </code></pre></div>
 <h3 id="from-git">From Git</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="nb">cd</span><span class="w"> </span>kagura-ai
-<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>git<span class="w"> </span>pull
-<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="nb">cd</span><span class="w"> </span>kagura-ai
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>git<span class="w"> </span>pull
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev
 </code></pre></div>
 <h2 id="uninstalling">Uninstalling</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>pip<span class="w"> </span>uninstall<span class="w"> </span>kagura-ai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>pip<span class="w"> </span>uninstall<span class="w"> </span>kagura-ai
 </code></pre></div>
 <p>or with uv:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>uv<span class="w"> </span>remove<span class="w"> </span>kagura-ai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>uv<span class="w"> </span>remove<span class="w"> </span>kagura-ai
 </code></pre></div>
 <h2 id="next-steps">Next Steps</h2>
 <ul>

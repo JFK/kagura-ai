@@ -2,616 +2,630 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
         <loc>https://www.kagura-ai.com/api/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/api/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/api/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/api-reference/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/api-reference/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/api-reference/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/architecture/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/architecture/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/architecture/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/chat-integration-tips/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/chat-integration-tips/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/chat-integration-tips/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/coding-memory/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/coding-memory/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/coding-memory/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/getting-started/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/getting-started/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/getting-started/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/installation/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/installation/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/installation/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/mcp-claude-code-setup/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/mcp-claude-code-setup/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/mcp-claude-code-setup/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/mcp-http-setup/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/mcp-http-setup/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/mcp-http-setup/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/mcp-setup/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/mcp-setup/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/mcp-setup/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/memory-export/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/memory-export/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/memory-export/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/memory-improvements/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/memory-improvements/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/memory-improvements/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/migration-v3-to-v4/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/migration-v3-to-v4/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/migration-v3-to-v4/"/>
     </url>
     <url>
+        <loc>https://www.kagura-ai.com/pypi-publishing/</loc>
+        <lastmod>2025-11-04</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/pypi-publishing/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/pypi-publishing/"/>
+    </url>
+    <url>
         <loc>https://www.kagura-ai.com/quickstart/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/quickstart/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/quickstart/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/rest-api-usage/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/rest-api-usage/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/rest-api-usage/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/sdk-guide/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/sdk-guide/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/sdk-guide/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/self-hosting/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/self-hosting/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/self-hosting/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tool-selection-guide/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tool-selection-guide/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tool-selection-guide/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/troubleshooting/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/troubleshooting/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/troubleshooting/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/configuration/environment-variables/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/configuration/environment-variables/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/configuration/environment-variables/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/examples/chatgpt-workflow/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/examples/chatgpt-workflow/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/examples/chatgpt-workflow/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/examples/claude-workflow/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/examples/claude-workflow/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/examples/claude-workflow/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/guides/claude-code-mcp-setup/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/claude-code-mcp-setup/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/claude-code-mcp-setup/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/guides/cli-performance/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/cli-performance/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/cli-performance/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/guides/context-compression/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/context-compression/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/context-compression/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/guides/meta-agent/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/meta-agent/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/meta-agent/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/guides/oauth2-authentication/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/oauth2-authentication/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/oauth2-authentication/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/guides/performance-caching/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/performance-caching/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/performance-caching/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/guides/web-integration/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/web-integration/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/web-integration/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/01-basic-agent/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/01-basic-agent/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/01-basic-agent/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/02-templates/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/02-templates/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/02-templates/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/03-type-parsing/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/03-type-parsing/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/03-type-parsing/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/04-code-execution/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/04-code-execution/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/04-code-execution/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/06-mcp-integration/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/06-mcp-integration/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/06-mcp-integration/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/08-memory-management/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/08-memory-management/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/08-memory-management/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/09-agent-routing/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/09-agent-routing/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/09-agent-routing/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/11-tools/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/11-tools/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/11-tools/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/12-workflows/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/12-workflows/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/12-workflows/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/13-agent-builder/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/13-agent-builder/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/13-agent-builder/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/13-multimodal-rag/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/13-multimodal-rag/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/13-multimodal-rag/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/14-testing/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/14-testing/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/14-testing/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/tutorials/15-observability/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/15-observability/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/15-observability/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/releases/v4.0.0/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/releases/v4.0.0/"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/releases/v4.0.0/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/api/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/api/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/api/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/api-reference/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/api-reference/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/api-reference/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/architecture/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/architecture/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/architecture/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/chat-integration-tips/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/chat-integration-tips/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/chat-integration-tips/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/coding-memory/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/coding-memory/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/coding-memory/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/getting-started/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/getting-started/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/getting-started/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/installation/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/installation/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/installation/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/mcp-claude-code-setup/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/mcp-claude-code-setup/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/mcp-claude-code-setup/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/mcp-http-setup/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/mcp-http-setup/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/mcp-http-setup/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/mcp-setup/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/mcp-setup/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/mcp-setup/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/memory-export/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/memory-export/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/memory-export/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/memory-improvements/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/memory-improvements/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/memory-improvements/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/migration-v3-to-v4/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/migration-v3-to-v4/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/migration-v3-to-v4/"/>
     </url>
     <url>
+        <loc>https://www.kagura-ai.com/ja/pypi-publishing/</loc>
+        <lastmod>2025-11-04</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/pypi-publishing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/pypi-publishing/"/>
+    </url>
+    <url>
         <loc>https://www.kagura-ai.com/ja/quickstart/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/quickstart/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/quickstart/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/rest-api-usage/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/rest-api-usage/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/rest-api-usage/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/sdk-guide/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/sdk-guide/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/sdk-guide/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/self-hosting/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/self-hosting/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/self-hosting/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tool-selection-guide/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tool-selection-guide/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tool-selection-guide/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/troubleshooting/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/troubleshooting/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/troubleshooting/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/configuration/environment-variables/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/configuration/environment-variables/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/configuration/environment-variables/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/examples/chatgpt-workflow/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/examples/chatgpt-workflow/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/examples/chatgpt-workflow/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/examples/claude-workflow/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/examples/claude-workflow/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/examples/claude-workflow/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/guides/claude-code-mcp-setup/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/claude-code-mcp-setup/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/claude-code-mcp-setup/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/guides/cli-performance/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/cli-performance/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/cli-performance/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/guides/context-compression/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/context-compression/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/context-compression/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/guides/meta-agent/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/meta-agent/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/meta-agent/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/guides/oauth2-authentication/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/oauth2-authentication/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/oauth2-authentication/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/guides/performance-caching/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/performance-caching/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/performance-caching/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/guides/web-integration/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/guides/web-integration/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/guides/web-integration/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/01-basic-agent/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/01-basic-agent/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/01-basic-agent/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/02-templates/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/02-templates/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/02-templates/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/03-type-parsing/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/03-type-parsing/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/03-type-parsing/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/04-code-execution/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/04-code-execution/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/04-code-execution/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/06-mcp-integration/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/06-mcp-integration/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/06-mcp-integration/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/08-memory-management/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/08-memory-management/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/08-memory-management/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/09-agent-routing/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/09-agent-routing/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/09-agent-routing/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/11-tools/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/11-tools/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/11-tools/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/12-workflows/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/12-workflows/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/12-workflows/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/13-agent-builder/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/13-agent-builder/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/13-agent-builder/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/13-multimodal-rag/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/13-multimodal-rag/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/13-multimodal-rag/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/14-testing/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/14-testing/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/14-testing/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/tutorials/15-observability/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/tutorials/15-observability/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/tutorials/15-observability/"/>
     </url>
     <url>
         <loc>https://www.kagura-ai.com/ja/releases/v4.0.0/</loc>
-        <lastmod>2025-11-03</lastmod>
+        <lastmod>2025-11-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.kagura-ai.com/ja/releases/v4.0.0/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.kagura-ai.com/releases/v4.0.0/"/>
