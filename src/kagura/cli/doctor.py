@@ -231,9 +231,9 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
         return status, recommendations
 
     # Check reranking
-    import os
+    from kagura.config.project import get_reranking_enabled
 
-    reranking_enabled = os.getenv("KAGURA_ENABLE_RERANKING", "").lower() == "true"
+    reranking_enabled = get_reranking_enabled()
     status["reranking_enabled"] = reranking_enabled
 
     if not reranking_enabled:

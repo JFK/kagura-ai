@@ -179,3 +179,10 @@ markers = [
     "agent: Agent tests (for agent-specific testing)",
     "benchmark: Performance benchmarks",
 ]
+
+
+[tool.kagura]
+project = "kagura-ai"
+user = "kiyota"
+# enable_reranking = true  # Optional: Explicitly enable/disable (auto-detects if model is cached)
+

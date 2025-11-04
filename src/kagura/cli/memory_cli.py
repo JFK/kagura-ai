@@ -1222,9 +1222,9 @@ def doctor_command(user_id: str | None) -> None:
     # Reranking status
     console.print("[bold cyan]4. Reranking Status[/]")
 
-    import os
+    from kagura.config.project import get_reranking_enabled
 
-    reranking_enabled = os.getenv("KAGURA_ENABLE_RERANKING", "").lower() == "true"
+    reranking_enabled = get_reranking_enabled()
 
     # Check sentence-transformers installation and model availability
     try:
