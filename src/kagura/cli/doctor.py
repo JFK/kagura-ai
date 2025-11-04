@@ -176,7 +176,6 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
     Returns:
         Tuple of (status_dict, recommendations)
     """
-    from kagura.core.memory import MemoryManager
 
     status = {}
     recommendations = []
