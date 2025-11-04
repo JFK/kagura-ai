@@ -1,11 +1,7 @@
 """Tests for project configuration and auto-detection."""
 
-import os
 import subprocess
-from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from kagura.config.project import (
     detect_git_repo_name,

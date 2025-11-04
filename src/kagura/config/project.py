@@ -69,6 +69,7 @@ def detect_git_repo_name() -> Optional[str]:
             return Path(result.stdout.strip()).name
 
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        # Git command failed (not installed, not a repo, or timeout)
         pass
 
     return None
@@ -95,8 +96,7 @@ def load_pyproject_config() -> dict[str, Any]:
         content = pyproject_path.read_text(encoding="utf-8")
         data = tomllib.loads(content)
         return data.get("tool", {}).get("kagura", {})
-    except Exception:
-        # Ignore parse errors - pyproject.toml might be invalid
+    except Exception:  # Invalid TOML or missing [tool.kagura] section
         return {}
 
 
@@ -167,6 +167,7 @@ def get_default_user() -> Optional[str]:
         if result.returncode == 0 and result.stdout.strip():
             return result.stdout.strip()
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        # Git command failed (not installed or user.name not configured)
         pass
 
     return None
@@ -196,7 +197,7 @@ def is_reranking_model_cached() -> bool:
                 if "cross-encoder" in item.name.lower() and "marco" in item.name.lower():
                     return True
 
-    except Exception:
+    except Exception:  # ChromaDB not installed or cache access failed
         pass
 
     return False

@@ -1071,7 +1071,7 @@ def doctor() -> None:
 
     # Project detection
     detected_project = _get_default_project()
-    env_project = os.getenv("KAGURA_DEFAULT_PROJECT") if 'os' in dir() else None
+    env_project = os.getenv("KAGURA_DEFAULT_PROJECT")
     pyproject_config = load_pyproject_config()
     git_repo = detect_git_repo_name()
 
@@ -1091,11 +1091,12 @@ def doctor() -> None:
 
     # User detection
     detected_user = _get_default_user()
-    env_user = os.getenv("KAGURA_DEFAULT_USER") if 'os' in dir() else None
+    env_user = os.getenv("KAGURA_DEFAULT_USER")
     git_user = None
     try:
-        import subprocess as sp
-        result = sp.run(
+        import subprocess
+
+        result = subprocess.run(
             ["git", "config", "user.name"],
             capture_output=True,
             text=True,
@@ -1104,7 +1105,7 @@ def doctor() -> None:
         )
         if result.returncode == 0:
             git_user = result.stdout.strip()
-    except Exception:
+    except Exception:  # Git not available or config not set
         pass
 
     console.print(f"   [green]✓[/] User: [bold]{detected_user}[/bold]")
@@ -1122,11 +1123,7 @@ def doctor() -> None:
     # 2. Configuration Sources
     console.print("[bold cyan]2. Configuration Sources[/]")
 
-    # Environment variables
-    import os as _os
-    env_project = _os.getenv("KAGURA_DEFAULT_PROJECT")
-    env_user = _os.getenv("KAGURA_DEFAULT_USER")
-
+    # Environment variables (reuse already-retrieved values)
     if env_project or env_user:
         console.print("   [green]✓[/] Environment Variables:")
         if env_project:
@@ -1152,8 +1149,9 @@ def doctor() -> None:
     if git_repo:
         console.print(f"   [green]✓[/] Git Repository: {git_repo}")
         try:
-            import subprocess as sp2
-            result = sp2.run(
+            import subprocess
+
+            result = subprocess.run(
                 ["git", "remote", "get-url", "origin"],
                 capture_output=True,
                 text=True,
@@ -1162,7 +1160,7 @@ def doctor() -> None:
             )
             if result.returncode == 0:
                 console.print(f"     [dim]└─ Remote: {result.stdout.strip()}[/dim]")
-        except Exception:
+        except Exception:  # Git not available
             pass
     else:
         console.print("   [dim]⊘[/] Git Repository: Not detected")
