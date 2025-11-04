@@ -20,6 +20,8 @@ Example:
     >>> fused = rrf_fusion(vector_results, lexical_results, k=60)
 """
 
+import math
+from datetime import datetime
 from typing import Any
 
 
@@ -171,3 +173,78 @@ def weighted_rrf_fusion(
     )
 
     return sorted_results
+
+
+def apply_time_decay(
+    results: list[dict[str, Any]],
+    decay_days: float = 30.0,
+) -> list[dict[str, Any]]:
+    """Apply exponential time decay boosting to search results.
+
+    Recent memories are more relevant and receive a higher score boost.
+    Uses exponential decay: score_new = score * exp(-days_old / decay_days)
+
+    Args:
+        results: Search results with 'score' and 'created_at' fields
+        decay_days: Half-life for time decay (default: 30.0 days)
+
+    Returns:
+        Results with time-decayed scores, re-sorted by new scores
+
+    Example:
+        >>> from datetime import datetime, timedelta
+        >>> results = [
+        ...     {"id": "old", "score": 0.8, "created_at": datetime.now() - timedelta(days=60)},
+        ...     {"id": "recent", "score": 0.7, "created_at": datetime.now() - timedelta(days=5)},
+        ... ]
+        >>> decayed = apply_time_decay(results, decay_days=30.0)
+        >>> # Recent memory will likely rank higher after decay
+
+    Note:
+        - decay_days=30: memories decay by ~63% after 30 days
+        - Lower decay_days = stronger recency bias
+        - Higher decay_days = weaker recency bias
+        - If 'created_at' is missing, assumes current time (no decay)
+    """
+    now = datetime.now()
+    decayed_results = []
+
+    for result in results:
+        result_copy = result.copy()
+
+        # Get creation time (default to now if missing)
+        created_at = result.get("created_at")
+        if created_at is None:
+            # No timestamp, no decay
+            decayed_results.append(result_copy)
+            continue
+
+        # Calculate days old
+        if isinstance(created_at, str):
+            # Parse ISO format timestamp
+            try:
+                created_at = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+            except (ValueError, AttributeError):
+                # Invalid timestamp, no decay
+                decayed_results.append(result_copy)
+                continue
+
+        days_old = (now - created_at).total_seconds() / 86400.0  # seconds to days
+
+        # Apply exponential decay
+        decay_factor = math.exp(-days_old / decay_days)
+
+        # Get original score (try multiple field names)
+        original_score = result.get("score", 0.0) or result.get("rrf_score", 0.0)
+
+        # Apply decay
+        result_copy["score"] = original_score * decay_factor
+        result_copy["_time_decay_factor"] = decay_factor
+        result_copy["_days_old"] = days_old
+
+        decayed_results.append(result_copy)
+
+    # Re-sort by new scores
+    decayed_results.sort(key=lambda x: x.get("score", 0.0), reverse=True)
+
+    return decayed_results

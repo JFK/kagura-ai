@@ -17,12 +17,12 @@ class BM25Search:
     Uses Okapi BM25 algorithm for keyword-based ranking without external dependencies.
     """
 
-    def __init__(self, k1: float = 1.5, b: float = 0.75):
+    def __init__(self, k1: float = 1.2, b: float = 0.4):
         """Initialize BM25 search.
 
         Args:
-            k1: Term frequency saturation parameter (default: 1.5)
-            b: Length normalization parameter (default: 0.75)
+            k1: Term frequency saturation parameter (default: 1.2, optimized for short texts)
+            b: Length normalization parameter (default: 0.4, reduced for memory entries)
         """
         self.k1 = k1
         self.b = b
