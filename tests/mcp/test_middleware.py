@@ -96,13 +96,18 @@ class TestLogToolCallToMemory:
     @pytest.mark.asyncio
     async def test_logs_tool_call(self):
         """Test actual logging to memory."""
+        import asyncio
+
         user_id = "test_middleware_user"
         tool_name = "brave_web_search"
         arguments = {"query": "test", "count": 5}
         result = "Test search results..."
 
-        # Log tool call
+        # Log tool call (now fire-and-forget with create_task)
         await log_tool_call_to_memory(user_id, tool_name, arguments, result)
+
+        # Wait for async task to complete (fire-and-forget means we need to wait)
+        await asyncio.sleep(0.5)
 
         # Verify stored in memory
         from kagura.mcp.builtin.memory import memory_get_tool_history
@@ -123,6 +128,8 @@ class TestLogToolCallToMemory:
     @pytest.mark.asyncio
     async def test_truncates_long_results(self, monkeypatch):
         """Test large results are truncated."""
+        import asyncio
+
         monkeypatch.setenv("KAGURA_AUTO_LOG_MAX_LENGTH", "100")
 
         long_result = "x" * 500  # 500 chars
@@ -134,6 +141,9 @@ class TestLogToolCallToMemory:
             arguments={},
             result=long_result,
         )
+
+        # Wait for async task to complete
+        await asyncio.sleep(0.5)
 
         # Verify truncated in storage
         from kagura.mcp.builtin.memory import memory_get_tool_history

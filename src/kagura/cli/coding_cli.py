@@ -52,9 +52,8 @@ def _get_lightweight_coding_memory(user_id: str, project_id: str):
     # Lightweight config for fast CLI startup
     config = MemorySystemConfig(
         enable_access_tracking=False,  # Disable RecallScorer (~1s saved)
-        rerank=RerankConfig(
-            enabled=False
-        ),  # Disable reranker (~6.5s saved, Issue #548)
+        # Disable reranker (~6.5s saved, Issue #548)
+        rerank=RerankConfig(enabled=False),
     )
 
     return CodingMemoryManager(

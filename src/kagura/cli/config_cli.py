@@ -147,10 +147,7 @@ def setup() -> None:
             console.print(f"[cyan]{key_info['description']}[/]")
 
         value = Prompt.ask(
-            f"  {name}",
-            password=True,
-            default="" if not existing else existing,
-            show_default=False,
+            f"  {name}", password=True, default=existing or "", show_default=False
         )
 
         if value and value != existing:

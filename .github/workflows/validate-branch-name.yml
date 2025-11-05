@@ -26,6 +26,10 @@ jobs:
     steps:
       - name: Validate branch name format
         run: |
+          # Extract branch name from PR head ref or current ref
+          # ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          # - For PRs: GITHUB_HEAD_REF contains source branch name
+          # - For pushes: Extract from GITHUB_REF by removing refs/heads/ prefix
           BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
 
           echo "🔍 Checking branch name: $BRANCH"

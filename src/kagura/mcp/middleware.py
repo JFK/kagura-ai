@@ -141,13 +141,22 @@ async def log_tool_call_to_memory(
         return
 
     try:
+        import asyncio
+
         # Import here to avoid circular dependency
         from kagura.mcp.builtin.memory import memory_store
 
         timestamp = datetime.now().isoformat()
 
         # Truncate large results
-        MAX_LENGTH = int(os.getenv("KAGURA_AUTO_LOG_MAX_LENGTH", "500"))
+        try:
+            MAX_LENGTH = int(os.getenv("KAGURA_AUTO_LOG_MAX_LENGTH", "500"))
+        except (ValueError, TypeError):
+            logger.warning(
+                "Invalid KAGURA_AUTO_LOG_MAX_LENGTH value, using default 500"
+            )
+            MAX_LENGTH = 500
+
         truncated_result = result[:MAX_LENGTH]
         if len(result) > MAX_LENGTH:
             truncated_result += "... (truncated)"
@@ -160,22 +169,30 @@ async def log_tool_call_to_memory(
             "timestamp": timestamp,
         }
 
-        # Store in persistent memory
-        await memory_store(
-            user_id=user_id,
-            agent_name="mcp_history",
-            key=f"{tool_name}_{timestamp}",
-            value=json.dumps(log_entry, ensure_ascii=False),
-            scope="persistent",
-            tags=json.dumps(["mcp_history", tool_name]),
-            importance=0.3,  # Low importance (housekeeping data)
-        )
+        # Store in persistent memory (fire-and-forget to avoid blocking)
+        # CRITICAL: Use create_task() to prevent RAG initialization from blocking tool calls
+        # See PR #574 review feedback - memory_store with RAG can take 30-60s on first call
+        async def _store_log():
+            try:
+                await memory_store(
+                    user_id=user_id,
+                    agent_name="mcp_history",
+                    key=f"{tool_name}_{timestamp}",
+                    value=json.dumps(log_entry, ensure_ascii=False),
+                    scope="persistent",
+                    tags=json.dumps(["mcp_history", tool_name]),
+                    importance=0.3,  # Low importance (housekeeping data)
+                )
+                logger.debug(f"Auto-logged tool call: {tool_name}")
+            except Exception as e:
+                logger.warning(f"Failed to auto-log tool call '{tool_name}': {e}")
 
-        logger.debug(f"Auto-logged tool call: {tool_name}")
+        # Fire and forget - don't await, don't block tool execution
+        asyncio.create_task(_store_log())
 
     except Exception as e:
-        # CRITICAL: Don't fail tool execution if logging fails
-        logger.warning(f"Failed to auto-log tool call '{tool_name}': {e}")
+        # CRITICAL: Don't fail tool execution if logging setup fails
+        logger.warning(f"Failed to setup auto-logging for '{tool_name}': {e}")
 
 
 __all__ = [

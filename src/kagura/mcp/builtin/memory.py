@@ -1100,7 +1100,13 @@ async def memory_stats(
         agent_name: Agent identifier (default: "global")
 
     Returns:
-        JSON with statistics and recommendations
+        JSON with statistics and recommendations including:
+        - total_memories: Total count
+        - breakdown: {working, persistent}
+        - analysis: {duplicates, old_90days, unused_30days, unused_90days, storage_mb}
+          Note: storage_mb may be null if calculation fails
+        - recommendations: List of suggestions
+        - health_score: "excellent" | "good" | "fair"
     """
     import logging
 
@@ -2038,7 +2044,9 @@ async def memory_get_tool_history(
             except (json.JSONDecodeError, KeyError, AttributeError) as e:
                 import logging
 
-                logging.getLogger(__name__).warning(f"Failed to parse tool history: {e}")
+                logging.getLogger(__name__).warning(
+                    f"Failed to parse tool history: {e}"
+                )
                 continue
 
         history.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
