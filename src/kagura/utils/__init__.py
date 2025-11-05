@@ -13,6 +13,7 @@ from kagura.utils.json_helpers import (
     encode_chromadb_metadata,
     safe_json_loads,
 )
+from kagura.utils.memory import MemoryManagerFactory, get_memory_manager
 from kagura.utils.metadata import (
     MemoryMetadata,
     build_full_metadata,
@@ -38,4 +39,7 @@ __all__ = [
     "MemoryDatabaseQuery",
     "db_exists",
     "get_db_path",
+    # memory
+    "MemoryManagerFactory",
+    "get_memory_manager",
 ]
