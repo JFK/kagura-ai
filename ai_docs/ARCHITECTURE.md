@@ -686,6 +686,6 @@ API Key認証必須。全操作は`user_id`でスコープ化。
 
 ---
 
-**Last Updated**: 2025-10-27
-**Version**: 4.0 (Phase C Complete)
+**Last Updated**: 2025-11-05
+**Version**: 4.1.0 (Phase C Complete)
 **Status**: Production-Ready

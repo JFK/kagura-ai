@@ -81,20 +81,34 @@ ai_docs/
 │
 ├── ARCHITECTURE.md                    # システム設計（v4.0）
 ├── MEMORY_STRATEGY.md                 # メモリー戦略
+├── MEMORY_TEMPERATURE_HIERARCHY.md    # Temperature-based Memory設計
+├── MEMORY_HIERARCHY_INVESTIGATION.md  # メモリー階層調査
+├── CODING_MEMORY_DESIGN.md            # Coding Memory設計
 ├── CODING_STANDARDS.md                # コーディング規約
 ├── GLOSSARY.md                        # 用語集（v4.0）
 ├── GITHUB_ACTIONS_SETUP.md            # CI/CD
 │
-└── archive/                           # 古いドキュメント
-    └── v3/                            # v3.0時代のドキュメント
+└── archive/                           # 保存ドキュメント
+    └── USE_CASES_AND_FUTURE.md        # 将来のユースケース
 ```
 
-**削除済み** (Phase C完了時):
-- ❌ `VISION.md` - V4.0_STRATEGIC_PIVOT.mdに統合
-- ❌ `DOCUMENTATION_GUIDE.md` - 古いv3.0管理ルール
-- ❌ `OPENAI_PRICING.md` - 古い料金情報
-- ❌ `V4.0_README_DRAFT.md` - ドラフト（README完成）
-- ❌ `V4.0_GITHUB_ISSUE_TEMPLATE.md` - 使用済み
+**削除済み** (v4.1.0 cleanup - 2025-11-05):
+- ❌ `archive/v3/` - v3.0時代のドキュメント (4ファイル)
+- ❌ `archive/old_versions/` - v2.x時代のドキュメント (4ファイル)
+- ❌ `archive/analysis_old/` - 古い分析ドキュメント (7ファイル)
+- ❌ `archive/guides/` - 古い実装ガイド (3ファイル)
+- ❌ `archive/rfcs/completed/` - 完了済みRFC (25+ファイル)
+- ❌ `archive/work_logs/` - 手動ワークログ (10ファイル、Kagura Coding Sessionに移行)
+- ❌ `rfcs/` - Future RFCs (15ファイル、**GitHub Issuesへ移行** #556-#562)
+- ❌ Root: `RELEASE_NOTES_v4.0.0.md`, `RELEASE.md` - 不要
+- ❌ Root: `.pre-commit-config.yaml` - 古いツール（現在はruff使用）
+- ❌ Root: `.python-version` - pyproject.tomlに記載済み
+
+**総削減**: 70+ファイル削除 (~900 KB削減、53%ファイル数削減)
+
+**RFC管理**: Future RFCは全てGitHub Issuesに移行しました。
+- Top 7 RFCs → Issues #556-#562 (label: `rfc`)
+- RFC-003 (Issue #63) → RFC-034 (Issue #556) へ移行
 
 ---
 
@@ -174,9 +188,24 @@ A: **完全後方互換** ✅
 ## 🔗 関連リソース
 
 ### GitHub
-- [Issues](https://github.com/JFK/kagura-ai/issues)
+- [Issues](https://github.com/JFK/kagura-ai/issues) - バグ報告、機能リクエスト、**RFC管理**
 - [Pull Requests](https://github.com/JFK/kagura-ai/pulls)
 - [Discussions](https://github.com/JFK/kagura-ai/discussions)
+
+### RFC管理 (v4.1.0+)
+**RFCはGitHub Issuesで管理しています:**
+- ラベル `rfc` でフィルタ: [RFC Issues](https://github.com/JFK/kagura-ai/issues?q=label%3Arfc)
+- 現在アクティブなRFC: Issues #556-#562
+- RFC提案方法: 通常のIssueとして作成し、`rfc` ラベルを追加
+
+**アクティブRFC (v4.1.0):**
+- [#556](https://github.com/JFK/kagura-ai/issues/556) - RFC-034: Hippocampus Memory System
+- [#557](https://github.com/JFK/kagura-ai/issues/557) - RFC-029: Secret Management
+- [#558](https://github.com/JFK/kagura-ai/issues/558) - RFC-015: Agent API Server
+- [#559](https://github.com/JFK/kagura-ai/issues/559) - RFC-008: Plugin Marketplace
+- [#560](https://github.com/JFK/kagura-ai/issues/560) - RFC-026: Preset Expansion
+- [#561](https://github.com/JFK/kagura-ai/issues/561) - RFC-025: Performance Optimization
+- [#562](https://github.com/JFK/kagura-ai/issues/562) - RFC-009: Multi-Agent Orchestration
 
 ### User Documentation
 - [docs/](../docs/) - ユーザー向けドキュメント
@@ -184,6 +213,6 @@ A: **完全後方互換** ✅
 
 ---
 
-**Last Updated**: 2025-10-29（Temperature-based Hierarchy設計追加）
+**Last Updated**: 2025-11-05（v4.1.0 cleanup完了、RFC → GitHub Issue移行完了）
 **Maintained By**: Claude Code + Human developers
-**Status**: Phase C Complete, v4.0.0 stable準備中、Phase 1実装開始予定（Issue #453）
+**Status**: v4.1.0 active, Phase C Complete, Coding Memory in production, RFC管理移行完了
