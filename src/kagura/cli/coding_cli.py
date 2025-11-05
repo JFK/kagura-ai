@@ -46,13 +46,13 @@ def _get_lightweight_coding_memory(user_id: str, project_id: str):
 
     Related: Issue #548 - CLI performance optimization
     """
-    from kagura.config.memory_config import MemorySystemConfig
+    from kagura.config.memory_config import MemorySystemConfig, RerankConfig
     from kagura.core.memory.coding_memory import CodingMemoryManager
 
     # Lightweight config for fast CLI startup
     config = MemorySystemConfig(
         enable_access_tracking=False,  # Disable RecallScorer (~1s saved)
-        # rerank.enabled defaults to False already
+        rerank=RerankConfig(enabled=False),  # Disable reranker (~6.5s saved, Issue #548)
     )
 
     return CodingMemoryManager(
