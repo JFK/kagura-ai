@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🚀 Performance
+
+#### CLI Startup Time Optimization (#548)
+- **83% faster CLI startup**: Reduced from 13.9s → 2.3s (target: <3s) ✅
+- **Root cause**: MemoryReranker (CrossEncoder) initialization taking 6.5s
+- **Solution**:
+  - Explicitly disable reranker in CLI lightweight config
+  - Fixed `MemorySystemConfig.model_post_init()` to respect explicit `rerank.enabled=False`
+  - Added `__pydantic_fields_set__` check to detect explicit user configuration
+- **Impact**: All coding CLI commands (`sessions`, `decisions`, `errors`) now start instantly
+- **Tests**: Added 4 performance regression tests in `tests/performance/test_cli_startup.py`
+
+### 🐛 Fixed
+
+#### MemorySystemConfig Auto-Detection Bug (#548)
+- **Critical**: `model_post_init()` was ignoring explicit `rerank.enabled=False` setting
+- **Issue**: Auto-enablement (when model cached) would override user's explicit config
+- **Fix**: Check `__pydantic_fields_set__` before applying auto-detection
+- **Result**: CLI lightweight config now correctly disables reranker
+
 ### ✨ Added
 
 #### Auto-detect Project & User (#536)

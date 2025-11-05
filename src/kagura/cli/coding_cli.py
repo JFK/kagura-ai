@@ -46,13 +46,15 @@ def _get_lightweight_coding_memory(user_id: str, project_id: str):
 
     Related: Issue #548 - CLI performance optimization
     """
-    from kagura.config.memory_config import MemorySystemConfig
+    from kagura.config.memory_config import MemorySystemConfig, RerankConfig
     from kagura.core.memory.coding_memory import CodingMemoryManager
 
     # Lightweight config for fast CLI startup
     config = MemorySystemConfig(
         enable_access_tracking=False,  # Disable RecallScorer (~1s saved)
-        # rerank.enabled defaults to False already
+        rerank=RerankConfig(
+            enabled=False
+        ),  # Disable reranker (~6.5s saved, Issue #548)
     )
 
     return CodingMemoryManager(
@@ -91,8 +93,12 @@ def _check_project_required(project: str | None, console: Console) -> str | None
         )
         console.print("[yellow]💡 Tip: Auto-detection works when you:[/yellow]")
         console.print("[dim]  1. Run in a git repository (uses repo name)[/dim]")
-        console.print("[dim]  2. Add to pyproject.toml: [tool.kagura] project = \"your-project\"[/dim]")
-        console.print("[dim]  3. Set environment: export KAGURA_DEFAULT_PROJECT=your-project[/dim]")
+        console.print(
+            '[dim]  2. Add to pyproject.toml: [tool.kagura] project = "your-project"[/dim]'
+        )
+        console.print(
+            "[dim]  3. Set environment: export KAGURA_DEFAULT_PROJECT=your-project[/dim]"
+        )
         console.print("[dim]  4. Use flag: --project your-project[/dim]")
     return proj
 
@@ -1100,14 +1106,18 @@ def doctor() -> None:
 
         # Show source
         if env_project:
-            console.print("     [dim]└─ Source: Environment variable ($KAGURA_DEFAULT_PROJECT)[/dim]")
+            console.print(
+                "     [dim]└─ Source: Environment variable ($KAGURA_DEFAULT_PROJECT)[/dim]"
+            )
         elif pyproject_config.get("project"):
             console.print("     [dim]└─ Source: pyproject.toml [tool.kagura][/dim]")
         elif git_repo:
             console.print("     [dim]└─ Source: Git repository auto-detection[/dim]")
     else:
         console.print("   [red]✗[/] Project: Not detected")
-        console.print("     [yellow]💡 Tip: Run in a git repo or add to pyproject.toml[/yellow]")
+        console.print(
+            "     [yellow]💡 Tip: Run in a git repo or add to pyproject.toml[/yellow]"
+        )
 
     # User detection
     detected_user = _get_default_user()
@@ -1130,7 +1140,9 @@ def doctor() -> None:
 
     console.print(f"   [green]✓[/] User: [bold]{detected_user}[/bold]")
     if env_user:
-        console.print("     [dim]└─ Source: Environment variable ($KAGURA_DEFAULT_USER)[/dim]")
+        console.print(
+            "     [dim]└─ Source: Environment variable ($KAGURA_DEFAULT_USER)[/dim]"
+        )
     elif pyproject_config.get("user"):
         console.print("     [dim]└─ Source: pyproject.toml [tool.kagura][/dim]")
     elif git_user:
@@ -1258,4 +1270,3 @@ def doctor() -> None:
         )
     )
     console.print()
-

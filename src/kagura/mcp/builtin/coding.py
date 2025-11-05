@@ -655,7 +655,9 @@ async def coding_end_session(
         success_bool = to_bool(success, default=False)
 
     save_to_github_bool = to_bool(save_to_github, default=False)
-    save_to_claude_code_history_bool = to_bool(save_to_claude_code_history, default=True)
+    save_to_claude_code_history_bool = to_bool(
+        save_to_claude_code_history, default=True
+    )
 
     result = await memory.end_coding_session(
         summary=summary,
@@ -1257,7 +1259,9 @@ async def coding_link_github_issue(
 
     # Convert issue_number to int if provided
     if issue_number is not None:
-        issue_number = to_int(issue_number, default=0, min_val=1, param_name="issue_number")
+        issue_number = to_int(
+            issue_number, default=0, min_val=1, param_name="issue_number"
+        )
         if issue_number == 0:
             issue_number = None  # Invalid number, treat as None
 
@@ -1390,7 +1394,9 @@ async def coding_get_issue_context(
     from kagura.builtin.git import gh_issue_get
 
     # Convert issue_number to int using common helper
-    issue_number_int = to_int(issue_number, default=0, min_val=1, param_name="issue_number")
+    issue_number_int = to_int(
+        issue_number, default=0, min_val=1, param_name="issue_number"
+    )
     if issue_number_int == 0:
         return "❌ Error: Invalid issue number. Must be a positive integer."
 
@@ -1580,7 +1586,9 @@ async def coding_index_source_code(
 
     # Parse patterns using common helper
     include_patterns = parse_json_list(file_patterns, param_name="file_patterns")
-    exclude_patterns_list = parse_json_list(exclude_patterns, param_name="exclude_patterns")
+    exclude_patterns_list = parse_json_list(
+        exclude_patterns, param_name="exclude_patterns"
+    )
 
     if language != "python":
         return (

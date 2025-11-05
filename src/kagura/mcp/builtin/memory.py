@@ -560,7 +560,9 @@ async def memory_feedback(
         )
 
     # Convert weight to float using common helper
-    weight = to_float_clamped(weight, min_val=0.0, max_val=1.0, default=1.0, param_name="weight")
+    weight = to_float_clamped(
+        weight, min_val=0.0, max_val=1.0, default=1.0, param_name="weight"
+    )
 
     enable_rag = True
     try:
@@ -1436,10 +1438,18 @@ async def memory_search_hybrid(
 
     # Convert string parameters using common helpers
     keyword_weight_f = to_float_clamped(
-        keyword_weight, min_val=0.0, max_val=1.0, default=0.4, param_name="keyword_weight"
+        keyword_weight,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.4,
+        param_name="keyword_weight",
     )
     semantic_weight_f = to_float_clamped(
-        semantic_weight, min_val=0.0, max_val=1.0, default=0.6, param_name="semantic_weight"
+        semantic_weight,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.6,
+        param_name="semantic_weight",
     )
     k_int = to_int(k, default=10, min_val=1, max_val=100, param_name="k")
 
@@ -1833,7 +1843,11 @@ async def memory_fuzzy_recall(
 
     # Convert parameters using common helpers
     similarity_threshold_f = to_float_clamped(
-        similarity_threshold, min_val=0.0, max_val=1.0, default=0.6, param_name="similarity_threshold"
+        similarity_threshold,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.6,
+        param_name="similarity_threshold",
     )
     k_int = to_int(k, default=10, min_val=1, max_val=1000, param_name="k")
 
