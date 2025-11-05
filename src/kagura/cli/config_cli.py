@@ -93,119 +93,43 @@ def validate() -> None:
 
 
 async def _test_openai_api(api_key: str) -> tuple[bool, str]:
-    """Test OpenAI API connection."""
-    try:
-        from litellm import acompletion
+    """Test OpenAI API connection.
 
-        model = get_openai_default_model()
-        await acompletion(
-            model=model,
-            messages=[{"role": "user", "content": "test"}],
-            api_key=api_key,
-            max_tokens=1,
-        )
-        return True, "Connection successful"
-    except ImportError:
-        return False, "litellm not installed (optional)"
-    except Exception as e:
-        error_msg = str(e)
+    Uses shared utility. Related: Issue #538
+    """
+    from kagura.utils.api_check import check_llm_api
 
-        # Provide helpful hints for common errors
-        if (
-            "authentication" in error_msg.lower()
-            or "invalid api key" in error_msg.lower()
-            or "invalid key" in error_msg.lower()
-        ):
-            return False, "Invalid API key (check format and validity)"
-        elif "rate_limit" in error_msg.lower() or "quota" in error_msg.lower():
-            return False, "Rate limit exceeded (try again later)"
-        else:
-            return False, f"Connection failed: {error_msg[:200]}"
+    return await check_llm_api("openai", api_key, get_openai_default_model())
 
 
 async def _test_anthropic_api(api_key: str) -> tuple[bool, str]:
-    """Test Anthropic API connection."""
-    try:
-        from litellm import acompletion
+    """Test Anthropic API connection.
 
-        model = get_anthropic_default_model()
-        await acompletion(
-            model=model,
-            messages=[{"role": "user", "content": "test"}],
-            api_key=api_key,
-            max_tokens=1,
-        )
-        return True, "Connection successful"
-    except ImportError:
-        return False, "litellm not installed (optional)"
-    except Exception as e:
-        error_msg = str(e)
+    Uses shared utility. Related: Issue #538
+    """
+    from kagura.utils.api_check import check_llm_api
 
-        # Provide helpful hints for common errors
-        if (
-            "authentication_error" in error_msg.lower()
-            or "invalid x-api-key" in error_msg.lower()
-        ):
-            return False, "Invalid API key (check format and validity)"
-        elif "rate_limit" in error_msg.lower() or "overloaded" in error_msg.lower():
-            return False, "Rate limit exceeded or API overloaded (try again later)"
-        else:
-            # Truncate long error messages
-            return False, f"Connection failed: {error_msg[:200]}"
+    return await check_llm_api("anthropic", api_key, get_anthropic_default_model())
 
 
 async def _test_google_api(api_key: str) -> tuple[bool, str]:
-    """Test Google AI API connection."""
-    try:
-        from litellm import acompletion
+    """Test Google AI API connection.
 
-        model = get_google_ai_default_model()
-        await acompletion(
-            model=model,
-            messages=[{"role": "user", "content": "test"}],
-            api_key=api_key,
-            max_tokens=1,
-        )
-        return True, "Connection successful"
-    except ImportError:
-        return False, "litellm not installed (optional)"
-    except Exception as e:
-        error_msg = str(e)
+    Uses shared utility. Related: Issue #538
+    """
+    from kagura.utils.api_check import check_llm_api
 
-        # Provide helpful hints for common errors
-        if (
-            "authentication_error" in error_msg.lower()
-            or "invalid api key" in error_msg.lower()
-            or "api key not valid" in error_msg.lower()
-        ):
-            return False, "Invalid API key (check format and validity)"
-        elif "rate_limit" in error_msg.lower() or "quota" in error_msg.lower():
-            return False, "Rate limit exceeded (try again later)"
-        else:
-            # Truncate long error messages
-            return False, f"Connection failed: {error_msg[:200]}"
+    return await check_llm_api("google", api_key, get_google_ai_default_model())
 
 
 async def _test_brave_search_api(api_key: str) -> tuple[bool, str]:
-    """Test Brave Search API connection."""
-    try:
-        import httpx
+    """Test Brave Search API connection.
 
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                "https://api.search.brave.com/res/v1/web/search",
-                params={"q": "test", "count": 1},
-                headers={"X-Subscription-Token": api_key},
-                timeout=10.0,
-            )
-            if response.status_code == 200:
-                return True, "Connection successful"
-            else:
-                return False, f"HTTP {response.status_code}: {response.text[:100]}"
-    except ImportError:
-        return False, "httpx not installed (optional)"
-    except Exception as e:
-        return False, f"Connection failed: {str(e)}"
+    Uses shared utility. Related: Issue #538
+    """
+    from kagura.utils.api_check import check_brave_search_api
+
+    return await check_brave_search_api(api_key)
 
 
 @app.command()

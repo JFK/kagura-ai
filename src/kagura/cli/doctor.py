@@ -19,10 +19,6 @@ from typing import Any
 import click
 
 from kagura.cli.utils import create_console, create_info_panel
-from kagura.config.env import (
-    get_anthropic_api_key,
-    get_openai_api_key,
-)
 from kagura.config.paths import get_data_dir
 
 console = create_console()
@@ -94,79 +90,15 @@ def _check_dependencies() -> list[tuple[str, str, str]]:
 async def _check_api_configuration() -> list[tuple[str, str, str]]:
     """Check API key configuration and connectivity.
 
+    Uses shared utility from utils.api_check for consistency.
+    Related: Issue #538 - Consolidate API connectivity checks
+
     Returns:
         List of (provider_name, status, message) tuples
     """
-    from kagura.config.env import (
-        get_anthropic_default_model,
-        get_openai_default_model,
-    )
+    from kagura.utils.api_check import check_api_configuration
 
-    results = []
-
-    # Anthropic
-    anthropic_key = get_anthropic_api_key()
-    if not anthropic_key:
-        results.append(("Anthropic", "warning", "Not configured"))
-    else:
-        # Test connectivity
-        try:
-            from litellm import acompletion
-
-            model = get_anthropic_default_model()
-            await acompletion(
-                model=model,
-                messages=[{"role": "user", "content": "hi"}],
-                api_key=anthropic_key,
-                max_tokens=10,  # Increased for safety
-                timeout=10,
-            )
-            results.append(("Anthropic", "ok", "Configured and reachable"))
-        except ImportError:
-            results.append(
-                ("Anthropic", "warning", "Configured (litellm not installed)")
-            )
-        except Exception as e:
-            error_msg = str(e)
-            # Max tokens error means API works (connection successful)
-            if "max_tokens" in error_msg.lower() or "output limit" in error_msg.lower():
-                results.append(("Anthropic", "ok", "Configured and reachable"))
-            elif "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
-                results.append(("Anthropic", "error", "Invalid API key"))
-            else:
-                results.append(("Anthropic", "error", f"Unreachable: {error_msg[:50]}"))
-
-    # OpenAI
-    openai_key = get_openai_api_key()
-    if not openai_key:
-        results.append(("OpenAI", "info", "Not configured (optional)"))
-    else:
-        # Test connectivity
-        try:
-            from litellm import acompletion
-
-            model = get_openai_default_model()
-            await acompletion(
-                model=model,
-                messages=[{"role": "user", "content": "hi"}],
-                api_key=openai_key,
-                max_tokens=10,  # Increased for reasoning models (gpt-5-mini, o1-mini)
-                timeout=10,
-            )
-            results.append(("OpenAI", "ok", "Configured and reachable"))
-        except ImportError:
-            results.append(("OpenAI", "warning", "Configured (litellm not installed)"))
-        except Exception as e:
-            error_msg = str(e)
-            # Max tokens error from reasoning models is actually success (API works)
-            if "max_tokens" in error_msg.lower() or "output limit" in error_msg.lower():
-                results.append(("OpenAI", "ok", "Configured and reachable (reasoning model)"))
-            elif "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
-                results.append(("OpenAI", "error", "Invalid API key"))
-            else:
-                results.append(("OpenAI", "error", f"Unreachable: {error_msg[:50]}"))
-
-    return results
+    return await check_api_configuration()
 
 
 def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
