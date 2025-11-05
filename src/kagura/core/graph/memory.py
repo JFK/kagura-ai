@@ -251,7 +251,7 @@ class GraphMemory:
         # Build subgraph
         subgraph = self.graph.subgraph(visited_nodes)
 
-        return self._serialize_subgraph(subgraph)
+        return self._serialize_subgraph(subgraph)  # pyright: ignore[reportArgumentType]
 
     def get_related(
         self, node_id: str, depth: int = 2, rel_type: Optional[str] = None

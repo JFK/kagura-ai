@@ -75,8 +75,8 @@ class GeminiLoader:
             )
 
         # Configure Gemini
-        genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel(self.model_name)
+        genai.configure(api_key=self.api_key)  # pyright: ignore[reportPrivateImportUsage]
+        self.model = genai.GenerativeModel(self.model_name)  # pyright: ignore[reportPrivateImportUsage]
 
     async def analyze_image(
         self,
@@ -103,7 +103,7 @@ class GeminiLoader:
             raise FileNotFoundError(f"Image not found: {path}")
 
         # Upload file to Gemini
-        uploaded_file = genai.upload_file(str(path))
+        uploaded_file = genai.upload_file(str(path))  # pyright: ignore[reportPrivateImportUsage]  # pyright: ignore[reportPrivateImportUsage]
 
         # Add language instruction
         if language == "ja":
@@ -135,7 +135,7 @@ class GeminiLoader:
         if not path.exists():
             raise FileNotFoundError(f"Audio file not found: {path}")
 
-        uploaded_file = genai.upload_file(str(path))
+        uploaded_file = genai.upload_file(str(path))  # pyright: ignore[reportPrivateImportUsage]
 
         if language == "ja":
             prompt = "この音声を日本語で文字起こししてください。"
@@ -169,7 +169,7 @@ class GeminiLoader:
         if not path.exists():
             raise FileNotFoundError(f"Video file not found: {path}")
 
-        uploaded_file = genai.upload_file(str(path))
+        uploaded_file = genai.upload_file(str(path))  # pyright: ignore[reportPrivateImportUsage]
 
         if language == "ja":
             prompt = f"{prompt}\n日本語で回答してください。"
@@ -201,7 +201,7 @@ class GeminiLoader:
         if not path.exists():
             raise FileNotFoundError(f"PDF file not found: {path}")
 
-        uploaded_file = genai.upload_file(str(path))
+        uploaded_file = genai.upload_file(str(path))  # pyright: ignore[reportPrivateImportUsage]
 
         if language == "ja":
             prompt = f"{prompt}\n日本語で回答してください。"

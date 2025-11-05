@@ -71,11 +71,11 @@ async def call_gemini_direct(
         )
 
     # Configure Gemini
-    genai.configure(api_key=api_key)
+    genai.configure(api_key=api_key)  # pyright: ignore[reportPrivateImportUsage]
 
     # Remove gemini/ prefix for actual model name
     model_name = config.model.replace("gemini/", "")
-    model = genai.GenerativeModel(model_name)
+    model = genai.GenerativeModel(model_name)  # pyright: ignore[reportPrivateImportUsage]
 
     # Build content parts
     content_parts: list[Any] = [prompt]
