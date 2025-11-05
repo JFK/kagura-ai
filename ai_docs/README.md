@@ -102,9 +102,9 @@ ai_docs/
 - ❌ `rfcs/` - Future RFCs (15ファイル、**GitHub Issuesへ移行** #556-#562)
 - ❌ Root: `RELEASE_NOTES_v4.0.0.md`, `RELEASE.md` - 不要
 - ❌ Root: `.pre-commit-config.yaml` - 古いツール（現在はruff使用）
-- ❌ Root: `.python-version` - pyproject.tomlに記載済み
+- ✅ Root: `.python-version` - **復元済み** (Single Source of Truthとして必要)
 
-**総削減**: 70+ファイル削除 (~900 KB削減、53%ファイル数削減)
+**総削減**: 69ファイル削除 (~900 KB削減、51%ファイル数削減)
 
 **RFC管理**: Future RFCは全てGitHub Issuesに移行しました。
 - Top 7 RFCs → Issues #556-#562 (label: `rfc`)
