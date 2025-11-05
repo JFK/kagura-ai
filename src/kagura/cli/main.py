@@ -59,11 +59,8 @@ from .lazy import LazyGroup
             "coding",
             "Coding memory inspection commands",
         ),
-        "telemetry": (
-            "kagura.cli.telemetry_cli",
-            "telemetry_group",
-            "Telemetry and usage analysis commands",
-        ),
+        # Note: 'telemetry' group removed in v4.1.1 (Issue #555)
+        # Use 'kagura mcp telemetry' commands instead
         "config": (
             "kagura.cli.config_cli",
             "app",

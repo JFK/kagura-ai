@@ -30,7 +30,9 @@ def test_memory_rag_store_and_recall(tmp_path):
 
     # Store memory
     content_hash = rag.store(
-        "Python is a programming language", user_id="test_user", metadata={"type": "fact"}
+        "Python is a programming language",
+        user_id="test_user",
+        metadata={"type": "fact"},
     )
     assert isinstance(content_hash, str)
     assert len(content_hash) == 16
@@ -54,11 +56,15 @@ def test_memory_rag_agent_scoping(tmp_path):
     rag.store("Agent B memory", user_id="test_user", agent_name="agent_b")
 
     # Query with agent filter
-    results_a = rag.recall("memory", user_id="test_user", top_k=10, agent_name="agent_a")
+    results_a = rag.recall(
+        "memory", user_id="test_user", top_k=10, agent_name="agent_a"
+    )
     assert len(results_a) > 0
     assert "Agent A" in results_a[0]["content"]
 
-    results_b = rag.recall("memory", user_id="test_user", top_k=10, agent_name="agent_b")
+    results_b = rag.recall(
+        "memory", user_id="test_user", top_k=10, agent_name="agent_b"
+    )
     assert len(results_b) > 0
     assert "Agent B" in results_b[0]["content"]
 
@@ -107,7 +113,10 @@ def test_memory_rag_semantic_search(tmp_path):
 def test_memory_manager_with_rag(tmp_path):
     """Test MemoryManager with RAG enabled"""
     memory = MemoryManager(
-        user_id="test_user", agent_name="test_agent", persist_dir=tmp_path, enable_rag=True
+        user_id="test_user",
+        agent_name="test_agent",
+        persist_dir=tmp_path,
+        enable_rag=True,
     )
 
     # Store semantic memory
@@ -125,7 +134,10 @@ def test_memory_manager_with_rag(tmp_path):
 def test_memory_manager_rag_not_enabled(tmp_path):
     """Test MemoryManager RAG methods when RAG is not enabled"""
     memory = MemoryManager(
-        user_id="test_user", agent_name="test_agent", persist_dir=tmp_path, enable_rag=False
+        user_id="test_user",
+        agent_name="test_agent",
+        persist_dir=tmp_path,
+        enable_rag=False,
     )
 
     # Should raise error
@@ -141,7 +153,10 @@ def test_memory_manager_rag_not_enabled(tmp_path):
 def test_memory_manager_repr_with_rag(tmp_path):
     """Test MemoryManager __repr__ with RAG"""
     memory = MemoryManager(
-        user_id="test_user", agent_name="test_agent", persist_dir=tmp_path, enable_rag=True
+        user_id="test_user",
+        agent_name="test_agent",
+        persist_dir=tmp_path,
+        enable_rag=True,
     )
 
     # Store some data
@@ -172,7 +187,9 @@ def test_memory_rag_import_error():
 def test_memory_manager_auto_detect_rag_enabled(tmp_path):
     """Test MemoryManager auto-detects and enables RAG when chromadb is available"""
     # When enable_rag is None (default), should auto-enable if chromadb available
-    memory = MemoryManager(user_id="test_user", agent_name="test_auto", persist_dir=tmp_path)
+    memory = MemoryManager(
+        user_id="test_user", agent_name="test_auto", persist_dir=tmp_path
+    )
 
     # Should have RAG enabled automatically
     assert memory.rag is not None, "Working RAG should be auto-enabled"
@@ -197,7 +214,9 @@ def test_memory_manager_auto_detect_rag_disabled(tmp_path):
         pytest.skip("ChromaDB is available, cannot test auto-disable")
 
     # When enable_rag is None and chromadb not available, should auto-disable
-    memory = MemoryManager(user_id="test_user", agent_name="test_auto", persist_dir=tmp_path)
+    memory = MemoryManager(
+        user_id="test_user", agent_name="test_auto", persist_dir=tmp_path
+    )
 
     # Should have RAG disabled automatically
     assert memory.rag is None, "Working RAG should be auto-disabled"

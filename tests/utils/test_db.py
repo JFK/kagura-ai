@@ -37,10 +37,30 @@ def temp_db():
             ("memory_1", "value1", "alice", "agent1"),
             ("memory_2", "value2", "alice", "agent1"),
             ("memory_3", "value3", "bob", "agent2"),
-            ("coding_session:1", json.dumps({"project_id": "kagura-ai"}), "alice", "global"),
-            ("coding_session:2", json.dumps({"project_id": "kagura-ai"}), "alice", "global"),
-            ("coding_session:3", json.dumps({"project_id": "my-project"}), "alice", "global"),
-            ("coding_session:4", json.dumps({"project_id": "kagura-ai"}), "bob", "global"),
+            (
+                "coding_session:1",
+                json.dumps({"project_id": "kagura-ai"}),
+                "alice",
+                "global",
+            ),
+            (
+                "coding_session:2",
+                json.dumps({"project_id": "kagura-ai"}),
+                "alice",
+                "global",
+            ),
+            (
+                "coding_session:3",
+                json.dumps({"project_id": "my-project"}),
+                "alice",
+                "global",
+            ),
+            (
+                "coding_session:4",
+                json.dumps({"project_id": "kagura-ai"}),
+                "bob",
+                "global",
+            ),
         ]
 
         for key, value, user_id, agent_name in test_data:
@@ -76,7 +96,9 @@ class TestDbExists:
 
     def test_not_exists(self):
         """Test db_exists returns False when database doesn't exist."""
-        with patch("kagura.utils.db.get_db_path", return_value=Path("/nonexistent/memory.db")):
+        with patch(
+            "kagura.utils.db.get_db_path", return_value=Path("/nonexistent/memory.db")
+        ):
             assert db_exists() is False
 
 

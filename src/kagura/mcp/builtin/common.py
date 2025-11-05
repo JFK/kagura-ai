@@ -548,9 +548,7 @@ def format_error(
     return json.dumps(response, ensure_ascii=False, indent=2)
 
 
-def require_api_key(
-    api_key: str | None, service: str, env_var: str = ""
-) -> str | None:
+def require_api_key(api_key: str | None, service: str, env_var: str = "") -> str | None:
     """Validate API key and return error message if missing.
 
     Args:

@@ -134,9 +134,7 @@ class TestInteractionTracker:
         """Test fallback importance scoring when LLM fails."""
         # Create a failing LLM classifier
         failing_llm = AsyncMock()
-        failing_llm.classify_importance = AsyncMock(
-            side_effect=Exception("LLM failed")
-        )
+        failing_llm.classify_importance = AsyncMock(side_effect=Exception("LLM failed"))
 
         record = await tracker.track_interaction(
             user_query="Test",

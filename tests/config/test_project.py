@@ -47,7 +47,9 @@ class TestDetectGitRepoName:
         # First call (remote) fails, second call (toplevel) succeeds
         mock_results = [
             MagicMock(returncode=1, stdout=""),  # remote get-url fails
-            MagicMock(returncode=0, stdout="/home/user/projects/my-app\n"),  # toplevel succeeds
+            MagicMock(
+                returncode=0, stdout="/home/user/projects/my-app\n"
+            ),  # toplevel succeeds
         ]
 
         with patch("subprocess.run", side_effect=mock_results):
@@ -125,16 +127,26 @@ class TestGetDefaultProject:
         """Environment variable has highest priority."""
         monkeypatch.setenv("KAGURA_DEFAULT_PROJECT", "env-project")
 
-        with patch("kagura.config.project.load_pyproject_config", return_value={"project": "pyproject-project"}):
-            with patch("kagura.config.project.detect_git_repo_name", return_value="git-project"):
+        with patch(
+            "kagura.config.project.load_pyproject_config",
+            return_value={"project": "pyproject-project"},
+        ):
+            with patch(
+                "kagura.config.project.detect_git_repo_name", return_value="git-project"
+            ):
                 assert get_default_project() == "env-project"
 
     def test_pyproject_second_priority(self, monkeypatch):
         """pyproject.toml has second priority."""
         monkeypatch.delenv("KAGURA_DEFAULT_PROJECT", raising=False)
 
-        with patch("kagura.config.project.load_pyproject_config", return_value={"project": "pyproject-project"}):
-            with patch("kagura.config.project.detect_git_repo_name", return_value="git-project"):
+        with patch(
+            "kagura.config.project.load_pyproject_config",
+            return_value={"project": "pyproject-project"},
+        ):
+            with patch(
+                "kagura.config.project.detect_git_repo_name", return_value="git-project"
+            ):
                 assert get_default_project() == "pyproject-project"
 
     def test_git_detection_third_priority(self, monkeypatch):
@@ -142,7 +154,9 @@ class TestGetDefaultProject:
         monkeypatch.delenv("KAGURA_DEFAULT_PROJECT", raising=False)
 
         with patch("kagura.config.project.load_pyproject_config", return_value={}):
-            with patch("kagura.config.project.detect_git_repo_name", return_value="git-project"):
+            with patch(
+                "kagura.config.project.detect_git_repo_name", return_value="git-project"
+            ):
                 assert get_default_project() == "git-project"
 
     def test_no_detection(self, monkeypatch):
@@ -161,14 +175,20 @@ class TestGetDefaultUser:
         """Environment variable has highest priority."""
         monkeypatch.setenv("KAGURA_DEFAULT_USER", "env-user")
 
-        with patch("kagura.config.project.load_pyproject_config", return_value={"user": "pyproject-user"}):
+        with patch(
+            "kagura.config.project.load_pyproject_config",
+            return_value={"user": "pyproject-user"},
+        ):
             assert get_default_user() == "env-user"
 
     def test_pyproject_second_priority(self, monkeypatch):
         """pyproject.toml has second priority."""
         monkeypatch.delenv("KAGURA_DEFAULT_USER", raising=False)
 
-        with patch("kagura.config.project.load_pyproject_config", return_value={"user": "pyproject-user"}):
+        with patch(
+            "kagura.config.project.load_pyproject_config",
+            return_value={"user": "pyproject-user"},
+        ):
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(returncode=0, stdout="git-user\n")
                 assert get_default_user() == "pyproject-user"
@@ -199,7 +219,10 @@ class TestGetRerankingEnabled:
         """Environment variable 'true' enables reranking."""
         monkeypatch.setenv("KAGURA_ENABLE_RERANKING", "true")
 
-        with patch("kagura.config.project.load_pyproject_config", return_value={"enable_reranking": False}):
+        with patch(
+            "kagura.config.project.load_pyproject_config",
+            return_value={"enable_reranking": False},
+        ):
             assert get_reranking_enabled() is True
 
     def test_env_var_variants(self, monkeypatch):
@@ -212,14 +235,20 @@ class TestGetRerankingEnabled:
         """Environment variable 'false' disables reranking."""
         monkeypatch.setenv("KAGURA_ENABLE_RERANKING", "false")
 
-        with patch("kagura.config.project.load_pyproject_config", return_value={"enable_reranking": True}):
+        with patch(
+            "kagura.config.project.load_pyproject_config",
+            return_value={"enable_reranking": True},
+        ):
             assert get_reranking_enabled() is False
 
     def test_pyproject_second_priority(self, monkeypatch):
         """pyproject.toml has second priority."""
         monkeypatch.delenv("KAGURA_ENABLE_RERANKING", raising=False)
 
-        with patch("kagura.config.project.load_pyproject_config", return_value={"enable_reranking": True}):
+        with patch(
+            "kagura.config.project.load_pyproject_config",
+            return_value={"enable_reranking": True},
+        ):
             assert get_reranking_enabled() is True
 
     def test_auto_enable_when_cached(self, monkeypatch):
@@ -227,7 +256,9 @@ class TestGetRerankingEnabled:
         monkeypatch.delenv("KAGURA_ENABLE_RERANKING", raising=False)
 
         with patch("kagura.config.project.load_pyproject_config", return_value={}):
-            with patch("kagura.config.project.is_reranking_model_cached", return_value=True):
+            with patch(
+                "kagura.config.project.is_reranking_model_cached", return_value=True
+            ):
                 assert get_reranking_enabled() is True
 
     def test_default_false_when_not_cached(self, monkeypatch):
@@ -235,5 +266,7 @@ class TestGetRerankingEnabled:
         monkeypatch.delenv("KAGURA_ENABLE_RERANKING", raising=False)
 
         with patch("kagura.config.project.load_pyproject_config", return_value={}):
-            with patch("kagura.config.project.is_reranking_model_cached", return_value=False):
+            with patch(
+                "kagura.config.project.is_reranking_model_cached", return_value=False
+            ):
                 assert get_reranking_enabled() is False
