@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Any
 from kagura import tool
 from kagura.mcp.builtin.common import (
     format_error,
-    format_success,
     parse_json_dict,
     parse_json_list,
     to_float_clamped,
