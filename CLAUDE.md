@@ -1,10 +1,4 @@
-# Claude Code Instructions - Kagura AI v4.0.9
-
-AI開発者向けの開発ガイド。v4.0.9: CLI Inspection, Source Code RAG, Claude Code Integration
-
-**v4.0.9 Complete** (Nov 2025) - Session Auto-save, Code RAG, MCP Monitor ✅
-
----
+# Kagura AI 開発ガイド
 
 ## 🤖 For AI Assistants (Claude Code, Cursor, etc.)
 
@@ -21,14 +15,14 @@ AI開発者向けの開発ガイド。v4.0.9: CLI Inspection, Source Code RAG, C
 - Issue番号が含まれる依頼
 
 **開始方法:**
-\`\`\`python
+```python
 coding_start_session(
     user_id="kiyota",
     project_id="kagura-ai",
     description="[User's task description]",
     tags='["feature", "bug-fix", etc.]'
 )
-\`\`\`
+```
 
 #### 📝 Auto-track Criteria (自動で記録)
 
@@ -52,7 +46,7 @@ coding_start_session(
 - 次の変更予定なし
 
 **終了方法:**
-\`\`\`python
+```python
 # ユーザーに確認してから:
 coding_end_session(
     user_id="kiyota",
@@ -60,11 +54,11 @@ coding_end_session(
     success='true',
     save_to_github='true'  # GitHub Issueに記録
 )
-\`\`\`
+```
 
 #### 💡 Example Auto-flow
 
-\`\`\`
+```
 User: "Issue #510のバグを修正して"
 
 Claude (自動実行):
@@ -79,7 +73,7 @@ Claude (自動実行):
 9. 🤖 coding_end_session(success='true', save_to_github='true')
 
 Result: Issue #510に包括的なサマリーが自動投稿される
-\`\`\`
+```
 
 #### ⚠️ Important Notes
 
@@ -111,12 +105,213 @@ Result: Issue #510に包括的なサマリーが自動投稿される
 
 ## 🎯 開発ルール
 
+### 👨‍💻 コード品質基準
+
+#### シニアエンジニアレベルの原則
+
+Kagura AIは**プロダクションレベル**のコードベースです。以下の原則を**常に**遵守してください:
+
+##### 🏗️ 設計原則
+
+1. **SOLID原則の遵守**
+   - **Single Responsibility**: 1クラス1責任
+   - **Open/Closed**: 拡張に開いて、修正に閉じる
+   - **Liskov Substitution**: 派生クラスは基底クラスと置換可能
+   - **Interface Segregation**: インターフェースは最小限に
+   - **Dependency Inversion**: 抽象に依存、具象に依存しない
+
+2. **DRY (Don't Repeat Yourself)**
+   - 重複コードは即座にリファクタリング
+   - 共通ロジックは適切に抽象化
+   - ただし、誤った抽象化（過度な汎用化）は避ける
+
+3. **KISS (Keep It Simple, Stupid)**
+   - 複雑さは必要最小限に
+   - 「賢い」コードより「明快な」コードを優先
+   - 将来の拡張性より現在の明瞭性
+
+##### 🔍 実装品質
+
+1. **型安全性**
+   ```python
+   # ❌ 悪い例
+   def process(data):
+       return data.get("value")
+   
+   # ✅ 良い例
+   def process(data: dict[str, Any]) -> str | None:
+       """Process data and extract value.
+       
+       Args:
+           data: Input dictionary containing value
+           
+       Returns:
+           Extracted value or None if not found
+       """
+       return data.get("value")
+   ```
+
+2. **エラーハンドリング**
+   - 例外は適切にキャッチし、意味のあるメッセージを提供
+   - ログレベルを適切に使い分け（DEBUG, INFO, WARNING, ERROR）
+   - リソースリークを防ぐ（context manager使用）
+   ```python
+   # ✅ 良い例
+   try:
+       with open(file_path) as f:
+           data = f.read()
+   except FileNotFoundError:
+       logger.error(f"File not found: {file_path}")
+       raise
+   except Exception as e:
+       logger.error(f"Unexpected error reading {file_path}: {e}")
+       raise
+   ```
+
+3. **パフォーマンス考慮**
+   - O(n²)以上のアルゴリズムは要検討
+   - データベースクエリはN+1問題に注意
+   - 不要なファイルI/Oを避ける
+   - 大量データ処理はジェネレーター/イテレーターを活用
+
+4. **セキュリティ**
+   - ユーザー入力は必ずバリデーション
+   - SQLインジェクション、XSS対策
+   - 機密情報のログ出力禁止
+   - API keyは環境変数で管理
+
+##### 📖 可読性・保守性
+
+1. **命名**
+   ```python
+   # ❌ 悪い例
+   x = get_data()
+   def proc(d): ...
+   
+   # ✅ 良い例
+   user_count = get_active_user_count()
+   def process_user_data(data: UserData) -> ProcessedResult: ...
+   ```
+   - 変数名は意図を明確に: `x` → `user_count`
+   - 関数名は動詞で開始: `process_user_data()`
+   - boolean変数は`is_`, `has_`, `can_`で開始
+
+2. **関数設計**
+   - 1関数は最大50行（理想は20行以内）
+   - 引数は最大5個（それ以上はオブジェクト化）
+   - 副作用を最小化（純粋関数を優先）
+   ```python
+   # ✅ 良い例: 純粋関数
+   def calculate_total(items: list[Item]) -> Decimal:
+       """Calculate total price of items."""
+       return sum(item.price for item in items)
+   ```
+
+3. **コメント**
+   - **WHY**を説明（WHATはコードが説明すべき）
+   - 複雑なロジックには必ず説明
+   - TODOコメントにはIssue番号を記載
+   ```python
+   # ✅ 良い例
+   # Use binary search here because dataset can be >1M records
+   # and linear search would cause timeout (see Issue #123)
+   index = binary_search(sorted_data, target)
+   ```
+
+##### 🧪 テストの質
+
+1. **意味のあるテスト**
+   ```python
+   # ❌ カバレッジのためのテスト
+   def test_add():
+       assert add(1, 2) == 3
+   
+   # ✅ エッジケース・バリデーションのテスト
+   def test_add_handles_overflow():
+       """Test that add() raises ValueError on integer overflow."""
+       with pytest.raises(ValueError, match="Integer overflow"):
+           add(sys.maxsize, 1)
+   
+   def test_add_validates_input_types():
+       """Test that add() rejects non-numeric inputs."""
+       with pytest.raises(TypeError):
+           add("1", 2)
+   ```
+
+2. **テストケース設計**
+   - 正常系・異常系・境界値を網羅
+   - テスト名は仕様書として読める: `test_user_creation_fails_with_duplicate_email()`
+   - モック使用は最小限（実装依存を避ける）
+   - Given-When-Then パターンを活用
+
+##### ⚡ パフォーマンス最適化
+
+- プロファイリング結果に基づいて最適化
+- 早すぎる最適化は悪（まず動作、次に最適化）
+- ボトルネックを特定してから対処
+```python
+# プロファイリング例
+import cProfile
+cProfile.run('expensive_function()', sort='cumtime')
+```
+
+##### 🔄 リファクタリング
+
+- コードレビューで改善点を見つけたら即座に対応
+- 「後でやる」は「やらない」と同義
+- Boy Scout Rule: 来た時よりも美しく
+
+#### ❌ 禁止事項
+
+1. **ハードコーディング**
+   ```python
+   # ❌ 悪い例
+   API_KEY = "sk-1234567890"
+   DB_URL = "postgresql://localhost:5432/mydb"
+   
+   # ✅ 良い例
+   API_KEY = os.getenv("API_KEY")
+   DB_URL = os.getenv("DATABASE_URL")
+   ```
+
+2. **グローバル変数**
+   - 必要な場合はシングルトンパターンを検討
+   - 設定値は環境変数か設定ファイルへ
+
+3. **過度な複雑さ**
+   - 深いネスト（3階層まで）
+   - 長大な関数（50行超）
+   - 神クラス（500行超）
+
+4. **不適切な依存**
+   - 循環依存
+   - テストコードへの本番コード依存
+
+#### 📊 コードレビュー観点
+
+Pull Request時に以下を自己チェック:
+
+- [ ] 型ヒントが完全か？（`pyright --strict`通過）
+- [ ] Docstringが明確か？（Google形式）
+- [ ] テストが十分か（カバレッジ90%+、意味のあるテスト）？
+- [ ] エラーハンドリングが適切か？
+- [ ] パフォーマンス問題はないか？
+- [ ] セキュリティ問題はないか？
+- [ ] 命名が明確か？
+- [ ] コメントが必要な複雑性はないか？
+- [ ] リファクタリングの余地はないか?
+- [ ] SOLID原則に従っているか？
+
+**💡 原則**: 「6ヶ月後の自分が理解できるコード」を書く
+
+---
+
 ### コーディング規約
 
 - **命名**: `snake_case` (モジュール/関数), `PascalCase` (クラス)
 - **型ヒント**: 必須（`pyright --strict`準拠）
 - **Docstring**: Google形式、必須
-- **テスト**: カバレッジ90%+
+- **テスト**: カバレッジ90%+、意味のあるテストケース
 
 ### コミットメッセージ（Conventional Commits）
 
@@ -218,47 +413,242 @@ kagura coding search --project kagura-ai --query "memory integration"
 
 ---
 
-## 📁 重要なドキュメント
-
-### 開発前に確認
-
-1. **Issue内容**（必読）
-2. `ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md` - v4.0ロードマップ
-3. `ai_docs/V4.0_STRATEGIC_PIVOT.md` - v4.0戦略方針
-4. `ai_docs/CODING_STANDARDS.md` - コーディング規約
-5. `ai_docs/ARCHITECTURE.md` - アーキテクチャ
-6. `ai_docs/MEMORY_STRATEGY.md` - メモリー戦略
+## 📁 プロジェクト構造
 
 ### ディレクトリ構造
 
 ```
 kagura-ai/
 ├── src/kagura/
-│   ├── core/              # Memory, Graph
-│   │   ├── memory/        # Memory Manager (4-tier)
-│   │   └── graph/         # GraphMemory (NetworkX)
-│   ├── api/               # REST API (FastAPI)
-│   │   ├── auth.py        # API Key authentication (Phase C)
-│   │   └── routes/        # /mcp, /api/v1/*
-│   ├── mcp/               # MCP Server & Tools
-│   │   ├── permissions.py # Tool access control (Phase C)
-│   │   └── builtin/       # 31 MCP tools
-│   ├── cli/               # CLI commands
-│   │   ├── mcp.py         # MCP commands
-│   │   ├── api_cli.py     # API key mgmt (Phase C)
-│   │   └── memory_cli.py  # Export/import (Phase C)
-│   └── tools/             # Optional tools
+│   ├── __init__.py
+│   │
+│   ├── agents/                    # Agent実装（ChatBot, Translator等）
+│   │   ├── chatbot.py
+│   │   ├── code_execution.py
+│   │   ├── summarizer.py
+│   │   └── translator.py
+│   │
+│   ├── api/                       # REST API (FastAPI)
+│   │   ├── auth.py                # API Key authentication
+│   │   ├── dependencies.py
+│   │   ├── models.py
+│   │   ├── routes/                # API endpoints
+│   │   │   ├── graph.py           # Graph memory routes
+│   │   │   ├── mcp_transport.py   # MCP-over-HTTP transport
+│   │   │   ├── memory.py          # Memory CRUD routes
+│   │   │   ├── models.py          # LLM model routes
+│   │   │   ├── search.py          # Search routes
+│   │   │   └── system.py          # Health check, info
+│   │   └── server.py
+│   │
+│   ├── auth/                      # OAuth2 authentication
+│   │   ├── config.py
+│   │   ├── exceptions.py
+│   │   └── oauth2.py
+│   │
+│   ├── builder/                   # Agent builder (meta-programming)
+│   │   ├── agent_builder.py
+│   │   └── config.py
+│   │
+│   ├── builtin/                   # Built-in tools
+│   │   ├── file.py                # File operations
+│   │   ├── git.py                 # Git operations
+│   │   ├── github_agent.py
+│   │   ├── shell.py               # Shell command execution
+│   │   └── shell_agent.py
+│   │
+│   ├── chat/                      # Interactive chat interface
+│   │   ├── command_fixer.py       # Command auto-correction
+│   │   ├── completer.py           # Auto-completion
+│   │   ├── display.py             # Rich display
+│   │   ├── session.py             # Chat session management
+│   │   ├── shell_tool.py
+│   │   ├── stats.py
+│   │   ├── tools.py
+│   │   └── utils.py
+│   │
+│   ├── cli/                       # CLI commands
+│   │   ├── api_cli.py             # API key management
+│   │   ├── auth_cli.py            # OAuth2 authentication
+│   │   ├── chat.py                # Chat interface
+│   │   ├── coding_cli.py          # Coding memory commands
+│   │   ├── config_cli.py          # Configuration management
+│   │   ├── doctor.py              # System diagnostics
+│   │   ├── init.py                # Project initialization
+│   │   ├── lazy.py                # Lazy loading utilities
+│   │   ├── main.py                # CLI entry point
+│   │   ├── mcp.py                 # MCP server commands
+│   │   ├── memory_cli.py          # Memory management
+│   │   ├── monitor.py             # MCP monitor (v4.0.9)
+│   │   └── telemetry_cli.py       # Telemetry commands
+│   │
+│   ├── commands/                  # Command pattern implementation
+│   │   ├── command.py
+│   │   ├── executor.py
+│   │   ├── hook_decorators.py
+│   │   ├── hooks.py
+│   │   └── loader.py
+│   │
+│   ├── config/                    # Configuration management
+│   │   ├── env.py                 # Environment variables
+│   │   ├── manager.py             # Config manager
+│   │   ├── memory_config.py       # Memory configuration
+│   │   ├── models.py              # Config models
+│   │   ├── paths.py               # Path utilities
+│   │   └── project.py             # Project-specific config
+│   │
+│   ├── core/                      # Core functionality
+│   │   ├── cache.py               # Caching layer
+│   │   ├── compression/           # Context compression (v4.0.9)
+│   │   │   ├── exceptions.py
+│   │   │   ├── manager.py
+│   │   │   ├── monitor.py
+│   │   │   ├── policy.py
+│   │   │   └── token_counter.py
+│   │   ├── decorators.py
+│   │   ├── executor.py
+│   │   ├── graph/                 # Graph memory (NetworkX)
+│   │   │   └── memory.py
+│   │   ├── llm.py                 # LLM abstraction (LiteLLM)
+│   │   ├── llm_gemini.py          # Gemini-specific
+│   │   ├── llm_openai.py          # OpenAI-specific
+│   │   ├── memory/                # 4-tier memory system
+│   │   │   ├── README.md
+│   │   │   ├── bm25_search.py     # BM25 keyword search
+│   │   │   ├── coding_dependency.py  # Code dependency analysis
+│   │   │   ├── coding_memory.py   # Coding session memory
+│   │   │   ├── context.py         # Context management
+│   │   │   ├── embeddings.py      # Embedding generation
+│   │   │   ├── export.py          # Memory export/import
+│   │   │   ├── github_recorder.py # GitHub integration
+│   │   │   ├── hybrid_search.py   # Hybrid search (BM25+RAG)
+│   │   │   ├── interaction_tracker.py  # AI-User interaction
+│   │   │   ├── lexical_search.py  # Lexical search
+│   │   │   ├── manager.py         # Memory manager (main)
+│   │   │   ├── memory_abstractor.py  # Memory abstraction
+│   │   │   ├── models/
+│   │   │   │   └── coding.py      # Coding models
+│   │   │   ├── multimodal_rag.py  # Multimodal RAG
+│   │   │   ├── neural/            # Neural memory network
+│   │   │   │   ├── activation.py   # Activation tracking
+│   │   │   │   ├── co_activation.py  # Co-activation patterns
+│   │   │   │   ├── config.py
+│   │   │   │   ├── decay.py        # Memory decay
+│   │   │   │   ├── engine.py       # Neural engine
+│   │   │   │   ├── hebbian.py      # Hebbian learning
+│   │   │   │   ├── models.py
+│   │   │   │   ├── scoring.py      # Relevance scoring
+│   │   │   │   └── utils.py
+│   │   │   ├── persistent.py      # Persistent (disk) memory
+│   │   │   ├── rag.py             # RAG (ChromaDB)
+│   │   │   ├── recall_scorer.py   # Recall scoring
+│   │   │   ├── reranker.py        # Result reranking
+│   │   │   └── working.py         # Working (RAM) memory
+│   │   ├── model_selector.py
+│   │   ├── parallel.py            # Parallel execution
+│   │   ├── parser.py
+│   │   ├── prompt.py
+│   │   ├── registry.py
+│   │   ├── shell.py
+│   │   ├── shell_safety.py        # Shell command safety
+│   │   ├── streaming.py
+│   │   ├── tool_registry.py
+│   │   ├── workflow.py
+│   │   └── workflow_registry.py
+│   │
+│   ├── exceptions.py              # Global exceptions
+│   │
+│   ├── llm/                       # LLM utilities
+│   │   ├── coding_analyzer.py     # Code analysis with LLM
+│   │   ├── prompts.py             # Prompt templates
+│   │   └── vision.py              # Vision capabilities
+│   │
+│   ├── loaders/                   # Data loaders
+│   │   ├── cache.py
+│   │   ├── directory.py           # Directory scanning
+│   │   ├── file_types.py          # File type detection
+│   │   └── gemini.py              # Gemini File API
+│   │
+│   ├── mcp/                       # MCP Server & Tools (34+ tools)
+│   │   ├── builtin/               # Built-in MCP tools
+│   │   │   ├── academic.py        # arXiv search
+│   │   │   ├── brave_search.py    # Brave Search API
+│   │   │   ├── cache.py           # Cache management
+│   │   │   ├── coding.py          # Coding memory tools (20+)
+│   │   │   ├── common.py
+│   │   │   ├── fact_check.py      # Fact checking
+│   │   │   ├── file_ops.py        # File operations
+│   │   │   ├── github.py          # GitHub CLI integration
+│   │   │   ├── media.py           # Media file handling
+│   │   │   ├── memory.py          # Memory tools (10+)
+│   │   │   ├── meta.py            # Meta-agent tools
+│   │   │   ├── multimodal.py      # Multimodal RAG
+│   │   │   ├── observability.py   # Telemetry tools
+│   │   │   ├── routing.py         # Query routing
+│   │   │   ├── web.py             # Web scraping
+│   │   │   └── youtube.py         # YouTube tools
+│   │   ├── config.py
+│   │   ├── diagnostics.py         # MCP diagnostics
+│   │   ├── permissions.py         # Tool access control
+│   │   ├── schema.py
+│   │   ├── server.py              # MCP server implementation
+│   │   └── tool_classification.py
+│   │
+│   ├── meta/                      # Meta-agent (self-improvement)
+│   │   ├── error_analyzer.py
+│   │   ├── fixer.py
+│   │   ├── generator.py
+│   │   ├── meta_agent.py
+│   │   ├── parser.py
+│   │   ├── self_improving.py
+│   │   ├── spec.py
+│   │   ├── templates/             # Agent templates
+│   │   │   ├── agent_base.py.j2
+│   │   │   ├── agent_with_code_exec.py.j2
+│   │   │   ├── agent_with_memory.py.j2
+│   │   │   └── agent_with_tools.py.j2
+│   │   └── validator.py
+│   │
+│   ├── observability/             # Telemetry & monitoring
+│   │   ├── collector.py           # Data collection
+│   │   ├── dashboard.py           # Dashboard
+│   │   ├── instrumentation.py     # Instrumentation
+│   │   ├── pricing.py             # Cost tracking
+│   │   └── store.py               # Data storage
+│   │
+│   ├── routing/                   # Query routing
+│   │   ├── exceptions.py
+│   │   └── router.py
+│   │
+│   ├── testing/                   # Testing utilities
+│   │   ├── mocking.py
+│   │   ├── plugin.py              # pytest plugin
+│   │   ├── testcase.py
+│   │   └── utils.py
+│   │
+│   ├── tools/                     # Tool utilities
+│   │   └── __init__.py
+│   │
+│   ├── utils/
+│   │   └── media_detector.py
+│   │
+│   ├── version.py
+│   │
+│   └── web/                       # Web scraping & search
+│       ├── decorators.py
+│       ├── scraper.py
+│       └── search.py
 │
-├── tests/                 # テスト (1,451+ passing)
-├── docs/                  # ユーザードキュメント
-├── ai_docs/               # 開発ドキュメント
-├── examples/              # 使用例
+├── tests/                         # テスト (1,451+ passing)
+├── docs/                          # ユーザードキュメント
+├── ai_docs/                       # 開発ドキュメント
+├── examples/                      # 使用例
 │
-├── docker-compose.yml           # 開発環境
-├── docker-compose.prod.yml      # 本番環境 (Phase C)
-├── Caddyfile                    # HTTPS reverse proxy (Phase C)
+├── docker-compose.yml             # 開発環境
+├── docker-compose.prod.yml        # 本番環境
+├── Caddyfile                      # HTTPS reverse proxy
 ├── pyproject.toml
-├── CLAUDE.md                    # このファイル
+├── CLAUDE.md                      # このファイル
 └── README.md
 ```
 
@@ -288,10 +678,11 @@ ruff format src/
 
 ### 必須テスト
 
-- ユニットテスト: 各関数・クラス
-- 統合テスト: モジュール間連携
-- エッジケース: 境界値
-- エラーハンドリング: 例外処理
+- **ユニットテスト**: 各関数・クラス
+- **統合テスト**: モジュール間連携
+- **エッジケース**: 境界値
+- **エラーハンドリング**: 例外処理
+- **パフォーマンステスト**: ボトルネック検証
 
 ---
 
@@ -333,6 +724,7 @@ gh pr merge [PR番号] --squash
    coding_record_error(
        error_type="TypeError",
        message="...",
+       stack_trace="...",
        solution="...",  # 解決後に追加
    )
    ```
@@ -343,14 +735,48 @@ gh pr merge [PR番号] --squash
 
 ---
 
-## 📚 参考
+## 📚 重要なドキュメント
 
-- **ロードマップ**: `ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md`
-- **戦略方針**: `ai_docs/V4.0_STRATEGIC_PIVOT.md`
-- **コーディング規約**: `ai_docs/CODING_STANDARDS.md`
+### 開発前に確認
+
+1. **Issue内容**（必読）
+2. `ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md` - v4.0ロードマップ
+3. `ai_docs/V4.0_STRATEGIC_PIVOT.md` - v4.0戦略方針
+4. `ai_docs/CODING_STANDARDS.md` - コーディング規約
+5. `ai_docs/ARCHITECTURE.md` - アーキテクチャ
+6. `ai_docs/MEMORY_STRATEGY.md` - メモリー戦略
+
+### 参考リンク
+
 - **API仕様**: `docs/api-reference.md`, `docs/api/reference.yaml`
 - **CHANGELOG**: `CHANGELOG.md`
+- **README**: `README.md`
 
 ---
 
-**このガイドに従って、高品質なコードを生成してください。不明点は必ず質問してください！**
+## 💡 開発のベストプラクティス
+
+### 実装開始前
+
+1. **Issue確認**: 目的と要件を理解
+2. **過去の作業検索**: Kaguraメモリーで類似実装を確認
+3. **設計検討**: アーキテクチャへの影響を評価
+4. **テスト計画**: テストケースを先に考える（TDD）
+
+### 実装中
+
+1. **小さく分割**: 1コミット1機能
+2. **頻繁にコミット**: 動作する状態を保つ
+3. **継続的テスト**: pytest watch mode活用
+4. **メモリー記録**: 重要な決定・エラーを記録
+
+### 実装後
+
+1. **自己レビュー**: コードレビュー観点をチェック
+2. **ドキュメント更新**: README、docstring、CHANGELOG
+3. **CI確認**: すべてのテストが通ることを確認
+4. **Session終了**: Kagura sessionを適切に終了
+
+---
+
+**このガイドに従って、プロダクションレベルの高品質なコードを生成してください。不明点は必ず質問してください！**
