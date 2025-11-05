@@ -1,0 +1,63 @@
+# Branch Name Validation Workflow
+# Ensures all PRs follow the naming convention defined in BRANCH_POLICY.md
+#
+# Naming convention:
+#   {issue-number}-{type}/{description}
+#   Example: 565-fix/integration-tests
+#
+# Exception for urgent hotfixes:
+#   {type}/{description}
+#   Example: hotfix/critical-bug
+
+name: Validate Branch Name
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  validate:
+    name: Check branch naming
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate branch name format
+        run: |
+          BRANCH="${{ github.head_ref }}"
+
+          echo "🔍 Checking branch name: $BRANCH"
+
+          # Pattern 1: {issue}-{type}/{desc} (recommended)
+          # Pattern 2: {type}/{desc} (urgent fixes only)
+          if [[ "$BRANCH" =~ ^[0-9]+-[a-z]+/[a-z0-9-]+$ ]]; then
+            echo "✅ Valid format: {issue}-{type}/{description}"
+            echo "Branch name: $BRANCH"
+            exit 0
+          elif [[ "$BRANCH" =~ ^(hotfix|fix|feat|docs|chore|refactor|test|perf)/[a-z0-9-]+$ ]]; then
+            echo "⚠️  Valid but non-standard format: {type}/{description}"
+            echo "Branch name: $BRANCH"
+            echo ""
+            echo "Note: For better tracking, prefer {issue}-{type}/{description}"
+            echo "Example: 565-fix/critical-bug"
+            exit 0
+          else
+            echo "❌ Invalid branch name: $BRANCH"
+            echo ""
+            echo "Expected format:"
+            echo "  {issue-number}-{type}/{description}"
+            echo "  Example: 565-fix/integration-tests"
+            echo ""
+            echo "Valid types: feat, fix, docs, chore, refactor, test, perf, hotfix"
+            echo ""
+            echo "For urgent fixes without issue:"
+            echo "  {type}/{description}"
+            echo "  Example: hotfix/critical-pypi-publish"
+            echo ""
+            echo "See .github/BRANCH_POLICY.md for details"
+            exit 1
+          fi
+
+      - name: Check branch age
+        run: |
+          # Future enhancement: warn if branch is >7 days old
+          echo "ℹ️  Branch age check (future feature)"
