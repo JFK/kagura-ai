@@ -83,7 +83,9 @@ class TestNeuralMemoryConfig:
 
     def test_min_co_activation_count_validation(self):
         """Test min_co_activation_count must be positive."""
-        with pytest.raises(ValueError, match="min_co_activation_count must be positive"):
+        with pytest.raises(
+            ValueError, match="min_co_activation_count must be positive"
+        ):
             NeuralMemoryConfig(min_co_activation_count=0)
 
     def test_decay_rate_validation(self):
@@ -103,7 +105,9 @@ class TestNeuralMemoryConfig:
 
     def test_consolidation_use_count_min_validation(self):
         """Test consolidation_use_count_min must be positive."""
-        with pytest.raises(ValueError, match="consolidation_use_count_min must be positive"):
+        with pytest.raises(
+            ValueError, match="consolidation_use_count_min must be positive"
+        ):
             NeuralMemoryConfig(consolidation_use_count_min=0)
 
     def test_consolidation_importance_min_validation(self):
@@ -123,7 +127,9 @@ class TestNeuralMemoryConfig:
 
     def test_async_update_delay_ms_validation(self):
         """Test async_update_delay_ms must be non-negative."""
-        with pytest.raises(ValueError, match="async_update_delay_ms must be non-negative"):
+        with pytest.raises(
+            ValueError, match="async_update_delay_ms must be non-negative"
+        ):
             NeuralMemoryConfig(async_update_delay_ms=-100)
 
     def test_max_candidates_k_validation(self):

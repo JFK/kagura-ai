@@ -171,7 +171,9 @@ class TestAPIKeyHashing:
 
         # Query database directly
         with sqlite3.connect(manager.db_path) as conn:
-            cursor = conn.execute("SELECT key_hash FROM api_keys WHERE name = ?", ("hash-test",))
+            cursor = conn.execute(
+                "SELECT key_hash FROM api_keys WHERE name = ?", ("hash-test",)
+            )
             row = cursor.fetchone()
 
         # Hash should not match the plaintext key

@@ -211,7 +211,10 @@ async def test_memory_tools_with_telemetry():
         "mcp_kagura_tool_memory_recall", **tracking_args
     ):
         result = await memory_recall(
-            user_id="test_user", agent_name="test_agent", key="test_key", scope="working"
+            user_id="test_user",
+            agent_name="test_agent",
+            key="test_key",
+            scope="working",
         )
         # Parse JSON response (new format includes metadata)
         import json

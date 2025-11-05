@@ -301,6 +301,23 @@ def create_mcp_server(
                 # Return error as text content
                 result_text = f"Error executing '{name}': {str(e)}"
 
+            # Auto-log tool call to memory (Issue #400)
+            # Must be outside try-except to log both success and failure
+            try:
+                from kagura.mcp.middleware import log_tool_call_to_memory
+
+                user_id_arg = args.get("user_id")
+                if user_id_arg:
+                    await log_tool_call_to_memory(
+                        user_id=user_id_arg,
+                        tool_name=item_name,
+                        arguments=args,
+                        result=result_text,
+                    )
+            except Exception as e:
+                # Non-blocking: Don't fail tool execution if logging fails
+                logger.warning(f"Auto-logging middleware error: {e}")
+
             # Return as TextContent
             logger.debug(f"Creating TextContent response, length={len(result_text)}")
             response = [TextContent(type="text", text=result_text)]

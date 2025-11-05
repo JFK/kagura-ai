@@ -1,6 +1,5 @@
 """Tests for code executor"""
 
-
 import pytest
 
 from kagura.core.executor import (

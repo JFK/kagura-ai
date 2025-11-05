@@ -25,7 +25,9 @@ def test_manager_initialization():
 
 def test_manager_with_agent_name(temp_dir):
     """Test initialization with agent name."""
-    manager = MemoryManager(user_id="test_user", agent_name="test_agent", persist_dir=temp_dir)
+    manager = MemoryManager(
+        user_id="test_user", agent_name="test_agent", persist_dir=temp_dir
+    )
     assert manager.agent_name == "test_agent"
 
 
@@ -90,7 +92,9 @@ def test_manager_session_id():
 
 def test_manager_persistent_memory(temp_dir):
     """Test persistent memory operations."""
-    manager = MemoryManager(user_id="test_user", agent_name="test_agent", persist_dir=temp_dir)
+    manager = MemoryManager(
+        user_id="test_user", agent_name="test_agent", persist_dir=temp_dir
+    )
 
     manager.remember("key1", "value1")
     assert manager.recall("key1") == "value1"
@@ -101,7 +105,9 @@ def test_manager_persistent_memory(temp_dir):
 
 def test_manager_search_memory(temp_dir):
     """Test memory search."""
-    manager = MemoryManager(user_id="test_user", agent_name="test_agent", persist_dir=temp_dir)
+    manager = MemoryManager(
+        user_id="test_user", agent_name="test_agent", persist_dir=temp_dir
+    )
 
     manager.remember("user_name", "Alice")
     manager.remember("user_email", "alice@example.com")
@@ -112,7 +118,9 @@ def test_manager_search_memory(temp_dir):
 
 def test_manager_prune_old(temp_dir):
     """Test pruning old memories."""
-    manager = MemoryManager(user_id="test_user", agent_name="test_agent", persist_dir=temp_dir)
+    manager = MemoryManager(
+        user_id="test_user", agent_name="test_agent", persist_dir=temp_dir
+    )
 
     manager.remember("key1", "value1")
 
@@ -123,7 +131,9 @@ def test_manager_prune_old(temp_dir):
 
 def test_manager_save_session(temp_dir):
     """Test saving session."""
-    manager = MemoryManager(user_id="test_user", agent_name="test_agent", persist_dir=temp_dir)
+    manager = MemoryManager(
+        user_id="test_user", agent_name="test_agent", persist_dir=temp_dir
+    )
 
     manager.set_temp("temp_key", "temp_value")
     manager.add_message("user", "Hello")
@@ -140,7 +150,9 @@ def test_manager_save_session(temp_dir):
 
 def test_manager_load_session(temp_dir):
     """Test loading session."""
-    manager = MemoryManager(user_id="test_user", agent_name="test_agent", persist_dir=temp_dir)
+    manager = MemoryManager(
+        user_id="test_user", agent_name="test_agent", persist_dir=temp_dir
+    )
 
     # Create and save session
     manager.add_message("user", "Hello")
@@ -162,7 +174,9 @@ def test_manager_load_session(temp_dir):
 
 def test_manager_load_nonexistent_session(temp_dir):
     """Test loading nonexistent session."""
-    manager = MemoryManager(user_id="test_user", agent_name="test_agent", persist_dir=temp_dir)
+    manager = MemoryManager(
+        user_id="test_user", agent_name="test_agent", persist_dir=temp_dir
+    )
 
     success = manager.load_session("nonexistent")
     assert success is False
@@ -186,7 +200,9 @@ def test_manager_clear_all():
 
 def test_manager_metadata(temp_dir):
     """Test storing with metadata."""
-    manager = MemoryManager(user_id="test_user", agent_name="test_agent", persist_dir=temp_dir)
+    manager = MemoryManager(
+        user_id="test_user", agent_name="test_agent", persist_dir=temp_dir
+    )
 
     metadata = {"source": "web", "importance": "high"}
     manager.remember("key1", "value1", metadata=metadata)
@@ -212,7 +228,9 @@ def test_manager_max_messages():
 
 def test_manager_repr(temp_dir):
     """Test string representation."""
-    manager = MemoryManager(user_id="test_user", agent_name="test_agent", persist_dir=temp_dir)
+    manager = MemoryManager(
+        user_id="test_user", agent_name="test_agent", persist_dir=temp_dir
+    )
 
     manager.set_temp("key1", "value1")
     manager.add_message("user", "Hello")
@@ -228,8 +246,12 @@ def test_manager_repr(temp_dir):
 
 def test_manager_agent_scoping(temp_dir):
     """Test that different agents have separate memories."""
-    manager1 = MemoryManager(user_id="test_user", agent_name="agent1", persist_dir=temp_dir)
-    manager2 = MemoryManager(user_id="test_user", agent_name="agent2", persist_dir=temp_dir)
+    manager1 = MemoryManager(
+        user_id="test_user", agent_name="agent1", persist_dir=temp_dir
+    )
+    manager2 = MemoryManager(
+        user_id="test_user", agent_name="agent2", persist_dir=temp_dir
+    )
 
     manager1.remember("key1", "agent1_value")
     manager2.remember("key1", "agent2_value")

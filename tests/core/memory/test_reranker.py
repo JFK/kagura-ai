@@ -11,7 +11,9 @@ from kagura.core.memory.reranker import MemoryReranker  # noqa: E402
 def test_rerank_config_defaults():
     """Test default reranking configuration."""
     config = RerankConfig()
-    assert config.enabled is False  # Conservative default: avoid crashes in offline envs
+    assert (
+        config.enabled is False
+    )  # Conservative default: avoid crashes in offline envs
     assert config.model == "cross-encoder/ms-marco-MiniLM-L-6-v2"
     assert config.candidates_k == 100
     assert config.top_k == 20

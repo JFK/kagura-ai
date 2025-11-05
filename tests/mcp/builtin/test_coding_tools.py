@@ -97,7 +97,9 @@ class TestCodingRecordError:
 
     @pytest.mark.asyncio
     @patch("kagura.llm.vision.acompletion")
-    async def test_record_error_with_solution(self, mock_acompletion, mock_llm_response):
+    async def test_record_error_with_solution(
+        self, mock_acompletion, mock_llm_response
+    ):
         """Test recording error with solution."""
         mock_acompletion.return_value = mock_llm_response
 
@@ -420,4 +422,3 @@ class TestCodingEndSessionExtended:
             success="false",
         )
         assert "⚠️" in result_false
-

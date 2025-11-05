@@ -1,6 +1,5 @@
 """Tests for mocking utilities."""
 
-
 from kagura.testing.mocking import LLMMock, LLMRecorder, ToolMock
 
 
