@@ -328,14 +328,31 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ### ブランチ戦略
 
-**必須**: GitHub IssueからBranch作成
+**詳細**: `.github/BRANCH_POLICY.md` を参照
+
+#### ブランチ命名規則
+
+**必須パターン**:
+```
+{issue-number}-{type}/{description}
+
+例:
+565-fix/integration-tests
+550-feat/cli-utilities
+563-docs/cleanup
+```
+
+**緊急修正のみ**: `hotfix/{description}` も許可（Issue後作成）
+
+#### ワークフロー
 
 ```bash
 # 1. Issue作成
 gh issue create --title "..." --body "..."
 
-# 2. Issueからブランチ作成
+# 2. Issueからブランチ作成（推奨）
 gh issue develop [Issue番号] --checkout
+# → 自動的に正しい命名でブランチ作成
 
 # 3. 実装・テスト・コミット
 
@@ -347,7 +364,17 @@ gh pr ready [PR番号]
 gh pr merge [PR番号] --squash
 ```
 
-**⛔️ mainへの直接コミット禁止**
+#### 重要ルール
+
+- **⛔️ mainへの直接コミット禁止** - Branch protection有効
+- **📏 ブランチ寿命**: 最大7日（それ以上は分割）
+- **🔄 毎日同期**: `git rebase origin/main` で最新に保つ
+- **🗑️ マージ後削除**: 自動削除（GitHub設定）
+
+#### マージ戦略
+
+- **Squash merge**: feature, fix, docs, chore（通常）
+- **Merge commit**: release branch（LTSのみ）
 
 ---
 
