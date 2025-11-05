@@ -127,22 +127,16 @@ async def memory_store(
         # Catch any initialization errors (timeouts, download failures, etc.)
         return f"[ERROR] Failed to initialize memory: {str(e)[:200]}"
 
-    # Parse tags and metadata from JSON strings
-    try:
-        tags_list = json.loads(tags) if isinstance(tags, str) else tags
-    except json.JSONDecodeError:
-        tags_list = []
+    # Parse tags and metadata using common helpers
+    from kagura.mcp.builtin.common import (
+        parse_json_dict,
+        parse_json_list,
+        to_float_clamped,
+    )
 
-    try:
-        metadata_dict = json.loads(metadata) if isinstance(metadata, str) else metadata
-    except json.JSONDecodeError:
-        metadata_dict = {}
-
-    try:
-        importance = float(importance)
-        importance = max(0.0, min(1.0, importance))  # Clamp to [0, 1]
-    except (ValueError, TypeError):
-        importance = 0.5
+    tags_list = parse_json_list(tags, param_name="tags")
+    metadata_dict = parse_json_dict(metadata, param_name="metadata")
+    importance_val = to_float_clamped(importance, param_name="importance")
 
     # Prepare full metadata
     from datetime import datetime
@@ -151,7 +145,7 @@ async def memory_store(
     base_metadata = {
         "metadata": metadata_dict if isinstance(metadata_dict, dict) else metadata_dict,
         "tags": tags_list,
-        "importance": importance,
+        "importance": importance_val,
         "created_at": now.isoformat(),
         "updated_at": now.isoformat(),
     }
