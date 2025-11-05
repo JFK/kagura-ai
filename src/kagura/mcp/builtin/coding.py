@@ -775,7 +775,7 @@ async def coding_search_errors(
     user_id: str,
     project_id: str,
     query: str,
-    k: int = 5,
+    k: str | int = 5,
 ) -> str:
     """Search past errors semantically to find similar issues and their solutions.
 
@@ -816,7 +816,10 @@ async def coding_search_errors(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    errors = await memory.search_similar_errors(query=query, k=k)
+    # Convert k to int using common helper
+    k_int = to_int(k, default=5, min_val=1, max_val=50, param_name="k")
+
+    errors = await memory.search_similar_errors(query=query, k=k_int)
 
     if not errors:
         return (
@@ -1186,13 +1189,10 @@ async def coding_suggest_refactor_order(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    # Parse files from JSON
-    import json
-
-    try:
-        files_list = json.loads(files)
-    except json.JSONDecodeError:
-        return "❌ Error: Invalid JSON array for files parameter"
+    # Parse files from JSON using common helper
+    files_list = parse_json_list(files, param_name="files")
+    if not files_list:
+        return "❌ Error: files parameter must be a non-empty JSON array"
 
     order = await memory.suggest_refactor_order(files_list)
 
@@ -1216,7 +1216,7 @@ async def coding_suggest_refactor_order(
 async def coding_link_github_issue(
     user_id: str,
     project_id: str,
-    issue_number: int | None = None,
+    issue_number: str | int | None = None,
 ) -> str:
     """Link current coding session to a GitHub issue for context tracking.
 
@@ -1254,6 +1254,12 @@ async def coding_link_github_issue(
     from kagura.builtin.git import gh_extract_issue_from_branch
 
     memory = _get_coding_memory(user_id, project_id)
+
+    # Convert issue_number to int if provided
+    if issue_number is not None:
+        issue_number = to_int(issue_number, default=0, min_val=1, param_name="issue_number")
+        if issue_number == 0:
+            issue_number = None  # Invalid number, treat as None
 
     # Auto-detect if not provided
     if issue_number is None:
@@ -1355,7 +1361,7 @@ async def coding_generate_pr_description(
 
 @tool
 async def coding_get_issue_context(
-    issue_number: int,
+    issue_number: str | int,
 ) -> str:
     """Get GitHub issue details for coding context.
 
@@ -1383,8 +1389,13 @@ async def coding_get_issue_context(
     """
     from kagura.builtin.git import gh_issue_get
 
+    # Convert issue_number to int using common helper
+    issue_number_int = to_int(issue_number, default=0, min_val=1, param_name="issue_number")
+    if issue_number_int == 0:
+        return "❌ Error: Invalid issue number. Must be a positive integer."
+
     try:
-        issue = await gh_issue_get(issue_number)
+        issue = await gh_issue_get(issue_number_int)
 
         labels = ", ".join(label["name"] for label in issue.get("labels", []))
         assignees = ", ".join(a["login"] for a in issue.get("assignees", []))
@@ -1853,7 +1864,7 @@ async def coding_search_source_code(
     user_id: str,
     project_id: str,
     query: str,
-    k: int = 5,
+    k: str | int = 5,
     file_filter: str | None = None,
 ) -> str:
     """Search indexed source code semantically.
@@ -1895,19 +1906,22 @@ async def coding_search_source_code(
     """
     memory = _get_coding_memory(user_id, project_id)
 
+    # Convert k to int using common helper
+    k_int = to_int(k, default=5, min_val=1, max_val=50, param_name="k")
+
     # Perform semantic search using appropriate method
     if memory.persistent_rag and memory.lexical_searcher:
         # Use hybrid search if available
         results = memory.recall_hybrid(
             query=query,
-            top_k=k,
+            top_k=k_int,
             scope="persistent",
         )
     elif memory.persistent_rag:
         # Fallback to RAG-only search
         results = memory.search_memory(
             query=query,
-            limit=k,
+            limit=k_int,
         )
     else:
         return "❌ RAG not available. Semantic search requires ChromaDB and sentence-transformers."
