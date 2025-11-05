@@ -9,6 +9,14 @@ import json
 from typing import TYPE_CHECKING, Any
 
 from kagura import tool
+from kagura.mcp.builtin.common import (
+    format_error,
+    format_success,
+    parse_json_dict,
+    parse_json_list,
+    to_float_clamped,
+    to_int,
+)
 
 if TYPE_CHECKING:
     from kagura.core.memory import MemoryManager
@@ -127,13 +135,7 @@ async def memory_store(
         # Catch any initialization errors (timeouts, download failures, etc.)
         return f"[ERROR] Failed to initialize memory: {str(e)[:200]}"
 
-    # Parse tags and metadata using common helpers
-    from kagura.mcp.builtin.common import (
-        parse_json_dict,
-        parse_json_list,
-        to_float_clamped,
-    )
-
+    # Parse tags and metadata using common helpers (already imported at top)
     tags_list = parse_json_list(tags, param_name="tags")
     metadata_dict = parse_json_dict(metadata, param_name="metadata")
     importance_val = to_float_clamped(importance, param_name="importance")
@@ -310,12 +312,8 @@ async def memory_search(
     💡 TIP: Searches by meaning, not exact words.
     🌐 Cross-platform: Searches user's data across all AI tools.
     """
-    # Ensure k is int (LLM might pass as string)
-    if isinstance(k, str):
-        try:
-            k = int(k)
-        except ValueError:
-            k = 5  # Default fallback
+    # Convert k to int using common helper
+    k = to_int(k, default=5, min_val=1, max_val=100, param_name="k")
 
     try:
         # Use cached MemoryManager with RAG enabled
@@ -433,12 +431,8 @@ async def memory_list(
     Returns:
         JSON list of stored memories with keys, values, and metadata
     """
-    # Ensure limit is int (LLM might pass as string)
-    if isinstance(limit, str):
-        try:
-            limit = int(limit)
-        except ValueError:
-            limit = 50  # Default fallback
+    # Convert limit to int using common helper
+    limit = to_int(limit, default=50, min_val=1, max_val=1000, param_name="limit")
 
     # Always enable RAG to match other memory tools
     enable_rag = True
@@ -561,16 +555,13 @@ async def memory_feedback(
     """
     # Validate inputs
     if label not in ("useful", "irrelevant", "outdated"):
-        return json.dumps(
-            {"error": f"Invalid label: {label}. Use: useful, irrelevant, or outdated"}
+        return format_error(
+            f"Invalid label: {label}",
+            help_text="Use: useful, irrelevant, or outdated",
         )
 
-    try:
-        weight = float(weight)
-        if not 0.0 <= weight <= 1.0:
-            weight = max(0.0, min(1.0, weight))
-    except (ValueError, TypeError):
-        weight = 1.0
+    # Convert weight to float using common helper
+    weight = to_float_clamped(weight, min_val=0.0, max_val=1.0, default=1.0, param_name="weight")
 
     enable_rag = True
     try:
@@ -798,7 +789,7 @@ async def memory_get_related(
     user_id: str,
     agent_name: str,
     node_id: str,
-    depth: int | str = 2,
+    depth: str | int = 2,
     rel_type: str | None = None,
 ) -> str:
     """Get related nodes from graph memory
@@ -855,23 +846,13 @@ async def memory_get_related(
 
     # Check if graph is available
     if not memory.graph:
-        return json.dumps(
-            {
-                "error": "GraphMemory not available",
-                "message": "Graph memory is disabled or NetworkX not installed",
-                "related_nodes": [],
-            },
-            indent=2,
+        return format_error(
+            "GraphMemory not available",
+            details={"message": "Graph memory is disabled or NetworkX not installed"},
         )
 
-    # Convert depth to int (MCP clients may send as string)
-    try:
-        depth_int = int(depth) if isinstance(depth, str) else depth
-    except (ValueError, TypeError):
-        return json.dumps(
-            {"error": f"Invalid depth value: {depth}. Must be an integer."},
-            indent=2,
-        )
+    # Convert depth to int using common helper
+    depth_int = to_int(depth, default=2, min_val=1, max_val=10, param_name="depth")
 
     # Get related nodes
     try:
@@ -973,19 +954,13 @@ async def memory_record_interaction(
 
     # Check if graph is available
     if not memory.graph:
-        return json.dumps(
-            {
-                "error": "GraphMemory not available",
-                "message": "Graph memory is disabled or NetworkX not installed",
-            },
-            indent=2,
+        return format_error(
+            "GraphMemory not available",
+            details={"message": "Graph memory is disabled or NetworkX not installed"},
         )
 
-    # Parse metadata
-    try:
-        metadata_dict = json.loads(metadata)
-    except json.JSONDecodeError:
-        return json.dumps({"error": "Invalid JSON in metadata parameter"}, indent=2)
+    # Parse metadata using common helper
+    metadata_dict = parse_json_dict(metadata, param_name="metadata")
 
     # Merge ai_platform into metadata if provided (backward compatibility)
     if ai_platform:
@@ -1081,12 +1056,9 @@ async def memory_get_user_pattern(
 
     # Check if graph is available
     if not memory.graph:
-        return json.dumps(
-            {
-                "error": "GraphMemory not available",
-                "message": "Graph memory is disabled or NetworkX not installed",
-            },
-            indent=2,
+        return format_error(
+            "GraphMemory not available",
+            details={"message": "Graph memory is disabled or NetworkX not installed"},
         )
 
     # Analyze user pattern
@@ -1280,12 +1252,8 @@ async def memory_search_ids(
         Use memory_fetch(key="project_plan") to get full content.
         The "id" field is for display only; use "key" for fetching.
     """
-    # Ensure k is int
-    if isinstance(k, str):
-        try:
-            k = int(k)
-        except ValueError:
-            k = 10
+    # Convert k to int using common helper
+    k = to_int(k, default=10, min_val=1, max_val=100, param_name="k")
 
     try:
         memory = _get_memory_manager(user_id, agent_name, enable_rag=True)
@@ -1445,10 +1413,14 @@ async def memory_search_hybrid(
         - Requires RAG to be enabled for semantic search
         - Falls back to keyword-only if RAG unavailable
     """
-    # Convert string parameters to appropriate types
-    keyword_weight_f = float(keyword_weight)
-    semantic_weight_f = float(semantic_weight)
-    k_int = int(k)
+    # Convert string parameters using common helpers
+    keyword_weight_f = to_float_clamped(
+        keyword_weight, min_val=0.0, max_val=1.0, default=0.4, param_name="keyword_weight"
+    )
+    semantic_weight_f = to_float_clamped(
+        semantic_weight, min_val=0.0, max_val=1.0, default=0.6, param_name="semantic_weight"
+    )
+    k_int = to_int(k, default=10, min_val=1, max_val=100, param_name="k")
 
     memory = _get_memory_manager(user_id, agent_name, enable_rag=True)
 
@@ -1625,7 +1597,7 @@ async def memory_timeline(
     time_range: str,
     event_type: str | None = None,
     scope: str = "persistent",
-    k: int = 20,
+    k: str | int = 20,
 ) -> str:
     """Retrieve memories from specific time range.
 
@@ -1678,6 +1650,9 @@ async def memory_timeline(
         - Event type matching is case-insensitive substring match
     """
     from datetime import datetime, timedelta
+
+    # Convert k to int using common helper
+    k_int = to_int(k, default=20, min_val=1, max_val=1000, param_name="k")
 
     memory = _get_memory_manager(user_id, agent_name, enable_rag=True)
 
@@ -1769,8 +1744,8 @@ async def memory_timeline(
     # Sort by timestamp (newest first)
     filtered_results.sort(key=lambda x: x["timestamp"], reverse=True)
 
-    # Limit to k results
-    final_results = filtered_results[:k]
+    # Limit to k_int results
+    final_results = filtered_results[:k_int]
 
     return json.dumps(
         {
@@ -1792,9 +1767,9 @@ async def memory_fuzzy_recall(
     user_id: str,
     agent_name: str,
     key_pattern: str,
-    similarity_threshold: float = 0.6,
+    similarity_threshold: str | float = 0.6,
     scope: str = "persistent",
-    k: int = 10,
+    k: str | int = 10,
 ) -> str:
     """Recall memories using fuzzy key matching.
 
@@ -1835,6 +1810,12 @@ async def memory_fuzzy_recall(
     """
     from difflib import SequenceMatcher
 
+    # Convert parameters using common helpers
+    similarity_threshold_f = to_float_clamped(
+        similarity_threshold, min_val=0.0, max_val=1.0, default=0.6, param_name="similarity_threshold"
+    )
+    k_int = to_int(k, default=10, min_val=1, max_val=1000, param_name="k")
+
     memory = _get_memory_manager(user_id, agent_name, enable_rag=False)
 
     # Collect all keys
@@ -1867,7 +1848,7 @@ async def memory_fuzzy_recall(
         # Calculate similarity
         similarity = SequenceMatcher(None, key_pattern_lower, mem_key_lower).ratio()
 
-        if similarity >= similarity_threshold:
+        if similarity >= similarity_threshold_f:
             matches.append(
                 {
                     "key": mem_key,
@@ -1880,14 +1861,14 @@ async def memory_fuzzy_recall(
     # Sort by similarity (descending)
     matches.sort(key=lambda x: x["similarity"], reverse=True)
 
-    # Limit to k results
-    final_results = matches[:k]
+    # Limit to k_int results
+    final_results = matches[:k_int]
 
     return json.dumps(
         {
             "found": len(final_results),
             "key_pattern": key_pattern,
-            "similarity_threshold": similarity_threshold,
+            "similarity_threshold": similarity_threshold_f,
             "results": final_results,
         },
         indent=2,
