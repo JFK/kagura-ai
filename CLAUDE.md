@@ -468,6 +468,11 @@ kagura-ai/
 │   │   └── utils.py
 │   │
 │   ├── cli/                       # CLI commands
+│   │   ├── utils/                 # 🆕 CLI utilities (v4.1.0)
+│   │   │   ├── __init__.py
+│   │   │   ├── progress.py        # Progress indicators
+│   │   │   ├── rich_helpers.py    # Rich console formatting
+│   │   │   └── time_formatters.py # Time display utilities
 │   │   ├── api_cli.py             # API key management
 │   │   ├── auth_cli.py            # OAuth2 authentication
 │   │   ├── chat.py                # Chat interface
@@ -479,7 +484,7 @@ kagura-ai/
 │   │   ├── main.py                # CLI entry point
 │   │   ├── mcp.py                 # MCP server commands
 │   │   ├── memory_cli.py          # Memory management
-│   │   ├── monitor.py             # MCP monitor (v4.0.9)
+│   │   ├── monitor.py             # MCP monitor
 │   │   └── telemetry_cli.py       # Telemetry commands
 │   │
 │   ├── commands/                  # Command pattern implementation
@@ -629,8 +634,15 @@ kagura-ai/
 │   ├── tools/                     # Tool utilities
 │   │   └── __init__.py
 │   │
-│   ├── utils/
-│   │   └── media_detector.py
+│   ├── utils/                     # 🆕 Shared utilities (v4.1.0)
+│   │   ├── __init__.py
+│   │   ├── api_check.py           # API connectivity testing
+│   │   ├── db.py                  # Database helpers
+│   │   ├── errors.py              # Unified error handling
+│   │   ├── json_helpers.py        # JSON serialization
+│   │   ├── media_detector.py      # Media file detection
+│   │   ├── memory.py              # MemoryManager factory
+│   │   └── metadata.py            # Metadata extraction
 │   │
 │   ├── version.py
 │   │
