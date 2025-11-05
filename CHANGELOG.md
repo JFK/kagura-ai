@@ -31,6 +31,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
+#### Enhanced Memory Stats (#411)
+- **Unused memory tracking**: Identify memories not accessed in 30/90 days
+  - `unused_30days` - Memories not recalled for 30+ days
+  - `unused_90days` - Memories not recalled for 90+ days
+  - Based on `last_accessed_at` timestamps automatically tracked on recall
+- **Storage size calculation**: Show actual disk usage
+  - `storage_mb` - Total storage (SQLite + ChromaDB) in megabytes
+  - Helps users understand memory footprint
+- **Automatic access tracking**: `memory_recall` now tracks usage statistics
+  - `access_count` - Number of times memory was recalled
+  - `last_accessed_at` - Timestamp of last access
+  - Enables data-driven cleanup recommendations
+
+**Example output**:
+```json
+{
+  "analysis": {
+    "duplicates": 5,
+    "old_90days": 40,
+    "unused_30days": 15,
+    "unused_90days": 25,
+    "storage_mb": 17.8
+  },
+  "recommendations": [
+    "25 memories unused for 90+ days - consider cleanup"
+  ]
+}
+```
+
 #### Interactive API Key Setup Wizard (#555)
 - **`kagura config setup`** - Interactive wizard for first-time configuration
   - Guides through API key setup for OpenAI, Anthropic, Google AI, Brave Search
