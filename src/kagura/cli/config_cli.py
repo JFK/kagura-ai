@@ -10,10 +10,12 @@ from pathlib import Path
 from typing import Any
 
 import click
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
 
+from kagura.cli.utils import (
+    create_console,
+    create_success_panel,
+    create_table,
+)
 from kagura.config.env import (
     check_required_env_vars,
     get_anthropic_api_key,
@@ -26,7 +28,7 @@ from kagura.config.env import (
     list_env_vars,
 )
 
-console = Console()
+console = create_console()
 
 
 @click.group(name="config")
@@ -45,7 +47,7 @@ def list_config() -> None:
 
     env_vars = list_env_vars()
 
-    table = Table(show_header=True, header_style="bold magenta")
+    table = create_table()
     table.add_column("Variable", style="cyan")
     table.add_column("Value", style="white")
     table.add_column("Status", style="white")
@@ -292,10 +294,10 @@ def doctor() -> None:
     """
     console.print("\n")
     console.print(
-        Panel(
+        create_success_panel(
             "[bold]Kagura Configuration Doctor[/]\n"
             "Running comprehensive diagnostics...",
-            style="blue",
+            title="Info",
         )
     )
     console.print()
@@ -375,13 +377,13 @@ def doctor() -> None:
     # Final summary
     console.print()
     console.print(
-        Panel(
+        create_success_panel(
             "[bold]Diagnostics Complete[/]\n\n"
             "If you see any errors, check:\n"
             "  • API keys are correct and properly formatted\n"
             "  • Network connection is working\n"
             "  • API services are not experiencing outages",
-            style="blue",
+            title="Summary",
         )
     )
     console.print()
