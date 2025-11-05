@@ -21,7 +21,15 @@ def test_cli_startup_time_under_3_seconds():
 
     commands = [
         [sys.executable, "-m", "kagura.cli.main", "coding", "sessions", "--limit", "1"],
-        [sys.executable, "-m", "kagura.cli.main", "coding", "decisions", "--limit", "1"],
+        [
+            sys.executable,
+            "-m",
+            "kagura.cli.main",
+            "coding",
+            "decisions",
+            "--limit",
+            "1",
+        ],
         [sys.executable, "-m", "kagura.cli.main", "coding", "errors", "--limit", "1"],
     ]
 
@@ -38,14 +46,16 @@ def test_cli_startup_time_under_3_seconds():
         )
         elapsed = time.time() - start
 
-        assert result.returncode == 0, f"Command failed: {' '.join(cmd[2:])}\nStderr: {result.stderr.decode()}"
+        assert result.returncode == 0, (
+            f"Command failed: {' '.join(cmd[2:])}\nStderr: {result.stderr.decode()}"
+        )
 
         # Target: <5s (conservative, accounts for CI/environment variance)
         # Baseline was 13.9s, optimized to ~2-4s depending on environment
         # This test ensures we don't regress back to 10s+ territory
-        assert (
-            elapsed < 5.0
-        ), f"CLI took {elapsed:.2f}s (target: <5s) for {' '.join(cmd[2:])}"
+        assert elapsed < 5.0, (
+            f"CLI took {elapsed:.2f}s (target: <5s) for {' '.join(cmd[2:])}"
+        )
 
 
 @pytest.mark.performance
