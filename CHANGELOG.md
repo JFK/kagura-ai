@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ✨ Added
+
+- TBD
+
+---
+
+## [4.1.1] - 2025-11-06
+
 ### 🚀 Performance
 
 #### CLI Startup Time Optimization (#548)
