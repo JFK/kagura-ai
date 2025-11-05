@@ -5,36 +5,15 @@ Semantic search and recall API routes:
 - POST /api/v1/recall - Semantic recall (similarity-based)
 """
 
-import json
 from typing import Any
 
 from fastapi import APIRouter
 
 from kagura.api import models
 from kagura.api.dependencies import MemoryManagerDep
+from kagura.utils.json_helpers import decode_chromadb_metadata
 
 router = APIRouter()
-
-
-def _decode_metadata(metadata_dict: dict[str, Any]) -> dict[str, Any]:
-    """Decode JSON strings in metadata (ChromaDB compatibility).
-
-    Args:
-        metadata_dict: Metadata with potential JSON strings
-
-    Returns:
-        Decoded metadata with lists/dicts restored
-    """
-    decoded = {}
-    for k, v in metadata_dict.items():
-        if isinstance(v, str) and (v.startswith("[") or v.startswith("{")):
-            try:
-                decoded[k] = json.loads(v)
-            except json.JSONDecodeError:
-                decoded[k] = v
-        else:
-            decoded[k] = v
-    return decoded
 
 
 @router.post("/search", response_model=models.SearchResponse)
@@ -78,7 +57,7 @@ async def search_memories(
         metadata_dict = mem.get("metadata", {})
 
         # Decode metadata (ChromaDB compatibility)
-        metadata_dict = _decode_metadata(metadata_dict)
+        metadata_dict = decode_chromadb_metadata(metadata_dict)
 
         tags = metadata_dict.get("tags", [])
 
@@ -142,7 +121,7 @@ async def recall_memories(
         metadata_dict = result.get("metadata", {})
 
         # Decode metadata (ChromaDB compatibility)
-        metadata_dict = _decode_metadata(metadata_dict)
+        metadata_dict = decode_chromadb_metadata(metadata_dict)
 
         key = metadata_dict.get("key", "unknown")
         tags = metadata_dict.get("tags", [])

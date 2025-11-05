@@ -885,16 +885,9 @@ def stats_command(
 
         # Show per-user breakdown if requested
         if breakdown_by in ["user", "all"] and not user_id:
-            import sqlite3
+            from kagura.utils import MemoryDatabaseQuery
 
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT user_id, COUNT(*) as count FROM memories "
-                "WHERE user_id IS NOT NULL GROUP BY user_id ORDER BY count DESC"
-            )
-            user_stats = cursor.fetchall()
-            conn.close()
+            user_stats = MemoryDatabaseQuery.get_user_stats()
 
             if user_stats:
                 console.print("[cyan]By User:[/cyan]")
@@ -1014,15 +1007,11 @@ def index_command(
     try:
         # Get all user_ids if not specified
         if user_id is None:
-            import sqlite3
 
-            from kagura.config.paths import get_data_dir
 
-            db_path = get_data_dir() / "memory.db"
-            conn = sqlite3.connect(db_path)
-            cursor = conn.execute("SELECT DISTINCT user_id FROM memories")
-            user_ids = [row[0] for row in cursor.fetchall()]
-            conn.close()
+            from kagura.utils import MemoryDatabaseQuery
+
+            user_ids = MemoryDatabaseQuery.list_users()
 
             if not user_ids:
                 console.print("[yellow]No memories found to index[/yellow]")

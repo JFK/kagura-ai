@@ -14,7 +14,7 @@ from kagura.config.env import (
     get_search_cache_ttl,
 )
 from kagura.mcp.builtin.cache import SearchCache
-from kagura.mcp.builtin.common import setup_external_library_logging
+from kagura.mcp.builtin.common import setup_external_library_logging, to_int
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ def _get_cache() -> SearchCache | None:
 
 
 @tool
-async def brave_web_search(query: str, count: int = 5) -> str:
+async def brave_web_search(query: str, count: str | int = 5) -> str:
     """Search the web using Brave Search API.
 
     Use this tool when:
@@ -93,12 +93,8 @@ async def brave_web_search(query: str, count: int = 5) -> str:
         - ENABLE_SEARCH_CACHE: Enable/disable caching (default: true)
         - SEARCH_CACHE_TTL: Cache TTL in seconds (default: 3600)
     """
-    # Ensure count is int (LLM might pass as string)
-    if isinstance(count, str):
-        try:
-            count = int(count)
-        except ValueError:
-            count = 5  # Default fallback
+    # Convert count to int using common helper
+    count = to_int(count, default=5, min_val=1, max_val=20, param_name="count")
 
     # Check cache first (if enabled)
     cache = _get_cache()
@@ -229,7 +225,7 @@ _NEWS_COUNTRY_PRESETS = {
 @tool
 async def brave_news_search(
     query: str,
-    count: int = 5,
+    count: str | int = 5,
     country: str = "US",
     search_lang: str = "en",
     freshness: str | None = None,
@@ -275,12 +271,8 @@ async def brave_news_search(
         # For Japanese news, use brave_web_search instead:
         brave_web_search(query="AI ニュース")
     """
-    # Ensure count is int (LLM might pass as string)
-    if isinstance(count, str):
-        try:
-            count = int(count)
-        except ValueError:
-            count = 5  # Default fallback
+    # Convert count to int using common helper
+    count = to_int(count, default=5, min_val=1, max_val=20, param_name="count")
 
     # Validate and auto-correct country/language combination
     if country not in _NEWS_COUNTRY_PRESETS:
