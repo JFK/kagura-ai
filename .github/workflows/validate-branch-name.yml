@@ -29,6 +29,7 @@ jobs:
 
           # Pattern 1: {issue}-{type}/{desc} (recommended)
           # Pattern 2: {type}/{desc} (urgent fixes only)
+          # Pattern 3: {type}-{desc} (legacy/transition support)
           if [[ "$BRANCH" =~ ^[0-9]+-[a-z]+/[a-z0-9-]+$ ]]; then
             echo "✅ Valid format: {issue}-{type}/{description}"
             echo "Branch name: $BRANCH"
@@ -39,6 +40,13 @@ jobs:
             echo ""
             echo "Note: For better tracking, prefer {issue}-{type}/{description}"
             echo "Example: 565-fix/critical-bug"
+            exit 0
+          elif [[ "$BRANCH" =~ ^(hotfix|fix|feat|docs|chore|refactor|test|perf|restore|update|add|remove|improve)-[a-z0-9-]+$ ]]; then
+            echo "⚠️  Legacy format accepted: {type}-{description}"
+            echo "Branch name: $BRANCH"
+            echo ""
+            echo "Note: This format is deprecated. Please use:"
+            echo "  {issue}-{type}/{description} or {type}/{description}"
             exit 0
           else
             echo "❌ Invalid branch name: $BRANCH"
