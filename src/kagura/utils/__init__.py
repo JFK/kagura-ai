@@ -12,9 +12,25 @@ from kagura.utils.json_helpers import (
     encode_chromadb_metadata,
     safe_json_loads,
 )
+from kagura.utils.metadata import (
+    MemoryMetadata,
+    build_full_metadata,
+    extract_memory_fields,
+    merge_metadata,
+    prepare_for_chromadb,
+    validate_importance,
+)
 
 __all__ = [
+    # json_helpers
     "decode_chromadb_metadata",
     "encode_chromadb_metadata",
     "safe_json_loads",
+    # metadata
+    "MemoryMetadata",
+    "build_full_metadata",
+    "extract_memory_fields",
+    "merge_metadata",
+    "prepare_for_chromadb",
+    "validate_importance",
 ]

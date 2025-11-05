@@ -15,7 +15,7 @@ from fastapi import APIRouter, HTTPException, Path, Query
 
 from kagura.api import models
 from kagura.api.dependencies import MemoryManagerDep
-from kagura.utils.json_helpers import decode_chromadb_metadata
+from kagura.utils import build_full_metadata, decode_chromadb_metadata, extract_memory_fields, prepare_for_chromadb
 
 router = APIRouter()
 
@@ -49,15 +49,12 @@ async def create_memory(
                 status_code=409, detail=f"Memory '{request.key}' already exists"
             )
 
-    # Prepare metadata with tags and importance
-    now = datetime.now()
-    full_metadata = {
-        **(request.metadata or {}),
-        "tags": request.tags,
-        "importance": request.importance,
-        "created_at": now.isoformat(),
-        "updated_at": now.isoformat(),
-    }
+    # Build metadata with standard fields
+    full_metadata = build_full_metadata(
+        tags=request.tags,
+        importance=request.importance,
+        user_metadata=request.metadata,
+    )
 
     # Store memory based on scope
     if request.scope == "working":
@@ -66,18 +63,8 @@ async def create_memory(
         # Store metadata separately
         memory.set_temp(f"_meta_{request.key}", full_metadata)
     else:  # persistent
-        # For ChromaDB compatibility, convert list values to JSON strings
-        import json
-
-        chromadb_metadata = {}
-        for k, v in full_metadata.items():
-            if isinstance(v, list):
-                chromadb_metadata[k] = json.dumps(v)  # Convert list to JSON string
-            elif isinstance(v, dict):
-                chromadb_metadata[k] = json.dumps(v)  # Convert dict to JSON string
-            else:
-                chromadb_metadata[k] = v
-
+        # Prepare metadata for ChromaDB storage
+        chromadb_metadata = prepare_for_chromadb(full_metadata)
         # Persistent memory: use remember() with ChromaDB-compatible metadata
         memory.remember(request.key, request.value, chromadb_metadata)
 
@@ -88,8 +75,8 @@ async def create_memory(
         "tags": request.tags,
         "importance": request.importance,
         "metadata": request.metadata or {},
-        "created_at": now,
-        "updated_at": now,
+        "created_at": datetime.now(),
+        "updated_at": datetime.now(),
     }
 
 
@@ -138,34 +125,22 @@ async def get_memory(
     if value is None:
         raise HTTPException(status_code=404, detail=f"Memory '{key}' not found")
 
-    # Decode metadata (ChromaDB compatibility)
+    # Decode and extract metadata fields
     metadata_dict = decode_chromadb_metadata(metadata_dict)
-
-    # Extract tags, importance from metadata
-    tags = metadata_dict.get("tags", [])
-    importance = metadata_dict.get("importance", 0.5)
-    created_at_str = metadata_dict.get("created_at")
-    updated_at_str = metadata_dict.get("updated_at")
-
-    # Remove internal fields from metadata
-    user_metadata = {
-        k: v
-        for k, v in metadata_dict.items()
-        if k not in ("tags", "importance", "created_at", "updated_at")
-    }
+    mem_fields = extract_memory_fields(metadata_dict)
 
     return {
         "key": key,
         "value": value,
         "scope": found_scope or "working",
-        "tags": tags,
-        "importance": importance,
-        "metadata": user_metadata,
-        "created_at": datetime.fromisoformat(created_at_str)
-        if created_at_str
+        "tags": mem_fields["tags"],
+        "importance": mem_fields["importance"],
+        "metadata": mem_fields.get("user_metadata", {}),
+        "created_at": datetime.fromisoformat(mem_fields["created_at"])
+        if mem_fields["created_at"]
         else datetime.now(),
-        "updated_at": datetime.fromisoformat(updated_at_str)
-        if updated_at_str
+        "updated_at": datetime.fromisoformat(mem_fields["updated_at"])
+        if mem_fields["updated_at"]
         else datetime.now(),
     }
 
@@ -209,32 +184,22 @@ async def update_memory(
         request.metadata if request.metadata is not None else existing["metadata"]
     )
 
-    # Prepare updated metadata
-    full_metadata = {
-        **updated_metadata,
-        "tags": updated_tags,
-        "importance": updated_importance,
-        "created_at": existing["created_at"].isoformat(),
-        "updated_at": datetime.now().isoformat(),
-    }
+    # Build updated metadata
+    full_metadata = build_full_metadata(
+        tags=updated_tags,
+        importance=updated_importance,
+        user_metadata=updated_metadata,
+        created_at=existing["created_at"],
+        updated_at=datetime.now(),
+    )
 
     # Update memory based on scope
     if found_scope == "working":
         memory.set_temp(key, updated_value)
         memory.set_temp(f"_meta_{key}", full_metadata)
     else:  # persistent
-        # For ChromaDB compatibility, convert list/dict values to JSON strings
-        import json
-
-        chromadb_metadata = {}
-        for k, v in full_metadata.items():
-            if isinstance(v, list):
-                chromadb_metadata[k] = json.dumps(v)
-            elif isinstance(v, dict):
-                chromadb_metadata[k] = json.dumps(v)
-            else:
-                chromadb_metadata[k] = v
-
+        # Prepare metadata for ChromaDB storage
+        chromadb_metadata = prepare_for_chromadb(full_metadata)
         # Delete and recreate (no update method in MemoryManager)
         memory.forget(key)
         memory.remember(key, updated_value, chromadb_metadata)
@@ -320,33 +285,23 @@ async def list_memories(
         for mem in persistent_list:
             metadata_dict = mem.get("metadata", {})
 
-            # Decode metadata (ChromaDB compatibility)
+            # Decode and extract metadata fields
             metadata_dict = decode_chromadb_metadata(metadata_dict)
-
-            tags = metadata_dict.get("tags", [])
-            importance = metadata_dict.get("importance", 0.5)
-            created_at_str = metadata_dict.get("created_at")
-            updated_at_str = metadata_dict.get("updated_at")
-
-            user_metadata = {
-                k: v
-                for k, v in metadata_dict.items()
-                if k not in ("tags", "importance", "created_at", "updated_at")
-            }
+            mem_fields = extract_memory_fields(metadata_dict)
 
             all_memories.append(
                 {
                     "key": mem["key"],
                     "value": mem["value"],
                     "scope": "persistent",
-                    "tags": tags,
-                    "importance": importance,
-                    "metadata": user_metadata,
-                    "created_at": datetime.fromisoformat(created_at_str)
-                    if created_at_str
+                    "tags": mem_fields["tags"],
+                    "importance": mem_fields["importance"],
+                    "metadata": mem_fields.get("user_metadata", {}),
+                    "created_at": datetime.fromisoformat(mem_fields["created_at"])
+                    if mem_fields["created_at"]
                     else datetime.now(),
-                    "updated_at": datetime.fromisoformat(updated_at_str)
-                    if updated_at_str
+                    "updated_at": datetime.fromisoformat(mem_fields["updated_at"])
+                    if mem_fields["updated_at"]
                     else datetime.now(),
                 }
             )
