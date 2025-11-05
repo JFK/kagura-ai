@@ -227,6 +227,14 @@ class MemorySystemConfig(BaseModel):
         # Check reranking config (env var + pyproject.toml + .env)
         from kagura.config.project import get_reranking_enabled
 
+        # IMPORTANT: Respect explicit rerank config (Issue #548)
+        # Only auto-enable if 'rerank' parameter was explicitly provided by user
+        # This allows CLI lightweight config to disable reranker
+        if "rerank" in self.__pydantic_fields_set__:
+            # User explicitly configured rerank, respect their choice
+            return
+
+        # Auto-enable if model is cached (smart default for existing users)
         if get_reranking_enabled():
             self.rerank.enabled = True
 

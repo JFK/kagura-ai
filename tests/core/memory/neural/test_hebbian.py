@@ -7,7 +7,12 @@ import pytest
 from kagura.core.graph.memory import GraphMemory
 from kagura.core.memory.neural.config import NeuralMemoryConfig
 from kagura.core.memory.neural.hebbian import HebbianLearner
-from kagura.core.memory.neural.models import ActivationState, NeuralMemoryNode, MemoryKind, SourceKind
+from kagura.core.memory.neural.models import (
+    ActivationState,
+    NeuralMemoryNode,
+    MemoryKind,
+    SourceKind,
+)
 
 
 @pytest.fixture
@@ -116,7 +121,9 @@ class TestHebbianLearner:
         clipped = hebbian._clip_gradients(edge_deltas)
 
         # Total delta for node_a is 3.0, should be clipped to config.gradient_clipping (0.5)
-        total_clipped = sum(abs(v) for (src, _), v in clipped.items() if src == "node_a")
+        total_clipped = sum(
+            abs(v) for (src, _), v in clipped.items() if src == "node_a"
+        )
         assert total_clipped <= hebbian.config.gradient_clipping
 
     def test_prune_weak_edges(self, hebbian, graph):

@@ -259,7 +259,8 @@ async def memory_recall(
         memory = _memory_cache[cache_key]
 
     if scope == "persistent":
-        recall_result = memory.recall(key, include_metadata=True)
+        # Track access for usage analytics (Issue #411)
+        recall_result = memory.recall(key, include_metadata=True, track_access=True)
         if recall_result is None:
             value = None
             metadata = None
@@ -560,7 +561,9 @@ async def memory_feedback(
         )
 
     # Convert weight to float using common helper
-    weight = to_float_clamped(weight, min_val=0.0, max_val=1.0, default=1.0, param_name="weight")
+    weight = to_float_clamped(
+        weight, min_val=0.0, max_val=1.0, default=1.0, param_name="weight"
+    )
 
     enable_rag = True
     try:
@@ -1097,7 +1100,13 @@ async def memory_stats(
         agent_name: Agent identifier (default: "global")
 
     Returns:
-        JSON with statistics and recommendations
+        JSON with statistics and recommendations including:
+        - total_memories: Total count
+        - breakdown: {working, persistent}
+        - analysis: {duplicates, old_90days, unused_30days, unused_90days, storage_mb}
+          Note: storage_mb may be null if calculation fails
+        - recommendations: List of suggestions
+        - health_score: "excellent" | "good" | "fair"
     """
     import logging
 
@@ -1144,6 +1153,47 @@ async def memory_stats(
                 except (ValueError, AttributeError):
                     pass
 
+        # Analyze unused memories (Issue #411)
+        logger.debug("memory_stats: Analyzing unused memories")
+        unused_30_count = 0
+        unused_90_count = 0
+        now = datetime.now()
+
+        for mem in persistent_mems:
+            # Check last_accessed_at from metadata or direct field
+            last_access = None
+            metadata = mem.get("metadata")
+
+            # Try metadata first (newer format)
+            if metadata and isinstance(metadata, dict):
+                last_access = metadata.get("last_accessed_at")
+
+            # If not found, check if it's a direct field (v4.0.11+)
+            if not last_access and "last_accessed_at" in mem:
+                last_access = mem["last_accessed_at"]
+
+            if last_access:
+                try:
+                    # Parse ISO format timestamp
+                    last_access_str = (
+                        last_access.replace("Z", "+00:00")
+                        if isinstance(last_access, str)
+                        else last_access
+                    )
+                    last_access_dt = datetime.fromisoformat(str(last_access_str))
+                    days_since_access = (now - last_access_dt).days
+
+                    if days_since_access > 90:
+                        unused_90_count += 1
+                    elif days_since_access > 30:
+                        unused_30_count += 1
+                except (ValueError, AttributeError, TypeError):
+                    pass  # Skip malformed timestamps
+
+        logger.debug(
+            f"memory_stats: Unused counts - 30 days: {unused_30_count}, 90 days: {unused_90_count}"
+        )
+
         # Tag distribution (both working and persistent)
         logger.debug("memory_stats: Analyzing tags")
         tag_counts: dict[str, int] = {}
@@ -1186,8 +1236,26 @@ async def memory_stats(
             recs.append(f"{duplicates} duplicate keys - consider consolidating")
         if old_count > 10:
             recs.append(f"{old_count} memories >90 days - consider export")
+        if unused_90_count > 10:
+            recs.append(
+                f"{unused_90_count} memories unused for 90+ days - consider cleanup"
+            )
+        if unused_30_count > 20:
+            recs.append(
+                f"{unused_30_count} memories unused for 30+ days - review if still needed"
+            )
         if not recs:
             recs.append("Memory health looks good!")
+
+        # Calculate storage size (Issue #411)
+        logger.debug("memory_stats: Calculating storage size")
+        try:
+            storage_info = memory.get_storage_size()
+            storage_mb = round(storage_info["total_mb"], 2)
+            logger.debug(f"memory_stats: Storage = {storage_mb} MB")
+        except Exception as e:
+            logger.warning(f"Failed to calculate storage size: {e}")
+            storage_mb = None
 
         # Health score
         logger.debug("memory_stats: Calculating health score")
@@ -1197,7 +1265,13 @@ async def memory_stats(
         stats = {
             "total_memories": total,
             "breakdown": {"working": working_count, "persistent": persistent_count},
-            "analysis": {"duplicates": duplicates, "old_90days": old_count},
+            "analysis": {
+                "duplicates": duplicates,
+                "old_90days": old_count,
+                "unused_30days": unused_30_count,
+                "unused_90days": unused_90_count,
+                "storage_mb": storage_mb,
+            },
             "top_tags": top_tags,
             "recommendations": recs,
             "health_score": health,
@@ -1436,10 +1510,18 @@ async def memory_search_hybrid(
 
     # Convert string parameters using common helpers
     keyword_weight_f = to_float_clamped(
-        keyword_weight, min_val=0.0, max_val=1.0, default=0.4, param_name="keyword_weight"
+        keyword_weight,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.4,
+        param_name="keyword_weight",
     )
     semantic_weight_f = to_float_clamped(
-        semantic_weight, min_val=0.0, max_val=1.0, default=0.6, param_name="semantic_weight"
+        semantic_weight,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.6,
+        param_name="semantic_weight",
     )
     k_int = to_int(k, default=10, min_val=1, max_val=100, param_name="k")
 
@@ -1833,7 +1915,11 @@ async def memory_fuzzy_recall(
 
     # Convert parameters using common helpers
     similarity_threshold_f = to_float_clamped(
-        similarity_threshold, min_val=0.0, max_val=1.0, default=0.6, param_name="similarity_threshold"
+        similarity_threshold,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.6,
+        param_name="similarity_threshold",
     )
     k_int = to_int(k, default=10, min_val=1, max_val=1000, param_name="k")
 
@@ -1894,3 +1980,79 @@ async def memory_fuzzy_recall(
         },
         indent=2,
     )
+
+
+@tool
+async def memory_get_tool_history(
+    user_id: str,
+    agent_name: str = "mcp_history",
+    tool_filter: str | None = None,
+    limit: str = "10",
+) -> str:
+    """Get MCP tool usage history.
+
+    Retrieves auto-logged tool calls for context awareness and debugging.
+
+    🔍 USE WHEN:
+    - User asks "What did I search for earlier?"
+    - Debugging: "What tools did I call?"
+    - Context awareness: AI sees recent tool usage
+
+    Args:
+        user_id: User identifier
+        agent_name: Agent identifier (default: "mcp_history")
+        tool_filter: Filter by specific tool name (e.g., "brave_web_search")
+        limit: Number of recent calls (default: "10", max: 100)
+
+    Returns:
+        JSON list of recent tool calls
+
+    💡 EXAMPLE:
+        memory_get_tool_history(user_id="kiyota", tool_name="brave_web_search")
+
+    📊 RETURNS:
+        [{"tool": "brave_web_search", "timestamp": "...", "args": {...}, "result_preview": "..."}]
+    """
+    limit_int = to_int(limit, default=10, min_val=1, max_val=100, param_name="limit")
+    memory = _get_memory_manager(user_id, agent_name, enable_rag=False)
+
+    try:
+        search_query = f"{tool_filter}_" if tool_filter else "%"
+        results = memory.persistent.search(
+            query=search_query, user_id=user_id, agent_name=agent_name, limit=limit_int
+        )
+
+        history = []
+        for mem in results:
+            try:
+                value_str = mem.get("value", "{}")
+                data = (
+                    json.loads(value_str) if isinstance(value_str, str) else value_str
+                )
+
+                if tool_filter and data.get("tool") != tool_filter:
+                    continue
+
+                history.append(
+                    {
+                        "tool": data.get("tool"),
+                        "timestamp": data.get("timestamp"),
+                        "args": data.get("args"),
+                        "result_preview": data.get("result", "")[:100],
+                    }
+                )
+            except (json.JSONDecodeError, KeyError, AttributeError) as e:
+                import logging
+
+                logging.getLogger(__name__).warning(
+                    f"Failed to parse tool history: {e}"
+                )
+                continue
+
+        history.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+        return json.dumps(history[:limit_int], indent=2, ensure_ascii=False)
+
+    except Exception as e:
+        return format_error(
+            "Failed to retrieve tool history", details={"error": str(e)}
+        )

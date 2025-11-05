@@ -144,9 +144,7 @@ class TestDependencyAnalyzer:
 
         # user.py should be imported by auth.py and main.py
         user_py_importers = [
-            importers
-            for path, importers in reverse_deps.items()
-            if "user.py" in path
+            importers for path, importers in reverse_deps.items() if "user.py" in path
         ]
 
         if user_py_importers:

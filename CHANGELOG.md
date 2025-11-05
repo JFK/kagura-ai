@@ -11,6 +11,90 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
+- TBD
+
+---
+
+## [4.1.1] - 2025-11-06
+
+### 🚀 Performance
+
+#### CLI Startup Time Optimization (#548)
+- **83% faster CLI startup**: Reduced from 13.9s → 2.3s (target: <3s) ✅
+- **Root cause**: MemoryReranker (CrossEncoder) initialization taking 6.5s
+- **Solution**:
+  - Explicitly disable reranker in CLI lightweight config
+  - Fixed `MemorySystemConfig.model_post_init()` to respect explicit `rerank.enabled=False`
+  - Added `__pydantic_fields_set__` check to detect explicit user configuration
+- **Impact**: All coding CLI commands (`sessions`, `decisions`, `errors`) now start instantly
+- **Tests**: Added 4 performance regression tests in `tests/performance/test_cli_startup.py`
+
+### 🐛 Fixed
+
+#### MemorySystemConfig Auto-Detection Bug (#548)
+- **Critical**: `model_post_init()` was ignoring explicit `rerank.enabled=False` setting
+- **Issue**: Auto-enablement (when model cached) would override user's explicit config
+- **Fix**: Check `__pydantic_fields_set__` before applying auto-detection
+- **Result**: CLI lightweight config now correctly disables reranker
+
+### ✨ Added
+
+#### Enhanced Memory Stats (#411)
+- **Unused memory tracking**: Identify memories not accessed in 30/90 days
+  - `unused_30days` - Memories not recalled for 30+ days
+  - `unused_90days` - Memories not recalled for 90+ days
+  - Based on `last_accessed_at` timestamps automatically tracked on recall
+- **Storage size calculation**: Show actual disk usage
+  - `storage_mb` - Total storage (SQLite + ChromaDB) in megabytes
+  - Helps users understand memory footprint
+- **Automatic access tracking**: `memory_recall` now tracks usage statistics
+  - `access_count` - Number of times memory was recalled
+  - `last_accessed_at` - Timestamp of last access
+  - Enables data-driven cleanup recommendations
+
+**Example output**:
+```json
+{
+  "analysis": {
+    "duplicates": 5,
+    "old_90days": 40,
+    "unused_30days": 15,
+    "unused_90days": 25,
+    "storage_mb": 17.8
+  },
+  "recommendations": [
+    "25 memories unused for 90+ days - consider cleanup"
+  ]
+}
+```
+
+#### Interactive API Key Setup Wizard (#555)
+- **`kagura config setup`** - Interactive wizard for first-time configuration
+  - Guides through API key setup for OpenAI, Anthropic, Google AI, Brave Search
+  - Masked password input for security
+  - Preserves existing keys from .env file
+  - Auto-validation after setup
+  - Skip any keys you don't need
+- **Better UX**: Zero-friction onboarding for new users
+
+#### MCP Telemetry Reorganization (#555)
+- **`kagura mcp telemetry tools`** - MCP tool usage analysis (new location)
+  - Better CLI organization (MCP-specific commands under `mcp` group)
+  - Identical functionality with CSV/JSON export support
+  - Replaces removed `kagura telemetry tools` command
+
+### 🗑️ Removed
+
+#### Deprecated CLI Commands (#555)
+- **BREAKING**: Removed `kagura telemetry` command group
+  - **Migration**: Use `kagura mcp telemetry tools` instead
+  - Old command: `kagura telemetry tools --since 30d`
+  - New command: `kagura mcp telemetry tools --since 30d`
+- **BREAKING**: Removed `kagura config show` command
+  - **Migration**: Use `kagura config list` instead
+
+**Rationale**: Cleaner CLI organization, MCP-specific commands now grouped under `mcp`
+
 #### Auto-detect Project & User (#536)
 - **Smart Defaults**: Auto-detect project and user for coding commands
   - Project detection priority: env var → pyproject.toml → git repo name → git directory

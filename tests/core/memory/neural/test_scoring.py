@@ -11,7 +11,10 @@ from kagura.core.memory.neural.activation import ActivationSpreader
 from kagura.core.memory.neural.config import NeuralMemoryConfig
 from kagura.core.memory.neural.models import NeuralMemoryNode, MemoryKind, SourceKind
 from kagura.core.memory.neural.scoring import UnifiedScorer
-from kagura.core.memory.neural.utils import IMPORTANCE_STORED_WEIGHT, IMPORTANCE_FREQUENCY_WEIGHT
+from kagura.core.memory.neural.utils import (
+    IMPORTANCE_STORED_WEIGHT,
+    IMPORTANCE_FREQUENCY_WEIGHT,
+)
 
 
 @pytest.fixture
@@ -187,8 +190,7 @@ class TestUnifiedScorer:
         from kagura.core.memory.neural.models import RecallResult
 
         results = [
-            RecallResult(node=node, score=0.9 - i * 0.1)
-            for i, node in enumerate(nodes)
+            RecallResult(node=node, score=0.9 - i * 0.1) for i, node in enumerate(nodes)
         ]
 
         query_emb = [0.0, 0.5, 0.5]

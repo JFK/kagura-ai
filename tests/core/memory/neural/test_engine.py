@@ -101,7 +101,9 @@ class TestNeuralMemoryEngine:
             ("node_a", {"user_id": "user1", "use_count": 5, "importance": 0.8})
         ]
 
-        with patch.object(engine.decay_manager, "consolidate_to_long_term", return_value=[]):
+        with patch.object(
+            engine.decay_manager, "consolidate_to_long_term", return_value=[]
+        ):
             with patch.object(
                 engine.decay_manager,
                 "apply_decay",

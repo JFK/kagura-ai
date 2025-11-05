@@ -1,19 +1,22 @@
 # Branch Name Validation Workflow
 # Ensures all PRs follow the naming convention defined in BRANCH_POLICY.md
 #
-# Naming convention:
-#   {issue-number}-{type}/{description}
-#   Example: 565-fix/integration-tests
-#
-# Exception for urgent hotfixes:
-#   {type}/{description}
-#   Example: hotfix/critical-bug
+# Supported patterns (v4.1.1+):
+#   1. Feature: {issue-number}-{type}/{description}
+#   2. Release: v{major}.{minor}.{patch}-release
+#   3. Hotfix:  hotfix/{description} (emergencies only)
+#   4. Legacy:  {issue-number}-{type}-{description} (grandfathered)
 
 name: Validate Branch Name
 
 on:
   pull_request:
     types: [opened, reopened, synchronize]
+  push:
+    branches-ignore:
+      - main
+      - develop
+      - dev
 
 jobs:
   validate:
@@ -23,49 +26,74 @@ jobs:
     steps:
       - name: Validate branch name format
         run: |
-          BRANCH="${{ github.head_ref }}"
+          # Extract branch name from PR head ref or current ref
+          # ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          # - For PRs: GITHUB_HEAD_REF contains source branch name
+          # - For pushes: Extract from GITHUB_REF by removing refs/heads/ prefix
+          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
 
           echo "🔍 Checking branch name: $BRANCH"
 
-          # Pattern 1: {issue}-{type}/{desc} (recommended)
-          # Pattern 2: {type}/{desc} (urgent fixes only)
-          # Pattern 3: {type}-{desc} (legacy/transition support)
+          # Allow protected branches
+          if [[ "$BRANCH" =~ ^(main|develop|dev)$ ]]; then
+            echo "✅ Protected branch: $BRANCH"
+            exit 0
+          fi
+
+          # Allow release branches: v{major}.{minor}.{patch}-release
+          if [[ "$BRANCH" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-release$ ]]; then
+            echo "✅ Release branch: $BRANCH"
+            exit 0
+          fi
+
+          # Allow hotfix branches: hotfix/{description}
+          if [[ "$BRANCH" =~ ^hotfix/[a-z0-9-]+$ ]]; then
+            echo "✅ Hotfix branch: $BRANCH"
+            exit 0
+          fi
+
+          # Standard pattern: {number}-{type}/{description}
           if [[ "$BRANCH" =~ ^[0-9]+-[a-z]+/[a-z0-9-]+$ ]]; then
             echo "✅ Valid format: {issue}-{type}/{description}"
             echo "Branch name: $BRANCH"
             exit 0
-          elif [[ "$BRANCH" =~ ^(hotfix|fix|feat|docs|chore|refactor|test|perf)/[a-z0-9-]+$ ]]; then
-            echo "⚠️  Valid but non-standard format: {type}/{description}"
-            echo "Branch name: $BRANCH"
-            echo ""
-            echo "Note: For better tracking, prefer {issue}-{type}/{description}"
-            echo "Example: 565-fix/critical-bug"
-            exit 0
-          elif [[ "$BRANCH" =~ ^(hotfix|fix|feat|docs|chore|refactor|test|perf|restore|update|add|remove|improve)-[a-z0-9-]+$ ]]; then
-            echo "⚠️  Legacy format accepted: {type}-{description}"
+          fi
+
+          # Legacy pattern: {number}-{type}-{description} (grandfathered)
+          if [[ "$BRANCH" =~ ^[0-9]+-[a-z]+-[a-z0-9-]+$ ]]; then
+            echo "⚠️  Legacy format accepted: {issue}-{type}-{description}"
             echo "Branch name: $BRANCH"
             echo ""
             echo "Note: This format is deprecated. Please use:"
-            echo "  {issue}-{type}/{description} or {type}/{description}"
-            exit 0
-          else
-            echo "❌ Invalid branch name: $BRANCH"
-            echo ""
-            echo "Expected format:"
-            echo "  {issue-number}-{type}/{description}"
+            echo "  {issue}-{type}/{description}"
             echo "  Example: 565-fix/integration-tests"
-            echo ""
-            echo "Valid types: feat, fix, docs, chore, refactor, test, perf, hotfix"
-            echo ""
-            echo "For urgent fixes without issue:"
-            echo "  {type}/{description}"
-            echo "  Example: hotfix/critical-pypi-publish"
-            echo ""
-            echo "See .github/BRANCH_POLICY.md for details"
-            exit 1
+            exit 0
           fi
 
-      - name: Check branch age
+          # If we get here, branch name is invalid
+          echo "❌ Invalid branch name: $BRANCH"
+          echo ""
+          echo "Allowed patterns:"
+          echo ""
+          echo "  1. Feature/Fix:  {issue-number}-{type}/{description}"
+          echo "     Examples:     548-perf/cli-startup"
+          echo "                   555-refactor/cli-structure"
+          echo ""
+          echo "  2. Release:      v{major}.{minor}.{patch}-release"
+          echo "     Examples:     v4.1.1-release"
+          echo "                   v5.0.0-release"
+          echo ""
+          echo "  3. Hotfix:       hotfix/{description} (emergencies only)"
+          echo "     Example:      hotfix/critical-bug"
+          echo ""
+          echo "  4. Legacy:       {issue}-{type}-{description} (grandfathered)"
+          echo ""
+          echo "Valid types: feat, fix, perf, refactor, docs, test, chore"
+          echo ""
+          echo "📚 See .github/BRANCH_POLICY.md for complete workflow guide"
+          exit 1
+
+      - name: Branch age check
         run: |
           # Future enhancement: warn if branch is >7 days old
-          echo "ℹ️  Branch age check (future feature)"
+          echo "ℹ️  Branch age check (not yet implemented)"

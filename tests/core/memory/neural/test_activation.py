@@ -103,9 +103,7 @@ class TestActivationSpreader:
         """Test user_id filtering prevents cross-user data leakage."""
         # Add node for different user
         spreader.graph.add_node("node_other", "memory", data={"user_id": "user2"})
-        spreader.graph.add_edge(
-            "node_a", "node_other", "related_to", weight=0.9
-        )
+        spreader.graph.add_edge("node_a", "node_other", "related_to", weight=0.9)
 
         # Spread with user_id filter
         seeds = {"node_a": 1.0}

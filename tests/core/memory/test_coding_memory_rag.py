@@ -77,24 +77,20 @@ class TestCodingMemoryRAG:
         )
 
         # Search for similar errors
-        results = await memory.search_similar_errors(
-            query="datetime type error", k=5
-        )
+        results = await memory.search_similar_errors(query="datetime type error", k=5)
 
         # Should find the errors we just recorded
         assert len(results) > 0, "RAG search should return results"
-        assert any(
-            e.error_type == "TypeError" for e in results
-        ), "Should find TypeError"
+        assert any(e.error_type == "TypeError" for e in results), (
+            "Should find TypeError"
+        )
 
         # Check that errors have solutions
         errors_with_solutions = [e for e in results if e.solution]
         assert len(errors_with_solutions) > 0, "Should have errors with solutions"
 
     @pytest.mark.asyncio
-    async def test_file_changes_retrievable_via_rag(
-        self, coding_memory_with_rag
-    ):
+    async def test_file_changes_retrievable_via_rag(self, coding_memory_with_rag):
         """Test that recent file changes can be retrieved via RAG."""
         memory = coding_memory_with_rag
 
@@ -118,9 +114,9 @@ class TestCodingMemoryRAG:
 
         # Should retrieve the changes
         assert len(recent) > 0, "Should retrieve file changes via RAG"
-        assert any(
-            fc.file_path == "src/auth.py" for fc in recent
-        ), "Should find auth.py change"
+        assert any(fc.file_path == "src/auth.py" for fc in recent), (
+            "Should find auth.py change"
+        )
 
     @pytest.mark.asyncio
     async def test_decisions_retrievable_via_rag(self, coding_memory_with_rag):
@@ -147,9 +143,7 @@ class TestCodingMemoryRAG:
 
         # Should retrieve decisions
         assert len(recent) > 0, "Should retrieve decisions via RAG"
-        assert any(
-            "JWT" in d.decision for d in recent
-        ), "Should find JWT decision"
+        assert any("JWT" in d.decision for d in recent), "Should find JWT decision"
 
     @pytest.mark.asyncio
     @patch("kagura.llm.coding_analyzer.acompletion")
@@ -202,14 +196,14 @@ class TestCodingMemoryRAG:
 
         # Each project should only see its own errors
         if results_a:
-            assert all(
-                e.file_path == "src/a.py" for e in results_a
-            ), "Project A should only see its own errors"
+            assert all(e.file_path == "src/a.py" for e in results_a), (
+                "Project A should only see its own errors"
+            )
 
         if results_b:
-            assert all(
-                e.file_path == "src/b.py" for e in results_b
-            ), "Project B should only see its own errors"
+            assert all(e.file_path == "src/b.py" for e in results_b), (
+                "Project B should only see its own errors"
+            )
 
     @pytest.mark.asyncio
     @patch("kagura.llm.coding_analyzer.acompletion")

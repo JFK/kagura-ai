@@ -344,9 +344,7 @@ class TestBraveSearchLogging:
             # Should create the log directory
             assert (fake_home / ".kagura" / "logs").exists()
 
-    def test_fallback_to_null_device_on_permission_error(
-        self, monkeypatch
-    ) -> None:
+    def test_fallback_to_null_device_on_permission_error(self, monkeypatch) -> None:
         """Test fallback to /dev/null when home directory is not writable"""
         # Clear env var
         monkeypatch.delenv("BRAVE_SEARCH_PYTHON_CLIENT_LOG_FILE_NAME", raising=False)
