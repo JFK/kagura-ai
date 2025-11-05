@@ -10,8 +10,7 @@ from rich.table import Table
 
 # Lazy import to avoid loading optional dependencies for --help
 if TYPE_CHECKING:
-    from kagura.auth import OAuth2Manager
-    from kagura.auth.exceptions import AuthenticationError
+    pass
 
 console = Console()
 logger = logging.getLogger(__name__)
@@ -48,9 +47,9 @@ def login_command(provider: str) -> None:
         from kagura.auth.exceptions import AuthenticationError
     except ImportError as e:
         console.print(
-            f"[red]✗ OAuth2 authentication requires additional dependencies[/red]"
+            "[red]✗ OAuth2 authentication requires additional dependencies[/red]"
         )
-        console.print(f"[yellow]Install with: pip install 'kagura-ai[auth]'[/yellow]")
+        console.print("[yellow]Install with: pip install 'kagura-ai[auth]'[/yellow]")
         console.print(f"[dim]Error: {e}[/dim]")
         raise click.Abort()
 
@@ -116,9 +115,9 @@ def logout_command(provider: str) -> None:
         from kagura.auth.exceptions import AuthenticationError
     except ImportError as e:
         console.print(
-            f"[red]✗ OAuth2 authentication requires additional dependencies[/red]"
+            "[red]✗ OAuth2 authentication requires additional dependencies[/red]"
         )
-        console.print(f"[yellow]Install with: pip install 'kagura-ai[auth]'[/yellow]")
+        console.print("[yellow]Install with: pip install 'kagura-ai[auth]'[/yellow]")
         console.print(f"[dim]Error: {e}[/dim]")
         raise click.Abort()
 
@@ -157,9 +156,9 @@ def status_command() -> None:
         from kagura.auth.exceptions import AuthenticationError
     except ImportError as e:
         console.print(
-            f"[red]✗ OAuth2 authentication requires additional dependencies[/red]"
+            "[red]✗ OAuth2 authentication requires additional dependencies[/red]"
         )
-        console.print(f"[yellow]Install with: pip install 'kagura-ai[auth]'[/yellow]")
+        console.print("[yellow]Install with: pip install 'kagura-ai[auth]'[/yellow]")
         console.print(f"[dim]Error: {e}[/dim]")
         raise click.Abort()
 
