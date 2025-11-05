@@ -81,20 +81,38 @@ ai_docs/
 │
 ├── ARCHITECTURE.md                    # システム設計（v4.0）
 ├── MEMORY_STRATEGY.md                 # メモリー戦略
+├── MEMORY_TEMPERATURE_HIERARCHY.md    # Temperature-based Memory設計
+├── MEMORY_HIERARCHY_INVESTIGATION.md  # メモリー階層調査
+├── CODING_MEMORY_DESIGN.md            # Coding Memory設計
 ├── CODING_STANDARDS.md                # コーディング規約
 ├── GLOSSARY.md                        # 用語集（v4.0）
 ├── GITHUB_ACTIONS_SETUP.md            # CI/CD
 │
-└── archive/                           # 古いドキュメント
-    └── v3/                            # v3.0時代のドキュメント
+├── archive/                           # 保存ドキュメント
+│   └── USE_CASES_AND_FUTURE.md        # 将来のユースケース
+│
+└── rfcs/                              # Request For Comments
+    ├── README.md                      # RFC管理ガイド
+    └── future/                        # 将来のRFC (15+ drafts)
+        ├── RFC_003_PERSONAL_ASSISTANT.md
+        ├── RFC_004_VOICE_FIRST_INTERFACE.md
+        └── ...
 ```
 
-**削除済み** (Phase C完了時):
-- ❌ `VISION.md` - V4.0_STRATEGIC_PIVOT.mdに統合
-- ❌ `DOCUMENTATION_GUIDE.md` - 古いv3.0管理ルール
-- ❌ `OPENAI_PRICING.md` - 古い料金情報
-- ❌ `V4.0_README_DRAFT.md` - ドラフト（README完成）
-- ❌ `V4.0_GITHUB_ISSUE_TEMPLATE.md` - 使用済み
+**削除済み** (v4.1.0 cleanup - 2025-11-05):
+- ❌ `archive/v3/` - v3.0時代のドキュメント (4ファイル)
+- ❌ `archive/old_versions/` - v2.x時代のドキュメント (4ファイル)
+- ❌ `archive/analysis_old/` - 古い分析ドキュメント (7ファイル)
+- ❌ `archive/guides/` - 古い実装ガイド (3ファイル)
+- ❌ `archive/rfcs/completed/` - 完了済みRFC (25+ファイル)
+- ❌ `archive/work_logs/` - 手動ワークログ (10ファイル、Kagura Coding Sessionに移行)
+- ❌ `rfcs/RFC_005_META_AGENT.md` - v2.6向けRFC
+- ❌ `rfcs/RFC_033_CHAT_ENHANCEMENT.md` - v2.6向けRFC
+- ❌ Root: `RELEASE_NOTES_v4.0.0.md`, `RELEASE.md` - 不要
+- ❌ Root: `.pre-commit-config.yaml` - 古いツール（現在はruff使用）
+- ❌ Root: `.python-version` - pyproject.tomlに記載済み
+
+**総削減**: 55+ファイル削除 (~860 KB削減、47%ファイル数削減)
 
 ---
 
@@ -184,6 +202,6 @@ A: **完全後方互換** ✅
 
 ---
 
-**Last Updated**: 2025-10-29（Temperature-based Hierarchy設計追加）
+**Last Updated**: 2025-11-05（v4.1.0 cleanup完了）
 **Maintained By**: Claude Code + Human developers
-**Status**: Phase C Complete, v4.0.0 stable準備中、Phase 1実装開始予定（Issue #453）
+**Status**: v4.1.0 active, Phase C Complete, Coding Memory in production
