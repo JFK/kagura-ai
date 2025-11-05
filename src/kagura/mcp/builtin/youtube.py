@@ -145,7 +145,7 @@ async def get_youtube_metadata(video_url: str) -> str:
             "cachedir": cache_dir,  # Use Kagura's cache directory
         }
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # pyright: ignore[reportArgumentType]
             info = ydl.extract_info(video_url, download=False)
 
             # Extract relevant metadata
