@@ -161,6 +161,7 @@ async def log_tool_call_to_memory(
         }
 
         # Store in persistent memory
+        # Note: importance parameter accepts string (converted internally)
         await memory_store(
             user_id=user_id,
             agent_name="mcp_history",
@@ -168,7 +169,7 @@ async def log_tool_call_to_memory(
             value=json.dumps(log_entry, ensure_ascii=False),
             scope="persistent",
             tags=json.dumps(["mcp_history", tool_name]),
-            importance="0.3",  # Low importance (float as string)
+            importance=0.3,  # Low importance (float)
         )
 
         logger.debug(f"Auto-logged tool call: {tool_name}")
