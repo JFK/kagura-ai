@@ -259,7 +259,8 @@ async def memory_recall(
         memory = _memory_cache[cache_key]
 
     if scope == "persistent":
-        recall_result = memory.recall(key, include_metadata=True)
+        # Track access for usage analytics (Issue #411)
+        recall_result = memory.recall(key, include_metadata=True, track_access=True)
         if recall_result is None:
             value = None
             metadata = None
@@ -560,7 +561,9 @@ async def memory_feedback(
         )
 
     # Convert weight to float using common helper
-    weight = to_float_clamped(weight, min_val=0.0, max_val=1.0, default=1.0, param_name="weight")
+    weight = to_float_clamped(
+        weight, min_val=0.0, max_val=1.0, default=1.0, param_name="weight"
+    )
 
     enable_rag = True
     try:
@@ -1144,6 +1147,47 @@ async def memory_stats(
                 except (ValueError, AttributeError):
                     pass
 
+        # Analyze unused memories (Issue #411)
+        logger.debug("memory_stats: Analyzing unused memories")
+        unused_30_count = 0
+        unused_90_count = 0
+        now = datetime.now()
+
+        for mem in persistent_mems:
+            # Check last_accessed_at from metadata or direct field
+            last_access = None
+            metadata = mem.get("metadata")
+
+            # Try metadata first (newer format)
+            if metadata and isinstance(metadata, dict):
+                last_access = metadata.get("last_accessed_at")
+
+            # If not found, check if it's a direct field (v4.0.11+)
+            if not last_access and "last_accessed_at" in mem:
+                last_access = mem["last_accessed_at"]
+
+            if last_access:
+                try:
+                    # Parse ISO format timestamp
+                    last_access_str = (
+                        last_access.replace("Z", "+00:00")
+                        if isinstance(last_access, str)
+                        else last_access
+                    )
+                    last_access_dt = datetime.fromisoformat(str(last_access_str))
+                    days_since_access = (now - last_access_dt).days
+
+                    if days_since_access > 90:
+                        unused_90_count += 1
+                    elif days_since_access > 30:
+                        unused_30_count += 1
+                except (ValueError, AttributeError, TypeError):
+                    pass  # Skip malformed timestamps
+
+        logger.debug(
+            f"memory_stats: Unused counts - 30 days: {unused_30_count}, 90 days: {unused_90_count}"
+        )
+
         # Tag distribution (both working and persistent)
         logger.debug("memory_stats: Analyzing tags")
         tag_counts: dict[str, int] = {}
@@ -1186,8 +1230,26 @@ async def memory_stats(
             recs.append(f"{duplicates} duplicate keys - consider consolidating")
         if old_count > 10:
             recs.append(f"{old_count} memories >90 days - consider export")
+        if unused_90_count > 10:
+            recs.append(
+                f"{unused_90_count} memories unused for 90+ days - consider cleanup"
+            )
+        if unused_30_count > 20:
+            recs.append(
+                f"{unused_30_count} memories unused for 30+ days - review if still needed"
+            )
         if not recs:
             recs.append("Memory health looks good!")
+
+        # Calculate storage size (Issue #411)
+        logger.debug("memory_stats: Calculating storage size")
+        try:
+            storage_info = memory.get_storage_size()
+            storage_mb = round(storage_info["total_mb"], 2)
+            logger.debug(f"memory_stats: Storage = {storage_mb} MB")
+        except Exception as e:
+            logger.warning(f"Failed to calculate storage size: {e}")
+            storage_mb = None
 
         # Health score
         logger.debug("memory_stats: Calculating health score")
@@ -1197,7 +1259,13 @@ async def memory_stats(
         stats = {
             "total_memories": total,
             "breakdown": {"working": working_count, "persistent": persistent_count},
-            "analysis": {"duplicates": duplicates, "old_90days": old_count},
+            "analysis": {
+                "duplicates": duplicates,
+                "old_90days": old_count,
+                "unused_30days": unused_30_count,
+                "unused_90days": unused_90_count,
+                "storage_mb": storage_mb,
+            },
             "top_tags": top_tags,
             "recommendations": recs,
             "health_score": health,
@@ -1436,10 +1504,18 @@ async def memory_search_hybrid(
 
     # Convert string parameters using common helpers
     keyword_weight_f = to_float_clamped(
-        keyword_weight, min_val=0.0, max_val=1.0, default=0.4, param_name="keyword_weight"
+        keyword_weight,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.4,
+        param_name="keyword_weight",
     )
     semantic_weight_f = to_float_clamped(
-        semantic_weight, min_val=0.0, max_val=1.0, default=0.6, param_name="semantic_weight"
+        semantic_weight,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.6,
+        param_name="semantic_weight",
     )
     k_int = to_int(k, default=10, min_val=1, max_val=100, param_name="k")
 
@@ -1833,7 +1909,11 @@ async def memory_fuzzy_recall(
 
     # Convert parameters using common helpers
     similarity_threshold_f = to_float_clamped(
-        similarity_threshold, min_val=0.0, max_val=1.0, default=0.6, param_name="similarity_threshold"
+        similarity_threshold,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.6,
+        param_name="similarity_threshold",
     )
     k_int = to_int(k, default=10, min_val=1, max_val=1000, param_name="k")
 

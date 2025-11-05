@@ -140,7 +140,9 @@ def display_analysis(analysis: dict[str, Any]) -> None:
 
     # Deprecation candidates
     if analysis["deprecation_candidates"]:
-        console.print("[bold yellow]⚠ Deprecation Candidates (< 0.1% usage)[/bold yellow]")
+        console.print(
+            "[bold yellow]⚠ Deprecation Candidates (< 0.1% usage)[/bold yellow]"
+        )
         dep_table = create_table()
         dep_table.add_column("Tool Name", style="red")
         dep_table.add_column("Calls", justify="right")
@@ -157,9 +159,7 @@ def display_analysis(analysis: dict[str, Any]) -> None:
     # Summary
     console.print("[bold]Summary[/bold]")
     console.print(f"  ✅ High usage (≥1%): {len(analysis['high_usage'])} tools")
-    console.print(
-        f"  ⚠  Medium usage (0.5-1%): {len(analysis['medium_usage'])} tools"
-    )
+    console.print(f"  ⚠  Medium usage (0.5-1%): {len(analysis['medium_usage'])} tools")
     console.print(f"  🔍 Low usage (0.1-0.5%): {len(analysis['low_usage'])} tools")
     console.print(
         f"  ❌ Deprecation candidates (<0.1%): {len(analysis['deprecation_candidates'])} tools"
@@ -208,7 +208,6 @@ def tools_command(since: str, threshold: float, export: str | None) -> None:
         kagura telemetry tools --export usage.csv
     """
     import json
-
 
     # Parse time range
     if since == "all":

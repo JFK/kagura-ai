@@ -133,7 +133,8 @@ class MemoryNotFoundError(KaguraError):
         super().__init__(
             message=f"Memory '{key}' not found in {scope} memory",
             details={"key": key, "scope": scope},
-            help_text=help_text or "Check the key name or use memory_list() to see all keys",
+            help_text=help_text
+            or "Check the key name or use memory_list() to see all keys",
             error_code="MEMORY_NOT_FOUND",
         )
 
