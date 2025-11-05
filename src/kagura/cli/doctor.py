@@ -17,16 +17,15 @@ from pathlib import Path
 from typing import Any
 
 import click
-from rich.console import Console
-from rich.panel import Panel
 
+from kagura.cli.utils import create_console, create_info_panel
 from kagura.config.env import (
     get_anthropic_api_key,
     get_openai_api_key,
 )
 from kagura.config.paths import get_data_dir
 
-console = Console()
+console = create_console()
 
 
 def _check_python_version() -> tuple[str, str]:
@@ -402,10 +401,10 @@ def doctor(ctx: click.Context, fix: bool) -> None:
     """
     console.print("\n")
     console.print(
-        Panel(
+        create_info_panel(
             "[bold]Kagura System Health Check 🏥[/]\n"
             "Running comprehensive diagnostics...",
-            style="blue",
+            title="Info",
         )
     )
     console.print()
@@ -567,7 +566,7 @@ def doctor(ctx: click.Context, fix: bool) -> None:
         console.print()
 
     console.print(
-        Panel(
+        create_info_panel(
             "[bold]Diagnostics Complete[/]\n\n"
             "For more help:\n"
             "  • kagura config doctor - API configuration only\n"
@@ -575,7 +574,7 @@ def doctor(ctx: click.Context, fix: bool) -> None:
             "  • kagura memory doctor - Memory system health check\n"
             "  • kagura coding doctor - Coding memory auto-detection\n"
             "  • kagura memory --help - Memory management",
-            style="blue",
+            title="Info",
         )
     )
     console.print()
