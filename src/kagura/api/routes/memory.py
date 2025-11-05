@@ -15,7 +15,12 @@ from fastapi import APIRouter, HTTPException, Path, Query
 
 from kagura.api import models
 from kagura.api.dependencies import MemoryManagerDep
-from kagura.utils import build_full_metadata, decode_chromadb_metadata, extract_memory_fields, prepare_for_chromadb
+from kagura.utils import (
+    build_full_metadata,
+    decode_chromadb_metadata,
+    extract_memory_fields,
+    prepare_for_chromadb,
+)
 
 router = APIRouter()
 

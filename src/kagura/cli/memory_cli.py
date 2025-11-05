@@ -1007,9 +1007,7 @@ def index_command(
     try:
         # Get all user_ids if not specified
         if user_id is None:
-            import sqlite3
 
-            from kagura.config.paths import get_data_dir
 
             from kagura.utils import MemoryDatabaseQuery
 
