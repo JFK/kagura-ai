@@ -836,8 +836,9 @@ class MemoryManager:
                 sizes["sqlite_mb"] = os.path.getsize(db_path) / (1024 * 1024)
 
         # Calculate ChromaDB storage size (if RAG enabled)
-        if self.persistent_rag and hasattr(self.persistent_rag, "_persist_directory"):
-            chroma_dir = self.persistent_rag._persist_directory
+        if self.persistent_rag:
+            # Use getattr to safely access private attribute
+            chroma_dir = getattr(self.persistent_rag, "_persist_directory", None)
             if chroma_dir and os.path.exists(chroma_dir):
                 total_size = 0
                 for dirpath, dirnames, filenames in os.walk(chroma_dir):

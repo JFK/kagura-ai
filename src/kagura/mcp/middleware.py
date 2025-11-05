@@ -168,7 +168,7 @@ async def log_tool_call_to_memory(
             value=json.dumps(log_entry, ensure_ascii=False),
             scope="persistent",
             tags=json.dumps(["mcp_history", tool_name]),
-            importance="0.3",  # Low importance (housekeeping data)
+            importance="0.3",  # Low importance (float as string)
         )
 
         logger.debug(f"Auto-logged tool call: {tool_name}")

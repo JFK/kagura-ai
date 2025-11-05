@@ -2036,7 +2036,9 @@ async def memory_get_tool_history(
                     }
                 )
             except (json.JSONDecodeError, KeyError, AttributeError) as e:
-                logger.warning(f"Failed to parse tool history: {e}")
+                import logging
+
+                logging.getLogger(__name__).warning(f"Failed to parse tool history: {e}")
                 continue
 
         history.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
