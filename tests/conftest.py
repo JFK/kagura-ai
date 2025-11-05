@@ -1,10 +1,40 @@
 """Pytest configuration"""
 
+import os
 import tempfile
 from pathlib import Path
 from typing import Iterator
 
 import pytest
+
+
+@pytest.fixture(scope="session", autouse=True)
+def isolate_test_database():
+    """Isolate test database from production.
+
+    CRITICAL: Prevents tests from polluting production database.
+    Sets KAGURA_DATA_DIR to temp directory so tests use separate DB.
+
+    Related: Session data loss issue - tests were writing to production DB
+    """
+    # Create temp directory for test data
+    test_data_dir = Path(tempfile.mkdtemp(prefix="kagura_test_data_"))
+
+    # Override data directory for all tests
+    os.environ["KAGURA_DATA_DIR"] = str(test_data_dir)
+
+    yield test_data_dir
+
+    # Cleanup after all tests
+    try:
+        import shutil
+
+        shutil.rmtree(test_data_dir, ignore_errors=True)
+    except Exception:
+        pass
+
+    # Restore original env (if any)
+    os.environ.pop("KAGURA_DATA_DIR", None)
 
 
 @pytest.fixture
