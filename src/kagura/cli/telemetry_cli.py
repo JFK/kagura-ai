@@ -5,10 +5,11 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import click
-from rich.console import Console
-from rich.table import Table
 
-console = Console()
+from kagura.cli.utils import create_console, create_table
+from rich.table import Table  # Still needed for type hints
+
+console = create_console()
 
 
 def analyze_tool_usage(
@@ -117,7 +118,7 @@ def display_analysis(analysis: dict[str, Any]) -> None:
 
     # Top tools table
     console.print("[bold]Top 10 Most Used Tools[/bold]")
-    table = Table(show_header=True, header_style="bold magenta")
+    table = create_table()
     table.add_column("#", style="cyan", width=3)
     table.add_column("Tool Name", style="white")
     table.add_column("Calls", justify="right", style="green")
@@ -141,7 +142,7 @@ def display_analysis(analysis: dict[str, Any]) -> None:
     # Deprecation candidates
     if analysis["deprecation_candidates"]:
         console.print("[bold yellow]⚠ Deprecation Candidates (< 0.1% usage)[/bold yellow]")
-        dep_table = Table(show_header=True, header_style="bold red")
+        dep_table = create_table()
         dep_table.add_column("Tool Name", style="red")
         dep_table.add_column("Calls", justify="right")
         dep_table.add_column("%", justify="right")
