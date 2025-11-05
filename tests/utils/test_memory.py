@@ -44,9 +44,7 @@ class TestMemoryManagerFactory:
 
     def test_get_or_create_api_context(self, mock_memory_manager):
         """Test creating MemoryManager with API context."""
-        memory = MemoryManagerFactory.get_or_create(
-            user_id="alice", context="api"
-        )
+        memory = MemoryManagerFactory.get_or_create(user_id="alice", context="api")
 
         assert memory is not None
         call_kwargs = mock_memory_manager.call_args.kwargs
@@ -190,8 +188,12 @@ class TestClearCache:
     def test_clear_cache_by_user(self, mock_memory_manager):
         """Test clearing cache for specific user."""
         # Create instances for multiple users
-        MemoryManagerFactory.get_or_create(user_id="alice", agent_name="agent1", context="mcp")
-        MemoryManagerFactory.get_or_create(user_id="alice", agent_name="agent2", context="mcp")
+        MemoryManagerFactory.get_or_create(
+            user_id="alice", agent_name="agent1", context="mcp"
+        )
+        MemoryManagerFactory.get_or_create(
+            user_id="alice", agent_name="agent2", context="mcp"
+        )
         MemoryManagerFactory.get_or_create(user_id="bob", context="mcp")
 
         # Clear only alice's cache
@@ -239,28 +241,17 @@ class TestMakeCacheKey:
     def test_make_cache_key_format(self):
         """Test cache key format."""
         key = MemoryManagerFactory._make_cache_key(
-            user_id="alice",
-            agent_name="agent1",
-            enable_rag=True,
-            context="mcp"
+            user_id="alice", agent_name="agent1", enable_rag=True, context="mcp"
         )
 
         assert key == "alice:agent1:rag=True:ctx=mcp"
 
     def test_make_cache_key_different_params(self):
         """Test that different parameters produce different keys."""
-        key1 = MemoryManagerFactory._make_cache_key(
-            "alice", "agent1", True, "mcp"
-        )
-        key2 = MemoryManagerFactory._make_cache_key(
-            "alice", "agent1", False, "mcp"
-        )
-        key3 = MemoryManagerFactory._make_cache_key(
-            "alice", "agent2", True, "mcp"
-        )
-        key4 = MemoryManagerFactory._make_cache_key(
-            "bob", "agent1", True, "mcp"
-        )
+        key1 = MemoryManagerFactory._make_cache_key("alice", "agent1", True, "mcp")
+        key2 = MemoryManagerFactory._make_cache_key("alice", "agent1", False, "mcp")
+        key3 = MemoryManagerFactory._make_cache_key("alice", "agent2", True, "mcp")
+        key4 = MemoryManagerFactory._make_cache_key("bob", "agent1", True, "mcp")
 
         # All keys should be unique
         keys = {key1, key2, key3, key4}
@@ -285,10 +276,7 @@ class TestGetMemoryManagerConvenience:
     def test_get_memory_manager_custom_params(self, mock_memory_manager):
         """Test convenience function with custom parameters."""
         memory = get_memory_manager(
-            user_id="alice",
-            agent_name="custom_agent",
-            enable_rag=False,
-            cache=False
+            user_id="alice", agent_name="custom_agent", enable_rag=False, cache=False
         )
 
         assert memory is not None

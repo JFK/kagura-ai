@@ -134,7 +134,9 @@ class TestDecayManager:
             },
         )
 
-        count = decay_manager.prune_old_nodes("user1", age_days=50, importance_threshold=0.5)
+        count = decay_manager.prune_old_nodes(
+            "user1", age_days=50, importance_threshold=0.5
+        )
 
         # Should prune old, low-importance node
         assert count >= 0

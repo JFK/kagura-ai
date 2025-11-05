@@ -118,9 +118,7 @@ class TestMemoryAbstractor:
         assert result.reference == "https://github.com/org/repo/issues/42#comment-123"
 
     @pytest.mark.asyncio
-    async def test_abstract_external_record_with_llm(
-        self, abstractor, mock_llm_client
-    ):
+    async def test_abstract_external_record_with_llm(self, abstractor, mock_llm_client):
         """Test external record abstraction with LLM."""
         # Mock LLM response
         mock_llm_client.generate = AsyncMock(

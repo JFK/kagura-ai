@@ -47,12 +47,12 @@ def detect_git_repo_name() -> Optional[str]:
             # git@github.com:JFK/kagura-ai.git -> kagura-ai
             # https://github.com/JFK/kagura-ai.git -> kagura-ai
             # https://github.com/JFK/kagura-ai -> kagura-ai
-            match = re.search(r'/([^/]+?)(?:\.git)?$', url)
+            match = re.search(r"/([^/]+?)(?:\.git)?$", url)
             if match:
                 return match.group(1)
 
             # SSH format: git@host:user/repo.git
-            match = re.search(r':([^/]+/)?([^/]+?)(?:\.git)?$', url)
+            match = re.search(r":([^/]+/)?([^/]+?)(?:\.git)?$", url)
             if match:
                 return match.group(2)
 
@@ -194,7 +194,10 @@ def is_reranking_model_cached() -> bool:
         if hf_cache.exists():
             # Look for model files
             for item in hf_cache.iterdir():
-                if "cross-encoder" in item.name.lower() and "marco" in item.name.lower():
+                if (
+                    "cross-encoder" in item.name.lower()
+                    and "marco" in item.name.lower()
+                ):
                     return True
 
     except Exception:  # ChromaDB not installed or cache access failed

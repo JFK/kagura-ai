@@ -266,9 +266,7 @@ class TestFormatError:
 
     def test_format_with_all_fields(self):
         """Test formatting error with all fields."""
-        result = format_error(
-            "Failed", {"code": 500}, "Check logs"
-        )
+        result = format_error("Failed", {"code": 500}, "Check logs")
         result_dict = json.loads(result)
 
         assert result_dict["status"] == "error"

@@ -30,8 +30,10 @@ class TestDotenvLoading:
 
         # load_dotenv() is called, so OPENAI_API_KEY should be loaded
         # Config doctor should NOT complain about missing keys
-        assert "Missing required variables" not in result.output and \
-               "OPENAI_API_KEY" not in result.output
+        assert (
+            "Missing required variables" not in result.output
+            and "OPENAI_API_KEY" not in result.output
+        )
 
     def test_dotenv_not_required(self, tmp_path, monkeypatch):
         """Test that CLI works without .env file."""

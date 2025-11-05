@@ -11,6 +11,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
+#### Auto-Remember MCP Tool Calls (#400)
+- **Automatic tool call logging**: All MCP tool executions automatically saved to memory
+  - Enables "What did I search for earlier?" queries
+  - Better context awareness across conversations
+  - Non-blocking implementation (doesn't fail tool execution)
+- **`memory_get_tool_history`** - New MCP tool to query tool usage history
+  - Filter by specific tool (e.g., `tool_filter="brave_web_search"`)
+  - Returns timestamped history with arguments and result previews
+  - Useful for debugging and context retrieval
+- **Privacy controls**:
+  - Opt-out: Set `KAGURA_DISABLE_AUTO_LOGGING=true`
+  - Result truncation: Default 500 chars (configurable via `KAGURA_AUTO_LOG_MAX_LENGTH`)
+  - **Recursion prevention**: All `memory_*` tools excluded from logging
+- **Storage**: Logs stored in persistent memory with `agent_name="mcp_history"`
+
+**Example**:
+```python
+# User calls any MCP tool (automatic, transparent)
+await brave_web_search(user_id="kiyota", query="Python async")
+
+# Later, retrieve history
+history = await memory_get_tool_history(user_id="kiyota", tool_filter="brave_web_search")
+# Returns: [{"tool": "brave_web_search", "timestamp": "...", "args": {...}, ...}]
+```
+
 #### Auto-detect Project & User (#536)
 - **Smart Defaults**: Auto-detect project and user for coding commands
   - Project detection priority: env var → pyproject.toml → git repo name → git directory

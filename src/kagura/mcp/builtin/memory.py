@@ -560,7 +560,9 @@ async def memory_feedback(
         )
 
     # Convert weight to float using common helper
-    weight = to_float_clamped(weight, min_val=0.0, max_val=1.0, default=1.0, param_name="weight")
+    weight = to_float_clamped(
+        weight, min_val=0.0, max_val=1.0, default=1.0, param_name="weight"
+    )
 
     enable_rag = True
     try:
@@ -1436,10 +1438,18 @@ async def memory_search_hybrid(
 
     # Convert string parameters using common helpers
     keyword_weight_f = to_float_clamped(
-        keyword_weight, min_val=0.0, max_val=1.0, default=0.4, param_name="keyword_weight"
+        keyword_weight,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.4,
+        param_name="keyword_weight",
     )
     semantic_weight_f = to_float_clamped(
-        semantic_weight, min_val=0.0, max_val=1.0, default=0.6, param_name="semantic_weight"
+        semantic_weight,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.6,
+        param_name="semantic_weight",
     )
     k_int = to_int(k, default=10, min_val=1, max_val=100, param_name="k")
 
@@ -1833,7 +1843,11 @@ async def memory_fuzzy_recall(
 
     # Convert parameters using common helpers
     similarity_threshold_f = to_float_clamped(
-        similarity_threshold, min_val=0.0, max_val=1.0, default=0.6, param_name="similarity_threshold"
+        similarity_threshold,
+        min_val=0.0,
+        max_val=1.0,
+        default=0.6,
+        param_name="similarity_threshold",
     )
     k_int = to_int(k, default=10, min_val=1, max_val=1000, param_name="k")
 
@@ -1894,3 +1908,75 @@ async def memory_fuzzy_recall(
         },
         indent=2,
     )
+
+
+@tool
+async def memory_get_tool_history(
+    user_id: str,
+    agent_name: str = "mcp_history",
+    tool_filter: str | None = None,
+    limit: str = "10",
+) -> str:
+    """Get MCP tool usage history.
+
+    Retrieves auto-logged tool calls for context awareness and debugging.
+
+    🔍 USE WHEN:
+    - User asks "What did I search for earlier?"
+    - Debugging: "What tools did I call?"
+    - Context awareness: AI sees recent tool usage
+
+    Args:
+        user_id: User identifier
+        agent_name: Agent identifier (default: "mcp_history")
+        tool_filter: Filter by specific tool name (e.g., "brave_web_search")
+        limit: Number of recent calls (default: "10", max: 100)
+
+    Returns:
+        JSON list of recent tool calls
+
+    💡 EXAMPLE:
+        memory_get_tool_history(user_id="kiyota", tool_name="brave_web_search")
+
+    📊 RETURNS:
+        [{"tool": "brave_web_search", "timestamp": "...", "args": {...}, "result_preview": "..."}]
+    """
+    limit_int = to_int(limit, default=10, min_val=1, max_val=100, param_name="limit")
+    memory = _get_memory_manager(user_id, agent_name, enable_rag=False)
+
+    try:
+        search_query = f"{tool_filter}_" if tool_filter else "%"
+        results = memory.persistent.search(
+            query=search_query, user_id=user_id, agent_name=agent_name, limit=limit_int
+        )
+
+        history = []
+        for mem in results:
+            try:
+                value_str = mem.get("value", "{}")
+                data = (
+                    json.loads(value_str) if isinstance(value_str, str) else value_str
+                )
+
+                if tool_filter and data.get("tool") != tool_filter:
+                    continue
+
+                history.append(
+                    {
+                        "tool": data.get("tool"),
+                        "timestamp": data.get("timestamp"),
+                        "args": data.get("args"),
+                        "result_preview": data.get("result", "")[:100],
+                    }
+                )
+            except (json.JSONDecodeError, KeyError, AttributeError) as e:
+                logger.warning(f"Failed to parse tool history: {e}")
+                continue
+
+        history.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+        return json.dumps(history[:limit_int], indent=2, ensure_ascii=False)
+
+    except Exception as e:
+        return format_error(
+            "Failed to retrieve tool history", details={"error": str(e)}
+        )

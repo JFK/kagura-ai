@@ -155,9 +155,7 @@ class TestCodingMemoryE2E:
     async def test_session_cannot_start_twice(self, coding_memory):
         """Test that only one session can be active at a time."""
         # Start first session
-        session1_id = await coding_memory.start_coding_session(
-            description="Session 1"
-        )
+        session1_id = await coding_memory.start_coding_session(description="Session 1")
 
         assert coding_memory.current_session_id == session1_id
 
@@ -166,14 +164,10 @@ class TestCodingMemoryE2E:
             await coding_memory.start_coding_session(description="Session 2")
 
         # End first session
-        await coding_memory.end_coding_session(
-            summary="Manual summary", success=True
-        )
+        await coding_memory.end_coding_session(summary="Manual summary", success=True)
 
         # Now should be able to start new session
-        session2_id = await coding_memory.start_coding_session(
-            description="Session 2"
-        )
+        session2_id = await coding_memory.start_coding_session(description="Session 2")
 
         assert session2_id.startswith("session_")
         assert coding_memory.current_session_id == session2_id

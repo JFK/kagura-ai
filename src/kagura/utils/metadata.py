@@ -92,9 +92,7 @@ def extract_memory_fields(metadata: dict[str, Any]) -> MemoryMetadata:
         updated_at = None
 
     # Extract user metadata (everything except internal fields)
-    user_metadata = {
-        k: v for k, v in metadata.items() if k not in _INTERNAL_FIELDS
-    }
+    user_metadata = {k: v for k, v in metadata.items() if k not in _INTERNAL_FIELDS}
 
     return MemoryMetadata(
         tags=tags,

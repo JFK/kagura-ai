@@ -28,11 +28,15 @@ class TestMemorySearchHybridDeprecation:
 
             # Check that a DeprecationWarning was raised
             assert len(w) >= 1
-            assert any(issubclass(warning.category, DeprecationWarning) for warning in w)
+            assert any(
+                issubclass(warning.category, DeprecationWarning) for warning in w
+            )
 
             # Check the warning message
             deprecation_warnings = [
-                warning for warning in w if issubclass(warning.category, DeprecationWarning)
+                warning
+                for warning in w
+                if issubclass(warning.category, DeprecationWarning)
             ]
             assert len(deprecation_warnings) >= 1
             warning_msg = str(deprecation_warnings[0].message)

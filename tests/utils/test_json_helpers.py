@@ -69,13 +69,7 @@ class TestEncodeChromadbMetadata:
 
     def test_nested_structures(self):
         """Test encoding deeply nested structures."""
-        metadata = {
-            "nested": {
-                "level1": {
-                    "level2": ["a", "b", "c"]
-                }
-            }
-        }
+        metadata = {"nested": {"level1": {"level2": ["a", "b", "c"]}}}
         result = encode_chromadb_metadata(metadata)
         assert isinstance(result["nested"], str)
         decoded = json.loads(result["nested"])
@@ -189,7 +183,7 @@ class TestDecodeChromadbMetadata:
         """Test that JSON primitives in strings are preserved."""
         metadata = {
             "number": "123",  # Doesn't start with [ or {
-            "bool": "true",   # Doesn't start with [ or {
+            "bool": "true",  # Doesn't start with [ or {
         }
         result = decode_chromadb_metadata(metadata)
         # Should preserve as strings (not parsed to int/bool)
@@ -212,14 +206,14 @@ class TestSafeJsonLoads:
     def test_parse_valid_json_primitives(self):
         """Test parsing JSON primitives."""
         assert safe_json_loads('"string"') == "string"
-        assert safe_json_loads('123') == 123
-        assert safe_json_loads('true') is True
-        assert safe_json_loads('false') is False
-        assert safe_json_loads('3.14') == 3.14
+        assert safe_json_loads("123") == 123
+        assert safe_json_loads("true") is True
+        assert safe_json_loads("false") is False
+        assert safe_json_loads("3.14") == 3.14
 
     def test_invalid_json_returns_default(self):
         """Test that invalid JSON returns default value."""
-        result = safe_json_loads('invalid json', default=[])
+        result = safe_json_loads("invalid json", default=[])
         assert result == []
 
     def test_non_string_input_returned_as_is(self):
@@ -313,11 +307,7 @@ class TestRoundTrip:
     def test_nested_structures_round_trip(self):
         """Test round-trip with nested structures."""
         original = {
-            "nested": {
-                "level1": {
-                    "level2": ["a", "b", "c"]
-                }
-            },
+            "nested": {"level1": {"level2": ["a", "b", "c"]}},
             "count": 3,
         }
         encoded = encode_chromadb_metadata(original)

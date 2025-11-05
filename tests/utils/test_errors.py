@@ -196,7 +196,9 @@ class TestDependencyError:
 
     def test_dependency_error_with_feature(self) -> None:
         """Test dependency error with feature name."""
-        error = DependencyError("chromadb", "pip install chromadb", feature="RAG search")
+        error = DependencyError(
+            "chromadb", "pip install chromadb", feature="RAG search"
+        )
         assert "RAG search" in error.message
 
     def test_dependency_error_help_text(self) -> None:
