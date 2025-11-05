@@ -11,6 +11,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
+#### Interactive API Key Setup Wizard (#555)
+- **`kagura config setup`** - Interactive wizard for first-time configuration
+  - Guides through API key setup for OpenAI, Anthropic, Google AI, Brave Search
+  - Masked password input for security
+  - Preserves existing keys from .env file
+  - Auto-validation after setup
+  - Skip any keys you don't need
+- **Better UX**: Zero-friction onboarding for new users
+
+#### MCP Telemetry Reorganization (#555)
+- **`kagura mcp telemetry tools`** - MCP tool usage analysis (new location)
+  - Better CLI organization (MCP-specific commands under `mcp` group)
+  - Identical functionality with CSV/JSON export support
+  - Replaces removed `kagura telemetry tools` command
+
+### 🗑️ Removed
+
+#### Deprecated CLI Commands (#555)
+- **BREAKING**: Removed `kagura telemetry` command group
+  - **Migration**: Use `kagura mcp telemetry tools` instead
+  - Old command: `kagura telemetry tools --since 30d`
+  - New command: `kagura mcp telemetry tools --since 30d`
+- **BREAKING**: Removed `kagura config show` command
+  - **Migration**: Use `kagura config list` instead
+
+**Rationale**: Cleaner CLI organization, MCP-specific commands now grouped under `mcp`
+
 #### Auto-detect Project & User (#536)
 - **Smart Defaults**: Auto-detect project and user for coding commands
   - Project detection priority: env var → pyproject.toml → git repo name → git directory
