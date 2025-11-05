@@ -1364,7 +1364,19 @@ async def memory_search_hybrid(
     scope: str = "persistent",
     k: str = "10",
 ) -> str:
-    """Search agent memory using hybrid approach (keyword + semantic).
+    """[DEPRECATED] Search agent memory using hybrid approach.
+
+    ⚠️ DEPRECATION WARNING: This tool is deprecated as of v4.1.0.
+    Use memory_search() instead, which now performs hybrid search automatically.
+
+    This tool will be removed in v4.2.0.
+
+    Migration:
+        # Old (deprecated)
+        memory_search_hybrid(user_id, agent_name, query, k=10)
+
+        # New (recommended)
+        memory_search(user_id, agent_name, query, k=10)
 
     Combines BM25 keyword search with RAG semantic search for better recall.
     Uses Reciprocal Rank Fusion (RRF) to merge results.
@@ -1412,6 +1424,16 @@ async def memory_search_hybrid(
         - Requires RAG to be enabled for semantic search
         - Falls back to keyword-only if RAG unavailable
     """
+    # Emit deprecation warning
+    import warnings
+
+    warnings.warn(
+        "memory_search_hybrid() is deprecated as of v4.1.0 and will be removed in v4.2.0. "
+        "Use memory_search() instead, which now performs hybrid search automatically.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     # Convert string parameters using common helpers
     keyword_weight_f = to_float_clamped(
         keyword_weight, min_val=0.0, max_val=1.0, default=0.4, param_name="keyword_weight"

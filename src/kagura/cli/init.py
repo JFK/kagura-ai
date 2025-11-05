@@ -5,14 +5,13 @@ import sys
 
 import click
 from prompt_toolkit import PromptSession
-from rich.console import Console
 from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
+from kagura.cli.utils import create_console, create_info_panel, create_spinner_progress
 from kagura.config import ConfigManager, UserConfig
 
 
-def _setup_rag_environment(console: Console) -> None:
+def _setup_rag_environment(console) -> None:
     """Setup RAG environment interactively.
 
     Args:
@@ -20,13 +19,13 @@ def _setup_rag_environment(console: Console) -> None:
     """
     console.print("\n")
     console.print(
-        Panel(
+        create_info_panel(
             "[bold]RAG Environment Setup[/]\n\n"
             "This will:\n"
             "  1. Check dependencies (chromadb, sentence-transformers)\n"
             "  2. Download embedding model (~1.5 GB)\n"
             "  3. Build vector index from existing memories",
-            style="blue",
+            title="Setup",
         )
     )
     console.print()
@@ -56,11 +55,7 @@ def _setup_rag_environment(console: Console) -> None:
         if click.confirm(
             f"Install missing packages: {', '.join(missing_deps)}?", default=True
         ):
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                console=console,
-            ) as progress:
+            with create_spinner_progress(console=console) as progress:
                 task = progress.add_task("Installing packages...", total=None)
                 try:
                     subprocess.check_call(
@@ -87,11 +82,7 @@ def _setup_rag_environment(console: Console) -> None:
     console.print()
 
     if click.confirm("Download now?", default=True):
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console,
-        ) as progress:
+        with create_spinner_progress(console=console) as progress:
             task = progress.add_task("Downloading model...", total=None)
             try:
                 from sentence_transformers import SentenceTransformer  # type: ignore
@@ -146,7 +137,7 @@ def _setup_rag_environment(console: Console) -> None:
     console.print()
 
 
-def _setup_reranking(console: Console) -> None:
+def _setup_reranking(console) -> None:
     """Setup reranking model interactively.
 
     Args:
@@ -175,11 +166,7 @@ def _setup_reranking(console: Console) -> None:
         return
 
     if click.confirm("Download reranking model?", default=True):
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console,
-        ) as progress:
+        with create_spinner_progress(console=console) as progress:
             task = progress.add_task("Downloading model...", total=None)
             try:
                 from sentence_transformers import CrossEncoder  # type: ignore
@@ -278,7 +265,7 @@ def init(reset: bool, setup_rag: bool, setup_reranking: bool, full: bool) -> Non
         # Reset to defaults
         kagura init --reset
     """
-    console = Console()
+    console = create_console()
     manager = ConfigManager()
 
     if reset:
