@@ -1038,4 +1038,41 @@ Claude: "Your favorite color is blue!"
 
 ---
 
+## v4.1.1 Enhancements 🆕
+
+### Enhanced Statistics & Analytics (Issue #411)
+
+**Automatic Access Tracking**:
+- `memory_recall()` now updates: `access_count`, `last_accessed_at`
+- Enabled by default in MCP tool
+- Foundation for usage-based retention policies
+
+**Unused Memory Detection**:
+- `unused_30days` / `unused_90days` metrics
+- Data-driven cleanup recommendations
+- Distinguishes unused vs just old
+
+**Storage Visibility**:
+- `get_storage_size()` - SQLite + ChromaDB total
+- `storage_mb` in `memory_stats` output
+- Helps users understand footprint
+
+### MCP Auto-Logging & Context (Issue #400)
+
+**Middleware Layer**: `src/kagura/mcp/middleware.py`
+- Auto-logs all MCP tool calls (non-blocking)
+- Fire-and-forget: `asyncio.create_task()`
+- Recursion prevention: Excludes `memory_*` tools
+- Privacy: `KAGURA_DISABLE_AUTO_LOGGING=true`
+
+**Context Awareness**:
+- "What did I search for?" queries
+- Tool call history with timestamps
+- Cross-conversation context
+
+---
+
+**Last Updated**: 2025-11-06
+**Version**: v4.1.1 (Performance & Context Awareness)
+
 **Built with ❤️ to become your indispensable partner**
