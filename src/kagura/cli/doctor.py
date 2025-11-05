@@ -192,19 +192,13 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
         )
 
     # Check memory counts (aggregate across all users)
+    from kagura.utils import MemoryDatabaseQuery
+
     persistent_count = 0
     rag_count = 0
     try:
         # Get total memory count from database
-        import sqlite3
-
-        db_path = get_data_dir() / "memory.db"
-        if db_path.exists():
-            conn = sqlite3.connect(db_path)
-            cursor = conn.execute("SELECT COUNT(*) FROM memories")
-            persistent_count = cursor.fetchone()[0]
-            conn.close()
-
+        persistent_count = MemoryDatabaseQuery.count_memories()
         status["persistent_count"] = persistent_count
 
         # Check RAG (count all collections across all users)

@@ -7,6 +7,7 @@ This package contains utility modules shared across CLI, MCP, and API layers:
 - memory: MemoryManager factory and caching
 """
 
+from kagura.utils.db import MemoryDatabaseQuery, db_exists, get_db_path
 from kagura.utils.json_helpers import (
     decode_chromadb_metadata,
     encode_chromadb_metadata,
@@ -33,4 +34,8 @@ __all__ = [
     "merge_metadata",
     "prepare_for_chromadb",
     "validate_importance",
+    # db
+    "MemoryDatabaseQuery",
+    "db_exists",
+    "get_db_path",
 ]
