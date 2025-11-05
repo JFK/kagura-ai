@@ -7,7 +7,6 @@ from typing import Any
 import click
 
 from kagura.cli.utils import create_console, create_table
-from rich.table import Table  # Still needed for type hints
 
 console = create_console()
 
