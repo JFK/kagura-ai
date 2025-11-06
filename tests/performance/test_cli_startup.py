@@ -107,10 +107,10 @@ def test_memory_system_config_auto_enables_when_not_explicit():
     Related: Issue #548 - Smart default for users with cached models
     """
     from kagura.config.memory_config import MemorySystemConfig
-    from kagura.config.project import is_reranking_model_cached
+    from kagura.core.memory.reranker import is_reranker_available
 
     # Only test if model is actually cached
-    if not is_reranking_model_cached():
+    if not is_reranker_available(check_fallback=True):
         pytest.skip("Reranking model not cached, can't test auto-enablement")
 
     # Create config without explicit rerank parameter
