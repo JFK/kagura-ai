@@ -20,8 +20,6 @@ Example:
     >>> fused = rrf_fusion(vector_results, lexical_results, k=60)
 """
 
-import math
-from datetime import datetime, timezone
 from typing import Any
 
 
