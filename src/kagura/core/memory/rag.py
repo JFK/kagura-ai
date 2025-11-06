@@ -15,6 +15,16 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from kagura.config.paths import get_cache_dir
 
+# Document ID generation constants
+_CONTENT_HASH_PREFIX_LENGTH = 100  # First N chars for stable hash generation
+_DOCUMENT_ID_LENGTH = 16  # Hex characters for document ID (64-bit hash)
+
+# Embedding dimension reference (for documentation and validation)
+E5_LARGE_EMBEDDING_DIM = 1024  # intfloat/multilingual-e5-large
+DEFAULT_EMBEDDING_DIM = 384  # ChromaDB default (all-MiniLM-L6-v2)
+E5_LATENCY_OVERHEAD_MS_MIN = 20  # Minimum additional latency
+E5_LATENCY_OVERHEAD_MS_MAX = 50  # Maximum additional latency
+
 if TYPE_CHECKING:
     from kagura.config.memory_config import ChunkingConfig, EmbeddingConfig
     from kagura.core.memory.semantic_chunker import SemanticChunker
@@ -171,8 +181,8 @@ class MemoryRAG:
         Note:
             E5-series models REQUIRE query:/passage: prefixes for optimal performance.
             Enabling E5 embeddings improves precision by +8-12% but increases:
-            - Storage: 1024-dim vs 384-dim (3x larger)
-            - Latency: +20-50ms (larger model)
+            - Storage: {E5_LARGE_EMBEDDING_DIM}-dim vs {DEFAULT_EMBEDDING_DIM}-dim (3x larger)
+            - Latency: +{E5_LATENCY_OVERHEAD_MS_MIN}-{E5_LATENCY_OVERHEAD_MS_MAX}ms (larger model)
             Requires re-indexing existing data for full benefit.
         """
         import logging
@@ -338,17 +348,23 @@ class MemoryRAG:
     def _generate_document_id(self, user_id: str, content: str) -> str:
         """Generate stable document ID from user_id and content.
 
-        Uses first 100 characters of content for stability across similar documents.
+        Uses first {_CONTENT_HASH_PREFIX_LENGTH} characters of content
+        for stability across similar documents.
 
         Args:
             user_id: User identifier
             content: Document content
 
         Returns:
-            16-character hex hash (stable identifier)
+            {_DOCUMENT_ID_LENGTH}-character hex hash (stable identifier)
         """
-        unique_str = f"{user_id}:{content[:100] if len(content) > 100 else content}"
-        return hashlib.sha256(unique_str.encode()).hexdigest()[:16]
+        prefix_content = (
+            content[:_CONTENT_HASH_PREFIX_LENGTH]
+            if len(content) > _CONTENT_HASH_PREFIX_LENGTH
+            else content
+        )
+        unique_str = f"{user_id}:{prefix_content}"
+        return hashlib.sha256(unique_str.encode()).hexdigest()[:_DOCUMENT_ID_LENGTH]
 
     def _prepare_base_metadata(
         self,

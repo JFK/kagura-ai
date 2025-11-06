@@ -836,9 +836,19 @@ class MemoryManager:
                     created_at = datetime.now()
 
                 # Compute composite score (semantic + recency + frequency + importance)
+                # Handle lexical-only results (no distance field from BM25)
+                distance = result.get("distance")
+                if distance is not None:
+                    semantic_sim = 1.0 - distance
+                else:
+                    # Lexical-only hit (no semantic match) - use RRF score as proxy
+                    # Avoid giving perfect semantic score (1.0) to non-semantic results
+                    rrf_score = result.get("rrf_score", 0.0)
+                    semantic_sim = rrf_score * 0.5  # Scale down RRF to semantic range
+
                 try:
                     composite_score = self.recall_scorer.compute_score(
-                        semantic_sim=1.0 - result.get("distance", 0.0),
+                        semantic_sim=semantic_sim,
                         created_at=created_at,
                         last_accessed=metadata.get("last_accessed"),
                         access_count=metadata.get("access_count", 0),
