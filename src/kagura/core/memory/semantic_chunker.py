@@ -33,9 +33,19 @@ class ChunkMetadata:
         chunk_index: Position of this chunk in the sequence (0-indexed)
         total_chunks: Total number of chunks in the document
         source: Source identifier (file path, URL, etc.)
-        start_char: Character position where this chunk starts in original text
-        end_char: Character position where this chunk ends in original text
+        start_char: APPROXIMATE character position where this chunk starts
+        end_char: APPROXIMATE character position where this chunk ends
         content: The actual chunk text
+
+    Warning:
+        start_char and end_char are APPROXIMATIONS when overlap > 0.
+        RecursiveCharacterTextSplitter doesn't track original indices,
+        so positions are calculated heuristically.
+
+        For accurate document reconstruction:
+        - Sort chunks by chunk_index (not by start_char)
+        - Concatenate chunk.content in order
+        - Do NOT use start_char/end_char for slicing original text
     """
 
     chunk_index: int
@@ -146,11 +156,11 @@ class SemanticChunker:
             >>> print(chunks[0].chunk_index, chunks[0].source)
             0 doc.pdf
         """
-        if not text or not text.strip():
+        # Split text into chunks (chunk() handles validation)
+        chunk_strings = self.chunk(text)
+        if not chunk_strings:
             return []
 
-        # Split text into chunks
-        chunk_strings = self.chunk(text)
         total_chunks = len(chunk_strings)
 
         # Build metadata for each chunk

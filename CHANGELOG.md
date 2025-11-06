@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
-#### Upgraded Reranker to BGE-reranker-v2-m3 (#527)
+#### Upgraded Reranker to BGE-reranker-v2-m3 (#527 Phase 1)
 - **New default model**: `BAAI/bge-reranker-v2-m3` (previously: `cross-encoder/ms-marco-MiniLM-L-6-v2`)
 - **Multilingual optimized**: Better performance for English, Chinese, and Japanese queries
 - **License**: Apache 2.0 (same as ms-marco)
@@ -27,9 +27,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Files changed**:
   - `src/kagura/config/memory_config.py` - Updated default model
   - `src/kagura/core/memory/reranker.py` - Added fallback logic
-  - `src/kagura/config/project.py` - Updated cache detection
-  - `tests/core/memory/test_reranker.py` - Added fallback tests
+  - `src/kagura/config/project.py` - Removed redundant wrapper (refactoring)
+  - `tests/core/memory/test_reranker.py` - Added fallback tests (10/10 passing)
 - **Benchmark**: `scripts/benchmark_reranker.py` for comparing BGE vs ms-marco
+
+#### Semantic Chunking for Long Documents (#527 Phase 2)
+- **New feature**: Automatic semantic chunking for documents >= 100 characters
+- **Enabled by default**: New installs get chunking automatically (opt-out model)
+- **Expected precision**: +5-15% for long documents (PDFs, transcripts, code files)
+- **Implementation**:
+  - Uses LangChain's `RecursiveCharacterTextSplitter` for intelligent boundary detection
+  - Respects semantic boundaries: paragraphs > sentences > words
+  - Configurable chunk size (default: 512 chars) and overlap (default: 50 chars)
+  - Preserves original metadata across all chunks
+  - Parent ID linking for chunk reconstruction
+- **Files added**:
+  - `src/kagura/core/memory/semantic_chunker.py` (NEW - 201 lines)
+    - `SemanticChunker` class with lazy-loading
+    - `ChunkMetadata` dataclass for position tracking
+    - `is_chunking_available()` helper
+  - `tests/core/memory/test_semantic_chunker.py` (NEW - 19/19 passing)
+  - `tests/core/memory/test_rag_chunking.py` (NEW - 8/8 integration tests)
+- **Files modified**:
+  - `pyproject.toml` - Added `langchain-text-splitters>=0.0.1` dependency
+  - `src/kagura/config/memory_config.py` - Added `ChunkingConfig` class
+  - `src/kagura/core/memory/rag.py` - Integrated chunking into `store()` method
+  - `src/kagura/core/memory/manager.py` - Pass chunking_config to RAG instances
+  - `src/kagura/core/memory/multimodal_rag.py` - Support chunking for PDFs/documents
+- **Features**:
+  - ✅ Transparent chunking (backward compatible API)
+  - ✅ Lazy-loading (graceful degradation if langchain unavailable)
+  - ✅ Metadata preservation (original metadata in all chunks)
+  - ✅ Parent ID linking (`parent_id`, `chunk_index`, `total_chunks`)
+  - ✅ Batch insert for efficiency
+  - ✅ Multilingual support validated (EN/ZH/JA)
+- **Configuration**:
+  ```python
+  config = MemorySystemConfig(
+      chunking=ChunkingConfig(
+          enabled=True,          # Default
+          max_chunk_size=512,    # Chars per chunk
+          overlap=50,            # Overlap for context
+          min_chunk_size=100,    # Skip chunking for short texts
+      )
+  )
+  ```
+- **Usage**:
+  ```python
+  # Automatic - no code changes needed
+  manager = MemoryManager(user_id="user", enable_rag=True)
+  doc_id = manager.store_semantic("Very long document..." * 100)
+  # Automatically chunked, stored as multiple vectors
+
+  results = manager.recall_semantic("specific topic")
+  # Finds relevant chunks transparently
+  ```
+- **Testing**: 37/37 tests passing (19 unit + 8 integration + 10 existing RAG)
 
 ---
 

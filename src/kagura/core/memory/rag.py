@@ -174,41 +174,112 @@ class MemoryRAG:
             >>> # Long text - automatically chunked
             >>> id2 = rag.store("Very long document..." * 100, user_id="jfk")
         """
-        import logging
+        parent_id = self._generate_document_id(user_id, content)
+        base_metadata = self._prepare_base_metadata(metadata, user_id, agent_name)
 
-        logger = logging.getLogger(__name__)
+        if not self._should_chunk(content):
+            return self._store_single_document(parent_id, content, base_metadata)
 
-        # Generate parent ID (stable identifier for the whole document)
-        # Use first 100 chars for stability across similar content
+        return self._store_chunked_document(parent_id, content, base_metadata)
+
+    def _generate_document_id(self, user_id: str, content: str) -> str:
+        """Generate stable document ID from user_id and content.
+
+        Uses first 100 characters of content for stability across similar documents.
+
+        Args:
+            user_id: User identifier
+            content: Document content
+
+        Returns:
+            16-character hex hash (stable identifier)
+        """
         unique_str = f"{user_id}:{content[:100] if len(content) > 100 else content}"
-        parent_id = hashlib.sha256(unique_str.encode()).hexdigest()[:16]
+        return hashlib.sha256(unique_str.encode()).hexdigest()[:16]
 
-        # Prepare base metadata (applied to all chunks or single document)
+    def _prepare_base_metadata(
+        self,
+        metadata: Optional[dict[str, Any]],
+        user_id: str,
+        agent_name: Optional[str],
+    ) -> dict[str, Any]:
+        """Prepare base metadata for document/chunks.
+
+        Args:
+            metadata: User-provided metadata
+            user_id: User identifier
+            agent_name: Optional agent name
+
+        Returns:
+            Metadata dict with user_id and agent_name added
+        """
         base_metadata = metadata or {}
         base_metadata["user_id"] = user_id
         if agent_name:
             base_metadata["agent_name"] = agent_name
+        return base_metadata
 
-        # Determine if chunking should be applied
-        should_chunk = (
+    def _should_chunk(self, content: str) -> bool:
+        """Determine if content should be chunked.
+
+        Args:
+            content: Document content
+
+        Returns:
+            True if content should be chunked, False otherwise
+        """
+        return bool(
             self._chunking_config
             and self._chunking_config.enabled
             and len(content) >= self._chunking_config.min_chunk_size
-            and self.chunker is not None  # Lazy-loaded, None if import failed
+            and self.chunker is not None
         )
 
-        if not should_chunk:
-            # Original behavior: store as single document
-            logger.debug("Storing as single document (chunking disabled or content too short)")
-            self.collection.add(
-                ids=[parent_id],
-                documents=[content],
-                metadatas=[base_metadata] if base_metadata else None,
-            )
-            return parent_id
+    def _store_single_document(
+        self, doc_id: str, content: str, metadata: dict[str, Any]
+    ) -> str:
+        """Store content as single document without chunking.
 
-        # NEW: Chunk the content for improved precision
-        # Type guard: should_chunk=True guarantees these are not None
+        Args:
+            doc_id: Document ID
+            content: Document content
+            metadata: Document metadata
+
+        Returns:
+            Document ID
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        logger.debug(
+            "Storing as single document (chunking disabled or content too short)"
+        )
+        self.collection.add(
+            ids=[doc_id],
+            documents=[content],
+            metadatas=[metadata] if metadata else None,
+        )
+        return doc_id
+
+    def _store_chunked_document(
+        self, parent_id: str, content: str, base_metadata: dict[str, Any]
+    ) -> str:
+        """Store content as multiple semantically coherent chunks.
+
+        Args:
+            parent_id: Parent document ID
+            content: Document content to chunk
+            base_metadata: Base metadata (applied to all chunks)
+
+        Returns:
+            Parent document ID
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        # Type narrowing: guaranteed by _should_chunk()
         assert self._chunking_config is not None
         assert self.chunker is not None
 
@@ -217,17 +288,52 @@ class MemoryRAG:
             f"max_chunk_size={self._chunking_config.max_chunk_size}"
         )
 
+        # Generate chunks with metadata
         chunks_with_metadata = self.chunker.chunk_with_metadata(
             text=content, source=base_metadata.get("file_path", "unknown")
         )
 
-        # Prepare batch data for ChromaDB
+        # Prepare batch data
+        chunk_data = self._prepare_chunk_batch(
+            parent_id, chunks_with_metadata, base_metadata
+        )
+
+        logger.debug(
+            f"Storing {len(chunk_data['ids'])} chunks (parent_id={parent_id}, "
+            f"avg_chunk_size={len(content) // len(chunk_data['ids'])} chars)"
+        )
+
+        # Batch insert to ChromaDB
+        self.collection.add(
+            ids=chunk_data["ids"],
+            documents=chunk_data["documents"],
+            metadatas=chunk_data["metadatas"],
+        )
+
+        return parent_id
+
+    def _prepare_chunk_batch(
+        self,
+        parent_id: str,
+        chunks_with_metadata: list,
+        base_metadata: dict[str, Any],
+    ) -> dict[str, list]:
+        """Prepare batch data for ChromaDB insertion.
+
+        Args:
+            parent_id: Parent document ID
+            chunks_with_metadata: List of ChunkMetadata objects
+            base_metadata: Base metadata to apply to all chunks
+
+        Returns:
+            Dict with ids, documents, and metadatas lists for batch insert
+        """
         chunk_ids = []
         chunk_docs = []
         chunk_metadatas = []
 
         for chunk_meta in chunks_with_metadata:
-            # Generate chunk-specific ID: parent_id + index
+            # Generate chunk-specific ID
             chunk_id = f"{parent_id}_chunk_{chunk_meta.chunk_index:03d}"
             chunk_ids.append(chunk_id)
             chunk_docs.append(chunk_meta.content)
@@ -247,17 +353,7 @@ class MemoryRAG:
             )
             chunk_metadatas.append(chunk_metadata)
 
-        # Batch insert all chunks to ChromaDB
-        logger.debug(
-            f"Storing {len(chunk_ids)} chunks (parent_id={parent_id}, "
-            f"avg_chunk_size={len(content) // len(chunk_ids)} chars)"
-        )
-
-        self.collection.add(
-            ids=chunk_ids, documents=chunk_docs, metadatas=chunk_metadatas
-        )
-
-        return parent_id
+        return {"ids": chunk_ids, "documents": chunk_docs, "metadatas": chunk_metadatas}
 
     def recall(
         self,
