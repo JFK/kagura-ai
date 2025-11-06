@@ -11,7 +11,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
-- TBD
+#### Upgraded Reranker to BGE-reranker-v2-m3 (#527)
+- **New default model**: `BAAI/bge-reranker-v2-m3` (previously: `cross-encoder/ms-marco-MiniLM-L-6-v2`)
+- **Multilingual optimized**: Better performance for English, Chinese, and Japanese queries
+- **License**: Apache 2.0 (same as ms-marco)
+- **Model size**: ~600MB (vs 90MB for ms-marco)
+- **Features**:
+  - Automatic fallback to ms-marco if BGE unavailable (offline/restricted environments)
+  - Graceful degradation with clear logging
+  - Backward compatible - existing setups continue to work
+- **Performance**:
+  - Precision: Marginal improvement on easy queries, better for complex semantic matching
+  - Latency: +400ms on CPU (use GPU or batch processing in production for optimal performance)
+  - Multilingual queries see the most benefit
+- **Files changed**:
+  - `src/kagura/config/memory_config.py` - Updated default model
+  - `src/kagura/core/memory/reranker.py` - Added fallback logic
+  - `src/kagura/config/project.py` - Updated cache detection
+  - `tests/core/memory/test_reranker.py` - Added fallback tests
+- **Benchmark**: `scripts/benchmark_reranker.py` for comparing BGE vs ms-marco
 
 ---
 
