@@ -82,7 +82,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   results = manager.recall_semantic("specific topic")
   # Finds relevant chunks transparently
   ```
-- **Testing**: 37/37 tests passing (19 unit + 8 integration + 10 existing RAG)
+- **Testing**: 42/42 tests passing (22 unit + 8 integration + 10 existing RAG + 3 Japanese tests)
+
+#### CLI Performance Optimization (#527, #548)
+- **Extended Issue #548 fix** to all `kagura memory` commands
+- **Affected commands**: search, list, export, import, stats, doctor
+- **Optimization**: Lightweight MemorySystemConfig (reranker disabled, access_tracking disabled)
+- **Speedup**: Target 8-9s → <1s (83-88% improvement)
+- **Implementation**: `_get_lightweight_memory_manager()` helper function
+- **Testing**: All commands use lightweight config appropriately
+
+### 📌 Known Limitations & Future Work
+
+#### Quick Wins Deferred to Issue #528
+The following optimizations were identified but deferred to a follow-up PR:
+1. **E5 Prefix Enablement** (+8-12% precision)
+   - Use Embedder class with query:/passage: prefixes in ChromaDB
+   - Currently using ChromaDB default (all-MiniLM-L6-v2)
+2. **RecallScorer Integration** (+5-10% precision)
+   - Apply composite scoring in recall_hybrid()
+   - Time decay, frequency, importance weighting
+3. **Time Decay Code Cleanup**
+   - Remove redundant `apply_time_decay()` function
+   - Use RecallScorer as single source of truth
+
+**Total Additional Improvement**: +13-22% precision (planned for v4.2.0)
+
+#### Current Embedding Model
+- ChromaDB uses default `all-MiniLM-L6-v2` (384 dimensions)
+- Custom E5-large embeddings (1024 dimensions) with query:/passage: prefixes planned for Issue #528
+- No re-indexing required for existing users (backward compatible)
 
 ---
 

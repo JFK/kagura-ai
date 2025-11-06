@@ -62,6 +62,11 @@ class MemoryRAG:
 
         Raises:
             ImportError: If ChromaDB is not installed
+
+        Note:
+            Currently uses ChromaDB's default embedding model (all-MiniLM-L6-v2).
+            Custom embedding models (E5-large with query:/passage: prefixes)
+            will be implemented in Issue #528 (Quick Wins follow-up).
         """
         import logging
 

@@ -49,9 +49,26 @@ def test_semantic_chunker_initialization():
 
 
 def test_semantic_chunker_default_separators():
-    """Test default separator priority."""
+    """Test default separator priority (multilingual support)."""
     chunker = SemanticChunker()
-    expected_separators = ["\n\n", "\n", ". ", ", ", " ", ""]
+    # Updated for multilingual support (Issue #527)
+    expected_separators = [
+        "\n\n",      # Paragraph breaks
+        "\n",        # Line breaks
+        "。",        # Japanese/Chinese sentence endings
+        "！",        # Fullwidth exclamation
+        "？",        # Fullwidth question
+        ". ",        # English sentence endings
+        "! ",        # English exclamation
+        "? ",        # English question
+        "、",        # Japanese/Chinese clause separators
+        "，",        # Fullwidth comma
+        ", ",        # English comma
+        "　",        # Ideographic space
+        " ",         # ASCII space
+        "\u200b",    # Zero-width space
+        "",          # Character-level
+    ]
     assert chunker.separators == expected_separators
 
 
