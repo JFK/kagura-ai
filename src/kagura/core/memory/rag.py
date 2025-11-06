@@ -221,15 +221,15 @@ class MemoryRAG:
                     "sentence-transformers not installed, using ChromaDB default embeddings. "
                     "Install with: pip install sentence-transformers"
                 )
-                from chromadb.api.types import DefaultEmbeddingFunction
+                from chromadb.api.types import DefaultEmbeddingFunction  # type: ignore
 
-                embedding_function = DefaultEmbeddingFunction()
+                embedding_function = DefaultEmbeddingFunction()  # type: ignore
         else:
             # Use ChromaDB default (all-MiniLM-L6-v2) when no custom config
             logger.debug("MemoryRAG: Using ChromaDB default embeddings (all-MiniLM-L6-v2)")
-            from chromadb.api.types import DefaultEmbeddingFunction
+            from chromadb.api.types import DefaultEmbeddingFunction  # type: ignore
 
-            embedding_function = DefaultEmbeddingFunction()
+            embedding_function = DefaultEmbeddingFunction()  # type: ignore
 
         logger.debug(f"MemoryRAG: Getting/creating collection '{collection_name}'")
 
@@ -245,7 +245,7 @@ class MemoryRAG:
             self.collection = self.client.create_collection(
                 name=collection_name,
                 metadata={"hnsw:space": "cosine"},
-                embedding_function=embedding_function,
+                embedding_function=embedding_function,  # type: ignore
             )
             embedding_type = "E5-large" if (embedding_config and embedding_config.use_prefix) else "default"
             logger.debug(

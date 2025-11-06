@@ -783,7 +783,7 @@ class MemoryManager:
         # Stage 2: Lexical search (keyword)
         # TODO: Auto-index on document store (Issue #581)
         lexical_results: list[dict[str, Any]] = []
-        if self.lexical_searcher.count() > 0:
+        if self.lexical_searcher and self.lexical_searcher.count() > 0:
             lexical_results = self.lexical_searcher.search(
                 query,
                 k=retrieve_k,
@@ -915,6 +915,8 @@ class MemoryManager:
             semantic_sim = rrf_score * 0.5
 
         try:
+            # Type guard: recall_scorer is guaranteed non-None by caller check
+            assert self.recall_scorer is not None
             return self.recall_scorer.compute_score(
                 semantic_sim=semantic_sim,
                 created_at=created_at,
