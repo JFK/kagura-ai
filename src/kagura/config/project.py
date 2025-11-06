@@ -176,31 +176,19 @@ def get_default_user() -> Optional[str]:
 def is_reranking_model_cached() -> bool:
     """Check if reranking model is already downloaded/cached.
 
+    Checks for both BGE-reranker-v2-m3 (primary) and ms-marco (fallback).
+
     Returns:
-        True if model is cached and ready to use
+        True if at least one reranker model is cached and ready to use
     """
     try:
-        from kagura.config.paths import get_data_dir
+        # Use the proper is_reranker_available() function which checks both models
+        from kagura.core.memory.reranker import is_reranker_available
 
-        # Check standard cache locations for sentence-transformers
-        cache_dir = get_data_dir() / "models"
-        model_path = cache_dir / "cross-encoder_ms-marco-MiniLM-L-6-v2"
+        # Check if BGE or ms-marco (fallback) is available
+        return is_reranker_available(check_fallback=True)
 
-        if model_path.exists():
-            return True
-
-        # Also check HuggingFace cache directory
-        hf_cache = Path.home() / ".cache" / "huggingface" / "hub"
-        if hf_cache.exists():
-            # Look for model files
-            for item in hf_cache.iterdir():
-                if (
-                    "cross-encoder" in item.name.lower()
-                    and "marco" in item.name.lower()
-                ):
-                    return True
-
-    except Exception:  # ChromaDB not installed or cache access failed
+    except Exception:  # sentence-transformers not installed or import failed
         pass
 
     return False

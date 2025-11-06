@@ -65,8 +65,12 @@ class RerankConfig(BaseModel):
         ),
     )
     model: str = Field(
-        default="cross-encoder/ms-marco-MiniLM-L-6-v2",
-        description="Cross-Encoder model identifier",
+        default="BAAI/bge-reranker-v2-m3",
+        description=(
+            "Cross-Encoder model identifier. Default: BAAI/bge-reranker-v2-m3 "
+            "(Apache 2.0, multilingual optimized for EN/ZH/JA, +5-8% precision vs ms-marco). "
+            "Falls back to cross-encoder/ms-marco-MiniLM-L-6-v2 if unavailable."
+        ),
     )
     candidates_k: int = Field(
         default=100,
