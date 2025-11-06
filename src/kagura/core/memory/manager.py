@@ -803,8 +803,58 @@ class MemoryManager:
 
         # Stage 4: Cross-encoder reranking (optional)
         if enable_rerank and self.reranker and fused_results:
-            reranked = self.reranker.rerank(query, fused_results, top_k=final_top_k)
-            return reranked
+            fused_results = self.reranker.rerank(query, fused_results, top_k=final_top_k)
+
+        # Stage 5: RecallScorer composite scoring (Quick Win #2)
+        if self.recall_scorer and fused_results:
+            import logging
+            from datetime import datetime
+
+            logger = logging.getLogger(__name__)
+            logger.debug(f"Applying RecallScorer to {len(fused_results)} results")
+
+            for result in fused_results:
+                metadata = result.get("metadata", {})
+
+                # Extract created_at (handle string format)
+                created_at_raw = metadata.get("created_at")
+                created_at: Optional[datetime] = None
+
+                if isinstance(created_at_raw, str):
+                    try:
+                        # Parse ISO format datetime string
+                        created_at = datetime.fromisoformat(
+                            created_at_raw.replace("Z", "+00:00")
+                        )
+                    except (ValueError, AttributeError):
+                        pass
+                elif isinstance(created_at_raw, datetime):
+                    created_at = created_at_raw
+
+                # Use current time if created_at not available
+                if created_at is None:
+                    created_at = datetime.now()
+
+                # Compute composite score (semantic + recency + frequency + importance)
+                try:
+                    composite_score = self.recall_scorer.compute_score(
+                        semantic_sim=1.0 - result.get("distance", 0.0),
+                        created_at=created_at,
+                        last_accessed=metadata.get("last_accessed"),
+                        access_count=metadata.get("access_count", 0),
+                        graph_distance=None,  # Graph integration in future
+                        importance=metadata.get("importance", 0.5),
+                    )
+                    result["composite_score"] = composite_score
+                except Exception as e:
+                    logger.warning(f"RecallScorer failed for {result.get('id')}: {e}")
+                    # Fallback to existing score
+                    result["composite_score"] = result.get("rrf_score", 0.0)
+
+            # Re-sort by composite score (higher is better)
+            fused_results.sort(
+                key=lambda x: x.get("composite_score", 0.0), reverse=True
+            )
 
         return fused_results[:final_top_k]
 
