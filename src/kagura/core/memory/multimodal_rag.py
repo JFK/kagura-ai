@@ -2,6 +2,10 @@
 
 Extends MemoryRAG to support automatic indexing of multimodal content
 (images, audio, video, PDFs) from directories.
+
+Features (v4.1.0+):
+- Semantic chunking for long PDF/text extractions
+- Automatic content processing via Gemini
 """
 
 import logging
@@ -12,6 +16,9 @@ from kagura.core.memory.rag import MemoryRAG
 from kagura.loaders.cache import LoaderCache
 from kagura.loaders.directory import DirectoryScanner
 from kagura.loaders.file_types import FileType
+
+if TYPE_CHECKING:
+    from kagura.config.memory_config import ChunkingConfig
 
 # Try to import GeminiLoader
 try:
@@ -55,8 +62,9 @@ class MultimodalRAG(MemoryRAG):
         enable_cache: bool = True,
         cache_size_mb: int = 100,
         respect_gitignore: bool = True,
+        chunking_config: Optional["ChunkingConfig"] = None,
     ):
-        """Initialize MultimodalRAG.
+        """Initialize MultimodalRAG with semantic chunking support.
 
         Args:
             directory: Directory to scan for content
@@ -66,13 +74,18 @@ class MultimodalRAG(MemoryRAG):
             enable_cache: Enable file content caching
             cache_size_mb: Cache size limit in megabytes
             respect_gitignore: Respect .gitignore/.kaguraignore patterns
+            chunking_config: Semantic chunking configuration (v4.1.0+)
 
         Raises:
             ImportError: If Gemini or ChromaDB not available
             FileNotFoundError: If directory doesn't exist
         """
-        # Initialize parent RAG
-        super().__init__(collection_name=collection_name, persist_dir=persist_dir)
+        # Initialize parent RAG (with chunking support)
+        super().__init__(
+            collection_name=collection_name,
+            persist_dir=persist_dir,
+            chunking_config=chunking_config,
+        )
 
         if not MULTIMODAL_AVAILABLE:
             raise ImportError(
