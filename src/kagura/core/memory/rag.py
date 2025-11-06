@@ -222,15 +222,26 @@ class MemoryRAG:
             embedding_function = DefaultEmbeddingFunction()
 
         logger.debug(f"MemoryRAG: Getting/creating collection '{collection_name}'")
-        self.collection = self.client.get_or_create_collection(
-            name=collection_name,
-            metadata={"hnsw:space": "cosine"},
-            embedding_function=embedding_function,
-        )
-        logger.debug(
-            f"MemoryRAG: Collection '{collection_name}' ready "
-            f"(embeddings={'E5-custom' if embedding_function else 'ChromaDB-default'})"
-        )
+
+        # Try to get existing collection first (backward compatibility)
+        try:
+            self.collection = self.client.get_collection(name=collection_name)
+            logger.debug(
+                f"MemoryRAG: Using existing collection '{collection_name}' "
+                f"(preserves existing embeddings)"
+            )
+        except Exception:
+            # Collection doesn't exist, create with specified embedding function
+            self.collection = self.client.create_collection(
+                name=collection_name,
+                metadata={"hnsw:space": "cosine"},
+                embedding_function=embedding_function,
+            )
+            embedding_type = "E5-large" if (embedding_config and embedding_config.use_prefix) else "default"
+            logger.debug(
+                f"MemoryRAG: Created new collection '{collection_name}' "
+                f"(embeddings={embedding_type})"
+            )
 
         # Semantic chunking support (lazy-loaded)
         self._chunker: Optional["SemanticChunker"] = None
