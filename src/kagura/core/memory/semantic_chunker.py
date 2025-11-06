@@ -9,12 +9,32 @@ Benefits:
 - Improves RAG precision for long documents
 - Maintains chunk metadata for reconstruction
 
+Multilingual Support:
+    Default separators support English, Japanese, and Chinese text:
+    - English: ". ", "! ", "? ", ", " (ASCII punctuation with space)
+    - Japanese: 。、！？ (ideographic punctuation)
+    - Chinese: 。，！？ (same as Japanese)
+    - Universal: Paragraph breaks (\n\n), line breaks (\n)
+
+    The chunker automatically detects appropriate boundaries based on content.
+    No pre-processing (like 分かち書き/morphological analysis) required.
+
 Example:
+    >>> # English text
     >>> chunker = SemanticChunker(max_chunk_size=512, overlap=50)
-    >>> chunks = chunker.chunk("Very long document...")
-    >>> print(len(chunks))  # Multiple semantically coherent chunks
-    3
-    >>> chunks_with_metadata = chunker.chunk_with_metadata("Long text...", source="doc.txt")
+    >>> chunks = chunker.chunk("Very long document. Multiple sentences.")
+    >>> print(len(chunks))
+    1
+
+    >>> # Japanese text - automatically respects 。 boundaries
+    >>> japanese_text = "これは一文目です。これは二文目です。"
+    >>> chunks = chunker.chunk(japanese_text)
+    >>> print(chunks[0])
+    'これは一文目です。'
+
+    >>> # Mixed JP/EN - handles both punctuation styles
+    >>> mixed = "This is English. これは日本語です。Another sentence."
+    >>> chunks_with_metadata = chunker.chunk_with_metadata(mixed, source="doc.txt")
     >>> print(chunks_with_metadata[0].chunk_index)
     0
 """
@@ -97,9 +117,23 @@ class SemanticChunker:
         self.separators = separators or [
             "\n\n",  # Paragraph breaks (highest priority)
             "\n",  # Line breaks
-            ". ",  # Sentence endings
-            ", ",  # Clause separators
-            " ",  # Word boundaries
+            # CJK (Japanese/Chinese) sentence endings - prioritized for multilingual support
+            "。",  # U+3002 Ideographic full stop (Japanese/Chinese sentence ending)
+            "！",  # U+FF01 Fullwidth exclamation mark
+            "？",  # U+FF1F Fullwidth question mark
+            # English sentence endings
+            ". ",  # Period with space
+            "! ",  # Exclamation with space
+            "? ",  # Question with space
+            # CJK clause separators
+            "、",  # U+3001 Ideographic comma (Japanese/Chinese clause separator)
+            "，",  # U+FF0C Fullwidth comma
+            # English clause separators
+            ", ",  # Comma with space
+            # Spacing (CJK uses fullwidth, Latin uses ASCII)
+            "　",  # U+3000 Ideographic space (Japanese fullwidth space)
+            " ",  # ASCII space (word boundaries for Latin scripts)
+            "\u200b",  # Zero-width space (used in Japanese, Thai, Myanmar, Khmer)
             "",  # Character-level (last resort)
         ]
 
