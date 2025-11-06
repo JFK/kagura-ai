@@ -15,7 +15,7 @@ Example:
     >>> print(len(chunks))  # Multiple semantically coherent chunks
     3
     >>> chunks_with_metadata = chunker.chunk_with_metadata("Long text...", source="doc.txt")
-    >>> print(chunks_with_metadata[0]["chunk_index"])
+    >>> print(chunks_with_metadata[0].chunk_index)
     0
 """
 
@@ -104,7 +104,9 @@ class SemanticChunker:
         ]
 
         try:
-            from langchain_text_splitters import RecursiveCharacterTextSplitter  # type: ignore
+            from langchain_text_splitters import (
+                RecursiveCharacterTextSplitter,  # type: ignore
+            )
         except ImportError as e:
             raise ImportError(
                 "langchain-text-splitters not installed. "

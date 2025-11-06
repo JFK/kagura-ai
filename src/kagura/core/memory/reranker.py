@@ -7,7 +7,7 @@ Uses a two-stage retrieval approach:
 
 Default model: BAAI/bge-reranker-v2-m3 (Apache 2.0)
 - Multilingual optimized (English, Chinese, Japanese)
-- +5-8% precision improvement over ms-marco-MiniLM-L-6-v2
+- Improved precision for complex semantic matching (benchmark: +0.2% nDCG@10)
 - Automatic fallback to ms-marco if BGE unavailable
 
 References:

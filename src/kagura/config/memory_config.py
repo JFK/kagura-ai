@@ -99,7 +99,7 @@ class ChunkingConfig(BaseModel):
     """
 
     enabled: bool = Field(
-        default=True,  # Default enabled for new installs (opt-out for existing users)
+        default=True,  # Enabled by default for all users
         description=(
             "Enable semantic chunking for documents longer than max_chunk_size. "
             "Preserves semantic boundaries (paragraphs, sentences) instead of "
