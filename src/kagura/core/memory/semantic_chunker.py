@@ -22,7 +22,12 @@ Example:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    # Type stub for optional dependency
+    # Actual import happens at runtime in try-except blocks
+    from typing import Any as RecursiveCharacterTextSplitter  # type: ignore
 
 
 @dataclass
@@ -67,6 +72,7 @@ class SemanticChunker:
         max_chunk_size: Maximum characters per chunk
         overlap: Number of overlapping characters between chunks
         separators: List of separators in priority order (default: paragraph > sentence > word)
+        splitter: RecursiveCharacterTextSplitter instance
     """
 
     def __init__(
@@ -98,14 +104,14 @@ class SemanticChunker:
         ]
 
         try:
-            from langchain_text_splitters import RecursiveCharacterTextSplitter
+            from langchain_text_splitters import RecursiveCharacterTextSplitter  # type: ignore
         except ImportError as e:
             raise ImportError(
                 "langchain-text-splitters not installed. "
                 "Install with: pip install langchain-text-splitters"
             ) from e
 
-        self.splitter = RecursiveCharacterTextSplitter(
+        self.splitter: RecursiveCharacterTextSplitter = RecursiveCharacterTextSplitter(  # type: ignore
             chunk_size=self.max_chunk_size,
             chunk_overlap=self.overlap,
             length_function=len,
@@ -204,7 +210,7 @@ def is_chunking_available() -> bool:
         True if langchain-text-splitters is installed, False otherwise
     """
     try:
-        import langchain_text_splitters  # noqa: F401
+        import langchain_text_splitters  # type: ignore  # noqa: F401
 
         return True
     except ImportError:
