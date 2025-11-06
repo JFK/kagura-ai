@@ -18,7 +18,7 @@ from kagura.loaders.directory import DirectoryScanner
 from kagura.loaders.file_types import FileType
 
 if TYPE_CHECKING:
-    from kagura.config.memory_config import ChunkingConfig
+    from kagura.config.memory_config import ChunkingConfig, EmbeddingConfig
 
 # Try to import GeminiLoader
 try:
@@ -63,8 +63,9 @@ class MultimodalRAG(MemoryRAG):
         cache_size_mb: int = 100,
         respect_gitignore: bool = True,
         chunking_config: Optional["ChunkingConfig"] = None,
+        embedding_config: Optional["EmbeddingConfig"] = None,
     ):
-        """Initialize MultimodalRAG with semantic chunking support.
+        """Initialize MultimodalRAG with semantic chunking and E5 embeddings support.
 
         Args:
             directory: Directory to scan for content
@@ -75,16 +76,18 @@ class MultimodalRAG(MemoryRAG):
             cache_size_mb: Cache size limit in megabytes
             respect_gitignore: Respect .gitignore/.kaguraignore patterns
             chunking_config: Semantic chunking configuration (v4.1.0+)
+            embedding_config: Embedding configuration (v4.2.0+, Quick Win #1)
 
         Raises:
             ImportError: If Gemini or ChromaDB not available
             FileNotFoundError: If directory doesn't exist
         """
-        # Initialize parent RAG (with chunking support)
+        # Initialize parent RAG (with chunking and E5 embeddings support)
         super().__init__(
             collection_name=collection_name,
             persist_dir=persist_dir,
             chunking_config=chunking_config,
+            embedding_config=embedding_config,
         )
 
         if not MULTIMODAL_AVAILABLE:

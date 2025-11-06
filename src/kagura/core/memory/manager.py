@@ -116,21 +116,23 @@ class MemoryManager:
                 f"MemoryManager: RAG collection={collection_name}, dir={vector_dir}"
             )
 
-            # Working memory RAG (with semantic chunking support)
-            logger.debug("MemoryManager: Creating working MemoryRAG with chunking support")
+            # Working memory RAG (with semantic chunking and E5 embeddings support)
+            logger.debug("MemoryManager: Creating working MemoryRAG with chunking and E5 support")
             self.rag = MemoryRAG(
                 collection_name=f"{collection_name}_working",
                 persist_dir=vector_dir,
                 chunking_config=self.config.chunking if self.config else None,
+                embedding_config=self.config.embedding if self.config else None,
             )
             logger.debug("MemoryManager: Working MemoryRAG created")
 
-            # Persistent memory RAG (with semantic chunking support)
-            logger.debug("MemoryManager: Creating persistent MemoryRAG with chunking support")
+            # Persistent memory RAG (with semantic chunking and E5 embeddings support)
+            logger.debug("MemoryManager: Creating persistent MemoryRAG with chunking and E5 support")
             self.persistent_rag = MemoryRAG(
                 collection_name=f"{collection_name}_persistent",
                 persist_dir=vector_dir,
                 chunking_config=self.config.chunking if self.config else None,
+                embedding_config=self.config.embedding if self.config else None,
             )
             logger.debug("MemoryManager: Persistent MemoryRAG created")
         else:
