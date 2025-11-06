@@ -138,7 +138,7 @@ class SemanticChunker:
         ]
 
         try:
-            from langchain_text_splitters import (
+            from langchain_text_splitters import (  # type: ignore[import-untyped]
                 RecursiveCharacterTextSplitter,  # type: ignore
             )
         except ImportError as e:
