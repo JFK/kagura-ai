@@ -59,6 +59,7 @@ ai = [
     "rank-bm25>=0.2.2",          # BM25 lexical search (v4.0.0a0 Phase 2)
     "semantic-router>=0.1.11",   # Semantic routing
     "tiktoken>=0.7.0",           # Token counting for context compression
+    "langchain-text-splitters>=0.0.1",  # Semantic chunking for RAG (Issue #527)
 ]
 api = [
     # v4.0 REST API Server (Phase A)
