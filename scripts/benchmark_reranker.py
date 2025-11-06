@@ -297,36 +297,59 @@ def main() -> None:
         print("📈 COMPARISON: BGE vs MS-MARCO")
         print(f"{'='*70}")
 
-        mrr_improvement = ((bge_results["mrr"] - msmarco_results["mrr"])
-                          / msmarco_results["mrr"] * 100)
-        ndcg_improvement = ((bge_results["ndcg_10"] - msmarco_results["ndcg_10"])
-                           / msmarco_results["ndcg_10"] * 100)
+        # Guard against division by zero
+        if msmarco_results["mrr"] != 0:
+            mrr_improvement = ((bge_results["mrr"] - msmarco_results["mrr"])
+                              / msmarco_results["mrr"] * 100)
+        else:
+            mrr_improvement = None
+
+        if msmarco_results["ndcg_10"] != 0:
+            ndcg_improvement = ((bge_results["ndcg_10"] - msmarco_results["ndcg_10"])
+                               / msmarco_results["ndcg_10"] * 100)
+        else:
+            ndcg_improvement = None
+
         latency_increase = bge_results["avg_latency_ms"] - msmarco_results["avg_latency_ms"]
 
         print(f"\nMRR:")
         print(f"  BGE:         {bge_results['mrr']:.4f}")
         print(f"  MS-MARCO:    {msmarco_results['mrr']:.4f}")
-        print(f"  Improvement: {mrr_improvement:+.1f}%")
+        if mrr_improvement is not None:
+            print(f"  Improvement: {mrr_improvement:+.1f}%")
+        else:
+            print("  Improvement: undefined (MS-MARCO MRR is zero)")
 
         print(f"\nnDCG@10:")
         print(f"  BGE:         {bge_results['ndcg_10']:.4f}")
         print(f"  MS-MARCO:    {msmarco_results['ndcg_10']:.4f}")
-        print(f"  Improvement: {ndcg_improvement:+.1f}%")
+        if ndcg_improvement is not None:
+            print(f"  Improvement: {ndcg_improvement:+.1f}%")
+        else:
+            print("  Improvement: undefined (MS-MARCO nDCG@10 is zero)")
 
         print(f"\nLatency:")
         print(f"  BGE:         {bge_results['avg_latency_ms']:.1f} ms")
         print(f"  MS-MARCO:    {msmarco_results['avg_latency_ms']:.1f} ms")
-        print(f"  Increase:    {latency_increase:+.1f} ms ({latency_increase/msmarco_results['avg_latency_ms']*100:+.1f}%)")
+        if msmarco_results["avg_latency_ms"] != 0:
+            latency_pct = latency_increase / msmarco_results["avg_latency_ms"] * 100
+            print(f"  Increase:    {latency_increase:+.1f} ms ({latency_pct:+.1f}%)")
+        else:
+            print(f"  Increase:    {latency_increase:+.1f} ms (undefined %)")
 
         # Verdict
         print(f"\n{'='*70}")
         print("🎯 VERDICT:")
         print(f"{'='*70}")
 
-        if mrr_improvement >= 3.0 or ndcg_improvement >= 3.0:
+        # Handle None values (division by zero cases)
+        mrr_imp = mrr_improvement if mrr_improvement is not None else 0.0
+        ndcg_imp = ndcg_improvement if ndcg_improvement is not None else 0.0
+
+        if mrr_imp >= 3.0 or ndcg_imp >= 3.0:
             print("✅ BGE reranker provides significant precision improvement!")
             print(f"   Expected gain matches target: +5-8% precision")
-        elif mrr_improvement >= 1.0 or ndcg_improvement >= 1.0:
+        elif mrr_imp >= 1.0 or ndcg_imp >= 1.0:
             print("⚠️  BGE reranker provides modest precision improvement")
             print("   Consider if latency tradeoff is acceptable")
         else:
