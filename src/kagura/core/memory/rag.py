@@ -2,6 +2,11 @@
 
 This module provides RAG (Retrieval-Augmented Generation) capabilities
 for semantic memory search using vector embeddings.
+
+Features:
+- Semantic chunking for long documents (v4.1.0+)
+- Automatic chunk management with parent_id linking
+- Backward compatible API (transparent chunking)
 """
 
 import hashlib
@@ -9,6 +14,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
 from kagura.config.paths import get_cache_dir
+
+if TYPE_CHECKING:
+    from kagura.config.memory_config import ChunkingConfig
+    from kagura.core.memory.semantic_chunker import SemanticChunker
 
 # ChromaDB (lightweight, local vector DB)
 try:
@@ -41,12 +50,15 @@ class MemoryRAG:
         self,
         collection_name: str = "kagura_memory",
         persist_dir: Optional[Path] = None,
+        chunking_config: Optional["ChunkingConfig"] = None,
     ) -> None:
-        """Initialize RAG memory.
+        """Initialize RAG memory with optional semantic chunking.
 
         Args:
             collection_name: Name for the vector collection
             persist_dir: Directory for persistent storage
+            chunking_config: Semantic chunking configuration (v4.1.0+)
+                            If None, chunking is disabled
 
         Raises:
             ImportError: If ChromaDB is not installed
@@ -78,6 +90,51 @@ class MemoryRAG:
         )
         logger.debug(f"MemoryRAG: Collection '{collection_name}' ready")
 
+        # Semantic chunking support (lazy-loaded)
+        self._chunker: Optional["SemanticChunker"] = None
+        self._chunking_config = chunking_config
+        logger.debug(
+            f"MemoryRAG: Chunking {'enabled' if chunking_config and chunking_config.enabled else 'disabled'}"
+        )
+
+    @property
+    def chunker(self) -> Optional["SemanticChunker"]:
+        """Lazy-load semantic chunker only when needed.
+
+        Returns:
+            SemanticChunker instance if chunking is enabled and available,
+            None otherwise
+
+        Note:
+            Automatically disables chunking if langchain-text-splitters not installed.
+        """
+        if self._chunker is None and self._chunking_config and self._chunking_config.enabled:
+            import logging
+
+            logger = logging.getLogger(__name__)
+
+            try:
+                from kagura.core.memory.semantic_chunker import SemanticChunker
+
+                self._chunker = SemanticChunker(
+                    max_chunk_size=self._chunking_config.max_chunk_size,
+                    overlap=self._chunking_config.overlap,
+                )
+                logger.debug(
+                    f"MemoryRAG: SemanticChunker initialized "
+                    f"(max_chunk_size={self._chunking_config.max_chunk_size}, "
+                    f"overlap={self._chunking_config.overlap})"
+                )
+            except ImportError:
+                logger.warning(
+                    "langchain-text-splitters not installed, chunking disabled. "
+                    "Install with: pip install langchain-text-splitters"
+                )
+                # Disable to avoid repeated import attempts
+                self._chunking_config.enabled = False
+
+        return self._chunker
+
     def store(
         self,
         content: str,
@@ -85,33 +142,122 @@ class MemoryRAG:
         metadata: Optional[dict[str, Any]] = None,
         agent_name: Optional[str] = None,
     ) -> str:
-        """Store memory with embedding.
+        """Store memory with optional automatic semantic chunking.
+
+        For long documents (>= min_chunk_size), automatically splits into
+        semantically coherent chunks for improved RAG precision.
 
         Args:
-            content: Content to store
+            content: Content to store (automatically chunked if enabled and long)
             user_id: User identifier (memory owner)
-            metadata: Optional metadata
+            metadata: Optional metadata (preserved across all chunks)
             agent_name: Optional agent name for scoping
 
         Returns:
-            Content hash (unique ID)
+            Parent document ID (string)
+
+            Use this ID to:
+            - Track the logical document in your application
+            - Delete all chunks: collection.delete(where={"parent_id": id})
+            - Reconstruct: collection.get(where={"parent_id": id})
+
+        Note:
+            Chunking is transparent to most use cases:
+            - recall() naturally finds relevant chunks
+            - Chunks include overlap for context preservation
+            - Original metadata preserved in all chunks
+            - If content < min_chunk_size, stored as single document (backward compat)
+
+        Example:
+            >>> # Short text - stored as single document
+            >>> id1 = rag.store("Short text", user_id="jfk")
+            >>> # Long text - automatically chunked
+            >>> id2 = rag.store("Very long document..." * 100, user_id="jfk")
         """
-        # Generate unique ID from content hash + user_id for uniqueness
-        unique_str = f"{user_id}:{content}"
-        content_hash = hashlib.sha256(unique_str.encode()).hexdigest()[:16]
+        import logging
 
-        full_metadata = metadata or {}
-        full_metadata["user_id"] = user_id
+        logger = logging.getLogger(__name__)
+
+        # Generate parent ID (stable identifier for the whole document)
+        # Use first 100 chars for stability across similar content
+        unique_str = f"{user_id}:{content[:100] if len(content) > 100 else content}"
+        parent_id = hashlib.sha256(unique_str.encode()).hexdigest()[:16]
+
+        # Prepare base metadata (applied to all chunks or single document)
+        base_metadata = metadata or {}
+        base_metadata["user_id"] = user_id
         if agent_name:
-            full_metadata["agent_name"] = agent_name
+            base_metadata["agent_name"] = agent_name
 
-        self.collection.add(
-            ids=[content_hash],
-            documents=[content],
-            metadatas=[full_metadata] if full_metadata else None,
+        # Determine if chunking should be applied
+        should_chunk = (
+            self._chunking_config
+            and self._chunking_config.enabled
+            and len(content) >= self._chunking_config.min_chunk_size
+            and self.chunker is not None  # Lazy-loaded, None if import failed
         )
 
-        return content_hash
+        if not should_chunk:
+            # Original behavior: store as single document
+            logger.debug("Storing as single document (chunking disabled or content too short)")
+            self.collection.add(
+                ids=[parent_id],
+                documents=[content],
+                metadatas=[base_metadata] if base_metadata else None,
+            )
+            return parent_id
+
+        # NEW: Chunk the content for improved precision
+        # Type guard: should_chunk=True guarantees these are not None
+        assert self._chunking_config is not None
+        assert self.chunker is not None
+
+        logger.debug(
+            f"Chunking content ({len(content)} chars) with "
+            f"max_chunk_size={self._chunking_config.max_chunk_size}"
+        )
+
+        chunks_with_metadata = self.chunker.chunk_with_metadata(
+            text=content, source=base_metadata.get("file_path", "unknown")
+        )
+
+        # Prepare batch data for ChromaDB
+        chunk_ids = []
+        chunk_docs = []
+        chunk_metadatas = []
+
+        for chunk_meta in chunks_with_metadata:
+            # Generate chunk-specific ID: parent_id + index
+            chunk_id = f"{parent_id}_chunk_{chunk_meta.chunk_index:03d}"
+            chunk_ids.append(chunk_id)
+            chunk_docs.append(chunk_meta.content)
+
+            # Enrich metadata with chunk information
+            chunk_metadata = base_metadata.copy()
+            chunk_metadata.update(
+                {
+                    "parent_id": parent_id,
+                    "chunk_index": chunk_meta.chunk_index,
+                    "total_chunks": chunk_meta.total_chunks,
+                    "is_chunk": True,
+                    "chunk_source": chunk_meta.source,
+                    "start_char": chunk_meta.start_char,
+                    "end_char": chunk_meta.end_char,
+                }
+            )
+            chunk_metadatas.append(chunk_metadata)
+
+        # Batch insert all chunks to ChromaDB
+        logger.debug(
+            f"Storing {len(chunk_ids)} chunks (parent_id={parent_id}, "
+            f"avg_chunk_size={len(content) // len(chunk_ids)} chars)"
+        )
+
+        self.collection.add(
+            ids=chunk_ids, documents=chunk_docs, metadatas=chunk_metadatas
+        )
+
+        return parent_id
 
     def recall(
         self,
