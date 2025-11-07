@@ -1,8 +1,10 @@
 """Web scraping functionality with BeautifulSoup."""
 
+import asyncio
 import logging
 import time
 from urllib.parse import urlparse
+from urllib.robotparser import RobotFileParser
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +27,6 @@ class RateLimiter:
         Args:
             domain: Domain to rate limit
         """
-        import asyncio
-
         current_time = time.time()
         last_time = self.last_request_time.get(domain, 0)
         elapsed = current_time - last_time
@@ -71,19 +71,11 @@ class RobotsTxtChecker:
 
         try:
             # Try to parse robots.txt
-            try:
-                from urllib.robotparser import RobotFileParser
-            except ImportError:
-                logger.warning("urllib.robotparser not available, allowing all URLs")
-                return True
-
             robots_url = f"{domain}/robots.txt"
             rp = RobotFileParser()
             rp.set_url(robots_url)
 
             # Fetch robots.txt synchronously (RobotFileParser is sync)
-            import asyncio
-
             await asyncio.get_event_loop().run_in_executor(None, rp.read)
 
             # Check if URL can be fetched
