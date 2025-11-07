@@ -66,6 +66,11 @@ jobs:
         run: uv run ruff check src/kagura/
         timeout-minutes: 1
 
+      - name: Clear ChromaDB cache
+        run: |
+          rm -rf ~/.cache/chroma* ~/.local/share/kagura/*/vector_db /tmp/chroma* /tmp/pytest-of-*/
+          echo "ChromaDB cache cleared"
+
       - name: Run tests with coverage
         run: uv run pytest -n auto -m "not integration" --ignore=tests/integration --ignore=tests/api --ignore=tests/auth --cov=src/kagura --cov-report=xml --cov-report=term --tb=short -v
         timeout-minutes: 12
