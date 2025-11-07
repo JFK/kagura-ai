@@ -609,8 +609,9 @@ def setup_command(model: str | None, provider: str | None) -> None:
     reranker_model = "BAAI/bge-reranker-v2-m3"  # Default reranker (v4.2.0+)
 
     try:
-        from kagura.core.memory.reranker import is_reranker_available
         from sentence_transformers import CrossEncoder
+
+        from kagura.core.memory.reranker import is_reranker_available
 
         # Check if already downloaded
         if is_reranker_available(reranker_model):
