@@ -21,7 +21,7 @@ jobs:
   test:
     name: Run tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -67,8 +67,8 @@ jobs:
         timeout-minutes: 1
 
       - name: Run tests with coverage
-        run: uv run pytest -m "not integration" --ignore=tests/integration --ignore=tests/api --ignore=tests/auth --cov=src/kagura --cov-report=xml --cov-report=term --tb=short -v
-        timeout-minutes: 10
+        run: uv run pytest -n auto -m "not integration" --ignore=tests/integration --ignore=tests/api --ignore=tests/auth --cov=src/kagura --cov-report=xml --cov-report=term --tb=short -v
+        timeout-minutes: 12
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
