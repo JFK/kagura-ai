@@ -271,15 +271,19 @@ class MemoryRAG:
 
                 # Method 2: If no embeddings, check collection's embedding function
                 if actual_dim is None and hasattr(existing_collection, "_embedding_function"):
-                    ef = existing_collection._embedding_function
-                    # Try to infer dimension from embedding function
-                    if hasattr(ef, "_model_name"):
-                        # Check if it's the old or new model
-                        model_name = ef._model_name
-                        if "e5" in model_name.lower() or "multilingual" in model_name.lower():
-                            actual_dim = 1024  # New model
-                        else:
-                            actual_dim = 384  # Old model (all-MiniLM-L6-v2)
+                    try:
+                        ef = existing_collection._embedding_function
+                        # Try to infer dimension from embedding function (private API)
+                        if ef is not None and hasattr(ef, "_model_name"):
+                            # Check if it's the old or new model
+                            model_name = getattr(ef, "_model_name", "")
+                            if "e5" in model_name.lower() or "multilingual" in model_name.lower():
+                                actual_dim = 1024  # New model
+                            else:
+                                actual_dim = 384  # Old model (all-MiniLM-L6-v2)
+                    except (AttributeError, TypeError):
+                        # Embedding function doesn't have expected attributes
+                        pass
 
                 # Method 3: Try adding a test embedding to detect mismatch
                 if actual_dim is None:
