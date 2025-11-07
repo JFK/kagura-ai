@@ -725,7 +725,7 @@ class MemoryRAG:
             return self.collection.count()
 
     def _build_chunks_from_results(
-        self, results: dict[str, Any]
+        self, results: Any  # GetResult type from ChromaDB
     ) -> list[dict[str, Any]]:
         """Build chunk list from ChromaDB query results.
 
