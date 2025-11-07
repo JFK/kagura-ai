@@ -82,7 +82,8 @@ def test_all_commands_listed():
     assert result.exit_code == 0
 
     # All commands should be listed
-    expected_commands = ["chat", "mcp", "monitor", "auth"]
+    # Note: 'chat', 'init', 'api' removed in v4.3.0 (consolidated under 'config')
+    expected_commands = ["config", "mcp", "monitor", "auth", "memory", "coding"]
     for cmd in expected_commands:
         assert cmd in result.output, f"Command '{cmd}' not found in --help"
 
@@ -90,7 +91,8 @@ def test_all_commands_listed():
 @pytest.mark.slow
 def test_all_commands_still_work():
     """Test that all commands still work with lazy loading (slow: CLI invocation)"""
-    commands = ["chat", "mcp", "monitor", "auth"]
+    # Note: 'chat', 'init', 'api' removed in v4.3.0 (consolidated under 'config')
+    commands = ["config", "mcp", "monitor", "auth", "memory", "coding"]
 
     for cmd in commands:
         result = subprocess.run(
