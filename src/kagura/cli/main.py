@@ -14,20 +14,10 @@ from .lazy import LazyGroup
 @click.group(
     cls=LazyGroup,
     lazy_subcommands={
-        "init": (
-            "kagura.cli.init",
-            "init",
-            "Setup user preferences (name, location, topics)",
-        ),
         "doctor": (
             "kagura.cli.doctor",
             "doctor",
             "Run comprehensive system health check",
-        ),
-        "chat": (
-            "kagura.cli.chat",
-            "chat",
-            "Start an interactive chat session with AI",
         ),
         "mcp": (
             "kagura.cli.mcp",
@@ -44,11 +34,6 @@ from .lazy import LazyGroup
             "auth_group",
             "OAuth2 authentication commands",
         ),
-        "api": (
-            "kagura.cli.api_cli",
-            "api_group",
-            "API Key management commands",
-        ),
         "memory": (
             "kagura.cli.memory_cli",
             "memory_group",
@@ -59,13 +44,15 @@ from .lazy import LazyGroup
             "coding",
             "Coding memory inspection commands",
         ),
-        # Note: 'telemetry' group removed in v4.1.1 (Issue #555)
-        # Use 'kagura mcp telemetry' commands instead
         "config": (
             "kagura.cli.config_cli",
             "app",
-            "Configuration management and diagnostics",
+            "Configuration, user profile, and API key management",
         ),
+        # Deprecated commands (removed in v4.3.0)
+        # - init: Use 'kagura config profile' instead
+        # - api: Use 'kagura config api' instead
+        # - chat: Removed (use MCP integration instead)
     },
 )
 @click.version_option(version=__version__, prog_name="Kagura AI")
