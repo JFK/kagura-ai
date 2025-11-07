@@ -1005,6 +1005,87 @@ class MemoryManager:
         sizes["total_mb"] = sizes["chromadb_mb"] + sizes["sqlite_mb"]
         return sizes
 
+    def get_chunk_context(
+        self,
+        parent_id: str,
+        chunk_index: int,
+        context_size: int = 1,
+    ) -> list[dict[str, Any]]:
+        """Get neighboring chunks around a specific chunk.
+
+        Args:
+            parent_id: Parent document ID
+            chunk_index: Index of the target chunk (0-indexed)
+            context_size: Number of chunks before/after to retrieve (default: 1)
+
+        Returns:
+            List of chunks sorted by chunk_index, including target chunk and neighbors
+
+        Raises:
+            ValueError: If RAG is not enabled
+
+        Example:
+            >>> chunks = manager.get_chunk_context("doc123", chunk_index=5, context_size=1)
+            >>> print(len(chunks))  # Returns chunks 4, 5, 6
+        """
+        if not self.rag:
+            raise ValueError("RAG not enabled. Cannot retrieve chunk context.")
+
+        return self.rag.get_chunk_context(
+            parent_id=parent_id,
+            chunk_index=chunk_index,
+            context_size=context_size,
+            user_id=self.user_id,
+        )
+
+    def get_full_document(self, parent_id: str) -> dict[str, Any]:
+        """Reconstruct complete document from chunks.
+
+        Args:
+            parent_id: Parent document ID
+
+        Returns:
+            Dict with full_content, chunks, parent_id, total_chunks
+
+        Raises:
+            ValueError: If RAG is not enabled
+
+        Example:
+            >>> doc = manager.get_full_document("doc123")
+            >>> print(doc["full_content"])
+            >>> print(doc["total_chunks"])
+        """
+        if not self.rag:
+            raise ValueError("RAG not enabled. Cannot retrieve full document.")
+
+        return self.rag.get_full_document(parent_id=parent_id, user_id=self.user_id)
+
+    def get_chunk_metadata(
+        self, parent_id: str, chunk_index: Optional[int] = None
+    ) -> dict[str, Any] | list[dict[str, Any]]:
+        """Get metadata for chunk(s) without retrieving full content.
+
+        Args:
+            parent_id: Parent document ID
+            chunk_index: Optional specific chunk index (if None, returns all chunks)
+
+        Returns:
+            Single chunk metadata dict or list of all chunk metadata dicts
+
+        Raises:
+            ValueError: If RAG is not enabled
+
+        Example:
+            >>> meta = manager.get_chunk_metadata("doc123", chunk_index=5)
+            >>> all_meta = manager.get_chunk_metadata("doc123")
+        """
+        if not self.rag:
+            raise ValueError("RAG not enabled. Cannot retrieve chunk metadata.")
+
+        return self.rag.get_chunk_metadata(
+            parent_id=parent_id, chunk_index=chunk_index, user_id=self.user_id
+        )
+
     def __repr__(self) -> str:
         """String representation."""
         working_rag_count = self.rag.count(self.agent_name) if self.rag else 0
