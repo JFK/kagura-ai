@@ -15,6 +15,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.2.2] - 2025-11-07
+
+### 🐛 Fixed
+
+#### Critical: MCP Remote Permissions Registration (#Issue TBD)
+- **Fixed**: 36 MCP tools (49%) were missing from `TOOL_PERMISSIONS`, causing them to be denied in remote contexts
+- **Added**: All 74 tools now registered with proper permissions
+  - Memory extended (10 tools): `memory_fetch`, `memory_fuzzy_recall`, `memory_timeline`, etc.
+  - Coding memory (18 tools): `coding_start_session`, `coding_track_file_change`, etc.
+  - Claude Code (2 tools): `claude_code_save_session`, `claude_code_search_past_work`
+  - GitHub safe wrappers (3 tools): `gh_safe_exec`, `gh_pr_create_safe`, `gh_pr_merge_safe`
+  - Academic (1 tool): `arxiv_search`
+- **Security fix**: Added 6 dangerous tools with `remote: False`
+  - `coding_index_source_code`: Reads server filesystem
+  - `coding_analyze_file_dependencies`: Reads server filesystem
+  - `coding_analyze_refactor_impact`: Reads server filesystem
+  - `meta_fix_code_error`: Code generation/execution risk (RCE)
+  - `gh_safe_exec`, `gh_pr_create_safe`, `gh_pr_merge_safe`: GitHub write operations
+- **Cleanup**: Removed orphan permission `brave_local_search` (tool doesn't exist)
+
+### ✅ Added
+
+#### MCP Permissions Testing & CI/CD (#Issue TBD)
+- **Test coverage**: Added 2 new test classes with 8 tests
+  - `TestToolRegistrationCompleteness`: Ensures all tools are registered
+  - `TestNewToolPermissions`: Validates new tool classifications
+- **CI/CD check**: Added automatic permissions completeness validation
+  - Fails build if any tools are unregistered
+  - Detects orphan permissions (registered but don't exist)
+  - Runs on every PR to prevent regressions
+- **Files changed**:
+  - `src/kagura/mcp/permissions.py`: +34 tools, improved reason detection
+  - `tests/mcp/test_permissions.py`: +107 lines of tests
+  - `.github/workflows/test.yml`: +26 lines of CI checks
+
+### 📊 Impact
+
+- **Coverage**: 38/74 (51%) → 74/74 (100%) registered tools
+- **Remote capable**: 28 → 59 tools (+31)
+- **Local only**: 10 → 15 tools (+5, security fix)
+- **Test coverage**: 100% of permissions now validated (30 tests)
+
+---
+
 ## [4.2.0] - 2025-11-07
 
 ### ✨ Added

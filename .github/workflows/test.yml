@@ -66,6 +66,34 @@ jobs:
         run: uv run ruff check src/kagura/
         timeout-minutes: 1
 
+      - name: Check MCP permissions completeness
+        run: |
+          uv run python -c "
+          from kagura.mcp.permissions import TOOL_PERMISSIONS
+          from kagura.core.tool_registry import tool_registry
+          import kagura.mcp.builtin  # Register all tools
+
+          registered = set(tool_registry.get_all().keys())
+          permissions = set(TOOL_PERMISSIONS.keys())
+          missing = registered - permissions
+          orphans = permissions - registered
+
+          if missing:
+              print(f'ERROR: {len(missing)} tools missing from TOOL_PERMISSIONS')
+              for tool in sorted(missing):
+                  print(f'  - {tool}')
+              exit(1)
+
+          if orphans:
+              print(f'ERROR: {len(orphans)} orphan permissions (tools do not exist)')
+              for tool in sorted(orphans):
+                  print(f'  - {tool}')
+              exit(1)
+
+          print(f'✅ All {len(registered)} tools registered in TOOL_PERMISSIONS')
+          "
+        timeout-minutes: 1
+
       - name: Clear ChromaDB and test caches
         run: |
           # Clear all possible ChromaDB locations
