@@ -1,8 +1,5 @@
 """Tests for MCP tool permission system."""
 
-# Register all MCP tools before running tests
-import kagura.mcp.builtin  # noqa: F401
-
 from kagura.mcp.permissions import (
     TOOL_PERMISSIONS,
     get_allowed_tools,
@@ -253,8 +250,6 @@ class TestToolRegistrationCompleteness:
 
     def test_all_tools_registered_in_permissions(self):
         """Ensure every @tool decorated function is in TOOL_PERMISSIONS."""
-        # Import all builtin tools to register them
-        import kagura.mcp.builtin  # noqa: F401
         from kagura.core.tool_registry import tool_registry
 
         registered = set(tool_registry.get_all().keys())
@@ -267,7 +262,6 @@ class TestToolRegistrationCompleteness:
 
     def test_no_orphan_permissions(self):
         """Ensure TOOL_PERMISSIONS doesn't have non-existent tools."""
-        import kagura.mcp.builtin  # noqa: F401
         from kagura.core.tool_registry import tool_registry
 
         registered = set(tool_registry.get_all().keys())
