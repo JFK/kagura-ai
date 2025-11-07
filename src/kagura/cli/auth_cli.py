@@ -2,13 +2,15 @@
 
 import logging
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 import click
 from rich.console import Console
 from rich.table import Table
 
-from kagura.auth import OAuth2Manager
-from kagura.auth.exceptions import AuthenticationError
+# Lazy import to avoid loading optional dependencies for --help
+if TYPE_CHECKING:
+    pass
 
 console = Console()
 logger = logging.getLogger(__name__)
@@ -39,6 +41,18 @@ def login_command(provider: str) -> None:
     Example:
         kagura auth login --provider google
     """
+    # Import here to avoid loading optional dependencies for --help
+    try:
+        from kagura.auth import OAuth2Manager
+        from kagura.auth.exceptions import AuthenticationError
+    except ImportError as e:
+        console.print(
+            "[red]✗ OAuth2 authentication requires additional dependencies[/red]"
+        )
+        console.print("[yellow]Install with: pip install 'kagura-ai[auth]'[/yellow]")
+        console.print(f"[dim]Error: {e}[/dim]")
+        raise click.Abort()
+
     try:
         console.print(f"[cyan]Starting authentication with {provider}...[/cyan]")
         console.print()
@@ -95,6 +109,18 @@ def logout_command(provider: str) -> None:
     Example:
         kagura auth logout --provider google
     """
+    # Import here to avoid loading optional dependencies for --help
+    try:
+        from kagura.auth import OAuth2Manager
+        from kagura.auth.exceptions import AuthenticationError
+    except ImportError as e:
+        console.print(
+            "[red]✗ OAuth2 authentication requires additional dependencies[/red]"
+        )
+        console.print("[yellow]Install with: pip install 'kagura-ai[auth]'[/yellow]")
+        console.print(f"[dim]Error: {e}[/dim]")
+        raise click.Abort()
+
     try:
         auth = OAuth2Manager(provider=provider)
 
@@ -124,6 +150,18 @@ def status_command() -> None:
     Example:
         kagura auth status
     """
+    # Import here to avoid loading optional dependencies for --help
+    try:
+        from kagura.auth import OAuth2Manager
+        from kagura.auth.exceptions import AuthenticationError
+    except ImportError as e:
+        console.print(
+            "[red]✗ OAuth2 authentication requires additional dependencies[/red]"
+        )
+        console.print("[yellow]Install with: pip install 'kagura-ai[auth]'[/yellow]")
+        console.print(f"[dim]Error: {e}[/dim]")
+        raise click.Abort()
+
     try:
         providers = ["google"]  # Add more providers in the future
         table = Table(title="Authentication Status", show_header=True)

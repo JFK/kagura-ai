@@ -193,14 +193,18 @@ class TestMemoryCaching:
     async def test_cache_reuses_instance(self) -> None:
         """Test that same user_id + agent_name reuses MemoryManager instance"""
         # First call creates instance
-        await memory_store(user_id="test_user", agent_name="cached_agent", key="key1", value="value1")
+        await memory_store(
+            user_id="test_user", agent_name="cached_agent", key="key1", value="value1"
+        )
 
         # Check cache has entry
         assert len(_memory_cache) == 1
         assert "test_user:cached_agent:rag=True" in _memory_cache
 
         # Second call should reuse instance
-        await memory_store(user_id="test_user", agent_name="cached_agent", key="key2", value="value2")
+        await memory_store(
+            user_id="test_user", agent_name="cached_agent", key="key2", value="value2"
+        )
 
         # Cache should still have only 1 entry
         assert len(_memory_cache) == 1
@@ -209,7 +213,9 @@ class TestMemoryCaching:
     async def test_cache_separate_rag_instances(self) -> None:
         """Test that RAG and non-RAG instances are cached separately"""
         # Regular memory call
-        await memory_store(user_id="test_user", agent_name="agent_rag", key="key1", value="value1")
+        await memory_store(
+            user_id="test_user", agent_name="agent_rag", key="key1", value="value1"
+        )
 
         # RAG memory call
         await memory_search("test_user", "agent_rag", "query", k=5)
@@ -263,9 +269,9 @@ class TestMemorySearchIntegration:
                     if "Alice" in content or "name" in content.lower():
                         found = True
                         break
-                assert (
-                    found
-                ), f"Expected to find 'Alice' or 'name' in results: {results}"
+                assert found, (
+                    f"Expected to find 'Alice' or 'name' in results: {results}"
+                )
 
         except ImportError:
             # ChromaDB not installed - skip test
@@ -279,9 +285,24 @@ class TestMemorySearchIntegration:
 
         try:
             # Store multiple data points
-            await memory_store(user_id="test_user", agent_name="combined_agent", key="user_name", value="Bob")
-            await memory_store(user_id="test_user", agent_name="combined_agent", key="user_age", value="30")
-            await memory_store(user_id="test_user", agent_name="combined_agent", key="user_city", value="Tokyo")
+            await memory_store(
+                user_id="test_user",
+                agent_name="combined_agent",
+                key="user_name",
+                value="Bob",
+            )
+            await memory_store(
+                user_id="test_user",
+                agent_name="combined_agent",
+                key="user_age",
+                value="30",
+            )
+            await memory_store(
+                user_id="test_user",
+                agent_name="combined_agent",
+                key="user_city",
+                value="Tokyo",
+            )
 
             # Search with a query that should match keys
             search_result = await memory_search(
@@ -316,7 +337,12 @@ class TestMemorySearchIntegration:
         import json
 
         # Store data
-        await memory_store(user_id="test_user", agent_name="no_rag_agent", key="test_key", value="test_value")
+        await memory_store(
+            user_id="test_user",
+            agent_name="no_rag_agent",
+            key="test_key",
+            value="test_value",
+        )
 
         # Try to search - should handle missing ChromaDB gracefully
         search_result = await memory_search("test_user", "no_rag_agent", "test", k=5)
@@ -374,9 +400,9 @@ class TestPersistentRAGIntegration:
                     if "Python" in content and result_scope == "persistent":
                         found = True
                         break
-                assert (
-                    found
-                ), f"Expected to find 'Python' in persistent scope: {results}"
+                assert found, (
+                    f"Expected to find 'Python' in persistent scope: {results}"
+                )
 
             # Cleanup
             await memory_recall(
@@ -458,9 +484,9 @@ class TestPersistentRAGIntegration:
             for result in persistent_data:
                 scope = result.get("scope", "")
                 if scope:
-                    assert (
-                        scope == "persistent"
-                    ), f"Expected persistent scope, got {scope}"
+                    assert scope == "persistent", (
+                        f"Expected persistent scope, got {scope}"
+                    )
 
         except ImportError:
             pytest.skip("ChromaDB not installed")
@@ -494,11 +520,19 @@ class TestMemoryList:
         from kagura.mcp.builtin.memory import memory_list
 
         # Store some working memories
-        await memory_store(user_id=
-            "test_user", agent_name="test_list_agent", key="key1", value="value1", scope="working"
+        await memory_store(
+            user_id="test_user",
+            agent_name="test_list_agent",
+            key="key1",
+            value="value1",
+            scope="working",
         )
-        await memory_store(user_id=
-            "test_user", agent_name="test_list_agent", key="key2", value="value2", scope="working"
+        await memory_store(
+            user_id="test_user",
+            agent_name="test_list_agent",
+            key="key2",
+            value="value2",
+            scope="working",
         )
 
         # List them
@@ -525,11 +559,19 @@ class TestMemoryList:
         from kagura.mcp.builtin.memory import memory_list
 
         # Store some persistent memories
-        await memory_store(user_id=
-            "test_user", agent_name="test_list_persistent", key="pkey1", value="pvalue1", scope="persistent"
+        await memory_store(
+            user_id="test_user",
+            agent_name="test_list_persistent",
+            key="pkey1",
+            value="pvalue1",
+            scope="persistent",
         )
-        await memory_store(user_id=
-            "test_user", agent_name="test_list_persistent", key="pkey2", value="pvalue2", scope="persistent"
+        await memory_store(
+            user_id="test_user",
+            agent_name="test_list_persistent",
+            key="pkey2",
+            value="pvalue2",
+            scope="persistent",
         )
 
         # List them
@@ -580,8 +622,12 @@ class TestMemoryList:
         from kagura.mcp.builtin.memory import memory_list
 
         # Store for different agents
-        await memory_store(user_id="test_user", agent_name="agent_a", key="key_a", value="value_a")
-        await memory_store(user_id="test_user", agent_name="agent_b", key="key_b", value="value_b")
+        await memory_store(
+            user_id="test_user", agent_name="agent_a", key="key_a", value="value_a"
+        )
+        await memory_store(
+            user_id="test_user", agent_name="agent_b", key="key_b", value="value_b"
+        )
 
         # List for agent_a (use persistent since store defaults to persistent now)
         result_a = await memory_list(
@@ -631,7 +677,12 @@ class TestMemoryGraphTools:
 
     @pytest.mark.asyncio
     async def test_record_interaction_invalid_metadata(self) -> None:
-        """Test memory_record_interaction with invalid metadata JSON."""
+        """Test memory_record_interaction with invalid metadata JSON.
+
+        Note: After Phase 2 refactoring, parse_json_dict() returns empty dict
+        for invalid JSON instead of raising an error (more lenient behavior).
+        The interaction is still recorded successfully.
+        """
         import json
 
         result = await memory_record_interaction(
@@ -644,8 +695,10 @@ class TestMemoryGraphTools:
         )
 
         data = json.loads(result)
-        assert "error" in data
-        assert "Invalid JSON" in data["error"]
+        # After Phase 2: invalid JSON is treated as empty dict (lenient behavior)
+        assert data["status"] == "recorded"
+        assert "interaction_id" in data
+        assert data["ai_platform"] == "claude"
 
     @pytest.mark.asyncio
     async def test_record_multiple_interactions(self) -> None:

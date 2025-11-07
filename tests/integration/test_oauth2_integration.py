@@ -48,8 +48,7 @@ class TestOAuth2Integration:
 
         if not client_secrets.exists():
             pytest.skip(
-                "client_secrets.json not found. "
-                "This is optional for OAuth2 features."
+                "client_secrets.json not found. This is optional for OAuth2 features."
             )
 
         # Check file is readable
@@ -59,9 +58,9 @@ class TestOAuth2Integration:
             data = json.load(f)
 
         # Verify it's an OAuth client secrets file or service account
-        assert (
-            "installed" in data or "web" in data or "type" in data
-        ), "Invalid client_secrets.json format"
+        assert "installed" in data or "web" in data or "type" in data, (
+            "Invalid client_secrets.json format"
+        )
 
     def test_authentication_status(self):
         """Test authentication status check"""
@@ -144,7 +143,7 @@ class TestOAuth2Integration:
         key_stat = os.stat(auth.key_file)
         key_perms = stat.S_IMODE(key_stat.st_mode)
         assert key_perms == 0o600, (
-            f"Key file has wrong permissions: {oct(key_perms)} " f"(expected 0o600)"
+            f"Key file has wrong permissions: {oct(key_perms)} (expected 0o600)"
         )
 
 
@@ -184,9 +183,9 @@ class TestLLMOAuth2Integration:
         assert len(response) > 0
 
         # Response should mention "4" or "four" (case insensitive)
-        assert (
-            "4" in response or "four" in response.lower()
-        ), f"Expected response to mention '4' or 'four', got: {response}"
+        assert "4" in response or "four" in response.lower(), (
+            f"Expected response to mention '4' or 'four', got: {response}"
+        )
 
     async def test_oauth2_token_used_in_llm_call(self, monkeypatch):
         """Test that OAuth2 token is actually used in LLM call"""

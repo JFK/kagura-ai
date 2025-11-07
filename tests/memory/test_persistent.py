@@ -87,8 +87,7 @@ def test_persistent_memory_agent_scoped_preferred_over_global(temp_db):
 
     # Even though the global entry is newer, agent-scoped recall should prefer it
     assert (
-        memory.recall("key1", user_id="test_user", agent_name="agent1")
-        == "agent_value"
+        memory.recall("key1", user_id="test_user", agent_name="agent1") == "agent_value"
     )
     # Global recall should still return the global value
     assert memory.recall("key1", user_id="test_user") == "global_value"

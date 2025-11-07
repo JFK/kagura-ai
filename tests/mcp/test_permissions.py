@@ -1,6 +1,5 @@
 """Tests for MCP tool permission system."""
 
-
 from kagura.mcp.permissions import (
     TOOL_PERMISSIONS,
     get_allowed_tools,
@@ -162,9 +161,9 @@ class TestToolPermissionsConfig:
         file_tools = ["file_read", "file_write", "dir_list"]
 
         for tool in file_tools:
-            assert (
-                TOOL_PERMISSIONS[tool]["remote"] is False
-            ), f"{tool} should be dangerous"
+            assert TOOL_PERMISSIONS[tool]["remote"] is False, (
+                f"{tool} should be dangerous"
+            )
 
     def test_web_tools_are_safe(self):
         """Test that web/API tools are marked as safe."""
@@ -221,9 +220,9 @@ class TestIntegrationScenarios:
         ]
 
         for tool in safe_tools:
-            assert (
-                is_tool_allowed(tool, "remote") is True
-            ), f"{tool} should be allowed for ChatGPT"
+            assert is_tool_allowed(tool, "remote") is True, (
+                f"{tool} should be allowed for ChatGPT"
+            )
 
     def test_local_claude_code_scenario(self):
         """Test local Claude Code scenario (all tools available)."""
@@ -236,6 +235,6 @@ class TestIntegrationScenarios:
         ]
 
         for tool in all_tools:
-            assert (
-                is_tool_allowed(tool, "local") is True
-            ), f"{tool} should be allowed locally"
+            assert is_tool_allowed(tool, "local") is True, (
+                f"{tool} should be allowed locally"
+            )

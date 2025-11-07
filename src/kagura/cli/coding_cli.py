@@ -26,6 +26,46 @@ from kagura.config.project import get_default_project as _get_default_project
 from kagura.config.project import get_default_user as _get_default_user_impl
 
 
+def _get_lightweight_coding_memory(user_id: str, project_id: str):
+    """Create CodingMemoryManager with CLI-optimized lightweight config.
+
+    Disables expensive components not needed for CLI queries:
+    - Access tracking (RecallScorer): Not used in CLI queries
+    - Reranking: Not used in CLI list/search commands
+    - Compression: Not needed for CLI
+    - Graph: Not used in basic CLI commands
+
+    This reduces initialization time from 8+ seconds to ~2-3 seconds.
+
+    Args:
+        user_id: User identifier
+        project_id: Project identifier
+
+    Returns:
+        CodingMemoryManager with lightweight config
+
+    Related: Issue #548 - CLI performance optimization
+    """
+    from kagura.config.memory_config import MemorySystemConfig, RerankConfig
+    from kagura.core.memory.coding_memory import CodingMemoryManager
+
+    # Lightweight config for fast CLI startup
+    config = MemorySystemConfig(
+        enable_access_tracking=False,  # Disable RecallScorer (~1s saved)
+        # Disable reranker (~6.5s saved, Issue #548)
+        rerank=RerankConfig(enabled=False),
+    )
+
+    return CodingMemoryManager(
+        user_id=user_id,
+        project_id=project_id,
+        enable_rag=False,  # Already disabled in CLI
+        enable_compression=False,  # Not needed for CLI
+        enable_graph=False,  # Not needed for CLI queries
+        memory_config=config,  # Pass lightweight config
+    )
+
+
 def _get_default_user() -> str:
     """Get default user with fallback.
 
@@ -52,8 +92,12 @@ def _check_project_required(project: str | None, console: Console) -> str | None
         )
         console.print("[yellow]💡 Tip: Auto-detection works when you:[/yellow]")
         console.print("[dim]  1. Run in a git repository (uses repo name)[/dim]")
-        console.print("[dim]  2. Add to pyproject.toml: [tool.kagura] project = \"your-project\"[/dim]")
-        console.print("[dim]  3. Set environment: export KAGURA_DEFAULT_PROJECT=your-project[/dim]")
+        console.print(
+            '[dim]  2. Add to pyproject.toml: [tool.kagura] project = "your-project"[/dim]'
+        )
+        console.print(
+            "[dim]  3. Set environment: export KAGURA_DEFAULT_PROJECT=your-project[/dim]"
+        )
         console.print("[dim]  4. Use flag: --project your-project[/dim]")
     return proj
 
@@ -206,12 +250,8 @@ def sessions(
         return
 
     try:
-        from kagura.core.memory.coding_memory import CodingMemoryManager
-
-        # Create manager
-        coding_mem = CodingMemoryManager(
-            user_id=user, project_id=project, enable_rag=False
-        )
+        # Create manager with lightweight config for fast CLI startup
+        coding_mem = _get_lightweight_coding_memory(user_id=user, project_id=project)
 
         # Search for all sessions using LIKE pattern
         pattern = f"project:{project}:session:"
@@ -368,11 +408,8 @@ def session(session_id: str, project: str | None, user: str | None):
         return
 
     try:
-        from kagura.core.memory.coding_memory import CodingMemoryManager
-
-        coding_mem = CodingMemoryManager(
-            user_id=user, project_id=project, enable_rag=False
-        )
+        # Create manager with lightweight config for fast CLI startup
+        coding_mem = _get_lightweight_coding_memory(user_id=user, project_id=project)
 
         # Get session
         key = f"project:{project}:session:{session_id}"
@@ -525,11 +562,8 @@ def decisions(
         return
 
     try:
-        from kagura.core.memory.coding_memory import CodingMemoryManager
-
-        coding_mem = CodingMemoryManager(
-            user_id=user, project_id=project, enable_rag=False
-        )
+        # Create manager with lightweight config for fast CLI startup
+        coding_mem = _get_lightweight_coding_memory(user_id=user, project_id=project)
 
         # Search for all decisions using LIKE pattern
         pattern = f"project:{project}:decision:"
@@ -635,11 +669,8 @@ def decision(decision_id: str, project: str | None, user: str | None):
         return
 
     try:
-        from kagura.core.memory.coding_memory import CodingMemoryManager
-
-        coding_mem = CodingMemoryManager(
-            user_id=user, project_id=project, enable_rag=False
-        )
+        # Create manager with lightweight config for fast CLI startup
+        coding_mem = _get_lightweight_coding_memory(user_id=user, project_id=project)
 
         # Get decision
         key = f"project:{project}:decision:{decision_id}"
@@ -723,11 +754,8 @@ def errors(
         return
 
     try:
-        from kagura.core.memory.coding_memory import CodingMemoryManager
-
-        coding_mem = CodingMemoryManager(
-            user_id=user, project_id=project, enable_rag=False
-        )
+        # Create manager with lightweight config for fast CLI startup
+        coding_mem = _get_lightweight_coding_memory(user_id=user, project_id=project)
 
         # Search for all errors using LIKE pattern
         pattern = f"project:{project}:error:"
@@ -839,11 +867,8 @@ def error(error_id: str, project: str | None, user: str | None):
         return
 
     try:
-        from kagura.core.memory.coding_memory import CodingMemoryManager
-
-        coding_mem = CodingMemoryManager(
-            user_id=user, project_id=project, enable_rag=False
-        )
+        # Create manager with lightweight config for fast CLI startup
+        coding_mem = _get_lightweight_coding_memory(user_id=user, project_id=project)
 
         # Get error
         key = f"project:{project}:error:{error_id}"
@@ -1080,14 +1105,18 @@ def doctor() -> None:
 
         # Show source
         if env_project:
-            console.print("     [dim]└─ Source: Environment variable ($KAGURA_DEFAULT_PROJECT)[/dim]")
+            console.print(
+                "     [dim]└─ Source: Environment variable ($KAGURA_DEFAULT_PROJECT)[/dim]"
+            )
         elif pyproject_config.get("project"):
             console.print("     [dim]└─ Source: pyproject.toml [tool.kagura][/dim]")
         elif git_repo:
             console.print("     [dim]└─ Source: Git repository auto-detection[/dim]")
     else:
         console.print("   [red]✗[/] Project: Not detected")
-        console.print("     [yellow]💡 Tip: Run in a git repo or add to pyproject.toml[/yellow]")
+        console.print(
+            "     [yellow]💡 Tip: Run in a git repo or add to pyproject.toml[/yellow]"
+        )
 
     # User detection
     detected_user = _get_default_user()
@@ -1110,7 +1139,9 @@ def doctor() -> None:
 
     console.print(f"   [green]✓[/] User: [bold]{detected_user}[/bold]")
     if env_user:
-        console.print("     [dim]└─ Source: Environment variable ($KAGURA_DEFAULT_USER)[/dim]")
+        console.print(
+            "     [dim]└─ Source: Environment variable ($KAGURA_DEFAULT_USER)[/dim]"
+        )
     elif pyproject_config.get("user"):
         console.print("     [dim]└─ Source: pyproject.toml [tool.kagura][/dim]")
     elif git_user:
@@ -1238,4 +1269,3 @@ def doctor() -> None:
         )
     )
     console.print()
-

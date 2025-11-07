@@ -17,16 +17,11 @@ from pathlib import Path
 from typing import Any
 
 import click
-from rich.console import Console
-from rich.panel import Panel
 
-from kagura.config.env import (
-    get_anthropic_api_key,
-    get_openai_api_key,
-)
+from kagura.cli.utils import create_console, create_info_panel
 from kagura.config.paths import get_data_dir
 
-console = Console()
+console = create_console()
 
 
 def _check_python_version() -> tuple[str, str]:
@@ -95,79 +90,15 @@ def _check_dependencies() -> list[tuple[str, str, str]]:
 async def _check_api_configuration() -> list[tuple[str, str, str]]:
     """Check API key configuration and connectivity.
 
+    Uses shared utility from utils.api_check for consistency.
+    Related: Issue #538 - Consolidate API connectivity checks
+
     Returns:
         List of (provider_name, status, message) tuples
     """
-    from kagura.config.env import (
-        get_anthropic_default_model,
-        get_openai_default_model,
-    )
+    from kagura.utils.api_check import check_api_configuration
 
-    results = []
-
-    # Anthropic
-    anthropic_key = get_anthropic_api_key()
-    if not anthropic_key:
-        results.append(("Anthropic", "warning", "Not configured"))
-    else:
-        # Test connectivity
-        try:
-            from litellm import acompletion
-
-            model = get_anthropic_default_model()
-            await acompletion(
-                model=model,
-                messages=[{"role": "user", "content": "hi"}],
-                api_key=anthropic_key,
-                max_tokens=10,  # Increased for safety
-                timeout=10,
-            )
-            results.append(("Anthropic", "ok", "Configured and reachable"))
-        except ImportError:
-            results.append(
-                ("Anthropic", "warning", "Configured (litellm not installed)")
-            )
-        except Exception as e:
-            error_msg = str(e)
-            # Max tokens error means API works (connection successful)
-            if "max_tokens" in error_msg.lower() or "output limit" in error_msg.lower():
-                results.append(("Anthropic", "ok", "Configured and reachable"))
-            elif "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
-                results.append(("Anthropic", "error", "Invalid API key"))
-            else:
-                results.append(("Anthropic", "error", f"Unreachable: {error_msg[:50]}"))
-
-    # OpenAI
-    openai_key = get_openai_api_key()
-    if not openai_key:
-        results.append(("OpenAI", "info", "Not configured (optional)"))
-    else:
-        # Test connectivity
-        try:
-            from litellm import acompletion
-
-            model = get_openai_default_model()
-            await acompletion(
-                model=model,
-                messages=[{"role": "user", "content": "hi"}],
-                api_key=openai_key,
-                max_tokens=10,  # Increased for reasoning models (gpt-5-mini, o1-mini)
-                timeout=10,
-            )
-            results.append(("OpenAI", "ok", "Configured and reachable"))
-        except ImportError:
-            results.append(("OpenAI", "warning", "Configured (litellm not installed)"))
-        except Exception as e:
-            error_msg = str(e)
-            # Max tokens error from reasoning models is actually success (API works)
-            if "max_tokens" in error_msg.lower() or "output limit" in error_msg.lower():
-                results.append(("OpenAI", "ok", "Configured and reachable (reasoning model)"))
-            elif "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
-                results.append(("OpenAI", "error", "Invalid API key"))
-            else:
-                results.append(("OpenAI", "error", f"Unreachable: {error_msg[:50]}"))
-
-    return results
+    return await check_api_configuration()
 
 
 def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
@@ -192,19 +123,13 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
         )
 
     # Check memory counts (aggregate across all users)
+    from kagura.utils import MemoryDatabaseQuery
+
     persistent_count = 0
     rag_count = 0
     try:
         # Get total memory count from database
-        import sqlite3
-
-        db_path = get_data_dir() / "memory.db"
-        if db_path.exists():
-            conn = sqlite3.connect(db_path)
-            cursor = conn.execute("SELECT COUNT(*) FROM memories")
-            persistent_count = cursor.fetchone()[0]
-            conn.close()
-
+        persistent_count = MemoryDatabaseQuery.count_memories()
         status["persistent_count"] = persistent_count
 
         # Check RAG (count all collections across all users)
@@ -408,10 +333,10 @@ def doctor(ctx: click.Context, fix: bool) -> None:
     """
     console.print("\n")
     console.print(
-        Panel(
+        create_info_panel(
             "[bold]Kagura System Health Check 🏥[/]\n"
             "Running comprehensive diagnostics...",
-            style="blue",
+            title="Info",
         )
     )
     console.print()
@@ -573,7 +498,7 @@ def doctor(ctx: click.Context, fix: bool) -> None:
         console.print()
 
     console.print(
-        Panel(
+        create_info_panel(
             "[bold]Diagnostics Complete[/]\n\n"
             "For more help:\n"
             "  • kagura config doctor - API configuration only\n"
@@ -581,7 +506,7 @@ def doctor(ctx: click.Context, fix: bool) -> None:
             "  • kagura memory doctor - Memory system health check\n"
             "  • kagura coding doctor - Coding memory auto-detection\n"
             "  • kagura memory --help - Memory management",
-            style="blue",
+            title="Info",
         )
     )
     console.print()

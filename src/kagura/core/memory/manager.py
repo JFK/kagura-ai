@@ -810,6 +810,49 @@ class MemoryManager:
         self.working.clear()
         self.context.clear()
 
+    def get_storage_size(self) -> dict[str, float]:
+        """Calculate storage size in MB.
+
+        Returns disk usage for SQLite database and ChromaDB vectors.
+
+        Returns:
+            Dictionary with sqlite_mb, chromadb_mb, total_mb
+
+        Example:
+            >>> memory.get_storage_size()
+            {'sqlite_mb': 2.4, 'chromadb_mb': 15.3, 'total_mb': 17.7}
+
+        Note:
+            Issue #411 - Storage size estimation for memory_stats
+        """
+        import os
+
+        sizes = {"sqlite_mb": 0.0, "chromadb_mb": 0.0, "total_mb": 0.0}
+
+        # Calculate SQLite database size
+        if self.persistent and hasattr(self.persistent, "db_path"):
+            db_path = self.persistent.db_path
+            if db_path and os.path.exists(db_path):
+                sizes["sqlite_mb"] = os.path.getsize(db_path) / (1024 * 1024)
+
+        # Calculate ChromaDB storage size (if RAG enabled)
+        if self.persistent_rag:
+            # Use getattr to safely access private attribute
+            chroma_dir = getattr(self.persistent_rag, "_persist_directory", None)
+            if chroma_dir and os.path.exists(chroma_dir):
+                total_size = 0
+                for dirpath, dirnames, filenames in os.walk(chroma_dir):
+                    for filename in filenames:
+                        filepath = os.path.join(dirpath, filename)
+                        try:
+                            total_size += os.path.getsize(filepath)
+                        except (OSError, FileNotFoundError):
+                            pass  # Skip inaccessible files
+                sizes["chromadb_mb"] = total_size / (1024 * 1024)
+
+        sizes["total_mb"] = sizes["chromadb_mb"] + sizes["sqlite_mb"]
+        return sizes
+
     def __repr__(self) -> str:
         """String representation."""
         working_rag_count = self.rag.count(self.agent_name) if self.rag else 0

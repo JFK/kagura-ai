@@ -287,6 +287,16 @@ TOOL_PERMISSIONS = {
 }
 ```
 
+**MCP Middleware** (`middleware.py`) 🆕 v4.1.1:
+- **Auto-logging**: All tool calls logged to memory (opt-out available)
+- **Non-blocking**: Fire-and-forget via `asyncio.create_task()`
+- **Recursion prevention**: Excludes all `memory_*` tools (15+ tools)
+- **Privacy**: `KAGURA_DISABLE_AUTO_LOGGING=true` to disable
+- **Storage**: `agent_name="mcp_history"`, persistent, importance=0.3
+- **Integration**: `server.py:304-319` in `handle_call_tool()`
+
+**Related Tool**: `memory_get_tool_history` - Query logged tool calls
+
 ---
 
 ### 2. Memory Manager (`src/kagura/core/memory/`)
@@ -686,6 +696,46 @@ API Key認証必須。全操作は`user_id`でスコープ化。
 
 ---
 
-**Last Updated**: 2025-10-27
-**Version**: 4.0 (Phase C Complete)
+## v4.1.1 Architecture Updates 🆕
+
+### MCP Middleware Layer
+
+**Location**: `src/kagura/mcp/middleware.py`
+
+**Auto-Logging System**:
+- All MCP tool calls automatically logged to memory
+- Fire-and-forget via `asyncio.create_task()` (non-blocking)
+- Recursion prevention: 15+ `memory_*` tools excluded
+- Privacy: `KAGURA_DISABLE_AUTO_LOGGING=true` opt-out
+- Storage: `mcp_history` agent, persistent, importance=0.3
+
+**Integration**: `server.py:304-319` after tool execution
+
+### Enhanced Memory Stats
+
+**New Capabilities** (Issue #411):
+- Access tracking: `access_count`, `last_accessed_at`
+- Unused detection: `unused_30days`, `unused_90days`
+- Storage calculation: `storage_mb` (SQLite + ChromaDB)
+
+### CLI Performance
+
+**Achievement** (Issue #548):
+- 83% faster startup: 13.9s → 2.3s
+- Lightweight config pattern for CLI
+- Performance regression tests added
+
+### Performance Benchmarks
+
+| Metric | v4.0.11 | v4.1.1 | Change |
+|--------|---------|--------|--------|
+| CLI Startup | 13.9s | 2.3s | 83% ↓ |
+| Memory Recall | <100ms | <100ms | - |
+| Memory Stats | ~50ms | <100ms | - |
+| Middleware | N/A | <5ms | New |
+
+---
+
+**Last Updated**: 2025-11-06
+**Version**: 4.1.1 (Performance & Context Awareness)
 **Status**: Production-Ready

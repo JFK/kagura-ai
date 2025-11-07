@@ -4,11 +4,9 @@ import sqlite3
 from datetime import datetime, timedelta
 from typing import Any
 
-import click
-from rich.console import Console
-from rich.table import Table
+from kagura.cli.utils import create_console, create_table
 
-console = Console()
+console = create_console()
 
 
 def analyze_tool_usage(
@@ -117,7 +115,7 @@ def display_analysis(analysis: dict[str, Any]) -> None:
 
     # Top tools table
     console.print("[bold]Top 10 Most Used Tools[/bold]")
-    table = Table(show_header=True, header_style="bold magenta")
+    table = create_table()
     table.add_column("#", style="cyan", width=3)
     table.add_column("Tool Name", style="white")
     table.add_column("Calls", justify="right", style="green")
@@ -140,8 +138,10 @@ def display_analysis(analysis: dict[str, Any]) -> None:
 
     # Deprecation candidates
     if analysis["deprecation_candidates"]:
-        console.print("[bold yellow]⚠ Deprecation Candidates (< 0.1% usage)[/bold yellow]")
-        dep_table = Table(show_header=True, header_style="bold red")
+        console.print(
+            "[bold yellow]⚠ Deprecation Candidates (< 0.1% usage)[/bold yellow]"
+        )
+        dep_table = create_table()
         dep_table.add_column("Tool Name", style="red")
         dep_table.add_column("Calls", justify="right")
         dep_table.add_column("%", justify="right")
@@ -157,9 +157,7 @@ def display_analysis(analysis: dict[str, Any]) -> None:
     # Summary
     console.print("[bold]Summary[/bold]")
     console.print(f"  ✅ High usage (≥1%): {len(analysis['high_usage'])} tools")
-    console.print(
-        f"  ⚠  Medium usage (0.5-1%): {len(analysis['medium_usage'])} tools"
-    )
+    console.print(f"  ⚠  Medium usage (0.5-1%): {len(analysis['medium_usage'])} tools")
     console.print(f"  🔍 Low usage (0.1-0.5%): {len(analysis['low_usage'])} tools")
     console.print(
         f"  ❌ Deprecation candidates (<0.1%): {len(analysis['deprecation_candidates'])} tools"
@@ -167,91 +165,5 @@ def display_analysis(analysis: dict[str, Any]) -> None:
     console.print()
 
 
-@click.group(name="telemetry")
-def telemetry_group() -> None:
-    """Telemetry and usage analysis commands."""
-    pass
-
-
-@telemetry_group.command(name="tools")
-@click.option(
-    "--since",
-    default="30d",
-    help="Time range (7d, 30d, 90d, all)",
-)
-@click.option(
-    "--threshold",
-    default=0.1,
-    type=float,
-    help="Usage threshold for deprecation warnings (default: 0.1%)",
-)
-@click.option(
-    "--export",
-    type=click.Path(),
-    default=None,
-    help="Export to CSV/JSON file",
-)
-def tools_command(since: str, threshold: float, export: str | None) -> None:
-    """Analyze MCP tool usage patterns.
-
-    Shows which tools are used most/least frequently to inform optimization
-    and deprecation decisions.
-
-    Examples:
-        # Analyze last 30 days
-        kagura telemetry tools
-
-        # Analyze last 7 days
-        kagura telemetry tools --since 7d
-
-        # Export to CSV
-        kagura telemetry tools --export usage.csv
-    """
-    import json
-
-
-    # Parse time range
-    if since == "all":
-        days = 999999
-    else:
-        days = int(since.replace("d", ""))
-
-    # Run analysis
-    analysis = analyze_tool_usage(days=days, threshold_percent=threshold)
-
-    # Display results
-    display_analysis(analysis)
-
-    # Export if requested
-    if export and "error" not in analysis:
-        import csv
-
-        if export.endswith(".csv"):
-            # Export to CSV
-            with open(export, "w", newline="") as f:
-                writer = csv.DictWriter(
-                    f,
-                    fieldnames=[
-                        "name",
-                        "calls",
-                        "percentage",
-                        "success",
-                        "errors",
-                        "success_rate",
-                        "avg_duration",
-                    ],
-                )
-                writer.writeheader()
-                writer.writerows(analysis["tool_stats"])
-
-            console.print(f"\n[green]✓ Exported to {export}[/green]")
-
-        elif export.endswith(".json"):
-            # Export to JSON
-            with open(export, "w") as f:
-                json.dump(analysis, f, indent=2)
-
-            console.print(f"\n[green]✓ Exported to {export}[/green]")
-
-        else:
-            console.print("\n[red]✗ Unsupported format. Use .csv or .json[/red]")
+# Note: telemetry CLI group removed in v4.1.1 (Issue #555)
+# Use 'kagura mcp telemetry' commands instead

@@ -297,8 +297,8 @@ class TestLoaderCacheEviction:
             content = FileContent(
                 path=file_path,
                 file_type=FileType.TEXT,
-                content=f"Content {i+1}" * 10,  # ~100 bytes each
-                size=len(f"Content {i+1}" * 10),
+                content=f"Content {i + 1}" * 10,  # ~100 bytes each
+                size=len(f"Content {i + 1}" * 10),
             )
             cache.put(file_path, content)
             time.sleep(0.01)  # Ensure different cached_at times

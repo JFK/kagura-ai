@@ -6,12 +6,11 @@ Manages API keys for remote access to Kagura Memory API.
 from __future__ import annotations
 
 import click
-from rich.console import Console
-from rich.table import Table
 
 from kagura.api.auth import get_api_key_manager
+from kagura.cli.utils import create_console, create_table
 
-console = Console()
+console = create_console()
 
 
 @click.group(name="api")
@@ -135,8 +134,8 @@ def list_keys(user_id: str | None) -> None:
             console.print()
             return
 
-        # Create table
-        table = Table(title="API Keys", show_header=True)
+        # Create table using helper
+        table = create_table(title="API Keys")
         table.add_column("Name", style="cyan", width=20)
         table.add_column("User ID", width=15)
         table.add_column("Prefix", width=20)

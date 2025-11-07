@@ -1,6 +1,5 @@
 """Tests for SelfImprovingMetaAgent"""
 
-
 import pytest
 
 from kagura.meta.error_analyzer import ErrorAnalysis

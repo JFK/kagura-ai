@@ -1,6 +1,5 @@
 """Integration tests for ChatSession with tool_registry (RFC-036 Phase 2-4)."""
 
-
 from kagura.chat.session import _get_chat_tools
 from kagura.core.tool_registry import tool_registry
 

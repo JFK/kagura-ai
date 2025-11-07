@@ -1,6 +1,5 @@
 """Integration tests for MCP server tool filtering."""
 
-
 from kagura.mcp.server import create_mcp_server
 
 

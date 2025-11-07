@@ -25,7 +25,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12"]
+        # Python 3.13 temporarily disabled - torch dependency not yet compatible
 
     steps:
       - name: Checkout

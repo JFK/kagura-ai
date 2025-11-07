@@ -214,7 +214,11 @@ class TestInteractionRecording:
 
     def test_record_interaction_with_metadata(self, graph_memory: GraphMemory) -> None:
         """Test recording interaction with metadata."""
-        metadata = {"project": "kagura", "session_id": "sess_123", "ai_platform": "chatgpt"}
+        metadata = {
+            "project": "kagura",
+            "session_id": "sess_123",
+            "ai_platform": "chatgpt",
+        }
         interaction_id = graph_memory.record_interaction(
             user_id="user_002",
             query="Test query",
@@ -557,9 +561,7 @@ class TestClear:
 class TestTemporalGraphMemory:
     """Tests for temporal graph features (v4.0.0a0 Phase 3)."""
 
-    def test_add_edge_with_temporal_attributes(
-        self, graph_memory: GraphMemory
-    ) -> None:
+    def test_add_edge_with_temporal_attributes(self, graph_memory: GraphMemory) -> None:
         """Test adding edge with temporal validity."""
         graph_memory.add_node("person_kiyota", "user")
         graph_memory.add_node("company_snapdish", "topic")
@@ -647,9 +649,7 @@ class TestTemporalGraphMemory:
         now = datetime.now()
 
         # Valid edge
-        graph_memory.add_edge(
-            "node_a", "node_b", "related_to", valid_until=None
-        )
+        graph_memory.add_edge("node_a", "node_b", "related_to", valid_until=None)
 
         # Invalid edge (expired)
         graph_memory.add_edge(

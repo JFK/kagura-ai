@@ -1,6 +1,5 @@
 """Tests for WorkingMemory."""
 
-
 from kagura.core.memory.working import WorkingMemory
 
 

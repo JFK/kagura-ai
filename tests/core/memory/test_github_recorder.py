@@ -157,9 +157,7 @@ class TestGitHubRecorder:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_record_important_event_no_issue(
-        self, recorder, sample_interaction
-    ):
+    async def test_record_important_event_no_issue(self, recorder, sample_interaction):
         """Test recording when no issue number is set."""
         result = await recorder.record_important_event(sample_interaction)
 

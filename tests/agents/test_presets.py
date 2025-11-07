@@ -1,7 +1,5 @@
 """Tests for AgentBuilder Presets."""
 
-
-
 from kagura.agents import ChatbotPreset
 
 

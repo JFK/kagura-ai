@@ -1,6 +1,5 @@
 """Tests for chat tools integration with tool_registry (RFC-036 Phase 1)."""
 
-
 from kagura.core.tool_registry import tool_registry
 
 
@@ -26,9 +25,9 @@ def test_chat_tools_registered_in_tool_registry():
     all_tools = tool_registry.get_all()
 
     for tool_name in expected_tools:
-        assert (
-            tool_name in all_tools
-        ), f"Tool '{tool_name}' not registered in tool_registry"
+        assert tool_name in all_tools, (
+            f"Tool '{tool_name}' not registered in tool_registry"
+        )
 
 
 def test_file_read_tool_exists():

@@ -12,6 +12,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from kagura import tool
+from kagura.mcp.builtin.common import (
+    parse_json_dict,
+    parse_json_list,
+    to_bool,
+    to_float_clamped,
+    to_int,
+)
 
 if TYPE_CHECKING:
     from kagura.core.memory.coding_memory import CodingMemoryManager
@@ -80,8 +87,8 @@ async def coding_track_file_change(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    # Parse related_files from JSON (using helper)
-    related_files_list = _parse_json_list(related_files, "related_files")
+    # Parse related_files from JSON using common helper
+    related_files_list = parse_json_list(related_files, param_name="related_files")
 
     # Parse line_range if provided
     line_range_tuple = None
@@ -200,8 +207,11 @@ async def coding_record_error(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    # Parse tags from JSON (using helper)
-    tags_list = _parse_json_list(tags, "tags")
+    # Parse tags from JSON using common helper
+    tags_list = parse_json_list(tags, param_name="tags")
+
+    # Convert line_number to int using common helper
+    line_number = to_int(line_number, default=0, min_val=0, param_name="line_number")
 
     error_id = await memory.record_error(
         error_type=error_type,
@@ -311,21 +321,15 @@ async def coding_record_decision(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    # Parse JSON arrays
-    try:
-        alternatives_list = json.loads(alternatives)
-    except json.JSONDecodeError:
-        alternatives_list = []
+    # Parse JSON arrays using common helpers
+    alternatives_list = parse_json_list(alternatives, param_name="alternatives")
+    tags_list = parse_json_list(tags, param_name="tags")
+    related_files_list = parse_json_list(related_files, param_name="related_files")
 
-    try:
-        tags_list = json.loads(tags)
-    except json.JSONDecodeError:
-        tags_list = []
-
-    try:
-        related_files_list = json.loads(related_files)
-    except json.JSONDecodeError:
-        related_files_list = []
+    # Convert confidence to float using common helper
+    confidence_float = to_float_clamped(
+        confidence, min_val=0.0, max_val=1.0, default=0.8, param_name="confidence"
+    )
 
     decision_id = await memory.record_decision(
         decision=decision,
@@ -334,11 +338,8 @@ async def coding_record_decision(
         impact=impact,
         tags=tags_list,
         related_files=related_files_list,
-        confidence=confidence,
+        confidence=confidence_float,
     )
-
-    # Ensure confidence is float for formatting
-    confidence_float = float(confidence) if isinstance(confidence, str) else confidence
 
     return (
         f"✅ Decision recorded: {decision_id}\n"
@@ -646,23 +647,17 @@ async def coding_end_session(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    # Convert parameters to appropriate types (handle both str and bool)
+    # Convert parameters using common helpers
+    # Note: success can be None, so handle separately
     if success is None:
         success_bool = None
-    elif isinstance(success, bool):
-        success_bool = success
     else:
-        success_bool = success.lower() == "true"
+        success_bool = to_bool(success, default=False)
 
-    if isinstance(save_to_github, bool):
-        save_to_github_bool = save_to_github
-    else:
-        save_to_github_bool = save_to_github.lower() == "true"
-
-    if isinstance(save_to_claude_code_history, bool):
-        save_to_claude_code_history_bool = save_to_claude_code_history
-    else:
-        save_to_claude_code_history_bool = save_to_claude_code_history.lower() == "true"
+    save_to_github_bool = to_bool(save_to_github, default=False)
+    save_to_claude_code_history_bool = to_bool(
+        save_to_claude_code_history, default=True
+    )
 
     result = await memory.end_coding_session(
         summary=summary,
@@ -782,7 +777,7 @@ async def coding_search_errors(
     user_id: str,
     project_id: str,
     query: str,
-    k: int = 5,
+    k: str | int = 5,
 ) -> str:
     """Search past errors semantically to find similar issues and their solutions.
 
@@ -823,7 +818,10 @@ async def coding_search_errors(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    errors = await memory.search_similar_errors(query=query, k=k)
+    # Convert k to int using common helper
+    k_int = to_int(k, default=5, min_val=1, max_val=50, param_name="k")
+
+    errors = await memory.search_similar_errors(query=query, k=k_int)
 
     if not errors:
         return (
@@ -1193,13 +1191,10 @@ async def coding_suggest_refactor_order(
     """
     memory = _get_coding_memory(user_id, project_id)
 
-    # Parse files from JSON
-    import json
-
-    try:
-        files_list = json.loads(files)
-    except json.JSONDecodeError:
-        return "❌ Error: Invalid JSON array for files parameter"
+    # Parse files from JSON using common helper
+    files_list = parse_json_list(files, param_name="files")
+    if not files_list:
+        return "❌ Error: files parameter must be a non-empty JSON array"
 
     order = await memory.suggest_refactor_order(files_list)
 
@@ -1223,7 +1218,7 @@ async def coding_suggest_refactor_order(
 async def coding_link_github_issue(
     user_id: str,
     project_id: str,
-    issue_number: int | None = None,
+    issue_number: str | int | None = None,
 ) -> str:
     """Link current coding session to a GitHub issue for context tracking.
 
@@ -1261,6 +1256,14 @@ async def coding_link_github_issue(
     from kagura.builtin.git import gh_extract_issue_from_branch
 
     memory = _get_coding_memory(user_id, project_id)
+
+    # Convert issue_number to int if provided
+    if issue_number is not None:
+        issue_number = to_int(
+            issue_number, default=0, min_val=1, param_name="issue_number"
+        )
+        if issue_number == 0:
+            issue_number = None  # Invalid number, treat as None
 
     # Auto-detect if not provided
     if issue_number is None:
@@ -1362,7 +1365,7 @@ async def coding_generate_pr_description(
 
 @tool
 async def coding_get_issue_context(
-    issue_number: int,
+    issue_number: str | int,
 ) -> str:
     """Get GitHub issue details for coding context.
 
@@ -1390,8 +1393,15 @@ async def coding_get_issue_context(
     """
     from kagura.builtin.git import gh_issue_get
 
+    # Convert issue_number to int using common helper
+    issue_number_int = to_int(
+        issue_number, default=0, min_val=1, param_name="issue_number"
+    )
+    if issue_number_int == 0:
+        return "❌ Error: Invalid issue number. Must be a positive integer."
+
     try:
-        issue = await gh_issue_get(issue_number)
+        issue = await gh_issue_get(issue_number_int)
 
         labels = ", ".join(label["name"] for label in issue.get("labels", []))
         assignees = ", ".join(a["login"] for a in issue.get("assignees", []))
@@ -1422,62 +1432,8 @@ async def coding_get_issue_context(
 
 
 # Helper Functions
-
-
-def _parse_json_list(value: str, param_name: str = "parameter") -> list:
-    """Parse JSON list parameter from MCP tools.
-
-    Handles JSON parsing with error recovery for MCP tool parameters.
-
-    Args:
-        value: JSON string or already-parsed list
-        param_name: Parameter name for error messages
-
-    Returns:
-        Parsed list (empty list if parsing fails)
-    """
-    import logging
-
-    logger = logging.getLogger(__name__)
-
-    try:
-        parsed = json.loads(value) if isinstance(value, str) else value
-        if not isinstance(parsed, list):
-            logger.warning(
-                f"{param_name} is not a list, converting to single-item list"
-            )
-            return [parsed]
-        return parsed
-    except json.JSONDecodeError as e:
-        logger.warning(f"Invalid JSON for {param_name}: {e}, returning empty list")
-        return []
-
-
-def _parse_json_dict(value: str, param_name: str = "parameter") -> dict:
-    """Parse JSON dict parameter from MCP tools.
-
-    Handles JSON parsing with error recovery for MCP tool parameters.
-
-    Args:
-        value: JSON string or already-parsed dict
-        param_name: Parameter name for error messages
-
-    Returns:
-        Parsed dict (empty dict if parsing fails)
-    """
-    import logging
-
-    logger = logging.getLogger(__name__)
-
-    try:
-        parsed = json.loads(value) if isinstance(value, str) else value
-        if not isinstance(parsed, dict):
-            logger.warning(f"{param_name} is not a dict, returning empty dict")
-            return {}
-        return parsed
-    except json.JSONDecodeError as e:
-        logger.warning(f"Invalid JSON for {param_name}: {e}, returning empty dict")
-        return {}
+# Note: Old _parse_json_list() and _parse_json_dict() helpers removed in Phase 2.
+# Now using shared helpers from kagura.mcp.builtin.common
 
 
 @tool
@@ -1544,8 +1500,8 @@ async def coding_track_interaction(
 
     coding_mem = _get_coding_memory(user_id, project_id)
 
-    # Parse metadata
-    metadata_dict = _parse_json_dict(metadata, "metadata")
+    # Parse metadata using common helper
+    metadata_dict = parse_json_dict(metadata, param_name="metadata")
 
     try:
         interaction_id = await coding_mem.track_interaction(
@@ -1628,9 +1584,11 @@ async def coding_index_source_code(
 
     logger = logging.getLogger(__name__)
 
-    # Parse patterns
-    include_patterns = _parse_json_list(file_patterns, "file_patterns")
-    exclude_patterns_list = _parse_json_list(exclude_patterns, "exclude_patterns")
+    # Parse patterns using common helper
+    include_patterns = parse_json_list(file_patterns, param_name="file_patterns")
+    exclude_patterns_list = parse_json_list(
+        exclude_patterns, param_name="exclude_patterns"
+    )
 
     if language != "python":
         return (
@@ -1914,7 +1872,7 @@ async def coding_search_source_code(
     user_id: str,
     project_id: str,
     query: str,
-    k: int = 5,
+    k: str | int = 5,
     file_filter: str | None = None,
 ) -> str:
     """Search indexed source code semantically.
@@ -1956,19 +1914,22 @@ async def coding_search_source_code(
     """
     memory = _get_coding_memory(user_id, project_id)
 
+    # Convert k to int using common helper
+    k_int = to_int(k, default=5, min_val=1, max_val=50, param_name="k")
+
     # Perform semantic search using appropriate method
     if memory.persistent_rag and memory.lexical_searcher:
         # Use hybrid search if available
         results = memory.recall_hybrid(
             query=query,
-            top_k=k,
+            top_k=k_int,
             scope="persistent",
         )
     elif memory.persistent_rag:
         # Fallback to RAG-only search
         results = memory.search_memory(
             query=query,
-            limit=k,
+            limit=k_int,
         )
     else:
         return "❌ RAG not available. Semantic search requires ChromaDB and sentence-transformers."
@@ -2084,14 +2045,12 @@ async def claude_code_save_session(
     """
     from datetime import datetime
 
-    # Parse parameters
-    files_list = _parse_json_list(files_modified, "files_modified")
-    tags_list = _parse_json_list(tags, "tags")
-
-    try:
-        importance_float = float(importance)
-    except ValueError:
-        importance_float = 0.7
+    # Parse parameters using common helpers
+    files_list = parse_json_list(files_modified, param_name="files_modified")
+    tags_list = parse_json_list(tags, param_name="tags")
+    importance_float = to_float_clamped(
+        importance, min_val=0.0, max_val=1.0, default=0.7, param_name="importance"
+    )
 
     # Get coding memory
     memory = _get_coding_memory(user_id, project_id)

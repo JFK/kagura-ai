@@ -55,6 +55,9 @@ jobs:
       - name: Set up Python
         run: uv python install 3.11
 
+      - name: Clean dist directory
+        run: rm -rf dist/
+
       - name: Build distribution
         run: uv build
 
