@@ -209,10 +209,14 @@ class MemoryRAG:
         # Custom embedding function (E5-large with query:/passage: prefixes)
         self._embedding_config = embedding_config
 
+        # Track if we're using custom embeddings or falling back to default
+        using_custom_embeddings = False
+
         if embedding_config:
             # Use custom embedding config if provided
             try:
                 embedding_function = ChromaDBEmbeddingFunction(embedding_config)
+                using_custom_embeddings = True
                 logger.debug(
                     f"MemoryRAG: Using custom embeddings (model={embedding_config.model}, "
                     f"dimension={embedding_config.dimension}, use_prefix={embedding_config.use_prefix})"
@@ -233,6 +237,8 @@ class MemoryRAG:
                     )
 
                 embedding_function = DefaultEmbeddingFunction()  # type: ignore
+                # Clear embedding_config since we're using default
+                embedding_config = None
         else:
             # Use ChromaDB default (all-MiniLM-L6-v2) when no custom config
             logger.debug("MemoryRAG: Using ChromaDB default embeddings (all-MiniLM-L6-v2)")
@@ -248,8 +254,9 @@ class MemoryRAG:
 
         logger.debug(f"MemoryRAG: Getting/creating collection '{collection_name}'")
 
-        # Determine expected embedding dimension
-        expected_dim = embedding_config.dimension if embedding_config else DEFAULT_EMBEDDING_DIM
+        # Determine expected embedding dimension based on actual embedding function
+        # If we fell back to default due to ImportError, use DEFAULT_EMBEDDING_DIM
+        expected_dim = embedding_config.dimension if (embedding_config and using_custom_embeddings) else DEFAULT_EMBEDDING_DIM
 
         # Try to get existing collection first (backward compatibility)
         collection_exists = False

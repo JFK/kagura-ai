@@ -4,6 +4,7 @@ import subprocess
 import sys
 import time
 
+import pytest
 from click.testing import CliRunner
 
 from kagura.cli.lazy import LazyGroup
