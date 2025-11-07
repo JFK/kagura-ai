@@ -221,13 +221,27 @@ class MemoryRAG:
                     "sentence-transformers not installed, using ChromaDB default embeddings. "
                     "Install with: pip install sentence-transformers"
                 )
-                from chromadb.api.types import DefaultEmbeddingFunction  # type: ignore
+                try:
+                    from chromadb.utils.embedding_functions import (  # type: ignore
+                        DefaultEmbeddingFunction,
+                    )
+                except ImportError:
+                    # Fallback for older ChromaDB versions (<0.4.0)
+                    from chromadb.api.types import (
+                        DefaultEmbeddingFunction,  # type: ignore
+                    )
 
                 embedding_function = DefaultEmbeddingFunction()  # type: ignore
         else:
             # Use ChromaDB default (all-MiniLM-L6-v2) when no custom config
             logger.debug("MemoryRAG: Using ChromaDB default embeddings (all-MiniLM-L6-v2)")
-            from chromadb.api.types import DefaultEmbeddingFunction  # type: ignore
+            try:
+                from chromadb.utils.embedding_functions import (  # type: ignore
+                    DefaultEmbeddingFunction,
+                )
+            except ImportError:
+                # Fallback for older ChromaDB versions (<0.4.0)
+                from chromadb.api.types import DefaultEmbeddingFunction  # type: ignore
 
             embedding_function = DefaultEmbeddingFunction()  # type: ignore
 

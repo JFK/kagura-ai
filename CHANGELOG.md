@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ✨ Added
 
+- TBD
+
+---
+
+## [4.2.0] - 2025-11-07
+
+### ✨ Added
+
 #### Upgraded Reranker to BGE-reranker-v2-m3 (#527 Phase 1)
 - **New default model**: `BAAI/bge-reranker-v2-m3` (previously: `cross-encoder/ms-marco-MiniLM-L-6-v2`)
 - **Multilingual optimized**: Better performance for English, Chinese, and Japanese queries
@@ -130,6 +138,13 @@ The following optimizations were identified but deferred to a follow-up PR:
 - **Tests**: Added 4 performance regression tests in `tests/performance/test_cli_startup.py`
 
 ### 🐛 Fixed
+
+#### ChromaDB DefaultEmbeddingFunction Import (#527)
+- **Fixed**: ImportError when using ChromaDB >= 0.4.0
+- **Issue**: `DefaultEmbeddingFunction` moved from `chromadb.api.types` to `chromadb.utils.embedding_functions`
+- **Solution**: Try new import path first, fallback to old path for backward compatibility
+- **Impact**: RAG tests now pass with both old and new ChromaDB versions
+- **Files**: `src/kagura/core/memory/rag.py` (2 import locations fixed)
 
 #### MemorySystemConfig Auto-Detection Bug (#548)
 - **Critical**: `model_post_init()` was ignoring explicit `rerank.enabled=False` setting
