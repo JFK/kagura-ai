@@ -640,7 +640,7 @@ def setup_command(model: str | None, provider: str | None) -> None:
         console.print("[dim](Non-critical: Memory tools will use fallback reranker)[/dim]")
 
 
-@memory_group.command(name="install-reranking")
+@memory_group.command(name="install-reranking", hidden=True)
 @click.option("--force", is_flag=True, help="Force re-download even if already cached")
 def install_reranking_command(force: bool) -> None:
     """Download reranking model (BGE-reranker-v2-m3).
