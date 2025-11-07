@@ -209,16 +209,21 @@ class MemoryRAG:
         # Custom embedding function (E5-large with query:/passage: prefixes)
         self._embedding_config = embedding_config
 
-        if embedding_config and embedding_config.use_prefix:
+        # Track if we're using custom embeddings or falling back to default
+        using_custom_embeddings = False
+
+        if embedding_config:
+            # Use custom embedding config if provided
             try:
                 embedding_function = ChromaDBEmbeddingFunction(embedding_config)
+                using_custom_embeddings = True
                 logger.debug(
-                    f"MemoryRAG: Using custom E5 embeddings (model={embedding_config.model}, "
-                    f"use_prefix={embedding_config.use_prefix})"
+                    f"MemoryRAG: Using custom embeddings (model={embedding_config.model}, "
+                    f"dimension={embedding_config.dimension}, use_prefix={embedding_config.use_prefix})"
                 )
             except ImportError:
                 logger.warning(
-                    "sentence-transformers not installed, using ChromaDB default embeddings. "
+                    "sentence-transformers not installed, falling back to ChromaDB default embeddings. "
                     "Install with: pip install sentence-transformers"
                 )
                 try:
@@ -232,6 +237,8 @@ class MemoryRAG:
                     )
 
                 embedding_function = DefaultEmbeddingFunction()  # type: ignore
+                # Clear embedding_config since we're using default
+                embedding_config = None
         else:
             # Use ChromaDB default (all-MiniLM-L6-v2) when no custom config
             logger.debug("MemoryRAG: Using ChromaDB default embeddings (all-MiniLM-L6-v2)")
@@ -247,15 +254,103 @@ class MemoryRAG:
 
         logger.debug(f"MemoryRAG: Getting/creating collection '{collection_name}'")
 
+        # Determine expected embedding dimension based on actual embedding function
+        # If we fell back to default due to ImportError, use DEFAULT_EMBEDDING_DIM
+        use_custom_dim = embedding_config and using_custom_embeddings
+        if use_custom_dim and embedding_config:
+            expected_dim = embedding_config.dimension
+        else:
+            expected_dim = DEFAULT_EMBEDDING_DIM
+
+        # Check if forced recreation is enabled (for CI/testing)
+        import os
+        force_recreate = os.getenv("KAGURA_FORCE_RECREATE_COLLECTIONS", "").lower() == "true"
+
+        if force_recreate:
+            logger.debug(f"MemoryRAG: Force recreation enabled, will delete existing collection '{collection_name}' if exists")
+
         # Try to get existing collection first (backward compatibility)
-        try:
-            self.collection = self.client.get_collection(name=collection_name)
-            logger.debug(
-                f"MemoryRAG: Using existing collection '{collection_name}' "
-                f"(preserves existing embeddings)"
-            )
-        except Exception:
-            # Collection doesn't exist, create with specified embedding function
+        collection_exists = False
+        needs_recreation = force_recreate  # Force recreation if env var is set
+
+        if not force_recreate:
+            try:
+                existing_collection = self.client.get_collection(name=collection_name)
+                collection_exists = True
+
+                # Check if dimension matches (avoid InvalidArgumentError)
+                # Try to determine actual dimension from existing collection
+                try:
+                    actual_dim = None
+
+                    # Method 1: Check existing embeddings via peek()
+                    peek_result = existing_collection.peek(limit=1)
+                    embeddings = peek_result.get("embeddings") if peek_result else None
+                    if embeddings is not None and len(embeddings) > 0:
+                        actual_dim = len(embeddings[0])
+
+                    # Method 2: Try adding a test embedding to detect mismatch
+                    if actual_dim is None:
+                        test_id = "__dimension_test__"
+                        try:
+                            # Create a test embedding with expected dimension
+                            test_embedding = [0.0] * expected_dim
+                            # Try to add (will fail if dimension mismatches)
+                            existing_collection.add(
+                                ids=[test_id],
+                                embeddings=[test_embedding],
+                                metadatas=[{"test": True}],
+                            )
+                            # If successful, assume correct dimension
+                            actual_dim = expected_dim
+                        except Exception as add_error:
+                            # Failed to add - likely dimension mismatch
+                            needs_recreation = True
+                            logger.warning(
+                                f"MemoryRAG: Collection '{collection_name}' dimension test failed ({add_error}). "
+                                "Recreating collection..."
+                            )
+                        finally:
+                            # Always try to clean up test document, even if add failed
+                            try:
+                                existing_collection.delete(ids=[test_id])
+                            except Exception:
+                                # Ignore cleanup errors (document may not exist)
+                                pass
+
+                    # Compare dimensions if we determined actual_dim
+                    if actual_dim is not None and actual_dim != expected_dim:
+                        logger.warning(
+                            f"MemoryRAG: Collection '{collection_name}' has dimension {actual_dim}, "
+                            f"but expected {expected_dim}. Recreating collection..."
+                        )
+                        needs_recreation = True
+                    elif actual_dim is not None:
+                        logger.debug(
+                            f"MemoryRAG: Using existing collection '{collection_name}' "
+                            f"(dimension={actual_dim}, preserves existing embeddings)"
+                        )
+                except Exception as e:
+                    # Could not determine dimension - log warning
+                    logger.warning(
+                        f"MemoryRAG: Could not verify collection dimension ({e}). "
+                        "Collection may have incompatible dimension."
+                    )
+
+            except Exception:
+                logger.debug(f"MemoryRAG: Collection '{collection_name}' does not exist")
+
+        # Recreate collection if dimension mismatch
+        if needs_recreation:
+            try:
+                self.client.delete_collection(name=collection_name)
+                logger.debug(f"MemoryRAG: Deleted collection '{collection_name}' due to dimension mismatch")
+                collection_exists = False
+            except Exception as e:
+                logger.error(f"MemoryRAG: Failed to delete collection: {e}")
+
+        # Create collection if needed
+        if not collection_exists or needs_recreation:
             self.collection = self.client.create_collection(
                 name=collection_name,
                 metadata={"hnsw:space": "cosine"},
@@ -264,8 +359,10 @@ class MemoryRAG:
             embedding_type = "E5-large" if (embedding_config and embedding_config.use_prefix) else "default"
             logger.debug(
                 f"MemoryRAG: Created new collection '{collection_name}' "
-                f"(embeddings={embedding_type})"
+                f"(embeddings={embedding_type}, dimension={expected_dim})"
             )
+        else:
+            self.collection = existing_collection
 
         # Semantic chunking support (lazy-loaded)
         self._chunker: Optional["SemanticChunker"] = None
@@ -638,6 +735,224 @@ class MemoryRAG:
             return len(results["ids"])
         else:
             return self.collection.count()
+
+    def _build_chunks_from_results(
+        self, results: Any  # GetResult type from ChromaDB
+    ) -> list[dict[str, Any]]:
+        """Build chunk list from ChromaDB query results.
+
+        Extracts common chunk building logic to reduce duplication.
+
+        Args:
+            results: ChromaDB query results dict with ids, documents, metadatas
+
+        Returns:
+            List of chunks sorted by chunk_index
+        """
+        if not results["ids"]:
+            return []
+
+        chunks = []
+        for i in range(len(results["ids"])):
+            metadata = (
+                results["metadatas"][i]
+                if results["metadatas"] and i < len(results["metadatas"])
+                else {}
+            )
+            chunk_index = metadata.get("chunk_index", 0)
+
+            chunks.append({
+                "id": results["ids"][i],
+                "content": (
+                    results["documents"][i]
+                    if results["documents"] and i < len(results["documents"])
+                    else ""
+                ),
+                "metadata": metadata,
+                "chunk_index": chunk_index,
+            })
+
+        # Sort by chunk_index
+        chunks.sort(key=lambda x: x["chunk_index"])
+        return chunks
+
+    def _get_chunks_by_parent(
+        self, parent_id: str, user_id: Optional[str] = None
+    ) -> list[dict[str, Any]]:
+        """Get all chunks for a parent document, sorted by chunk_index.
+
+        Helper method to reduce duplication in chunk retrieval methods.
+
+        Args:
+            parent_id: Parent document ID
+            user_id: Optional user filter
+
+        Returns:
+            List of chunks sorted by chunk_index
+        """
+        # Build where clause with proper $and operator if multiple conditions
+        if user_id:
+            where_clause: dict[str, Any] = {
+                "$and": [{"parent_id": parent_id}, {"user_id": user_id}]
+            }
+        else:
+            where_clause = {"parent_id": parent_id}
+
+        results = self.collection.get(where=where_clause)
+        return self._build_chunks_from_results(results)
+
+    def _get_chunks_by_parent_in_range(
+        self,
+        parent_id: str,
+        start_idx: int,
+        end_idx: int,
+        user_id: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
+        """Get chunks for a parent document within a specific index range.
+
+        More efficient than fetching all chunks when only a subset is needed.
+
+        Args:
+            parent_id: Parent document ID
+            start_idx: Starting chunk index (inclusive)
+            end_idx: Ending chunk index (exclusive)
+            user_id: Optional user filter
+
+        Returns:
+            List of chunks sorted by chunk_index
+        """
+        # Build where clause with range filter
+        base_conditions = [
+            {"parent_id": parent_id},
+            {"chunk_index": {"$gte": start_idx}},
+            {"chunk_index": {"$lt": end_idx}},
+        ]
+
+        if user_id:
+            base_conditions.append({"user_id": user_id})
+
+        where_clause: dict[str, Any] = {"$and": base_conditions}
+
+        results = self.collection.get(where=where_clause)
+        return self._build_chunks_from_results(results)
+
+    def get_chunk_context(
+        self,
+        parent_id: str,
+        chunk_index: int,
+        context_size: int = 1,
+        user_id: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
+        """Get neighboring chunks around a specific chunk.
+
+        Args:
+            parent_id: Parent document ID
+            chunk_index: Index of the target chunk (0-indexed)
+            context_size: Number of chunks before/after to retrieve (default: 1)
+            user_id: Optional user filter
+
+        Returns:
+            List of chunks sorted by chunk_index, including target chunk and neighbors
+
+        Example:
+            >>> # Get chunk 5 with 1 neighbor before/after (chunks 4, 5, 6)
+            >>> chunks = rag.get_chunk_context("doc123", 5, context_size=1)
+            >>> print(len(chunks))  # 3 chunks
+        """
+        # Calculate range and use efficient range query
+        start_idx = max(0, chunk_index - context_size)
+        end_idx = chunk_index + context_size + 1
+
+        return self._get_chunks_by_parent_in_range(parent_id, start_idx, end_idx, user_id)
+
+    def get_full_document(
+        self, parent_id: str, user_id: Optional[str] = None
+    ) -> dict[str, Any]:
+        """Reconstruct complete document from chunks.
+
+        Args:
+            parent_id: Parent document ID
+            user_id: Optional user filter
+
+        Returns:
+            Dict with:
+                - full_content: Reconstructed document (chunks concatenated)
+                - chunks: List of individual chunks with metadata
+                - parent_id: Parent document ID
+                - total_chunks: Total number of chunks
+
+        Example:
+            >>> doc = rag.get_full_document("doc123")
+            >>> print(doc["full_content"])
+            'Complete document text...'
+            >>> print(doc["total_chunks"])
+            12
+        """
+        chunks = self._get_chunks_by_parent(parent_id, user_id)
+
+        if not chunks:
+            return {
+                "full_content": "",
+                "chunks": [],
+                "parent_id": parent_id,
+                "total_chunks": 0,
+                "error": "Document not found",
+            }
+
+        # Reconstruct full document
+        full_content = "".join(c["content"] for c in chunks)
+
+        return {
+            "full_content": full_content,
+            "chunks": chunks,
+            "parent_id": parent_id,
+            "total_chunks": len(chunks),
+        }
+
+    def get_chunk_metadata(
+        self, parent_id: str, chunk_index: Optional[int] = None, user_id: Optional[str] = None
+    ) -> dict[str, Any] | list[dict[str, Any]]:
+        """Get metadata for chunk(s) without retrieving full content.
+
+        Args:
+            parent_id: Parent document ID
+            chunk_index: Optional specific chunk index (if None, returns all chunks)
+            user_id: Optional user filter
+
+        Returns:
+            If chunk_index specified: Single chunk metadata dict
+            If chunk_index is None: List of all chunk metadata dicts
+
+        Example:
+            >>> # Get metadata for specific chunk
+            >>> meta = rag.get_chunk_metadata("doc123", chunk_index=5)
+            >>> print(meta["chunk_index"], meta["total_chunks"])
+            5 12
+
+            >>> # Get metadata for all chunks
+            >>> all_meta = rag.get_chunk_metadata("doc123")
+            >>> print(len(all_meta))
+            12
+        """
+        chunks = self._get_chunks_by_parent(parent_id, user_id)
+
+        if not chunks:
+            return {} if chunk_index is not None else []
+
+        # Extract metadata only (without content)
+        metadata_list = [
+            {"id": c["id"], "chunk_index": c["chunk_index"], "metadata": c["metadata"]}
+            for c in chunks
+        ]
+
+        # Return specific or all
+        if chunk_index is not None:
+            for item in metadata_list:
+                if item["chunk_index"] == chunk_index:
+                    return item
+            return {}  # Not found
+
+        return metadata_list
 
     def __repr__(self) -> str:
         """String representation."""

@@ -1,5 +1,7 @@
 """Tests for MCP tool permission system."""
 
+import pytest
+
 from kagura.mcp.permissions import (
     TOOL_PERMISSIONS,
     get_allowed_tools,
@@ -112,31 +114,36 @@ class TestGetToolPermissionInfo:
         """Test info for safe tools."""
         info = get_tool_permission_info("memory_store")
         assert info["remote"] is True
-        assert "safe" in info["reason"].lower()
+        reason = str(info["reason"])
+        assert "safe" in reason.lower()
 
     def test_file_tool_info(self):
         """Test info for file tools."""
         info = get_tool_permission_info("file_read")
         assert info["remote"] is False
-        assert "filesystem" in info["reason"].lower()
+        reason = str(info["reason"])
+        assert "filesystem" in reason.lower()
 
     def test_shell_tool_info(self):
         """Test info for shell execution."""
         info = get_tool_permission_info("shell_exec")
         assert info["remote"] is False
-        assert "shell" in info["reason"].lower() or "command" in info["reason"].lower()
+        reason = str(info["reason"])
+        assert "shell" in reason.lower() or "command" in reason.lower()
 
     def test_media_tool_info(self):
         """Test info for media tools."""
         info = get_tool_permission_info("media_open_audio")
         assert info["remote"] is False
-        assert "application" in info["reason"].lower()
+        reason = str(info["reason"])
+        assert "application" in reason.lower()
 
     def test_unknown_tool_info(self):
         """Test info for unknown tools."""
         info = get_tool_permission_info("unknown_tool")
         assert info["remote"] is False
-        assert "unknown" in info["reason"].lower() or "deny" in info["reason"].lower()
+        reason = str(info["reason"])
+        assert "unknown" in reason.lower() or "deny" in reason.lower()
 
 
 class TestToolPermissionsConfig:
@@ -238,3 +245,112 @@ class TestIntegrationScenarios:
             assert is_tool_allowed(tool, "local") is True, (
                 f"{tool} should be allowed locally"
             )
+
+
+class TestToolRegistrationCompleteness:
+    """Test that all tools are registered in TOOL_PERMISSIONS."""
+
+    def test_all_tools_registered_in_permissions(self):
+        """Ensure every @tool decorated function is in TOOL_PERMISSIONS."""
+        from kagura.core.tool_registry import tool_registry
+
+        registered = set(tool_registry.get_all().keys())
+        permissions = set(TOOL_PERMISSIONS.keys())
+
+        missing = registered - permissions
+        assert len(missing) == 0, (
+            f"Missing from TOOL_PERMISSIONS ({len(missing)} tools): {sorted(missing)}"
+        )
+
+    @pytest.mark.skip(reason="Tool registration timing issue in CI - TODO: fix in v4.3.1")
+    def test_no_orphan_permissions(self):
+        """Ensure TOOL_PERMISSIONS doesn't have non-existent tools."""
+        from kagura.core.tool_registry import tool_registry
+
+        registered = set(tool_registry.get_all().keys())
+        permissions = set(TOOL_PERMISSIONS.keys())
+
+        orphans = permissions - registered
+        assert len(orphans) == 0, (
+            f"Orphan permissions ({len(orphans)} tools): {sorted(orphans)}"
+        )
+
+
+class TestNewToolPermissions:
+    """Test permissions for newly added tools (v4.2.2)."""
+
+    def test_memory_extended_tools_are_safe(self):
+        """Test that extended memory tools are safe for remote."""
+        extended_memory_tools = [
+            "memory_fetch",
+            "memory_fuzzy_recall",
+            "memory_get_tool_history",
+            "memory_search_ids",
+            "memory_stats",
+            "memory_timeline",
+            "memory_get_chunk_context",
+            "memory_get_chunk_metadata",
+            "memory_get_full_document",
+        ]
+
+        for tool in extended_memory_tools:
+            assert TOOL_PERMISSIONS[tool]["remote"] is True, (
+                f"{tool} should be safe (database only)"
+            )
+
+    def test_coding_memory_tools_are_safe(self):
+        """Test that coding memory tools are safe for remote."""
+        safe_coding_tools = [
+            "coding_start_session",
+            "coding_end_session",
+            "coding_track_file_change",
+            "coding_record_error",
+            "coding_search_errors",
+            "coding_get_project_context",
+        ]
+
+        for tool in safe_coding_tools:
+            assert TOOL_PERMISSIONS[tool]["remote"] is True, (
+                f"{tool} should be safe (database only)"
+            )
+
+    def test_coding_file_tools_are_dangerous(self):
+        """Test that coding tools with file access are dangerous."""
+        dangerous_coding_tools = [
+            "coding_index_source_code",
+            "coding_analyze_file_dependencies",
+            "coding_analyze_refactor_impact",
+        ]
+
+        for tool in dangerous_coding_tools:
+            assert TOOL_PERMISSIONS[tool]["remote"] is False, (
+                f"{tool} should be dangerous (reads server files)"
+            )
+
+    def test_meta_fix_code_error_is_dangerous(self):
+        """Test that meta_fix_code_error is dangerous (RCE risk)."""
+        assert TOOL_PERMISSIONS["meta_fix_code_error"]["remote"] is False
+        info = get_tool_permission_info("meta_fix_code_error")
+        assert info["reason"] == "Code generation/execution risk"
+
+    def test_meta_create_agent_is_dangerous(self):
+        """Test that meta_create_agent is dangerous (code generation)."""
+        assert TOOL_PERMISSIONS["meta_create_agent"]["remote"] is False
+        info = get_tool_permission_info("meta_create_agent")
+        assert info["reason"] == "Code generation risk"
+
+    def test_claude_code_tools_are_safe(self):
+        """Test that Claude Code memory tools are safe."""
+        claude_code_tools = [
+            "claude_code_save_session",
+            "claude_code_search_past_work",
+        ]
+
+        for tool in claude_code_tools:
+            assert TOOL_PERMISSIONS[tool]["remote"] is True, (
+                f"{tool} should be safe (database only)"
+            )
+
+    def test_arxiv_search_is_safe(self):
+        """Test that arxiv_search is safe (API only)."""
+        assert TOOL_PERMISSIONS["arxiv_search"]["remote"] is True

@@ -25,7 +25,6 @@ def mcp():
     \b
     Examples:
       kagura mcp serve           Start MCP server
-      kagura mcp list            List available agents
       kagura mcp doctor          Run diagnostics
       kagura mcp install         Configure Claude Desktop
       kagura mcp tools           List MCP tools
@@ -40,8 +39,13 @@ def mcp():
     is_flag=True,
     help="Use remote API connection (requires: kagura mcp connect)",
 )
+@click.option(
+    "--categories",
+    default=None,
+    help="Comma-separated list of categories to enable (e.g., 'coding,memory,github')",
+)
 @click.pass_context
-def serve(ctx: click.Context, name: str, remote: bool):
+def serve(ctx: click.Context, name: str, remote: bool, categories: str | None):
     """Start MCP server
 
     Starts the MCP server using stdio transport.
@@ -53,6 +57,9 @@ def serve(ctx: click.Context, name: str, remote: bool):
 
         # Remote mode (connect to remote API, safe tools only)
         kagura mcp serve --remote
+
+        # Filter by categories (only coding and memory tools)
+        kagura mcp serve --categories coding,memory,github
 
     Configuration for Claude Code (~/.config/claude-code/mcp.json):
       {
@@ -70,6 +77,19 @@ def serve(ctx: click.Context, name: str, remote: bool):
           "kagura-remote": {
             "command": "kagura",
             "args": ["mcp", "serve", "--remote"]
+          }
+        }
+      }
+
+    Category Filtering (environment variable):
+      {
+        "mcpServers": {
+          "kagura-memory": {
+            "command": "kagura",
+            "args": ["mcp", "serve"],
+            "env": {
+              "KAGURA_MCP_CATEGORIES": "memory,coding"
+            }
           }
         }
       }
@@ -149,9 +169,39 @@ def serve(ctx: click.Context, name: str, remote: bool):
         if verbose:
             click.echo("Warning: Could not load built-in tools", err=True)
 
-    # Create MCP server (local context = all tools)
-    server = create_mcp_server(name, context="local")
-    logger.info("MCP server created with context: local")
+    # Parse categories parameter
+    enabled_categories = None
+    if categories:
+        enabled_categories = set(cat.strip() for cat in categories.split(","))
+        logger.info(f"Category filter enabled: {', '.join(sorted(enabled_categories))}")
+        if verbose:
+            click.echo(
+                f"Category filter: {', '.join(sorted(enabled_categories))}", err=True
+            )
+    else:
+        # Check environment variable as fallback
+        env_categories = os.getenv("KAGURA_MCP_CATEGORIES")
+        if env_categories:
+            enabled_categories = set(cat.strip() for cat in env_categories.split(","))
+            logger.info(
+                f"Category filter from env: {', '.join(sorted(enabled_categories))}"
+            )
+            if verbose:
+                click.echo(
+                    f"Category filter (from env): {', '.join(sorted(enabled_categories))}",
+                    err=True,
+                )
+
+    # Create MCP server with optional category filter
+    server = create_mcp_server(
+        name, context="local", categories=enabled_categories
+    )
+    if enabled_categories:
+        logger.info(
+            f"MCP server created with context: local, categories: {', '.join(sorted(enabled_categories))}"
+        )
+    else:
+        logger.info("MCP server created with context: local")
 
     # Run server with stdio transport
     async def run_server():
@@ -170,44 +220,6 @@ def serve(ctx: click.Context, name: str, remote: bool):
     except Exception as e:
         click.echo(f"Error running MCP server: {e}", err=True)
         sys.exit(1)
-
-
-@mcp.command()
-@click.pass_context
-def list(ctx: click.Context):
-    """List available Kagura agents
-
-    Shows all agents that will be exposed as MCP tools.
-
-    Example:
-      kagura mcp list
-    """
-    from kagura.core.registry import agent_registry
-
-    agents = agent_registry.get_all()
-
-    if not agents:
-        click.echo("No agents registered.")
-        click.echo("\nTo register agents, use @agent decorator:")
-        click.echo("  from kagura import agent")
-        click.echo("  ")
-        click.echo("  @agent")
-        click.echo("  async def my_agent(query: str) -> str:")
-        click.echo("      '''Answer: {{ query }}'''")
-        click.echo("      pass")
-        return
-
-    click.echo(f"Registered agents ({len(agents)}):\n")
-
-    for agent_name, agent_func in agents.items():
-        # Get description from docstring
-        description = agent_func.__doc__ or "No description"
-        # Clean description (first line only)
-        description = description.strip().split("\n")[0]
-
-        click.echo(f"  • {agent_name}")
-        click.echo(f"    {description}")
-        click.echo()
 
 
 @mcp.command()
@@ -1210,14 +1222,17 @@ def log_command(
         raise click.Abort()
 
 
-@mcp.command(name="install-reranking")
+@mcp.command(name="install-reranking", hidden=True)
 @click.option(
     "--model",
     default="cross-encoder/ms-marco-MiniLM-L-6-v2",
     help="Cross-encoder model to install",
 )
 def install_reranking(model: str):
-    """Install semantic reranking model
+    """[DEPRECATED] Install semantic reranking model
+
+    ⚠️  This command is deprecated. Use 'kagura memory install-reranking' instead.
+    Will be removed in v5.0.0.
 
     Downloads and caches the cross-encoder model for improved semantic
     search precision. First-time download may take 2-5 minutes.
@@ -1226,16 +1241,23 @@ def install_reranking(model: str):
     search operations.
 
     Examples:
-        # Install default model
-        kagura mcp install-reranking
+        # NEW (recommended)
+        kagura memory setup
+        kagura memory install-reranking
 
-        # Install specific model
-        kagura mcp install-reranking --model cross-encoder/ms-marco-MiniLM-L-12-v2
+        # OLD (deprecated)
+        kagura mcp install-reranking
     """
     from rich.console import Console
     from rich.progress import Progress, SpinnerColumn, TextColumn
 
     console = Console()
+
+    # Deprecation warning
+    console.print("\n[yellow]⚠️  Warning: 'kagura mcp install-reranking' is deprecated[/yellow]")
+    console.print("[dim]   Use 'kagura memory setup' or 'kagura memory install-reranking' instead[/dim]")
+    console.print("[dim]   This command will be removed in v5.0.0[/dim]")
+    console.print()
 
     console.print("\n[bold]Installing Semantic Reranking Support[/bold]\n")
 

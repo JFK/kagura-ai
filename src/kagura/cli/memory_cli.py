@@ -12,10 +12,24 @@ from typing import TYPE_CHECKING
 import click
 from rich.console import Console
 
+from kagura.config.project import get_default_user as _get_default_user_impl
+
 if TYPE_CHECKING:
     from kagura.core.memory import MemoryManager
 
 console = Console()
+
+# Default reranking model (v4.2.0+, BGE-reranker-v2-m3)
+DEFAULT_RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
+
+
+def _get_default_user() -> str:
+    """Get default user with fallback.
+
+    Returns:
+        Default user ID (auto-detected or 'kiyota')
+    """
+    return _get_default_user_impl() or "kiyota"
 
 
 def _get_lightweight_memory_manager(
@@ -78,8 +92,8 @@ def memory_group() -> None:
 )
 @click.option(
     "--user-id",
-    default="default_user",
-    help="User ID to export (default: default_user)",
+    default=None,
+    help="User ID to export (default: auto-detect from pyproject.toml or $KAGURA_DEFAULT_USER)",
 )
 @click.option(
     "--agent-name",
@@ -125,6 +139,9 @@ def export_command(
         kagura memory export --output ./backup --user-id user_alice
     """
     from kagura.core.memory.export import MemoryExporter
+
+    # Auto-detect user if not provided
+    user_id = user_id or _get_default_user()
 
     console.print(f"\n[cyan]Exporting memory data for user '{user_id}'...[/cyan]")
     console.print()
@@ -188,8 +205,8 @@ def export_command(
 )
 @click.option(
     "--user-id",
-    default="default_user",
-    help="User ID to import as (default: default_user)",
+    default=None,
+    help="User ID to import as (default: auto-detect from pyproject.toml or $KAGURA_DEFAULT_USER)",
 )
 @click.option(
     "--agent-name",
@@ -222,6 +239,9 @@ def import_command(
         --clear flag will delete all existing memory data!
     """
     from kagura.core.memory.export import MemoryImporter
+
+    # Auto-detect user if not provided
+    user_id = user_id or _get_default_user()
 
     console.print(f"\n[cyan]Importing memory data for user '{user_id}'...[/cyan]")
 
@@ -588,6 +608,88 @@ def setup_command(model: str | None, provider: str | None) -> None:
             console.print(f"\n[red]✗ Setup failed: {e}[/red]")
             raise click.Abort()
 
+    # Download reranking model (v4.2.3+)
+    try:
+        from sentence_transformers import CrossEncoder
+
+        from kagura.core.memory.reranker import is_reranker_available
+
+        # Check if already downloaded
+        if is_reranker_available(DEFAULT_RERANKER_MODEL):
+            console.print(
+                f"[green]✓ Reranking model already cached: {DEFAULT_RERANKER_MODEL}[/green]"
+            )
+        else:
+            console.print("[cyan]Downloading reranking model...[/cyan]")
+            console.print("[dim](BGE-reranker-v2-m3, ~600MB, may take 30-60 seconds)[/dim]")
+            console.print()
+
+            with console.status("[bold green]Downloading reranker..."):
+                # Download by instantiating (model will be cached)
+                _ = CrossEncoder(DEFAULT_RERANKER_MODEL)
+
+            console.print("[green]✓ Reranking model downloaded successfully![/green]")
+
+        console.print()
+        console.print("[bold green]🎉 Memory setup complete![/bold green]")
+        console.print()
+
+    except ImportError as e:
+        console.print(f"\n[yellow]⚠ Reranker download skipped: {e}[/yellow]")
+        console.print("[dim](Install with: pip install 'kagura-ai[memory]')[/dim]")
+    except Exception as e:
+        console.print(f"\n[yellow]⚠ Reranker download failed: {e}[/yellow]")
+        console.print("[dim](Non-critical: Memory tools will use fallback reranker)[/dim]")
+
+
+@memory_group.command(name="install-reranking", hidden=True)
+@click.option("--force", is_flag=True, help="Force re-download even if already cached")
+def install_reranking_command(force: bool) -> None:
+    """Download reranking model (BGE-reranker-v2-m3).
+
+    Downloads the BGE-reranker-v2-m3 model (~600MB) for improved search ranking.
+    This is automatically called by 'kagura memory setup', but can be run separately.
+
+    Examples:
+
+        # Download reranking model
+        kagura memory install-reranking
+
+        # Force re-download
+        kagura memory install-reranking --force
+    """
+    from kagura.core.memory.reranker import is_reranker_available
+
+    console.print("\n[cyan]Downloading reranking model...[/cyan]")
+    console.print("[dim](BGE-reranker-v2-m3, ~600MB, may take 30-60 seconds)[/dim]")
+    console.print()
+
+    try:
+        from sentence_transformers import CrossEncoder
+
+        # Check if already downloaded (unless force)
+        if not force and is_reranker_available(DEFAULT_RERANKER_MODEL):
+            console.print(
+                f"[green]✓ Reranking model already cached: {DEFAULT_RERANKER_MODEL}[/green]"
+            )
+            console.print("[dim](Use --force to re-download)[/dim]")
+            return
+
+        with console.status("[bold green]Downloading..."):
+            # Download by instantiating (model will be cached)
+            _ = CrossEncoder(DEFAULT_RERANKER_MODEL)
+
+        console.print("[green]✓ Reranking model downloaded successfully![/green]")
+        console.print()
+
+    except ImportError as e:
+        console.print(f"\n[red]✗ Missing dependency: {e}[/red]")
+        console.print("\nInstall with: pip install 'kagura-ai[memory]'")
+        raise click.Abort()
+    except Exception as e:
+        console.print(f"\n[red]✗ Download failed: {e}[/red]")
+        raise click.Abort()
+
 
 @memory_group.command(name="list")
 @click.option(
@@ -638,10 +740,13 @@ def list_command(
     console.print("\n[cyan]Memory List[/cyan]")
     console.print()
 
+    # Auto-detect user if not provided
+    user_id = user_id or _get_default_user()
+
     try:
         # Use lightweight config for fast CLI startup (Issue #548, #527)
         manager = _get_lightweight_memory_manager(
-            user_id=user_id or "system",
+            user_id=user_id,
             agent_name=agent_name or "global",
             enable_rag=False,  # List doesn't need RAG
         )

@@ -163,15 +163,15 @@ Then configure Claude Desktop to run your startup script:
 
 ### List Registered Agents
 
-See all agents available via MCP:
+See all tools available via MCP:
 
 ```bash
-kagura mcp list
+kagura mcp tools
 ```
 
 Output:
 ```
-Registered agents (1):
+Available MCP tools (74):
 
   • analyze_code
     Analyze code quality and suggest improvements
@@ -310,15 +310,15 @@ asyncio.run(test_kagura_mcp())
 kagura -v mcp serve
 ```
 
-### Check Agent Registration
+### Check Tool Registration
 
 ```bash
-kagura mcp list
+kagura mcp tools
 ```
 
-If your agent doesn't appear:
+If your tool doesn't appear:
 1. Ensure the file is imported
-2. Check the `@agent` decorator is applied
+2. Check the `@tool` decorator is applied
 3. Verify no import errors
 
 ### Test Without Claude Desktop

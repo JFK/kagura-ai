@@ -15,12 +15,45 @@ from kagura.mcp.builtin.memory import (
 )
 
 
-@pytest.fixture(autouse=True)
-def clear_memory_cache():
-    """Clear global memory cache before and after each test"""
-    _memory_cache.clear()
-    yield
-    _memory_cache.clear()
+@pytest.fixture(autouse=True, scope="function")
+def setup_test_chromadb(request, tmp_path_factory):
+    """Set up isolated ChromaDB directory for each test to avoid parallel test conflicts
+
+    This fixture creates a unique ChromaDB directory for each test worker,
+    preventing dimension mismatch errors and database lock conflicts.
+    """
+    import os
+
+    # Get worker ID for parallel test execution
+    worker_id = os.environ.get("PYTEST_XDIST_WORKER", "master")
+
+    # Create unique ChromaDB path for this worker
+    if worker_id == "master":
+        # Single-process test
+        chroma_path = tmp_path_factory.mktemp("chromadb")
+    else:
+        # Parallel test - use worker-specific directory
+        chroma_path = tmp_path_factory.getbasetemp().parent / f"chromadb_{worker_id}"
+        chroma_path.mkdir(exist_ok=True)
+
+    # Override ChromaDB path for this test
+    original_get_cache_dir = None
+    try:
+        from kagura.config import paths
+        original_get_cache_dir = paths.get_cache_dir
+        paths.get_cache_dir = lambda: chroma_path
+
+        # Clear memory cache before test
+        _memory_cache.clear()
+
+        yield
+
+        # Clear memory cache after test
+        _memory_cache.clear()
+    finally:
+        # Restore original function
+        if original_get_cache_dir:
+            paths.get_cache_dir = original_get_cache_dir
 
 
 class TestMemoryStore:
@@ -652,8 +685,12 @@ class TestMemoryList:
         assert "key_a" not in keys_b
 
 
+@pytest.mark.slow
 class TestMemoryGraphTools:
-    """Test Graph Memory MCP tools (Issue #345)."""
+    """Test Graph Memory MCP tools (Issue #345).
+
+    Note: Marked as slow due to GraphMemory (NetworkX) initialization overhead.
+    """
 
     @pytest.mark.asyncio
     async def test_record_interaction(self) -> None:

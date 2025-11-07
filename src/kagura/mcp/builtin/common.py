@@ -594,3 +594,84 @@ def handle_import_error(package: str, install_cmd: str) -> str:
         details={"package": package},
         help_text=f"Install with: {install_cmd}",
     )
+
+
+# ==============================================================================
+# Category Inference (Issue #592)
+# ==============================================================================
+
+
+def infer_category(tool_name: str) -> str:
+    """Infer category from tool name based on prefix.
+
+    Maps tool names to functional categories for organization and filtering.
+
+    Args:
+        tool_name: MCP tool name (e.g., "memory_store", "coding_start_session")
+
+    Returns:
+        Category name (e.g., "memory", "coding", "github")
+
+    Categories:
+        - memory: Memory CRUD operations
+        - coding: Coding session management
+        - github: GitHub integration
+        - brave_search: Brave Search API
+        - youtube: YouTube tools
+        - file: File operations
+        - media: Media file handling
+        - multimodal: Multimodal RAG
+        - meta: Meta-agent tools
+        - observability: Telemetry/monitoring
+        - academic: Academic search (arXiv)
+        - fact_check: Fact checking
+        - routing: Query routing
+        - web: Web scraping
+        - shell: Shell execution
+
+    Examples:
+        >>> infer_category("memory_store")
+        'memory'
+
+        >>> infer_category("coding_start_session")
+        'coding'
+
+        >>> infer_category("brave_web_search")
+        'brave_search'
+
+        >>> infer_category("unknown_tool")
+        'other'
+    """
+    # Strip kagura_tool_ prefix if present (from MCP tool names)
+    if tool_name.startswith("kagura_tool_"):
+        tool_name = tool_name.replace("kagura_tool_", "")
+
+    # Prefix-based category mapping
+    prefix_map = {
+        "memory_": "memory",
+        "coding_": "coding",
+        "claude_code_": "coding",  # Claude Code integration
+        "github_": "github",
+        "gh_": "github",  # GitHub safe wrappers
+        "brave_": "brave_search",
+        "youtube_": "youtube",
+        "get_youtube_": "youtube",
+        "file_": "file",
+        "dir_": "file",
+        "shell_": "shell",
+        "multimodal_": "multimodal",
+        "arxiv_": "academic",
+        "fact_check_": "fact_check",
+        "media_": "media",
+        "meta_": "meta",
+        "telemetry_": "observability",
+        "route_": "routing",
+        "web_": "web",
+    }
+
+    for prefix, category in prefix_map.items():
+        if tool_name.startswith(prefix):
+            return category
+
+    # Default category
+    return "other"

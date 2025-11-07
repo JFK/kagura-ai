@@ -1207,24 +1207,32 @@ def doctor() -> None:
 
     console.print("[bold cyan]3. Coding Memory Statistics[/]")
 
-    from kagura.core.memory import MemoryManager
+    from kagura.core.memory.coding_memory import CodingMemoryManager
 
     try:
-        manager = MemoryManager(user_id=detected_user, agent_name="coding-memory")
-
-        # Count sessions
-        sessions = manager.persistent.search(
-            query=f"project_id:{detected_project}",
+        # Use CodingMemoryManager with lightweight config (same as sessions command)
+        coding_mem = CodingMemoryManager(
             user_id=detected_user,
-            agent_name="coding-memory",
+            project_id=detected_project,
+            enable_rag=False,  # Fast startup
+            enable_graph=False,
+            enable_compression=False,
+        )
+
+        # Search for all project data using LIKE pattern (consistent with sessions command)
+        pattern = f"project:{detected_project}:"
+        results = coding_mem.persistent.search(
+            query=pattern,
+            user_id=detected_user,
+            agent_name=None,  # Search across all agent names
             limit=1000,
         )
 
-        # Count different types
-        session_count = sum(1 for s in sessions if "session" in s.get("key", ""))
-        error_count = sum(1 for s in sessions if "error" in s.get("key", ""))
-        decision_count = sum(1 for s in sessions if "decision" in s.get("key", ""))
-        change_count = sum(1 for s in sessions if "change" in s.get("key", ""))
+        # Count different types by key pattern
+        session_count = sum(1 for s in results if ":session:" in s.get("key", ""))
+        error_count = sum(1 for s in results if ":error:" in s.get("key", ""))
+        decision_count = sum(1 for s in results if ":decision:" in s.get("key", ""))
+        change_count = sum(1 for s in results if ":file_change:" in s.get("key", ""))
 
         console.print(f"   [green]✓[/] Sessions: {session_count}")
         console.print(f"   [green]✓[/] Errors recorded: {error_count}")
