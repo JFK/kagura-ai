@@ -19,6 +19,9 @@ if TYPE_CHECKING:
 
 console = Console()
 
+# Default reranking model (v4.2.0+, BGE-reranker-v2-m3)
+DEFAULT_RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
+
 
 def _get_default_user() -> str:
     """Get default user with fallback.
@@ -606,17 +609,15 @@ def setup_command(model: str | None, provider: str | None) -> None:
             raise click.Abort()
 
     # Download reranking model (v4.2.3+)
-    reranker_model = "BAAI/bge-reranker-v2-m3"  # Default reranker (v4.2.0+)
-
     try:
         from sentence_transformers import CrossEncoder
 
         from kagura.core.memory.reranker import is_reranker_available
 
         # Check if already downloaded
-        if is_reranker_available(reranker_model):
+        if is_reranker_available(DEFAULT_RERANKER_MODEL):
             console.print(
-                f"[green]✓ Reranking model already cached: {reranker_model}[/green]"
+                f"[green]✓ Reranking model already cached: {DEFAULT_RERANKER_MODEL}[/green]"
             )
         else:
             console.print("[cyan]Downloading reranking model...[/cyan]")
@@ -625,7 +626,7 @@ def setup_command(model: str | None, provider: str | None) -> None:
 
             with console.status("[bold green]Downloading reranker..."):
                 # Download by instantiating (model will be cached)
-                _ = CrossEncoder(reranker_model)
+                _ = CrossEncoder(DEFAULT_RERANKER_MODEL)
 
             console.print("[green]✓ Reranking model downloaded successfully![/green]")
 
@@ -659,7 +660,6 @@ def install_reranking_command(force: bool) -> None:
     """
     from kagura.core.memory.reranker import is_reranker_available
 
-    reranker_model = "BAAI/bge-reranker-v2-m3"  # Default reranker (v4.2.0+)
     console.print("\n[cyan]Downloading reranking model...[/cyan]")
     console.print("[dim](BGE-reranker-v2-m3, ~600MB, may take 30-60 seconds)[/dim]")
     console.print()
@@ -668,16 +668,16 @@ def install_reranking_command(force: bool) -> None:
         from sentence_transformers import CrossEncoder
 
         # Check if already downloaded (unless force)
-        if not force and is_reranker_available(reranker_model):
+        if not force and is_reranker_available(DEFAULT_RERANKER_MODEL):
             console.print(
-                f"[green]✓ Reranking model already cached: {reranker_model}[/green]"
+                f"[green]✓ Reranking model already cached: {DEFAULT_RERANKER_MODEL}[/green]"
             )
             console.print("[dim](Use --force to re-download)[/dim]")
             return
 
         with console.status("[bold green]Downloading..."):
             # Download by instantiating (model will be cached)
-            _ = CrossEncoder(reranker_model)
+            _ = CrossEncoder(DEFAULT_RERANKER_MODEL)
 
         console.print("[green]✓ Reranking model downloaded successfully![/green]")
         console.print()

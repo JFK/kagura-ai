@@ -256,7 +256,11 @@ class MemoryRAG:
 
         # Determine expected embedding dimension based on actual embedding function
         # If we fell back to default due to ImportError, use DEFAULT_EMBEDDING_DIM
-        expected_dim = embedding_config.dimension if (embedding_config and using_custom_embeddings) else DEFAULT_EMBEDDING_DIM
+        use_custom_dim = embedding_config and using_custom_embeddings
+        if use_custom_dim and embedding_config:
+            expected_dim = embedding_config.dimension
+        else:
+            expected_dim = DEFAULT_EMBEDDING_DIM
 
         # Check if forced recreation is enabled (for CI/testing)
         import os

@@ -112,31 +112,36 @@ class TestGetToolPermissionInfo:
         """Test info for safe tools."""
         info = get_tool_permission_info("memory_store")
         assert info["remote"] is True
-        assert "safe" in info["reason"].lower()
+        reason = str(info["reason"])
+        assert "safe" in reason.lower()
 
     def test_file_tool_info(self):
         """Test info for file tools."""
         info = get_tool_permission_info("file_read")
         assert info["remote"] is False
-        assert "filesystem" in info["reason"].lower()
+        reason = str(info["reason"])
+        assert "filesystem" in reason.lower()
 
     def test_shell_tool_info(self):
         """Test info for shell execution."""
         info = get_tool_permission_info("shell_exec")
         assert info["remote"] is False
-        assert "shell" in info["reason"].lower() or "command" in info["reason"].lower()
+        reason = str(info["reason"])
+        assert "shell" in reason.lower() or "command" in reason.lower()
 
     def test_media_tool_info(self):
         """Test info for media tools."""
         info = get_tool_permission_info("media_open_audio")
         assert info["remote"] is False
-        assert "application" in info["reason"].lower()
+        reason = str(info["reason"])
+        assert "application" in reason.lower()
 
     def test_unknown_tool_info(self):
         """Test info for unknown tools."""
         info = get_tool_permission_info("unknown_tool")
         assert info["remote"] is False
-        assert "unknown" in info["reason"].lower() or "deny" in info["reason"].lower()
+        reason = str(info["reason"])
+        assert "unknown" in reason.lower() or "deny" in reason.lower()
 
 
 class TestToolPermissionsConfig:
@@ -245,10 +250,9 @@ class TestToolRegistrationCompleteness:
 
     def test_all_tools_registered_in_permissions(self):
         """Ensure every @tool decorated function is in TOOL_PERMISSIONS."""
-        from kagura.core.tool_registry import tool_registry
-
         # Import all builtin tools to register them
         import kagura.mcp.builtin  # noqa: F401
+        from kagura.core.tool_registry import tool_registry
 
         registered = set(tool_registry.get_all().keys())
         permissions = set(TOOL_PERMISSIONS.keys())
@@ -260,9 +264,8 @@ class TestToolRegistrationCompleteness:
 
     def test_no_orphan_permissions(self):
         """Ensure TOOL_PERMISSIONS doesn't have non-existent tools."""
-        from kagura.core.tool_registry import tool_registry
-
         import kagura.mcp.builtin  # noqa: F401
+        from kagura.core.tool_registry import tool_registry
 
         registered = set(tool_registry.get_all().keys())
         permissions = set(TOOL_PERMISSIONS.keys())
@@ -328,7 +331,7 @@ class TestNewToolPermissions:
         """Test that meta_fix_code_error is dangerous (RCE risk)."""
         assert TOOL_PERMISSIONS["meta_fix_code_error"]["remote"] is False
         info = get_tool_permission_info("meta_fix_code_error")
-        assert "code" in info["reason"].lower() or "execution" in info["reason"].lower()
+        assert info["reason"] == "Code generation/execution risk"
 
     def test_claude_code_tools_are_safe(self):
         """Test that Claude Code memory tools are safe."""
