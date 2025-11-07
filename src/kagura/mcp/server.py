@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 def create_mcp_server(
     name: str = "kagura-ai",
     context: Literal["local", "remote"] = "local",
+    categories: set[str] | None = None,
 ) -> Server:
     """Create MCP server instance with tool access control.
 
@@ -34,6 +35,8 @@ def create_mcp_server(
         context: Execution context ("local" or "remote")
                  - "local": All tools allowed (stdio transport)
                  - "remote": Only safe tools allowed (HTTP/SSE transport)
+        categories: Optional set of categories to enable (filters tools by category)
+                    If None, all tools (subject to context permissions) are enabled
 
     Returns:
         Configured MCP Server instance with filtered tools
@@ -44,17 +47,30 @@ def create_mcp_server(
         >>>
         >>> # Remote server (safe tools only)
         >>> server = create_mcp_server(context="remote")
+        >>>
+        >>> # Local server with only coding and memory tools
+        >>> server = create_mcp_server(categories={"coding", "memory"})
 
     Note:
         Remote context filters out dangerous tools like:
         - file_read, file_write (filesystem access)
         - shell_exec (command execution)
         - media_open_* (local app execution)
+
+        Categories filter is orthogonal to permissions:
+        - Permissions: Security layer (local vs remote)
+        - Categories: UX layer (which tools to expose)
     """
     server = Server(name)
 
     # Log context
-    logger.info(f"Creating MCP server '{name}' in {context} context")
+    if categories:
+        logger.info(
+            f"Creating MCP server '{name}' in {context} context "
+            f"with categories: {', '.join(sorted(categories))}"
+        )
+    else:
+        logger.info(f"Creating MCP server '{name}' in {context} context")
 
     @server.list_tools()
     async def handle_list_tools() -> list[Tool]:
@@ -66,6 +82,17 @@ def create_mcp_server(
         Returns:
             List of MCP Tool objects
         """
+        # Helper function to extract base name from MCP tool name
+        def get_base_name(tool_name: str) -> str:
+            """Extract base name from MCP tool name (kagura_tool_xxx -> xxx)"""
+            if tool_name.startswith("kagura_tool_"):
+                return tool_name.replace("kagura_tool_", "")
+            elif tool_name.startswith("kagura_workflow_"):
+                return tool_name.replace("kagura_workflow_", "")
+            elif tool_name.startswith("kagura_"):
+                return tool_name.replace("kagura_", "")
+            return tool_name
+
         mcp_tools: list[Tool] = []
 
         # 1. Get all registered agents
@@ -132,22 +159,28 @@ def create_mcp_server(
                 )
             )
 
-        # 4. Filter tools by context (local vs remote)
-        if context == "remote":
-            # Get tool names (strip kagura_ prefix for permission check)
-            all_tool_names = [tool.name for tool in mcp_tools]
+        # 4. Filter tools by categories (if specified)
+        if categories:
+            from kagura.mcp.builtin.common import infer_category
 
-            # Extract base names (remove kagura_tool_ prefix)
-            base_names = []
-            for name in all_tool_names:
-                if name.startswith("kagura_tool_"):
-                    base_names.append(name.replace("kagura_tool_", ""))
-                elif name.startswith("kagura_workflow_"):
-                    base_names.append(name.replace("kagura_workflow_", ""))
-                elif name.startswith("kagura_"):
-                    base_names.append(name.replace("kagura_", ""))
-                else:
-                    base_names.append(name)
+            # Filter by category
+            category_filtered_tools = [
+                tool
+                for tool in mcp_tools
+                if infer_category(get_base_name(tool.name)) in categories
+            ]
+
+            logger.info(
+                f"Category filter: {len(category_filtered_tools)}/{len(mcp_tools)} tools "
+                f"({', '.join(sorted(categories))})"
+            )
+
+            mcp_tools = category_filtered_tools
+
+        # 5. Filter tools by context (local vs remote)
+        if context == "remote":
+            # Extract base names for permission check
+            base_names = [get_base_name(tool.name) for tool in mcp_tools]
 
             # Filter based on permissions
             allowed_base_names = get_allowed_tools(base_names, context="remote")

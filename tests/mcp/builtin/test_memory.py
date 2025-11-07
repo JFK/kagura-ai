@@ -15,9 +15,9 @@ from kagura.mcp.builtin.memory import (
 )
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="module")
 def clear_memory_cache():
-    """Clear global memory cache before and after each test"""
+    """Clear global memory cache before and after each test module"""
     _memory_cache.clear()
     yield
     _memory_cache.clear()

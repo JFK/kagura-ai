@@ -15,6 +15,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.2.3] - 2025-11-08
+
+### ✨ Added
+
+#### Category-based Tool Filtering (#592)
+- **New**: `--categories` option for `kagura mcp serve`
+- **Filter**: 74 tools → specific categories only
+- **Usage**:
+  ```bash
+  kagura mcp serve --categories coding,memory,github
+  ```
+- **Environment variable**: `KAGURA_MCP_CATEGORIES` for persistent config
+- **Available categories**: memory (19), coding (21), github (9), brave_search (4), youtube (4), file (4), media (3), multimodal (2), meta (2), observability (2), academic (1), fact_check (1), routing (1), web (1)
+- **Orthogonal to permissions**: Works alongside remote/local filtering
+
+#### Enhanced Memory Setup UX (#594)
+- **New**: `kagura memory setup` now downloads reranking model automatically
+- **New**: `kagura memory install-reranking` command (direct model download)
+- **Deprecated**: `kagura mcp install-reranking` (backward compatible with warning)
+- **Better UX**: Memory-related commands unified under `memory` group
+
+### 🗑️ Removed
+
+#### Cleanup: Deprecated MCP list command (#593)
+- **Removed**: `kagura mcp list` (v3.0 legacy, listed @agent functions)
+- **Replacement**: Use `kagura mcp tools` to list MCP tools
+- **Impact**: Minimal (command was rarely used, v4.0 is MCP-first)
+
+### ⚡ Performance
+
+#### Test Suite Optimization Phase 1 (#591)
+- **Fixture optimization**: Memory cache changed to module-scoped
+- **Expected CI speed**: 15min → 8-10min (30-40% reduction)
+- **Better dev experience**: Faster local test runs
+- **Implementation**: Module-scoped fixture for memory cache (reduces ChromaDB reinitialization)
+
+### 📝 Documentation
+
+- Updated tutorials: `kagura mcp list` → `kagura mcp tools`
+- Added category filtering examples in CLI help
+- Updated memory setup instructions
+
+---
+
 ## [4.2.2] - 2025-11-07
 
 ### 🐛 Fixed

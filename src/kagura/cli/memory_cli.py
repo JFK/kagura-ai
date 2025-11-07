@@ -605,6 +605,90 @@ def setup_command(model: str | None, provider: str | None) -> None:
             console.print(f"\n[red]✗ Setup failed: {e}[/red]")
             raise click.Abort()
 
+    # Download reranking model (v4.2.3+)
+    reranker_model = "BAAI/bge-reranker-v2-m3"  # Default reranker (v4.2.0+)
+
+    try:
+        from kagura.core.memory.reranker import is_reranker_available
+        from sentence_transformers import CrossEncoder
+
+        # Check if already downloaded
+        if is_reranker_available(reranker_model):
+            console.print(
+                f"[green]✓ Reranking model already cached: {reranker_model}[/green]"
+            )
+        else:
+            console.print("[cyan]Downloading reranking model...[/cyan]")
+            console.print("[dim](BGE-reranker-v2-m3, ~600MB, may take 30-60 seconds)[/dim]")
+            console.print()
+
+            with console.status("[bold green]Downloading reranker..."):
+                # Download by instantiating (model will be cached)
+                _ = CrossEncoder(reranker_model)
+
+            console.print("[green]✓ Reranking model downloaded successfully![/green]")
+
+        console.print()
+        console.print("[bold green]🎉 Memory setup complete![/bold green]")
+        console.print()
+
+    except ImportError as e:
+        console.print(f"\n[yellow]⚠ Reranker download skipped: {e}[/yellow]")
+        console.print("[dim](Install with: pip install 'kagura-ai[memory]')[/dim]")
+    except Exception as e:
+        console.print(f"\n[yellow]⚠ Reranker download failed: {e}[/yellow]")
+        console.print("[dim](Non-critical: Memory tools will use fallback reranker)[/dim]")
+
+
+@memory_group.command(name="install-reranking")
+@click.option("--force", is_flag=True, help="Force re-download even if already cached")
+def install_reranking_command(force: bool) -> None:
+    """Download reranking model (BGE-reranker-v2-m3).
+
+    Downloads the BGE-reranker-v2-m3 model (~600MB) for improved search ranking.
+    This is automatically called by 'kagura memory setup', but can be run separately.
+
+    Examples:
+
+        # Download reranking model
+        kagura memory install-reranking
+
+        # Force re-download
+        kagura memory install-reranking --force
+    """
+    from kagura.core.memory.reranker import is_reranker_available
+
+    reranker_model = "BAAI/bge-reranker-v2-m3"  # Default reranker (v4.2.0+)
+    console.print("\n[cyan]Downloading reranking model...[/cyan]")
+    console.print("[dim](BGE-reranker-v2-m3, ~600MB, may take 30-60 seconds)[/dim]")
+    console.print()
+
+    try:
+        from sentence_transformers import CrossEncoder
+
+        # Check if already downloaded (unless force)
+        if not force and is_reranker_available(reranker_model):
+            console.print(
+                f"[green]✓ Reranking model already cached: {reranker_model}[/green]"
+            )
+            console.print("[dim](Use --force to re-download)[/dim]")
+            return
+
+        with console.status("[bold green]Downloading..."):
+            # Download by instantiating (model will be cached)
+            _ = CrossEncoder(reranker_model)
+
+        console.print("[green]✓ Reranking model downloaded successfully![/green]")
+        console.print()
+
+    except ImportError as e:
+        console.print(f"\n[red]✗ Missing dependency: {e}[/red]")
+        console.print("\nInstall with: pip install 'kagura-ai[memory]'")
+        raise click.Abort()
+    except Exception as e:
+        console.print(f"\n[red]✗ Download failed: {e}[/red]")
+        raise click.Abort()
+
 
 @memory_group.command(name="list")
 @click.option(
