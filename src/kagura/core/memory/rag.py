@@ -259,26 +259,69 @@ class MemoryRAG:
             collection_exists = True
 
             # Check if dimension matches (avoid InvalidArgumentError)
-            # Peek at collection to get actual dimension
+            # Try to determine actual dimension from existing collection
             try:
-                # Get one item to check dimension
+                actual_dim = None
+
+                # Method 1: Check existing embeddings via peek()
                 peek_result = existing_collection.peek(limit=1)
-                if peek_result and peek_result.get("embeddings"):
-                    actual_dim = len(peek_result["embeddings"][0])
-                    if actual_dim != expected_dim:
-                        logger.warning(
-                            f"MemoryRAG: Collection '{collection_name}' has dimension {actual_dim}, "
-                            f"but expected {expected_dim}. Recreating collection..."
+                embeddings = peek_result.get("embeddings") if peek_result else None
+                if embeddings is not None and len(embeddings) > 0:
+                    actual_dim = len(embeddings[0])
+
+                # Method 2: If no embeddings, check collection's embedding function
+                if actual_dim is None and hasattr(existing_collection, "_embedding_function"):
+                    ef = existing_collection._embedding_function
+                    # Try to infer dimension from embedding function
+                    if hasattr(ef, "_model_name"):
+                        # Check if it's the old or new model
+                        model_name = ef._model_name
+                        if "e5" in model_name.lower() or "multilingual" in model_name.lower():
+                            actual_dim = 1024  # New model
+                        else:
+                            actual_dim = 384  # Old model (all-MiniLM-L6-v2)
+
+                # Method 3: Try adding a test embedding to detect mismatch
+                if actual_dim is None:
+                    try:
+                        # Create a test embedding with expected dimension
+                        test_embedding = [0.0] * expected_dim
+                        # Try to add (will fail if dimension mismatches)
+                        existing_collection.add(
+                            ids=["__dimension_test__"],
+                            embeddings=[test_embedding],
+                            metadatas=[{"test": True}],
                         )
+                        # If successful, clean up and assume correct dimension
+                        existing_collection.delete(ids=["__dimension_test__"])
+                        actual_dim = expected_dim
+                    except Exception:
+                        # Failed to add - likely dimension mismatch
+                        # Assume needs recreation
                         needs_recreation = True
-                    else:
-                        logger.debug(
-                            f"MemoryRAG: Using existing collection '{collection_name}' "
-                            f"(dimension={actual_dim}, preserves existing embeddings)"
+                        logger.warning(
+                            f"MemoryRAG: Collection '{collection_name}' dimension test failed. "
+                            "Recreating collection..."
                         )
+
+                # Compare dimensions if we determined actual_dim
+                if actual_dim is not None and actual_dim != expected_dim:
+                    logger.warning(
+                        f"MemoryRAG: Collection '{collection_name}' has dimension {actual_dim}, "
+                        f"but expected {expected_dim}. Recreating collection..."
+                    )
+                    needs_recreation = True
+                elif actual_dim is not None:
+                    logger.debug(
+                        f"MemoryRAG: Using existing collection '{collection_name}' "
+                        f"(dimension={actual_dim}, preserves existing embeddings)"
+                    )
             except Exception as e:
-                # Empty collection or other error - safe to reuse
-                logger.debug(f"MemoryRAG: Could not check collection dimension ({e}), assuming empty collection")
+                # Could not determine dimension - log warning
+                logger.warning(
+                    f"MemoryRAG: Could not verify collection dimension ({e}). "
+                    "Collection may have incompatible dimension."
+                )
 
         except Exception:
             logger.debug(f"MemoryRAG: Collection '{collection_name}' does not exist")
@@ -707,17 +750,87 @@ class MemoryRAG:
             return []
 
         # Build chunk list
-        chunks = [
-            {
+        chunks = []
+        for i in range(len(results["ids"])):
+            metadata = (
+                results["metadatas"][i]
+                if results["metadatas"] and i < len(results["metadatas"])
+                else {}
+            )
+            chunk_index = metadata.get("chunk_index", 0)
+
+            chunks.append({
                 "id": results["ids"][i],
-                "content": results["documents"][i] if results["documents"] else "",
-                "metadata": results["metadatas"][i] if results["metadatas"] else {},
-                "chunk_index": (results["metadatas"][i] if results["metadatas"] else {}).get(
-                    "chunk_index", 0
+                "content": (
+                    results["documents"][i]
+                    if results["documents"] and i < len(results["documents"])
+                    else ""
                 ),
-            }
-            for i in range(len(results["ids"]))
+                "metadata": metadata,
+                "chunk_index": chunk_index,
+            })
+
+        # Sort by chunk_index
+        chunks.sort(key=lambda x: x["chunk_index"])
+        return chunks
+
+    def _get_chunks_by_parent_in_range(
+        self,
+        parent_id: str,
+        start_idx: int,
+        end_idx: int,
+        user_id: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
+        """Get chunks for a parent document within a specific index range.
+
+        More efficient than fetching all chunks when only a subset is needed.
+
+        Args:
+            parent_id: Parent document ID
+            start_idx: Starting chunk index (inclusive)
+            end_idx: Ending chunk index (exclusive)
+            user_id: Optional user filter
+
+        Returns:
+            List of chunks sorted by chunk_index
+        """
+        # Build where clause with range filter
+        base_conditions = [
+            {"parent_id": parent_id},
+            {"chunk_index": {"$gte": start_idx}},
+            {"chunk_index": {"$lt": end_idx}},
         ]
+
+        if user_id:
+            base_conditions.append({"user_id": user_id})
+
+        where_clause: dict[str, Any] = {"$and": base_conditions}
+
+        results = self.collection.get(where=where_clause)
+
+        if not results["ids"]:
+            return []
+
+        # Build chunk list
+        chunks = []
+        for i in range(len(results["ids"])):
+            metadata = (
+                results["metadatas"][i]
+                if results["metadatas"] and i < len(results["metadatas"])
+                else {}
+            )
+            chunk_index = metadata.get("chunk_index", 0)
+
+            chunks.append({
+                "id": results["ids"][i],
+                "content": (
+                    results["documents"][i]
+                    if results["documents"] and i < len(results["documents"])
+                    else ""
+                ),
+                "metadata": metadata,
+                "chunk_index": chunk_index,
+            })
 
         # Sort by chunk_index
         chunks.sort(key=lambda x: x["chunk_index"])
@@ -746,15 +859,11 @@ class MemoryRAG:
             >>> chunks = rag.get_chunk_context("doc123", 5, context_size=1)
             >>> print(len(chunks))  # 3 chunks
         """
-        chunks = self._get_chunks_by_parent(parent_id, user_id)
-        if not chunks:
-            return []
-
-        # Filter to target ± context_size
+        # Calculate range and use efficient range query
         start_idx = max(0, chunk_index - context_size)
         end_idx = chunk_index + context_size + 1
 
-        return [c for c in chunks if start_idx <= c["chunk_index"] < end_idx]
+        return self._get_chunks_by_parent_in_range(parent_id, start_idx, end_idx, user_id)
 
     def get_full_document(
         self, parent_id: str, user_id: Optional[str] = None

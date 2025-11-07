@@ -2102,6 +2102,16 @@ def memory_get_chunk_context(
                 },
             )
 
+        # Validate non-negativity
+        if chunk_idx_int < 0 or context_size_int < 0:
+            return format_error(
+                "Invalid parameter value",
+                details={
+                    "chunk_index": "Must be non-negative",
+                    "context_size": "Must be non-negative",
+                },
+            )
+
         # Get chunk context
         chunks = manager.get_chunk_context(
             parent_id=parent_id,

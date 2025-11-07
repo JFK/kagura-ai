@@ -2,7 +2,7 @@
 
 import pytest
 
-from kagura.config.memory_config import ChunkingConfig, MemorySystemConfig
+from kagura.config.memory_config import ChunkingConfig
 from kagura.core.memory.rag import MemoryRAG
 
 
@@ -22,7 +22,8 @@ def temp_rag_with_chunks(tmp_path):
     yield rag
     try:
         rag.delete_all()
-    except Exception:
+    except Exception as e:
+        # Ignore cleanup errors (e.g., collection already deleted)
         pass
 
 
@@ -138,7 +139,7 @@ def test_chunk_context_user_scoping(temp_rag_with_chunks):
     # Store chunks for different users
     text = "Content. " * 50
     parent_id1 = temp_rag_with_chunks.store(content=text, user_id="user1")
-    parent_id2 = temp_rag_with_chunks.store(content=text, user_id="user2")
+    temp_rag_with_chunks.store(content=text, user_id="user2")
 
     # Get context with user filter
     chunks_user1 = temp_rag_with_chunks.get_chunk_context(
