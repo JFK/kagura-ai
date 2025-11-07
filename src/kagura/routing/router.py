@@ -4,13 +4,20 @@ This module provides intent-based routing to automatically select
 the most appropriate agent based on user input.
 """
 
-from dataclasses import dataclass
-from typing import Any, Callable
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from importlib import import_module
+from inspect import isawaitable
+from typing import Any, Awaitable, Callable, Iterable
 
 from .exceptions import (
     InvalidRouterStrategyError,
     NoAgentFoundError,
 )
+
+
+AgentCallable = Callable[..., Awaitable[Any] | Any]
 
 
 @dataclass
@@ -25,11 +32,30 @@ class RegisteredAgent:
         description: Agent description
     """
 
-    agent: Callable
+    agent: AgentCallable
     name: str
-    intents: list[str]
-    samples: list[str]
-    description: str
+    intents: Iterable[str] = ()
+    samples: Iterable[str] = ()
+    description: str = ""
+    normalized_intents: tuple[str, ...] = field(init=False)
+    intent_word_sets: tuple[frozenset[str], ...] = field(init=False)
+
+    def __post_init__(self) -> None:
+        """Normalise data eagerly for faster routing decisions."""
+
+        cleaned_intents = tuple(
+            intent.strip() for intent in self.intents if intent and intent.strip()
+        )
+        cleaned_samples = tuple(
+            sample.strip() for sample in self.samples if sample and sample.strip()
+        )
+
+        self.intents = cleaned_intents
+        self.samples = cleaned_samples
+        self.normalized_intents = tuple(intent.lower() for intent in cleaned_intents)
+        self.intent_word_sets = tuple(
+            frozenset(filter(None, intent.split())) for intent in self.normalized_intents
+        )
 
 
 class AgentRouter:
@@ -75,7 +101,7 @@ class AgentRouter:
     def __init__(
         self,
         strategy: str = "intent",
-        fallback_agent: Callable | None = None,
+        fallback_agent: AgentCallable | None = None,
         confidence_threshold: float = 0.3,
         encoder: str = "openai",
     ) -> None:
@@ -104,7 +130,7 @@ class AgentRouter:
 
     def register(
         self,
-        agent: Callable,
+        agent: AgentCallable,
         intents: list[str] | None = None,
         samples: list[str] | None = None,
         description: str = "",
@@ -144,7 +170,7 @@ class AgentRouter:
             name=agent_name,
             intents=intents,
             samples=samples,
-            description=description,
+            description=description.strip() if description else "",
         )
 
         # Reset semantic router to rebuild with new agent
@@ -181,7 +207,7 @@ class AgentRouter:
         # Check if we have any matches
         if not matched_agents:
             if self.fallback_agent:
-                return await self.fallback_agent(user_input, **kwargs)
+                return await self._invoke_agent(self.fallback_agent, user_input, **kwargs)
             raise NoAgentFoundError(
                 f"No agent found for input: {user_input!r}",
                 user_input=user_input,
@@ -193,7 +219,7 @@ class AgentRouter:
         # Check confidence threshold
         if confidence < self.confidence_threshold:
             if self.fallback_agent:
-                return await self.fallback_agent(user_input, **kwargs)
+                return await self._invoke_agent(self.fallback_agent, user_input, **kwargs)
             raise NoAgentFoundError(
                 f"Low confidence ({confidence:.2f}) for input: {user_input!r}. "
                 f"Threshold: {self.confidence_threshold}",
@@ -203,13 +229,13 @@ class AgentRouter:
         # Execute the selected agent
         # Note: For Phase 1, we pass user_input as the first argument
         # Future phases may support more sophisticated parameter mapping
-        return await best_agent(user_input, **kwargs)
+        return await self._invoke_agent(best_agent, user_input, **kwargs)
 
     def get_matched_agents(
         self,
         user_input: str,
         top_k: int = 3,
-    ) -> list[tuple[Callable, float]]:
+    ) -> list[tuple[AgentCallable, float]]:
         """Get top-k matched agents with confidence scores.
 
         Args:
@@ -227,15 +253,17 @@ class AgentRouter:
             code_reviewer: 0.67
             general_assistant: 0.33
         """
-        scores: list[tuple[Callable, float]] = []
+        if self.strategy == "semantic":
+            return self._semantic_matches(user_input, top_k)
+
+        scores: list[tuple[AgentCallable, float]] = []
 
         for agent_data in self._agents.values():
-            score = self._calculate_score(user_input, agent_data)
-            if score > 0:  # Only include agents with non-zero scores
+            score = self._intent_score(user_input, agent_data)
+            if score > 0:
                 scores.append((agent_data.agent, score))
 
-        # Sort by score descending
-        scores.sort(key=lambda x: x[1], reverse=True)
+        scores.sort(key=lambda item: item[1], reverse=True)
 
         return scores[:top_k]
 
@@ -280,27 +308,7 @@ class AgentRouter:
             "description": agent_data.description,
         }
 
-    def _calculate_score(
-        self,
-        user_input: str,
-        agent_data: RegisteredAgent,
-    ) -> float:
-        """Calculate matching score for an agent.
-
-        Args:
-            user_input: User input string
-            agent_data: Registered agent metadata
-
-        Returns:
-            Confidence score between 0.0 and 1.0
-        """
-        if self.strategy == "intent":
-            return self._intent_score(user_input, agent_data.intents)
-        elif self.strategy == "semantic":
-            return self._semantic_score(user_input, agent_data.name)
-        return 0.0
-
-    def _intent_score(self, user_input: str, intents: list[str]) -> float:
+    def _intent_score(self, user_input: str, agent_data: RegisteredAgent) -> float:
         """Calculate intent-based matching score.
 
         Uses flexible keyword matching with:
@@ -320,21 +328,25 @@ class AgentRouter:
 
         Args:
             user_input: User input string
-            intents: List of intent keywords
+            agent_data: Registered agent metadata
 
         Returns:
             Score between 0.0 and 1.0
         """
-        if not intents:
+        if not agent_data.normalized_intents:
             return 0.0
 
         input_lower = user_input.lower()
-        input_words = set(input_lower.split())
+        if not input_lower.strip():
+            return 0.0
+
+        input_words = set(filter(None, input_lower.split()))
 
         max_score = 0.0
 
-        for intent in intents:
-            intent_lower = intent.lower()
+        for intent_lower, intent_words in zip(
+            agent_data.normalized_intents, agent_data.intent_word_sets
+        ):
             intent_score = 0.0
 
             # Check for exact phrase match (highest priority)
@@ -346,7 +358,6 @@ class AgentRouter:
                     intent_score = 0.8  # Strong match for single word
             else:
                 # Check for word-level matches
-                intent_words = set(intent_lower.split())
                 common_words = input_words & intent_words
 
                 if common_words:
@@ -359,46 +370,83 @@ class AgentRouter:
 
         return max_score
 
-    def _semantic_score(self, user_input: str, agent_name: str) -> float:
-        """Calculate semantic similarity score using semantic-router.
+    def _semantic_matches(
+        self,
+        user_input: str,
+        top_k: int,
+    ) -> list[tuple[AgentCallable, float]]:
+        """Calculate semantic similarity matches using semantic-router."""
 
-        Args:
-            user_input: User input string
-            agent_name: Name of the agent to score
-
-        Returns:
-            Score between 0.0 and 1.0
-        """
-        # Initialize semantic router if not already done
-        if self._semantic_router is None:
-            self._init_semantic_router()
-
-        if self._semantic_router is None:
-            # Fallback if semantic router initialization failed
-            return 0.0
+        router = self._ensure_semantic_router()
+        if router is None:
+            return []
 
         try:
-            # Route the input
-            result = self._semantic_router(user_input)
-
-            # Check if result matches this agent
-            if result and hasattr(result, "name") and result.name == agent_name:
-                # semantic-router doesn't provide score directly,
-                # so we use 1.0 for matches
-                return 1.0
+            result = router(user_input)
         except (ValueError, Exception):
-            # Index not ready or other errors
-            return 0.0
+            return []
 
-        return 0.0
+        if not result:
+            return []
+
+        routes: list[Any]
+        if isinstance(result, Iterable) and not isinstance(result, (str, bytes)):
+            routes = list(result)
+        else:
+            routes = [result]
+
+        matches: list[tuple[AgentCallable, float]] = []
+        for route in routes:
+            agent_name = getattr(route, "name", None)
+            if not agent_name:
+                continue
+            agent_data = self._agents.get(agent_name)
+            if not agent_data:
+                continue
+            matches.append((agent_data.agent, self._extract_semantic_score(route)))
+            if len(matches) >= top_k:
+                break
+
+        return matches
+
+    def _ensure_semantic_router(self) -> Any | None:
+        """Initialise and return the cached semantic router if available."""
+
+        if self._semantic_router is None:
+            self._init_semantic_router()
+        return self._semantic_router
+
+    @staticmethod
+    def _extract_semantic_score(route: Any) -> float:
+        """Extract and clamp the semantic score from a route object."""
+
+        raw_score = getattr(route, "score", None)
+        if raw_score is None:
+            return 1.0
+        try:
+            score = float(raw_score)
+        except (TypeError, ValueError):
+            return 1.0
+        return max(0.0, min(score, 1.0))
+
+    async def _invoke_agent(
+        self,
+        agent: AgentCallable,
+        user_input: str,
+        **kwargs: Any,
+    ) -> Any:
+        """Execute an agent, awaiting the result when necessary."""
+
+        result = agent(user_input, **kwargs)
+        if isawaitable(result):
+            return await result
+        return result
 
     def _init_semantic_router(self) -> None:
         """Initialize semantic-router with registered agents."""
         try:
             from semantic_router import Route  # type: ignore
-            from semantic_router import (  # type: ignore
-                SemanticRouter as _SemanticRouter,
-            )
+            from semantic_router import SemanticRouter as _SemanticRouter  # type: ignore
 
             # Create encoder
             encoder = self._create_encoder()
@@ -428,21 +476,17 @@ class AgentRouter:
 
     def _create_encoder(self) -> Any | None:
         """Create encoder for semantic routing."""
+
         try:
-            if self.encoder_type == "openai":
-                from semantic_router.encoders import OpenAIEncoder  # type: ignore
-
-                return OpenAIEncoder()
-            elif self.encoder_type == "cohere":
-                from semantic_router.encoders import CohereEncoder  # type: ignore
-
-                return CohereEncoder()
-            else:
-                # Default to OpenAI
-                from semantic_router.encoders import OpenAIEncoder  # type: ignore
-
-                return OpenAIEncoder()
-        except (ImportError, ValueError):
+            encoder_type = (self.encoder_type or "openai").lower()
+            encoders_module = import_module("semantic_router.encoders")
+            encoder_class_name = {
+                "openai": "OpenAIEncoder",
+                "cohere": "CohereEncoder",
+            }.get(encoder_type, "OpenAIEncoder")
+            encoder_cls = getattr(encoders_module, encoder_class_name)
+            return encoder_cls()
+        except (ImportError, AttributeError, ValueError):
             # ImportError: semantic-router not installed
             # ValueError: API key missing
             return None
