@@ -21,12 +21,47 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     "memory_get_related": {"remote": True},
     "memory_record_interaction": {"remote": True},
     "memory_get_user_pattern": {"remote": True},
+    # Memory extended tools - SAFE (database only)
+    "memory_fetch": {"remote": True},
+    "memory_fuzzy_recall": {"remote": True},
+    "memory_get_tool_history": {"remote": True},
+    "memory_search_hybrid": {"remote": True},  # deprecated but safe
+    "memory_search_ids": {"remote": True},
+    "memory_stats": {"remote": True},
+    "memory_timeline": {"remote": True},
+    "memory_get_chunk_context": {"remote": True},
+    "memory_get_chunk_metadata": {"remote": True},
+    "memory_get_full_document": {"remote": True},
     # File operations - DANGEROUS (local filesystem access)
     "file_read": {"remote": False},
     "file_write": {"remote": False},
     "dir_list": {"remote": False},
     # Shell execution - DANGEROUS (arbitrary code execution)
     "shell_exec": {"remote": False},
+    # Coding memory tools - SAFE (database only)
+    "coding_start_session": {"remote": True},
+    "coding_end_session": {"remote": True},
+    "coding_resume_session": {"remote": True},
+    "coding_get_current_session_status": {"remote": True},
+    "coding_track_file_change": {"remote": True},
+    "coding_record_error": {"remote": True},
+    "coding_record_decision": {"remote": True},
+    "coding_track_interaction": {"remote": True},
+    "coding_search_errors": {"remote": True},
+    "coding_search_source_code": {"remote": True},
+    "coding_get_project_context": {"remote": True},
+    "coding_analyze_patterns": {"remote": True},
+    "coding_suggest_refactor_order": {"remote": True},
+    "coding_link_github_issue": {"remote": True},
+    "coding_generate_pr_description": {"remote": True},
+    "coding_get_issue_context": {"remote": True},
+    # Coding tools with file access - DANGEROUS (reads server files)
+    "coding_index_source_code": {"remote": False},
+    "coding_analyze_file_dependencies": {"remote": False},
+    "coding_analyze_refactor_impact": {"remote": False},
+    # Claude Code memory tools - SAFE (database only)
+    "claude_code_save_session": {"remote": True},
+    "claude_code_search_past_work": {"remote": True},
     # GitHub operations - READ operations SAFE, WRITE operations DANGEROUS
     "github_exec": {"remote": False},  # General executor - dangerous
     "github_issue_view": {"remote": True},  # Read-only - safe
@@ -34,6 +69,10 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     "github_pr_view": {"remote": True},  # Read-only - safe
     "github_pr_create": {"remote": False},  # Write operation - dangerous
     "github_pr_merge": {"remote": False},  # Write operation - very dangerous
+    # GitHub safe wrappers - DANGEROUS (same as regular gh commands)
+    "gh_safe_exec": {"remote": False},  # General executor with safety checks
+    "gh_pr_create_safe": {"remote": False},  # Write operation with confirmation
+    "gh_pr_merge_safe": {"remote": False},  # Write operation with confirmation
     # Media operations - DANGEROUS (local application execution)
     "media_open_audio": {"remote": False},
     "media_open_image": {"remote": False},
@@ -41,7 +80,6 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     # Web/API tools - SAFE (external API calls only)
     "web_scrape": {"remote": True},
     "brave_web_search": {"remote": True},
-    "brave_local_search": {"remote": True},
     "brave_news_search": {"remote": True},
     "brave_image_search": {"remote": True},
     "brave_video_search": {"remote": True},
@@ -53,9 +91,13 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     # Multimodal tools - SAFE (database storage only)
     "multimodal_index": {"remote": True},
     "multimodal_search": {"remote": True},
-    # Meta/Routing tools - SAFE (in-memory only)
-    "meta_create_agent": {"remote": True},
+    # Meta tools - DANGEROUS (code generation/manipulation)
+    "meta_create_agent": {"remote": False},  # Code generation - dangerous
+    "meta_fix_code_error": {"remote": False},  # Code generation/execution risk
+    # Routing tools - SAFE (in-memory only)
     "route_query": {"remote": True},
+    # Academic tools - SAFE (API calls only)
+    "arxiv_search": {"remote": True},
     # Telemetry tools - SAFE (read-only metrics)
     "telemetry_stats": {"remote": True},
     "telemetry_cost": {"remote": True},
@@ -166,12 +208,24 @@ def get_tool_permission_info(tool_name: str) -> dict[str, bool | str]:
 
         # Determine reason
         if not remote_allowed:
-            if tool_name.startswith("file_"):
+            if tool_name.startswith("file_") or tool_name == "dir_list":
                 reason = "Local filesystem access"
             elif tool_name == "shell_exec":
                 reason = "Shell command execution"
             elif tool_name.startswith("media_open_"):
                 reason = "Local application execution"
+            elif tool_name.startswith("coding_") and (
+                "index" in tool_name
+                or "dependencies" in tool_name
+                or "refactor_impact" in tool_name
+            ):
+                reason = "Server filesystem access (reads local files)"
+            elif tool_name == "meta_fix_code_error":
+                reason = "Code generation/execution risk"
+            elif tool_name == "meta_create_agent":
+                reason = "Code generation risk"
+            elif tool_name.startswith("github_"):
+                reason = "GitHub write operations"
             else:
                 reason = "Restricted for security"
         else:

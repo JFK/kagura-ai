@@ -33,10 +33,16 @@ console = create_console()
 
 @click.group(name="config")
 def app() -> None:
-    """Manage Kagura configuration and API keys.
+    """Manage Kagura configuration, user profile, and API keys.
 
-    This command provides tools to list, validate, and test your
-    Kagura configuration including API keys and environment variables.
+    This command provides tools to configure user preferences, manage API keys,
+    and validate environment variables.
+
+    Common commands:
+      kagura config profile    Setup user preferences
+      kagura config api        Manage Memory API keys
+      kagura config list       Show environment variables
+      kagura config test       Test API connectivity
     """
 
 
@@ -430,6 +436,150 @@ def doctor() -> None:
 
 # Note: 'kagura config show' removed in v4.1.1 (Issue #555)
 # Use 'kagura config list' instead
+
+
+@app.command(name="profile")
+@click.option(
+    "--reset",
+    is_flag=True,
+    help="Reset user profile to defaults",
+)
+@click.option(
+    "--setup-rag",
+    is_flag=True,
+    help="Setup RAG environment (download models and build index)",
+)
+@click.option(
+    "--setup-reranking",
+    is_flag=True,
+    help="Setup reranking model for improved search quality",
+)
+@click.option(
+    "--full",
+    is_flag=True,
+    help="Full setup (user profile + RAG + reranking)",
+)
+def profile(
+    reset: bool, setup_rag: bool, setup_reranking: bool, full: bool
+) -> None:
+    """Setup user preferences and profile.
+
+    Configure your name, location, language, and interests for personalized
+    AI responses. Optionally set up RAG and reranking models.
+
+    Examples:
+        # Setup user profile
+        kagura config profile
+
+        # Reset profile to defaults
+        kagura config profile --reset
+
+        # Setup RAG environment
+        kagura config profile --setup-rag
+
+        # Full setup
+        kagura config profile --full
+    """
+    # Import here to avoid circular dependency
+    from kagura.cli.init import init as init_command
+
+    # Invoke the original init command with all parameters
+    ctx = click.get_current_context()
+    ctx.invoke(init_command, reset=reset, setup_rag=setup_rag, setup_reranking=setup_reranking, full=full)
+
+
+# API Key management subgroup
+@app.group(name="api")
+def api_group() -> None:
+    """Manage Memory API keys for remote access.
+
+    Create, list, revoke, and delete API keys for authenticating
+    with Kagura Memory API.
+
+    Examples:
+        kagura config api create-key --name "my-key"
+        kagura config api list-keys
+        kagura config api revoke-key --name "my-key"
+    """
+    pass
+
+
+@api_group.command(name="create-key")
+@click.option(
+    "--name",
+    required=True,
+    help="Friendly name for the API key",
+)
+@click.option(
+    "--user-id",
+    default="default_user",
+    help="User ID that owns this key (default: default_user)",
+)
+@click.option(
+    "--expires",
+    type=int,
+    help="Expiration in days (optional, no expiration by default)",
+)
+def create_key(name: str, user_id: str, expires: int | None) -> None:
+    """Create a new API key for Memory API authentication."""
+    from kagura.cli.api_cli import create_key as create_key_command
+
+    ctx = click.get_current_context()
+    ctx.invoke(create_key_command, name=name, user_id=user_id, expires=expires)
+
+
+@api_group.command(name="list-keys")
+@click.option(
+    "--user-id",
+    help="Filter by user ID (show all users by default)",
+)
+def list_keys(user_id: str | None) -> None:
+    """List all Memory API keys."""
+    from kagura.cli.api_cli import list_keys as list_keys_command
+
+    ctx = click.get_current_context()
+    ctx.invoke(list_keys_command, user_id=user_id)
+
+
+@api_group.command(name="revoke-key")
+@click.option(
+    "--name",
+    required=True,
+    help="Name of the API key to revoke",
+)
+@click.option(
+    "--user-id",
+    default="default_user",
+    help="User ID that owns the key (default: default_user)",
+)
+def revoke_key(name: str, user_id: str) -> None:
+    """Revoke a Memory API key."""
+    from kagura.cli.api_cli import revoke_key as revoke_key_command
+
+    ctx = click.get_current_context()
+    ctx.invoke(revoke_key_command, name=name, user_id=user_id)
+
+
+@api_group.command(name="delete-key")
+@click.option(
+    "--name",
+    required=True,
+    help="Name of the API key to delete",
+)
+@click.option(
+    "--user-id",
+    default="default_user",
+    help="User ID that owns the key (default: default_user)",
+)
+@click.confirmation_option(
+    prompt="Are you sure you want to permanently delete this key?"
+)
+def delete_key(name: str, user_id: str) -> None:
+    """Permanently delete a Memory API key."""
+    from kagura.cli.api_cli import delete_key as delete_key_command
+
+    ctx = click.get_current_context()
+    ctx.invoke(delete_key_command, name=name, user_id=user_id)
 
 
 if __name__ == "__main__":

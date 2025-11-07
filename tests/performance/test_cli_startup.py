@@ -11,6 +11,7 @@ import pytest
 
 
 @pytest.mark.performance
+@pytest.mark.slow
 def test_cli_startup_time_under_3_seconds():
     """Regression test for #548 - CLI commands must start in <3 seconds.
 
