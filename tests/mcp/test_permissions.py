@@ -333,6 +333,12 @@ class TestNewToolPermissions:
         info = get_tool_permission_info("meta_fix_code_error")
         assert info["reason"] == "Code generation/execution risk"
 
+    def test_meta_create_agent_is_dangerous(self):
+        """Test that meta_create_agent is dangerous (code generation)."""
+        assert TOOL_PERMISSIONS["meta_create_agent"]["remote"] is False
+        info = get_tool_permission_info("meta_create_agent")
+        assert info["reason"] == "Code generation risk"
+
     def test_claude_code_tools_are_safe(self):
         """Test that Claude Code memory tools are safe."""
         claude_code_tools = [

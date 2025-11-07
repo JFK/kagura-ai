@@ -91,9 +91,9 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     # Multimodal tools - SAFE (database storage only)
     "multimodal_index": {"remote": True},
     "multimodal_search": {"remote": True},
-    # Meta tools - mixed safety
-    "meta_create_agent": {"remote": True},  # Safe - creates config only
-    "meta_fix_code_error": {"remote": False},  # DANGEROUS - code generation/execution
+    # Meta tools - DANGEROUS (code generation/manipulation)
+    "meta_create_agent": {"remote": False},  # Code generation - dangerous
+    "meta_fix_code_error": {"remote": False},  # Code generation/execution risk
     # Routing tools - SAFE (in-memory only)
     "route_query": {"remote": True},
     # Academic tools - SAFE (API calls only)
@@ -222,6 +222,8 @@ def get_tool_permission_info(tool_name: str) -> dict[str, bool | str]:
                 reason = "Server filesystem access (reads local files)"
             elif tool_name == "meta_fix_code_error":
                 reason = "Code generation/execution risk"
+            elif tool_name == "meta_create_agent":
+                reason = "Code generation risk"
             elif tool_name.startswith("github_"):
                 reason = "GitHub write operations"
             else:
