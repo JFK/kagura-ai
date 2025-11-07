@@ -339,7 +339,7 @@ async def brave_search(query: str, count: int = 5) -> str:
     """
     import re
 
-    from kagura.tools import brave_web_search
+    from kagura.mcp.builtin.brave_search import brave_web_search
 
     console = Console()
     console.print(f"[dim]  └─ 🔍 Brave Search: {query}...[/]")
@@ -500,7 +500,7 @@ async def youtube_transcript(video_url: str, lang: str = "en") -> str:
     Returns:
         Video transcript text
     """
-    from kagura.tools import get_youtube_transcript
+    from kagura.mcp.builtin.youtube import get_youtube_transcript
 
     console = Console()
     console.print(f"[dim]📺 Getting transcript for: {video_url}...[/]")
@@ -521,7 +521,7 @@ async def youtube_metadata(video_url: str) -> str:
     Returns:
         JSON string with video metadata (title, author, duration, views, etc.)
     """
-    from kagura.tools import get_youtube_metadata
+    from kagura.mcp.builtin.youtube import get_youtube_metadata
 
     console = Console()
     console.print(f"[dim]📺 Getting metadata for: {video_url}...[/]")
