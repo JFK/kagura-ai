@@ -652,6 +652,7 @@ class TestMemoryList:
         assert "key_a" not in keys_b
 
 
+@pytest.mark.timeout(60)
 class TestMemoryGraphTools:
     """Test Graph Memory MCP tools (Issue #345)."""
 
