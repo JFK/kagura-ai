@@ -1222,7 +1222,7 @@ def log_command(
         raise click.Abort()
 
 
-@mcp.command(name="install-reranking")
+@mcp.command(name="install-reranking", hidden=True)
 @click.option(
     "--model",
     default="cross-encoder/ms-marco-MiniLM-L-6-v2",
