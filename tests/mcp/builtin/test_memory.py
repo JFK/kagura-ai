@@ -652,9 +652,12 @@ class TestMemoryList:
         assert "key_a" not in keys_b
 
 
-@pytest.mark.timeout(60)
+@pytest.mark.slow
 class TestMemoryGraphTools:
-    """Test Graph Memory MCP tools (Issue #345)."""
+    """Test Graph Memory MCP tools (Issue #345).
+
+    Note: Marked as slow due to GraphMemory (NetworkX) initialization overhead.
+    """
 
     @pytest.mark.asyncio
     async def test_record_interaction(self) -> None:
