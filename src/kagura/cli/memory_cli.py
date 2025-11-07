@@ -12,10 +12,21 @@ from typing import TYPE_CHECKING
 import click
 from rich.console import Console
 
+from kagura.config.project import get_default_user as _get_default_user_impl
+
 if TYPE_CHECKING:
     from kagura.core.memory import MemoryManager
 
 console = Console()
+
+
+def _get_default_user() -> str:
+    """Get default user with fallback.
+
+    Returns:
+        Default user ID (auto-detected or 'kiyota')
+    """
+    return _get_default_user_impl() or "kiyota"
 
 
 def _get_lightweight_memory_manager(
@@ -78,8 +89,8 @@ def memory_group() -> None:
 )
 @click.option(
     "--user-id",
-    default="default_user",
-    help="User ID to export (default: default_user)",
+    default=None,
+    help="User ID to export (default: auto-detect from pyproject.toml or $KAGURA_DEFAULT_USER)",
 )
 @click.option(
     "--agent-name",
@@ -125,6 +136,9 @@ def export_command(
         kagura memory export --output ./backup --user-id user_alice
     """
     from kagura.core.memory.export import MemoryExporter
+
+    # Auto-detect user if not provided
+    user_id = user_id or _get_default_user()
 
     console.print(f"\n[cyan]Exporting memory data for user '{user_id}'...[/cyan]")
     console.print()
@@ -188,8 +202,8 @@ def export_command(
 )
 @click.option(
     "--user-id",
-    default="default_user",
-    help="User ID to import as (default: default_user)",
+    default=None,
+    help="User ID to import as (default: auto-detect from pyproject.toml or $KAGURA_DEFAULT_USER)",
 )
 @click.option(
     "--agent-name",
@@ -222,6 +236,9 @@ def import_command(
         --clear flag will delete all existing memory data!
     """
     from kagura.core.memory.export import MemoryImporter
+
+    # Auto-detect user if not provided
+    user_id = user_id or _get_default_user()
 
     console.print(f"\n[cyan]Importing memory data for user '{user_id}'...[/cyan]")
 
@@ -638,10 +655,13 @@ def list_command(
     console.print("\n[cyan]Memory List[/cyan]")
     console.print()
 
+    # Auto-detect user if not provided
+    user_id = user_id or _get_default_user()
+
     try:
         # Use lightweight config for fast CLI startup (Issue #548, #527)
         manager = _get_lightweight_memory_manager(
-            user_id=user_id or "system",
+            user_id=user_id,
             agent_name=agent_name or "global",
             enable_rag=False,  # List doesn't need RAG
         )
