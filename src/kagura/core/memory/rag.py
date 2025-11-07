@@ -247,15 +247,53 @@ class MemoryRAG:
 
         logger.debug(f"MemoryRAG: Getting/creating collection '{collection_name}'")
 
+        # Determine expected embedding dimension
+        expected_dim = embedding_config.dimension if embedding_config else DEFAULT_EMBEDDING_DIM
+
         # Try to get existing collection first (backward compatibility)
+        collection_exists = False
+        needs_recreation = False
+
         try:
-            self.collection = self.client.get_collection(name=collection_name)
-            logger.debug(
-                f"MemoryRAG: Using existing collection '{collection_name}' "
-                f"(preserves existing embeddings)"
-            )
+            existing_collection = self.client.get_collection(name=collection_name)
+            collection_exists = True
+
+            # Check if dimension matches (avoid InvalidArgumentError)
+            # Peek at collection to get actual dimension
+            try:
+                # Get one item to check dimension
+                peek_result = existing_collection.peek(limit=1)
+                if peek_result and peek_result.get("embeddings"):
+                    actual_dim = len(peek_result["embeddings"][0])
+                    if actual_dim != expected_dim:
+                        logger.warning(
+                            f"MemoryRAG: Collection '{collection_name}' has dimension {actual_dim}, "
+                            f"but expected {expected_dim}. Recreating collection..."
+                        )
+                        needs_recreation = True
+                    else:
+                        logger.debug(
+                            f"MemoryRAG: Using existing collection '{collection_name}' "
+                            f"(dimension={actual_dim}, preserves existing embeddings)"
+                        )
+            except Exception as e:
+                # Empty collection or other error - safe to reuse
+                logger.debug(f"MemoryRAG: Could not check collection dimension ({e}), assuming empty collection")
+
         except Exception:
-            # Collection doesn't exist, create with specified embedding function
+            logger.debug(f"MemoryRAG: Collection '{collection_name}' does not exist")
+
+        # Recreate collection if dimension mismatch
+        if needs_recreation:
+            try:
+                self.client.delete_collection(name=collection_name)
+                logger.debug(f"MemoryRAG: Deleted collection '{collection_name}' due to dimension mismatch")
+                collection_exists = False
+            except Exception as e:
+                logger.error(f"MemoryRAG: Failed to delete collection: {e}")
+
+        # Create collection if needed
+        if not collection_exists or needs_recreation:
             self.collection = self.client.create_collection(
                 name=collection_name,
                 metadata={"hnsw:space": "cosine"},
@@ -264,8 +302,10 @@ class MemoryRAG:
             embedding_type = "E5-large" if (embedding_config and embedding_config.use_prefix) else "default"
             logger.debug(
                 f"MemoryRAG: Created new collection '{collection_name}' "
-                f"(embeddings={embedding_type})"
+                f"(embeddings={embedding_type}, dimension={expected_dim})"
             )
+        else:
+            self.collection = existing_collection
 
         # Semantic chunking support (lazy-loaded)
         self._chunker: Optional["SemanticChunker"] = None
