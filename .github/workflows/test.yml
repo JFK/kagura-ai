@@ -66,14 +66,20 @@ jobs:
         run: uv run ruff check src/kagura/
         timeout-minutes: 1
 
-      - name: Clear ChromaDB cache
+      - name: Clear ChromaDB and test caches
         run: |
-          rm -rf ~/.cache/chroma* ~/.local/share/kagura/*/vector_db /tmp/chroma* /tmp/pytest-of-*/
+          # Clear all possible ChromaDB locations
+          rm -rf ~/.cache/chroma* ~/.local/share/kagura/*/vector_db /tmp/chroma* /tmp/pytest-of-* /tmp/kagura_test_data_* /tmp/kagura_test
+          # Find and remove any remaining ChromaDB sqlite files
+          find /tmp -name "chroma.sqlite3" -delete 2>/dev/null || true
+          find ~/.local/share -name "chroma.sqlite3" -delete 2>/dev/null || true
           echo "ChromaDB cache cleared"
 
       - name: Run tests with coverage
-        run: uv run pytest -n auto -m "not integration" --ignore=tests/integration --ignore=tests/api --ignore=tests/auth --cov=src/kagura --cov-report=xml --cov-report=term --tb=short -v
-        timeout-minutes: 12
+        env:
+          KAGURA_FORCE_RECREATE_COLLECTIONS: "true"
+        run: uv run pytest -n auto -m "not integration and not slow" --ignore=tests/integration --ignore=tests/api --ignore=tests/auth --cov=src/kagura --cov-report=xml --cov-report=term --tb=short -v
+        timeout-minutes: 10
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

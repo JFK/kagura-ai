@@ -258,75 +258,83 @@ class MemoryRAG:
         # If we fell back to default due to ImportError, use DEFAULT_EMBEDDING_DIM
         expected_dim = embedding_config.dimension if (embedding_config and using_custom_embeddings) else DEFAULT_EMBEDDING_DIM
 
+        # Check if forced recreation is enabled (for CI/testing)
+        import os
+        force_recreate = os.getenv("KAGURA_FORCE_RECREATE_COLLECTIONS", "").lower() == "true"
+
+        if force_recreate:
+            logger.debug(f"MemoryRAG: Force recreation enabled, will delete existing collection '{collection_name}' if exists")
+
         # Try to get existing collection first (backward compatibility)
         collection_exists = False
-        needs_recreation = False
+        needs_recreation = force_recreate  # Force recreation if env var is set
 
-        try:
-            existing_collection = self.client.get_collection(name=collection_name)
-            collection_exists = True
-
-            # Check if dimension matches (avoid InvalidArgumentError)
-            # Try to determine actual dimension from existing collection
+        if not force_recreate:
             try:
-                actual_dim = None
+                existing_collection = self.client.get_collection(name=collection_name)
+                collection_exists = True
 
-                # Method 1: Check existing embeddings via peek()
-                peek_result = existing_collection.peek(limit=1)
-                embeddings = peek_result.get("embeddings") if peek_result else None
-                if embeddings is not None and len(embeddings) > 0:
-                    actual_dim = len(embeddings[0])
+                # Check if dimension matches (avoid InvalidArgumentError)
+                # Try to determine actual dimension from existing collection
+                try:
+                    actual_dim = None
 
-                # Method 2: Try adding a test embedding to detect mismatch
-                if actual_dim is None:
-                    test_id = "__dimension_test__"
-                    try:
-                        # Create a test embedding with expected dimension
-                        test_embedding = [0.0] * expected_dim
-                        # Try to add (will fail if dimension mismatches)
-                        existing_collection.add(
-                            ids=[test_id],
-                            embeddings=[test_embedding],
-                            metadatas=[{"test": True}],
-                        )
-                        # If successful, assume correct dimension
-                        actual_dim = expected_dim
-                    except Exception as add_error:
-                        # Failed to add - likely dimension mismatch
-                        needs_recreation = True
-                        logger.warning(
-                            f"MemoryRAG: Collection '{collection_name}' dimension test failed ({add_error}). "
-                            "Recreating collection..."
-                        )
-                    finally:
-                        # Always try to clean up test document, even if add failed
+                    # Method 1: Check existing embeddings via peek()
+                    peek_result = existing_collection.peek(limit=1)
+                    embeddings = peek_result.get("embeddings") if peek_result else None
+                    if embeddings is not None and len(embeddings) > 0:
+                        actual_dim = len(embeddings[0])
+
+                    # Method 2: Try adding a test embedding to detect mismatch
+                    if actual_dim is None:
+                        test_id = "__dimension_test__"
                         try:
-                            existing_collection.delete(ids=[test_id])
-                        except Exception:
-                            # Ignore cleanup errors (document may not exist)
-                            pass
+                            # Create a test embedding with expected dimension
+                            test_embedding = [0.0] * expected_dim
+                            # Try to add (will fail if dimension mismatches)
+                            existing_collection.add(
+                                ids=[test_id],
+                                embeddings=[test_embedding],
+                                metadatas=[{"test": True}],
+                            )
+                            # If successful, assume correct dimension
+                            actual_dim = expected_dim
+                        except Exception as add_error:
+                            # Failed to add - likely dimension mismatch
+                            needs_recreation = True
+                            logger.warning(
+                                f"MemoryRAG: Collection '{collection_name}' dimension test failed ({add_error}). "
+                                "Recreating collection..."
+                            )
+                        finally:
+                            # Always try to clean up test document, even if add failed
+                            try:
+                                existing_collection.delete(ids=[test_id])
+                            except Exception:
+                                # Ignore cleanup errors (document may not exist)
+                                pass
 
-                # Compare dimensions if we determined actual_dim
-                if actual_dim is not None and actual_dim != expected_dim:
+                    # Compare dimensions if we determined actual_dim
+                    if actual_dim is not None and actual_dim != expected_dim:
+                        logger.warning(
+                            f"MemoryRAG: Collection '{collection_name}' has dimension {actual_dim}, "
+                            f"but expected {expected_dim}. Recreating collection..."
+                        )
+                        needs_recreation = True
+                    elif actual_dim is not None:
+                        logger.debug(
+                            f"MemoryRAG: Using existing collection '{collection_name}' "
+                            f"(dimension={actual_dim}, preserves existing embeddings)"
+                        )
+                except Exception as e:
+                    # Could not determine dimension - log warning
                     logger.warning(
-                        f"MemoryRAG: Collection '{collection_name}' has dimension {actual_dim}, "
-                        f"but expected {expected_dim}. Recreating collection..."
+                        f"MemoryRAG: Could not verify collection dimension ({e}). "
+                        "Collection may have incompatible dimension."
                     )
-                    needs_recreation = True
-                elif actual_dim is not None:
-                    logger.debug(
-                        f"MemoryRAG: Using existing collection '{collection_name}' "
-                        f"(dimension={actual_dim}, preserves existing embeddings)"
-                    )
-            except Exception as e:
-                # Could not determine dimension - log warning
-                logger.warning(
-                    f"MemoryRAG: Could not verify collection dimension ({e}). "
-                    "Collection may have incompatible dimension."
-                )
 
-        except Exception:
-            logger.debug(f"MemoryRAG: Collection '{collection_name}' does not exist")
+            except Exception:
+                logger.debug(f"MemoryRAG: Collection '{collection_name}' does not exist")
 
         # Recreate collection if dimension mismatch
         if needs_recreation:
