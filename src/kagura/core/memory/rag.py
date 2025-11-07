@@ -277,44 +277,34 @@ class MemoryRAG:
                 if embeddings is not None and len(embeddings) > 0:
                     actual_dim = len(embeddings[0])
 
-                # Method 2: If no embeddings, check collection's embedding function
-                if actual_dim is None and hasattr(existing_collection, "_embedding_function"):
-                    try:
-                        ef = existing_collection._embedding_function
-                        # Try to infer dimension from embedding function (private API)
-                        if ef is not None and hasattr(ef, "_model_name"):
-                            # Check if it's the old or new model
-                            model_name = getattr(ef, "_model_name", "")
-                            if "e5" in model_name.lower() or "multilingual" in model_name.lower():
-                                actual_dim = 1024  # New model
-                            else:
-                                actual_dim = 384  # Old model (all-MiniLM-L6-v2)
-                    except (AttributeError, TypeError):
-                        # Embedding function doesn't have expected attributes
-                        pass
-
-                # Method 3: Try adding a test embedding to detect mismatch
+                # Method 2: Try adding a test embedding to detect mismatch
                 if actual_dim is None:
+                    test_id = "__dimension_test__"
                     try:
                         # Create a test embedding with expected dimension
                         test_embedding = [0.0] * expected_dim
                         # Try to add (will fail if dimension mismatches)
                         existing_collection.add(
-                            ids=["__dimension_test__"],
+                            ids=[test_id],
                             embeddings=[test_embedding],
                             metadatas=[{"test": True}],
                         )
-                        # If successful, clean up and assume correct dimension
-                        existing_collection.delete(ids=["__dimension_test__"])
+                        # If successful, assume correct dimension
                         actual_dim = expected_dim
-                    except Exception:
+                    except Exception as add_error:
                         # Failed to add - likely dimension mismatch
-                        # Assume needs recreation
                         needs_recreation = True
                         logger.warning(
-                            f"MemoryRAG: Collection '{collection_name}' dimension test failed. "
+                            f"MemoryRAG: Collection '{collection_name}' dimension test failed ({add_error}). "
                             "Recreating collection..."
                         )
+                    finally:
+                        # Always try to clean up test document, even if add failed
+                        try:
+                            existing_collection.delete(ids=[test_id])
+                        except Exception:
+                            # Ignore cleanup errors (document may not exist)
+                            pass
 
                 # Compare dimensions if we determined actual_dim
                 if actual_dim is not None and actual_dim != expected_dim:
@@ -734,34 +724,22 @@ class MemoryRAG:
         else:
             return self.collection.count()
 
-    def _get_chunks_by_parent(
-        self, parent_id: str, user_id: Optional[str] = None
+    def _build_chunks_from_results(
+        self, results: dict[str, Any]
     ) -> list[dict[str, Any]]:
-        """Get all chunks for a parent document, sorted by chunk_index.
+        """Build chunk list from ChromaDB query results.
 
-        Helper method to reduce duplication in chunk retrieval methods.
+        Extracts common chunk building logic to reduce duplication.
 
         Args:
-            parent_id: Parent document ID
-            user_id: Optional user filter
+            results: ChromaDB query results dict with ids, documents, metadatas
 
         Returns:
             List of chunks sorted by chunk_index
         """
-        # Build where clause with proper $and operator if multiple conditions
-        if user_id:
-            where_clause: dict[str, Any] = {
-                "$and": [{"parent_id": parent_id}, {"user_id": user_id}]
-            }
-        else:
-            where_clause = {"parent_id": parent_id}
-
-        results = self.collection.get(where=where_clause)
-
         if not results["ids"]:
             return []
 
-        # Build chunk list
         chunks = []
         for i in range(len(results["ids"])):
             metadata = (
@@ -785,6 +763,31 @@ class MemoryRAG:
         # Sort by chunk_index
         chunks.sort(key=lambda x: x["chunk_index"])
         return chunks
+
+    def _get_chunks_by_parent(
+        self, parent_id: str, user_id: Optional[str] = None
+    ) -> list[dict[str, Any]]:
+        """Get all chunks for a parent document, sorted by chunk_index.
+
+        Helper method to reduce duplication in chunk retrieval methods.
+
+        Args:
+            parent_id: Parent document ID
+            user_id: Optional user filter
+
+        Returns:
+            List of chunks sorted by chunk_index
+        """
+        # Build where clause with proper $and operator if multiple conditions
+        if user_id:
+            where_clause: dict[str, Any] = {
+                "$and": [{"parent_id": parent_id}, {"user_id": user_id}]
+            }
+        else:
+            where_clause = {"parent_id": parent_id}
+
+        results = self.collection.get(where=where_clause)
+        return self._build_chunks_from_results(results)
 
     def _get_chunks_by_parent_in_range(
         self,
@@ -819,34 +822,7 @@ class MemoryRAG:
         where_clause: dict[str, Any] = {"$and": base_conditions}
 
         results = self.collection.get(where=where_clause)
-
-        if not results["ids"]:
-            return []
-
-        # Build chunk list
-        chunks = []
-        for i in range(len(results["ids"])):
-            metadata = (
-                results["metadatas"][i]
-                if results["metadatas"] and i < len(results["metadatas"])
-                else {}
-            )
-            chunk_index = metadata.get("chunk_index", 0)
-
-            chunks.append({
-                "id": results["ids"][i],
-                "content": (
-                    results["documents"][i]
-                    if results["documents"] and i < len(results["documents"])
-                    else ""
-                ),
-                "metadata": metadata,
-                "chunk_index": chunk_index,
-            })
-
-        # Sort by chunk_index
-        chunks.sort(key=lambda x: x["chunk_index"])
-        return chunks
+        return self._build_chunks_from_results(results)
 
     def get_chunk_context(
         self,

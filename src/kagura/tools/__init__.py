@@ -6,40 +6,20 @@ Imports here are provided for backward compatibility only.
 
 Deprecated: This module is deprecated. Use kagura.mcp.builtin instead.
 """
-import inspect
 import warnings
 
-
-# Check if this is being imported from external code (not kagura internal)
-def _is_external_import() -> bool:
-    """Check if import is from external code (not kagura package itself)."""
-    try:
-        # Walk up the stack to find the importing module
-        for frame_info in inspect.stack()[2:]:  # Skip this function and the importer
-            frame_module = inspect.getmodule(frame_info.frame)
-            if frame_module and hasattr(frame_module, "__name__"):
-                module_name = frame_module.__name__
-                # If the importing module is not part of kagura package, it's external
-                if not module_name.startswith("kagura."):
-                    return True
-        return False
-    except Exception:
-        # If we can't determine, assume external to be safe
-        return True
-
-
-# Issue DeprecationWarning only for external users
-if _is_external_import():
-    warnings.warn(
-        "kagura.tools is deprecated and will be removed in v5.0.0. "
-        "Please migrate to kagura.mcp.builtin:\n"
-        "  - from kagura.tools import brave_web_search\n"
-        "  + from kagura.mcp.builtin.brave_search import brave_web_search\n"
-        "  - from kagura.tools import get_youtube_transcript\n"
-        "  + from kagura.mcp.builtin.youtube import get_youtube_transcript",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+# Issue DeprecationWarning for all imports
+# Users can suppress internal warnings in their test configurations if needed
+warnings.warn(
+    "kagura.tools is deprecated and will be removed in v5.0.0. "
+    "Please migrate to kagura.mcp.builtin:\n"
+    "  - from kagura.tools import brave_web_search\n"
+    "  + from kagura.mcp.builtin.brave_search import brave_web_search\n"
+    "  - from kagura.tools import get_youtube_transcript\n"
+    "  + from kagura.mcp.builtin.youtube import get_youtube_transcript",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 # Backward compatibility: All tools moved to MCP builtin
 from kagura.mcp.builtin.brave_search import (  # noqa: E402
