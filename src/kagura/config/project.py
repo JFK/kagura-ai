@@ -173,39 +173,6 @@ def get_default_user() -> Optional[str]:
     return None
 
 
-def is_reranking_model_cached() -> bool:
-    """Check if reranking model is already downloaded/cached.
-
-    Returns:
-        True if model is cached and ready to use
-    """
-    try:
-        from kagura.config.paths import get_data_dir
-
-        # Check standard cache locations for sentence-transformers
-        cache_dir = get_data_dir() / "models"
-        model_path = cache_dir / "cross-encoder_ms-marco-MiniLM-L-6-v2"
-
-        if model_path.exists():
-            return True
-
-        # Also check HuggingFace cache directory
-        hf_cache = Path.home() / ".cache" / "huggingface" / "hub"
-        if hf_cache.exists():
-            # Look for model files
-            for item in hf_cache.iterdir():
-                if (
-                    "cross-encoder" in item.name.lower()
-                    and "marco" in item.name.lower()
-                ):
-                    return True
-
-    except Exception:  # ChromaDB not installed or cache access failed
-        pass
-
-    return False
-
-
 def get_reranking_enabled() -> bool:
     """Get reranking enabled flag from configuration.
 
@@ -235,8 +202,12 @@ def get_reranking_enabled() -> bool:
         return bool(pyproject_config["enable_reranking"])
 
     # Priority 3: Auto-enable if model is cached (smart default)
-    if is_reranking_model_cached():
-        return True
+    try:
+        from kagura.core.memory.reranker import is_reranker_available
+        if is_reranker_available(check_fallback=True):
+            return True
+    except Exception:  # Import or check failed
+        pass
 
     # Default: False (conservative for first-time users, offline-friendly)
     return False

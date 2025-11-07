@@ -14,7 +14,7 @@ def test_rerank_config_defaults():
     assert (
         config.enabled is False
     )  # Conservative default: avoid crashes in offline envs
-    assert config.model == "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    assert config.model == "BAAI/bge-reranker-v2-m3"  # Updated to BGE reranker
     assert config.candidates_k == 100
     assert config.top_k == 20
     assert config.batch_size == 32
@@ -129,3 +129,38 @@ def test_reranker_repr():
     repr_str = repr(reranker)
     assert "test-model" in repr_str
     assert "16" in repr_str
+
+
+@pytest.mark.slow
+def test_reranker_fallback_to_msmarco():
+    """Test automatic fallback from BGE to ms-marco if primary model fails.
+
+    When a non-existent model is specified, the reranker should automatically
+    fall back to the ms-marco model as a safety mechanism.
+    """
+    # Try to initialize with a non-existent model to trigger fallback
+    config = RerankConfig(model="non-existent-model/does-not-exist-v999")
+
+    # Should successfully fall back to ms-marco
+    reranker = MemoryReranker(config)
+
+    # Verify fallback occurred
+    assert reranker.model is not None
+    assert reranker.config.model == "cross-encoder/ms-marco-MiniLM-L-6-v2"
+
+
+@pytest.mark.slow
+def test_reranker_bge_or_msmarco_loads():
+    """Test that either BGE or ms-marco model loads successfully.
+
+    This ensures at least one reranker model is available for use.
+    """
+    config = RerankConfig()  # Uses BGE by default
+    reranker = MemoryReranker(config)
+
+    # Should successfully load either BGE or ms-marco (fallback)
+    assert reranker.model is not None
+    assert reranker.config.model in [
+        "BAAI/bge-reranker-v2-m3",
+        "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    ]

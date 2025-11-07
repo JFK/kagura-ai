@@ -6,6 +6,7 @@ Provides a unified interface to all memory types (working, context, persistent).
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -116,17 +117,23 @@ class MemoryManager:
                 f"MemoryManager: RAG collection={collection_name}, dir={vector_dir}"
             )
 
-            # Working memory RAG
-            logger.debug("MemoryManager: Creating working MemoryRAG")
+            # Working memory RAG (with semantic chunking and E5 embeddings support)
+            logger.debug("MemoryManager: Creating working MemoryRAG with chunking and E5 support")
             self.rag = MemoryRAG(
-                collection_name=f"{collection_name}_working", persist_dir=vector_dir
+                collection_name=f"{collection_name}_working",
+                persist_dir=vector_dir,
+                chunking_config=self.config.chunking if self.config else None,
+                embedding_config=self.config.embedding if self.config else None,
             )
             logger.debug("MemoryManager: Working MemoryRAG created")
 
-            # Persistent memory RAG
-            logger.debug("MemoryManager: Creating persistent MemoryRAG")
+            # Persistent memory RAG (with semantic chunking and E5 embeddings support)
+            logger.debug("MemoryManager: Creating persistent MemoryRAG with chunking and E5 support")
             self.persistent_rag = MemoryRAG(
-                collection_name=f"{collection_name}_persistent", persist_dir=vector_dir
+                collection_name=f"{collection_name}_persistent",
+                persist_dir=vector_dir,
+                chunking_config=self.config.chunking if self.config else None,
+                embedding_config=self.config.embedding if self.config else None,
             )
             logger.debug("MemoryManager: Persistent MemoryRAG created")
         else:
@@ -730,6 +737,205 @@ class MemoryManager:
             - Technical terms and code
             - Queries requiring both semantic and exact matching
         """
+        self._validate_hybrid_search_requirements()
+
+        # Use config defaults if not specified
+        final_top_k = top_k or self.config.rerank.top_k
+        retrieve_k = candidates_k or self.config.hybrid_search.candidates_k
+
+        # Retrieve candidates from both search methods
+        vector_results, lexical_results = self._retrieve_hybrid_candidates(
+            query, scope, retrieve_k
+        )
+
+        # Fuse results
+        fused_results = self._fuse_search_results(
+            vector_results, lexical_results, retrieve_k
+        )
+
+        # Stage 4: Cross-encoder reranking (optional)
+        if enable_rerank and self.reranker and fused_results:
+            fused_results = self.reranker.rerank(query, fused_results, top_k=final_top_k)
+
+        # Apply composite scoring and return
+        return self._apply_composite_scoring(fused_results, final_top_k)
+
+    def _retrieve_hybrid_candidates(
+        self, query: str, scope: str, retrieve_k: int
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """Retrieve candidates from both vector and lexical search.
+
+        Args:
+            query: Search query
+            scope: Memory scope ("all", "working", "persistent")
+            retrieve_k: Number of candidates to retrieve from each search
+
+        Returns:
+            Tuple of (vector_results, lexical_results)
+        """
+        # Stage 1: Vector search (semantic)
+        vector_results = self.recall_semantic(query, top_k=retrieve_k, scope=scope)
+
+        # Add rank field for debugging (1-based)
+        for rank, result in enumerate(vector_results, start=1):
+            result["rank"] = rank
+
+        # Stage 2: Lexical search (keyword)
+        # TODO: Auto-index on document store (Issue #581)
+        lexical_results: list[dict[str, Any]] = []
+        if self.lexical_searcher and self.lexical_searcher.count() > 0:
+            lexical_results = self.lexical_searcher.search(
+                query,
+                k=retrieve_k,
+                min_score=self.config.hybrid_search.min_lexical_score,
+            )
+
+        return vector_results, lexical_results
+
+    def _fuse_search_results(
+        self,
+        vector_results: list[dict[str, Any]],
+        lexical_results: list[dict[str, Any]],
+        retrieve_k: int,
+    ) -> list[dict[str, Any]]:
+        """Fuse vector and lexical results using RRF.
+
+        Args:
+            vector_results: Results from semantic search
+            lexical_results: Results from BM25 search
+            retrieve_k: Number of results to keep after fusion
+
+        Returns:
+            Fused results sorted by RRF score
+        """
+        # Stage 3: RRF fusion
+        if lexical_results:
+            # Combine using RRF
+            fused_ids_scores = rrf_fusion(
+                vector_results,
+                lexical_results,
+                k=self.config.hybrid_search.rrf_k,
+            )
+
+            # Rebuild results from fused IDs
+            id_to_doc = {r["id"]: r for r in vector_results}
+            id_to_doc.update({r["id"]: r for r in lexical_results})
+
+            fused_results = []
+            for doc_id, rrf_score in fused_ids_scores[:retrieve_k]:
+                if doc_id in id_to_doc:
+                    doc = id_to_doc[doc_id].copy()
+                    doc["rrf_score"] = rrf_score
+                    fused_results.append(doc)
+            return fused_results
+        else:
+            # Fallback to vector-only if no lexical results
+            return vector_results[:retrieve_k]
+
+    def _apply_composite_scoring(
+        self, results: list[dict[str, Any]], top_k: int
+    ) -> list[dict[str, Any]]:
+        """Apply RecallScorer composite scoring if enabled.
+
+        Args:
+            results: Search results to score
+            top_k: Number of final results to return
+
+        Returns:
+            Results with composite scores, sorted and limited to top_k
+        """
+        if not self.recall_scorer or not results:
+            return results[:top_k]
+
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.debug(f"Applying RecallScorer to {len(results)} results")
+
+        for result in results:
+            metadata = result.get("metadata", {})
+
+            # Parse created_at timestamp
+            created_at = self._parse_created_at(metadata.get("created_at"))
+
+            # Compute composite score for this result
+            result["composite_score"] = self._compute_single_result_score(result, created_at)
+
+        # Re-sort by composite score (higher is better)
+        results.sort(key=lambda x: x.get("composite_score", 0.0), reverse=True)
+
+        return results[:top_k]
+
+    def _parse_created_at(self, created_at_raw: Any) -> datetime:
+        """Parse created_at from various formats to datetime.
+
+        Args:
+            created_at_raw: Timestamp (datetime, ISO string, or None)
+
+        Returns:
+            Parsed datetime (defaults to current time if unavailable)
+        """
+        from datetime import datetime
+
+        if isinstance(created_at_raw, str):
+            try:
+                return datetime.fromisoformat(created_at_raw.replace("Z", "+00:00"))
+            except (ValueError, AttributeError):
+                pass
+        elif isinstance(created_at_raw, datetime):
+            return created_at_raw
+
+        # Default to current time if unavailable
+        return datetime.now()
+
+    def _compute_single_result_score(
+        self, result: dict[str, Any], created_at: datetime
+    ) -> float:
+        """Compute composite score for a single search result.
+
+        Args:
+            result: Search result dictionary
+            created_at: Parsed creation timestamp
+
+        Returns:
+            Composite score (0.0-1.0+)
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+        metadata = result.get("metadata", {})
+
+        # Handle lexical-only results (no distance field from BM25)
+        distance = result.get("distance")
+        if distance is not None:
+            semantic_sim = 1.0 - distance
+        else:
+            # Lexical-only hit - use RRF score as proxy (scaled down)
+            rrf_score = result.get("rrf_score", 0.0)
+            semantic_sim = rrf_score * 0.5
+
+        try:
+            # Type guard: recall_scorer is guaranteed non-None by caller check
+            assert self.recall_scorer is not None
+            return self.recall_scorer.compute_score(
+                semantic_sim=semantic_sim,
+                created_at=created_at,
+                last_accessed=metadata.get("last_accessed"),
+                access_count=metadata.get("access_count", 0),
+                graph_distance=None,  # Graph integration in future
+                importance=metadata.get("importance", 0.5),
+            )
+        except Exception as e:
+            logger.warning(f"RecallScorer failed for {result.get('id')}: {e}")
+            # Fallback to RRF score
+            return result.get("rrf_score", 0.0)
+
+    def _validate_hybrid_search_requirements(self) -> None:
+        """Validate RAG and lexical searcher are available for hybrid search.
+
+        Raises:
+            ValueError: If RAG or lexical searcher not available
+        """
         if not self.rag and not self.persistent_rag:
             raise ValueError(
                 "RAG (semantic search) is not enabled.\n\n"
@@ -747,60 +953,6 @@ class MemoryManager:
                 "  Or: pip install kagura-ai[ai] (includes all search features)\n\n"
                 "💡 Lexical search uses BM25 algorithm for exact keyword matching"
             )
-
-        # Use config defaults if not specified
-        final_top_k = top_k or self.config.rerank.top_k
-        retrieve_k = candidates_k or self.config.hybrid_search.candidates_k
-
-        # Stage 1: Vector search (semantic)
-        vector_results = self.recall_semantic(query, top_k=retrieve_k, scope=scope)
-
-        # Add rank field (1-based)
-        for rank, result in enumerate(vector_results, start=1):
-            result["rank"] = rank
-
-        # Stage 2: Lexical search (keyword)
-        # First, ensure documents are indexed
-        # TODO: Auto-index on document store
-        # For now, search from existing vector results as fallback
-        lexical_results: list[dict[str, Any]] = []
-        if self.lexical_searcher.count() > 0:
-            lexical_results = self.lexical_searcher.search(
-                query,
-                k=retrieve_k,
-                min_score=self.config.hybrid_search.min_lexical_score,
-            )
-
-        # Stage 3: RRF fusion
-        if lexical_results:
-            # Combine using RRF
-            fused_ids_scores = rrf_fusion(
-                vector_results,
-                lexical_results,
-                k=self.config.hybrid_search.rrf_k,
-            )
-
-            # Rebuild results from fused IDs
-            # Map doc IDs to full documents
-            id_to_doc = {r["id"]: r for r in vector_results}
-            id_to_doc.update({r["id"]: r for r in lexical_results})
-
-            fused_results = []
-            for doc_id, rrf_score in fused_ids_scores[:retrieve_k]:
-                if doc_id in id_to_doc:
-                    doc = id_to_doc[doc_id].copy()
-                    doc["rrf_score"] = rrf_score
-                    fused_results.append(doc)
-        else:
-            # Fallback to vector-only if no lexical results
-            fused_results = vector_results[:retrieve_k]
-
-        # Stage 4: Cross-encoder reranking (optional)
-        if enable_rerank and self.reranker and fused_results:
-            reranked = self.reranker.rerank(query, fused_results, top_k=final_top_k)
-            return reranked
-
-        return fused_results[:final_top_k]
 
     def clear_all(self) -> None:
         """Clear all memory (working and context).

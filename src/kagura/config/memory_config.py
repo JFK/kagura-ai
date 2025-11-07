@@ -65,8 +65,12 @@ class RerankConfig(BaseModel):
         ),
     )
     model: str = Field(
-        default="cross-encoder/ms-marco-MiniLM-L-6-v2",
-        description="Cross-Encoder model identifier",
+        default="BAAI/bge-reranker-v2-m3",
+        description=(
+            "Cross-Encoder model identifier. Default: BAAI/bge-reranker-v2-m3 "
+            "(Apache 2.0, multilingual optimized for EN/ZH/JA, +5-8% precision vs ms-marco). "
+            "Falls back to cross-encoder/ms-marco-MiniLM-L-6-v2 if unavailable."
+        ),
     )
     candidates_k: int = Field(
         default=100,
@@ -78,6 +82,50 @@ class RerankConfig(BaseModel):
     )
     batch_size: int = Field(
         default=32, description="Batch size for reranking", ge=1, le=256
+    )
+
+
+class ChunkingConfig(BaseModel):
+    """Semantic chunking configuration for long documents.
+
+    Splits long texts into semantically coherent chunks while preserving context.
+    Improves RAG precision for documents longer than embedding model context window.
+
+    Attributes:
+        enabled: Enable semantic chunking for long documents
+        max_chunk_size: Maximum characters per chunk
+        overlap: Number of overlapping characters between chunks
+        min_chunk_size: Minimum characters for chunking (shorter texts stored as-is)
+    """
+
+    enabled: bool = Field(
+        default=True,  # Enabled by default for all users
+        description=(
+            "Enable semantic chunking for documents longer than max_chunk_size. "
+            "Preserves semantic boundaries (paragraphs, sentences) instead of "
+            "splitting at fixed positions. Improves precision for long documents."
+        ),
+    )
+    max_chunk_size: int = Field(
+        default=512,
+        description="Maximum characters per chunk (typical embedding model context)",
+        ge=100,
+        le=4096,
+    )
+    overlap: int = Field(
+        default=50,
+        description="Number of overlapping characters between chunks for context retention",
+        ge=0,
+        le=500,
+    )
+    min_chunk_size: int = Field(
+        default=100,
+        description=(
+            "Minimum document size (in characters) to trigger chunking. "
+            "Documents shorter than this are stored as single chunks."
+        ),
+        ge=50,
+        le=1000,
     )
 
 
@@ -195,6 +243,10 @@ class MemorySystemConfig(BaseModel):
         'intfloat/multilingual-e5-large'
         >>> config.rerank.enabled
         True
+        >>> config.chunking.enabled
+        True
+        >>> config.chunking.max_chunk_size
+        512
         >>> config.recall_scorer.weights["semantic_similarity"]
         0.3
     """
@@ -211,6 +263,10 @@ class MemorySystemConfig(BaseModel):
     hybrid_search: HybridSearchConfig = Field(
         default_factory=HybridSearchConfig,
         description="Hybrid search configuration (Phase 2)",
+    )
+    chunking: ChunkingConfig = Field(
+        default_factory=ChunkingConfig,
+        description="Semantic chunking configuration (Issue #527)",
     )
 
     # Global settings

@@ -257,7 +257,7 @@ class TestGetRerankingEnabled:
 
         with patch("kagura.config.project.load_pyproject_config", return_value={}):
             with patch(
-                "kagura.config.project.is_reranking_model_cached", return_value=True
+                "kagura.core.memory.reranker.is_reranker_available", return_value=True
             ):
                 assert get_reranking_enabled() is True
 
@@ -267,6 +267,6 @@ class TestGetRerankingEnabled:
 
         with patch("kagura.config.project.load_pyproject_config", return_value={}):
             with patch(
-                "kagura.config.project.is_reranking_model_cached", return_value=False
+                "kagura.core.memory.reranker.is_reranker_available", return_value=False
             ):
                 assert get_reranking_enabled() is False

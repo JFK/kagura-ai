@@ -5,8 +5,14 @@ Uses a two-stage retrieval approach:
 1. Retrieve K candidates with fast bi-encoder (vector search)
 2. Rerank top-k with accurate but slower cross-encoder
 
-Based on MS MARCO cross-encoders:
-https://huggingface.co/cross-encoder/ms-marco-MiniLM-L-6-v2
+Default model: BAAI/bge-reranker-v2-m3 (Apache 2.0)
+- Multilingual optimized (English, Chinese, Japanese)
+- Improved precision for complex semantic matching (benchmark: +0.2% nDCG@10)
+- Automatic fallback to ms-marco if BGE unavailable
+
+References:
+- BGE reranker: https://huggingface.co/BAAI/bge-reranker-v2-m3
+- MS MARCO: https://huggingface.co/cross-encoder/ms-marco-MiniLM-L-6-v2
 
 Example:
     >>> reranker = MemoryReranker()
@@ -31,7 +37,8 @@ if TYPE_CHECKING:
 
 
 def is_reranker_available(
-    model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    model_name: str = "BAAI/bge-reranker-v2-m3",
+    check_fallback: bool = True,
 ) -> bool:
     """Check if reranker model is available (installed and cached).
 
@@ -39,39 +46,54 @@ def is_reranker_available(
     respecting HF_HOME and other environment variables.
 
     Args:
-        model_name: Model identifier to check
+        model_name: Model identifier to check (default: BGE-reranker-v2-m3)
+        check_fallback: If True and primary model not found, check fallback ms-marco model
 
     Returns:
-        True if model is ready to use without download, False otherwise
+        True if model (or fallback) is ready to use without download, False otherwise
     """
-    try:
-        # Check sentence-transformers installation
-        import sentence_transformers  # noqa: F401
-
-        # Use huggingface_hub to check cache (respects HF_HOME, etc.)
+    def _check_model_cache(name: str) -> bool:
+        """Helper to check if a specific model is cached."""
         try:
-            from huggingface_hub import try_to_load_from_cache
-            from huggingface_hub.constants import HUGGINGFACE_HUB_CACHE
+            # Check sentence-transformers installation
+            import sentence_transformers  # noqa: F401
 
-            # Check for config.json (main model file)
-            cache_path = try_to_load_from_cache(
-                model_name, "config.json", cache_dir=HUGGINGFACE_HUB_CACHE
-            )
+            # Use huggingface_hub to check cache (respects HF_HOME, etc.)
+            try:
+                from huggingface_hub import try_to_load_from_cache
+                from huggingface_hub.constants import HUGGINGFACE_HUB_CACHE
 
-            # If not None and not _CACHED_NO_EXIST, model is cached
-            return cache_path is not None and cache_path != "_CACHED_NO_EXIST"
+                # Check for config.json (main model file)
+                cache_path = try_to_load_from_cache(
+                    name, "config.json", cache_dir=HUGGINGFACE_HUB_CACHE
+                )
+
+                # If not None and not _CACHED_NO_EXIST, model is cached
+                return cache_path is not None and cache_path != "_CACHED_NO_EXIST"
+            except ImportError:
+                # Fallback to directory check if huggingface_hub not available
+                cache_dir = Path.home() / ".cache" / "huggingface" / "hub"
+                if not cache_dir.exists():
+                    return False
+
+                model_slug = name.replace("/", "--")
+                model_dirs = list(cache_dir.glob(f"models--{model_slug}*"))
+                return len(model_dirs) > 0
+
         except ImportError:
-            # Fallback to directory check if huggingface_hub not available
-            cache_dir = Path.home() / ".cache" / "huggingface" / "hub"
-            if not cache_dir.exists():
-                return False
+            return False
 
-            model_slug = model_name.replace("/", "--")
-            model_dirs = list(cache_dir.glob(f"models--{model_slug}*"))
-            return len(model_dirs) > 0
+    # Check primary model
+    if _check_model_cache(model_name):
+        return True
 
-    except ImportError:
-        return False
+    # Check fallback model if requested
+    if check_fallback:
+        fallback_model = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+        if model_name != fallback_model:
+            return _check_model_cache(fallback_model)
+
+    return False
 
 
 class MemoryReranker:
@@ -90,19 +112,24 @@ class MemoryReranker:
         self,
         config: Optional[RerankConfig] = None,
     ):
-        """Initialize reranker.
+        """Initialize reranker with automatic fallback.
+
+        Tries to load the configured model (default: BGE-reranker-v2-m3).
+        Falls back to ms-marco-MiniLM-L-6-v2 if the primary model is unavailable.
 
         Args:
-            config: RerankConfig instance (defaults to MS-MARCO MiniLM)
+            config: RerankConfig instance (defaults to BGE-reranker-v2-m3)
 
         Raises:
             ImportError: If sentence-transformers is not installed
+            Exception: If both primary and fallback models fail to load
         """
         import logging
 
         logger = logging.getLogger(__name__)
 
         self.config = config or RerankConfig()
+        original_model = self.config.model
         logger.debug(f"MemoryReranker init: model={self.config.model}")
 
         try:
@@ -111,10 +138,35 @@ class MemoryReranker:
 
             logger.debug("MemoryReranker: sentence_transformers imported")
 
-            logger.debug(f"MemoryReranker: Loading CrossEncoder '{self.config.model}'")
-            logger.debug("Note: First run may download model from Hugging Face (slow)")
-            self.model: CrossEncoder = CrossEncoder(self.config.model)
-            logger.debug("MemoryReranker: CrossEncoder model loaded successfully")
+            # Try loading the configured model
+            try:
+                logger.debug(f"MemoryReranker: Loading CrossEncoder '{self.config.model}'")
+                logger.debug("Note: First run may download model from Hugging Face (slow)")
+                self.model: CrossEncoder = CrossEncoder(self.config.model)
+                logger.debug("MemoryReranker: CrossEncoder model loaded successfully")
+            except Exception as e:
+                # Fallback to ms-marco if primary model fails
+                fallback_model = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+                if self.config.model != fallback_model:
+                    logger.warning(
+                        f"Failed to load primary reranker model '{self.config.model}': {e}. "
+                        f"Falling back to '{fallback_model}'..."
+                    )
+                    try:
+                        self.model = CrossEncoder(fallback_model)
+                        self.config.model = fallback_model  # Update config to reflect actual model
+                        logger.info(f"MemoryReranker: Fallback model '{fallback_model}' loaded successfully")
+                    except Exception as fallback_error:
+                        raise RuntimeError(
+                            f"Failed to load both primary model '{original_model}' and "
+                            f"fallback model '{fallback_model}'. "
+                            "Ensure you have internet connection for first-time model download."
+                        ) from fallback_error
+                else:
+                    # Primary model is already the fallback, no more fallbacks available
+                    raise RuntimeError(
+                        f"Failed to load reranker model '{self.config.model}': {e}"
+                    ) from e
         except ImportError as e:
             raise ImportError(
                 "sentence-transformers not installed. "

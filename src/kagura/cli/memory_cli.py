@@ -7,11 +7,57 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 from rich.console import Console
 
+if TYPE_CHECKING:
+    from kagura.core.memory import MemoryManager
+
 console = Console()
+
+
+def _get_lightweight_memory_manager(
+    user_id: str,
+    agent_name: str,
+    enable_rag: bool = True,
+) -> MemoryManager:
+    """Create lightweight MemoryManager for fast CLI startup.
+
+    Disables slow components not needed for CLI queries:
+    - Reranker (~6.5s saved) - Issue #548
+    - RecallScorer (~1s saved)
+    - Graph memory
+    - Compression
+
+    Args:
+        user_id: User identifier
+        agent_name: Agent name
+        enable_rag: Enable RAG for semantic search (default: True)
+
+    Returns:
+        MemoryManager with lightweight config optimized for CLI
+
+    Related: Issue #548, #527 - CLI performance optimization
+    """
+    from kagura.config.memory_config import MemorySystemConfig, RerankConfig
+    from kagura.core.memory import MemoryManager
+
+    # Lightweight config for fast CLI startup
+    config = MemorySystemConfig(
+        enable_access_tracking=False,  # Disable RecallScorer (~1s saved)
+        rerank=RerankConfig(enabled=False),  # Disable reranker (~6.5s saved)
+    )
+
+    return MemoryManager(
+        user_id=user_id,
+        agent_name=agent_name,
+        enable_rag=enable_rag,  # Keep RAG for semantic search
+        enable_compression=False,  # Not needed for CLI
+        enable_graph=False,  # Not needed for CLI queries
+        memory_config=config,  # Pass lightweight config
+    )
 
 
 @click.group(name="memory")
@@ -78,15 +124,18 @@ def export_command(
         # Export for specific user
         kagura memory export --output ./backup --user-id user_alice
     """
-    from kagura.core.memory import MemoryManager
     from kagura.core.memory.export import MemoryExporter
 
     console.print(f"\n[cyan]Exporting memory data for user '{user_id}'...[/cyan]")
     console.print()
 
     try:
-        # Create MemoryManager
-        manager = MemoryManager(user_id=user_id, agent_name=agent_name)
+        # Use lightweight config for fast CLI startup (Issue #548, #527)
+        manager = _get_lightweight_memory_manager(
+            user_id=user_id,
+            agent_name=agent_name,
+            enable_rag=True,  # Need RAG for export
+        )
 
         # Create exporter
         exporter = MemoryExporter(manager)
@@ -172,7 +221,6 @@ def import_command(
     Warning:
         --clear flag will delete all existing memory data!
     """
-    from kagura.core.memory import MemoryManager
     from kagura.core.memory.export import MemoryImporter
 
     console.print(f"\n[cyan]Importing memory data for user '{user_id}'...[/cyan]")
@@ -183,8 +231,12 @@ def import_command(
     console.print()
 
     try:
-        # Create MemoryManager
-        manager = MemoryManager(user_id=user_id, agent_name=agent_name)
+        # Use lightweight config for fast CLI startup (Issue #548, #527)
+        manager = _get_lightweight_memory_manager(
+            user_id=user_id,
+            agent_name=agent_name,
+            enable_rag=True,  # Need RAG for import
+        )
 
         # Create importer
         importer = MemoryImporter(manager)
@@ -582,15 +634,16 @@ def list_command(
     """
     from rich.table import Table
 
-    from kagura.core.memory import MemoryManager
 
     console.print("\n[cyan]Memory List[/cyan]")
     console.print()
 
     try:
-        manager = MemoryManager(
+        # Use lightweight config for fast CLI startup (Issue #548, #527)
+        manager = _get_lightweight_memory_manager(
             user_id=user_id or "system",
             agent_name=agent_name or "global",
+            enable_rag=False,  # List doesn't need RAG
         )
 
         # Get memories based on scope
@@ -697,13 +750,12 @@ def search_command(
     """
     from rich.table import Table
 
-    from kagura.core.memory import MemoryManager
-
     console.print(f'\n[cyan]Searching for: "{query}"[/cyan]')
     console.print()
 
     try:
-        manager = MemoryManager(
+        # Use lightweight config for fast CLI startup (Issue #548, #527)
+        manager = _get_lightweight_memory_manager(
             user_id=user_id or "system",
             agent_name=agent_name or "global",
             enable_rag=True,
@@ -814,7 +866,6 @@ def stats_command(
     from rich.table import Table
 
     from kagura.config.paths import get_data_dir
-    from kagura.core.memory import MemoryManager
 
     console.print("\n[cyan]Memory Statistics[/cyan]")
     console.print()
@@ -859,8 +910,8 @@ def stats_command(
         except ImportError:
             pass
 
-        # Now create MemoryManager to count memories
-        manager = MemoryManager(
+        # Use lightweight config for fast CLI startup (Issue #548, #527)
+        manager = _get_lightweight_memory_manager(
             user_id=user_id or "system",
             agent_name="stats",
             enable_rag=False,  # Don't enable RAG to avoid locking ChromaDB
@@ -1138,7 +1189,6 @@ def doctor_command(user_id: str | None) -> None:
     from rich.panel import Panel
 
     from kagura.config.paths import get_data_dir
-    from kagura.core.memory import MemoryManager
 
     console.print("\n")
     console.print(
@@ -1171,7 +1221,8 @@ def doctor_command(user_id: str | None) -> None:
     persistent_count = 0
 
     try:
-        manager = MemoryManager(
+        # Use lightweight config for fast CLI startup (Issue #548, #527)
+        manager = _get_lightweight_memory_manager(
             user_id=user_id or "system",
             agent_name="doctor",
             enable_rag=True,
