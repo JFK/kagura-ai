@@ -639,6 +639,172 @@ class MemoryRAG:
         else:
             return self.collection.count()
 
+    def _get_chunks_by_parent(
+        self, parent_id: str, user_id: Optional[str] = None
+    ) -> list[dict[str, Any]]:
+        """Get all chunks for a parent document, sorted by chunk_index.
+
+        Helper method to reduce duplication in chunk retrieval methods.
+
+        Args:
+            parent_id: Parent document ID
+            user_id: Optional user filter
+
+        Returns:
+            List of chunks sorted by chunk_index
+        """
+        # Build where clause with proper $and operator if multiple conditions
+        if user_id:
+            where_clause: dict[str, Any] = {
+                "$and": [{"parent_id": parent_id}, {"user_id": user_id}]
+            }
+        else:
+            where_clause = {"parent_id": parent_id}
+
+        results = self.collection.get(where=where_clause)
+
+        if not results["ids"]:
+            return []
+
+        # Build chunk list
+        chunks = [
+            {
+                "id": results["ids"][i],
+                "content": results["documents"][i] if results["documents"] else "",
+                "metadata": results["metadatas"][i] if results["metadatas"] else {},
+                "chunk_index": (results["metadatas"][i] if results["metadatas"] else {}).get(
+                    "chunk_index", 0
+                ),
+            }
+            for i in range(len(results["ids"]))
+        ]
+
+        # Sort by chunk_index
+        chunks.sort(key=lambda x: x["chunk_index"])
+        return chunks
+
+    def get_chunk_context(
+        self,
+        parent_id: str,
+        chunk_index: int,
+        context_size: int = 1,
+        user_id: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
+        """Get neighboring chunks around a specific chunk.
+
+        Args:
+            parent_id: Parent document ID
+            chunk_index: Index of the target chunk (0-indexed)
+            context_size: Number of chunks before/after to retrieve (default: 1)
+            user_id: Optional user filter
+
+        Returns:
+            List of chunks sorted by chunk_index, including target chunk and neighbors
+
+        Example:
+            >>> # Get chunk 5 with 1 neighbor before/after (chunks 4, 5, 6)
+            >>> chunks = rag.get_chunk_context("doc123", 5, context_size=1)
+            >>> print(len(chunks))  # 3 chunks
+        """
+        chunks = self._get_chunks_by_parent(parent_id, user_id)
+        if not chunks:
+            return []
+
+        # Filter to target ± context_size
+        start_idx = max(0, chunk_index - context_size)
+        end_idx = chunk_index + context_size + 1
+
+        return [c for c in chunks if start_idx <= c["chunk_index"] < end_idx]
+
+    def get_full_document(
+        self, parent_id: str, user_id: Optional[str] = None
+    ) -> dict[str, Any]:
+        """Reconstruct complete document from chunks.
+
+        Args:
+            parent_id: Parent document ID
+            user_id: Optional user filter
+
+        Returns:
+            Dict with:
+                - full_content: Reconstructed document (chunks concatenated)
+                - chunks: List of individual chunks with metadata
+                - parent_id: Parent document ID
+                - total_chunks: Total number of chunks
+
+        Example:
+            >>> doc = rag.get_full_document("doc123")
+            >>> print(doc["full_content"])
+            'Complete document text...'
+            >>> print(doc["total_chunks"])
+            12
+        """
+        chunks = self._get_chunks_by_parent(parent_id, user_id)
+
+        if not chunks:
+            return {
+                "full_content": "",
+                "chunks": [],
+                "parent_id": parent_id,
+                "total_chunks": 0,
+                "error": "Document not found",
+            }
+
+        # Reconstruct full document
+        full_content = "".join(c["content"] for c in chunks)
+
+        return {
+            "full_content": full_content,
+            "chunks": chunks,
+            "parent_id": parent_id,
+            "total_chunks": len(chunks),
+        }
+
+    def get_chunk_metadata(
+        self, parent_id: str, chunk_index: Optional[int] = None, user_id: Optional[str] = None
+    ) -> dict[str, Any] | list[dict[str, Any]]:
+        """Get metadata for chunk(s) without retrieving full content.
+
+        Args:
+            parent_id: Parent document ID
+            chunk_index: Optional specific chunk index (if None, returns all chunks)
+            user_id: Optional user filter
+
+        Returns:
+            If chunk_index specified: Single chunk metadata dict
+            If chunk_index is None: List of all chunk metadata dicts
+
+        Example:
+            >>> # Get metadata for specific chunk
+            >>> meta = rag.get_chunk_metadata("doc123", chunk_index=5)
+            >>> print(meta["chunk_index"], meta["total_chunks"])
+            5 12
+
+            >>> # Get metadata for all chunks
+            >>> all_meta = rag.get_chunk_metadata("doc123")
+            >>> print(len(all_meta))
+            12
+        """
+        chunks = self._get_chunks_by_parent(parent_id, user_id)
+
+        if not chunks:
+            return {} if chunk_index is not None else []
+
+        # Extract metadata only (without content)
+        metadata_list = [
+            {"id": c["id"], "chunk_index": c["chunk_index"], "metadata": c["metadata"]}
+            for c in chunks
+        ]
+
+        # Return specific or all
+        if chunk_index is not None:
+            for item in metadata_list:
+                if item["chunk_index"] == chunk_index:
+                    return item
+            return {}  # Not found
+
+        return metadata_list
+
     def __repr__(self) -> str:
         """String representation."""
         return f"MemoryRAG(collection={self.collection.name}, count={self.count()})"
