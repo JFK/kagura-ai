@@ -86,8 +86,9 @@ def test_all_commands_listed():
         assert cmd in result.output, f"Command '{cmd}' not found in --help"
 
 
+@pytest.mark.slow
 def test_all_commands_still_work():
-    """Test that all commands still work with lazy loading"""
+    """Test that all commands still work with lazy loading (slow: CLI invocation)"""
     commands = ["chat", "mcp", "monitor", "auth"]
 
     for cmd in commands:

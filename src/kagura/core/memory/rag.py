@@ -209,16 +209,17 @@ class MemoryRAG:
         # Custom embedding function (E5-large with query:/passage: prefixes)
         self._embedding_config = embedding_config
 
-        if embedding_config and embedding_config.use_prefix:
+        if embedding_config:
+            # Use custom embedding config if provided
             try:
                 embedding_function = ChromaDBEmbeddingFunction(embedding_config)
                 logger.debug(
-                    f"MemoryRAG: Using custom E5 embeddings (model={embedding_config.model}, "
-                    f"use_prefix={embedding_config.use_prefix})"
+                    f"MemoryRAG: Using custom embeddings (model={embedding_config.model}, "
+                    f"dimension={embedding_config.dimension}, use_prefix={embedding_config.use_prefix})"
                 )
             except ImportError:
                 logger.warning(
-                    "sentence-transformers not installed, using ChromaDB default embeddings. "
+                    "sentence-transformers not installed, falling back to ChromaDB default embeddings. "
                     "Install with: pip install sentence-transformers"
                 )
                 try:

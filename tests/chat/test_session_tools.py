@@ -141,8 +141,9 @@ class TestWebTools:
             assert "Page content" in result
 
 
+@pytest.mark.integration
 class TestYouTubeTools:
-    """Test YouTube tools"""
+    """Test YouTube tools (requires external API)."""
 
     @pytest.mark.asyncio
     async def test_youtube_transcript(self):

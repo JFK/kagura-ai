@@ -55,7 +55,7 @@ class TestRobotsTxtChecker:
         checker = RobotsTxtChecker(user_agent="TestBot/1.0")
 
         # Mock RobotFileParser
-        with patch("urllib.robotparser.RobotFileParser") as mock_parser_class:
+        with patch("kagura.web.scraper.RobotFileParser") as mock_parser_class:
             mock_parser = MagicMock()
             mock_parser.can_fetch.return_value = True
             mock_parser_class.return_value = mock_parser
@@ -76,7 +76,7 @@ class TestRobotsTxtChecker:
 
         checker = RobotsTxtChecker()
 
-        with patch("urllib.robotparser.RobotFileParser") as mock_parser_class:
+        with patch("kagura.web.scraper.RobotFileParser") as mock_parser_class:
             mock_parser = MagicMock()
             mock_parser.can_fetch.return_value = False
             mock_parser_class.return_value = mock_parser
@@ -92,7 +92,7 @@ class TestRobotsTxtChecker:
 
         checker = RobotsTxtChecker()
 
-        with patch("urllib.robotparser.RobotFileParser") as mock_parser_class:
+        with patch("kagura.web.scraper.RobotFileParser") as mock_parser_class:
             mock_parser = MagicMock()
             mock_parser.can_fetch.return_value = True
             mock_parser_class.return_value = mock_parser
