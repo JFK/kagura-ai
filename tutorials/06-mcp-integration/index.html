@@ -1359,9 +1359,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#check-agent-registration" class="md-nav__link">
+  <a href="#check-tool-registration" class="md-nav__link">
     <span class="md-ellipsis">
-      Check Agent Registration
+      Check Tool Registration
     </span>
   </a>
   
@@ -1620,11 +1620,11 @@
 </code></pre></div>
 <h2 id="managing-agents">Managing Agents</h2>
 <h3 id="list-registered-agents">List Registered Agents</h3>
-<p>See all agents available via MCP:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>list
+<p>See all tools available via MCP:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>tools
 </code></pre></div>
 <p>Output:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Registered agents (1):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Available MCP tools (74):
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  • analyze_code
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    Analyze code quality and suggest improvements
@@ -1728,12 +1728,12 @@
 <h3 id="enable-verbose-logging">Enable Verbose Logging</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>kagura<span class="w"> </span>-v<span class="w"> </span>mcp<span class="w"> </span>serve
 </code></pre></div>
-<h3 id="check-agent-registration">Check Agent Registration</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>list
+<h3 id="check-tool-registration">Check Tool Registration</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>kagura<span class="w"> </span>mcp<span class="w"> </span>tools
 </code></pre></div>
-<p>If your agent doesn't appear:
+<p>If your tool doesn't appear:
 1. Ensure the file is imported
-2. Check the <code>@agent</code> decorator is applied
+2. Check the <code>@tool</code> decorator is applied
 3. Verify no import errors</p>
 <h3 id="test-without-claude-desktop">Test Without Claude Desktop</h3>
 <p>Use <code>mcp</code> CLI tool to test directly:</p>
