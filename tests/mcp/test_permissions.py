@@ -1,5 +1,8 @@
 """Tests for MCP tool permission system."""
 
+# Register all MCP tools before running tests
+import kagura.mcp.builtin  # noqa: F401
+
 from kagura.mcp.permissions import (
     TOOL_PERMISSIONS,
     get_allowed_tools,
