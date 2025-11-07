@@ -224,7 +224,6 @@ The following optimizations were identified but deferred to a follow-up PR:
 - Added pyproject.toml configuration examples
 
 ---
-
 ## [4.0.11] - 2025-11-04
 
 ### 🐛 Fixed
@@ -246,6 +245,25 @@ The following optimizations were identified but deferred to a follow-up PR:
   - CI now tests Python 3.11, 3.12, and 3.13 in parallel
   - **Note**: Intel Mac (x86_64) users must use Python 3.11 or 3.12 for AI features
   - **Core features** (MCP, CLI, API) work with Python 3.13 on all platforms
+
+#### Auto-detect Project & User (#536, #537)
+- **Smart Defaults**: Auto-detect project and user for coding commands
+  - Project detection priority: env var → pyproject.toml → git repo name → git directory
+  - User detection priority: env var → pyproject.toml → git user.name → default (kiyota)
+  - **Zero configuration** for most use cases (works in any git repository)
+  - `kagura coding doctor` - New command to check auto-detection status
+- **pyproject.toml Support**: Configure via `[tool.kagura]` section
+  ```toml
+  [tool.kagura]
+  project = "your-project"
+  user = "your-username"
+  enable_reranking = true  # Optional: auto-detects if model is cached
+  ```
+- **Reranking Auto-enable**: Automatically enables reranking when model is cached (ready to use)
+- **Improved Commands**:
+  - `memory index`: Now indexes all users by default (not just 'system')
+  - `kagura doctor`: Accurate RAG vector counting across all collections
+  - `config doctor`: Fixed for gpt-5-mini and reasoning models (#535)
 
 #### RAG Performance Improvements (#525 - Quick Wins)
 - **Time-decay boosting**: Recent memories automatically ranked higher
