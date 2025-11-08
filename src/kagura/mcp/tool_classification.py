@@ -25,13 +25,8 @@ REMOTE_CAPABLE_TOOLS = {
     "memory_get_chunk_context",
     "memory_get_chunk_metadata",
     "memory_get_full_document",
-    # GitHub (API依存 - API calls only)
-    "github_issue_view",
-    "github_pr_view",
-    "github_issue_list",
-    "github_issue_create",  # API-based creation
-    "github_pr_create",
-    "github_pr_merge",
+    # GitHub (API only)
+    "github_issue_create",  # API-based creation (REST API)
     # Web/Search (API依存)
     "brave_web_search",
     "brave_news_search",
@@ -76,6 +71,11 @@ LOCAL_ONLY_TOOLS = {
     "shell_exec",
     # GitHub CLI (ローカルgh CLIを使用)
     "github_exec",  # gh CLI wrapper - requires local gh
+    "github_issue_view",  # gh CLI - requires local gh
+    "github_issue_list",  # gh CLI - requires local gh
+    "github_pr_view",  # gh CLI - requires local gh
+    "github_pr_create",  # gh CLI - requires local gh
+    "github_pr_merge",  # gh CLI - requires local gh
     "gh_safe_exec",
     "gh_pr_create_safe",
     "gh_pr_merge_safe",

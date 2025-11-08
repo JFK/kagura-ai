@@ -61,14 +61,14 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     # Claude Code memory tools - SAFE (database only)
     "claude_code_save_session": {"remote": True},
     "claude_code_search_past_work": {"remote": True},
-    # GitHub operations - READ operations SAFE, WRITE operations vary
+    # GitHub operations - API vs gh CLI
     "github_exec": {"remote": False},  # gh CLI wrapper - requires local gh
-    "github_issue_view": {"remote": True},  # Read-only - safe
-    "github_issue_list": {"remote": True},  # Read-only - safe
-    "github_issue_create": {"remote": True},  # API-based write - safe with auth
-    "github_pr_view": {"remote": True},  # Read-only - safe
-    "github_pr_create": {"remote": False},  # Write operation - dangerous
-    "github_pr_merge": {"remote": False},  # Write operation - very dangerous
+    "github_issue_view": {"remote": False},  # gh CLI - requires local gh
+    "github_issue_list": {"remote": False},  # gh CLI - requires local gh
+    "github_issue_create": {"remote": True},  # API-based - safe for remote
+    "github_pr_view": {"remote": False},  # gh CLI - requires local gh
+    "github_pr_create": {"remote": False},  # gh CLI - requires local gh
+    "github_pr_merge": {"remote": False},  # gh CLI - requires local gh
     # GitHub safe wrappers - DANGEROUS (same as regular gh commands)
     "gh_safe_exec": {"remote": False},  # General executor with safety checks
     "gh_pr_create_safe": {"remote": False},  # Write operation with confirmation
