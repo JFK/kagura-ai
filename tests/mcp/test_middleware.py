@@ -80,7 +80,7 @@ class TestShouldLogTool:
         """Non-memory tools should be allowed."""
         assert should_log_tool("brave_web_search") is True
         assert should_log_tool("file_read") is True
-        assert should_log_tool("github_issue_view") is True
+        assert should_log_tool("github_issue_view_api") is True
         assert should_log_tool("youtube_summarize") is True
 
     def test_respects_global_disable(self, monkeypatch):

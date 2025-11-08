@@ -61,8 +61,7 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     # Claude Code memory tools - SAFE (database only)
     "claude_code_save_session": {"remote": True},
     "claude_code_search_past_work": {"remote": True},
-    # GitHub operations - API vs gh CLI
-    "github_exec": {"remote": False},  # gh CLI wrapper - requires local gh
+    # GitHub operations - API only
     "github_issue_create": {"remote": True},  # API-based - safe for remote
     # GitHub REST API tools - SAFE (API-based, remote capable)
     "github_issue_view_api": {"remote": True},  # REST API - safe for remote

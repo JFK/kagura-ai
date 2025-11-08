@@ -7,6 +7,7 @@ for remote access via MCP servers.
 from typing import Any
 
 from kagura import tool
+from kagura.config.env import get_github_token
 
 
 async def _get_github_repo_info() -> tuple[str, str] | str:
@@ -52,9 +53,7 @@ def _get_github_headers() -> dict[str, str] | str:
     Returns:
         Headers dict on success, error message string on failure
     """
-    import os
-
-    github_token = os.getenv("GITHUB_TOKEN")
+    github_token = get_github_token()
     if not github_token:
         return "Error: GITHUB_TOKEN environment variable not set"
 
@@ -62,6 +61,86 @@ def _get_github_headers() -> dict[str, str] | str:
         "Authorization": f"Bearer {github_token}",
         "Accept": "application/vnd.github.v3+json",
     }
+
+
+@tool
+async def github_issue_create(
+    title: str,
+    body: str = "",
+    labels: list[str] | None = None,
+    assignees: list[str] | None = None,
+) -> str:
+    """Create GitHub issue using REST API.
+
+    Safe for remote access - uses GitHub API with token authentication.
+
+    Args:
+        title: Issue title (required)
+        body: Issue body/description (optional)
+        labels: List of label names to apply (optional)
+        assignees: List of GitHub usernames to assign (optional)
+
+    Returns:
+        Created issue details (number, URL, etc.)
+
+    Example:
+        github_issue_create("Bug: Memory leak", "Description here", labels=["bug"])
+        github_issue_create("feat: New feature", assignees=["username"])
+    """
+    try:
+        import httpx
+    except ImportError:
+        return "Error: httpx not installed. Install with: pip install kagura-ai[web]"
+
+    # Get repository info
+    repo_info = await _get_github_repo_info()
+    if isinstance(repo_info, str):
+        return repo_info
+    owner, repo = repo_info
+
+    # Get headers
+    headers = _get_github_headers()
+    if isinstance(headers, str):
+        return headers
+
+    # Build request payload
+    payload: dict[str, Any] = {"title": title, "body": body}
+
+    if labels:
+        payload["labels"] = labels
+
+    if assignees:
+        payload["assignees"] = assignees
+
+    # Make API request
+    api_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(api_url, json=payload, headers=headers)
+
+            if response.status_code == 201:
+                issue_data = response.json()
+                issue_number = issue_data["number"]
+                issue_url = issue_data["html_url"]
+
+                output = f"✓ Created issue #{issue_number}\n"
+                output += f"URL: {issue_url}\n"
+                output += f"Title: {title}\n"
+
+                if labels:
+                    output += f"Labels: {', '.join(labels)}\n"
+
+                if assignees:
+                    output += f"Assignees: {', '.join(assignees)}\n"
+
+                return output
+            else:
+                error_msg = response.text
+                return f"Error creating issue (HTTP {response.status_code}): {error_msg}"
+
+    except Exception as e:
+        return f"Error making API request: {e}"
 
 
 @tool

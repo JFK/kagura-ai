@@ -123,6 +123,54 @@ async def check_brave_search_api(
         return False, f"Connection failed: {str(e)[:200]}"
 
 
+async def check_github_api(
+    api_token: str,
+    timeout: int = 10,
+) -> tuple[bool, str]:
+    """Test GitHub API connectivity.
+
+    Args:
+        api_token: GitHub API token
+        timeout: Request timeout in seconds
+
+    Returns:
+        Tuple of (success: bool, message: str)
+
+    Example:
+        >>> success, msg = await check_github_api("ghp_...")
+        >>> print(f"GitHub: {msg}")
+    """
+    try:
+        import httpx
+    except ImportError:
+        return False, "httpx not installed (optional dependency)"
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                "https://api.github.com/user",
+                headers={
+                    "Authorization": f"Bearer {api_token}",
+                    "Accept": "application/vnd.github.v3+json",
+                },
+                timeout=timeout,
+            )
+
+            if response.status_code == 200:
+                user_data = response.json()
+                username = user_data.get("login", "unknown")
+                return True, f"Connected as {username}"
+            elif response.status_code == 401:
+                return False, "Invalid token (check GITHUB_TOKEN)"
+            elif response.status_code == 403:
+                return False, "Token lacks permissions or rate limited"
+            else:
+                return False, f"HTTP {response.status_code}: {response.text[:100]}"
+
+    except Exception as e:
+        return False, f"Connection failed: {str(e)[:200]}"
+
+
 async def check_api_configuration() -> list[tuple[str, str, str]]:
     """Check all API providers configuration and connectivity.
 
@@ -130,6 +178,7 @@ async def check_api_configuration() -> list[tuple[str, str, str]]:
     - Anthropic (required)
     - OpenAI (optional)
     - Google AI (optional)
+    - GitHub (optional)
     - Brave Search (optional)
 
     Returns:
@@ -145,6 +194,7 @@ async def check_api_configuration() -> list[tuple[str, str, str]]:
         get_anthropic_api_key,
         get_anthropic_default_model,
         get_brave_search_api_key,
+        get_github_token,
         get_google_ai_default_model,
         get_google_api_key,
         get_openai_api_key,
@@ -185,6 +235,15 @@ async def check_api_configuration() -> list[tuple[str, str, str]]:
         )
         status = "ok" if success else "warning"
         results.append(("Google AI", status, message))
+
+    # GitHub (optional)
+    github_token = get_github_token()
+    if not github_token:
+        results.append(("GitHub", "info", "Not configured (optional)"))
+    else:
+        success, message = await check_github_api(github_token)
+        status = "ok" if success else "warning"
+        results.append(("GitHub", status, message))
 
     # Brave Search (optional)
     brave_key = get_brave_search_api_key()
