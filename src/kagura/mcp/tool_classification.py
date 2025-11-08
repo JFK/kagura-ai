@@ -20,14 +20,16 @@ REMOTE_CAPABLE_TOOLS = {
     "memory_search_ids",
     "memory_fetch",
     # Memory - Enhanced Search (v4.0.6+)
-    "memory_search_hybrid",
     "memory_timeline",
     "memory_fuzzy_recall",
-    # GitHub (API依存)
-    "github_exec",
+    "memory_get_chunk_context",
+    "memory_get_chunk_metadata",
+    "memory_get_full_document",
+    # GitHub (API依存 - API calls only)
     "github_issue_view",
     "github_pr_view",
     "github_issue_list",
+    "github_issue_create",  # API-based creation
     "github_pr_create",
     "github_pr_merge",
     # Web/Search (API依存)
@@ -59,11 +61,9 @@ REMOTE_CAPABLE_TOOLS = {
     # Claude Code Integration (メモリーのみ操作)
     "claude_code_save_session",
     "claude_code_search_past_work",
-    # Meta
-    "meta_create_agent",
+    # Telemetry
     "telemetry_stats",
     "telemetry_cost",
-    "route_query",
 }
 
 # Local-only tools (ファイルシステム/シェルアクセス必須)
@@ -75,6 +75,7 @@ LOCAL_ONLY_TOOLS = {
     # Shell (セキュリティリスク大)
     "shell_exec",
     # GitHub CLI (ローカルgh CLIを使用)
+    "github_exec",  # gh CLI wrapper - requires local gh
     "gh_safe_exec",
     "gh_pr_create_safe",
     "gh_pr_merge_safe",
@@ -95,6 +96,11 @@ LOCAL_ONLY_TOOLS = {
     # Multimodal (ローカルファイル読み込み)
     "multimodal_index",
     "multimodal_search",
+    # Meta (コード生成/操作 - 危険)
+    "meta_create_agent",
+    "meta_fix_code_error",
+    # Routing (local only for security)
+    "route_query",
 }
 
 
