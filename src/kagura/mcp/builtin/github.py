@@ -7,11 +7,11 @@ All tools use the underlying GitHub agents with safety controls.
 """
 
 import logging
-import os
 from pathlib import Path
 from typing import Any
 
 from kagura import tool
+from kagura.config.env import get_github_token
 from kagura.core.shell import ShellExecutor
 
 logger = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ def _get_github_headers() -> dict[str, str] | str:
     Returns:
         Headers dict on success, error message string on failure
     """
-    github_token = os.getenv("GITHUB_TOKEN")
+    github_token = get_github_token()
     if not github_token:
         return "Error: GITHUB_TOKEN environment variable not set"
 
