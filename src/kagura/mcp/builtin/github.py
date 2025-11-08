@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any
 
 from kagura import tool
-from kagura.builtin.github_agent import gh_safe_exec
 from kagura.core.shell import ShellExecutor
 
 logger = logging.getLogger(__name__)
@@ -66,29 +65,6 @@ def _get_github_headers() -> dict[str, str] | str:
         "Authorization": f"Bearer {github_token}",
         "Accept": "application/vnd.github.v3+json",
     }
-
-
-@tool
-async def github_exec(gh_command: str, force: bool = False) -> str:
-    """Execute GitHub CLI command with safety checks.
-
-    This is a general-purpose GitHub command executor for MCP clients.
-    Dangerous commands require force=True.
-
-    Args:
-        gh_command: GitHub CLI command (with or without 'gh' prefix)
-        force: Skip safety confirmation (default: False)
-
-    Returns:
-        Command output or safety warning
-
-    Examples:
-        github_exec("issue view 348")
-        github_exec("pr list --state open")
-        github_exec("pr merge 465", force=True)
-    """
-    result = await gh_safe_exec(gh_command, auto_confirm=force)
-    return result
 
 
 @tool
