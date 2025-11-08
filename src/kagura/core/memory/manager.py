@@ -1028,15 +1028,31 @@ class MemoryManager:
             >>> chunks = manager.get_chunk_context("doc123", chunk_index=5, context_size=1)
             >>> print(len(chunks))  # Returns chunks 4, 5, 6
         """
-        if not self.rag:
+        if not self.rag and not self.persistent_rag:
             raise ValueError("RAG not enabled. Cannot retrieve chunk context.")
 
-        return self.rag.get_chunk_context(
-            parent_id=parent_id,
-            chunk_index=chunk_index,
-            context_size=context_size,
-            user_id=self.user_id,
-        )
+        # Try working RAG first
+        if self.rag:
+            result = self.rag.get_chunk_context(
+                parent_id=parent_id,
+                chunk_index=chunk_index,
+                context_size=context_size,
+                user_id=self.user_id,
+            )
+            if result:  # Non-empty list
+                return result
+
+        # Try persistent RAG if working RAG had no results
+        if self.persistent_rag:
+            return self.persistent_rag.get_chunk_context(
+                parent_id=parent_id,
+                chunk_index=chunk_index,
+                context_size=context_size,
+                user_id=self.user_id,
+            )
+
+        # Both RAGs returned empty
+        return []
 
     def get_full_document(self, parent_id: str) -> dict[str, Any]:
         """Reconstruct complete document from chunks.
@@ -1055,10 +1071,28 @@ class MemoryManager:
             >>> print(doc["full_content"])
             >>> print(doc["total_chunks"])
         """
-        if not self.rag:
+        if not self.rag and not self.persistent_rag:
             raise ValueError("RAG not enabled. Cannot retrieve full document.")
 
-        return self.rag.get_full_document(parent_id=parent_id, user_id=self.user_id)
+        # Try working RAG first
+        if self.rag:
+            result = self.rag.get_full_document(parent_id=parent_id, user_id=self.user_id)
+            # Check if document was found (no error)
+            if "error" not in result or result["total_chunks"] > 0:
+                return result
+
+        # Try persistent RAG if working RAG had no results
+        if self.persistent_rag:
+            return self.persistent_rag.get_full_document(parent_id=parent_id, user_id=self.user_id)
+
+        # Both RAGs returned empty/error
+        return {
+            "full_content": "",
+            "chunks": [],
+            "parent_id": parent_id,
+            "total_chunks": 0,
+            "error": "Document not found",
+        }
 
     def get_chunk_metadata(
         self, parent_id: str, chunk_index: Optional[int] = None
@@ -1079,12 +1113,26 @@ class MemoryManager:
             >>> meta = manager.get_chunk_metadata("doc123", chunk_index=5)
             >>> all_meta = manager.get_chunk_metadata("doc123")
         """
-        if not self.rag:
+        if not self.rag and not self.persistent_rag:
             raise ValueError("RAG not enabled. Cannot retrieve chunk metadata.")
 
-        return self.rag.get_chunk_metadata(
-            parent_id=parent_id, chunk_index=chunk_index, user_id=self.user_id
-        )
+        # Try working RAG first
+        if self.rag:
+            result = self.rag.get_chunk_metadata(
+                parent_id=parent_id, chunk_index=chunk_index, user_id=self.user_id
+            )
+            # If found (non-empty), return it
+            if result:  # Non-empty dict or non-empty list
+                return result
+
+        # Try persistent RAG if working RAG had no results
+        if self.persistent_rag:
+            return self.persistent_rag.get_chunk_metadata(
+                parent_id=parent_id, chunk_index=chunk_index, user_id=self.user_id
+            )
+
+        # Both RAGs returned empty
+        return {} if chunk_index is not None else []
 
     def __repr__(self) -> str:
         """String representation."""
