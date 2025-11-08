@@ -7,6 +7,9 @@ All tools use the underlying GitHub agents with safety controls.
 """
 
 import logging
+import os
+from pathlib import Path
+from typing import Any
 
 from kagura import tool
 from kagura.builtin.github_agent import (
@@ -14,8 +17,59 @@ from kagura.builtin.github_agent import (
     gh_pr_merge_safe,
     gh_safe_exec,
 )
+from kagura.core.shell import ShellExecutor
 
 logger = logging.getLogger(__name__)
+
+
+# Helper functions for GitHub REST API
+async def _get_github_repo_info() -> tuple[str, str] | str:
+    """Get owner/repo from git remote.
+
+    Returns:
+        Tuple of (owner, repo) on success, error message string on failure
+    """
+    try:
+        executor = ShellExecutor(allowed_commands=["git"], working_dir=Path("."))
+        remote_result = await executor.exec("git remote get-url origin")
+
+        if remote_result.return_code != 0:
+            return "Error: Not in a git repository or no origin remote"
+
+        # Parse owner/repo from remote URL
+        # Format: git@github.com:owner/repo.git or https://github.com/owner/repo.git
+        remote_url = remote_result.stdout.strip()
+        if "github.com" not in remote_url:
+            return "Error: Not a GitHub repository"
+
+        if remote_url.startswith("git@"):
+            # git@github.com:owner/repo.git
+            repo_path = remote_url.split(":")[1].replace(".git", "")
+        else:
+            # https://github.com/owner/repo.git
+            repo_path = remote_url.split("github.com/")[1].replace(".git", "")
+
+        owner, repo = repo_path.split("/")
+        return (owner, repo)
+
+    except Exception as e:
+        return f"Error parsing repository info: {e}"
+
+
+def _get_github_headers() -> dict[str, str] | str:
+    """Get GitHub API headers with authentication.
+
+    Returns:
+        Headers dict on success, error message string on failure
+    """
+    github_token = os.getenv("GITHUB_TOKEN")
+    if not github_token:
+        return "Error: GITHUB_TOKEN environment variable not set"
+
+    return {
+        "Authorization": f"Bearer {github_token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
 
 
 @tool
@@ -266,48 +320,21 @@ async def github_issue_create(
         github_issue_create("Bug: Memory leak", "Description here", labels=["bug"])
         github_issue_create("feat: New feature", assignees=["username"])
     """
-    import os
-    from typing import Any
-
     try:
         import httpx
     except ImportError:
         return "Error: httpx not installed. Install with: pip install kagura-ai[web]"
 
-    # Get GitHub token from environment
-    github_token = os.getenv("GITHUB_TOKEN")
-    if not github_token:
-        return "Error: GITHUB_TOKEN environment variable not set"
+    # Get repository info
+    repo_info = await _get_github_repo_info()
+    if isinstance(repo_info, str):
+        return repo_info
+    owner, repo = repo_info
 
-    # Get repository info from git remote
-    from pathlib import Path
-
-    from kagura.core.shell import ShellExecutor
-
-    try:
-        executor = ShellExecutor(allowed_commands=["git"], working_dir=Path("."))
-        remote_result = await executor.exec("git remote get-url origin")
-
-        if remote_result.return_code != 0:
-            return "Error: Not in a git repository or no origin remote"
-
-        # Parse owner/repo from remote URL
-        # Format: git@github.com:owner/repo.git or https://github.com/owner/repo.git
-        remote_url = remote_result.stdout.strip()
-        if "github.com" not in remote_url:
-            return "Error: Not a GitHub repository"
-
-        if remote_url.startswith("git@"):
-            # git@github.com:owner/repo.git
-            repo_path = remote_url.split(":")[1].replace(".git", "")
-        else:
-            # https://github.com/owner/repo.git
-            repo_path = remote_url.split("github.com/")[1].replace(".git", "")
-
-        owner, repo = repo_path.split("/")
-
-    except Exception as e:
-        return f"Error parsing repository info: {e}"
+    # Get headers
+    headers = _get_github_headers()
+    if isinstance(headers, str):
+        return headers
 
     # Build request payload
     payload: dict[str, Any] = {"title": title, "body": body}
@@ -320,10 +347,6 @@ async def github_issue_create(
 
     # Make API request
     api_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
-    headers = {
-        "Authorization": f"Bearer {github_token}",
-        "Accept": "application/vnd.github.v3+json",
-    }
 
     try:
         async with httpx.AsyncClient() as client:
