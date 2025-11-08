@@ -15,6 +15,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.2.4] - 2025-11-08
+
+### 🐛 Bug Fixes
+
+#### Memory Chunk Retrieval for Persistent RAG (#597, #598)
+- **Fixed**: `get_chunk_metadata()` now searches both working and persistent RAG
+- **Fixed**: `get_chunk_context()` now searches both working and persistent RAG
+- **Fixed**: `get_full_document()` now searches both working and persistent RAG
+- **Issue**: MCP chunk tools returned empty results for documents stored in persistent RAG
+- **Solution**: Implemented fallback pattern (try working RAG first, then persistent RAG)
+- **Impact**: Chunk retrieval now works correctly for both in-memory and disk-based documents
+
+### 🧪 Testing
+
+#### Chunk Tool Test Coverage (#598)
+- **Added**: `tests/mcp/builtin/test_memory_chunks.py`
+- **Coverage**: Parameter validation, edge cases, non-existent documents
+- **Results**: 6 tests passing, 1 skipped
+- **Verification**: Manual testing with real MCP tool calls confirmed all methods working
+
+---
+
 ## [4.2.3] - 2025-11-08
 
 ### ✨ Added
