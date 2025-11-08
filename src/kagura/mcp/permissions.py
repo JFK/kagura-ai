@@ -69,6 +69,12 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     "github_pr_view": {"remote": False},  # gh CLI - requires local gh
     "github_pr_create": {"remote": False},  # gh CLI - requires local gh
     "github_pr_merge": {"remote": False},  # gh CLI - requires local gh
+    # GitHub REST API tools - SAFE (API-based, remote capable)
+    "github_issue_view_api": {"remote": True},  # REST API - safe for remote
+    "github_issue_list_api": {"remote": True},  # REST API - safe for remote
+    "github_pr_view_api": {"remote": True},  # REST API - safe for remote
+    "github_pr_create_api": {"remote": True},  # REST API - safe for remote
+    "github_pr_merge_api": {"remote": True},  # REST API - safe for remote
     # GitHub safe wrappers - DANGEROUS (same as regular gh commands)
     "gh_safe_exec": {"remote": False},  # General executor with safety checks
     "gh_pr_create_safe": {"remote": False},  # Write operation with confirmation

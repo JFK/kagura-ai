@@ -25,8 +25,13 @@ REMOTE_CAPABLE_TOOLS = {
     "memory_get_chunk_context",
     "memory_get_chunk_metadata",
     "memory_get_full_document",
-    # GitHub (API only)
+    # GitHub REST API tools (remote-capable)
     "github_issue_create",  # API-based creation (REST API)
+    "github_issue_view_api",  # REST API - read-only
+    "github_issue_list_api",  # REST API - read-only
+    "github_pr_view_api",  # REST API - read-only
+    "github_pr_create_api",  # REST API - write operation
+    "github_pr_merge_api",  # REST API - write operation
     # Web/Search (API依存)
     "brave_web_search",
     "brave_news_search",
