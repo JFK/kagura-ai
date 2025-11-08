@@ -253,6 +253,16 @@ async def _test_brave_search_api(api_key: str) -> tuple[bool, str]:
     return await check_brave_search_api(api_key)
 
 
+async def _test_github_api(api_token: str) -> tuple[bool, str]:
+    """Test GitHub API connection.
+
+    Uses shared utility. Related: Issue #538
+    """
+    from kagura.utils.api_check import check_github_api
+
+    return await check_github_api(api_token)
+
+
 @app.command()
 @click.argument("provider", required=False)
 def test(provider: str | None) -> None:
@@ -286,9 +296,17 @@ def test(provider: str | None) -> None:
             _test_brave_search_api,
         )
 
+    if provider is None or provider == "github":
+        from kagura.config.env import get_github_token
+
+        providers_to_test["GitHub"] = (
+            get_github_token(),
+            _test_github_api,
+        )
+
     if not providers_to_test:
         console.print(f"[red]Unknown provider: {provider}[/]")
-        console.print("Available providers: openai, anthropic, google, brave")
+        console.print("Available providers: openai, anthropic, google, github, brave")
         return
 
     # Test each provider
