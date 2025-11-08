@@ -25,7 +25,6 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     "memory_fetch": {"remote": True},
     "memory_fuzzy_recall": {"remote": True},
     "memory_get_tool_history": {"remote": True},
-    "memory_search_hybrid": {"remote": True},  # deprecated but safe
     "memory_search_ids": {"remote": True},
     "memory_stats": {"remote": True},
     "memory_timeline": {"remote": True},
@@ -62,10 +61,11 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     # Claude Code memory tools - SAFE (database only)
     "claude_code_save_session": {"remote": True},
     "claude_code_search_past_work": {"remote": True},
-    # GitHub operations - READ operations SAFE, WRITE operations DANGEROUS
-    "github_exec": {"remote": False},  # General executor - dangerous
+    # GitHub operations - READ operations SAFE, WRITE operations vary
+    "github_exec": {"remote": False},  # gh CLI wrapper - requires local gh
     "github_issue_view": {"remote": True},  # Read-only - safe
     "github_issue_list": {"remote": True},  # Read-only - safe
+    "github_issue_create": {"remote": True},  # API-based write - safe with auth
     "github_pr_view": {"remote": True},  # Read-only - safe
     "github_pr_create": {"remote": False},  # Write operation - dangerous
     "github_pr_merge": {"remote": False},  # Write operation - very dangerous
@@ -94,8 +94,8 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     # Meta tools - DANGEROUS (code generation/manipulation)
     "meta_create_agent": {"remote": False},  # Code generation - dangerous
     "meta_fix_code_error": {"remote": False},  # Code generation/execution risk
-    # Routing tools - SAFE (in-memory only)
-    "route_query": {"remote": True},
+    # Routing tools - LOCAL ONLY (security)
+    "route_query": {"remote": False},  # Local routing logic
     # Academic tools - SAFE (API calls only)
     "arxiv_search": {"remote": True},
     # Telemetry tools - SAFE (read-only metrics)
