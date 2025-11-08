@@ -76,14 +76,6 @@ LOCAL_ONLY_TOOLS = {
     "shell_exec",
     # GitHub CLI (ローカルgh CLIを使用)
     "github_exec",  # gh CLI wrapper - requires local gh
-    "github_issue_view",  # gh CLI - requires local gh
-    "github_issue_list",  # gh CLI - requires local gh
-    "github_pr_view",  # gh CLI - requires local gh
-    "github_pr_create",  # gh CLI - requires local gh
-    "github_pr_merge",  # gh CLI - requires local gh
-    "gh_safe_exec",
-    "gh_pr_create_safe",
-    "gh_pr_merge_safe",
     # Media (ローカルファイル操作)
     "media_open_image",
     "media_open_video",
