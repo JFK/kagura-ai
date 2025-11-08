@@ -85,6 +85,7 @@ def setup() -> None:
     - OpenAI (GPT models)
     - Anthropic (Claude)
     - Google AI (Gemini)
+    - GitHub (REST API)
     - Brave Search
 
     Configuration saved to .env file in current directory.
@@ -129,6 +130,12 @@ def setup() -> None:
             "name": "GOOGLE_API_KEY",
             "description": "Google AI (Gemini)",
             "example": "AIza...",
+            "required": False,
+        },
+        {
+            "name": "GITHUB_TOKEN",
+            "description": "GitHub API",
+            "example": "ghp_... or github_pat_...",
             "required": False,
         },
         {
