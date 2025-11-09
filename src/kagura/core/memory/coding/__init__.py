@@ -1,9 +1,9 @@
 """Coding memory module - modular implementation.
 
 This module provides coding-specialized memory management for AI coding assistants.
-In Phase 3 (PR #618-1), we've established the foundation by moving the entire
-implementation into this subpackage. Future PRs will split manager.py into
-focused modules (session, file tracking, error recording, etc.).
+
+Phase 3.1 (PR #618-1): Foundation - Moved entire implementation into this subpackage
+Phase 3.2 (PR #618-2): Isolated Features - Extracted file tracking, error recording, decision recording
 
 Main class: CodingMemoryManager (extends MemoryManager)
 Public API: All methods and models re-exported from submodules
@@ -15,10 +15,19 @@ Backward Compatibility:
 """
 
 # Phase 3.1 (PR #618-1): Foundation
-# Currently all implementation is in manager.py
-# Future PRs will extract to specialized modules
-
 from kagura.core.memory.coding.manager import CodingMemoryManager, UserCancelledError
+
+# Phase 3.2 (PR #618-2): Isolated Features - Apply mixin pattern
+from kagura.core.memory.coding import decision_recorder, error_recorder, file_tracker
+
+# Attach methods from extracted modules as mixins
+for module in [file_tracker, error_recorder, decision_recorder]:
+    for name in dir(module):
+        if not name.startswith("_") and callable(getattr(module, name)):
+            attr = getattr(module, name)
+            # Only attach if it's a function (not imported classes/constants)
+            if hasattr(attr, "__call__") and not isinstance(attr, type):
+                setattr(CodingMemoryManager, name, attr)
 
 # Re-export models for convenience (they're already in models/coding.py)
 from kagura.core.memory.models.coding import (
