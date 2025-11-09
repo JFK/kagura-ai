@@ -27,12 +27,15 @@ from __future__ import annotations
 
 import warnings
 
+# Eager import all tools to trigger @tool registration
+# This must happen at module load time, not lazily via __getattr__
+from kagura.mcp.tools.memory import *  # noqa: F403, F401
+
 
 def __getattr__(name: str):
-    """Lazy import with deprecation warning for backward compatibility.
+    """Backward compatibility shim with deprecation warning.
 
-    This allows old imports to still work while showing deprecation warnings.
-    Tools are imported on-demand to avoid circular import issues.
+    Tools are already imported above, so this only triggers deprecation warning.
     """
     warnings.warn(
         f"kagura.mcp.builtin.memory.{name} is deprecated and will be removed in v4.5.0. "
@@ -41,11 +44,9 @@ def __getattr__(name: str):
         stacklevel=2,
     )
 
-    # Lazy import from new location
-    from kagura.mcp.tools import memory as memory_tools
-
-    if hasattr(memory_tools, name):
-        return getattr(memory_tools, name)
+    # Return from globals (already imported above)
+    if name in globals():
+        return globals()[name]
 
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
