@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🏗️ Refactoring
 
 #### Phase 3.2: Coding Memory Isolated Features (#618)
+#### Phase 3.4+3.5: Session Management & GitHub Integration (#618)
+- **Extracted**: Final two modules from `manager.py`
+  - `coding/session_manager.py` (499 lines) - Session lifecycle, auto-save, detection
+  - `coding/github_integration.py` (198 lines) - GitHub Issue/PR integration
+- **Updated**: `coding/__init__.py` - Added session_manager and github_integration mixins
+- **Reduced**: `manager.py` from 1,248 → 582 lines (666 lines removed, 53% reduction)
+- **Cumulative**: From original 2,116 → 582 lines (1,534 lines removed, **72.5% total reduction**)
+- **Type checking**: 0 errors
+- **Tests**: All 20 methods (5 phases) successfully attached
+- **Final structure**: 8 focused modules, manager.py now core infrastructure only
+
 #### Phase 3.3: Coding Memory Analyzers (#618)
 - **Extracted**: Analysis and context module from `manager.py` using mixin pattern
   - `coding/analyzers.py` (379 lines) - 7 analysis methods extracted
