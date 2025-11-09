@@ -339,8 +339,15 @@ class TestNewToolPermissions:
         info = get_tool_permission_info("meta_create_agent")
         assert info["reason"] == "Code generation risk"
 
+    @pytest.mark.skip(
+        reason="claude_code_* tools removed in v4.3.0 - use coding_* tools instead"
+    )
     def test_claude_code_tools_are_safe(self):
-        """Test that Claude Code memory tools are safe."""
+        """Test that Claude Code memory tools are safe.
+
+        NOTE: These tools were deprecated in v4.3.0 and removed.
+        Use coding_start_session, coding_end_session, etc. instead.
+        """
         claude_code_tools = [
             "claude_code_save_session",
             "claude_code_search_past_work",

@@ -65,7 +65,7 @@ def test_lightweight_memory_no_reranker_init():
 
     Related: Issue #548 - Reranker initialization was 6.5s bottleneck
     """
-    from kagura.cli.coding_cli import _get_lightweight_coding_memory
+    from kagura.cli.coding.utils import _get_lightweight_coding_memory
 
     memory = _get_lightweight_coding_memory("test-user", "test-project")
 

@@ -57,3 +57,7 @@ def get_memory_manager(
         logger.debug("get_memory_manager: Using cached MemoryManager")
 
     return _memory_cache[cache_key]
+
+
+# Backward compatibility alias for tests and legacy code
+_get_memory_manager = get_memory_manager

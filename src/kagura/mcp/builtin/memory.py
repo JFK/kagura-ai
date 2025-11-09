@@ -31,6 +31,12 @@ import warnings
 # This must happen at module load time, not lazily via __getattr__
 from kagura.mcp.tools.memory import *  # noqa: F403, F401
 
+# Re-export internal functions for backward compatibility with tests
+from kagura.mcp.tools.memory.common import (  # noqa: F401
+    _get_memory_manager,
+    _memory_cache,
+)
+
 
 def __getattr__(name: str):
     """Backward compatibility shim with deprecation warning.

@@ -96,6 +96,9 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     "telemetry_cost": {"remote": True},
     # Fact-checking tools - SAFE (API calls only)
     "fact_check_claim": {"remote": True},
+    # Test tools - SAFE (for testing only, no side effects)
+    "async_adder": {"remote": True},
+    "sync_multiplier": {"remote": True},
 }
 
 
