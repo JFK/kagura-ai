@@ -20,6 +20,7 @@ from kagura.utils.common import (  # noqa: F401
     media_detector,
     metadata,
 )
+from kagura.utils.api import check as api_check  # noqa: F401
 
 # Register submodules in sys.modules for backward compatibility
 sys.modules["kagura.utils.db"] = db
@@ -27,6 +28,7 @@ sys.modules["kagura.utils.errors"] = errors
 sys.modules["kagura.utils.json_helpers"] = json_helpers
 sys.modules["kagura.utils.media_detector"] = media_detector
 sys.modules["kagura.utils.metadata"] = metadata
+sys.modules["kagura.utils.api_check"] = api_check  # v4.3.0 backward compat
 
 # New organized imports (v4.3.0)
 from kagura.utils.api.check import (

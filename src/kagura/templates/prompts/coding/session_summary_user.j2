@@ -2,7 +2,7 @@ Analyze the following coding session and
 generate a comprehensive summary.
 
 <session_information>
-<duration>{{ duration_minutes }} minutes ({{ duration_human }})</duration>
+<duration>{{ "%.1f"|format(duration_minutes) }} minutes ({{ duration_human }})</duration>
 <project>{{ project_id }}</project>
 <description>{{ description }}</description>
 </session_information>

@@ -98,9 +98,13 @@ async def record_decision(
             node_type="memory",
             data={
                 "decision": decision,
+                "rationale": rationale,
+                "alternatives": alternatives or [],
+                "impact": impact or "To be determined",
                 "tags": tags or [],
                 "project_id": self.project_id,
                 "related_files": related_files or [],
+                "confidence": confidence,
             },
         )
 

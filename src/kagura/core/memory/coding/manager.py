@@ -16,7 +16,7 @@ import logging
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from kagura.config.memory_config import MemorySystemConfig
 from kagura.core.compression import CompressionPolicy

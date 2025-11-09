@@ -70,7 +70,7 @@ def build_session_summary_prompt(session_data: dict[str, Any]) -> dict[str, str]
     system_prompt = load_template("coding/session_summary_system.j2")
     user_prompt = render_template(
         "coding/session_summary_user.j2",
-        duration_minutes=f"{duration_minutes:.1f}",
+        duration_minutes=duration_minutes,
         duration_human=duration_human,
         project_id=session_data.get("project_id", "Unknown"),
         description=session_data.get("description", "No description"),
