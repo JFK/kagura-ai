@@ -12,6 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🏗️ Refactoring
 
 #### Phase 3.2: Coding Memory Isolated Features (#618)
+#### Phase 4.3: Coding CLI Modularization (#640)
+- **Restructured**: `cli/coding_cli.py` (1,279 lines) → `cli/coding/` module (4 files)
+  - `coding/sessions.py` (415 lines) - projects, sessions, session
+  - `coding/decisions.py` (205 lines) - decisions, decision
+  - `coding/errors.py` (210 lines) - errors, error
+  - `coding/utils.py` (463 lines) - search, doctor, helpers
+  - `coding/__init__.py` (36 lines) - Main group + registration
+- **Deleted**: `cli/coding_cli.py` (replaced by modular structure)
+- **Commands**: All 9 commands working identically
+- **Pattern**: Click command registration (consistent with Phase 4.1/4.2)
+- **Type checking**: 0 errors
+- **Phase 4 COMPLETE**: All 3 CLIs (MCP + Memory + Coding) modularized
+
 #### Phase 3.4+3.5: Session Management & GitHub Integration (#618)
 - **Extracted**: Final two modules from `manager.py`
   - `coding/session_manager.py` (499 lines) - Session lifecycle, auto-save, detection
