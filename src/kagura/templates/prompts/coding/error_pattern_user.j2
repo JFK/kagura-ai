@@ -1,0 +1,113 @@
+Analyze the following error history to
+identify recurring patterns.
+
+## Error History
+{{ error_history }}
+
+## Task
+For each pattern you identify, provide:
+
+### Pattern Structure
+```yaml
+name: Brief descriptive name (e.g., "Off-by-one in loop indices")
+frequency: Number of occurrences
+confidence: 0.0-1.0 (how confident you are this is a real pattern)
+severity: low | medium | high
+
+root_cause: |
+  Deep explanation of why this keeps happening.
+  Focus on systemic issues, not surface symptoms.
+
+prevention_strategy: |
+  How to avoid this in the future.
+  Include code patterns, tools, or practices.
+
+quick_fix: |
+  Standard steps to resolve when it occurs.
+  Step-by-step, copy-pastable when possible.
+
+examples:
+  - "file.py:42 - IndexError accessing list[i+1]"
+  - "utils.py:17 - Similar off-by-one in range()"
+```
+
+## Guidelines
+- Only report patterns that occur 2+ times
+- Confidence < 0.7 for weak patterns, > 0.8 for strong patterns
+- Be specific: "Missing null checks on API responses" not "TypeError"
+- Include code examples in prevention strategies
+- Keep quick_fix actionable (not just "fix the bug")
+
+## Example Output
+```yaml
+patterns:
+  - name: "Async/await inconsistency in database calls"
+    frequency: 5
+    confidence: 0.9
+    severity: medium
+
+    root_cause: |
+      Mixing sync and async database calls due to unclear API.
+      The ORM provides both `query()` (sync) and `aquery()` (async),
+      but the async requirement isn't enforced by type system.
+
+    prevention_strategy: |
+      1. Use async-only database client (e.g., asyncpg instead of psycopg2)
+      2. Add type hints: `async def func() -> Awaitable[Result]`
+      3. Enable pyright strict mode to catch missing awaits
+      4. Code review checklist: "All DB calls use await?"
+
+      Example pattern to follow:
+      ```python
+      async def get_user(user_id: int) -> User:
+          result = await db.aquery("SELECT * FROM users WHERE id = $1", user_id)
+          return User.parse_obj(result)
+      ```
+
+    quick_fix: |
+      1. Identify the sync call (usually missing `await`)
+      2. Add `await` keyword: `result = await db.query(...)`
+      3. Ensure function is marked `async def`
+      4. Check all callers also use `await` on this function
+
+    examples:
+      - "api/users.py:45 - RuntimeError: no running event loop"
+      - "api/posts.py:33 - coroutine was never awaited"
+      - "services/auth.py:78 - Task was destroyed but it is pending"
+
+  - name: "Type mismatches in JSON API responses"
+    frequency: 4
+    confidence: 0.85
+    severity: medium
+
+    root_cause: |
+      External API returns numeric IDs as strings ("123" vs 123),
+      but our Pydantic models expect integers. The API is inconsistent
+      (sometimes string, sometimes int) depending on the endpoint.
+
+    prevention_strategy: |
+      1. Use Pydantic validators to coerce types:
+      ```python
+      class User(BaseModel):
+          id: int
+
+          @validator('id', pre=True)
+          def coerce_id(cls, v):
+              return int(v) if isinstance(v, str) else v
+      ```
+      2. Add integration tests that use real API responses (recorded)
+      3. Document API inconsistencies in api_docs.md
+      4. Consider using `str | int` union type if coercion is risky
+
+    quick_fix: |
+      1. Locate the Pydantic model causing ValidationError
+      2. Add pre-validator to coerce the field type
+      3. Test with both string and int inputs
+      4. Update API documentation to note inconsistency
+
+    examples:
+      - "models/user.py:15 - ValidationError: id value is not a valid integer"
+      - "models/post.py:23 - ValidationError: author_id must be integer"
+```
+
+Now analyze the errors:

@@ -7,7 +7,7 @@ metadata handling across CLI, MCP, and API layers.
 from datetime import datetime
 from typing import Any, NotRequired, TypedDict
 
-from kagura.utils.json_helpers import encode_chromadb_metadata
+from kagura.utils.common.json_helpers import encode_chromadb_metadata
 
 
 class MemoryMetadata(TypedDict):

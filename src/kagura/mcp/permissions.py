@@ -58,9 +58,6 @@ TOOL_PERMISSIONS: dict[str, dict[str, bool]] = {
     "coding_index_source_code": {"remote": False},
     "coding_analyze_file_dependencies": {"remote": False},
     "coding_analyze_refactor_impact": {"remote": False},
-    # Claude Code memory tools - SAFE (database only)
-    "claude_code_save_session": {"remote": True},
-    "claude_code_search_past_work": {"remote": True},
     # GitHub operations - API only
     "github_issue_create": {"remote": True},  # API-based - safe for remote
     # GitHub REST API tools - SAFE (API-based, remote capable)

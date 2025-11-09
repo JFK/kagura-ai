@@ -35,12 +35,12 @@ from .lazy import LazyGroup
             "OAuth2 authentication commands",
         ),
         "memory": (
-            "kagura.cli.memory_cli",
+            "kagura.cli.memory",
             "memory_group",
             "Memory management commands",
         ),
         "coding": (
-            "kagura.cli.coding_cli",
+            "kagura.cli.coding",
             "coding",
             "Coding memory inspection commands",
         ),

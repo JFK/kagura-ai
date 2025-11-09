@@ -93,7 +93,41 @@ Result: Issue #510に包括的なサマリーが自動投稿される
 - **目標**: すべてのAIプラットフォーム（Claude, ChatGPT, Gemini等）で共有できるメモリー・コンテキスト管理
 - **アプローチ**: MCP-native + REST API
 - **特徴**: ローカル/セルフホスト/クラウド対応
-- **現状**: Phase A/B/C完了、v4.0.0 stable準備中
+- **現状**: v4.0.9 stable リリース済み
+
+### v4.3.0の位置づけ
+
+**Kagura AI v4.3.0** = **Code Quality & Organization Release**
+
+- **目標**: コードベースの保守性・拡張性向上、技術的負債の解消
+- **アプローチ**: 段階的リファクタリング（後方互換性100%維持）
+- **特徴**:
+  - **Phase 1 完了**: Utils統合（`utils/`と`cli/utils/`を`utils/`配下に統合）
+  - **Phase 2 部分完了**: MCP Tool自動検出レジストリ実装
+  - **Phase 3 完了**: Core Memory分割（`coding_memory.py` 2,116行 → 582行、72.5%削減）
+  - **Phase 4 完了**: CLI Commands分割（`cli/mcp/`, `cli/memory/`, `cli/coding/`に再編）
+  - **Phase 5 進行中**: 継続的改善（テスト90%+、型カバレッジ100%）
+  - **Phase 6 進行中**: ドキュメント更新（本フェーズ）
+- **成果**: ファイルサイズ50-75%削減、重複コード<5%、後方互換性100%
+- **リリース予定**: 2025年11月
+- **追跡**: [Issue #612](https://github.com/JFK/kagura-ai/issues/612)
+
+### v4.3.0の位置づけ
+
+**Kagura AI v4.3.0** = **Code Quality & Organization Release**
+
+- **目標**: コードベースの保守性・拡張性向上、技術的負債の解消
+- **アプローチ**: 段階的リファクタリング（後方互換性維持、Facade pattern活用）
+- **特徴**:
+  - 大規模ファイル分割（2000行超 → 500行目標）
+  - コード重複削減（~15% → <5%）
+  - Utils統合（`utils/`と`cli/utils/`の重複解消）
+  - MCP Tool個別ファイル化（保守性・テスト性向上）
+  - CLI高速化（起動時間1.2s → <500ms目標）
+  - Core Memory リファクタリング（SessionManager等に分割）
+- **リリース予定**: 2-3週間（11週間の段階的展開）
+- **破壊的変更**: 最小限（2リリース期間のDeprecation警告付き）
+- **追跡**: Issue #612（マスタートラッキング）
 
 ### 技術スタック
 
@@ -378,6 +412,70 @@ gh pr merge [PR番号] --squash
 
 ---
 
+## 🔄 リファクタリング原則（v4.3.0追加）
+
+### コード重複チェック
+
+実装前に必ず確認:
+```bash
+# 類似コード検索
+grep -r "def similar_function" src/
+rg "class SimilarClass" src/
+
+# 過去の実装検索（Kagura Memory活用）
+kagura coding search --project kagura-ai --query "similar logic"
+kagura coding sessions --project kagura-ai --limit 10
+```
+
+### ファイルサイズ制限
+
+- **上限**: 800行（警告レベル）
+- **目標**: 500行以下（推奨）
+- **超過時の対応**:
+  1. 責任を明確化（Single Responsibility Principle）
+  2. 関連機能ごとにモジュール分割
+  3. Facade patternで後方互換性維持（必要な場合）
+
+**例**: `coding_memory.py` (2,116行) → `coding/session_manager.py`, `coding/file_tracker.py`等に分割
+
+### Shared Utilities優先
+
+- ❌ **避ける**: 各モジュールで重複実装
+- ✅ **推奨**: `src/kagura/utils/`に共通化
+
+**構造**:
+```
+utils/
+├── cli/          # CLI専用ユーティリティ
+├── memory/       # Memory関連ヘルパー
+├── api/          # API関連ヘルパー
+└── common/       # 共通ユーティリティ（JSON, errors, db等）
+```
+
+### リファクタリング時のチェックリスト
+
+実装前:
+- [ ] 類似コードが既存にないか検索
+- [ ] 過去のKagura sessionsで類似作業がないか確認
+- [ ] 既存のutilsで代替できないか確認
+
+実装後:
+- [ ] ファイルサイズが500行以下か（目標）
+- [ ] テストカバレッジ90%+維持
+- [ ] `pyright --strict`通過
+- [ ] `ruff check src/`でエラーなし
+- [ ] 後方互換性維持（破壊的変更がある場合はDeprecation警告）
+
+### 段階的リファクタリング戦略
+
+1. **Phase 1**: 低リスク（Utils統合、Prompt抽出）
+2. **Phase 2**: 中リスク（MCP Tools分割、CLI整理）
+3. **Phase 3**: 高リスク（Core Memory分割、Facade pattern適用）
+
+**重要**: 各Phaseは独立してマージ可能。ロールバックも可能。
+
+---
+
 ## 🔄 作業フロー（Kagura Coding Session推奨）
 
 ```
@@ -392,23 +490,30 @@ gh pr merge [PR番号] --squash
        description="Implement Issue #XXX: ..."
    )
    ↓
-4. 実装（TDD推奨）
+4. 🆕 過去の知識確認 & コード重複チェック（v4.3.0追加）
+   ├─ 過去のセッション検索: kagura coding search --query "..."
+   ├─ 類似コード検索: grep/rg で重複確認
+   ├─ 既存utils確認: src/kagura/utils/ で代替可能か
+   └─ リファクタリング機会: ファイルサイズ、重複コード確認
+   ↓
+5. 実装（TDD推奨）
    ├─ 重要な会話を記録: coding_track_interaction()
    ├─ ファイル変更を記録: coding_track_file_change()
    ├─ 設計決定を記録: coding_record_decision()
-   └─ エラーを記録: coding_record_error()
+   ├─ エラーを記録: coding_record_error()
+   └─ リファクタリング実施: 500行超なら分割検討
    ↓
-5. テスト（pytest, pyright, ruff）
+6. テスト（pytest, pyright, ruff）
    ↓
-6. 🆕 Session終了 & GitHub記録
+7. 🆕 Session終了 & GitHub記録
    coding_end_session(
        success=True,
        save_to_github=True  # GitHub Issueに自動記録
    )
    ↓
-7. Draft PR作成
+8. Draft PR作成（v4.3.0: release branchへ）
    ↓
-8. CI通過 → Ready → Merge
+9. CI通過 → Ready → Merge
 ```
 
 **💡 Coding Session のメリット:**
@@ -441,6 +546,64 @@ kagura coding search --project kagura-ai --query "memory integration"
 ---
 
 ## 📁 プロジェクト構造
+
+### v4.3.0での主要な変更点
+
+**Utils統合** (Phase 1完了予定):
+```
+utils/                          # 🆕 統合されたユーティリティ
+├── cli/                        # CLI専用（旧cli/utils/から移動）
+│   ├── progress.py
+│   ├── rich_helpers.py
+│   └── time_formatters.py
+├── memory/                     # Memory関連
+│   └── factory.py
+├── api/                        # API関連
+│   └── check.py
+└── common/                     # 共通
+    ├── json_helpers.py
+    ├── errors.py
+    └── db.py
+```
+
+**MCP Tools再編** (Phase 2完了予定):
+```
+mcp/tools/                      # 🆕 Tool個別ファイル化（旧builtin/から移行）
+├── coding/
+│   ├── session.py              # start/end/resume/status
+│   ├── file_tracking.py        # track_file_change
+│   ├── error_tracking.py       # record_error, search_errors
+│   └── ...
+└── memory/
+    ├── storage.py              # store, recall, delete
+    ├── search.py               # search, search_ids, fetch
+    └── ...
+```
+
+**Coding Memory分割** (Phase 3完了予定):
+```
+core/memory/coding/             # 🆕 CodingMemory分割
+├── session_manager.py          # Session lifecycle
+├── file_change_tracker.py      # File change recording
+├── error_recorder.py           # Error tracking
+├── decision_recorder.py        # Design decisions
+└── github_integration.py       # GitHub Issue/PR
+```
+
+**CLI Commands再編** (Phase 4完了予定):
+```
+cli/commands/                   # 🆕 サブコマンド個別ファイル
+├── mcp/
+│   ├── serve.py
+│   ├── stats.py
+│   └── ...
+└── memory/
+    ├── store.py
+    ├── search.py
+    └── ...
+```
+
+---
 
 ### ディレクトリ構造
 
@@ -494,24 +657,32 @@ kagura-ai/
 │   │   ├── tools.py
 │   │   └── utils.py
 │   │
-│   ├── cli/                       # CLI commands
-│   │   ├── utils/                 # 🆕 CLI utilities (v4.1.0)
+│   ├── cli/                       # CLI commands (v4.3.0: モジュール化)
+│   │   ├── mcp/                   # 🆕 MCP commands (Phase 4)
 │   │   │   ├── __init__.py
-│   │   │   ├── progress.py        # Progress indicators
-│   │   │   ├── rich_helpers.py    # Rich console formatting
-│   │   │   └── time_formatters.py # Time display utilities
+│   │   │   ├── serve.py
+│   │   │   ├── stats.py
+│   │   │   ├── tools.py
+│   │   │   └── doctor.py
+│   │   ├── memory/                # 🆕 Memory commands (Phase 4)
+│   │   │   ├── __init__.py
+│   │   │   ├── store.py
+│   │   │   ├── search.py
+│   │   │   ├── delete.py
+│   │   │   └── export.py
+│   │   ├── coding/                # 🆕 Coding commands (Phase 4)
+│   │   │   ├── __init__.py
+│   │   │   ├── sessions.py
+│   │   │   ├── errors.py
+│   │   │   └── decisions.py
 │   │   ├── api_cli.py             # API key management
 │   │   ├── auth_cli.py            # OAuth2 authentication
 │   │   ├── chat.py                # Chat interface
-│   │   ├── coding_cli.py          # Coding memory commands
 │   │   ├── config_cli.py          # Configuration management
 │   │   ├── doctor.py              # System diagnostics
 │   │   ├── init.py                # Project initialization
 │   │   ├── lazy.py                # Lazy loading utilities
 │   │   ├── main.py                # CLI entry point
-│   │   ├── mcp.py                 # MCP server commands
-│   │   ├── memory_cli.py          # Memory management
-│   │   ├── monitor.py             # MCP monitor
 │   │   └── telemetry_cli.py       # Telemetry commands
 │   │
 │   ├── commands/                  # Command pattern implementation
@@ -547,19 +718,29 @@ kagura-ai/
 │   │   ├── memory/                # 4-tier memory system
 │   │   │   ├── README.md
 │   │   │   ├── bm25_search.py     # BM25 keyword search
+│   │   │   ├── coding/            # 🆕 Coding memory (Phase 3: 2,116行 → 8モジュール)
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── session_manager.py      # Session lifecycle
+│   │   │   │   ├── file_change_tracker.py  # File change tracking
+│   │   │   │   ├── error_recorder.py       # Error recording
+│   │   │   │   ├── decision_recorder.py    # Design decisions
+│   │   │   │   ├── interaction_tracker.py  # AI-User interactions
+│   │   │   │   ├── github_integration.py   # GitHub Issue/PR integration
+│   │   │   │   ├── search.py               # Session search & retrieval
+│   │   │   │   └── models.py               # Pydantic models
 │   │   │   ├── coding_dependency.py  # Code dependency analysis
-│   │   │   ├── coding_memory.py   # Coding session memory
+│   │   │   ├── coding_memory.py   # Coding memory (Facade、Phase 3で582行に削減)
 │   │   │   ├── context.py         # Context management
 │   │   │   ├── embeddings.py      # Embedding generation
 │   │   │   ├── export.py          # Memory export/import
-│   │   │   ├── github_recorder.py # GitHub integration
+│   │   │   ├── github_recorder.py # GitHub integration (deprecated → coding/github_integration.py)
 │   │   │   ├── hybrid_search.py   # Hybrid search (BM25+RAG)
 │   │   │   ├── interaction_tracker.py  # AI-User interaction
 │   │   │   ├── lexical_search.py  # Lexical search
 │   │   │   ├── manager.py         # Memory manager (main)
 │   │   │   ├── memory_abstractor.py  # Memory abstraction
 │   │   │   ├── models/
-│   │   │   │   └── coding.py      # Coding models
+│   │   │   │   └── coding.py      # Coding models (deprecated → coding/models.py)
 │   │   │   ├── multimodal_rag.py  # Multimodal RAG
 │   │   │   ├── neural/            # Neural memory network
 │   │   │   │   ├── activation.py   # Activation tracking
@@ -661,15 +842,25 @@ kagura-ai/
 │   ├── tools/                     # Tool utilities
 │   │   └── __init__.py
 │   │
-│   ├── utils/                     # 🆕 Shared utilities (v4.1.0)
-│   │   ├── __init__.py
-│   │   ├── api_check.py           # API connectivity testing
-│   │   ├── db.py                  # Database helpers
-│   │   ├── errors.py              # Unified error handling
-│   │   ├── json_helpers.py        # JSON serialization
-│   │   ├── media_detector.py      # Media file detection
-│   │   ├── memory.py              # MemoryManager factory
-│   │   └── metadata.py            # Metadata extraction
+│   ├── utils/                     # 🆕 Shared utilities (v4.3.0: Phase 1統合)
+│   │   ├── cli/                   # CLI専用ユーティリティ (旧cli/utils/から移動)
+│   │   │   ├── __init__.py
+│   │   │   ├── progress.py        # Progress indicators
+│   │   │   ├── rich_helpers.py    # Rich console formatting
+│   │   │   └── time_formatters.py # Time display utilities
+│   │   ├── memory/                # Memory関連ヘルパー
+│   │   │   ├── __init__.py
+│   │   │   └── factory.py         # MemoryManager factory
+│   │   ├── api/                   # API関連ヘルパー
+│   │   │   ├── __init__.py
+│   │   │   └── check.py           # API connectivity testing
+│   │   ├── common/                # 共通ユーティリティ
+│   │   │   ├── __init__.py
+│   │   │   ├── json_helpers.py    # JSON serialization
+│   │   │   ├── errors.py          # Unified error handling
+│   │   │   ├── db.py              # Database helpers
+│   │   │   └── metadata.py        # Metadata extraction
+│   │   └── media_detector.py      # Media file detection
 │   │
 │   ├── version.py
 │   │

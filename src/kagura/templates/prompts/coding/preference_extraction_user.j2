@@ -1,0 +1,187 @@
+Analyze coding patterns to extract
+developer preferences.
+
+## File Changes (n={{ change_count }})
+{{ file_changes }}
+
+## Design Decisions (n={{ decision_count }})
+{{ design_decisions }}
+
+## Task
+Extract coding preferences in the following categories:
+
+### Preference Structure
+```yaml
+language_preferences:
+  python_version: "3.11+"  # If evident from type hints, syntax
+  type_annotations: always | usually | rarely
+  docstring_style: google | numpy | sphinx | minimal
+  async_usage: heavy | moderate | minimal
+
+library_preferences:
+  web_framework: fastapi | flask | django | ...
+  testing: pytest | unittest | ...
+  validation: pydantic | marshmallow | ...
+  # Other libraries with 3+ uses
+
+naming_conventions:
+  functions: snake_case | camelCase
+  classes: PascalCase | ...
+  constants: SCREAMING_SNAKE_CASE | ...
+  private_prefix: _underscore | __double | none
+
+code_organization:
+  file_length_preference: short (<200) | medium (200-500) | long (500+)
+  function_length_preference: short (<20) | medium (20-50) | long (50+)
+  class_vs_function: prefers_classes | prefers_functions | mixed
+  import_style: absolute | relative | mixed
+
+patterns:
+  error_handling: exceptions | result_types | both
+  null_handling: optional_types | none_checks | assertions
+  validation: early (at input) | late (at use) | mixed
+
+testing_practices:
+  test_coverage_importance: high | medium | low
+  test_style: unit_focused | integration_focused | e2e_focused
+  mock_usage: heavy | moderate | minimal
+
+confidence_levels:
+  # For each preference, include confidence
+  # based on: high (5+ consistent examples), medium (3-4), low (1-2)
+```
+
+## Guidelines
+- Only include preferences with 2+ supporting examples
+- Note confidence level for each preference
+- Include counter-examples if pattern isn't 100% consistent
+- Distinguish project constraints from personal preferences
+- Focus on preferences that affect code generation
+
+## Example Output
+```yaml
+language_preferences:
+  python_version: "3.11+"
+  type_annotations: always
+    confidence: high
+    evidence: "All 47 functions have complete type hints including return types"
+
+  docstring_style: google
+    confidence: high
+    evidence: "Consistent Google-style docstrings in 38/40 functions"
+    exceptions: "2 utility functions lack docstrings"
+
+  async_usage: heavy
+    confidence: high
+    evidence: "All database and API calls use async/await (23 functions)"
+
+library_preferences:
+  web_framework: fastapi
+    confidence: high
+    evidence: "5 endpoints defined, all use FastAPI patterns"
+
+  testing: pytest
+    confidence: high
+    evidence: "All 31 test files use pytest fixtures and conventions"
+
+  validation: pydantic
+    confidence: high
+    evidence: "19 data models, all use Pydantic BaseModel"
+
+  database: asyncpg
+    confidence: medium
+    evidence: "3 database files all use asyncpg, but only 3 examples"
+
+naming_conventions:
+  functions: snake_case
+    confidence: high
+    evidence: "All 47 functions use snake_case, zero exceptions"
+
+  classes: PascalCase
+    confidence: high
+    evidence: "All 19 classes use PascalCase"
+
+  constants: SCREAMING_SNAKE_CASE
+    confidence: medium
+    evidence: "4/5 constants use SCREAMING, 1 uses lowercase"
+
+  private_prefix: single_underscore
+    confidence: high
+    evidence: "Private methods use _prefix (8 examples), never __double"
+
+code_organization:
+  file_length_preference: medium
+    confidence: medium
+    evidence: "Average file length 234 lines, range 120-450"
+
+  function_length_preference: short
+    confidence: high
+    evidence: "89% of functions under 20 lines, longest is 35 lines"
+    note: "Strong preference for breaking down complex functions"
+
+  class_vs_function: prefers_functions
+    confidence: high
+    evidence: "47 functions vs 19 classes, classes used mainly for data models"
+
+  import_style: absolute
+    confidence: high
+    evidence: "All imports use absolute paths from project root"
+
+patterns:
+  error_handling: exceptions
+    confidence: high
+    evidence: "Consistent use of try/except, custom exception classes"
+    note: "No use of Result types or error codes"
+
+  null_handling: optional_types
+    confidence: high
+    evidence: "Uses Optional[T] and | None extensively (28 occurrences)"
+    note: "Prefers type system over runtime null checks"
+
+  validation: early
+    confidence: high
+    evidence: "Pydantic validation at API boundary, assertions rare"
+
+testing_practices:
+  test_coverage_importance: high
+    confidence: high
+    evidence: "91% coverage, even edge cases tested"
+
+  test_style: unit_focused
+    confidence: medium
+    evidence: "27 unit tests vs 4 integration tests"
+
+  mock_usage: moderate
+    confidence: medium
+    evidence: "Mocks for external APIs, real objects for internal code"
+
+architectural_preferences:
+  - pattern: "Dependency injection via function parameters"
+    confidence: high
+    evidence: "Database connections passed as params (12 functions)"
+
+  - pattern: "Thin controllers, fat services"
+    confidence: medium
+    evidence: "API routes delegate to service layer (5 examples)"
+
+  - pattern: "Explicit is better than implicit"
+    confidence: high
+    evidence: "No global state, no magic imports, explicit dependencies"
+
+anti_patterns_avoided:
+  - "Global mutable state" (confidence: high, 0 occurrences in 47 files)
+  - "God objects" (confidence: high, largest class is 8 methods)
+  - "Deep nesting" (confidence: high, max indent level is 3)
+
+recommendations_for_ai_assistants:
+  - "Always include type hints with return types"
+  - "Use Pydantic for any data validation needs"
+  - "Keep functions under 20 lines - extract helpers if needed"
+  - "Add Google-style docstrings to all public functions"
+  - "Prefer async/await for I/O operations"
+  - "Use absolute imports from project root"
+  - "Write comprehensive unit tests with edge cases"
+  - "Inject dependencies via parameters, not globals"
+```
+
+Now extract preferences:

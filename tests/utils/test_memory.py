@@ -18,7 +18,7 @@ def clear_cache():
 @pytest.fixture
 def mock_memory_manager():
     """Mock MemoryManager to avoid actual initialization."""
-    with patch("kagura.utils.memory.MemoryManager") as mock:
+    with patch("kagura.utils.memory.factory.MemoryManager") as mock:
         # side_effect creates new MagicMock for each call
         mock.side_effect = lambda **kwargs: MagicMock()
         yield mock
