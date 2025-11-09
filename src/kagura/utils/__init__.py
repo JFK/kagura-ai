@@ -9,6 +9,25 @@ Reorganized in v4.3.0 for better modularity:
 This package re-exports commonly used utilities for backward compatibility.
 """
 
+# Re-export submodules for backward compatibility (v4.3.0)
+# Register in sys.modules to allow old-style imports like "from kagura.utils.db import X"
+import sys
+
+from kagura.utils.common import (  # noqa: F401
+    db,
+    errors,
+    json_helpers,
+    media_detector,
+    metadata,
+)
+
+# Register submodules in sys.modules for backward compatibility
+sys.modules["kagura.utils.db"] = db
+sys.modules["kagura.utils.errors"] = errors
+sys.modules["kagura.utils.json_helpers"] = json_helpers
+sys.modules["kagura.utils.media_detector"] = media_detector
+sys.modules["kagura.utils.metadata"] = metadata
+
 # New organized imports (v4.3.0)
 from kagura.utils.api.check import (
     check_api_configuration,
