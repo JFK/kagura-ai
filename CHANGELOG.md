@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🏗️ Refactoring
+
+#### Phase 3.1: Coding Memory Module Foundation (#618)
+- **Restructured**: `core/memory/coding_memory.py` (2,116 lines) → `core/memory/coding/` module
+- **Created**: `coding/manager.py` - Main CodingMemoryManager implementation
+- **Created**: `coding/__init__.py` - Public API facade
+- **Created**: `coding/README.md` - Module documentation
+- **Maintained**: 100% backward compatibility via facade pattern
+  ```python
+  # Both import paths work identically
+  from kagura.core.memory.coding_memory import CodingMemoryManager
+  from kagura.core.memory.coding import CodingMemoryManager
+  ```
+- **File reduction**: `coding_memory.py` reduced from 2,116 → 42 lines (98% reduction)
+- **Next steps**: Future PRs will split `manager.py` into focused modules:
+  - `session_manager.py` - Session lifecycle
+  - `file_tracker.py` - File change tracking
+  - `error_recorder.py` - Error recording & search
+  - `decision_recorder.py` - Design decision tracking
+  - `github_integration.py` - GitHub Issue integration
+  - `analyzers.py` - Pattern analysis & context
+- **Impact**: Establishes foundation for Phase 3 modular architecture
+- **Tests**: 5/5 RAG tests passing, 11/18 MCP tests passing (7 failures due to unrelated embedding dimension issue)
+- **Type checking**: 0 errors with pyright --level error
+
 ### ✨ Added
 
 - TBD
