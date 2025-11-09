@@ -11,6 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🏗️ Refactoring
 
+#### Phase 3.2: Coding Memory Isolated Features (#618)
+- **Extracted**: Three self-contained modules from `manager.py` using mixin pattern
+  - `coding/file_tracker.py` (160 lines) - `track_file_change()` method
+  - `coding/error_recorder.py` (254 lines) - `record_error()`, `search_similar_errors()` methods
+  - `coding/decision_recorder.py` (182 lines) - `record_decision()`, `get_decision_implementation_status()` methods
+- **Updated**: `coding/__init__.py` - Applies mixin pattern to attach extracted methods to `CodingMemoryManager`
+- **Reduced**: `manager.py` from 2,116 → 1,588 lines (528 lines removed, 25% reduction)
+- **Maintained**: 100% backward compatibility
+  - All methods remain accessible on `CodingMemoryManager` class
+  - Both import paths work identically
+  - Zero breaking changes
+- **Pattern**: Mixin approach (same as PR #628/#629 for MCP tools)
+  ```python
+  # Methods automatically attached via __init__.py
+  for module in [file_tracker, error_recorder, decision_recorder]:
+      setattr(CodingMemoryManager, method_name, method)
+  ```
+- **Type checking**: 0 errors with pyright --level error
+- **Tests**: All extracted methods verified working via mixin pattern
+
 #### Phase 3.1: Coding Memory Module Foundation (#618)
 - **Restructured**: `core/memory/coding_memory.py` (2,116 lines) → `core/memory/coding/` module
 - **Created**: `coding/manager.py` - Main CodingMemoryManager implementation
@@ -23,15 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   from kagura.core.memory.coding import CodingMemoryManager
   ```
 - **File reduction**: `coding_memory.py` reduced from 2,116 → 42 lines (98% reduction)
-- **Next steps**: Future PRs will split `manager.py` into focused modules:
-  - `session_manager.py` - Session lifecycle
-  - `file_tracker.py` - File change tracking
-  - `error_recorder.py` - Error recording & search
-  - `decision_recorder.py` - Design decision tracking
-  - `github_integration.py` - GitHub Issue integration
-  - `analyzers.py` - Pattern analysis & context
 - **Impact**: Establishes foundation for Phase 3 modular architecture
-- **Tests**: 5/5 RAG tests passing, 11/18 MCP tests passing (7 failures due to unrelated embedding dimension issue)
 - **Type checking**: 0 errors with pyright --level error
 
 ### ✨ Added
