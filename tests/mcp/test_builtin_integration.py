@@ -19,7 +19,20 @@ def reset_and_import_builtin():
     tool_registry.clear()
 
     # Force reload of builtin modules to trigger @tool registration
+    # Note: v4.3.0 moved tools to kagura.mcp.tools.*, so import both
     builtin_modules = [
+        # v4.3.0: Import actual tool modules first (builtin is now facade)
+        "kagura.mcp.tools.memory.storage",
+        "kagura.mcp.tools.memory.search",
+        "kagura.mcp.tools.memory.list_and_feedback",
+        "kagura.mcp.tools.memory.graph",
+        "kagura.mcp.tools.memory.user_pattern",
+        "kagura.mcp.tools.memory.stats",
+        "kagura.mcp.tools.memory.timeline",
+        "kagura.mcp.tools.memory.tool_history",
+        "kagura.mcp.tools.memory.chunks",
+        "kagura.mcp.tools.memory",
+        # Builtin facades (for backward compatibility)
         "kagura.mcp.builtin.memory",
         "kagura.mcp.builtin.file_ops",
         "kagura.mcp.builtin.web",

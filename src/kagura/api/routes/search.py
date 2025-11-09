@@ -11,7 +11,7 @@ from fastapi import APIRouter
 
 from kagura.api import models
 from kagura.api.dependencies import MemoryManagerDep
-from kagura.utils.json_helpers import decode_chromadb_metadata
+from kagura.utils.common.json_helpers import decode_chromadb_metadata
 
 router = APIRouter()
 

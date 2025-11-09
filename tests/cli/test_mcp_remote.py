@@ -5,7 +5,7 @@ import json
 import pytest
 from click.testing import CliRunner
 
-from kagura.cli.mcp import connect, test_remote
+from kagura.cli.mcp.config import connect, test_remote
 
 
 class TestMCPConnect:

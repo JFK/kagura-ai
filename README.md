@@ -67,13 +67,13 @@ Switching platforms = **starting over**.
 Give **every AI** access to:
 - ✅ Your knowledge base
 - ✅ Conversation history
-- ✅ Coding patterns ("Vibe Coding")
+- ✅ Coding patterns
 - ✅ Learning journey
 
 **For developers**:
 - 🔌 **REST API**: Query memory from any agent, any language
 - 🐍 **Python SDK**: Build AI agents with unified memory access
-- 📦 **MCP Tools**: 56 built-in tools (15 Memory + 15 Coding + 6 GitHub + 5 Brave + 4 YouTube + 11 others)
+- 📦 **MCP Tools**: 56 built-in tools (15 Memory + 20 Coding + 6 GitHub + others)
 - 🧠 **Neural Memory**: Hebbian learning, activation spreading, adaptive associations
 - 🛠️ **Extensible**: Custom connectors, workflows, integrations
 
@@ -84,560 +84,229 @@ Give **every AI** access to:
 ## 🎯 Why Kagura?
 
 ### For Individuals
-- 🔒 **Privacy-first**: Local storage, self-hosted, or cloud(your choice)
+- 🔒 **Privacy-first**: Local storage, self-hosted, or cloud (your choice)
 - 🚫 **No vendor lock-in**: Complete data export anytime
-- 🧠 **Smart recall**: Vector search + Knowledge graph
+- 🧠 **Smart recall**: Hybrid search (BM25 + vector + reranking)
 - 📊 **Insights**: Visualize your learning patterns
 
 ### For Developers
-- 🧠 **Neural Memory Network (NEW v4.0)**:
-  - Hebbian learning-based adaptive memory
-  - Activation spreading (1-3 hop graph propagation)
-  - Trust-modulated learning (poisoning defense)
-  - GDPR-compliant with automatic forgetting
-  - Research-backed: Hopfield Networks, kNN-LM, RETRO
-- 💻 **Coding-Specialized Memory (v4.0)**:
-  - Track file changes, errors, design decisions
-  - AI-powered session summaries with cost tracking
-  - Automatic dependency analysis (AST-based)
-  - Refactoring impact assessment
-  - **14 MCP tools** for Claude Code, Cursor, etc.
-- 🔧 **GitHub CLI Integration (v4.0)**:
-  - Safe shell execution with danger detection
-  - Issue/PR operations via MCP (6 tools)
-  - Automatic confirmation for dangerous commands
-  - Working directory support for all shell operations
+- 🧠 **Neural Memory Network**: Hebbian learning, activation spreading, GDPR-compliant forgetting
+- 💻 **Coding-Specialized Memory**: Track file changes, errors, design decisions with AI summaries
+- 🔧 **GitHub CLI Integration**: Safe shell execution with 6 MCP tools
 - 🔌 **MCP-native**: Works with Claude Desktop, Cursor, Cline, etc.
-- 🐍 **Python SDK**: Build agents that share memory across platforms
-- 🌐 **REST API**: Access memory from any language, any agent
-- 🔗 **Agent orchestration**: Your custom agents can reference each other's memory
-- 🛠️ **Extensible**: Custom connectors, tools, workflows
-- 📦 **Production-ready**: Docker, API, full test coverage (1,450+ tests)
+- 🌐 **REST API**: Access from any language
+- 📦 **Production-ready**: Docker, full test coverage (1,450+ tests, 90%+ coverage)
 
-### For Teams(Coming in v4.2)
+### For Teams (Coming in v4.2)
 - 👥 **Shared knowledge**: Team-wide memory
 - 🔐 **Enterprise features**: SSO, BYOK, audit logs
 - 📈 **Analytics**: Track team AI usage patterns
 
 ---
 
-## ✅ v4.0 Status - Phase A/B/C Complete ✨
-
-**Current**: v4.0.9 (stable release) - Universal AI Memory Platform
-
-**Phase A/B/C Complete** - All v4.0 core features are production-ready:
-- ✅ **Phase A**: MCP-First Foundation ([#364](https://github.com/JFK/kagura-ai/issues/364))
-  - REST API (FastAPI + OpenAPI)
-  - 34 MCP Tools with management CLI
-  - Docker Compose setup
-- ✅ **Phase B**: GraphMemory & User Patterns ([#345](https://github.com/JFK/kagura-ai/issues/345))
-  - NetworkX-based knowledge graph
-  - Interaction tracking & pattern analysis
-  - Multi-hop graph traversal
-- ✅ **Phase C**: Remote MCP & Data Portability ([#378](https://github.com/JFK/kagura-ai/issues/378))
-  - MCP over HTTP/SSE (ChatGPT support)
-  - API Key authentication & security
-  - Memory export/import (JSONL)
-  - Production Docker + Caddy
-
-**Additional Enhancements**:
-- ✅ **Memory Accuracy** ([#418](https://github.com/JFK/kagura-ai/issues/418), [#417](https://github.com/JFK/kagura-ai/issues/417))
-  - E5 multilingual embeddings (100+ languages)
-  - Cross-encoder reranking
-  - Hybrid search (BM25 + vector fusion)
-  - **+40-60% precision improvement**
-- ✅ **CLI Tools** ([#412](https://github.com/JFK/kagura-ai/issues/412), [#413](https://github.com/JFK/kagura-ai/issues/413))
-  - `kagura mcp stats`, `kagura mcp log`
-  - Enhanced monitoring & diagnostics
-
-**Test Coverage**: 1,451+ tests passing | 90%+ coverage
-
-**What's Next**:
-- 🎯 **v4.0.0 stable** (October 2025): Final release & documentation
-- 🔜 **v4.1.0** (Q2 2026): Smart Forgetting, Auto-recall, PostgreSQL backend
-- 🔜 **v4.2.0** (Q3-Q4 2026): Cloud SaaS, Enterprise features
-
----
-
 ## 🚀 Quick Start
 
-### Quick Start: Chat Integration ⭐ RECOMMENDED
+**Get started in less than 5 minutes!**
 
-**Use Kagura with ChatGPT, Claude Chat, or any AI platform**
+### Installation
 
-#### ChatGPT (via Remote MCP)
 ```bash
-# 1. Start Kagura Remote MCP
-docker compose -f docker-compose.prod.yml up -d
-
-# 2. Configure ChatGPT
-#    Settings → Tools → Add MCP Server
-#    URL: https://your-domain.com/mcp
-
-# 3. Try it!
-"Hello! Run memory_stats to show Kagura status"
-"Remember that I prefer Python for backend projects"
+pip install kagura-ai[full]
 ```
 
-**See**: [Chat Integration Tips](docs/chat-integration-tips.md) | [ChatGPT Workflows](docs/examples/chatgpt-workflow.md)
+### Your First Memory
 
-#### Claude Desktop (Local MCP)
 ```bash
-# 1. Install & Configure
+# Store a memory
+kagura memory store \
+  --key "python_pref" \
+  --value "I prefer FastAPI for new projects" \
+  --tags "preferences"
+
+# Search it
+kagura memory search --query "web framework preference"
+```
+
+### Connect to Claude Desktop
+
+```bash
+# Auto-configure
 kagura mcp install
 
-# 2. Restart Claude Desktop
-
-# 3. Try it!
-"Remember permanently: I prefer FastAPI over Django"
-"What do you know about my preferences?"
+# Restart Claude Desktop, then try:
+# "Run memory_stats to show Kagura status"
 ```
 
-**See**: [Claude Desktop Setup](docs/mcp-setup.md) | [Claude Workflows](docs/examples/claude-workflow.md)
-
-#### Claude Code (Local MCP)
-```bash
-# 1. Add MCP Server
-claude mcp add --transport stdio kagura -- kagura mcp serve
-
-# 2. Verify
-claude mcp list  # Should show: kagura ✓ Connected
-
-# 3. Try it!
-"Start coding session for 'implement authentication'"
-"Track file changes and generate AI summary"
-```
-
-**See**: [Claude Code Setup](docs/mcp-claude-code-setup.md)
-
----
-
-### Option 1: v3.0 SDK(Current Stable)
+### Connect to Claude Code
 
 ```bash
-pip install kagura-ai[full]
-
-# Use the @agent decorator
-from kagura import agent
-
-@agent
-async def translator(text: str) -> str:
-    '''Translate to Japanese: {{ text }}'''
-
-result = await translator("Hello World")
-```
-
-### Option 2: v4.0 Docker(v4.0.0a0)
-
-```bash
-# Clone repository
-git clone https://github.com/JFK/kagura-ai.git
-cd kagura-ai
-
-# Start services
-docker compose up -d
-
-# Verify
-curl http://localhost:8080/api/v1/health
-```
-
-**API Docs**: http://localhost:8080/docs
-
-### Option 3: MCP with Claude Desktop (v4.0.0)
-
-```bash
-# Install Kagura
-pip install kagura-ai[full]
-
-# Auto-configure Claude Desktop
-kagura mcp install
-
-# Start MCP server
-kagura mcp serve
-```
-
-**See**: [MCP Setup Guide](docs/mcp-setup.md)
-
-### Option 3b: MCP with Claude Code (v4.0.0) ⭐ NEW
-
-```bash
-# Install Kagura
-pip install kagura-ai[full]
-
-# Add to Claude Code
+# Add MCP server
 claude mcp add --transport stdio kagura -- kagura mcp serve
 
 # Verify
 claude mcp list
 ```
 
-**See**: [Claude Code MCP Setup](docs/mcp-claude-code-setup.md)
+### Full Guide
 
-### Option 4: Self-Hosted Production (v4.0.0) ⭐ NEW
+**📖 [Complete Quick Start Guide →](QUICKSTART.md)**
 
-```bash
-# Clone and configure
-git clone https://github.com/JFK/kagura-ai.git
-cd kagura-ai
-cp .env.example .env
-nano .env  # Set DOMAIN and POSTGRES_PASSWORD
-
-# Start production services
-docker compose -f docker-compose.prod.yml up -d
-
-# Generate API key
-docker compose -f docker-compose.prod.yml exec api \
-  kagura api create-key --name "production"
-
-# Access via HTTPS
-curl https://your-domain.com/api/v1/health
-```
-
-**See**: [Self-Hosting Guide](docs/self-hosting.md)
-
-### Option 5: ChatGPT Connector (v4.0.0) ⭐ NEW
-
-Connect ChatGPT to your Kagura memory:
-
-1. Start Kagura API (local or remote)
-2. Enable Developer Mode in ChatGPT
-3. Add connector:
-   - **URL**: `https://your-domain.com/mcp`
-   - **Auth**: Bearer token (optional)
-
-**See**: [MCP over HTTP/SSE Guide](docs/mcp-http-setup.md)
+Everything you need:
+- Installation (pip, docker, source)
+- First memory operation (5 min tutorial)
+- MCP setup for Claude Desktop/Code
+- Coding session basics
+- Common commands cheat sheet
+- Troubleshooting
 
 ---
 
-## 🧩 Key Features (v4.0)
+## ✅ v4.0 Status - Stable Release
 
-### 🚀 For Developers: Unified Memory Access
+**Current**: v4.0.9 (stable) - Universal AI Memory Platform
 
-**Example 1: Access memory from any agent via REST API**
+**Core Features** (Complete):
+- ✅ **REST API** with OpenAPI docs
+- ✅ **56 MCP Tools** with full management CLI
+- ✅ **Neural Memory Network** (Hebbian learning, activation spreading)
+- ✅ **Coding Memory** (20 MCP tools for developer workflows)
+- ✅ **GitHub Integration** (6 MCP tools for safe shell operations)
+- ✅ **Remote MCP Server** (HTTP/SSE for ChatGPT)
+- ✅ **Memory Accuracy** (+40-60% precision via hybrid search)
+- ✅ **Export/Import** (JSONL format, complete data portability)
 
-```python
-import httpx
+**Test Coverage**: 1,450+ tests passing | 90%+ coverage
 
-# Your custom agent queries Kagura memory
-async with httpx.AsyncClient() as client:
-    response = await client.post(
-        "https://your-kagura.com/api/v1/memory/search",
-        json={"query": "Python best practices", "k": 5},
-        headers={"Authorization": "Bearer YOUR_API_KEY"}
-    )
-    memories = response.json()
-```
+**What's Next**:
+- 🎯 **v4.3.0** (November 2025): Code quality release (refactoring, optimization)
+- 🔜 **v4.4.0** (Q1 2026): Smart Forgetting, Auto-recall, PostgreSQL
+- 🔜 **v5.0.0** (Q2-Q4 2026): Cloud SaaS, Enterprise features
 
-**Example 2: Build agents with Python SDK**
-
-```python
-from kagura import agent, MemoryManager
-
-# Agent with unified memory
-@agent
-async def code_reviewer(code: str) -> str:
-    '''Review this code using our team's best practices: {{ code }}'''
-
-# All agents share the same memory
-memory = MemoryManager()
-await memory.store(
-    key="python_style_guide",
-    value="Always use type hints and docstrings",
-    scope="persistent"
-)
-
-# Any agent can now reference this
-result = await code_reviewer("def foo(x): return x * 2")
-```
-
-**Example 3: Agent orchestration**
-
-```python
-# Morning: Planning agent stores tasks
-@agent
-async def planner(goals: str) -> str:
-    '''Create a daily plan: {{ goals }}'''
-
-# Afternoon: Coding agent accesses the plan
-@agent
-async def coder(task: str) -> str:
-    '''Implement this task from today's plan: {{ task }}'''
-
-# Evening: Review agent summarizes the day
-@agent
-async def reviewer() -> str:
-    '''Review what was accomplished today based on stored memories'''
-```
+**See**: [Full Roadmap →](ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md)
 
 ---
 
-## 🧩 Core Features (v4.0)
+## 🧩 Core Features
 
-### 1. **Universal Memory API**(✅ Phase A Complete)
+### Universal Memory API
+- **Store/Recall**: Semantic search with ChromaDB embeddings (E5 multilingual)
+- **Hybrid Search**: BM25 + vector fusion + cross-encoder reranking
+- **Graph Memory**: NetworkX-based knowledge graph with multi-hop traversal
+- **Data Portability**: Export/import in JSONL format
 
-```python
-from kagura import MemoryManager
+### Coding-Specialized Memory
+- **Session Tracking**: Start/end sessions with AI-generated summaries
+- **File Change Tracking**: AST-based dependency analysis
+- **Error Recording**: Track errors and solutions, searchable history
+- **Design Decisions**: Document architectural choices
+- **GitHub Integration**: Auto-post summaries to Issues/PRs
 
-memory = MemoryManager()
+### Neural Memory Network
+- **Hebbian Learning**: Adaptive memory associations
+- **Activation Spreading**: 1-3 hop graph propagation
+- **Trust Modulation**: Poisoning defense
+- **GDPR-Compliant**: Automatic forgetting mechanisms
 
-# Store
-await memory.store(
-    key="python_best_practices",
-    value="Always use type hints for function signatures",
-    scope="persistent",
-    tags=["python", "coding"]
-)
+### MCP Tools (56 total)
+- **Memory**: 15 tools (store, recall, search, delete, stats, etc.)
+- **Coding**: 20 tools (sessions, file tracking, errors, decisions, GitHub)
+- **GitHub**: 6 tools (issue view, PR operations, safe shell execution)
+- **Search**: 5 tools (Brave Search, academic, fact-check)
+- **Media**: 4 YouTube tools + multimodal RAG
+- **Utilities**: Cache, routing, observability, meta-agent
 
-# Recall(semantic search)
-results = await memory.recall(
-    query="How should I write Python functions?",
-    k=5
-)
-```
-
-**MCP Tools**:
-- `memory_store` - Store memories
-- `memory_recall` - Semantic recall
-- `memory_search` - Full-text + semantic
-- `memory_feedback` - Improve quality
-- `memory_delete` - Complete deletion
-
----
-
-### 2. **Knowledge Graph**(✅ Phase B Complete)
-
-Track **relationships** between memories:
-
-```python
-# Link memories
-await memory.link(
-    src="python_best_practices",
-    dst="fastapi_tutorial",
-    rel_type="related_to",
-    weight=0.8
-)
-
-# Multi-hop traversal
-related = await memory.query_graph(
-    seed_ids=["python_best_practices"],
-    hops=2
-)
-```
-
-**Use cases**:
-- Find related memories
-- Discover learning paths
-- Track dependencies
-
----
-
-### 3. **Data Portability**(🔄 Phase C)
-
-```bash
-# Export everything
-kagura memory export --output=./backup --format=jsonl
-
-# Import to another instance
-kagura memory import --input=./backup
-```
-
-**Format**: JSONL + attachments(human-readable, no lock-in)
-
----
-
-### 4. **Vibe Coding History**(✅ Phase B Complete)
-
-Track your **AI-assisted coding journey**:
-
-```python
-# Record interaction
-await memory.record_interaction(
-    ai_platform="claude",
-    query="How to implement OAuth2 in FastAPI?",
-    response="...",
-    meta={"project": "kagura-api", "session_id": "..."}
-)
-```
+### REST API & SDK
+- **FastAPI** with OpenAPI documentation
+- **Python SDK** with `@agent` decorator (v3.0)
+- **API Key Authentication** with bearer tokens
+- **Multi-language Support** via HTTP
 
 ---
 
 ## 🏗️ Architecture
 
 ### Storage
-- **Vector**: ChromaDB(local)or pgvector(self-hosted/cloud)
-- **Graph**: NetworkX(relationships)- Phase B
-- **Metadata**: SQLite(local)or PostgreSQL(production)
+- **Vector**: ChromaDB (local) or pgvector (cloud)
+- **Graph**: NetworkX for relationships
+- **Metadata**: SQLite (local) or PostgreSQL (production)
 
-### API
-- **REST**: FastAPI with OpenAPI - Phase A ✅
-- **MCP**: Model Context Protocol server - Phase A ✅
-- **SDK**: Python(v3.0 available, v4.0 refactoring)
+### Access
+- **MCP Protocol**: Claude Desktop, Claude Code, Cursor, Cline
+- **REST API**: Any language, any agent
+- **Python SDK**: `@agent` decorator for rapid development
 
 ### Deployment
-- **Local**: Docker Compose - Phase A ✅
-- **Self-hosted**: Your own server(Phase C)
-- **Cloud**: Managed SaaS(Phase E)
+- **Local**: Docker Compose (dev)
+- **Self-hosted**: Production Docker + Caddy (HTTPS)
+- **Cloud**: Managed SaaS (coming in v5.0)
 
----
-
-## 📦 Installation
-
-### Stable (v3.0)
-
-```bash
-pip install kagura-ai[full]
+**Data Location** (XDG-compliant):
 ```
-
-### Development (v4.0.0a0)
-
-```bash
-# Clone repository
-git clone https://github.com/JFK/kagura-ai.git
-cd kagura-ai
-
-# Install dependencies
-uv sync --all-extras
-
-# Configure API keys (create .env file)
-cat > .env << 'EOF'
-OPENAI_API_KEY=sk-your-openai-key
-ANTHROPIC_API_KEY=sk-ant-your-anthropic-key
-GOOGLE_API_KEY=AIzaSy-your-google-key
-EOF
-
-# Verify configuration
-kagura config doctor
-
-# Run API server
-uvicorn kagura.api.server:app --reload
-```
-
-**API Docs**: http://localhost:8000/docs
-
-**Note**: `.env` files are automatically loaded by all `kagura` CLI commands.
-
-### Data Storage
-
-Kagura follows **XDG Base Directory specification** for clean, platform-compliant data management:
-
-**Linux/macOS**:
-```
-~/.cache/kagura/          # Cache (deletable)
-├── chromadb/             # Vector embeddings
-└── logs/                 # MCP server logs
-
-~/.local/share/kagura/    # Persistent data
-├── memory.db             # Memories
-├── api_keys.db           # API keys
-└── sessions/             # Chat sessions
-
-~/.config/kagura/         # Configuration (user-editable)
-├── config.json           # Main config
-├── agents/               # Custom agents
-└── commands/             # Custom commands
-```
-
-**Windows**:
-```
-%LOCALAPPDATA%\kagura\cache\     # Cache
-%LOCALAPPDATA%\kagura\data\      # Data
-%APPDATA%\kagura\                # Config
-```
-
-**Customization** (optional):
-```bash
-export KAGURA_CACHE_DIR=/custom/cache/path
-export KAGURA_DATA_DIR=/custom/data/path
-export KAGURA_CONFIG_DIR=/custom/config/path
+~/.cache/kagura/          # Cache (ChromaDB, logs)
+~/.local/share/kagura/    # Persistent data (memory.db, sessions)
+~/.config/kagura/         # Configuration
 ```
 
 ---
 
 ## 🗺️ Roadmap
 
-### ✅ v3.0(Released - 2025-09)
-- Python SDK with `@agent` decorator
-- Chat interface(MCP testing)
-- 15+ built-in MCP tools
+### ✅ v4.0.9 (Current - Stable)
+- MCP-native with 56 tools
+- Neural Memory Network
+- Coding-specialized memory
+- Hybrid search (+40-60% precision)
+- Remote MCP (HTTP/SSE)
+- Production Docker + API
 
-### ✅ v4.0.0a0 (Released - 2025-10-26)
-- **REST API** (FastAPI + OpenAPI) ✅
-- **34 MCP Tools** (store/recall/search/feedback/delete + 29 more) ✅
-- **MCP Tool Management** (`kagura mcp doctor`, `kagura mcp tools`, `kagura mcp install`) ✅
-- **Docker Compose** (PostgreSQL + pgvector, Redis) ✅
-- **Knowledge Graph** (NetworkX-based) ✅
-- **User Pattern Analysis** (Interaction tracking, topic analysis) ✅
-- **Documentation** (Getting Started, API Reference, MCP Setup) ✅
+### 🎯 v4.3.0 (November 2025) - Code Quality Release
+**Focus**: Internal refactoring, performance optimization, developer experience
 
-### 🎯 v4.0.0 (Stable - October 2025)
-**Status**: Phase A/B/C Complete - Ready for stable release
+- ✅ **Phase 1-5 Complete**: Utils consolidation, MCP reorganization, CLI optimization
+- **File Size Reduction**: Major modules reduced by 50-75% (e.g., `coding_memory.py` 2,116 → 582 lines)
+- **Code Quality**: <5% duplication, 100% type coverage, 90%+ test coverage
+- **Performance**: CLI startup < 500ms (from 1.2s)
+- **Backward Compatibility**: 100% maintained, zero breaking changes
 
-**Core Features** (All Complete):
-- ✅ **REST API** with OpenAPI docs
-- ✅ **34 MCP Tools** with full management CLI
-- ✅ **GraphMemory** for knowledge graphs
-- ✅ **Remote MCP Server** (HTTP/SSE for ChatGPT)
-- ✅ **API Key Authentication** & security
-- ✅ **Export/Import** (JSONL format, full portability)
-- ✅ **Production Docker** setup with Caddy
-- ✅ **1,451+ tests** passing (90%+ coverage)
+**Tracking**: [Issue #612](https://github.com/JFK/kagura-ai/issues/612)
 
-**Final Polish**:
-- Documentation updates
-- Migration guide (v3 → v4)
-- Performance optimization
-- Release notes
+### 🔜 v4.4.0 (Q1 2026) - Smart Memory
+- **Smart Forgetting**: Auto-maintenance with RecallScorer
+- **Auto-recall Intelligence**: "Unspoken Understanding"
+- **PostgreSQL Backend**: Cloud-ready GraphMemory
+- **Connectors**: GitHub, Google Workspace
 
-### 🔜 v4.1.0 (Phase D/E - Q2 2026)
-**Focus**: Smart Memory & Infrastructure
-
-- **Smart Forgetting** ([#429](https://github.com/JFK/kagura-ai/issues/429)): Auto-maintenance with RecallScorer
-- **Auto-recall Intelligence** ([#430](https://github.com/JFK/kagura-ai/issues/430)): "Unspoken Understanding"
-- **PostgreSQL Backend** ([#434](https://github.com/JFK/kagura-ai/issues/434)): Cloud-ready GraphMemory
-- **Connectors**: GitHub ([#402](https://github.com/JFK/kagura-ai/issues/402)), Google Workspace ([#403](https://github.com/JFK/kagura-ai/issues/403))
-- **Infrastructure**: Qdrant migration ([#437](https://github.com/JFK/kagura-ai/issues/437)), Redis caching ([#438](https://github.com/JFK/kagura-ai/issues/438))
-
-### 🔮 v4.2.0+ (Phase E/F - Q3-Q4 2026)
-**Focus**: Cloud SaaS & Advanced Features
-
-- **Memory Curator** ([#397](https://github.com/JFK/kagura-ai/issues/397)): AI-driven memory management
+### 🔜 v5.0.0 (Q2-Q4 2026) - Cloud & Enterprise
 - **Cloud SaaS**: Managed service
-- **Enterprise Features**: SSO, BYOK, audit logs
-- **Advanced Tools**: kagura_help ([#404](https://github.com/JFK/kagura-ai/issues/404)), cost tracking ([#414](https://github.com/JFK/kagura-ai/issues/414))
+- **Memory Curator**: AI-driven memory management
+- **Enterprise**: SSO, BYOK, audit logs
+- **Advanced Tools**: Cost tracking, advanced analytics
 
-### 🧪 Future Research
-- **Neural Memory Architecture** ([#348](https://github.com/JFK/kagura-ai/issues/348)): Network-based memory model
-- **Jina AI-inspired Features** ([#431](https://github.com/JFK/kagura-ai/issues/431)): DeepSearch, Late Chunking
-
-**See**: [V4.0_IMPLEMENTATION_ROADMAP.md](./ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md)
+**See**: [V4.0_IMPLEMENTATION_ROADMAP.md](ai_docs/V4.0_IMPLEMENTATION_ROADMAP.md)
 
 ---
 
 ## 🔌 Integrations
 
-### Supported AI Platforms (via MCP)
+### Supported AI Platforms
 
-| Platform | Status | Notes |
-|----------|--------|-------|
-| **Claude Desktop** | ✅ v4.0.0a0 | MCP v1.0 with 34 tools |
-| **Cline** | ✅ v4.0.0a0 | VS Code extension with MCP support |
-| **Cursor** | ✅ v4.0.0a0 | MCP protocol support |
-| **ChatGPT Desktop** | 🔄 2026 | OpenAI announced MCP adoption |
-| **Gemini** | 🔄 2026 | Google confirmed MCP support |
-| **Custom Agents** | ✅ v4.0.0a0 | Use MCP SDK or REST API |
+| Platform | Status | Integration |
+|----------|--------|-------------|
+| **Claude Desktop** | ✅ Stable | MCP v1.0 (56 tools) |
+| **Claude Code** | ✅ Stable | MCP stdio transport |
+| **Cursor** | ✅ Stable | MCP protocol support |
+| **Cline** | ✅ Stable | VS Code extension (MCP) |
+| **ChatGPT** | 🔄 Preview | Remote MCP (HTTP/SSE) |
+| **Custom Agents** | ✅ Stable | REST API + Python SDK |
 
-**Legend**: ✅ Supported | 🔄 Planned
+### Access Methods
 
-### For Developers: API & SDK Access
-
-| Access Method | Language | Use Case |
-|--------------|----------|----------|
-| **REST API** | Any | Call from any agent, any language |
-| **Python SDK** | Python | Build agents with `@agent` decorator |
-| **MCP Protocol** | Any (JSON-RPC) | Standard AI platform integration |
-| **Direct Database** | Any | Advanced: Direct ChromaDB/PostgreSQL access |
-
-**Example**: Your custom TypeScript agent can query Kagura's REST API, while your Python agents use the SDK—all accessing the same unified memory.
+| Method | Language | Use Case |
+|--------|----------|----------|
+| **MCP Protocol** | Any (JSON-RPC) | AI platform integration |
+| **REST API** | Any | Custom agents, any language |
+| **Python SDK** | Python | `@agent` decorator for rapid dev |
+| **Direct DB** | Any | Advanced: ChromaDB/PostgreSQL access |
 
 ---
 
@@ -645,37 +314,30 @@ export KAGURA_CONFIG_DIR=/custom/config/path
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-**Completed Milestones**:
-- ✅ Phase A(v4.0.0a0): [Issue #364](https://github.com/JFK/kagura-ai/issues/364)
-- ✅ Phase B(GraphMemory): [Issue #345](https://github.com/JFK/kagura-ai/issues/345)
-
-**Active Research**:
-- Neural Memory: [Issue #348](https://github.com/JFK/kagura-ai/issues/348)
-
 **Ways to contribute**:
-- 🐛 Report bugs
-- 💡 Suggest features
+- 🐛 Report bugs → [GitHub Issues](https://github.com/JFK/kagura-ai/issues)
+- 💡 Suggest features → [Discussions](https://github.com/JFK/kagura-ai/discussions)
 - 📝 Improve documentation
 - 🔧 Submit pull requests
-- 🌐 Translate(especially Japanese ↔ English)
+- 🌐 Translate (Japanese ↔ English)
 
 ---
 
 ## 🌟 Comparison
 
 ### vs. Mem0
-- ✅ **Kagura**: Local-first, complete OSS, Vibe Coding focus
+- ✅ **Kagura**: Local-first, complete OSS, developer-focused
 - ❌ **Mem0**: SaaS-first, limited self-hosting
 
 ### vs. Anthropic MCP Memory Server
-- ✅ **Kagura**: Multi-platform, advanced features(RAG, Graph, Consolidation)
-- ❌ **Anthropic**: Claude-only, basic functionality
+- ✅ **Kagura**: Multi-platform, 56 tools, advanced features (RAG, Graph, Neural)
+- ❌ **Anthropic**: Claude-only, 5 basic tools
 
 ### vs. Rewind AI
-- ✅ **Kagura**: AI interaction memory, cross-platform, MCP-native
+- ✅ **Kagura**: AI interaction memory, cross-platform, free & open source
 - ❌ **Rewind**: Screen recording, Mac/iPhone only, $19/month
 
-**See**: [V4.0_COMPETITIVE_ANALYSIS.md](./ai_docs/V4.0_COMPETITIVE_ANALYSIS.md)
+**See**: [V4.0_COMPETITIVE_ANALYSIS.md](ai_docs/V4.0_COMPETITIVE_ANALYSIS.md)
 
 ---
 
@@ -707,6 +369,7 @@ Just as Kagura connects humans with the divine, Kagura AI connects you with all 
 - [ChromaDB](https://www.trychroma.com/) - Vector database
 - [NetworkX](https://networkx.org/) - Graph library
 - [Pydantic](https://pydantic-docs.helpmanual.io/) - Data validation
+- [LiteLLM](https://litellm.ai/) - Unified LLM API
 
 **Inspired by**:
 - [Model Context Protocol](https://modelcontextprotocol.io/) - Anthropic
@@ -717,9 +380,9 @@ Just as Kagura connects humans with the divine, Kagura AI connects you with all 
 
 **Built with ❤️ for developers who want to own their AI memory**
 
-[GitHub](https://github.com/JFK/kagura-ai) • [PyPI](https://pypi.org/project/kagura-ai/)
+[GitHub](https://github.com/JFK/kagura-ai) • [PyPI](https://pypi.org/project/kagura-ai/) • [Quick Start →](QUICKSTART.md)
 
 ---
 
-*v4.0.0 - Phase A/B/C Complete*
-*Last updated: 2025-10-29*
+*v4.3.0 - Code Quality Release*
+*Last updated: 2025-11-09*
