@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pytest
 
-from kagura.utils.metadata import (
+from kagura.utils.common.metadata import (
     MemoryMetadata,
     build_full_metadata,
     extract_memory_fields,

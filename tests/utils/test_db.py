@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from kagura.utils.db import MemoryDatabaseQuery, db_exists, get_db_path
+from kagura.utils.common.db import MemoryDatabaseQuery, db_exists, get_db_path
 
 
 @pytest.fixture
