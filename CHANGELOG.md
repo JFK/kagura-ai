@@ -12,6 +12,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ✨ Added
 
 - TBD
+#### Phase 4.1: MCP CLI Modularization (#619)
+- **Restructured**: `cli/mcp.py` (1,529 lines) → `cli/mcp/` module (5 files)
+  - `mcp/core.py` (346 lines) - serve, doctor commands
+  - `mcp/config.py` (269 lines) - install, uninstall, connect, test-remote
+  - `mcp/tools.py` (322 lines) - tools, stats commands
+  - `mcp/monitor.py` (264 lines) - monitor, log commands
+  - `mcp/telemetry.py` (91 lines) - telemetry subgroup
+  - `mcp/__init__.py` (40 lines) - Main group + command registration
+- **Deleted**: `cli/mcp.py` (replaced by modular structure)
+- **Commands**: All 11 commands + 1 telemetry subcommand working
+- **Pattern**: Click command registration via `mcp.add_command()`
+- **Backward compat**: CLI commands unchanged (kagura mcp serve still works)
+- **Type checking**: 0 errors
+- **Verification**: All 12 help commands tested successfully
+
 
 ---
 
