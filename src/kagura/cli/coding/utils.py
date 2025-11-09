@@ -10,9 +10,13 @@ from rich.panel import Panel
 
 from kagura.config.project import (
     detect_git_repo_name,
-    get_default_project as _get_default_project_impl,
-    get_default_user as _get_default_user_impl,
     load_pyproject_config,
+)
+from kagura.config.project import (
+    get_default_project as _get_default_project_impl,
+)
+from kagura.config.project import (
+    get_default_user as _get_default_user_impl,
 )
 
 

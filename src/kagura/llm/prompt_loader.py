@@ -93,8 +93,6 @@ def load_template(template_name: str) -> str:
         >>> template = load_template("coding/session_summary_system.j2")
         >>> print(template[:50])
     """
-    env = get_jinja_env()
-
     try:
         # Try user directory first
         if _USER_TEMPLATE_DIR.exists():

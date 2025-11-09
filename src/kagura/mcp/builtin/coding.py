@@ -1,3 +1,4 @@
+# ruff: noqa: F822
 """Built-in MCP tools for Coding Memory operations.
 
 .. deprecated:: 4.3.0
@@ -19,6 +20,9 @@ All tools have been moved to modular files in ``src/kagura/mcp/tools/coding/``:
 - github_integration.py: GitHub integration
 - interaction.py: Interaction tracking
 - source_indexing.py: Source code indexing
+
+Note: Tools are dynamically imported via __getattr__, so static linters
+cannot detect them. This is intentional for backward compatibility.
 """
 
 from __future__ import annotations

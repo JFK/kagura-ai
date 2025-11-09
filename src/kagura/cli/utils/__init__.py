@@ -1,3 +1,4 @@
+# ruff: noqa: I001, E402
 """CLI-specific utility functions.
 
 .. deprecated:: 4.3.0
@@ -29,7 +30,7 @@ from kagura.utils.cli.rich_helpers import (
     create_table,
     create_warning_panel,
 )
-from kagura.utils.cli.time_formatters import (
+from kagura.utils.cli.time_formatters import (  # noqa: E402
     format_duration,
     format_relative_time,
     format_timestamp,

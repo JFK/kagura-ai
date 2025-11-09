@@ -6,7 +6,6 @@ GitHub integration. Extracted from manager.py as part of Phase 3.4.
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import uuid

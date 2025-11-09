@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timezone
 
 from kagura import tool
-from kagura.mcp.builtin.common import parse_json_list, to_bool
+from kagura.mcp.builtin.common import to_bool
 from kagura.mcp.tools.coding.common import get_coding_memory
 
 
@@ -208,7 +208,6 @@ async def coding_get_current_session_status(
     session = CodingSession.model_validate(session_data)
 
     # Calculate duration
-    from datetime import datetime, timezone
 
     # Handle both datetime and string formats
     if isinstance(session.start_time, str):

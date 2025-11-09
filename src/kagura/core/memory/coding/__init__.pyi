@@ -12,10 +12,20 @@ from kagura.core.memory.coding.manager import (
 from kagura.core.memory.coding.manager import UserCancelledError as UserCancelledError
 from kagura.core.memory.models.coding import (
     CodingPattern as CodingPattern,
+)
+from kagura.core.memory.models.coding import (
     CodingSession as CodingSession,
+)
+from kagura.core.memory.models.coding import (
     DesignDecision as DesignDecision,
+)
+from kagura.core.memory.models.coding import (
     ErrorRecord as ErrorRecord,
+)
+from kagura.core.memory.models.coding import (
     FileChangeRecord as FileChangeRecord,
+)
+from kagura.core.memory.models.coding import (
     ProjectContext as ProjectContext,
 )
 

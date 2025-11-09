@@ -13,10 +13,8 @@ Extends the base MemoryManager with coding-specific features:
 
 import asyncio
 import logging
-import uuid
-from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import Any
 
 from kagura.config.memory_config import MemorySystemConfig
 from kagura.core.compression import CompressionPolicy
@@ -27,11 +25,9 @@ from kagura.core.memory.manager import MemoryManager
 from kagura.core.memory.memory_abstractor import MemoryAbstractor
 from kagura.core.memory.models.coding import (
     CodingPattern,
-    CodingSession,
     DesignDecision,
     ErrorRecord,
     FileChangeRecord,
-    ProjectContext,
 )
 from kagura.llm.coding_analyzer import CodingAnalyzer
 from kagura.llm.vision import VisionAnalyzer

@@ -6,8 +6,14 @@ This stub provides type information for the old import path.
 
 from kagura.utils.api.check import (
     check_api_configuration as check_api_configuration,
+)
+from kagura.utils.api.check import (
     check_brave_search_api as check_brave_search_api,
+)
+from kagura.utils.api.check import (
     check_github_api as check_github_api,
+)
+from kagura.utils.api.check import (
     check_llm_api as check_llm_api,
 )
 

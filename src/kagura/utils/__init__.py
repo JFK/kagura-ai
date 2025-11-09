@@ -1,3 +1,4 @@
+# ruff: noqa: I001, E402
 """Shared utilities for Kagura AI.
 
 Reorganized in v4.3.0 for better modularity:
@@ -13,6 +14,7 @@ This package re-exports commonly used utilities for backward compatibility.
 # Register in sys.modules to allow old-style imports like "from kagura.utils.db import X"
 import sys
 
+from kagura.utils.api import check as api_check  # noqa: F401
 from kagura.utils.common import (  # noqa: F401
     db,
     errors,
@@ -20,7 +22,6 @@ from kagura.utils.common import (  # noqa: F401
     media_detector,
     metadata,
 )
-from kagura.utils.api import check as api_check  # noqa: F401
 
 # Register submodules in sys.modules for backward compatibility
 sys.modules["kagura.utils.db"] = db
@@ -31,21 +32,21 @@ sys.modules["kagura.utils.metadata"] = metadata
 sys.modules["kagura.utils.api_check"] = api_check  # v4.3.0 backward compat
 
 # New organized imports (v4.3.0)
-from kagura.utils.api.check import (
+from kagura.utils.api.check import (  # noqa: E402
     check_api_configuration,
     check_brave_search_api,
     check_github_api,
     check_llm_api,
 )
-from kagura.utils.common.db import MemoryDatabaseQuery, db_exists, get_db_path
-from kagura.utils.common.errors import *  # noqa: F403, F401
-from kagura.utils.common.json_helpers import (
+from kagura.utils.common.db import MemoryDatabaseQuery, db_exists, get_db_path  # noqa: E402
+from kagura.utils.common.errors import *  # noqa: F403, F401, E402
+from kagura.utils.common.json_helpers import (  # noqa: E402
     decode_chromadb_metadata,
     encode_chromadb_metadata,
     safe_json_loads,
 )
-from kagura.utils.common.media_detector import *  # noqa: F403, F401
-from kagura.utils.common.metadata import (
+from kagura.utils.common.media_detector import *  # noqa: F403, F401, E402
+from kagura.utils.common.metadata import (  # noqa: E402
     MemoryMetadata,
     build_full_metadata,
     extract_memory_fields,
@@ -53,7 +54,7 @@ from kagura.utils.common.metadata import (
     prepare_for_chromadb,
     validate_importance,
 )
-from kagura.utils.memory.factory import MemoryManagerFactory, get_memory_manager
+from kagura.utils.memory.factory import MemoryManagerFactory, get_memory_manager  # noqa: E402
 
 __all__ = [
     # json_helpers (common)

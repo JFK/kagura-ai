@@ -1,3 +1,4 @@
+# ruff: noqa: F822
 """Built-in MCP tools for Memory operations.
 
 .. deprecated:: 4.3.0
@@ -17,6 +18,9 @@ All tools have been moved to modular files in ``src/kagura/mcp/tools/memory/``:
 - timeline.py: Timeline and fuzzy search
 - tool_history.py: MCP tool usage history
 - chunks.py: RAG chunk operations
+
+Note: Tools are dynamically imported via __getattr__, so static linters
+cannot detect them. This is intentional for backward compatibility.
 """
 
 from __future__ import annotations
