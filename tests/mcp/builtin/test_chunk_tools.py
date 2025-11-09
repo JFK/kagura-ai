@@ -27,7 +27,7 @@ def test_memory_get_chunk_context_basic(mock_manager):
     ]
 
     with patch(
-        "kagura.mcp.builtin.memory._get_memory_manager", return_value=mock_manager
+        "kagura.mcp.tools.memory.common.get_memory_manager", return_value=mock_manager
     ):
         result_json = memory_get_chunk_context(
             user_id="test_user",
@@ -49,7 +49,7 @@ def test_memory_get_chunk_context_basic(mock_manager):
 def test_memory_get_chunk_context_invalid_params(mock_manager):
     """Test error handling for invalid parameters."""
     with patch(
-        "kagura.mcp.builtin.memory._get_memory_manager", return_value=mock_manager
+        "kagura.mcp.tools.memory.common.get_memory_manager", return_value=mock_manager
     ):
         result_json = memory_get_chunk_context(
             user_id="test_user",
@@ -72,7 +72,7 @@ def test_memory_get_full_document_basic(mock_manager):
     }
 
     with patch(
-        "kagura.mcp.builtin.memory._get_memory_manager", return_value=mock_manager
+        "kagura.mcp.tools.memory.common.get_memory_manager", return_value=mock_manager
     ):
         result_json = memory_get_full_document(user_id="test_user", parent_id="doc123")
 
@@ -95,7 +95,7 @@ def test_memory_get_full_document_not_found(mock_manager):
     }
 
     with patch(
-        "kagura.mcp.builtin.memory._get_memory_manager", return_value=mock_manager
+        "kagura.mcp.tools.memory.common.get_memory_manager", return_value=mock_manager
     ):
         result_json = memory_get_full_document(
             user_id="test_user", parent_id="nonexistent"
@@ -114,7 +114,7 @@ def test_memory_get_chunk_metadata_all(mock_manager):
     ]
 
     with patch(
-        "kagura.mcp.builtin.memory._get_memory_manager", return_value=mock_manager
+        "kagura.mcp.tools.memory.common.get_memory_manager", return_value=mock_manager
     ):
         result_json = memory_get_chunk_metadata(
             user_id="test_user", parent_id="doc123", chunk_index=""
@@ -137,7 +137,7 @@ def test_memory_get_chunk_metadata_specific(mock_manager):
     }
 
     with patch(
-        "kagura.mcp.builtin.memory._get_memory_manager", return_value=mock_manager
+        "kagura.mcp.tools.memory.common.get_memory_manager", return_value=mock_manager
     ):
         result_json = memory_get_chunk_metadata(
             user_id="test_user", parent_id="doc123", chunk_index="5"
@@ -154,7 +154,7 @@ def test_memory_get_chunk_metadata_specific(mock_manager):
 def test_memory_get_chunk_metadata_invalid_index(mock_manager):
     """Test error handling for invalid chunk index."""
     with patch(
-        "kagura.mcp.builtin.memory._get_memory_manager", return_value=mock_manager
+        "kagura.mcp.tools.memory.common.get_memory_manager", return_value=mock_manager
     ):
         result_json = memory_get_chunk_metadata(
             user_id="test_user", parent_id="doc123", chunk_index="invalid"
@@ -169,7 +169,7 @@ def test_chunk_tools_rag_not_enabled(mock_manager):
     mock_manager.get_chunk_context.side_effect = ValueError("RAG not enabled")
 
     with patch(
-        "kagura.mcp.builtin.memory._get_memory_manager", return_value=mock_manager
+        "kagura.mcp.tools.memory.common.get_memory_manager", return_value=mock_manager
     ):
         result_json = memory_get_chunk_context(
             user_id="test_user", parent_id="doc123", chunk_index="0", context_size="1"
