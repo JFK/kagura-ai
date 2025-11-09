@@ -9,104 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 🏗️ Refactoring
-
-#### Phase 3.2: Coding Memory Isolated Features (#618)
-#### Phase 4.3: Coding CLI Modularization (#640)
-- **Restructured**: `cli/coding_cli.py` (1,279 lines) → `cli/coding/` module (4 files)
-  - `coding/sessions.py` (415 lines) - projects, sessions, session
-  - `coding/decisions.py` (205 lines) - decisions, decision
-  - `coding/errors.py` (210 lines) - errors, error
-  - `coding/utils.py` (463 lines) - search, doctor, helpers
-  - `coding/__init__.py` (36 lines) - Main group + registration
-- **Deleted**: `cli/coding_cli.py` (replaced by modular structure)
-- **Commands**: All 9 commands working identically
-- **Pattern**: Click command registration (consistent with Phase 4.1/4.2)
-- **Type checking**: 0 errors
-- **Phase 4 COMPLETE**: All 3 CLIs (MCP + Memory + Coding) modularized
-
-#### Phase 3.4+3.5: Session Management & GitHub Integration (#618)
-- **Extracted**: Final two modules from `manager.py`
-  - `coding/session_manager.py` (499 lines) - Session lifecycle, auto-save, detection
-  - `coding/github_integration.py` (198 lines) - GitHub Issue/PR integration
-- **Updated**: `coding/__init__.py` - Added session_manager and github_integration mixins
-- **Reduced**: `manager.py` from 1,248 → 582 lines (666 lines removed, 53% reduction)
-- **Cumulative**: From original 2,116 → 582 lines (1,534 lines removed, **72.5% total reduction**)
-- **Type checking**: 0 errors
-- **Tests**: All 20 methods (5 phases) successfully attached
-- **Final structure**: 8 focused modules, manager.py now core infrastructure only
-
-#### Phase 3.3: Coding Memory Analyzers (#618)
-- **Extracted**: Analysis and context module from `manager.py` using mixin pattern
-  - `coding/analyzers.py` (379 lines) - 7 analysis methods extracted
-- **Updated**: `coding/__init__.py` - Added analyzers mixin
-- **Reduced**: `manager.py` from 1,588 → 1,248 lines (340 lines removed, 21% reduction)
-- **Cumulative**: From original 2,116 → 1,248 lines (868 lines removed, 41% total reduction)
-- **Type checking**: 0 errors
-- **Tests**: All 7 analyzer methods successfully attached
-
-- **Extracted**: Three self-contained modules from `manager.py` using mixin pattern
-  - `coding/file_tracker.py` (160 lines) - `track_file_change()` method
-  - `coding/error_recorder.py` (254 lines) - `record_error()`, `search_similar_errors()` methods
-  - `coding/decision_recorder.py` (182 lines) - `record_decision()`, `get_decision_implementation_status()` methods
-- **Updated**: `coding/__init__.py` - Applies mixin pattern to attach extracted methods to `CodingMemoryManager`
-- **Reduced**: `manager.py` from 2,116 → 1,588 lines (528 lines removed, 25% reduction)
-- **Maintained**: 100% backward compatibility
-  - All methods remain accessible on `CodingMemoryManager` class
-  - Both import paths work identically
-  - Zero breaking changes
-- **Pattern**: Mixin approach (same as PR #628/#629 for MCP tools)
-  ```python
-  # Methods automatically attached via __init__.py
-  for module in [file_tracker, error_recorder, decision_recorder]:
-      setattr(CodingMemoryManager, method_name, method)
-  ```
-- **Type checking**: 0 errors with pyright --level error
-- **Tests**: All extracted methods verified working via mixin pattern
-
-#### Phase 3.1: Coding Memory Module Foundation (#618)
-- **Restructured**: `core/memory/coding_memory.py` (2,116 lines) → `core/memory/coding/` module
-- **Created**: `coding/manager.py` - Main CodingMemoryManager implementation
-- **Created**: `coding/__init__.py` - Public API facade
-- **Created**: `coding/README.md` - Module documentation
-- **Maintained**: 100% backward compatibility via facade pattern
-  ```python
-  # Both import paths work identically
-  from kagura.core.memory.coding_memory import CodingMemoryManager
-  from kagura.core.memory.coding import CodingMemoryManager
-  ```
-- **File reduction**: `coding_memory.py` reduced from 2,116 → 42 lines (98% reduction)
-- **Impact**: Establishes foundation for Phase 3 modular architecture
-- **Type checking**: 0 errors with pyright --level error
-
 ### ✨ Added
 
 - TBD
-#### Phase 4.2: Memory CLI Modularization (#620)
-- **Restructured**: `cli/memory_cli.py` (1,460 lines) → `cli/memory/` module (4 files)
-  - `memory/setup.py` (225 lines) - setup, install-reranking
-  - `memory/operations.py` (468 lines) - export, import, reindex
-  - `memory/query.py` (471 lines) - list, search, stats
-  - `memory/diagnostics.py` (427 lines) - index, doctor
-  - `memory/__init__.py` (34 lines) - Main group + registration
-- **Deleted**: `cli/memory_cli.py` (replaced by modular structure)
-- **Commands**: All 10 commands working identically
-- **Pattern**: Click command registration (same as Phase 4.1)
-- **Type checking**: 0 errors
-#### Phase 4.1: MCP CLI Modularization (#619)
-- **Restructured**: `cli/mcp.py` (1,529 lines) → `cli/mcp/` module (5 files)
-  - `mcp/core.py` (346 lines) - serve, doctor commands
-  - `mcp/config.py` (269 lines) - install, uninstall, connect, test-remote
-  - `mcp/tools.py` (322 lines) - tools, stats commands
-  - `mcp/monitor.py` (264 lines) - monitor, log commands
-  - `mcp/telemetry.py` (91 lines) - telemetry subgroup
-  - `mcp/__init__.py` (40 lines) - Main group + command registration
-- **Deleted**: `cli/mcp.py` (replaced by modular structure)
-- **Commands**: All 11 commands + 1 telemetry subcommand working
-- **Pattern**: Click command registration via `mcp.add_command()`
-- **Backward compat**: CLI commands unchanged (kagura mcp serve still works)
-- **Type checking**: 0 errors
-- **Verification**: All 12 help commands tested successfully
+
+### 🏗️ Refactoring
+
+- TBD
 
 
 ---
