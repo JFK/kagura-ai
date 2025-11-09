@@ -1,4 +1,4 @@
-# ruff: noqa: F822
+# ruff: noqa: F822, F405
 """Built-in MCP tools for Memory operations.
 
 .. deprecated:: 4.3.0
