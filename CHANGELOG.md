@@ -69,6 +69,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ✨ Added
 
 - TBD
+#### Phase 4.2: Memory CLI Modularization (#620)
+- **Restructured**: `cli/memory_cli.py` (1,460 lines) → `cli/memory/` module (4 files)
+  - `memory/setup.py` (225 lines) - setup, install-reranking
+  - `memory/operations.py` (468 lines) - export, import, reindex
+  - `memory/query.py` (471 lines) - list, search, stats
+  - `memory/diagnostics.py` (427 lines) - index, doctor
+  - `memory/__init__.py` (34 lines) - Main group + registration
+- **Deleted**: `cli/memory_cli.py` (replaced by modular structure)
+- **Commands**: All 10 commands working identically
+- **Pattern**: Click command registration (same as Phase 4.1)
+- **Type checking**: 0 errors
 #### Phase 4.1: MCP CLI Modularization (#619)
 - **Restructured**: `cli/mcp.py` (1,529 lines) → `cli/mcp/` module (5 files)
   - `mcp/core.py` (346 lines) - serve, doctor commands
