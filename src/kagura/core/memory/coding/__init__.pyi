@@ -25,9 +25,12 @@ class CodingMemoryManager(_CodingMemoryManagerBase):
     async def track_file_change(
         self,
         file_path: str,
-        change_type: str,
-        reason: str | None = None,
-        old_path: str | None = None,
+        action: str,  # Literal["create", "edit", "delete", "rename", "refactor", "test"]
+        diff: str,
+        reason: str,
+        related_files: list[str] | None = None,
+        line_range: tuple[int, int] | None = None,
+        implements_decision_id: str | None = None,
     ) -> str: ...
 
     # error_recorder.py
@@ -35,15 +38,17 @@ class CodingMemoryManager(_CodingMemoryManagerBase):
         self,
         error_type: str,
         message: str,
-        stack_trace: str | None = None,
-        file_path: str | None = None,
-        line_number: int | None = None,
+        stack_trace: str,
+        file_path: str,
+        line_number: int,
         solution: str | None = None,
+        screenshot: str | None = None,
         tags: list[str] | None = None,
+        similar_error_ids: list[str] | None = None,
     ) -> str: ...
     async def search_similar_errors(
-        self, error_type: str, context: str | None = None, limit: int = 5
-    ) -> list[dict[str, Any]]: ...
+        self, query: str, k: int = 5
+    ) -> list[ErrorRecord]: ...
 
     # decision_recorder.py
     async def record_decision(
@@ -95,8 +100,8 @@ class CodingMemoryManager(_CodingMemoryManagerBase):
     ) -> str: ...
     async def end_coding_session(
         self,
-        success: bool = True,
         summary: str | None = None,
+        success: bool | None = None,
         save_to_github: bool = False,
     ) -> dict[str, Any]: ...
     async def get_current_session_status(self) -> dict[str, Any]: ...
@@ -105,11 +110,9 @@ class CodingMemoryManager(_CodingMemoryManagerBase):
 
     # github_integration.py
     async def link_session_to_github_issue(
-        self, issue_number: int, repo: str | None = None
-    ) -> dict[str, Any]: ...
-    async def generate_pr_description(
-        self, session_id: str, target_branch: str = "main"
-    ) -> dict[str, Any]: ...
+        self, issue_number: int, session_id: str | None = None
+    ) -> str: ...
+    async def generate_pr_description(self) -> str: ...
 
 __all__ = [
     "CodingMemoryManager",
