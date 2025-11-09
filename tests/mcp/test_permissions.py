@@ -257,6 +257,10 @@ class TestToolRegistrationCompleteness:
         registered = set(tool_registry.get_all().keys())
         permissions = set(TOOL_PERMISSIONS.keys())
 
+        # Exclude test-only tools (defined in tests/core/test_tool_async.py)
+        test_tools = {"async_adder", "sync_multiplier"}
+        registered = registered - test_tools
+
         missing = registered - permissions
         assert len(missing) == 0, (
             f"Missing from TOOL_PERMISSIONS ({len(missing)} tools): {sorted(missing)}"
