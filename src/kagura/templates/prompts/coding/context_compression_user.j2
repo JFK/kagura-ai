@@ -1,0 +1,131 @@
+Compress the following coding context
+to approximately {{ target_tokens }} tokens.
+
+## Full Context ({{ original_tokens }} tokens)
+{{ full_context }}
+
+## Preservation Priority (MUST keep)
+{{ preserve_topics }}
+
+## Compression Task
+Create a hierarchical summary with three levels:
+
+### Level 1: Brief Summary (target: 10% of original tokens)
+- 2-3 sentence overview
+- Critical alerts only (security, breaking changes, blockers)
+
+### Level 2: Detailed Summary (target: 30% of original tokens)
+- Key decisions with brief rationale
+- Major errors and solutions
+- Important patterns
+- Reference original IDs for traceability
+
+### Level 3: Comprehensive (target: 70% of original tokens)
+- All significant information
+- Condensed explanations (remove redundancy)
+- Preserved examples for critical patterns
+
+## Guidelines
+- Use references: "Error #42 (TypeError in auth.py)" not full stack trace
+- Compress "We decided to use FastAPI because it's modern, async-first, has
+great docs, and Pydantic integration" → "Chose FastAPI for async + Pydantic"
+- Keep numbers: "91% test coverage" not "high coverage"
+- Preserve specifics: "bug in line 45" not "bug somewhere"
+- Remove filler: "it's important to note that", "basically", etc.
+
+## Example Compression
+
+**Original (437 tokens):**
+```
+In this session, we worked on implementing the authentication system for our API.
+We spent considerable time deciding between different approaches. Initially, we
+considered using session-based authentication, which is a traditional approach
+that stores user state on the server. However, after discussing the pros and cons,
+we ultimately decided to implement JWT (JSON Web Token) based authentication instead.
+
+The main reasons for this decision were:
+1. Stateless authentication enables better horizontal scaling because we don't need
+   to store sessions in a database or cache
+2. JWTs can be validated without database lookups, improving performance
+3. The token-based approach works better for our planned mobile app integration
+4. We can easily implement role-based access control by including claims in the token
+
+During implementation, we encountered several errors. The first error was a TypeError
+when comparing datetime objects. This happened because we were comparing a
+timezone-aware
+datetime from the JWT with a naive datetime from datetime.now(). The solution was to
+use datetime.now(timezone.utc) consistently throughout the codebase. This same error
+had occurred before in a different module, which suggests we should add a linting rule
+to catch this pattern.
+
+We also decided to use RS256 signing instead of HS256 because RS256 provides better
+security through asymmetric keys, even though it's slightly more complex to set up.
+```
+
+**Level 1 (43 tokens - 10%):**
+```
+Implemented JWT auth system with RS256 signing. Resolved datetime comparison TypeError
+by enforcing UTC timestamps. Pattern suggests adding linter rule for timezone handling.
+```
+
+**Level 2 (131 tokens - 30%):**
+```
+## Session: Auth System Implementation
+
+**Key Decisions:**
+- JWT over sessions: stateless scaling, no DB lookups, mobile-ready (#decision-1)
+- RS256 over HS256: asymmetric keys for better security (#decision-2)
+
+**Errors Resolved:**
+- #error-15: TypeError in datetime comparison (auth.py:42)
+  - Cause: Mixed naive/aware datetimes
+  - Fix: Use datetime.now(timezone.utc) consistently
+  - Note: 2nd occurrence of this pattern → add linter rule
+
+**Impact:** Auth system functional, blocks mobile app development work
+```
+
+**Level 3 (298 tokens - 68%):**
+```
+## Session: Authentication System Implementation
+
+### Decisions
+
+**#decision-1: JWT vs Session-based Auth**
+- Chose: JWT tokens
+- Rationale:
+  - Stateless → horizontal scaling without session store
+  - No DB lookup on validation → better performance
+  - Better mobile app integration
+  - Easy RBAC via token claims
+- Alternative: Session-based (rejected for scaling concerns)
+
+**#decision-2: RS256 vs HS256 Signing**
+- Chose: RS256 (asymmetric keys)
+- Rationale: Better security through public/private key separation
+- Trade-off: More setup complexity, acceptable for security gain
+
+### Errors
+
+**#error-15: TypeError - Datetime Comparison**
+- Location: auth.py:42, token validation
+- Message: "can't compare offset-naive and offset-aware datetimes"
+- Cause: JWT exp (aware) compared with datetime.now() (naive)
+- Solution: Use datetime.now(timezone.utc) consistently across codebase
+- Pattern: 2nd occurrence (also #error-8 in db_utils.py)
+- Action Item: Add pyright rule or linter to catch naive datetime usage
+
+### Implementation
+
+Files: auth.py, middleware.py, models/user.py
+Tests: 15 new tests, 92% coverage on auth module
+Duration: 2.3 hours
+
+### Impact
+
+- ✅ Enables: Mobile app development (was blocked)
+- ⚠️ Requires: Key rotation strategy (not yet implemented)
+- 📋 Follow-up: Token refresh mechanism, revocation list
+```
+
+Now compress the context:
