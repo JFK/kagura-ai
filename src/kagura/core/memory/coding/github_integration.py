@@ -143,7 +143,7 @@ async def auto_link_github_issue(self: CodingMemoryManager) -> str | None:
         issue_num = await gh_extract_issue_from_branch()
 
         if issue_num:
-            return await self.link_session_to_github_issue(issue_num)
+            return await self.link_session_to_github_issue(issue_num)  # type: ignore[misc]
         else:
             logger.info("No issue number detected in branch name")
             return None

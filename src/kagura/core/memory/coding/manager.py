@@ -133,7 +133,7 @@ class CodingMemoryManager(MemoryManager):
 
         self.project_id = project_id
         # Auto-detect active session from working memory (v4.0.9 cache fix)
-        self.current_session_id: str | None = self._detect_active_session()
+        self.current_session_id: str | None = self._detect_active_session()  # type: ignore[attr-defined]
 
         # Initialize LLM analyzers
         # Note: CodingAnalyzer and VisionAnalyzer now accept None and use env defaults

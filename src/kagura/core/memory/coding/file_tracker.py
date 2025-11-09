@@ -152,6 +152,6 @@ async def track_file_change(
 
     # Auto-save session progress after each file change (v4.0.9)
     if self.current_session_id:
-        await self._auto_save_session_progress()
+        await self._auto_save_session_progress()  # type: ignore[attr-defined]
 
     return change_id

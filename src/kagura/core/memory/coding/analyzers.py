@@ -294,7 +294,7 @@ async def analyze_refactor_impact(
 
     # Check for circular dependencies
     if self.dependency_analyzer:
-        deps_info = await self.analyze_file_dependencies(file_path)
+        deps_info = await self.analyze_file_dependencies(file_path)  # type: ignore[attr-defined]
         if deps_info["circular_deps"]:
             circular_path = " → ".join(deps_info["circular_deps"][0])
             recommendations.append(

@@ -6,7 +6,9 @@ so that pyright/mypy can properly type-check code using CodingMemoryManager.
 
 from typing import Any
 
-from kagura.core.memory.coding.manager import CodingMemoryManager as CodingMemoryManager
+from kagura.core.memory.coding.manager import (
+    CodingMemoryManager as _CodingMemoryManagerBase,
+)
 from kagura.core.memory.coding.manager import UserCancelledError as UserCancelledError
 from kagura.core.memory.models.coding import (
     CodingPattern as CodingPattern,
@@ -18,7 +20,7 @@ from kagura.core.memory.models.coding import (
 )
 
 # Augment CodingMemoryManager with mixin methods
-class CodingMemoryManager(CodingMemoryManager):  # type: ignore[no-redef]
+class CodingMemoryManager(_CodingMemoryManagerBase):
     # file_tracker.py
     async def track_file_change(
         self,
