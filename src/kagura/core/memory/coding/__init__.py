@@ -20,8 +20,11 @@ from kagura.core.memory.coding.manager import CodingMemoryManager, UserCancelled
 # Phase 3.2 (PR #618-2): Isolated Features - Apply mixin pattern
 from kagura.core.memory.coding import decision_recorder, error_recorder, file_tracker
 
+# Phase 3.3 (PR #618-3): Analyzers - Apply mixin pattern
+from kagura.core.memory.coding import analyzers
+
 # Attach methods from extracted modules as mixins
-for module in [file_tracker, error_recorder, decision_recorder]:
+for module in [file_tracker, error_recorder, decision_recorder, analyzers]:
     for name in dir(module):
         if not name.startswith("_") and callable(getattr(module, name)):
             attr = getattr(module, name)
