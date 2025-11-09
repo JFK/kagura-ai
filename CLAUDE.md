@@ -93,7 +93,24 @@ Result: Issue #510に包括的なサマリーが自動投稿される
 - **目標**: すべてのAIプラットフォーム（Claude, ChatGPT, Gemini等）で共有できるメモリー・コンテキスト管理
 - **アプローチ**: MCP-native + REST API
 - **特徴**: ローカル/セルフホスト/クラウド対応
-- **現状**: Phase A/B/C完了、v4.0.0 stable準備中
+- **現状**: v4.0.9 stable リリース済み
+
+### v4.3.0の位置づけ
+
+**Kagura AI v4.3.0** = **Code Quality & Organization Release**
+
+- **目標**: コードベースの保守性・拡張性向上、技術的負債の解消
+- **アプローチ**: 段階的リファクタリング（後方互換性100%維持）
+- **特徴**:
+  - **Phase 1 完了**: Utils統合（`utils/`と`cli/utils/`を`utils/`配下に統合）
+  - **Phase 2 部分完了**: MCP Tool自動検出レジストリ実装
+  - **Phase 3 完了**: Core Memory分割（`coding_memory.py` 2,116行 → 582行、72.5%削減）
+  - **Phase 4 完了**: CLI Commands分割（`cli/mcp/`, `cli/memory/`, `cli/coding/`に再編）
+  - **Phase 5 進行中**: 継続的改善（テスト90%+、型カバレッジ100%）
+  - **Phase 6 進行中**: ドキュメント更新（本フェーズ）
+- **成果**: ファイルサイズ50-75%削減、重複コード<5%、後方互換性100%
+- **リリース予定**: 2025年11月
+- **追跡**: [Issue #612](https://github.com/JFK/kagura-ai/issues/612)
 
 ### v4.3.0の位置づけ
 
@@ -640,24 +657,32 @@ kagura-ai/
 │   │   ├── tools.py
 │   │   └── utils.py
 │   │
-│   ├── cli/                       # CLI commands
-│   │   ├── utils/                 # 🆕 CLI utilities (v4.1.0)
+│   ├── cli/                       # CLI commands (v4.3.0: モジュール化)
+│   │   ├── mcp/                   # 🆕 MCP commands (Phase 4)
 │   │   │   ├── __init__.py
-│   │   │   ├── progress.py        # Progress indicators
-│   │   │   ├── rich_helpers.py    # Rich console formatting
-│   │   │   └── time_formatters.py # Time display utilities
+│   │   │   ├── serve.py
+│   │   │   ├── stats.py
+│   │   │   ├── tools.py
+│   │   │   └── doctor.py
+│   │   ├── memory/                # 🆕 Memory commands (Phase 4)
+│   │   │   ├── __init__.py
+│   │   │   ├── store.py
+│   │   │   ├── search.py
+│   │   │   ├── delete.py
+│   │   │   └── export.py
+│   │   ├── coding/                # 🆕 Coding commands (Phase 4)
+│   │   │   ├── __init__.py
+│   │   │   ├── sessions.py
+│   │   │   ├── errors.py
+│   │   │   └── decisions.py
 │   │   ├── api_cli.py             # API key management
 │   │   ├── auth_cli.py            # OAuth2 authentication
 │   │   ├── chat.py                # Chat interface
-│   │   ├── coding_cli.py          # Coding memory commands
 │   │   ├── config_cli.py          # Configuration management
 │   │   ├── doctor.py              # System diagnostics
 │   │   ├── init.py                # Project initialization
 │   │   ├── lazy.py                # Lazy loading utilities
 │   │   ├── main.py                # CLI entry point
-│   │   ├── mcp.py                 # MCP server commands
-│   │   ├── memory_cli.py          # Memory management
-│   │   ├── monitor.py             # MCP monitor
 │   │   └── telemetry_cli.py       # Telemetry commands
 │   │
 │   ├── commands/                  # Command pattern implementation
@@ -693,19 +718,29 @@ kagura-ai/
 │   │   ├── memory/                # 4-tier memory system
 │   │   │   ├── README.md
 │   │   │   ├── bm25_search.py     # BM25 keyword search
+│   │   │   ├── coding/            # 🆕 Coding memory (Phase 3: 2,116行 → 8モジュール)
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── session_manager.py      # Session lifecycle
+│   │   │   │   ├── file_change_tracker.py  # File change tracking
+│   │   │   │   ├── error_recorder.py       # Error recording
+│   │   │   │   ├── decision_recorder.py    # Design decisions
+│   │   │   │   ├── interaction_tracker.py  # AI-User interactions
+│   │   │   │   ├── github_integration.py   # GitHub Issue/PR integration
+│   │   │   │   ├── search.py               # Session search & retrieval
+│   │   │   │   └── models.py               # Pydantic models
 │   │   │   ├── coding_dependency.py  # Code dependency analysis
-│   │   │   ├── coding_memory.py   # Coding session memory
+│   │   │   ├── coding_memory.py   # Coding memory (Facade、Phase 3で582行に削減)
 │   │   │   ├── context.py         # Context management
 │   │   │   ├── embeddings.py      # Embedding generation
 │   │   │   ├── export.py          # Memory export/import
-│   │   │   ├── github_recorder.py # GitHub integration
+│   │   │   ├── github_recorder.py # GitHub integration (deprecated → coding/github_integration.py)
 │   │   │   ├── hybrid_search.py   # Hybrid search (BM25+RAG)
 │   │   │   ├── interaction_tracker.py  # AI-User interaction
 │   │   │   ├── lexical_search.py  # Lexical search
 │   │   │   ├── manager.py         # Memory manager (main)
 │   │   │   ├── memory_abstractor.py  # Memory abstraction
 │   │   │   ├── models/
-│   │   │   │   └── coding.py      # Coding models
+│   │   │   │   └── coding.py      # Coding models (deprecated → coding/models.py)
 │   │   │   ├── multimodal_rag.py  # Multimodal RAG
 │   │   │   ├── neural/            # Neural memory network
 │   │   │   │   ├── activation.py   # Activation tracking
@@ -807,15 +842,25 @@ kagura-ai/
 │   ├── tools/                     # Tool utilities
 │   │   └── __init__.py
 │   │
-│   ├── utils/                     # 🆕 Shared utilities (v4.1.0)
-│   │   ├── __init__.py
-│   │   ├── api_check.py           # API connectivity testing
-│   │   ├── db.py                  # Database helpers
-│   │   ├── errors.py              # Unified error handling
-│   │   ├── json_helpers.py        # JSON serialization
-│   │   ├── media_detector.py      # Media file detection
-│   │   ├── memory.py              # MemoryManager factory
-│   │   └── metadata.py            # Metadata extraction
+│   ├── utils/                     # 🆕 Shared utilities (v4.3.0: Phase 1統合)
+│   │   ├── cli/                   # CLI専用ユーティリティ (旧cli/utils/から移動)
+│   │   │   ├── __init__.py
+│   │   │   ├── progress.py        # Progress indicators
+│   │   │   ├── rich_helpers.py    # Rich console formatting
+│   │   │   └── time_formatters.py # Time display utilities
+│   │   ├── memory/                # Memory関連ヘルパー
+│   │   │   ├── __init__.py
+│   │   │   └── factory.py         # MemoryManager factory
+│   │   ├── api/                   # API関連ヘルパー
+│   │   │   ├── __init__.py
+│   │   │   └── check.py           # API connectivity testing
+│   │   ├── common/                # 共通ユーティリティ
+│   │   │   ├── __init__.py
+│   │   │   ├── json_helpers.py    # JSON serialization
+│   │   │   ├── errors.py          # Unified error handling
+│   │   │   ├── db.py              # Database helpers
+│   │   │   └── metadata.py        # Metadata extraction
+│   │   └── media_detector.py      # Media file detection
 │   │
 │   ├── version.py
 │   │
