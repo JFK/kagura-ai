@@ -23,10 +23,26 @@ from kagura.core.memory.coding import decision_recorder, error_recorder, file_tr
 # Phase 3.3 (PR #618-3): Analyzers - Apply mixin pattern
 from kagura.core.memory.coding import analyzers
 
+# Phase 3.4 (PR #618-4): Session Management - Apply mixin pattern
+from kagura.core.memory.coding import session_manager
+
+# Phase 3.5 (PR #618-5): GitHub Integration - Apply mixin pattern
+from kagura.core.memory.coding import github_integration
+
 # Attach methods from extracted modules as mixins
-for module in [file_tracker, error_recorder, decision_recorder, analyzers]:
+for module in [
+    file_tracker,
+    error_recorder,
+    decision_recorder,
+    analyzers,
+    session_manager,
+    github_integration,
+]:
     for name in dir(module):
-        if not name.startswith("_") and callable(getattr(module, name)):
+        # Skip module-level imports but allow private methods like _detect_active_session
+        if name.startswith("__"):
+            continue
+        if callable(getattr(module, name)):
             attr = getattr(module, name)
             # Only attach if it's a function (not imported classes/constants)
             if hasattr(attr, "__call__") and not isinstance(attr, type):
