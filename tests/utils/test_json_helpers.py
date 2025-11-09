@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from kagura.utils.json_helpers import (
+from kagura.utils.common.json_helpers import (
     decode_chromadb_metadata,
     encode_chromadb_metadata,
     safe_json_loads,
