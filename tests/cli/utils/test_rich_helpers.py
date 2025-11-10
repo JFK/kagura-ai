@@ -7,7 +7,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from kagura.cli.utils.rich_helpers import (
+from kagura.utils.cli.rich_helpers import (
     create_console,
     create_error_panel,
     create_info_panel,

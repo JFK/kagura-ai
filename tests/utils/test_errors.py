@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from kagura.utils.errors import (
+from kagura.utils.common.errors import (
     AuthenticationError,
     ConfigurationError,
     DependencyError,

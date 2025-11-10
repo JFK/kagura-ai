@@ -20,16 +20,18 @@ REMOTE_CAPABLE_TOOLS = {
     "memory_search_ids",
     "memory_fetch",
     # Memory - Enhanced Search (v4.0.6+)
-    "memory_search_hybrid",
     "memory_timeline",
     "memory_fuzzy_recall",
-    # GitHub (API依存)
-    "github_exec",
-    "github_issue_view",
-    "github_pr_view",
-    "github_issue_list",
-    "github_pr_create",
-    "github_pr_merge",
+    "memory_get_chunk_context",
+    "memory_get_chunk_metadata",
+    "memory_get_full_document",
+    # GitHub REST API tools (remote-capable)
+    "github_issue_create",  # API-based creation (REST API)
+    "github_issue_view_api",  # REST API - read-only
+    "github_issue_list_api",  # REST API - read-only
+    "github_pr_view_api",  # REST API - read-only
+    "github_pr_create_api",  # REST API - write operation
+    "github_pr_merge_api",  # REST API - write operation
     # Web/Search (API依存)
     "brave_web_search",
     "brave_news_search",
@@ -59,11 +61,9 @@ REMOTE_CAPABLE_TOOLS = {
     # Claude Code Integration (メモリーのみ操作)
     "claude_code_save_session",
     "claude_code_search_past_work",
-    # Meta
-    "meta_create_agent",
+    # Telemetry
     "telemetry_stats",
     "telemetry_cost",
-    "route_query",
 }
 
 # Local-only tools (ファイルシステム/シェルアクセス必須)
@@ -74,10 +74,6 @@ LOCAL_ONLY_TOOLS = {
     "dir_list",
     # Shell (セキュリティリスク大)
     "shell_exec",
-    # GitHub CLI (ローカルgh CLIを使用)
-    "gh_safe_exec",
-    "gh_pr_create_safe",
-    "gh_pr_merge_safe",
     # Media (ローカルファイル操作)
     "media_open_image",
     "media_open_video",
@@ -95,6 +91,11 @@ LOCAL_ONLY_TOOLS = {
     # Multimodal (ローカルファイル読み込み)
     "multimodal_index",
     "multimodal_search",
+    # Meta (コード生成/操作 - 危険)
+    "meta_create_agent",
+    "meta_fix_code_error",
+    # Routing (local only for security)
+    "route_query",
 }
 
 

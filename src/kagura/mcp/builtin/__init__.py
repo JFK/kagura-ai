@@ -12,7 +12,7 @@ from . import (
     coding,  # noqa: F401
     fact_check,  # noqa: F401
     file_ops,  # noqa: F401
-    github,  # noqa: F401
+    github_api,  # noqa: F401
     media,  # noqa: F401
     memory,  # noqa: F401
     meta,  # noqa: F401
@@ -35,7 +35,7 @@ __all__ = [
     "coding",
     "fact_check",
     "file_ops",
-    "github",
+    "github_api",
     "media",
     "memory",
     "meta",

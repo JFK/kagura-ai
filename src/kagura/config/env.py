@@ -87,6 +87,35 @@ def get_google_api_key() -> Optional[str]:
 
 
 # ============================================
+# GitHub API Keys
+# ============================================
+
+
+def get_github_token() -> Optional[str]:
+    """
+    Get GitHub API token from environment.
+
+    Environment variable: GITHUB_TOKEN
+
+    Used for:
+    - GitHub REST API operations (issues, PRs, etc.)
+    - MCP GitHub tools (*_api)
+
+    Returns:
+        API token if set, None otherwise
+
+    Example:
+        >>> token = get_github_token()
+        >>> if token:
+        ...     # Use GitHub API
+        ...     pass
+
+    See: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+    """
+    return os.getenv("GITHUB_TOKEN")
+
+
+# ============================================
 # Web Search API Keys
 # ============================================
 
@@ -332,6 +361,7 @@ def list_env_vars() -> dict[str, Optional[str]]:
         "OPENAI_API_KEY": "***" if get_openai_api_key() else None,
         "ANTHROPIC_API_KEY": "***" if get_anthropic_api_key() else None,
         "GOOGLE_API_KEY": "***" if get_google_api_key() else None,
+        "GITHUB_TOKEN": "***" if get_github_token() else None,
         "BRAVE_SEARCH_API_KEY": "***" if get_brave_search_api_key() else None,
         "ENABLE_SEARCH_CACHE": str(get_search_cache_enabled()),
         "SEARCH_CACHE_TTL": str(get_search_cache_ttl()),

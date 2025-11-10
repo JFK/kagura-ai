@@ -1,0 +1,175 @@
+Suggest a solution for the current
+error based on past similar errors.
+
+## Current Error
+**Type:** {{ error_type }}
+**Message:** {{ error_message }}
+**File:** {{ file_path }}:{{ line_number }}
+**Stack Trace:**
+```
+{{ stack_trace }}
+```
+
+{{ screenshot_section }}
+
+## Similar Past Errors (with solutions)
+{{ similar_errors }}
+
+## Task
+Provide a solution recommendation with:
+
+### Solution Structure
+```yaml
+confidence: low | medium | high
+primary_solution:
+  steps: |
+    Step-by-step instructions.
+    Include code changes with before/after examples.
+  reasoning: |
+    Why this solution addresses the root cause.
+    Reference similar past errors if applicable.
+  code_example: |
+    ```python
+    # Complete, copy-pastable code example
+    ```
+
+alternative_solutions:
+  - approach: "Alternative approach name"
+    when_to_use: "When this is better than primary"
+    steps: "Brief steps"
+
+similar_pattern: |
+  If this matches a known pattern from past errors,
+  explain the connection and how past solutions apply.
+
+debugging_tips: |
+  Additional tips for investigating if solution doesn't work.
+```
+
+## Guidelines
+- **High confidence:** Direct match with past solution (95%+ similarity)
+- **Medium confidence:** Similar pattern, solution likely transfers (70-95%)
+- **Low confidence:** Novel error, educated guess (<70%)
+- Always provide reasoning, not just instructions
+- Include code examples for complex solutions
+- Mention potential side effects or edge cases
+
+## Example Output
+```yaml
+confidence: high
+
+primary_solution:
+  steps: |
+    1. The error occurs because you're comparing a timezone-aware datetime
+       with a naive datetime object. This is a common issue with JWT expiry checks.
+
+    2. Ensure all datetime objects use UTC timezone:
+       ```python
+       # BEFORE (causes TypeError)
+       if token.exp < datetime.now():
+           raise TokenExpired()
+
+       # AFTER (correct)
+       if token.exp < datetime.now(timezone.utc):
+           raise TokenExpired()
+       ```
+
+    3. Update the token generation to also use UTC:
+       ```python
+       exp = datetime.now(timezone.utc) + timedelta(hours=24)
+       ```
+
+    4. Add type hint to enforce timezone-aware datetimes:
+       ```python
+       from datetime import datetime, timezone
+
+       def validate_token(token: str) -> dict[str, Any]:
+           exp: datetime = decode_jwt(token)["exp"]
+           # Ensure exp is timezone-aware
+           if exp.tzinfo is None:
+               exp = exp.replace(tzinfo=timezone.utc)
+           if exp < datetime.now(timezone.utc):
+               raise TokenExpired()
+       ```
+
+  reasoning: |
+    This error matches the pattern from errors #42 and #87 (both datetime
+    comparison issues). The root cause is mixing naive and aware datetimes,
+    which Python 3.11+ explicitly forbids.
+
+    The solution works because:
+    1. All times are in UTC (no daylight saving issues)
+    2. Comparisons are between same types (both aware)
+    3. Type hints catch future mistakes at development time
+
+    Past resolution in error #87 used the same approach and successfully
+    prevented recurrence for 3 months.
+
+  code_example: |
+    ```python
+    from datetime import datetime, timedelta, timezone
+    from typing import Any
+
+    def create_token(user_id: int, expires_in: timedelta) -> str:
+        '''Create JWT with timezone-aware expiry.'''
+        exp = datetime.now(timezone.utc) + expires_in
+        payload = {"sub": user_id, "exp": exp}
+        return encode_jwt(payload)
+
+    def validate_token(token: str) -> dict[str, Any]:
+        '''Validate JWT expiry with timezone-aware comparison.'''
+        try:
+            payload = decode_jwt(token)
+            exp_timestamp = payload["exp"]
+
+            # JWT exp is Unix timestamp - convert to aware datetime
+            exp = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+
+            if exp < datetime.now(timezone.utc):
+                raise TokenExpired("Token has expired")
+
+            return payload
+        except (KeyError, ValueError) as e:
+            raise InvalidToken(f"Invalid token format: {e}")
+    ```
+
+alternative_solutions:
+  - approach: "Store expiry as Unix timestamp"
+    when_to_use: "If you want to avoid datetime complexity entirely"
+    steps: |
+      1. Store/compare expiry as integer Unix timestamps
+      2. Use `time.time()` instead of datetime objects
+      3. Example: `if token.exp < time.time(): raise TokenExpired()`
+
+      Pros: No timezone issues, simpler
+      Cons: Less readable, no datetime features
+
+  - approach: "Use arrow or pendulum library"
+    when_to_use: "If working extensively with timezones"
+    steps: |
+      1. `pip install arrow`
+      2. Use `arrow.utcnow()` instead of datetime
+      3. All arrow objects are timezone-aware by default
+
+      Pros: Cleaner API, better timezone handling
+      Cons: Additional dependency
+
+similar_pattern: |
+  This is the "naive-aware datetime comparison" pattern seen in:
+  - Error #42: Token validation (3 months ago) - Resolved with UTC enforcement
+  - Error #87: Database timestamp comparison (1 month ago) - Same solution
+
+  Pattern: Mixing datetime.now() (naive) with datetime from external source (aware)
+  Prevention: Always use datetime.now(timezone.utc) in new code
+
+debugging_tips: |
+  If the error persists after applying the solution:
+  1. Check if datetime is coming from a database that stores naive times
+     - Solution: Add `tzinfo=timezone.utc` when reading from DB
+  2. Verify JWT library's decode behavior - some return naive datetimes
+     - Solution: Convert explicitly: `dt.replace(tzinfo=timezone.utc)`
+  3. Enable pyright strict mode to catch naive/aware mismatches at dev time
+  4. Add assertion: `assert exp.tzinfo is not None, "Expected aware datetime"`
+```
+
+Now suggest a solution:
