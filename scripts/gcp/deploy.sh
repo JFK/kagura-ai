@@ -60,9 +60,11 @@ echo -e "${YELLOW}🐳 Deploying containers...${NC}"
 
 gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="
     cd /opt/kagura
-    docker-compose pull
-    docker-compose up -d
-    docker-compose ps
+
+    # Use sudo for docker commands (user not yet in docker group session)
+    sudo docker-compose pull
+    sudo docker-compose up -d
+    sudo docker-compose ps
 "
 
 echo
