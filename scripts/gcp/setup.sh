@@ -40,16 +40,39 @@ echo -e "${YELLOW}  Current GCP configuration:${NC}"
 gcloud config list
 
 echo
-read -p "  Do you want to use the current project? (y/n): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+
+# Get current project (handle unset case)
+CURRENT_PROJECT=$(gcloud config get-value project 2>/dev/null || echo "")
+
+if [ -z "$CURRENT_PROJECT" ] || [ "$CURRENT_PROJECT" = "(unset)" ]; then
+    echo -e "${YELLOW}  ⚠ No project currently set${NC}"
+    CURRENT_PROJECT=""
+else
+    echo -e "${YELLOW}  Current project: ${CURRENT_PROJECT}${NC}"
+fi
+
+# Ask if user wants to select a project
+if [ -n "$CURRENT_PROJECT" ]; then
+    read -p "  Use current project '$CURRENT_PROJECT'? (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        PROJECT_ID="$CURRENT_PROJECT"
+    else
+        PROJECT_ID=""
+    fi
+else
+    PROJECT_ID=""
+fi
+
+# If no project selected, show available projects
+if [ -z "$PROJECT_ID" ]; then
     echo -e "${YELLOW}  Available projects:${NC}"
-    gcloud projects list
+    gcloud projects list --format="table(projectId,name,projectNumber)"
     echo
     read -p "  Enter project ID to use (or 'new' to create): " PROJECT_ID
 
     if [ "$PROJECT_ID" == "new" ]; then
-        read -p "  Enter new project ID: " PROJECT_ID
+        read -p "  Enter new project ID (lowercase, hyphens only): " PROJECT_ID
         read -p "  Enter project name: " PROJECT_NAME
 
         echo -e "${YELLOW}  Creating new project...${NC}"
@@ -62,12 +85,35 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         gcloud billing projects link $PROJECT_ID --billing-account=$BILLING_ACCOUNT
     fi
 
+    # Set project
     gcloud config set project $PROJECT_ID
-else
-    PROJECT_ID=$(gcloud config get-value project)
+fi
+
+# Verify project is set
+PROJECT_ID=$(gcloud config get-value project 2>/dev/null)
+if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "(unset)" ]; then
+    echo -e "${RED}  ❌ Failed to set project. Please run manually:${NC}"
+    echo -e "     gcloud config set project YOUR_PROJECT_ID"
+    exit 1
 fi
 
 echo -e "${GREEN}  ✓ Using project: $PROJECT_ID${NC}"
+
+# Check billing is enabled
+echo -e "${YELLOW}  Checking billing status...${NC}"
+BILLING_ENABLED=$(gcloud beta billing projects describe $PROJECT_ID --format="value(billingEnabled)" 2>/dev/null || echo "false")
+
+if [ "$BILLING_ENABLED" != "True" ]; then
+    echo -e "${RED}  ❌ Billing not enabled for project $PROJECT_ID${NC}"
+    echo -e "${YELLOW}  Available billing accounts:${NC}"
+    gcloud billing accounts list
+    echo
+    read -p "  Enter billing account ID to link: " BILLING_ACCOUNT
+    gcloud billing projects link $PROJECT_ID --billing-account=$BILLING_ACCOUNT
+    echo -e "${GREEN}  ✓ Billing enabled${NC}"
+else
+    echo -e "${GREEN}  ✓ Billing already enabled${NC}"
+fi
 
 # Step 2: Enable Required APIs
 echo
