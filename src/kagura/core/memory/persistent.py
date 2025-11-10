@@ -1,30 +1,104 @@
-"""Persistent memory for long-term storage."""
+"""Persistent memory for long-term storage.
+
+Issue #554: Added PostgreSQL support via SQLAlchemy backend.
+"""
 
 import json
+import logging
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from kagura.config.paths import get_data_dir
 
+logger = logging.getLogger(__name__)
+
 
 class PersistentMemory:
-    """Long-term persistent memory using SQLite.
+    """Long-term persistent memory using SQLite or PostgreSQL.
 
     Stores key-value pairs with optional agent scoping and metadata.
+
+    Backends:
+        - SQLite (default): File-based, single-instance
+        - PostgreSQL (production): Cloud-native, multi-instance
+
+    Args:
+        db_path: Path to SQLite database (legacy, SQLite only)
+        database_url: Database connection URL (SQLite or PostgreSQL)
+            - SQLite: sqlite:///path/to/memory.db
+            - PostgreSQL: postgresql://user:pass@host:5432/db
+        use_sqlalchemy: Use SQLAlchemy backend (supports PostgreSQL)
+            Auto-detected from DATABASE_URL or PERSISTENT_BACKEND env var
+
+    Example:
+        >>> # Legacy SQLite (sqlite3 module)
+        >>> mem = PersistentMemory(db_path=Path("memory.db"))
+        >>>
+        >>> # SQLite with SQLAlchemy
+        >>> mem = PersistentMemory(database_url="sqlite:///memory.db")
+        >>>
+        >>> # PostgreSQL (production)
+        >>> mem = PersistentMemory(database_url="postgresql://localhost:5432/kagura")
+        >>>
+        >>> # Environment-based (recommended)
+        >>> # Set PERSISTENT_BACKEND=postgres, DATABASE_URL=postgresql://...
+        >>> mem = PersistentMemory()
     """
 
-    def __init__(self, db_path: Optional[Path] = None) -> None:
+    def __init__(
+        self,
+        db_path: Optional[Path] = None,
+        database_url: Optional[str] = None,
+        use_sqlalchemy: Optional[bool] = None,
+    ) -> None:
         """Initialize persistent memory.
 
         Args:
-            db_path: Path to SQLite database
-                (default: XDG data dir or ~/.local/share/kagura/memory.db)
+            db_path: Path to SQLite database (legacy mode)
+            database_url: Database connection URL (SQLAlchemy mode)
+            use_sqlalchemy: Force SQLAlchemy backend (auto-detect if None)
         """
-        self.db_path = db_path or get_data_dir() / "memory.db"
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._init_db()
+        # Determine backend mode
+        if use_sqlalchemy is None:
+            # Auto-detect from environment or database_url
+            env_backend = os.getenv("PERSISTENT_BACKEND", "sqlite")
+            use_sqlalchemy = (
+                env_backend == "postgres"
+                or database_url is not None
+                or os.getenv("DATABASE_URL") is not None
+            )
+
+        if use_sqlalchemy:
+            # SQLAlchemy backend (supports PostgreSQL)
+            from .backends import SQLAlchemyPersistentBackend
+
+            # Determine database URL
+            if database_url:
+                self._database_url = database_url
+            else:
+                env_db_url = os.getenv("DATABASE_URL")
+                if env_db_url:
+                    self._database_url = env_db_url
+                else:
+                    # Default to SQLite via SQLAlchemy
+                    db_path = db_path or get_data_dir() / "memory.db"
+                    self._database_url = f"sqlite:///{db_path}"
+
+            self._backend = SQLAlchemyPersistentBackend(self._database_url)
+            self._use_sqlalchemy = True
+            logger.info(f"Using SQLAlchemy backend: {self._backend._get_backend_type()}")
+
+        else:
+            # Legacy sqlite3 backend
+            self.db_path = db_path or get_data_dir() / "memory.db"
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+            self._init_db()
+            self._backend = None
+            self._use_sqlalchemy = False
+            logger.info("Using legacy sqlite3 backend")
 
     def _init_db(self) -> None:
         """Initialize database schema."""
@@ -101,6 +175,12 @@ class PersistentMemory:
             agent_name: Optional agent name for scoping
             metadata: Optional metadata
         """
+        if self._use_sqlalchemy and self._backend:
+            # Use SQLAlchemy backend (PostgreSQL or SQLite)
+            self._backend.store(key, value, user_id, agent_name, metadata)
+            return
+
+        # Legacy sqlite3 implementation
         value_json = json.dumps(value)
         metadata_json = json.dumps(metadata) if metadata else None
 
@@ -156,6 +236,11 @@ class PersistentMemory:
         Returns:
             Stored value or tuple of (value, metadata) if include_metadata is True.
         """
+        if self._use_sqlalchemy and self._backend:
+            # Use SQLAlchemy backend
+            return self._backend.recall(key, user_id, agent_name, track_access, include_metadata)
+
+        # Legacy sqlite3 implementation
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
                 """
@@ -208,6 +293,12 @@ class PersistentMemory:
         Note:
             This is called automatically by recall() when track_access=True.
         """
+        if self._use_sqlalchemy and self._backend:
+            # Use SQLAlchemy backend
+            self._backend.record_access(key, user_id, agent_name)
+            return
+
+        # Legacy sqlite3 implementation
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """
@@ -332,6 +423,12 @@ class PersistentMemory:
             user_id: User identifier (memory owner)
             agent_name: Optional agent name for scoping
         """
+        if self._use_sqlalchemy and self._backend:
+            # Use SQLAlchemy backend
+            self._backend.delete(key, user_id, agent_name)
+            return
+
+        # Legacy sqlite3 implementation
         with sqlite3.connect(self.db_path) as conn:
             if agent_name:
                 conn.execute(
