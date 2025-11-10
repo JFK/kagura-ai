@@ -34,13 +34,28 @@ echo "  VM Name: $VM_NAME"
 echo "  VM Zone: $VM_ZONE"
 echo
 
-# Copy files to VM
-echo -e "${YELLOW}📦 Copying deployment files to VM...${NC}"
+# Setup VM for deployment
+echo -e "${YELLOW}📦 Setting up VM...${NC}"
 
 # Create remote directory with proper permissions
 gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="sudo mkdir -p /opt/kagura && sudo chown -R \$USER:\$USER /opt/kagura && sudo chmod 755 /opt/kagura"
 
-# Copy docker-compose and Caddyfile
+# Check if repository exists on VM
+echo -e "${YELLOW}📦 Checking repository on VM...${NC}"
+
+REPO_EXISTS=$(gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="test -d /opt/kagura/.git && echo 'yes' || echo 'no'")
+
+if [ "$REPO_EXISTS" = "yes" ]; then
+    echo -e "${GREEN}  ✓ Repository exists, pulling latest changes${NC}"
+    gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="cd /opt/kagura && git pull origin v4.4.0-release"
+else
+    echo -e "${YELLOW}  Cloning repository to VM...${NC}"
+    gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="cd /opt && git clone -b v4.4.0-release https://github.com/JFK/kagura-ai.git kagura"
+fi
+
+# Copy configuration files
+echo -e "${YELLOW}📦 Copying configuration files...${NC}"
+
 gcloud compute scp docker-compose.cloud.yml $VM_NAME:/opt/kagura/docker-compose.yml --zone=$VM_ZONE
 gcloud compute scp Caddyfile.cloud $VM_NAME:/opt/kagura/Caddyfile --zone=$VM_ZONE
 
@@ -52,18 +67,27 @@ else
     echo -e "${YELLOW}  ⚠ .env file not found. Please create it on the VM manually.${NC}"
 fi
 
-echo -e "${GREEN}  ✓ Files copied${NC}"
+echo -e "${GREEN}  ✓ Files ready${NC}"
 echo
 
-# Pull latest images and restart services
-echo -e "${YELLOW}🐳 Deploying containers...${NC}"
+# Build and start containers
+echo -e "${YELLOW}🐳 Building and deploying containers...${NC}"
+echo -e "${YELLOW}  This may take 5-10 minutes on first run...${NC}"
 
 gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="
     cd /opt/kagura
 
     # Use sudo for docker commands (user not yet in docker group session)
-    sudo docker-compose pull
+    # Build API image from source (no GHCR pull needed)
+    sudo docker-compose build --no-cache api
+
+    # Pull other images (caddy, qdrant)
+    sudo docker-compose pull caddy qdrant
+
+    # Start all services
     sudo docker-compose up -d
+
+    # Show status
     sudo docker-compose ps
 "
 

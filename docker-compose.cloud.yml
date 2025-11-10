@@ -14,7 +14,10 @@ version: '3.8'
 services:
   # Kagura API Server
   api:
-    image: ghcr.io/jfk/kagura-ai:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kagura-ai:local
     container_name: kagura-api
     restart: unless-stopped
     environment:
