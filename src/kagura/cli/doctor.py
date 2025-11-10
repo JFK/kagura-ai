@@ -83,6 +83,12 @@ def _check_dependencies() -> list[tuple[str, str, str]]:
         results.append(
             ("sentence-transformers", "warning", "Not installed (RAG disabled)")
         )
+    except RuntimeError as e:
+        # Package is installed but failed to load (e.g., torchvision circular import)
+        error_msg = str(e).split("\n")[0]  # First line of error
+        results.append(
+            ("sentence-transformers", "error", f"Load failed: {error_msg}")
+        )
 
     return results
 
@@ -216,6 +222,14 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
             status["reranking_model_installed"] = False
             recommendations.append(
                 "sentence-transformers not installed (required for reranking)"
+            )
+        except RuntimeError as e:
+            # Package is installed but failed to load
+            status["reranking_model_installed"] = False
+            error_msg = str(e).split("\n")[0]
+            recommendations.append(
+                f"sentence-transformers load failed: {error_msg}. "
+                "Check torchvision compatibility or reinstall dependencies."
             )
     else:
         status["reranking_model_installed"] = True
