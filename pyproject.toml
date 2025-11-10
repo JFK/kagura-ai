@@ -68,6 +68,7 @@ api = [
     "uvicorn[standard]>=0.32.0", # ASGI server
     "psycopg2-binary>=2.9.9",    # PostgreSQL adapter
     "asyncpg>=0.29.0",           # Async PostgreSQL driver
+    "sqlalchemy>=2.0.0",         # ORM for PostgreSQL backend (Issue #554)
     "redis>=5.0.0",              # Redis client for caching/queue
     "python-multipart>=0.0.9",   # For file uploads (multimodal)
 ]
