@@ -63,7 +63,9 @@ class MemoryModel(Base):
     value = Column(Text, nullable=False)
     user_id = Column(String(255), nullable=False, default="default_user")
     agent_name = Column(String(255), nullable=True)
-    metadata = Column(Text, nullable=True)
+    # Note: 'metadata' is SQLAlchemy reserved word, use 'memory_metadata' for Python attribute
+    # but keep DB column name as 'metadata' for SQLite compatibility
+    memory_metadata = Column('metadata', Text, nullable=True)
     access_count = Column(Integer, default=0)
     last_accessed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
@@ -212,7 +214,7 @@ class SQLAlchemyPersistentBackend:
             if existing:
                 # Update
                 existing.value = value_json  # type: ignore[assignment]
-                existing.metadata = metadata_json  # type: ignore[assignment]
+                existing.memory_metadata = metadata_json  # type: ignore[assignment]
                 existing.updated_at = datetime.now()  # type: ignore[assignment]
             else:
                 # Insert
@@ -221,7 +223,7 @@ class SQLAlchemyPersistentBackend:
                     value=value_json,
                     user_id=user_id,
                     agent_name=agent_name,
-                    metadata=metadata_json,
+                    memory_metadata=metadata_json,
                 )
                 session.add(new_memory)
 
@@ -277,7 +279,7 @@ class SQLAlchemyPersistentBackend:
 
             if result:
                 value = json.loads(result.value)
-                metadata = json.loads(result.metadata) if result.metadata else None
+                metadata = json.loads(result.memory_metadata) if result.memory_metadata else None
 
                 # Track access if requested
                 if track_access:
