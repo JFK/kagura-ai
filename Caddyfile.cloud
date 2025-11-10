@@ -11,12 +11,7 @@
     # Global options
     email {$CADDY_ADMIN_EMAIL:admin@yourdomain.com}
 
-    # Enable HTTP/3
-    servers {
-        protocol {
-            experimental_http3
-        }
-    }
+    # HTTP/3 is automatically enabled in Caddy v2.6+
 }
 
 # Main domain
