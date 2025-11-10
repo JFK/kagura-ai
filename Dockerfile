@@ -11,14 +11,16 @@ RUN apt-get update && apt-get install -y \
 
 # Install uv for dependency management
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.cargo/bin:$PATH"
+
+# Add uv to PATH (installed to /root/.local/bin)
+ENV PATH="/root/.local/bin:/root/.cargo/bin:$PATH"
 
 # Copy project files
 COPY pyproject.toml uv.lock* ./
 COPY src/ ./src/
 
-# Install dependencies
-RUN uv sync --all-extras
+# Install dependencies with full path (ensure it's found)
+RUN /root/.local/bin/uv sync --all-extras
 
 # Expose API port
 EXPOSE 8080
