@@ -16,7 +16,6 @@ ENV PATH="/root/.cargo/bin:$PATH"
 # Copy project files
 COPY pyproject.toml uv.lock* ./
 COPY src/ ./src/
-COPY README.md ./
 
 # Install dependencies
 RUN uv sync --all-extras
