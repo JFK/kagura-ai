@@ -135,9 +135,23 @@ done
 
 echo -e "${GREEN}  ✓ All APIs enabled${NC}"
 
-# Step 3: Terraform Configuration
+# Step 3: Application Default Credentials for Terraform
 echo
-echo -e "${BLUE}📋 Step 3: Terraform Configuration${NC}"
+echo -e "${BLUE}📋 Step 3: Setup Application Default Credentials${NC}"
+echo -e "${YELLOW}  Terraform requires application default credentials...${NC}"
+
+# Check if ADC is already set up
+if [ ! -f "$HOME/.config/gcloud/application_default_credentials.json" ]; then
+    echo -e "${YELLOW}  Running 'gcloud auth application-default login'...${NC}"
+    gcloud auth application-default login
+    echo -e "${GREEN}  ✓ Application default credentials configured${NC}"
+else
+    echo -e "${GREEN}  ✓ Application default credentials already configured${NC}"
+fi
+
+# Step 4: Terraform Configuration
+echo
+echo -e "${BLUE}📋 Step 4: Terraform Configuration${NC}"
 
 cd terraform/gcp
 
@@ -159,9 +173,9 @@ else
     echo -e "${YELLOW}  terraform.tfvars already exists${NC}"
 fi
 
-# Step 4: Terraform Init & Plan
+# Step 5: Terraform Init & Plan
 echo
-echo -e "${BLUE}📋 Step 4: Terraform Infrastructure Deployment${NC}"
+echo -e "${BLUE}📋 Step 5: Terraform Infrastructure Deployment${NC}"
 
 echo -e "${YELLOW}  Initializing Terraform...${NC}"
 terraform init
