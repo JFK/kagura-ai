@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [4.3.1] - 2025-01-10
+
+### Fixed
+
+- **kagura doctor crash**: Fixed `RuntimeError` when `sentence-transformers` fails to load due to torchvision circular import (#645)
+  - Added `torchvision>=0.15.0,<0.18` constraint to ensure torch 2.2.x compatibility
+  - Improved error messages to distinguish `ImportError` (not installed) from `RuntimeError` (load failed)
+  - Prevents RAG from becoming non-functional due to incompatible torch/torchvision versions
+  - Related to #533 (Intel Mac compatibility)
+
+---
+
 ### 🏗️ Refactoring
 
 #### Phase 3.2: Coding Memory Isolated Features (#618)
