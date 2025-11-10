@@ -79,7 +79,7 @@ def _check_dependencies() -> list[tuple[str, str, str]]:
 
         version = sentence_transformers.__version__
         results.append(("sentence-transformers", "ok", f"v{version}"))
-    except ImportError:
+    except (ImportError, RuntimeError):
         results.append(
             ("sentence-transformers", "warning", "Not installed (RAG disabled)")
         )
@@ -212,7 +212,7 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
                 recommendations.append(
                     "Reranking not available. Install: kagura memory setup --reranking"
                 )
-        except ImportError:
+        except (ImportError, RuntimeError):
             status["reranking_model_installed"] = False
             recommendations.append(
                 "sentence-transformers not installed (required for reranking)"
