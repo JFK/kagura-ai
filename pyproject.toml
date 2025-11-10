@@ -1,6 +1,6 @@
 [project]
 name = "kagura_ai"
-version = "4.3.0"
+version = "4.3.1"
 description = "Universal AI Memory Platform - MCP-native context management for all AI agents"
 authors = [
     { name = "JFK", email = "fumikazu.kiyota@gmail.com" }
@@ -54,6 +54,7 @@ ai = [
     # Core AI features: Memory, Routing, Context Compression
     "chromadb>=0.4.0",           # Vector storage for memory & RAG
     "torch>=2.0.0,<2.3",         # PyTorch <2.3 for Intel Mac x86_64 compatibility & no mandatory CUDA deps. See #533
+    "torchvision>=0.15.0,<0.18", # torchvision 0.17.x for torch 2.2.x compatibility. Fixes #645
     "sentence-transformers>=2.2.0,<5.2",  # Embeddings (E5) & reranking. See #533
     "numpy>=1.24.0,<2.0",        # NumPy <2.0 for torch 2.2.2 compatibility. See #533
     "rank-bm25>=0.2.2",          # BM25 lexical search (v4.0.0a0 Phase 2)
