@@ -37,8 +37,8 @@ echo
 # Copy files to VM
 echo -e "${YELLOW}📦 Copying deployment files to VM...${NC}"
 
-# Create remote directory
-gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="mkdir -p /opt/kagura"
+# Create remote directory with proper permissions
+gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="sudo mkdir -p /opt/kagura && sudo chown -R \$USER:\$USER /opt/kagura && sudo chmod 755 /opt/kagura"
 
 # Copy docker-compose and Caddyfile
 gcloud compute scp docker-compose.cloud.yml $VM_NAME:/opt/kagura/docker-compose.yml --zone=$VM_ZONE
