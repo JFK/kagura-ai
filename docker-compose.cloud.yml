@@ -1,0 +1,113 @@
+# Kagura Memory Cloud - GCP Production Deployment
+# https://github.com/JFK/kagura-ai/issues/649
+#
+# Usage:
+#   docker-compose -f docker-compose.cloud.yml up -d
+#
+# Prerequisites:
+#   - GCP infrastructure deployed via Terraform (terraform/gcp/)
+#   - Environment variables set in .env file
+#   - Domain configured with DNS pointing to VM IP
+
+version: '3.8'
+
+services:
+  # Kagura API Server
+  api:
+    image: ghcr.io/jfk/kagura-ai:latest
+    container_name: kagura-api
+    restart: unless-stopped
+    environment:
+      # Database (Cloud SQL PostgreSQL)
+      - DATABASE_URL=${DATABASE_URL}
+
+      # Redis (Memorystore)
+      - REDIS_URL=${REDIS_URL}
+
+      # Qdrant (local container)
+      - QDRANT_URL=http://qdrant:6333
+
+      # CORS
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-https://memory.yourdomain.com}
+
+      # Security
+      - API_KEY_SECRET=${API_KEY_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+
+      # OAuth2 (Google)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-https://memory.yourdomain.com/auth/callback}
+
+      # Environment
+      - ENVIRONMENT=production
+      - LOG_LEVEL=info
+
+    networks:
+      - kagura-network
+    depends_on:
+      - qdrant
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Qdrant Vector Database (local container)
+  # Note: Cloud SQL and Memorystore are managed by GCP (not in docker-compose)
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: kagura-qdrant
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - kagura-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Caddy Reverse Proxy (HTTPS termination)
+  caddy:
+    image: caddy:2-alpine
+    container_name: kagura-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - kagura-network
+    depends_on:
+      - api
+    environment:
+      - DOMAIN=${DOMAIN:-memory.yourdomain.com}
+
+  # Web Dashboard (Next.js) - Optional, deploy separately if needed
+  # web:
+  #   image: ghcr.io/jfk/kagura-web:latest
+  #   container_name: kagura-web
+  #   restart: unless-stopped
+  #   environment:
+  #     - NEXT_PUBLIC_API_URL=https://memory.yourdomain.com/api/v1
+  #   networks:
+  #     - kagura-network
+
+networks:
+  kagura-network:
+    driver: bridge
+
+volumes:
+  qdrant_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local

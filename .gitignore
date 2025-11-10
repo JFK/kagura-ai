@@ -188,3 +188,18 @@ docs/api/*.js
 *.bak
 *.tmp
 *~
+
+# Cloud deployment (GCP/AWS/Azure)
+.env
+.env.cloud
+terraform.tfvars
+*.tfstate
+*.tfstate.*
+*.tfplan
+.terraform/
+.terraform.lock.hcl
+
+# Caddy
+Caddyfile
+caddy_data/
+caddy_config/

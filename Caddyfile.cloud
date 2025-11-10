@@ -1,0 +1,110 @@
+# Kagura Memory Cloud - Caddy Configuration for GCP
+# https://github.com/JFK/kagura-ai/issues/649
+#
+# Features:
+#   - Automatic HTTPS with Let's Encrypt
+#   - Reverse proxy to API server
+#   - Security headers
+#   - Access logging
+
+{
+    # Global options
+    email {$CADDY_ADMIN_EMAIL:admin@yourdomain.com}
+
+    # Enable HTTP/3
+    servers {
+        protocol {
+            experimental_http3
+        }
+    }
+}
+
+# Main domain
+{$DOMAIN:memory.yourdomain.com} {
+    # API endpoints
+    handle /api/* {
+        reverse_proxy api:8080
+    }
+
+    # Health check (no auth required)
+    handle /health {
+        reverse_proxy api:8080
+    }
+
+    # Web UI (optional - if deploying web container)
+    # handle /* {
+    #     reverse_proxy web:3000
+    # }
+
+    # Default response for root
+    handle /* {
+        respond "Kagura Memory Cloud API - See /api/v1/docs for documentation" 200
+    }
+
+    # Security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+        # Prevent clickjacking
+        X-Frame-Options "DENY"
+
+        # Prevent MIME type sniffing
+        X-Content-Type-Options "nosniff"
+
+        # XSS protection
+        X-XSS-Protection "1; mode=block"
+
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+
+        # Content Security Policy
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+
+        # Remove server header
+        -Server
+    }
+
+    # Access logging
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 100mb
+            roll_keep 5
+            roll_keep_for 720h
+        }
+        format json
+    }
+
+    # Error logging
+    log {
+        output file /var/log/caddy/error.log {
+            roll_size 100mb
+            roll_keep 5
+        }
+        level ERROR
+    }
+
+    # TLS configuration
+    tls {
+        # Let's Encrypt production
+        # For testing, use: tls internal
+        protocols tls1.2 tls1.3
+    }
+
+    # Compression
+    encode gzip zstd
+
+    # Rate limiting (optional - requires Caddy plugin)
+    # rate_limit {
+    #     zone static {
+    #         key {remote_host}
+    #         events 100
+    #         window 1m
+    #     }
+    # }
+}
+
+# Redirect www to non-www (optional)
+www.{$DOMAIN:memory.yourdomain.com} {
+    redir https://{$DOMAIN:memory.yourdomain.com}{uri} permanent
+}
