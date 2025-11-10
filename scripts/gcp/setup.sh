@@ -149,9 +149,32 @@ else
     echo -e "${GREEN}  ✓ Application default credentials already configured${NC}"
 fi
 
-# Step 4: Terraform Configuration
+# Step 4: SSH Key Setup
 echo
-echo -e "${BLUE}📋 Step 4: Terraform Configuration${NC}"
+echo -e "${BLUE}📋 Step 4: SSH Key Setup${NC}"
+
+SSH_KEY_PATH="$HOME/.ssh/id_rsa.pub"
+
+if [ ! -f "$SSH_KEY_PATH" ]; then
+    echo -e "${YELLOW}  ⚠ SSH public key not found: $SSH_KEY_PATH${NC}"
+    read -p "  Generate new SSH key pair? (y/n): " -n 1 -r
+    echo
+
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}  Generating SSH key pair...${NC}"
+        ssh-keygen -t rsa -b 4096 -C "kagura-gcp-vm" -f "$HOME/.ssh/id_rsa" -N ""
+        echo -e "${GREEN}  ✓ SSH key generated: $SSH_KEY_PATH${NC}"
+    else
+        echo -e "${RED}  ❌ SSH key required for VM access. Exiting.${NC}"
+        exit 1
+    fi
+else
+    echo -e "${GREEN}  ✓ SSH public key found: $SSH_KEY_PATH${NC}"
+fi
+
+# Step 5: Terraform Configuration
+echo
+echo -e "${BLUE}📋 Step 5: Terraform Configuration${NC}"
 
 cd terraform/gcp
 
@@ -171,11 +194,20 @@ if [ ! -f terraform.tfvars ]; then
     ${EDITOR:-nano} terraform.tfvars
 else
     echo -e "${YELLOW}  terraform.tfvars already exists${NC}"
+    echo -e "${YELLOW}  Verifying configuration...${NC}"
+
+    # Check if project_id is set correctly
+    TFVARS_PROJECT=$(grep "^project_id" terraform.tfvars | cut -d'"' -f2)
+    if [ "$TFVARS_PROJECT" != "$PROJECT_ID" ]; then
+        echo -e "${YELLOW}  Updating project_id in terraform.tfvars...${NC}"
+        sed -i "s/project_id = \".*\"/project_id = \"$PROJECT_ID\"/g" terraform.tfvars
+        echo -e "${GREEN}  ✓ Updated project_id to: $PROJECT_ID${NC}"
+    fi
 fi
 
-# Step 5: Terraform Init & Plan
+# Step 6: Terraform Init & Plan
 echo
-echo -e "${BLUE}📋 Step 5: Terraform Infrastructure Deployment${NC}"
+echo -e "${BLUE}📋 Step 6: Terraform Infrastructure Deployment${NC}"
 
 echo -e "${YELLOW}  Initializing Terraform...${NC}"
 terraform init
