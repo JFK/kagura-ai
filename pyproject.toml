@@ -52,7 +52,8 @@ kagura_testing = "kagura.testing.plugin"
 # ============================================
 ai = [
     # Core AI features: Memory, Routing, Context Compression
-    "chromadb>=0.4.0",           # Vector storage for memory & RAG
+    "chromadb>=0.4.0",           # Vector storage for memory & RAG (default)
+    "qdrant-client>=1.7.0",      # Qdrant vector database (Issue #554, optional backend)
     "torch>=2.0.0,<2.3",         # PyTorch <2.3 for Intel Mac x86_64 compatibility & no mandatory CUDA deps. See #533
     "torchvision>=0.15.0,<0.18", # torchvision 0.17.x for torch 2.2.x compatibility. Fixes #645
     "sentence-transformers>=2.2.0,<5.2",  # Embeddings (E5) & reranking. See #533
