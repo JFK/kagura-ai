@@ -4,6 +4,7 @@ Issue #554 - Cloud-Native Infrastructure Migration
 
 Production-ready backend using PostgreSQL JSONB for graph storage.
 Supports multi-instance deployments and cloud environments.
+Uses singleton pattern for Engine (connection pool shared across instances).
 """
 
 import json
@@ -11,7 +12,7 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import JSON, Column, DateTime, Integer, String, create_engine, func
+from sqlalchemy import JSON, Column, DateTime, Engine, Integer, String, create_engine, func
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from .base import GraphBackend
@@ -20,6 +21,10 @@ if TYPE_CHECKING:
     import networkx as nx
 
 logger = logging.getLogger(__name__)
+
+
+# Singleton Engine cache (shared across all instances)
+_engine_cache: dict[str, Engine] = {}
 
 
 class Base(DeclarativeBase):
@@ -90,6 +95,10 @@ class PostgresBackend(GraphBackend):
         Raises:
             ImportError: If SQLAlchemy is not installed
             ValueError: If database_url is invalid
+
+        Note:
+            Multiple instances with the same database_url will share a single Engine
+            (and connection pool) for efficiency. This is the recommended SQLAlchemy pattern.
         """
         if not database_url:
             raise ValueError("database_url is required for PostgresBackend")
@@ -97,13 +106,8 @@ class PostgresBackend(GraphBackend):
         self.database_url = database_url
         self.user_id = user_id
 
-        # Create SQLAlchemy engine
-        self.engine = create_engine(
-            database_url,
-            pool_pre_ping=True,  # Verify connections before using
-            pool_recycle=3600,  # Recycle connections every hour
-            echo=False,  # Set to True for SQL debugging
-        )
+        # Get or create shared engine (singleton pattern)
+        self.engine = self._get_or_create_engine(database_url)
 
         # Create tables if needed
         if create_tables:
@@ -121,6 +125,39 @@ class PostgresBackend(GraphBackend):
             f"Initialized PostgresBackend for user_id={user_id} "
             f"(host={self._get_host()})"
         )
+
+    @staticmethod
+    def _get_or_create_engine(database_url: str) -> Engine:
+        """Get or create SQLAlchemy engine (singleton pattern).
+
+        Reuses existing engine if already created for the same database_url.
+        This shares connection pools across all backend instances.
+
+        Args:
+            database_url: Database connection URL
+
+        Returns:
+            SQLAlchemy Engine instance (cached)
+        """
+        global _engine_cache
+
+        if database_url not in _engine_cache:
+            logger.info(f"Creating new Engine for {database_url.split('@')[-1]}")
+
+            engine = create_engine(
+                database_url,
+                pool_pre_ping=True,  # Verify connections before using
+                pool_recycle=3600,  # Recycle connections every hour
+                pool_size=5,  # Connection pool size
+                max_overflow=10,  # Max additional connections
+                echo=False,  # Set to True for SQL debugging
+            )
+
+            _engine_cache[database_url] = engine
+        else:
+            logger.debug(f"Reusing cached Engine for {database_url.split('@')[-1]}")
+
+        return _engine_cache[database_url]
 
     def _get_host(self) -> str:
         """Extract host from database URL for logging."""
