@@ -61,7 +61,7 @@ else
     fi
 
     echo -e "${YELLOW}  Cloning repository to VM...${NC}"
-    gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="cd /opt && git clone -b v4.4.0-release https://github.com/JFK/kagura-ai.git kagura && sudo chown -R \$USER:\$USER /opt/kagura"
+    gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="cd /tmp && git clone -b v4.4.0-release https://github.com/JFK/kagura-ai.git kagura && sudo mv /tmp/kagura /opt/kagura && sudo chown -R \$USER:\$USER /opt/kagura"
 fi
 
 # Copy configuration files
