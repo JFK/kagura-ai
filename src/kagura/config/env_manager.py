@@ -400,16 +400,28 @@ class EnvConfigManager:
 
         Note:
             Stores SHA256 hash of values, NOT plaintext, for security.
-            Actual audit log is in PostgreSQL audit_logs table.
+
+            TODO (Issue #TBD): Implement PostgreSQL audit_logs integration
+            Current: Logger only (works but not queryable)
+            Future: PostgreSQL audit_logs table (see migrations/001_users.sql)
+                    - Use SQLAlchemy ORM
+                    - Enable audit log queries via API
+                    - Add retention policy
         """
         old_hash = hashlib.sha256(old_value.encode()).hexdigest() if old_value else None
         new_hash = hashlib.sha256(new_value.encode()).hexdigest()
 
-        # TODO: Insert into PostgreSQL audit_logs table
-        # INSERT INTO audit_logs (
-        #     user_email, action, resource,
-        #     old_value_hash, new_value_hash, metadata, created_at
-        # ) VALUES (?, 'config_update', ?, ?, ?, ?, NOW())
+        # TODO: Implement PostgreSQL insertion
+        # from sqlalchemy import create_engine
+        # engine = create_engine(os.getenv("DATABASE_URL"))
+        # with engine.connect() as conn:
+        #     conn.execute("""
+        #         INSERT INTO audit_logs (
+        #             user_email, action, resource,
+        #             old_value_hash, new_value_hash, metadata,
+        #             ip_address, user_agent, created_at
+        #         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        #     """, (user_email, 'config_update', key, old_hash, new_hash, ...))
 
         logger.info(
             f"Audit: config_update {key} by {user_email} "

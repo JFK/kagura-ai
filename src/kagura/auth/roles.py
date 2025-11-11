@@ -103,10 +103,19 @@ class RoleManager:
 
         Args:
             db_url: PostgreSQL connection URL
+
+        Note:
+            TODO (Issue #TBD): Implement PostgreSQL backend with SQLAlchemy
+            Current: In-memory dict (works but not persistent across restarts)
+            Future: PostgreSQL users table (see migrations/001_users.sql)
         """
         self.db_url = db_url
-        # TODO: Initialize database connection
-        # For now, use in-memory dict (will be replaced with SQLAlchemy)
+        # TODO: Initialize SQLAlchemy engine and session
+        # from sqlalchemy import create_engine
+        # self.engine = create_engine(db_url)
+        # self.Session = sessionmaker(bind=self.engine)
+
+        # Temporary: In-memory storage (will be replaced with PostgreSQL)
         self._roles: dict[str, Role] = {}
 
     def ensure_user(

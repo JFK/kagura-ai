@@ -105,8 +105,11 @@ async def login(redirect_uri: Optional[str] = None):
         _session_manager._redis.setex(f"oauth2_state:{state}", 300, "pending")
 
     # Get authorization URL
-    # TODO: Add Web-specific authorization URL method to OAuth2Manager
-    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={os.getenv('GOOGLE_CLIENT_ID')}&redirect_uri={redirect_uri or os.getenv('GOOGLE_REDIRECT_URI')}&response_type=code&scope=openid%20email%20profile&state={state}"
+    redirect = redirect_uri or os.getenv("GOOGLE_REDIRECT_URI")
+    if not redirect:
+        raise HTTPException(status_code=500, detail="GOOGLE_REDIRECT_URI not configured")
+
+    auth_url = _oauth2_manager.get_authorization_url_web(redirect, state)
 
     return LoginResponse(authorization_url=auth_url, state=state)
 
@@ -164,19 +167,14 @@ async def callback(
 
     try:
         # 2. Exchange code for token
-        # TODO: Implement OAuth2Manager.exchange_code_for_token() for Web
-        # For now, using placeholder
-        # credentials = _oauth2_manager.exchange_code(code)
+        redirect_uri = os.getenv("GOOGLE_REDIRECT_URI")
+        if not redirect_uri:
+            raise HTTPException(status_code=500, detail="GOOGLE_REDIRECT_URI not configured")
+
+        credentials = _oauth2_manager.exchange_code_web(code, redirect_uri)
 
         # 3. Get user info from Google
-        # user_info = get_user_info(credentials)
-        # Placeholder:
-        user_info = {
-            "sub": "google_user_123",  # TODO: Get from Google API
-            "email": "user@example.com",
-            "name": "Example User",
-            "picture": "https://...",
-        }
+        user_info = _oauth2_manager.get_user_info_web(credentials)
 
         # 4. Ensure user exists in database & assign role
         role_manager = get_role_manager()
