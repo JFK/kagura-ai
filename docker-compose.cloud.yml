@@ -31,38 +31,11 @@ services:
       # .env.cloud for config management (Issue #650)
       - ./.env.cloud:/app/.env.cloud:rw
     environment:
-      # Database (Cloud SQL PostgreSQL)
-      - DATABASE_URL=${DATABASE_URL}
-
-      # Redis (Memorystore)
-      - REDIS_URL=${REDIS_URL}
-
-      # Qdrant (local container)
-      - QDRANT_URL=http://qdrant:6333
-
-      # CORS
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-https://memory.yourdomain.com}
-
-      # Security
-      - API_KEY_SECRET=${API_KEY_SECRET}
-      - JWT_SECRET=${JWT_SECRET}
-
-      # OAuth2 (Google)
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-https://memory.yourdomain.com/auth/callback}
-
-      # Embeddings (OpenAI for cloud - efficient on small VMs)
-      - EMBEDDING_PROVIDER=openai
-      - EMBEDDING_MODEL=text-embedding-3-small  # $0.02/1M tokens
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # NOTE: Most env vars loaded from .env.cloud via env_file above
+      # Only override specific values here if needed
 
       # Self-management (Issue #650)
       - DOCKER_CONTAINER_NAME=kagura-api  # For auto-restart
-
-      # Environment
-      - ENVIRONMENT=production
-      - LOG_LEVEL=info
 
     networks:
       - kagura-network
