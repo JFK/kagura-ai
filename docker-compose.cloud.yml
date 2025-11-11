@@ -93,8 +93,7 @@ services:
       - kagura-network
     depends_on:
       - api
-    environment:
-      - DOMAIN=${DOMAIN:-memory.yourdomain.com}
+    # NOTE: DOMAIN loaded from .env.cloud via env_file above
 
   # Web Dashboard (Next.js) - Optional, deploy separately if needed
   # web:
