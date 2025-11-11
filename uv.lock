@@ -507,7 +507,7 @@ wheels = [
 
 [[package]]
 name = "chromadb"
-version = "1.1.1"
+version = "1.3.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bcrypt" },
@@ -538,13 +538,13 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7f/48/11851dddeadad6abe36ee071fedc99b5bdd2c324df3afa8cb952ae02798b/chromadb-1.1.1.tar.gz", hash = "sha256:ebfce0122753e306a76f1e291d4ddaebe5f01b5979b97ae0bc80b1d4024ff223", size = 1338109 }
+sdist = { url = "https://files.pythonhosted.org/packages/79/62/50e3385e703d9db4ccb8abe7a6cfe6f6f1529eefa168ac417dd394e7231e/chromadb-1.3.4.tar.gz", hash = "sha256:47c64a735e610d1b3f50749959508ed51dc4bd7ff9611472ffddb5da8540f40d", size = 1923941 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/39/59/0d881a9b7eb63d8d2446cf67fcbb53fb8ae34991759d2b6024a067e90a9a/chromadb-1.1.1-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:27fe0e25ef0f83fb09c30355ab084fe6f246808a7ea29e8c19e85cf45785b90d", size = 19175479 },
-    { url = "https://files.pythonhosted.org/packages/94/4f/5a9fa317c84c98e70af48f74b00aa25589626c03a0428b4381b2095f3d73/chromadb-1.1.1-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:95aed58869683f12e7dcbf68b039fe5f576dbe9d1b86b8f4d014c9d077ccafd2", size = 18267188 },
-    { url = "https://files.pythonhosted.org/packages/45/1a/02defe2f1c8d1daedb084bbe85f5b6083510a3ba192ed57797a3649a4310/chromadb-1.1.1-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:06776dad41389a00e7d63d936c3a15c179d502becaf99f75745ee11b062c9b6a", size = 18855754 },
-    { url = "https://files.pythonhosted.org/packages/5a/0d/80be82717e5dc19839af24558494811b6f2af2b261a8f21c51b872193b09/chromadb-1.1.1-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bba0096a7f5e975875ead23a91c0d41d977fbd3767f60d3305a011b0ace7afd3", size = 19893681 },
-    { url = "https://files.pythonhosted.org/packages/2d/6e/956e62975305a4e31daf6114a73b3b0683a8f36f8d70b20aabd466770edb/chromadb-1.1.1-cp39-abi3-win_amd64.whl", hash = "sha256:a77aa026a73a18181fd89bbbdb86191c9a82fd42aa0b549ff18d8cae56394c8b", size = 19844042 },
+    { url = "https://files.pythonhosted.org/packages/f6/cc/0428af3684d7ea990cc57c0cc8a9b7ad6795f2390f5f646c23a087e9f697/chromadb-1.3.4-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:c642085aa064851054fdc5ea232ed1bab75dfadc4cf0686504ef3e61b21ad670", size = 20103823 },
+    { url = "https://files.pythonhosted.org/packages/e7/92/49b8d99d03d9840267dd53f6810e52910859c5fb7dc8d7f13f6a776bdebf/chromadb-1.3.4-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:3ca859c48f43149c17aeb2c6dd05d5238597498594fabde5c33f438992136ef5", size = 19162711 },
+    { url = "https://files.pythonhosted.org/packages/61/9b/1e3e8d80a6e59f5d844a0848e963c6478dd1bf3c3ab7f1599b55ec85633c/chromadb-1.3.4-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e2e939ef7505a380abce0cc52468990fe1956752283ae57ed7f42119202901d7", size = 19735058 },
+    { url = "https://files.pythonhosted.org/packages/3d/cf/2d490b3a46f4c67be48506bb69a9670949df7fee17e211a75ad36484a7c1/chromadb-1.3.4-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f2f5d0be5d2d5d1f457608156f2676d244af8d788edcffce1b2b25bac19e3b66", size = 20829991 },
+    { url = "https://files.pythonhosted.org/packages/a3/21/93ae1b1bdca02bf303505d117f4f8cfb9fc78c1935b551da6eb5859f5b26/chromadb-1.3.4-cp39-abi3-win_amd64.whl", hash = "sha256:8da98a377ca06bdc8dc8bd77b4e2aeb703858a615a3fe5bbb247396acfc90168", size = 20790199 },
 ]
 
 [[package]]
@@ -1460,7 +1460,7 @@ wheels = [
 
 [[package]]
 name = "kagura-ai"
-version = "4.2.3"
+version = "4.3.1"
 source = { editable = "." }
 dependencies = [
     { name = "arxiv" },
@@ -1488,6 +1488,7 @@ ai = [
     { name = "sentence-transformers" },
     { name = "tiktoken" },
     { name = "torch" },
+    { name = "torchvision" },
 ]
 all = [
     { name = "asyncpg" },
@@ -1528,6 +1529,7 @@ all = [
     { name = "sentence-transformers" },
     { name = "tiktoken" },
     { name = "torch" },
+    { name = "torchvision" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "youtube-transcript-api" },
     { name = "yt-dlp" },
@@ -1589,6 +1591,7 @@ full = [
     { name = "sentence-transformers" },
     { name = "tiktoken" },
     { name = "torch" },
+    { name = "torchvision" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "youtube-transcript-api" },
     { name = "yt-dlp" },
@@ -1617,7 +1620,7 @@ requires-dist = [
     { name = "asyncpg", marker = "extra == 'api'", specifier = ">=0.29.0" },
     { name = "beautifulsoup4", marker = "extra == 'web'", specifier = ">=4.12.0" },
     { name = "brave-search-python-client", specifier = ">=0.4.0" },
-    { name = "chromadb", marker = "extra == 'ai'", specifier = ">=0.4.0" },
+    { name = "chromadb", marker = "extra == 'ai'", specifier = ">=1.3.0" },
     { name = "click", specifier = ">=8.1" },
     { name = "cryptography", marker = "extra == 'auth'", specifier = ">=41.0.0" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.115.0" },
@@ -1673,6 +1676,7 @@ requires-dist = [
     { name = "sentence-transformers", marker = "extra == 'ai'", specifier = ">=2.2.0,<5.2" },
     { name = "tiktoken", marker = "extra == 'ai'", specifier = ">=0.7.0" },
     { name = "torch", marker = "extra == 'ai'", specifier = ">=2.0.0,<2.3" },
+    { name = "torchvision", marker = "extra == 'ai'", specifier = ">=0.15.0,<0.18" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'api'", specifier = ">=0.32.0" },
     { name = "youtube-transcript-api", marker = "extra == 'web'", specifier = ">=0.6.0" },
     { name = "yt-dlp", marker = "extra == 'web'", specifier = ">=2023.0.0" },
@@ -4122,6 +4126,28 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/72/ce/beca89dcdcf4323880d3b959ef457a4c61a95483af250e6892fec9174162/torch-2.2.2-cp312-cp312-win_amd64.whl", hash = "sha256:451331406b760f4b1ab298ddd536486ab3cfb1312614cfe0532133535be60bea", size = 198528804 },
     { url = "https://files.pythonhosted.org/packages/79/78/29dcab24a344ffd9ee9549ec0ab2c7885c13df61cde4c65836ee275efaeb/torch-2.2.2-cp312-none-macosx_10_9_x86_64.whl", hash = "sha256:eb4d6e9d3663e26cd27dc3ad266b34445a16b54908e74725adb241aa56987533", size = 150797270 },
     { url = "https://files.pythonhosted.org/packages/4a/0e/e4e033371a7cba9da0db5ccb507a9174e41b9c29189a932d01f2f61ecfc0/torch-2.2.2-cp312-none-macosx_11_0_arm64.whl", hash = "sha256:bf9558da7d2bf7463390b3b2a61a6a3dbb0b45b161ee1dd5ec640bf579d479fc", size = 59678388 },
+]
+
+[[package]]
+name = "torchvision"
+version = "0.17.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "torch" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/46/95/179dd1bf8fd6bd689f0907f4baed557d2b12d2cf3d7ed1a8ecefe0a63d83/torchvision-0.17.2-cp311-cp311-macosx_10_13_x86_64.whl", hash = "sha256:9b83e55ee7d0a1704f52b9c0ac87388e7a6d1d98a6bde7b0b35f9ab54d7bda54", size = 1666424 },
+    { url = "https://files.pythonhosted.org/packages/36/15/c48f74f8f8d382677ef016b65f09969028a1549b8a518c18894deb95b544/torchvision-0.17.2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:e031004a1bc432c980a7bd642f6c189a3efc316e423fc30b5569837166a4e28d", size = 1571149 },
+    { url = "https://files.pythonhosted.org/packages/68/49/5e1c771294407bb25e6dbcf169aef5cffefcddf27b0176125a9b0af06a1e/torchvision-0.17.2-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:3bbc24b7713e8f22766992562547d8b4b10001208d372fe599255af84bfd1a69", size = 6915982 },
+    { url = "https://files.pythonhosted.org/packages/56/8d/a153903bfd610450258ee7ac5d292d6b8f382aec14f49404845d8ba6207d/torchvision-0.17.2-cp311-cp311-manylinux2014_aarch64.whl", hash = "sha256:833fd2e4216ced924c8aca0525733fe727f9a1af66dfad7c5be7257e97c39678", size = 14008511 },
+    { url = "https://files.pythonhosted.org/packages/c6/75/d869f600fc33df8b8ca99943e165a4ca23b73c68dc1942098fde0a6b46f3/torchvision-0.17.2-cp311-cp311-win_amd64.whl", hash = "sha256:6835897df852fad1015e6a106c167c83848114cbcc7d86112384a973404e4431", size = 1165537 },
+    { url = "https://files.pythonhosted.org/packages/ff/b6/a056fb68cae15e8aec4f854f78d4787086d77efa5468a29d5b744eee2a2b/torchvision-0.17.2-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:14fd1d4a033c325bdba2d03a69c3450cab6d3a625f85cc375781d9237ca5d04d", size = 1666430 },
+    { url = "https://files.pythonhosted.org/packages/58/12/0be3c13b2694ce2d103d259a4c0692884d52b0b445387101d96965d5b060/torchvision-0.17.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:9c3acbebbe379af112b62b535820174277b1f3eed30df264a4e458d58ee4e5b2", size = 1571152 },
+    { url = "https://files.pythonhosted.org/packages/1c/e9/830390c704f1471c33faebe964c3ca99113e43ffc3f6653d3188ca04077c/torchvision-0.17.2-cp312-cp312-manylinux1_x86_64.whl", hash = "sha256:77d680adf6ce367166a186d2c7fda3a73807ab9a03b2c31a03fa8812c8c5335b", size = 6915847 },
+    { url = "https://files.pythonhosted.org/packages/52/89/9af25236f7bc31fe74f88bde03bbd63c284d0aefa6d19bd92cc37433470c/torchvision-0.17.2-cp312-cp312-manylinux2014_aarch64.whl", hash = "sha256:f1c9ab3152cfb27f83aca072cac93a3a4c4e4ab0261cf0f2d516b9868a4e96f3", size = 14008843 },
+    { url = "https://files.pythonhosted.org/packages/fd/d1/8da7f30169f56764f0ef9ed961a32f300a2d782b6c1bc8b391c3014092f8/torchvision-0.17.2-cp312-cp312-win_amd64.whl", hash = "sha256:3f784381419f3ed3f2ec2aa42fb4aeec5bf4135e298d1631e41c926e6f1a0dff", size = 1165531 },
 ]
 
 [[package]]

@@ -275,7 +275,12 @@ class MemoryRAG:
 
         if not force_recreate:
             try:
-                existing_collection = self.client.get_collection(name=collection_name)
+                # IMPORTANT: Pass embedding_function when getting existing collection
+                # Otherwise ChromaDB uses the old embedding function saved with the collection
+                existing_collection = self.client.get_collection(
+                    name=collection_name,
+                    embedding_function=embedding_function,  # type: ignore
+                )
                 collection_exists = True
 
                 # Check if dimension matches (avoid InvalidArgumentError)
@@ -492,8 +497,20 @@ class MemoryRAG:
 
         Returns:
             Metadata dict with user_id and agent_name added
+
+        Note:
+            ChromaDB 1.3+ only accepts str, int, float, bool, or None values.
+            Lists and dicts are converted to JSON strings.
         """
-        base_metadata = metadata or {}
+        import json
+
+        base_metadata = metadata.copy() if metadata else {}
+
+        # Convert lists and dicts to JSON strings (ChromaDB 1.3+ requirement)
+        for key, value in list(base_metadata.items()):
+            if isinstance(value, (list, dict)):
+                base_metadata[key] = json.dumps(value)
+
         base_metadata["user_id"] = user_id
         if agent_name:
             base_metadata["agent_name"] = agent_name
