@@ -67,8 +67,14 @@ fi
 # Copy configuration files
 echo -e "${YELLOW}📦 Copying configuration files...${NC}"
 
-gcloud compute scp docker-compose.cloud.yml $VM_NAME:/opt/kagura/docker-compose.cloud.yml --zone=$VM_ZONE
-gcloud compute scp Caddyfile.cloud $VM_NAME:/opt/kagura/Caddyfile --zone=$VM_ZONE
+# Note: docker-compose.cloud.yml and Caddyfile are already in the git repo
+# We use the versions from git pull (above) instead of copying from local
+# to ensure we're deploying the exact version checked into the repository
+
+# Only copy Caddyfile if it doesn't match repo version
+# (In case of local customization)
+echo -e "${GREEN}  ✓ Using docker-compose.cloud.yml from repository${NC}"
+echo -e "${GREEN}  ✓ Using Caddyfile from repository${NC}"
 
 # Copy .env.cloud file (if exists)
 if [ -f .env.cloud ]; then

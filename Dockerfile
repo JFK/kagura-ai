@@ -27,7 +27,7 @@ COPY src/ ./src/
 # - api-cloud: Cloud-optimized (no torch, use OpenAI API) - 1GB image
 RUN if [ "$INSTALL_PROFILE" = "api-cloud" ]; then \
         echo "Installing cloud-optimized dependencies (no torch)..."; \
-        /root/.local/bin/uv pip install -e ".[api-cloud,auth,mcp]"; \
+        /root/.local/bin/uv sync --extra api-cloud --extra auth --extra mcp; \
     else \
         echo "Installing all dependencies..."; \
         /root/.local/bin/uv sync --all-extras; \
