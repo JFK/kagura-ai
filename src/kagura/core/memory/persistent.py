@@ -376,6 +376,11 @@ class PersistentMemory:
         Returns:
             List of memory dictionaries ordered by updated_at descending
         """
+        # Use backend if available (SQLAlchemy mode)
+        if self._use_sqlalchemy and self._backend:
+            return self._backend.fetch_all(user_id, agent_name, limit)
+
+        # Legacy sqlite3 mode
         query_parts = [
             "SELECT key, value, created_at, updated_at, metadata,",
             "       access_count, last_accessed_at",
