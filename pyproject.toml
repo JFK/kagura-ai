@@ -86,8 +86,11 @@ api-cloud = [
     "redis>=5.0.0",
     "python-multipart>=0.0.9",
     "docker>=7.0.0",
-    "qdrant-client>=1.7.0",      # Qdrant vector storage (no embedding generation)
+    "chromadb>=1.3.0",           # Vector storage (default, no local embedding generation)
+    "qdrant-client>=1.7.0",      # Qdrant vector storage (alternative)
     "networkx>=3.0",             # Graph memory
+    "rank-bm25>=0.2.2",          # BM25 lexical search
+    "tiktoken>=0.7.0",           # Token counting
 ]
 graph = [
     # v4.0 Knowledge Graph (Phase B - Issue #345)
