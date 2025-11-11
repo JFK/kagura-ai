@@ -72,6 +72,7 @@ api = [
     "sqlalchemy>=2.0.0",         # ORM for PostgreSQL backend (Issue #554)
     "redis>=5.0.0",              # Redis client for caching/queue
     "python-multipart>=0.0.9",   # For file uploads (multimodal)
+    "docker>=7.0.0",             # Docker SDK for container management (Issue #650)
 ]
 graph = [
     # v4.0 Knowledge Graph (Phase B - Issue #345)

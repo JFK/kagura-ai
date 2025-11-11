@@ -20,6 +20,11 @@ services:
     image: kagura-ai:local
     container_name: kagura-api
     restart: unless-stopped
+    volumes:
+      # Docker socket for auto-restart (Issue #650)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # .env.cloud for config management (Issue #650)
+      - ./.env.cloud:/app/.env.cloud:rw
     environment:
       # Database (Cloud SQL PostgreSQL)
       - DATABASE_URL=${DATABASE_URL}
@@ -46,6 +51,9 @@ services:
       - EMBEDDING_PROVIDER=openai
       - EMBEDDING_MODEL=text-embedding-3-small  # $0.02/1M tokens
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+      # Self-management (Issue #650)
+      - DOCKER_CONTAINER_NAME=kagura-api  # For auto-restart
 
       # Environment
       - ENVIRONMENT=production

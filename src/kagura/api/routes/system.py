@@ -3,16 +3,24 @@
 Health check and metrics API routes:
 - GET /api/v1/health - Health check
 - GET /api/v1/metrics - System metrics
+
+Issue #650: Application restart endpoint:
+- POST /api/v1/system/restart - Restart application (Admin only, auto after config update)
 """
 
+import logging
+import os
 import time
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 from kagura.api import models
-from kagura.api.dependencies import MemoryManagerDep
+from kagura.api.dependencies import AdminUser, MemoryManagerDep
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -107,3 +115,100 @@ async def get_metrics(memory: MemoryManagerDep) -> dict[str, Any]:
         "api_requests_total": None,  # TODO: Implement request counter
         "uptime_seconds": uptime,
     }
+
+
+# ============================================================================
+# Application Restart (Issue #650)
+# ============================================================================
+
+
+class RestartResponse(BaseModel):
+    """Application restart response."""
+
+    status: str
+    message: str
+    container_name: str
+
+
+@router.post("/system/restart", response_model=RestartResponse)
+async def restart_application(admin_user: AdminUser):
+    """Restart application container.
+
+    Requires ADMIN role. Restarts the kagura-api Docker container
+    to apply configuration changes from .env.cloud.
+
+    Args:
+        admin_user: Authenticated admin user
+
+    Returns:
+        Restart status
+
+    Raises:
+        HTTPException(500): If Docker client unavailable or restart fails
+        HTTPException(403): If not admin
+
+    Example:
+        POST /api/v1/system/restart
+        Response: {
+            "status": "restarting",
+            "message": "Application container restarting in ~10 seconds",
+            "container_name": "kagura-api"
+        }
+
+    Note:
+        This endpoint will kill itself as the container restarts.
+        Client should poll /health after ~30 seconds to verify restart.
+
+    Security:
+        Requires Docker socket mount in docker-compose.cloud.yml:
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+    """
+    container_name = os.getenv("DOCKER_CONTAINER_NAME", "kagura-api")
+
+    try:
+        import docker
+
+        client = docker.from_env()
+
+        # Get container
+        try:
+            container = client.containers.get(container_name)
+        except docker.errors.NotFound:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Container '{container_name}' not found. "
+                "Ensure DOCKER_CONTAINER_NAME environment variable is set correctly.",
+            )
+
+        # Log restart
+        logger.warning(
+            f"Application restart initiated by {admin_user['email']} "
+            f"(container={container_name})"
+        )
+
+        # Restart container
+        # Note: This will kill the current process
+        container.restart()
+
+        # This line may not be reached if restart is immediate
+        return RestartResponse(
+            status="restarting",
+            message=f"Application container '{container_name}' is restarting. "
+            "Please wait ~30 seconds and refresh.",
+            container_name=container_name,
+        )
+
+    except ImportError:
+        raise HTTPException(
+            status_code=500,
+            detail="Docker Python SDK not installed. "
+            "Install with: pip install docker",
+        )
+    except Exception as e:
+        logger.error(f"Container restart failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Restart failed: {str(e)}. "
+            "Ensure Docker socket is mounted and permissions are correct.",
+        )

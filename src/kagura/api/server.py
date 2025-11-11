@@ -3,8 +3,10 @@
 FastAPI-based REST API for Universal AI Memory Management.
 
 v4.0.0+ - MCP-First Architecture
+Issue #650: OAuth2, API Key Management, Config UI
 """
 
+import os
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -15,6 +17,19 @@ from kagura.api import models
 from kagura.api.routes import graph, memory, search, system
 from kagura.api.routes import models as models_routes
 from kagura.api.routes.mcp_transport import mcp_asgi_app
+
+# Issue #650: OAuth2 and Config Management
+try:
+    from kagura.api.routes import auth, config
+    from kagura.api.middleware.session import SessionMiddleware
+    from kagura.auth.session import SessionManager
+    from kagura.auth.roles import initialize_role_manager
+    from kagura.config.env_manager import get_env_manager
+
+    AUTH_AVAILABLE = True
+except ImportError as e:
+    AUTH_AVAILABLE = False
+    print(f"Warning: Auth routes not available: {e}")
 
 # FastAPI app
 app = FastAPI(
@@ -34,12 +49,39 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Issue #650: Session middleware for OAuth2 authentication
+if AUTH_AVAILABLE:
+    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+    try:
+        session_manager = SessionManager(redis_url=redis_url)
+        app.add_middleware(SessionMiddleware, session_manager=session_manager)
+
+        # Initialize role manager
+        db_url = os.getenv("DATABASE_URL")
+        if db_url:
+            initialize_role_manager(db_url)
+
+        # Initialize auth routes
+        from kagura.api.routes.auth import initialize_auth_routes
+        from kagura.auth.oauth2 import OAuth2Manager
+
+        oauth2_manager = OAuth2Manager()  # TODO: Configure for Web
+        initialize_auth_routes(oauth2_manager, session_manager)
+
+    except Exception as e:
+        print(f"Warning: Auth initialization failed: {e}")
+
 # Include routers
 app.include_router(memory.router, prefix="/api/v1/memory", tags=["memory"])
 app.include_router(graph.router, prefix="/api/v1/graph", tags=["graph"])
 app.include_router(search.router, prefix="/api/v1", tags=["search"])
 app.include_router(system.router, prefix="/api/v1", tags=["system"])
 app.include_router(models_routes.router, prefix="/api/v1", tags=["models"])
+
+# Issue #650: OAuth2 and Config management routes
+if AUTH_AVAILABLE:
+    app.include_router(auth.router, tags=["authentication"])
+    app.include_router(config.router, tags=["configuration"])
 
 # MCP over HTTP/SSE (Phase C - ChatGPT Connector)
 # Mount as ASGI app to handle GET/POST/DELETE
