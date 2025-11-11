@@ -67,15 +67,18 @@ fi
 # Copy configuration files
 echo -e "${YELLOW}📦 Copying configuration files...${NC}"
 
-gcloud compute scp docker-compose.cloud.yml $VM_NAME:/opt/kagura/docker-compose.yml --zone=$VM_ZONE
+gcloud compute scp docker-compose.cloud.yml $VM_NAME:/opt/kagura/docker-compose.cloud.yml --zone=$VM_ZONE
 gcloud compute scp Caddyfile.cloud $VM_NAME:/opt/kagura/Caddyfile --zone=$VM_ZONE
 
-# Copy .env file (if exists)
-if [ -f .env ]; then
-    echo -e "${GREEN}  ✓ Copying .env file${NC}"
-    gcloud compute scp .env $VM_NAME:/opt/kagura/.env --zone=$VM_ZONE
+# Copy .env.cloud file (if exists)
+if [ -f .env.cloud ]; then
+    echo -e "${GREEN}  ✓ Copying .env.cloud file${NC}"
+    gcloud compute scp .env.cloud $VM_NAME:/opt/kagura/.env.cloud --zone=$VM_ZONE
+    # Secure file permissions
+    gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="chmod 600 /opt/kagura/.env.cloud"
 else
-    echo -e "${YELLOW}  ⚠ .env file not found. Please create it on the VM manually.${NC}"
+    echo -e "${YELLOW}  ⚠ .env.cloud file not found. Please create it on the VM manually.${NC}"
+    echo -e "${YELLOW}    See: .env.cloud.example for template${NC}"
 fi
 
 echo -e "${GREEN}  ✓ Files ready${NC}"
@@ -90,16 +93,16 @@ gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="
 
     # Use sudo for docker commands (user not yet in docker group session)
     # Build API image from source (no GHCR pull needed)
-    sudo docker-compose build --no-cache api
+    sudo docker-compose -f docker-compose.cloud.yml build --no-cache api
 
     # Pull other images (caddy, qdrant)
-    sudo docker-compose pull caddy qdrant
+    sudo docker-compose -f docker-compose.cloud.yml pull caddy qdrant
 
     # Start all services
-    sudo docker-compose up -d
+    sudo docker-compose -f docker-compose.cloud.yml up -d
 
     # Show status
-    sudo docker-compose ps
+    sudo docker-compose -f docker-compose.cloud.yml ps
 "
 
 echo
@@ -120,10 +123,10 @@ fi
 echo -e "${YELLOW}📝 Verification & Next Steps:${NC}"
 echo
 echo -e "${BLUE}1. Check container status:${NC}"
-echo "   gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command='sudo docker-compose -f /opt/kagura/docker-compose.yml ps'"
+echo "   gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command='sudo docker-compose -f /opt/kagura/docker-compose.cloud.yml ps'"
 echo
 echo -e "${BLUE}2. View logs:${NC}"
-echo "   gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command='sudo docker-compose -f /opt/kagura/docker-compose.yml logs -f'"
+echo "   gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command='sudo docker-compose -f /opt/kagura/docker-compose.cloud.yml logs -f'"
 echo
 echo -e "${BLUE}3. Test API (via IP - should work immediately):${NC}"
 echo "   curl http://${VM_IP}/api/v1/health"
