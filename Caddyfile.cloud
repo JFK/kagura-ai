@@ -9,13 +9,13 @@
 
 {
     # Global options
-    email {$CADDY_ADMIN_EMAIL:admin@yourdomain.com}
+    email {$CADDY_ADMIN_EMAIL:fumikazu.kiyota@gmail.com}
 
     # HTTP/3 is automatically enabled in Caddy v2.6+
 }
 
 # Main domain
-{$DOMAIN:memory.yourdomain.com} {
+{$DOMAIN:memory.kagura-ai.com} {
     # API endpoints
     handle /api/* {
         reverse_proxy api:8080
@@ -100,6 +100,6 @@
 }
 
 # Redirect www to non-www (optional)
-www.{$DOMAIN:memory.yourdomain.com} {
-    redir https://{$DOMAIN:memory.yourdomain.com}{uri} permanent
+www.{$DOMAIN:memory.kagura-ai.com} {
+    redir https://{$DOMAIN:memory.kagura-ai.com}{uri} permanent
 }
