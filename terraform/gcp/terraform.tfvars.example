@@ -24,3 +24,23 @@ redis_memory_gb = 1        # 1 GB (~$26/month)
 ssh_user             = "ubuntu"
 ssh_public_key_path  = "~/.ssh/id_rsa.pub"
 ssh_source_ranges    = ["0.0.0.0/0"]  # IMPORTANT: Restrict to your IP for security
+
+# =============================================================================
+# Application Configuration (NOT managed by Terraform)
+# =============================================================================
+# Terraform manages infrastructure only (VM, DB, Redis).
+# Application secrets are managed separately in .env.cloud file on VM.
+#
+# After terraform apply, configure on VM:
+#   1. SSH: gcloud compute ssh kagura-memory-cloud --zone=asia-northeast1-a
+#   2. Create: /opt/kagura/.env.cloud (from .env.cloud.example)
+#   3. Required secrets:
+#      - OPENAI_API_KEY (from https://platform.openai.com/api-keys)
+#      - GOOGLE_CLIENT_ID (from Google Cloud Console OAuth2)
+#      - GOOGLE_CLIENT_SECRET
+#      - API_KEY_SECRET=$(openssl rand -hex 32)
+#      - JWT_SECRET=$(openssl rand -hex 32)
+#   4. Domain: memory.kagura-ai.com (DNS already configured)
+#
+# See: .env.cloud.example for full configuration
+# =============================================================================

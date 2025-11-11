@@ -42,6 +42,11 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-https://memory.yourdomain.com/auth/callback}
 
+      # Embeddings (OpenAI for cloud - efficient on small VMs)
+      - EMBEDDING_PROVIDER=openai
+      - EMBEDDING_MODEL=text-embedding-3-small  # $0.02/1M tokens
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
       # Environment
       - ENVIRONMENT=production
       - LOG_LEVEL=info
@@ -65,6 +70,8 @@ services:
     restart: unless-stopped
     volumes:
       - qdrant_data:/qdrant/storage
+      # Optional: Local backup directory (sync to GCS with cron/systemd timer)
+      # - ./backups/qdrant:/backups:ro
     networks:
       - kagura-network
     healthcheck:
@@ -72,6 +79,13 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    # Resource limits (prevent OOM on small VMs)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
 
   # Caddy Reverse Proxy (HTTPS termination)
   caddy:

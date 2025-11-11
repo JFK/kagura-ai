@@ -41,10 +41,9 @@ resource "google_compute_instance" "kagura" {
   }
 
   metadata = {
-    ssh-keys = "${var.ssh_user}:${file(pathexpand(var.ssh_public_key_path))}"
+    ssh-keys       = "${var.ssh_user}:${file(pathexpand(var.ssh_public_key_path))}"
+    startup-script = file("${path.module}/scripts/install-docker.sh")
   }
-
-  metadata_startup_script = file("${path.module}/scripts/install-docker.sh")
 
   tags = ["kagura", "web", "http-server", "https-server"]
 
