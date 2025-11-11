@@ -67,8 +67,9 @@ class PersistentMemory:
             env_backend = os.getenv("PERSISTENT_BACKEND", "sqlite")
             use_sqlalchemy = (
                 env_backend == "postgres"
-                or database_url is not None
-                or os.getenv("DATABASE_URL") is not None
+                or (database_url is not None)
+                # Note: Don't auto-enable SQLAlchemy just because DATABASE_URL exists
+                # Only use it if explicitly requested via PERSISTENT_BACKEND=postgres
             )
 
         if use_sqlalchemy:
