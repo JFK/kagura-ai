@@ -1,11 +1,12 @@
 """Environment variable configuration management.
 
 Issue #650 - Web UI for .env.cloud configuration
+Issue #653 - PostgreSQL audit_logs integration
 
 Provides secure read/write access to .env.cloud file with:
 - Sensitive value masking (API keys, secrets)
 - Configuration validation (API key verification, etc.)
-- Audit logging (who changed what, when)
+- Audit logging (who changed what, when) - PostgreSQL
 - File permission enforcement (0600)
 
 Example:
@@ -411,17 +412,34 @@ class EnvConfigManager:
         old_hash = hashlib.sha256(old_value.encode()).hexdigest() if old_value else None
         new_hash = hashlib.sha256(new_value.encode()).hexdigest()
 
-        # TODO: Implement PostgreSQL insertion
-        # from sqlalchemy import create_engine
-        # engine = create_engine(os.getenv("DATABASE_URL"))
-        # with engine.connect() as conn:
-        #     conn.execute("""
-        #         INSERT INTO audit_logs (
-        #             user_email, action, resource,
-        #             old_value_hash, new_value_hash, metadata,
-        #             ip_address, user_agent, created_at
-        #         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        #     """, (user_email, 'config_update', key, old_hash, new_hash, ...))
+        # Log to PostgreSQL audit_logs (Issue #653)
+        db_url = os.getenv("DATABASE_URL")
+        if db_url:
+            try:
+                from kagura.auth.models import AuditLog, get_session
+
+                session = get_session()
+                try:
+                    audit = AuditLog(
+                        user_email=user_email,
+                        user_id=metadata.get("user_id", "") if metadata else "",
+                        action="config_update",
+                        resource=key,
+                        old_value_hash=old_hash,
+                        new_value_hash=new_hash,
+                        metadata=metadata,
+                        ip_address=metadata.get("ip_address") if metadata else None,
+                        user_agent=metadata.get("user_agent") if metadata else None,
+                    )
+                    session.add(audit)
+                    session.commit()
+                except Exception as e:
+                    logger.error(f"Failed to log to audit_logs: {e}")
+                    session.rollback()
+                finally:
+                    session.close()
+            except Exception as e:
+                logger.warning(f"Audit log to PostgreSQL failed: {e}")
 
         logger.info(
             f"Audit: config_update {key} by {user_email} "

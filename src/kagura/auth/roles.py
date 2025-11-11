@@ -1,18 +1,20 @@
 """Role-based access control for Kagura Memory Cloud.
 
 Issue #650 - OAuth2 Web Login & API Key Management
+Issue #653 - PostgreSQL backend for roles and audit logs
 
 This module provides role definitions and management for user authorization.
 Roles determine what actions users can perform in the system.
 
 Example:
     >>> from kagura.auth.roles import Role, RoleManager
-    >>> role_manager = RoleManager()
+    >>> role_manager = RoleManager(db_url="postgresql://...")
     >>> role_manager.assign_role("user@example.com", Role.ADMIN)
     >>> role_manager.has_role("user@example.com", Role.ADMIN)
     True
 """
 
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
@@ -98,25 +100,29 @@ class RoleManager:
         True
     """
 
-    def __init__(self, db_url: str):
+    def __init__(self, db_url: str, use_postgres: bool = True):
         """Initialize role manager.
 
         Args:
             db_url: PostgreSQL connection URL
+            use_postgres: Use PostgreSQL backend (default: True)
+                         If False, use in-memory dict (for testing)
 
         Note:
-            TODO (Issue #TBD): Implement PostgreSQL backend with SQLAlchemy
-            Current: In-memory dict (works but not persistent across restarts)
-            Future: PostgreSQL users table (see migrations/001_users.sql)
+            Issue #653: PostgreSQL backend implemented with SQLAlchemy
         """
         self.db_url = db_url
-        # TODO: Initialize SQLAlchemy engine and session
-        # from sqlalchemy import create_engine
-        # self.engine = create_engine(db_url)
-        # self.Session = sessionmaker(bind=self.engine)
+        self.use_postgres = use_postgres
 
-        # Temporary: In-memory storage (will be replaced with PostgreSQL)
-        self._roles: dict[str, Role] = {}
+        if use_postgres and db_url:
+            # PostgreSQL backend with SQLAlchemy
+            from kagura.auth.models import init_db
+
+            init_db(db_url)
+            self._roles = None  # Not used in PostgreSQL mode
+        else:
+            # In-memory backend (fallback)
+            self._roles = {}
 
     def ensure_user(
         self, email: str, user_id: str, name: Optional[str] = None
@@ -137,24 +143,55 @@ class RoleManager:
         Example:
             >>> role = role_manager.ensure_user("user@example.com", "google-123")
         """
-        # Check if user already exists
-        if email in self._roles:
-            return self._roles[email]
+        if self.use_postgres:
+            # PostgreSQL backend
+            from kagura.auth.models import User, get_session
+            from sqlalchemy.exc import IntegrityError
 
-        # First user becomes ADMIN
-        if len(self._roles) == 0:
-            role = Role.ADMIN
+            session = get_session()
+            try:
+                # Check if user exists
+                user = session.query(User).filter_by(email=email).first()
+
+                if user:
+                    # Update last_login_at
+                    user.last_login_at = datetime.utcnow()
+                    session.commit()
+                    return Role(user.role)
+
+                # Determine role: first user = ADMIN, others = USER
+                user_count = session.query(User).count()
+                role = Role.ADMIN if user_count == 0 else Role.USER
+
+                # Create new user
+                new_user = User(
+                    email=email,
+                    user_id=user_id,
+                    name=name,
+                    role=role.value,
+                    last_login_at=datetime.utcnow(),
+                )
+                session.add(new_user)
+                session.commit()
+
+                return role
+
+            except IntegrityError:
+                # Race condition: user created by another request
+                session.rollback()
+                user = session.query(User).filter_by(email=email).first()
+                return Role(user.role) if user else Role.USER
+            finally:
+                session.close()
+
         else:
-            role = Role.USER
+            # In-memory backend
+            if email in self._roles:
+                return self._roles[email]
 
-        self._roles[email] = role
-
-        # TODO: Insert into PostgreSQL users table
-        # INSERT INTO users (email, user_id, name, role, created_at)
-        # VALUES (?, ?, ?, ?, NOW())
-        # ON CONFLICT (email) DO NOTHING
-
-        return role
+            role = Role.ADMIN if len(self._roles) == 0 else Role.USER
+            self._roles[email] = role
+            return role
 
     def get_role(self, email: str) -> Optional[Role]:
         """Get user's role.
@@ -168,8 +205,17 @@ class RoleManager:
         Example:
             >>> role = role_manager.get_role("user@example.com")
         """
-        # TODO: SELECT role FROM users WHERE email = ?
-        return self._roles.get(email)
+        if self.use_postgres:
+            from kagura.auth.models import User, get_session
+
+            session = get_session()
+            try:
+                user = session.query(User).filter_by(email=email).first()
+                return Role(user.role) if user else None
+            finally:
+                session.close()
+        else:
+            return self._roles.get(email)
 
     def has_role(self, email: str, required_role: Role) -> bool:
         """Check if user has required role or higher.
@@ -214,14 +260,39 @@ class RoleManager:
         Example:
             >>> role_manager.assign_role("user@example.com", Role.ADMIN)
         """
-        if email not in self._roles:
-            raise ValueError(f"User {email} not found")
+        if self.use_postgres:
+            from kagura.auth.models import AuditLog, User, get_session
 
-        self._roles[email] = role
+            session = get_session()
+            try:
+                user = session.query(User).filter_by(email=email).first()
+                if not user:
+                    raise ValueError(f"User {email} not found")
 
-        # TODO: UPDATE users SET role = ?, updated_at = NOW()
-        # WHERE email = ?
-        # TODO: INSERT INTO audit_logs (user_email, action, resource, ...)
+                old_role = user.role
+                user.role = role.value
+                user.updated_at = datetime.utcnow()
+                session.commit()
+
+                # Log to audit_logs
+                audit = AuditLog(
+                    user_email=assigned_by or "system",
+                    user_id=user.user_id,
+                    action="role_assign",
+                    resource=f"user:{email}",
+                    old_value_hash=old_role,
+                    new_value_hash=role.value,
+                    metadata={"assigned_by": assigned_by},
+                )
+                session.add(audit)
+                session.commit()
+
+            finally:
+                session.close()
+        else:
+            if email not in self._roles:
+                raise ValueError(f"User {email} not found")
+            self._roles[email] = role
 
     def list_users(self) -> list[UserRole]:
         """List all users and their roles.
@@ -232,8 +303,26 @@ class RoleManager:
         Example:
             >>> users = role_manager.list_users()
         """
-        # TODO: SELECT * FROM users ORDER BY created_at
-        return []
+        if self.use_postgres:
+            from kagura.auth.models import User, get_session
+
+            session = get_session()
+            try:
+                db_users = session.query(User).order_by(User.created_at).all()
+                return [
+                    UserRole(
+                        email=u.email,
+                        user_id=u.user_id,
+                        role=Role(u.role),
+                        assigned_at=u.created_at.isoformat() if u.created_at else "",
+                        assigned_by=None,  # TODO: Track who assigned role
+                    )
+                    for u in db_users
+                ]
+            finally:
+                session.close()
+        else:
+            return []
 
     def is_admin(self, email: str) -> bool:
         """Check if user is admin.

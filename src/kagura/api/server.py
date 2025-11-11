@@ -4,8 +4,10 @@ FastAPI-based REST API for Universal AI Memory Management.
 
 v4.0.0+ - MCP-First Architecture
 Issue #650: OAuth2, API Key Management, Config UI
+Issue #653: PostgreSQL roles and audit logs
 """
 
+import logging
 import os
 from typing import Any
 
@@ -18,9 +20,12 @@ from kagura.api.routes import graph, memory, search, system
 from kagura.api.routes import models as models_routes
 from kagura.api.routes.mcp_transport import mcp_asgi_app
 
+logger = logging.getLogger(__name__)
+
 # Issue #650: OAuth2 and Config Management
+# Issue #653: Audit logs
 try:
-    from kagura.api.routes import auth, config
+    from kagura.api.routes import audit, auth, config
     from kagura.api.middleware.session import SessionMiddleware
     from kagura.auth.session import SessionManager
     from kagura.auth.roles import initialize_role_manager
@@ -50,14 +55,28 @@ app.add_middleware(
 )
 
 # Issue #650: Session middleware for OAuth2 authentication
+# Issue #653: Auto-run migrations on startup
 if AUTH_AVAILABLE:
     redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+    db_url = os.getenv("DATABASE_URL")
+
     try:
+        # Run database migrations (Issue #653)
+        if db_url:
+            try:
+                from kagura.auth.migrations.run_migrations import run_migrations
+
+                logger.info("Running database migrations...")
+                run_migrations(db_url)
+                logger.info("Database migrations completed")
+            except Exception as e:
+                logger.warning(f"Migration failed (may already be applied): {e}")
+
+        # Initialize session manager
         session_manager = SessionManager(redis_url=redis_url)
         app.add_middleware(SessionMiddleware, session_manager=session_manager)
 
-        # Initialize role manager
-        db_url = os.getenv("DATABASE_URL")
+        # Initialize role manager with PostgreSQL
         if db_url:
             initialize_role_manager(db_url)
 
@@ -65,7 +84,7 @@ if AUTH_AVAILABLE:
         from kagura.api.routes.auth import initialize_auth_routes
         from kagura.auth.oauth2 import OAuth2Manager
 
-        oauth2_manager = OAuth2Manager()  # TODO: Configure for Web
+        oauth2_manager = OAuth2Manager()
         initialize_auth_routes(oauth2_manager, session_manager)
 
     except Exception as e:
@@ -79,9 +98,11 @@ app.include_router(system.router, prefix="/api/v1", tags=["system"])
 app.include_router(models_routes.router, prefix="/api/v1", tags=["models"])
 
 # Issue #650: OAuth2 and Config management routes
+# Issue #653: Audit logs
 if AUTH_AVAILABLE:
     app.include_router(auth.router, tags=["authentication"])
     app.include_router(config.router, tags=["configuration"])
+    app.include_router(audit.router, tags=["audit"])
 
 # MCP over HTTP/SSE (Phase C - ChatGPT Connector)
 # Mount as ASGI app to handle GET/POST/DELETE
