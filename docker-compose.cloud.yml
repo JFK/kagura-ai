@@ -17,7 +17,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: kagura-ai:local
+      args:
+        - INSTALL_PROFILE=api-cloud  # Cloud-optimized (no torch, -66% image size)
+    image: kagura-ai:cloud
     container_name: kagura-api
     restart: unless-stopped
     # Load environment variables from .env.cloud

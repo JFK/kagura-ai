@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 
+# Build argument for install profile (full, api-cloud, etc.)
+ARG INSTALL_PROFILE=full
+
 WORKDIR /app
 
 # Install system dependencies
@@ -19,8 +22,16 @@ ENV PATH="/root/.local/bin:/root/.cargo/bin:$PATH"
 COPY pyproject.toml uv.lock* ./
 COPY src/ ./src/
 
-# Install dependencies with full path (ensure it's found)
-RUN /root/.local/bin/uv sync --all-extras
+# Install dependencies based on profile
+# - full: All features (torch, sentence-transformers, etc.) - 3GB image
+# - api-cloud: Cloud-optimized (no torch, use OpenAI API) - 1GB image
+RUN if [ "$INSTALL_PROFILE" = "api-cloud" ]; then \
+        echo "Installing cloud-optimized dependencies (no torch)..."; \
+        /root/.local/bin/uv pip install -e ".[api-cloud,auth,mcp]"; \
+    else \
+        echo "Installing all dependencies..."; \
+        /root/.local/bin/uv sync --all-extras; \
+    fi
 
 # Expose API port
 EXPOSE 8080

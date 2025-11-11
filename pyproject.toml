@@ -74,6 +74,21 @@ api = [
     "python-multipart>=0.0.9",   # For file uploads (multimodal)
     "docker>=7.0.0",             # Docker SDK for container management (Issue #650)
 ]
+api-cloud = [
+    # Cloud-optimized API (WITHOUT torch/sentence-transformers)
+    # Use when EMBEDDING_PROVIDER=openai (no local models needed)
+    # Reduces Docker image: 3GB → 1GB, RAM: 2-3GB → 500MB
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "psycopg2-binary>=2.9.9",
+    "asyncpg>=0.29.0",
+    "sqlalchemy>=2.0.0",
+    "redis>=5.0.0",
+    "python-multipart>=0.0.9",
+    "docker>=7.0.0",
+    "qdrant-client>=1.7.0",      # Qdrant vector storage (no embedding generation)
+    "networkx>=3.0",             # Graph memory
+]
 graph = [
     # v4.0 Knowledge Graph (Phase B - Issue #345)
     "networkx>=3.0",             # Graph algorithms and data structures
