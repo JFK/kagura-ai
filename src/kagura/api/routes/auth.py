@@ -19,7 +19,7 @@ import os
 import secrets
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query, Response
+from fastapi import APIRouter, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
@@ -246,11 +246,11 @@ async def logout(session_id: Optional[str] = None):
 
 
 @router.get("/me")
-async def get_current_user_info(session_id: Optional[str] = None):
+async def get_current_user_info(request: Request):
     """Get current authenticated user info.
 
     Args:
-        session_id: Session ID from cookie
+        request: FastAPI request (session injected by SessionMiddleware)
 
     Returns:
         User information from session
@@ -259,7 +259,7 @@ async def get_current_user_info(session_id: Optional[str] = None):
         HTTPException(401): Not authenticated
 
     Example:
-        GET /auth/me
+        GET /api/v1/auth/me
         Cookie: session_id=...
         Response: {
             "user_id": "google_123",
@@ -268,19 +268,18 @@ async def get_current_user_info(session_id: Optional[str] = None):
             "role": "admin"
         }
     """
-    if not _session_manager or not session_id:
+    # Get user from request.state (injected by SessionMiddleware)
+    if not hasattr(request.state, "user") or not request.state.user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    session = _session_manager.get_session(session_id)
-    if not session:
-        raise HTTPException(status_code=401, detail="Invalid or expired session")
+    user = request.state.user
 
     return {
-        "user_id": session.get("sub"),
-        "email": session.get("email"),
-        "name": session.get("name"),
-        "picture": session.get("picture"),
-        "role": session.get("role", "user"),
+        "user_id": user.get("sub"),
+        "email": user.get("email"),
+        "name": user.get("name"),
+        "picture": user.get("picture"),
+        "role": user.get("role", "user"),
     }
 
 
