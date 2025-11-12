@@ -397,6 +397,68 @@ class SQLAlchemyPersistentBackend:
         finally:
             session.close()
 
+    def fetch_all(
+        self,
+        user_id: str,
+        agent_name: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> list[dict[str, Any]]:
+        """Fetch all memories for a user (optionally scoped by agent).
+
+        Args:
+            user_id: User identifier (memory owner)
+            agent_name: Optional agent name filter
+            limit: Optional maximum number of results to return
+
+        Returns:
+            List of memory dictionaries ordered by updated_at descending
+
+        Example:
+            >>> backend = SQLAlchemyPersistentBackend(db_url="sqlite:///test.db")
+            >>> memories = backend.fetch_all("user1", "agent1", limit=10)
+            >>> len(memories)
+            10
+        """
+        session = self._get_session()
+        try:
+            query = session.query(MemoryModel).filter_by(user_id=user_id)
+
+            if agent_name is not None:
+                # Include both agent-scoped AND global (agent_name IS NULL) memories
+                # This matches the logic in recall() and search()
+                query = query.filter(
+                    (MemoryModel.agent_name == agent_name)
+                    | (MemoryModel.agent_name.is_(None))
+                )
+
+            query = query.order_by(MemoryModel.updated_at.desc())
+
+            if limit is not None:
+                query = query.limit(limit)
+
+            results: list[dict[str, Any]] = []
+            for row in query.all():
+                results.append(
+                    {
+                        "key": row.key,
+                        "value": json.loads(row.value),
+                        "created_at": row.created_at,
+                        "updated_at": row.updated_at,
+                        "metadata": json.loads(row.memory_metadata) if row.memory_metadata else None,
+                        "access_count": row.access_count if row.access_count is not None else 0,
+                        "last_accessed_at": row.last_accessed_at,
+                    }
+                )
+
+            logger.debug(f"Fetched {len(results)} memories for user_id={user_id}, agent_name={agent_name}")
+            return results
+
+        except Exception as e:
+            logger.error(f"Failed to fetch_all for user_id={user_id}: {e}")
+            raise
+        finally:
+            session.close()
+
     def close(self) -> None:
         """Close database connection and cleanup resources."""
         try:
