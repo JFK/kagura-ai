@@ -276,10 +276,10 @@ async def revoke_api_key(
 @router.get("/{key_id}/stats", response_model=APIKeyStats)
 async def get_api_key_stats(
     key_id: int,
-    days: int = 30,
     user: AdminUser,
     manager: APIKeyManagerSQL = Depends(get_api_key_manager_sql),
     stats_tracker: APIKeyStatsTracker = Depends(get_stats_tracker),
+    days: int = 30,
 ) -> APIKeyStats:
     """Get usage statistics for an API key (Admin only).
 
