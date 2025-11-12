@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 import secrets
 from datetime import datetime, timedelta
 from typing import Optional
@@ -19,7 +20,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from kagura.auth.models import APIKey, get_session, init_db
-from kagura.config.env import get_env
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class APIKeyManagerSQL:
             init_db(database_url)
         elif not self._is_db_initialized():
             # Auto-initialize with DATABASE_URL from environment
-            db_url = get_env("DATABASE_URL")
+            db_url = os.getenv("DATABASE_URL")
             if not db_url:
                 # Fallback to SQLite for local development
                 from kagura.config.paths import get_data_dir

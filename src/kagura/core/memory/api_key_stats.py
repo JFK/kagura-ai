@@ -7,12 +7,11 @@ and analytics purposes.
 from __future__ import annotations
 
 import logging
+import os
 from datetime import date, datetime, timedelta
 from typing import Any, Optional
 
 import redis
-
-from kagura.config.env import get_env
 
 logger = logging.getLogger(__name__)
 
@@ -37,18 +36,9 @@ class APIKeyStatsTracker:
                 (default: connects to env-configured Redis)
         """
         if redis_client is None:
-            redis_host = get_env("REDIS_HOST", "localhost")
-            redis_port = int(get_env("REDIS_PORT", "6379"))
-            redis_db = int(get_env("REDIS_DB", "0"))
-            redis_password = get_env("REDIS_PASSWORD")
-
-            self.redis = redis.Redis(
-                host=redis_host,
-                port=redis_port,
-                db=redis_db,
-                password=redis_password if redis_password else None,
-                decode_responses=True,
-            )
+            # Use REDIS_URL (matches existing codebase pattern)
+            redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+            self.redis = redis.Redis.from_url(redis_url, decode_responses=True)
         else:
             self.redis = redis_client
 
