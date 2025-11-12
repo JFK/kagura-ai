@@ -143,7 +143,7 @@ def _format_key_response(key_data: dict[str, Any]) -> APIKeyResponse:
 
 @router.get("", response_model=list[APIKeyResponse])
 async def list_api_keys(
-    user: AdminUser = Depends(),
+    user: AdminUser,
     manager: APIKeyManagerSQL = Depends(get_api_key_manager_sql),
 ) -> list[APIKeyResponse]:
     """List all API keys (Admin only).
@@ -172,7 +172,7 @@ async def list_api_keys(
 @router.post("", response_model=APIKeyCreateResponse, status_code=status.HTTP_201_CREATED)
 async def create_api_key(
     data: APIKeyCreate,
-    user: AdminUser = Depends(),
+    user: AdminUser,
     manager: APIKeyManagerSQL = Depends(get_api_key_manager_sql),
 ) -> APIKeyCreateResponse:
     """Create a new API key (Admin only).
@@ -225,7 +225,7 @@ async def create_api_key(
 @router.delete("/{key_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def revoke_api_key(
     key_id: int,
-    user: AdminUser = Depends(),
+    user: AdminUser,
     manager: APIKeyManagerSQL = Depends(get_api_key_manager_sql),
     stats_tracker: APIKeyStatsTracker = Depends(get_stats_tracker),
 ) -> None:
@@ -277,7 +277,7 @@ async def revoke_api_key(
 async def get_api_key_stats(
     key_id: int,
     days: int = 30,
-    user: AdminUser = Depends(),
+    user: AdminUser,
     manager: APIKeyManagerSQL = Depends(get_api_key_manager_sql),
     stats_tracker: APIKeyStatsTracker = Depends(get_stats_tracker),
 ) -> APIKeyStats:
