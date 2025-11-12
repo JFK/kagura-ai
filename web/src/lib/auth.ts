@@ -26,7 +26,7 @@ export interface AuthResponse {
 export async function getAuthUrl(): Promise<string> {
   try {
     const response = await apiClient.get<{ authorization_url: string }>(
-      '/auth/google/login'
+      '/api/v1/auth/google/login'
     );
     return response.authorization_url;
   } catch (error) {
@@ -45,7 +45,7 @@ export async function handleAuthCallback(
 ): Promise<AuthResponse> {
   try {
     const response = await apiClient.get<{ user: User; token?: string }>(
-      `/auth/google/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`
+      `/api/v1/auth/google/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`
     );
     return {
       user: response.user,
@@ -62,7 +62,7 @@ export async function handleAuthCallback(
  */
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const response = await apiClient.get<{ user: User }>('/auth/me');
+    const response = await apiClient.get<{ user: User }>('/api/v1/auth/me');
     return response.user;
   } catch (error) {
     // If 401 Unauthorized, user is not authenticated
@@ -80,7 +80,7 @@ export async function getCurrentUser(): Promise<User | null> {
  */
 export async function logout(): Promise<void> {
   try {
-    await apiClient.post('/auth/logout');
+    await apiClient.post('/api/v1/auth/logout');
   } catch (error) {
     console.error('Logout failed:', error);
     throw error;
