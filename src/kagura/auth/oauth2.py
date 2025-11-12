@@ -44,8 +44,17 @@ class OAuth2Manager:
 
     SCOPES = {
         "google": [
-            "https://www.googleapis.com/auth/generative-language",
+            "https://www.googleapis.com/auth/generative-language",  # For Gemini API (CLI only)
             "openid",
+        ]
+    }
+
+    # Web-specific scopes (for web dashboard login)
+    WEB_SCOPES = {
+        "google": [
+            "openid",
+            "email",
+            "profile",
         ]
     }
 
@@ -304,7 +313,8 @@ class OAuth2Manager:
         if not client_id:
             raise ValueError("GOOGLE_CLIENT_ID environment variable not set")
 
-        scopes = self.config.scopes or self.SCOPES[self.provider]
+        # Use web-specific scopes (openid, email, profile)
+        scopes = self.WEB_SCOPES[self.provider]
         scope_str = " ".join(scopes)
 
         auth_url = (
