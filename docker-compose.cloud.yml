@@ -48,10 +48,13 @@ services:
       retries: 3
       start_period: 40s
 
-  # Qdrant Vector Database (local container)
+  # Qdrant Vector Database (local container with wget for healthcheck)
   # Note: Cloud SQL and Memorystore are managed by GCP (not in docker-compose)
   qdrant:
-    image: qdrant/qdrant:latest
+    build:
+      context: .
+      dockerfile: docker/qdrant/Dockerfile
+    image: kagura-qdrant:cloud
     container_name: kagura-qdrant
     restart: unless-stopped
     volumes:
@@ -60,14 +63,12 @@ services:
       # - ./backups/qdrant:/backups:ro
     networks:
       - kagura-network
-    # Healthcheck disabled: Qdrant Alpine image doesn't include curl/wget
-    # Qdrant is functional (verified via API container: http://qdrant:6333/healthz returns 200)
-    # healthcheck:
-    #   test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:6333/healthz || exit 1"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 40s
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:6333/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     # Resource limits (prevent OOM on small VMs)
     deploy:
       resources:
