@@ -121,7 +121,6 @@ async def google_login(redirect_uri: Optional[str] = None):
 async def google_callback(
     code: str = Query(..., description="OAuth2 authorization code"),
     state: str = Query(..., description="CSRF state token"),
-    response: Response = None,
 ):
     """Handle Google OAuth2 callback.
 
@@ -202,6 +201,7 @@ async def google_callback(
         redirect.set_cookie(
             key="session_id",
             value=session_id,
+            path="/",  # Available for all paths
             httponly=True,
             secure=True,  # HTTPS only
             samesite="lax",  # CSRF protection
