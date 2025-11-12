@@ -514,6 +514,11 @@ class PersistentMemory:
         Returns:
             Number of memories
         """
+        # Use SQLAlchemy backend if available
+        if self._use_sqlalchemy and self._backend:
+            return self._backend.count(user_id, agent_name)
+
+        # Fallback to direct SQLite access
         with sqlite3.connect(self.db_path) as conn:
             if user_id and agent_name:
                 cursor = conn.execute(

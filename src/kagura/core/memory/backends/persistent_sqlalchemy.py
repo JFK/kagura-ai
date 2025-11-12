@@ -397,6 +397,42 @@ class SQLAlchemyPersistentBackend:
         finally:
             session.close()
 
+    def count(
+        self,
+        user_id: Optional[str] = None,
+        agent_name: Optional[str] = None,
+    ) -> int:
+        """Count memories.
+
+        Args:
+            user_id: Optional user identifier filter
+            agent_name: Optional agent name filter
+
+        Returns:
+            Number of memories matching the filters
+        """
+        session = self._get_session()
+        try:
+            query = session.query(MemoryModel)
+
+            if user_id is not None:
+                query = query.filter_by(user_id=user_id)
+
+            if agent_name is not None:
+                query = query.filter(
+                    (MemoryModel.agent_name == agent_name)
+                    | (MemoryModel.agent_name.is_(None))
+                )
+
+            count = query.count()
+            return count
+
+        except Exception as e:
+            logger.error(f"Failed to count memories: {e}")
+            raise
+        finally:
+            session.close()
+
     def fetch_all(
         self,
         user_id: str,
