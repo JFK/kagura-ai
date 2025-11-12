@@ -31,6 +31,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
+# Google OAuth2 subrouter (provider-specific endpoints)
+google_router = APIRouter(prefix="/google", tags=["authentication", "google-oauth2"])
+
 # Global instances (initialized on server startup)
 _oauth2_manager: Optional[OAuth2Manager] = None
 _session_manager: Optional[SessionManager] = None
@@ -71,9 +74,9 @@ class CallbackResponse(BaseModel):
 # ============================================================================
 
 
-@router.get("/login", response_model=LoginResponse)
-async def login(redirect_uri: Optional[str] = None):
-    """Initiate OAuth2 login flow.
+@google_router.get("/login", response_model=LoginResponse)
+async def google_login(redirect_uri: Optional[str] = None):
+    """Initiate Google OAuth2 login flow.
 
     Generates OAuth2 authorization URL with CSRF state token.
 
@@ -84,7 +87,7 @@ async def login(redirect_uri: Optional[str] = None):
         OAuth2 authorization URL and state token
 
     Example:
-        GET /auth/login
+        GET /api/v1/auth/google/login
         Response: {
             "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth?...",
             "state": "random_csrf_token"
@@ -114,13 +117,13 @@ async def login(redirect_uri: Optional[str] = None):
     return LoginResponse(authorization_url=auth_url, state=state)
 
 
-@router.get("/callback")
-async def callback(
+@google_router.get("/callback")
+async def google_callback(
     code: str = Query(..., description="OAuth2 authorization code"),
     state: str = Query(..., description="CSRF state token"),
     response: Response = None,
 ):
-    """Handle OAuth2 callback from Google.
+    """Handle Google OAuth2 callback.
 
     Exchanges authorization code for access token, retrieves user info,
     creates session, and sets HttpOnly cookie.
@@ -139,7 +142,7 @@ async def callback(
         HTTPException(500): Session creation failed
 
     Example:
-        GET /auth/callback?code=xxx&state=yyy
+        GET /api/v1/auth/google/callback?code=xxx&state=yyy
         → Sets cookie: session_id=...
         → Redirects to /dashboard
 
@@ -279,3 +282,7 @@ async def get_current_user_info(session_id: Optional[str] = None):
         "picture": session.get("picture"),
         "role": session.get("role", "user"),
     }
+
+
+# Include Google OAuth2 subrouter
+router.include_router(google_router)

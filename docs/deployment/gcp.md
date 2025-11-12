@@ -180,8 +180,8 @@ dig memory.yourdomain.com
 2. Create credentials → OAuth client ID
 3. Application type: Web application
 4. Authorized redirect URIs:
-   - `https://memory.yourdomain.com/auth/callback`
-   - `http://localhost:3000/auth/callback` (development)
+   - `https://memory.yourdomain.com/api/v1/auth/google/callback`
+   - `http://localhost:8000/api/v1/auth/google/callback` (development)
 5. Save **Client ID** and **Client Secret**
 
 ---
@@ -222,7 +222,7 @@ JWT_SECRET=<random-hex-32-bytes>
 # Google OAuth2 (from Step 4)
 GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=xxx
-GOOGLE_REDIRECT_URI=https://memory.yourdomain.com/auth/callback
+GOOGLE_REDIRECT_URI=https://memory.yourdomain.com/api/v1/auth/google/callback
 ```
 
 **Generate secrets**:

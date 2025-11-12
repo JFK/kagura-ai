@@ -24,8 +24,8 @@ Complete guide for deploying Kagura AI to Google Cloud Platform (GCP).
 1. Go to: https://console.cloud.google.com/apis/credentials
 2. Create **OAuth 2.0 Client ID** (Web application)
 3. Add **Authorized redirect URIs**:
-   - `https://memory.kagura-ai.com/auth/callback`
-   - `http://localhost:3000/auth/callback` (for local testing)
+   - `https://memory.kagura-ai.com/api/v1/auth/google/callback`
+   - `http://localhost:8000/api/v1/auth/google/callback` (for local testing)
 4. Copy **Client ID** and **Client Secret**
 
 #### API Keys:
@@ -118,7 +118,7 @@ OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxx
 # 3. Google OAuth2 (from Google Cloud Console)
 GOOGLE_CLIENT_ID=123456789-abc.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxxxxxxx
-GOOGLE_REDIRECT_URI=https://memory.kagura-ai.com/auth/callback
+GOOGLE_REDIRECT_URI=https://memory.kagura-ai.com/api/v1/auth/google/callback
 
 # 4. Security Secrets (generate with openssl)
 API_KEY_SECRET=$(openssl rand -hex 32)

@@ -20,13 +20,13 @@ export interface AuthResponse {
 }
 
 /**
- * Get the OAuth2 authorization URL
+ * Get the Google OAuth2 authorization URL
  * Redirects to Google OAuth2 consent screen
  */
 export async function getAuthUrl(): Promise<string> {
   try {
     const response = await apiClient.get<{ authorization_url: string }>(
-      '/auth/login'
+      '/auth/google/login'
     );
     return response.authorization_url;
   } catch (error) {
@@ -36,7 +36,7 @@ export async function getAuthUrl(): Promise<string> {
 }
 
 /**
- * Handle OAuth2 callback
+ * Handle Google OAuth2 callback
  * Exchange authorization code for session token
  */
 export async function handleAuthCallback(
@@ -45,7 +45,7 @@ export async function handleAuthCallback(
 ): Promise<AuthResponse> {
   try {
     const response = await apiClient.get<{ user: User; token?: string }>(
-      `/auth/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`
+      `/auth/google/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`
     );
     return {
       user: response.user,
