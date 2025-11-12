@@ -100,9 +100,9 @@ app.include_router(models_routes.router, prefix="/api/v1", tags=["models"])
 # Issue #650: OAuth2 and Config management routes
 # Issue #653: Audit logs
 if AUTH_AVAILABLE:
-    app.include_router(auth.router, tags=["authentication"])
-    app.include_router(config.router, tags=["configuration"])
-    app.include_router(audit.router, tags=["audit"])
+    app.include_router(auth.router, prefix="/api/v1", tags=["authentication"])
+    app.include_router(config.router, prefix="/api/v1", tags=["configuration"])
+    app.include_router(audit.router, prefix="/api/v1", tags=["audit"])
 
 # MCP over HTTP/SSE (Phase C - ChatGPT Connector)
 # Mount as ASGI app to handle GET/POST/DELETE
