@@ -95,15 +95,28 @@ services:
       - api
     # NOTE: DOMAIN loaded from .env.cloud via env_file above
 
-  # Web Dashboard (Next.js) - Optional, deploy separately if needed
-  # web:
-  #   image: ghcr.io/jfk/kagura-web:latest
-  #   container_name: kagura-web
-  #   restart: unless-stopped
-  #   environment:
-  #     - NEXT_PUBLIC_API_URL=https://memory.yourdomain.com/api/v1
-  #   networks:
-  #     - kagura-network
+  # Web Dashboard (Next.js)
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        # Use relative path for API (Caddy will proxy /api/* to api:8080)
+        # This works both locally and in production
+        - NEXT_PUBLIC_API_URL=/api/v1
+    image: kagura-web:cloud
+    container_name: kagura-web
+    restart: unless-stopped
+    networks:
+      - kagura-network
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   kagura-network:

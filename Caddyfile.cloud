@@ -26,14 +26,9 @@
         reverse_proxy api:8080
     }
 
-    # Web UI (optional - if deploying web container)
-    # handle /* {
-    #     reverse_proxy web:3000
-    # }
-
-    # Default response for root
+    # Web UI - Next.js Dashboard
     handle /* {
-        respond "Kagura Memory Cloud API - See /api/v1/docs for documentation" 200
+        reverse_proxy web:3000
     }
 
     # Security headers

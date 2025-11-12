@@ -98,8 +98,8 @@ gcloud compute ssh $VM_NAME --zone=$VM_ZONE --command="
     cd /opt/kagura
 
     # Use sudo for docker commands (user not yet in docker group session)
-    # Build API image from source (no GHCR pull needed)
-    sudo docker-compose -f docker-compose.cloud.yml build --no-cache api
+    # Build API and Web images from source (no GHCR pull needed)
+    sudo docker-compose -f docker-compose.cloud.yml build --no-cache api web
 
     # Pull other images (caddy, qdrant)
     sudo docker-compose -f docker-compose.cloud.yml pull caddy qdrant
