@@ -24,8 +24,9 @@ logger = logging.getLogger(__name__)
 
 # Issue #650: OAuth2 and Config Management
 # Issue #653: Audit logs
+# Issue #655: API Keys management
 try:
-    from kagura.api.routes import audit, auth, config
+    from kagura.api.routes import api_keys, audit, auth, config
     from kagura.api.middleware.session import SessionMiddleware
     from kagura.auth.session import SessionManager
     from kagura.auth.roles import initialize_role_manager
@@ -99,10 +100,12 @@ app.include_router(models_routes.router, prefix="/api/v1", tags=["models"])
 
 # Issue #650: OAuth2 and Config management routes
 # Issue #653: Audit logs
+# Issue #655: API Keys management
 if AUTH_AVAILABLE:
     app.include_router(auth.router, prefix="/api/v1", tags=["authentication"])
     app.include_router(config.router, prefix="/api/v1", tags=["configuration"])
     app.include_router(audit.router, prefix="/api/v1", tags=["audit"])
+    app.include_router(api_keys.router, prefix="/api/v1", tags=["api-keys"])
 
 # MCP over HTTP/SSE (Phase C - ChatGPT Connector)
 # Mount as ASGI app to handle GET/POST/DELETE

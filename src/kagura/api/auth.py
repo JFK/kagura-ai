@@ -155,6 +155,7 @@ class APIKeyManager:
 
         Side effects:
             Updates last_used_at timestamp on successful verification
+            Records usage statistics (if stats tracker is available)
         """
         key_hash = self._hash_key(api_key)
 
@@ -193,6 +194,16 @@ class APIKeyManager:
                 (datetime.now(), key_hash),
             )
 
+            # Record usage statistics (best-effort, don't fail on error)
+            try:
+                from kagura.core.memory.api_key_stats import get_stats_tracker
+
+                stats_tracker = get_stats_tracker()
+                stats_tracker.record_request(key_hash)
+            except Exception:
+                # Silently ignore stats recording errors
+                pass
+
             return user_id
 
     def list_keys(self, user_id: Optional[str] = None) -> list[dict]:
@@ -202,7 +213,7 @@ class APIKeyManager:
             user_id: Optional user_id filter
 
         Returns:
-            List of API key metadata dicts
+            List of API key metadata dicts (includes key_hash for stats lookup)
         """
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
@@ -210,7 +221,7 @@ class APIKeyManager:
             if user_id:
                 cursor = conn.execute(
                     """
-                    SELECT id, key_prefix, name, user_id, created_at,
+                    SELECT id, key_hash, key_prefix, name, user_id, created_at,
                            last_used_at, revoked_at, expires_at
                     FROM api_keys
                     WHERE user_id = ?
@@ -221,7 +232,7 @@ class APIKeyManager:
             else:
                 cursor = conn.execute(
                     """
-                    SELECT id, key_prefix, name, user_id, created_at,
+                    SELECT id, key_hash, key_prefix, name, user_id, created_at,
                            last_used_at, revoked_at, expires_at
                     FROM api_keys
                     ORDER BY created_at DESC

@@ -67,6 +67,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic collection management
   - Batch document upload
 
+##### Web UI - API Key Management (#655)
+- **API Keys Management Page**: Complete CRUD interface for programmatic API access
+  - Admin-only access control (role-based)
+  - Search and filter by status (active/revoked/expired)
+  - One-time plaintext key display (security requirement)
+  - Copy-to-clipboard functionality
+
+- **Backend Implementation**:
+  - SQLAlchemy-based `APIKeyManagerSQL` (PostgreSQL/SQLite support)
+  - SHA256 secure hashing (plaintext never stored)
+  - Optional expiration (30/90/365 days or never)
+  - Revocation support (soft delete for audit trail)
+  - Database migration script (`002_api_keys.sql`)
+  - FastAPI routes:
+    - `GET /api/v1/config/api-keys` (list all keys, admin only)
+    - `POST /api/v1/config/api-keys` (create with expiry)
+    - `DELETE /api/v1/config/api-keys/{id}` (revoke key)
+    - `GET /api/v1/config/api-keys/{id}/stats` (usage statistics)
+
+- **Usage Statistics** (Redis-backed):
+  - 30-day request tracking with Redis
+  - Daily breakdown with TTL auto-cleanup
+  - Visual statistics dashboard
+  - Automatic recording during API key verification
+
+- **Frontend Components**:
+  - `APIKeysTable`: Display keys with status badges
+  - `CreateAPIKeyDialog`: One-time key display + expiration selection
+  - `APIKeyStatsDialog`: 30-day usage chart (CSS-based visualization)
+  - `RevokeAPIKeyDialog`: Confirmation with warning
+  - `DeleteAPIKeyDialog`: Permanent deletion confirmation
+
 #### 🛠️ Tools & Scripts
 
 - **Migration Tools**:

@@ -1,13 +1,15 @@
 """SQLAlchemy models for authentication and audit logging.
 
 Issue #653 - PostgreSQL backend for roles and audit logs
+Issue #655 - API Key management with PostgreSQL/SQLite support
 
 Provides ORM models for:
 - users table (OAuth2 users with role-based access control)
 - audit_logs table (security audit trail for config changes, role assignments, etc.)
+- api_keys table (API key management with expiration and usage tracking)
 
 Example:
-    >>> from kagura.auth.models import User, AuditLog, get_session
+    >>> from kagura.auth.models import User, AuditLog, APIKey, get_session
     >>> session = get_session("postgresql://...")
     >>> user = session.query(User).filter_by(email="admin@example.com").first()
     >>> print(user.role)
@@ -134,6 +136,57 @@ class AuditLog(Base):
     def __repr__(self) -> str:
         """String representation."""
         return f"<AuditLog(action='{self.action}', resource='{self.resource}', user='{self.user_email}')>"
+
+
+class APIKey(Base):
+    """API Key model for programmatic access.
+
+    Issue #655 - API Key management page with CRUD operations.
+
+    Stores API keys securely with:
+    - SHA256 hash (never stores plaintext after creation)
+    - Optional expiration
+    - Revocation support
+    - Usage tracking
+
+    Attributes:
+        id: Primary key
+        key_hash: SHA256 hash of API key (for verification)
+        key_prefix: First 16 characters (for display only)
+        name: Friendly name
+        user_id: Owner user ID (OAuth2 sub)
+        created_at: Creation timestamp
+        last_used_at: Last usage timestamp
+        revoked_at: Revocation timestamp (NULL = active)
+        expires_at: Expiration timestamp (NULL = no expiration)
+    """
+
+    __tablename__ = "api_keys"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # API Key Data
+    key_hash = Column(String(64), nullable=False, unique=True, index=True)
+    key_prefix = Column(String(16), nullable=False)
+    name = Column(String(100), nullable=False)
+    user_id = Column(String(255), nullable=False, index=True)
+
+    # Timestamps
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    last_used_at = Column(DateTime, nullable=True)
+    revoked_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+
+    # Indexes
+    __table_args__ = (
+        Index("idx_user_name", "user_id", "name"),
+        Index("idx_revoked", "revoked_at"),
+        Index("idx_expires", "expires_at"),
+    )
+
+    def __repr__(self) -> str:
+        """String representation."""
+        return f"<APIKey(name='{self.name}', prefix='{self.key_prefix}', user='{self.user_id}')>"
 
 
 # ============================================================================
