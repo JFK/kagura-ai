@@ -364,7 +364,7 @@ class OAuth2Manager:
 
             flow = Flow.from_client_config(
                 client_config,
-                scopes=self.config.scopes or self.SCOPES[self.provider],
+                scopes=self.WEB_SCOPES[self.provider],
                 redirect_uri=redirect_uri,
             )
 
