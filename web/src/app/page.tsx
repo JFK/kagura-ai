@@ -14,13 +14,13 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // If user is authenticated, redirect to dashboard
+    // If user is authenticated, redirect to memories (default dashboard page)
     if (!isLoading && user) {
       router.push('/memories');
     }
   }, [user, isLoading, router]);
 
-  // Show landing page only if not authenticated
+  // Show loading spinner while checking authentication
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -29,9 +29,13 @@ export default function Home() {
     );
   }
 
+  // If authenticated, redirect to dashboard (handled by useEffect)
   if (user) {
-    // Redirecting to dashboard
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-10 w-10 rounded-full border-4 border-slate-200 border-t-slate-600 animate-spin" />
+      </div>
+    );
   }
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">

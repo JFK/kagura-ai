@@ -21,29 +21,30 @@ import {
 const navigation = [
   {
     name: 'Dashboard',
-    href: '/dashboard',
+    href: '/',
     icon: LayoutDashboard,
   },
   {
     name: 'Memories',
-    href: '/dashboard/memories',
+    href: '/memories',
     icon: Database,
   },
   {
-    name: 'Analytics',
-    href: '/dashboard/analytics',
-    icon: BarChart3,
-  },
-  {
     name: 'API Keys',
-    href: '/dashboard/api-keys',
+    href: '/api-keys',
     icon: Key,
   },
-  {
-    name: 'Settings',
-    href: '/dashboard/settings',
-    icon: Settings,
-  },
+  // TODO: Implement remaining pages (Issue #651)
+  // {
+  //   name: 'Analytics',
+  //   href: '/analytics',
+  //   icon: BarChart3,
+  // },
+  // {
+  //   name: 'Settings',
+  //   href: '/settings',
+  //   icon: Settings,
+  // },
 ];
 
 export function Sidebar() {
@@ -53,7 +54,7 @@ export function Sidebar() {
     <aside className="flex flex-col w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
       {/* Logo */}
       <div className="flex items-center h-16 px-6 border-b border-slate-200 dark:border-slate-800">
-        <Link href="/dashboard" className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center space-x-2">
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
             <span className="text-white font-bold text-lg">K</span>
           </div>
