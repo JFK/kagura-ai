@@ -197,7 +197,7 @@ async def google_callback(
         session_id = _session_manager.create_session(session_data)
 
         # 6. Set HttpOnly cookie
-        redirect = RedirectResponse(url="/dashboard", status_code=303)
+        redirect = RedirectResponse(url="/", status_code=303)
         redirect.set_cookie(
             key="session_id",
             value=session_id,
