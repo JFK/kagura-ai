@@ -5,11 +5,11 @@
  *
  * Provides the main layout for authenticated dashboard pages.
  * Includes sidebar navigation, header, and authentication guard.
- * Issue #655 - Added authentication guard
+ * Issue #651, #655 - Unified landing and dashboard handling
  */
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { Header } from '@/components/dashboard/Header';
@@ -21,13 +21,14 @@ export default function DashboardLayout({
 }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
-  // Redirect to login if not authenticated
+  // Redirect to login for protected routes (not homepage)
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoading && !user && pathname !== '/') {
       router.push('/login');
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, pathname, router]);
 
   // Show loading spinner while checking authentication
   if (isLoading) {
@@ -38,7 +39,12 @@ export default function DashboardLayout({
     );
   }
 
-  // If not authenticated, don't render (redirecting to login)
+  // For unauthenticated users on homepage (/), show landing page without dashboard chrome
+  if (!user && pathname === '/') {
+    return <>{children}</>;
+  }
+
+  // For protected routes, don't render if not authenticated (redirecting to login)
   if (!user) {
     return null;
   }
