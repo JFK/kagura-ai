@@ -3,7 +3,36 @@
  * Issue #651 - Web Admin Dashboard
  */
 
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+
 export default function Home() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // If user is authenticated, redirect to dashboard
+    if (!isLoading && user) {
+      router.push('/memories');
+    }
+  }, [user, isLoading, router]);
+
+  // Show landing page only if not authenticated
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-10 w-10 rounded-full border-4 border-slate-200 border-t-slate-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (user) {
+    // Redirecting to dashboard
+    return null;
+  }
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
