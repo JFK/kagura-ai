@@ -53,8 +53,8 @@ class OAuth2Manager:
     WEB_SCOPES = {
         "google": [
             "openid",
-            "email",
-            "profile",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
         ]
     }
 
