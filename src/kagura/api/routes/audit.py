@@ -39,7 +39,7 @@ class AuditLogEntry(BaseModel):
     resource: str
     old_value_hash: Optional[str] = None
     new_value_hash: Optional[str] = None
-    metadata: Optional[dict] = None
+    user_metadata: Optional[dict] = None
     ip_address: Optional[str] = None
     user_agent: Optional[str] = None
     created_at: str  # ISO 8601 timestamp
@@ -139,7 +139,7 @@ async def get_audit_logs(
                     resource=log.resource,
                     old_value_hash=log.old_value_hash,
                     new_value_hash=log.new_value_hash,
-                    metadata=log.metadata,
+                    user_metadata=log.user_metadata,
                     ip_address=log.ip_address,
                     user_agent=log.user_agent,
                     created_at=log.created_at.isoformat() if log.created_at else "",

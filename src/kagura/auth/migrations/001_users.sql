@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     -- Details
     old_value_hash VARCHAR(64),     -- SHA256 hash (not plaintext!)
     new_value_hash VARCHAR(64),     -- SHA256 hash
-    metadata JSONB,                 -- Additional context
+    user_metadata JSONB,            -- Additional context
 
     -- Context
     ip_address INET,

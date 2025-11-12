@@ -427,7 +427,7 @@ class EnvConfigManager:
                         resource=key,
                         old_value_hash=old_hash,
                         new_value_hash=new_hash,
-                        metadata=metadata,
+                        user_metadata=metadata,
                         ip_address=metadata.get("ip_address") if metadata else None,
                         user_agent=metadata.get("user_agent") if metadata else None,
                     )

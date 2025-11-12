@@ -282,7 +282,7 @@ class RoleManager:
                     resource=f"user:{email}",
                     old_value_hash=old_role,
                     new_value_hash=role.value,
-                    metadata={"assigned_by": assigned_by},
+                    user_metadata={"assigned_by": assigned_by},
                 )
                 session.add(audit)
                 session.commit()

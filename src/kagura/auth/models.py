@@ -101,7 +101,7 @@ class AuditLog(Base):
         resource: Resource identifier (e.g., "OPENAI_API_KEY", "user:admin@example.com")
         old_value_hash: SHA256 hash of old value (NOT plaintext)
         new_value_hash: SHA256 hash of new value (NOT plaintext)
-        metadata: Additional context (JSON)
+        user_metadata: Additional context (JSON)
         ip_address: Client IP address
         user_agent: Client user agent
         created_at: Timestamp
@@ -122,7 +122,7 @@ class AuditLog(Base):
     # Details (SHA256 hashes, NOT plaintext!)
     old_value_hash = Column(String(64), nullable=True)
     new_value_hash = Column(String(64), nullable=True)
-    metadata = Column(JSON, nullable=True)
+    user_metadata = Column(JSON, nullable=True)
 
     # Context
     ip_address = Column(String(45), nullable=True)  # IPv6 max length
