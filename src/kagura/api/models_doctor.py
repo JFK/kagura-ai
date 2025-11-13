@@ -34,21 +34,24 @@ class APICheck(BaseModel):
     message: str = Field(..., description="Status message")
 
 
-class MCPIntegration(BaseModel):
-    """MCP integration status."""
-
-    status: str = Field(..., description="Status: ok, warning, or error")
-    message: str = Field(..., description="Status message")
-
-
 class SystemDoctorResponse(BaseModel):
-    """System doctor API response."""
+    """System doctor API response (Issue #668: Enhanced with backend checks)."""
 
     python_version: SystemCheck = Field(..., description="Python version check")
     disk_space: SystemCheck = Field(..., description="Disk space check")
     dependencies: list[DependencyCheck] = Field(..., description="Dependency checks")
+
+    # Backend Services (Issue #668)
+    postgres: SystemCheck = Field(..., description="PostgreSQL database connectivity")
+    redis: SystemCheck = Field(..., description="Redis cache connectivity")
+    qdrant: SystemCheck = Field(..., description="Qdrant vector database connectivity")
+
+    # API Configuration
     api_configuration: list[APICheck] = Field(..., description="API configuration checks")
-    mcp_integration: MCPIntegration = Field(..., description="MCP integration status")
+
+    # Remote MCP (Issue #668)
+    remote_mcp: SystemCheck = Field(..., description="Remote MCP server status")
+
     overall_status: str = Field(..., description="Overall status: ok, warning, or error")
     recommendations: list[str] = Field(default_factory=list, description="Recommendations for improvement")
 

@@ -27,7 +27,6 @@ from kagura.api.dependencies import AdminUser, MemoryManagerDep
 from kagura.api.models_doctor import (
     APICheck,
     DependencyCheck,
-    MCPIntegration,
     SystemCheck,
     SystemDoctorResponse,
 )
@@ -228,7 +227,7 @@ def _check_dependencies() -> list[DependencyCheck]:
 
 async def _check_api_configuration() -> list[APICheck]:
     """Check API key configuration and connectivity."""
-    from kagura.utils.api_check import check_api_configuration
+    from kagura.utils.api.check import check_api_configuration
 
     api_results = await check_api_configuration()
     return [
@@ -237,37 +236,98 @@ async def _check_api_configuration() -> list[APICheck]:
     ]
 
 
-def _check_mcp_integration() -> MCPIntegration:
-    """Check MCP integration status."""
-    config_paths = [
-        Path.home() / ".config" / "claude-code" / "mcp.json",
-        Path.home()
-        / "Library"
-        / "Application Support"
-        / "Claude"
-        / "claude_desktop_config.json",
-    ]
+def _check_postgres() -> SystemCheck:
+    """Check PostgreSQL database connectivity (Issue #668)."""
+    db_url = os.getenv("DATABASE_URL", "")
 
-    for path in config_paths:
-        if path.exists():
-            try:
-                import json
+    if not db_url or "postgresql" not in db_url:
+        return SystemCheck(status="info", message="Not configured (using SQLite)")
 
-                with open(path) as f:
-                    config = json.load(f)
+    try:
+        from sqlalchemy import create_engine, text
 
-                if "mcpServers" in config and "kagura" in config["mcpServers"]:
-                    return MCPIntegration(
-                        status="ok",
-                        message=f"Configured in {path.name}"
-                    )
-            except Exception:
-                pass
+        engine = create_engine(db_url, connect_args={"connect_timeout": 5})
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT version()"))
+            version = result.scalar()
+            version_short = version.split(",")[0] if version else "Unknown"
 
-    return MCPIntegration(
-        status="warning",
-        message="Not configured (MCP server starts with Claude Desktop)"
-    )
+        return SystemCheck(status="ok", message=f"Connected ({version_short})")
+    except ImportError:
+        return SystemCheck(status="error", message="sqlalchemy or psycopg2 not installed")
+    except Exception as e:
+        return SystemCheck(status="error", message=f"Connection failed: {str(e)[:50]}")
+
+
+def _check_redis() -> SystemCheck:
+    """Check Redis cache connectivity (Issue #668)."""
+    redis_url = os.getenv("REDIS_URL")
+    cache_backend = os.getenv("CACHE_BACKEND", "memory")
+
+    if cache_backend != "redis":
+        return SystemCheck(status="info", message="Not configured (using in-memory cache)")
+
+    if not redis_url:
+        return SystemCheck(status="warning", message="CACHE_BACKEND=redis but REDIS_URL not set")
+
+    try:
+        import redis
+
+        client = redis.from_url(redis_url, socket_timeout=5, socket_connect_timeout=5)
+        client.ping()
+        info: dict[str, Any] = client.info("stats")  # type: ignore
+        total_ops = int(info.get("total_commands_processed", 0))
+
+        return SystemCheck(status="ok", message=f"Connected ({total_ops:,} ops processed)")
+    except ImportError:
+        return SystemCheck(status="error", message="redis package not installed")
+    except Exception as e:
+        return SystemCheck(status="error", message=f"Connection failed: {str(e)[:50]}")
+
+
+def _check_qdrant() -> SystemCheck:
+    """Check Qdrant vector database connectivity (Issue #668)."""
+    qdrant_url = os.getenv("QDRANT_URL")
+    vector_backend = os.getenv("VECTOR_BACKEND", "chromadb")
+
+    if vector_backend != "qdrant":
+        return SystemCheck(status="info", message="Not configured (using ChromaDB)")
+
+    if not qdrant_url:
+        return SystemCheck(status="warning", message="VECTOR_BACKEND=qdrant but QDRANT_URL not set")
+
+    try:
+        from qdrant_client import QdrantClient
+
+        client = QdrantClient(url=qdrant_url, timeout=5)
+        collections = client.get_collections().collections
+        collection_count = len(collections)
+
+        return SystemCheck(status="ok", message=f"Connected to {qdrant_url} ({collection_count} collections)")
+    except ImportError:
+        return SystemCheck(status="error", message="qdrant-client not installed")
+    except Exception as e:
+        return SystemCheck(status="error", message=f"Connection failed: {str(e)[:50]}")
+
+
+def _check_remote_mcp() -> SystemCheck:
+    """Check remote MCP server status (Issue #668)."""
+    mcp_enabled = os.getenv("MCP_REMOTE_ENABLED", "false").lower() == "true"
+
+    if not mcp_enabled:
+        return SystemCheck(status="info", message="Remote MCP not enabled (set MCP_REMOTE_ENABLED=true)")
+
+    try:
+        from kagura.api.routes.mcp_transport import _mcp_server
+
+        if _mcp_server is not None:
+            return SystemCheck(status="ok", message="Running (HTTP/SSE endpoint active)")
+        else:
+            return SystemCheck(status="warning", message="Enabled but not started")
+    except ImportError:
+        return SystemCheck(status="warning", message="MCP module not available")
+    except Exception as e:
+        return SystemCheck(status="warning", message=f"Status unknown: {str(e)[:30]}")
 
 
 @router.get("/system/doctor", response_model=SystemDoctorResponse)
@@ -276,9 +336,12 @@ async def get_system_doctor() -> SystemDoctorResponse:
 
     Returns comprehensive system diagnostics including:
     - Python version and disk space
+    - Backend services (PostgreSQL, Redis, Qdrant)
     - Optional dependencies (ChromaDB, sentence-transformers)
     - API configuration and connectivity
-    - MCP integration status
+    - Remote MCP server status
+
+    Issue #668: Enhanced with backend health checks
 
     Returns:
         System health check results with recommendations
@@ -288,9 +351,12 @@ async def get_system_doctor() -> SystemDoctorResponse:
         Response: {
             "python_version": {"status": "ok", "message": "Python 3.11.5"},
             "disk_space": {"status": "ok", "message": "100.5 GB available"},
+            "postgres": {"status": "ok", "message": "Connected (PostgreSQL 14.x)"},
+            "redis": {"status": "ok", "message": "Connected (1,234 ops processed)"},
+            "qdrant": {"status": "ok", "message": "Connected (5 collections)"},
             "dependencies": [...],
             "api_configuration": [...],
-            "mcp_integration": {...},
+            "remote_mcp": {"status": "info", "message": "Not enabled"},
             "overall_status": "ok",
             "recommendations": []
         }
@@ -299,7 +365,12 @@ async def get_system_doctor() -> SystemDoctorResponse:
     disk_space = _check_disk_space()
     dependencies = _check_dependencies()
     api_configuration = await _check_api_configuration()
-    mcp_integration = _check_mcp_integration()
+
+    # Backend services (Issue #668)
+    postgres = _check_postgres()
+    redis = _check_redis()
+    qdrant = _check_qdrant()
+    remote_mcp = _check_remote_mcp()
 
     # Determine overall status
     overall_status = "ok"
@@ -313,6 +384,14 @@ async def get_system_doctor() -> SystemDoctorResponse:
         if overall_status == "ok":
             overall_status = "warning"
         recommendations.append("Free up disk space (less than 1 GB available)")
+
+    # Backend warnings
+    for backend, name in [(postgres, "PostgreSQL"), (redis, "Redis"), (qdrant, "Qdrant")]:
+        if backend.status == "error":
+            overall_status = "error"
+            recommendations.append(f"Check {name} connectivity")
+        elif backend.status == "warning" and overall_status == "ok":
+            overall_status = "warning"
 
     for dep in dependencies:
         if dep.status == "warning" and "chromadb" in dep.name.lower():
@@ -331,8 +410,11 @@ async def get_system_doctor() -> SystemDoctorResponse:
         python_version=python_version,
         disk_space=disk_space,
         dependencies=dependencies,
+        postgres=postgres,
+        redis=redis,
+        qdrant=qdrant,
         api_configuration=api_configuration,
-        mcp_integration=mcp_integration,
+        remote_mcp=remote_mcp,
         overall_status=overall_status,
         recommendations=recommendations,
     )
