@@ -96,14 +96,22 @@ sudo docker-compose -f docker-compose.cloud.yml restart api
 curl https://memory.kagura-ai.com/api/v1/system/doctor
 
 # Should show:
-# "remote_mcp": {"status": "ok", "message": "Running (HTTP/SSE, XX tools)"}
+# "remote_mcp": {"status": "ok", "message": "Running (HTTP/SSE endpoint active)"}
 
-# Test MCP endpoint (requires authentication)
-curl -X POST https://memory.kagura-ai.com/mcp \
+# Test MCP endpoint (IMPORTANT: note the trailing slash and Accept header)
+curl -X POST https://memory.kagura-ai.com/mcp/ \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}'
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc": "2.0", "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "test", "version": "1.0"}}, "id": 1}'
+
+# Should return:
+# {"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05",...}}
 ```
+
+**IMPORTANT Notes:**
+- **Trailing slash required**: Use `/mcp/` not `/mcp` (FastAPI mount behavior)
+- **Accept header required**: `Accept: application/json, text/event-stream`
+- Authentication is optional for testing (uses "default_user")
 
 ## Client Configuration
 
