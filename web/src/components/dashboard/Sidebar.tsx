@@ -85,17 +85,18 @@ const navigationGroups: NavGroup[] = [
       },
     ],
   },
-  {
-    title: 'Admin',
-    items: [
-      {
-        name: 'User Management',
-        href: '/admin/users',
-        icon: Users,
-        requiredRole: Role.ADMIN,
-      },
-    ],
-  },
+  // Issue #670: User Management page not yet implemented
+  // {
+  //   title: 'Admin',
+  //   items: [
+  //     {
+  //       name: 'User Management',
+  //       href: '/admin/users',
+  //       icon: Users,
+  //       requiredRole: Role.ADMIN,
+  //     },
+  //   ],
+  // },
 ];
 
 export function Sidebar() {
