@@ -22,6 +22,8 @@ export interface AuthResponse {
 /**
  * Get the Google OAuth2 authorization URL
  * Redirects to Google OAuth2 consent screen
+ *
+ * Note: Uses relative path because NEXT_PUBLIC_API_URL may include /api/v1 prefix
  */
 export async function getAuthUrl(): Promise<string> {
   try {
@@ -38,6 +40,8 @@ export async function getAuthUrl(): Promise<string> {
 /**
  * Handle Google OAuth2 callback
  * Exchange authorization code for session token
+ *
+ * Note: Uses relative path because NEXT_PUBLIC_API_URL may include /api/v1 prefix
  */
 export async function handleAuthCallback(
   code: string,
@@ -59,6 +63,8 @@ export async function handleAuthCallback(
 
 /**
  * Get current authenticated user information
+ *
+ * Note: Uses relative path because NEXT_PUBLIC_API_URL may include /api/v1 prefix
  */
 export async function getCurrentUser(): Promise<User | null> {
   try {
@@ -77,6 +83,8 @@ export async function getCurrentUser(): Promise<User | null> {
 /**
  * Logout current user
  * Clears session on backend
+ *
+ * Note: Uses relative path because NEXT_PUBLIC_API_URL may include /api/v1 prefix
  */
 export async function logout(): Promise<void> {
   try {

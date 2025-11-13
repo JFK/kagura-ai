@@ -17,7 +17,7 @@ import type {
  * Get list of all API keys (Admin only)
  */
 export async function getAPIKeys(): Promise<APIKey[]> {
-  return apiClient.get<APIKey[]>('/api/v1/config/api-keys');
+  return apiClient.get<APIKey[]>('/config/api-keys');
 }
 
 /**
@@ -29,7 +29,7 @@ export async function getAPIKeys(): Promise<APIKey[]> {
 export async function createAPIKey(
   data: APIKeyCreateRequest
 ): Promise<APIKeyCreateResponse> {
-  return apiClient.post<APIKeyCreateResponse>('/api/v1/config/api-keys', data);
+  return apiClient.post<APIKeyCreateResponse>('/config/api-keys', data);
 }
 
 /**
@@ -38,7 +38,7 @@ export async function createAPIKey(
  * Soft delete - key remains in database for audit trail but cannot be used.
  */
 export async function revokeAPIKey(keyId: number): Promise<void> {
-  return apiClient.delete<void>(`/api/v1/config/api-keys/${keyId}`);
+  return apiClient.delete<void>(`/config/api-keys/${keyId}`);
 }
 
 /**
