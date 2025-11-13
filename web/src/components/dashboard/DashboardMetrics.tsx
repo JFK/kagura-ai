@@ -93,14 +93,31 @@ export function DashboardMetrics() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i} className="overflow-hidden">
-            <CardContent className="p-6">
-              <div className="h-32 animate-pulse rounded-lg bg-gradient-to-br from-gray-100 to-gray-200" />
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-6">
+        {/* Loading Message */}
+        <div className="flex items-center justify-center rounded-2xl border-2 border-brand-green-200 bg-gradient-to-r from-brand-green-50 to-emerald-50 p-8">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-green-200 border-t-brand-green-600" />
+              <div className="absolute inset-0 h-12 w-12 animate-ping rounded-full border-4 border-brand-green-600 opacity-20" />
+            </div>
+            <div>
+              <p className="text-lg font-semibold text-gray-900">Loading system metrics...</p>
+              <p className="text-sm text-gray-600">Gathering health information</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Cards */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <CardContent className="p-6">
+                <div className="h-32 animate-pulse rounded-lg bg-gradient-to-br from-brand-green-100 to-emerald-100" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }

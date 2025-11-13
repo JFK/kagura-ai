@@ -189,13 +189,20 @@ async def create_api_key(
         HTTPException: 400 if name already exists, 403 if not admin
     """
     try:
-        # Create key
+        # Create key (use 'sub' from OAuth2 session as user_id)
+        user_id = user.get("user_id") or user.get("sub")
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User ID not found in session",
+            )
+
         api_key = manager.create_key(
-            name=data.name, user_id=user["user_id"], expires_days=data.expires_days
+            name=data.name, user_id=user_id, expires_days=data.expires_days
         )
 
         # Retrieve metadata
-        keys = manager.list_keys(user_id=user["user_id"])
+        keys = manager.list_keys(user_id=user_id)
         created_key = next((k for k in keys if k["name"] == data.name), None)
 
         if not created_key:
