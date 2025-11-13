@@ -122,3 +122,18 @@ export async function searchMemories(
     query,
   });
 }
+
+/**
+ * Bulk delete memories (Issue #666)
+ */
+export async function bulkDeleteMemories(
+  keys: string[],
+  scope: 'working' | 'persistent' = 'persistent',
+  agentName: string = 'global'
+): Promise<{ deleted_count: number; failed_keys: string[]; errors: Record<string, string> }> {
+  return apiClient.post('/memory/bulk-delete', {
+    keys,
+    scope,
+    agent_name: agentName,
+  });
+}
