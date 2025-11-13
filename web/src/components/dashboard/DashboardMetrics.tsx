@@ -21,6 +21,8 @@ import {
   Package,
   Wifi,
   Puzzle,
+  Database,
+  Zap,
 } from 'lucide-react';
 import { getSystemDoctor, type SystemDoctorResponse } from '@/lib/doctor';
 
@@ -215,18 +217,66 @@ export function DashboardMetrics() {
         </Card>
       )}
 
-      {/* MCP Integration */}
+      {/* Backend Services - PostgreSQL (Issue #668) */}
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Puzzle className="h-4 w-4" />
-            MCP Integration
+            <Database className="h-4 w-4" />
+            PostgreSQL
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2">
-            {getStatusIcon(data.mcp_integration.status)}
-            <span className="text-sm">{data.mcp_integration.message}</span>
+            {getStatusIcon(data.postgres.status)}
+            <span className="text-sm">{data.postgres.message}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Backend Services - Redis (Issue #668) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Redis Cache
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            {getStatusIcon(data.redis.status)}
+            <span className="text-sm">{data.redis.message}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Backend Services - Qdrant (Issue #668) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Qdrant Vector DB
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            {getStatusIcon(data.qdrant.status)}
+            <span className="text-sm">{data.qdrant.message}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Remote MCP Server (Issue #668) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Puzzle className="h-4 w-4" />
+            Remote MCP
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            {getStatusIcon(data.remote_mcp.status)}
+            <span className="text-sm">{data.remote_mcp.message}</span>
           </div>
         </CardContent>
       </Card>

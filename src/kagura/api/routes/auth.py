@@ -196,8 +196,8 @@ async def google_callback(
         }
         session_id = _session_manager.create_session(session_data)
 
-        # 6. Set HttpOnly cookie and redirect to memories page
-        redirect = RedirectResponse(url="/memories", status_code=303)
+        # 6. Set HttpOnly cookie and redirect to dashboard (Issue #670)
+        redirect = RedirectResponse(url="/dashboard", status_code=303)
         redirect.set_cookie(
             key="session_id",
             value=session_id,

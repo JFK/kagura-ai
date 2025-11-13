@@ -26,18 +26,22 @@ export interface APICheck {
   message: string;
 }
 
-export interface MCPIntegration {
-  status: 'ok' | 'warning' | 'error';
-  message: string;
-}
-
 export interface SystemDoctorResponse {
   python_version: SystemCheck;
   disk_space: SystemCheck;
   dependencies: DependencyCheck[];
+
+  // Backend Services (Issue #668)
+  postgres: SystemCheck;
+  redis: SystemCheck;
+  qdrant: SystemCheck;
+
   api_configuration: APICheck[];
-  mcp_integration: MCPIntegration;
-  overall_status: 'ok' | 'warning' | 'error';
+
+  // Remote MCP (Issue #668)
+  remote_mcp: SystemCheck;
+
+  overall_status: 'ok' | 'warning' | 'error' | 'info';
   recommendations: string[];
 }
 
