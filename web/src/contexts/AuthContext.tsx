@@ -25,9 +25,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // Mock auth for development (controlled by environment variable)
+  const useMockAuth =
+    process.env.NODE_ENV === 'development' &&
+    process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === 'true';
+
   const fetchUser = async () => {
     try {
       setIsLoading(true);
+
+      // Use mock user if enabled
+      if (useMockAuth) {
+        console.warn('⚠️ MOCK AUTH ENABLED - Development only!');
+        setUser({
+          id: 'mock-dev-user-001',
+          email: 'dev@localhost',
+          name: 'Developer (Mock)',
+          picture: '',
+          role: 'admin',
+          created_at: new Date().toISOString(),
+          last_login_at: new Date().toISOString(),
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const currentUser = await getCurrentUser();
       setUser(currentUser);
     } catch (error) {

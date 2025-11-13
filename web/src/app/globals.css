@@ -66,3 +66,66 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Grid pattern background */
+  .bg-grid-pattern {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(0 0 0 / 0.03)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+  }
+
+  /* Dot pattern background */
+  .bg-dot-pattern {
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Glass morphism effect */
+  .glass-effect {
+    @apply bg-white/70 backdrop-blur-lg border border-white/20;
+  }
+
+  /* Gradient text */
+  .text-gradient-green {
+    @apply bg-gradient-to-r from-brand-green-600 via-brand-green-500 to-emerald-500 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-red {
+    @apply bg-gradient-to-r from-brand-red-600 via-brand-red-500 to-rose-500 bg-clip-text text-transparent;
+  }
+
+  /* Scroll animation classes */
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Animation delay utilities */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

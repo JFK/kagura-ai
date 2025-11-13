@@ -49,6 +49,10 @@ export default function DashboardLayout({
     return null;
   }
 
+  const isMockAuth =
+    process.env.NODE_ENV === 'development' &&
+    process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === 'true';
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
@@ -56,6 +60,15 @@ export default function DashboardLayout({
 
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Development Warning Banner */}
+        {isMockAuth && (
+          <div className="border-b border-orange-200 bg-gradient-to-r from-orange-100 to-yellow-100 px-4 py-2">
+            <p className="text-center text-sm font-medium text-orange-900">
+              ⚠️ Development Mode: Mock Authentication Enabled (User: {user.name})
+            </p>
+          </div>
+        )}
+
         {/* Header */}
         <Header />
 

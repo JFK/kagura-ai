@@ -56,7 +56,7 @@ export function Header() {
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={user.picture} alt={user.name} />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                  <AvatarFallback className="bg-gradient-to-br from-brand-green-600 to-emerald-600 text-white">
                     {getUserInitials()}
                   </AvatarFallback>
                 </Avatar>
@@ -70,21 +70,12 @@ export function Header() {
                     {user.email}
                   </p>
                   {user.role && (
-                    <p className="text-xs leading-none text-slate-500 dark:text-slate-400 mt-1">
-                      Role: {user.role}
+                    <p className="text-xs font-medium leading-none text-brand-green-600 mt-1">
+                      {user.role.toUpperCase()}
                     </p>
                   )}
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
-                <User className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-red-600 dark:text-red-400">
                 <LogOut className="mr-2 h-4 w-4" />

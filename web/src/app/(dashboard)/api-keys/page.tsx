@@ -132,34 +132,42 @@ export default function APIKeysPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      {/* Premium Header */}
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">API Keys</h1>
-          <p className="text-muted-foreground mt-1">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-green-100 to-emerald-100 px-4 py-1.5 text-sm font-semibold text-brand-green-700">
+            <Plus className="h-4 w-4" />
+            <span>API Management</span>
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900">API Keys</h1>
+          <p className="mt-2 text-lg text-gray-600">
             Manage programmatic access to Kagura Memory API
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button
+          size="lg"
+          onClick={() => setCreateDialogOpen(true)}
+          className="bg-gradient-to-r from-brand-green-600 to-emerald-600 text-white shadow-lg hover:from-brand-green-700 hover:to-emerald-700"
+        >
+          <Plus className="mr-2 h-5 w-5" />
           Create API Key
         </Button>
       </div>
 
-      {/* Filters */}
+      {/* Filters with Premium Styling */}
       <div className="flex gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
             placeholder="Search by name or key prefix..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="h-11 border-gray-300 bg-white pl-10 shadow-sm transition-all focus:border-brand-green-500 focus:ring-2 focus:ring-brand-green-500/20"
           />
         </div>
         <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as APIKeyStatus | 'all')}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="h-11 w-[180px] border-gray-300 bg-white shadow-sm">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -169,9 +177,14 @@ export default function APIKeysPage() {
             <SelectItem value="expired">Expired</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={handleRefresh}>
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Refresh
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefresh}
+          disabled={loading}
+          className="h-11 border-gray-300"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
         </Button>
       </div>
 

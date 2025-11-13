@@ -54,6 +54,52 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			brand: {
+  				green: {
+  					50: '#f0fdf4',
+  					100: '#dcfce7',
+  					200: '#bbf7d0',
+  					300: '#86efac',
+  					400: '#4ade80',
+  					500: '#059669',
+  					600: '#047857',
+  					700: '#065f46',
+  					800: '#064e3b',
+  					900: '#022c22'
+  				},
+  				red: {
+  					50: '#fef2f2',
+  					100: '#fee2e2',
+  					200: '#fecaca',
+  					300: '#fca5a5',
+  					400: '#f87171',
+  					500: '#DC2626',
+  					600: '#B91C1C',
+  					700: '#991B1B',
+  					800: '#7F1D1D',
+  					900: '#450a0a'
+  				}
+  			}
+  		},
+  		animation: {
+  			'fade-in': 'fadeIn 0.6s ease-in-out',
+  			'slide-up': 'slideUp 0.6s ease-out',
+  			'float': 'float 3s ease-in-out infinite',
+  			'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+  		},
+  		keyframes: {
+  			fadeIn: {
+  				'0%': { opacity: '0' },
+  				'100%': { opacity: '1' }
+  			},
+  			slideUp: {
+  				'0%': { transform: 'translateY(20px)', opacity: '0' },
+  				'100%': { transform: 'translateY(0)', opacity: '1' }
+  			},
+  			float: {
+  				'0%, 100%': { transform: 'translateY(0)' },
+  				'50%': { transform: 'translateY(-10px)' }
   			}
   		}
   	}
