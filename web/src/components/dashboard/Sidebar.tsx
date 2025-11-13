@@ -8,7 +8,6 @@
  */
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -109,13 +108,10 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex items-center h-16 px-6 border-b border-slate-200 dark:border-slate-800">
         <Link href="/dashboard" className="flex items-center space-x-3">
-          <Image
+          <img
             src="/kagura-icon.svg"
             alt="Kagura AI"
-            width={40}
-            height={40}
             className="h-10 w-10"
-            priority
           />
           <span className="font-semibold text-lg">Kagura AI</span>
         </Link>
