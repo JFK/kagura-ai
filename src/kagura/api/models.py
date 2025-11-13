@@ -230,6 +230,92 @@ class UserPatternResponse(BaseModel):
     pattern: UserPattern
 
 
+# Coding Sessions (Issue #666 - Phase 2)
+class FileChange(BaseModel):
+    """File change in coding session."""
+
+    file_path: str = Field(..., description="Path to changed file")
+    action: str = Field(..., description="Action: create, edit, delete, rename, refactor")
+    diff: str | None = Field(None, description="Change summary")
+    reason: str | None = Field(None, description="Reason for change")
+    line_range: str | None = Field(None, description="Line range affected (e.g., '10,50')")
+
+
+class Decision(BaseModel):
+    """Design decision in coding session."""
+
+    decision: str = Field(..., description="Decision statement")
+    rationale: str = Field(..., description="Reasoning behind decision")
+    alternatives: list[str] = Field(default_factory=list, description="Other options considered")
+    impact: str | None = Field(None, description="Expected impact")
+    tags: list[str] = Field(default_factory=list, description="Tags")
+
+
+class ErrorRecord(BaseModel):
+    """Error record in coding session."""
+
+    error_type: str = Field(..., description="Error classification")
+    message: str = Field(..., description="Error message")
+    file_path: str | None = Field(None, description="File where error occurred")
+    line_number: int | None = Field(None, description="Line number")
+    solution: str | None = Field(None, description="How error was resolved")
+
+
+class SessionSummary(BaseModel):
+    """Coding session summary."""
+
+    id: str = Field(..., description="Session ID")
+    project_id: str = Field(..., description="Project identifier")
+    description: str = Field(..., description="Session description")
+    start_time: datetime = Field(..., description="Session start time")
+    end_time: datetime | None = Field(None, description="Session end time")
+    duration_seconds: int | None = Field(None, description="Duration in seconds")
+    file_changes_count: int = Field(0, description="Number of file changes")
+    decisions_count: int = Field(0, description="Number of decisions")
+    errors_count: int = Field(0, description="Number of errors")
+    github_issue: int | None = Field(None, description="Linked GitHub issue number")
+    success: bool | None = Field(None, description="Whether session was successful")
+
+
+class SessionDetailResponse(BaseModel):
+    """Coding session detail response."""
+
+    session: SessionSummary = Field(..., description="Session summary")
+    file_changes: list[FileChange] = Field(default_factory=list, description="File changes")
+    decisions: list[Decision] = Field(default_factory=list, description="Design decisions")
+    errors: list[ErrorRecord] = Field(default_factory=list, description="Errors encountered")
+
+
+class SessionListResponse(BaseModel):
+    """Coding sessions list response."""
+
+    sessions: list[SessionSummary] = Field(..., description="List of sessions")
+    total: int = Field(..., description="Total number of sessions")
+    page: int = Field(1, description="Current page")
+    page_size: int = Field(20, description="Page size")
+
+
+# Bulk Operations (Issue #666 - Phase 2)
+class BulkDeleteRequest(BaseModel):
+    """Bulk delete memories request."""
+
+    keys: list[str] = Field(..., description="List of memory keys to delete")
+    scope: Literal["working", "persistent"] = Field(
+        default="persistent", description="Memory scope"
+    )
+    agent_name: str = Field(default="global", description="Agent name")
+
+
+class BulkDeleteResponse(BaseModel):
+    """Bulk delete memories response."""
+
+    deleted_count: int = Field(..., description="Number of successfully deleted memories")
+    failed_keys: list[str] = Field(default_factory=list, description="Keys that failed to delete")
+    errors: dict[str, str] = Field(
+        default_factory=dict, description="Error messages for failed keys"
+    )
+
+
 # Error
 class ErrorResponse(BaseModel):
     """Error response."""

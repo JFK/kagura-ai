@@ -2,10 +2,12 @@
  * Memories Table Component
  *
  * Displays memories in a table with pagination
+ * Issue #666: Phase 2 - Added bulk delete checkbox support
  */
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -28,6 +30,9 @@ interface MemoriesTableProps {
   pageSize: number;
   total: number;
   onPageChange: (page: number) => void;
+  // Bulk delete props (Issue #666)
+  selectedKeys?: string[];
+  onSelectionChange?: (keys: string[]) => void;
 }
 
 export function MemoriesTable({
@@ -40,8 +45,49 @@ export function MemoriesTable({
   pageSize,
   total,
   onPageChange,
+  selectedKeys = [],
+  onSelectionChange,
 }: MemoriesTableProps) {
   const totalPages = Math.ceil(total / pageSize);
+  const bulkDeleteEnabled = !!onSelectionChange;
+
+  // Helper to generate unique key for memory
+  const getMemoryUniqueKey = (memory: Memory) =>
+    `${memory.key}:${memory.scope}:${memory.agent_name}`;
+
+  // Check if all visible memories are selected
+  const allVisibleSelected = memories.length > 0 && memories.every(m =>
+    selectedKeys.includes(getMemoryUniqueKey(m))
+  );
+
+  // Handle select all toggle
+  const handleSelectAll = (checked: boolean) => {
+    if (!onSelectionChange) return;
+
+    if (checked) {
+      // Add all visible memories to selection
+      const allKeys = memories.map(getMemoryUniqueKey);
+      const newSelection = [...new Set([...selectedKeys, ...allKeys])];
+      onSelectionChange(newSelection);
+    } else {
+      // Remove all visible memories from selection
+      const visibleKeys = new Set(memories.map(getMemoryUniqueKey));
+      const newSelection = selectedKeys.filter(k => !visibleKeys.has(k));
+      onSelectionChange(newSelection);
+    }
+  };
+
+  // Handle single row toggle
+  const handleRowToggle = (memory: Memory, checked: boolean) => {
+    if (!onSelectionChange) return;
+
+    const key = getMemoryUniqueKey(memory);
+    if (checked) {
+      onSelectionChange([...selectedKeys, key]);
+    } else {
+      onSelectionChange(selectedKeys.filter(k => k !== key));
+    }
+  };
 
   const getImportanceBadge = (importance: number) => {
     if (importance >= 0.8) return <Badge variant="destructive">High</Badge>;
@@ -87,6 +133,15 @@ export function MemoriesTable({
         <Table>
           <TableHeader>
             <TableRow>
+              {bulkDeleteEnabled && (
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={allVisibleSelected}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all"
+                  />
+                </TableHead>
+              )}
               <TableHead>Key</TableHead>
               <TableHead>Scope</TableHead>
               <TableHead>Agent</TableHead>
@@ -96,52 +151,65 @@ export function MemoriesTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {memories.map((memory) => (
-              <TableRow key={`${memory.key}-${memory.scope}-${memory.agent_name}`}>
-                <TableCell className="font-medium max-w-xs truncate">
-                  {memory.key}
-                </TableCell>
-                <TableCell>{getScopeBadge(memory.scope)}</TableCell>
-                <TableCell>
-                  <code className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
-                    {memory.agent_name}
-                  </code>
-                </TableCell>
-                <TableCell>{getImportanceBadge(memory.importance)}</TableCell>
-                <TableCell className="text-sm text-slate-500">
-                  {formatDistanceToNow(new Date(memory.updated_at), { addSuffix: true })}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onView(memory)}
-                      title="View details"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEdit(memory)}
-                      title="Edit memory"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onDelete(memory)}
-                      title="Delete memory"
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {memories.map((memory) => {
+              const uniqueKey = getMemoryUniqueKey(memory);
+              const isSelected = selectedKeys.includes(uniqueKey);
+              return (
+                <TableRow key={uniqueKey}>
+                  {bulkDeleteEnabled && (
+                    <TableCell>
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={(checked) => handleRowToggle(memory, checked as boolean)}
+                        aria-label={`Select ${memory.key}`}
+                      />
+                    </TableCell>
+                  )}
+                  <TableCell className="font-medium max-w-xs truncate">
+                    {memory.key}
+                  </TableCell>
+                  <TableCell>{getScopeBadge(memory.scope)}</TableCell>
+                  <TableCell>
+                    <code className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                      {memory.agent_name}
+                    </code>
+                  </TableCell>
+                  <TableCell>{getImportanceBadge(memory.importance)}</TableCell>
+                  <TableCell className="text-sm text-slate-500">
+                    {formatDistanceToNow(new Date(memory.updated_at), { addSuffix: true })}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onView(memory)}
+                        title="View details"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(memory)}
+                        title="Edit memory"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onDelete(memory)}
+                        title="Delete memory"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
