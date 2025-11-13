@@ -109,8 +109,9 @@ if AUTH_AVAILABLE:
     app.include_router(api_keys.router, prefix="/api/v1", tags=["api-keys"])
 
 # MCP over HTTP/SSE (Phase C - ChatGPT Connector)
-# Mount as ASGI app to handle GET/POST/DELETE
-app.mount("/mcp", mcp_asgi_app)
+# Use Starlette Mount to avoid trailing slash redirect (Issue #668)
+from starlette.routing import Mount
+app.routes.append(Mount("/mcp", app=mcp_asgi_app, name="mcp"))
 
 
 # Root endpoint
