@@ -71,8 +71,8 @@
         # Referrer policy
         Referrer-Policy "strict-origin-when-cross-origin"
 
-        # Content Security Policy
-        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+        # Content Security Policy (Issue #670: Allow Google profile images)
+        Content-Security-Policy "default-src 'self'; img-src 'self' https://lh3.googleusercontent.com data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
 
         # Remove server header
         -Server
