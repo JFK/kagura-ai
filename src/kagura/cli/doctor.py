@@ -96,13 +96,13 @@ def _check_dependencies() -> list[tuple[str, str, str]]:
 async def _check_api_configuration() -> list[tuple[str, str, str]]:
     """Check API key configuration and connectivity.
 
-    Uses shared utility from utils.api_check for consistency.
+    Uses shared utility from utils.api.check for consistency.
     Related: Issue #538 - Consolidate API connectivity checks
 
     Returns:
         List of (provider_name, status, message) tuples
     """
-    from kagura.utils.api_check import check_api_configuration
+    from kagura.utils.api.check import check_api_configuration
 
     return await check_api_configuration()
 
@@ -237,36 +237,127 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
     return status, recommendations
 
 
-def _check_mcp_integration() -> tuple[str, str]:
-    """Check MCP integration status.
+def _check_qdrant() -> tuple[str, str]:
+    """Check Qdrant vector database connectivity.
 
     Returns:
         Tuple of (status, message)
     """
-    # Check Claude Desktop config
-    config_paths = [
-        Path.home() / ".config" / "claude-code" / "mcp.json",
-        Path.home()
-        / "Library"
-        / "Application Support"
-        / "Claude"
-        / "claude_desktop_config.json",
-    ]
+    import os
 
-    for path in config_paths:
-        if path.exists():
-            try:
-                import json
+    qdrant_url = os.getenv("QDRANT_URL")
+    vector_backend = os.getenv("VECTOR_BACKEND", "chromadb")
 
-                with open(path) as f:
-                    config = json.load(f)
+    if vector_backend != "qdrant":
+        return "info", "Not configured (using ChromaDB)"
 
-                if "mcpServers" in config and "kagura" in config["mcpServers"]:
-                    return "ok", f"Configured in {path.name}"
-            except Exception:  # Ignore errors - operation is non-critical
-                pass
+    if not qdrant_url:
+        return (
+            "warning",
+            "VECTOR_BACKEND=qdrant but QDRANT_URL not set",
+        )
 
-    return "warning", "Not configured (MCP server starts with Claude Desktop)"
+    try:
+        from qdrant_client import QdrantClient
+
+        client = QdrantClient(url=qdrant_url, timeout=5)
+        collections = client.get_collections().collections
+        collection_count = len(collections)
+
+        return "ok", f"Connected to {qdrant_url} ({collection_count} collections)"
+    except ImportError:
+        return "error", "qdrant-client not installed"
+    except Exception as e:
+        return "error", f"Connection failed: {str(e)[:50]}"
+
+
+def _check_redis() -> tuple[str, str]:
+    """Check Redis cache connectivity.
+
+    Returns:
+        Tuple of (status, message)
+    """
+    import os
+
+    redis_url = os.getenv("REDIS_URL")
+    cache_backend = os.getenv("CACHE_BACKEND", "memory")
+
+    if cache_backend != "redis":
+        return "info", "Not configured (using in-memory cache)"
+
+    if not redis_url:
+        return "warning", "CACHE_BACKEND=redis but REDIS_URL not set"
+
+    try:
+        import redis
+
+        client = redis.from_url(redis_url, socket_timeout=5, socket_connect_timeout=5)
+        client.ping()
+        info: dict[str, Any] = client.info("stats")  # type: ignore
+        total_ops = int(info.get("total_commands_processed", 0))
+
+        return "ok", f"Connected ({total_ops:,} ops processed)"
+    except ImportError:
+        return "error", "redis package not installed"
+    except Exception as e:
+        return "error", f"Connection failed: {str(e)[:50]}"
+
+
+def _check_postgres() -> tuple[str, str]:
+    """Check PostgreSQL database connectivity.
+
+    Returns:
+        Tuple of (status, message)
+    """
+    import os
+
+    db_url = os.getenv("DATABASE_URL", "")
+
+    if not db_url or "postgresql" not in db_url:
+        return "info", "Not configured (using SQLite)"
+
+    try:
+        from sqlalchemy import create_engine, text
+
+        engine = create_engine(db_url, connect_args={"connect_timeout": 5})
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT version()"))
+            version = result.scalar()
+            # Extract just "PostgreSQL 14.x"
+            version_short = version.split(",")[0] if version else "Unknown"
+
+        return "ok", f"Connected ({version_short})"
+    except ImportError:
+        return "error", "sqlalchemy or psycopg2 not installed"
+    except Exception as e:
+        return "error", f"Connection failed: {str(e)[:50]}"
+
+
+def _check_remote_mcp() -> tuple[str, str]:
+    """Check remote MCP server status.
+
+    Returns:
+        Tuple of (status, message)
+    """
+    import os
+
+    mcp_enabled = os.getenv("MCP_REMOTE_ENABLED", "false").lower() == "true"
+
+    if not mcp_enabled:
+        return "info", "Remote MCP not enabled (set MCP_REMOTE_ENABLED=true)"
+
+    try:
+        # Try to check if MCP server is running
+        from kagura.api.routes.mcp_transport import _mcp_server
+
+        if _mcp_server is not None:
+            return "ok", "Running (HTTP/SSE endpoint active)"
+        else:
+            return "warning", "Enabled but not started"
+    except ImportError:
+        return "warning", "MCP module not available"
+    except Exception as e:
+        return "warning", f"Status unknown: {str(e)[:30]}"
 
 
 def _check_coding_memory() -> dict[str, Any]:
@@ -440,14 +531,43 @@ def doctor(ctx: click.Context, fix: bool) -> None:
 
     console.print()
 
-    # 4. MCP Integration
-    console.print("[bold cyan]4. MCP Integration[/]")
-    mcp_status, mcp_msg = _check_mcp_integration()
-    console.print(f"   {_get_status_icon(mcp_status)} Claude Desktop: {mcp_msg}")
+    # 4. Backend Services (Issue #668)
+    console.print("[bold cyan]4. Backend Services[/]")
+
+    # PostgreSQL
+    pg_status, pg_msg = _check_postgres()
+    console.print(f"   {_get_status_icon(pg_status)} PostgreSQL: {pg_msg}")
+    if pg_status == "error" and overall_status != "error":
+        overall_status = "error"
+    elif pg_status == "warning" and overall_status == "ok":
+        overall_status = "warning"
+
+    # Redis
+    redis_status, redis_msg = _check_redis()
+    console.print(f"   {_get_status_icon(redis_status)} Redis: {redis_msg}")
+    if redis_status == "error" and overall_status != "error":
+        overall_status = "error"
+    elif redis_status == "warning" and overall_status == "ok":
+        overall_status = "warning"
+
+    # Qdrant
+    qdrant_status, qdrant_msg = _check_qdrant()
+    console.print(f"   {_get_status_icon(qdrant_status)} Qdrant: {qdrant_msg}")
+    if qdrant_status == "error" and overall_status != "error":
+        overall_status = "error"
+    elif qdrant_status == "warning" and overall_status == "ok":
+        overall_status = "warning"
+
     console.print()
 
-    # 5. Coding Memory
-    console.print("[bold cyan]5. Coding Memory[/]")
+    # 5. Remote MCP Server (Issue #668)
+    console.print("[bold cyan]5. Remote MCP Server[/]")
+    mcp_status, mcp_msg = _check_remote_mcp()
+    console.print(f"   {_get_status_icon(mcp_status)} HTTP/SSE Endpoint: {mcp_msg}")
+    console.print()
+
+    # 6. Coding Memory
+    console.print("[bold cyan]6. Coding Memory[/]")
     coding_status = _check_coding_memory()
     console.print(
         f"   {_get_status_icon('ok')} Projects: {coding_status['projects_count']} tracked"

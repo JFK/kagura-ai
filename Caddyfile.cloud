@@ -21,6 +21,29 @@
         reverse_proxy api:8080
     }
 
+    # MCP over HTTP/SSE (Issue #668)
+    handle /mcp {
+        reverse_proxy api:8080 {
+            # SSE requires longer timeouts and no buffering
+            flush_interval -1
+
+            # Keep-alive for SSE connections
+            header_up Connection "keep-alive"
+            header_up Cache-Control "no-cache"
+        }
+
+        # CORS for ChatGPT Connector (optional)
+        @cors_preflight {
+            method OPTIONS
+        }
+        handle @cors_preflight {
+            header Access-Control-Allow-Origin "*"
+            header Access-Control-Allow-Methods "GET, POST, DELETE, OPTIONS"
+            header Access-Control-Allow-Headers "Content-Type, Authorization"
+            respond 204
+        }
+    }
+
     # Health check (no auth required)
     handle /health {
         reverse_proxy api:8080
