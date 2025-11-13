@@ -4,6 +4,7 @@
  * Memories Management Page
  *
  * Displays list of memories with search, filter, and CRUD operations
+ * Issue #666: Phase 2 - Added Coding Sessions tab
  */
 
 import { useEffect, useState } from 'react';
@@ -17,84 +18,153 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, RefreshCw } from 'lucide-react';
-import { getMemories } from '@/lib/memory';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Search, RefreshCw, Trash2 } from 'lucide-react';
+import { getMemories, bulkDeleteMemories } from '@/lib/memory';
+import { listCodingSessions } from '@/lib/coding-sessions';
 import type { Memory, MemoryScope } from '@/lib/types/memory';
+import type { SessionSummary } from '@/lib/coding-sessions';
+import { toast } from 'sonner';
 import { MemoriesTable } from '@/components/memories/MemoriesTable';
+import { SessionsTable } from '@/components/memories/SessionsTable';
 import { CreateMemoryDialog } from '@/components/memories/CreateMemoryDialog';
 import { MemoryDetailDialog } from '@/components/memories/MemoryDetailDialog';
+import { SessionDetailDialog } from '@/components/memories/SessionDetailDialog';
 import { EditMemoryDialog } from '@/components/memories/EditMemoryDialog';
 import { DeleteMemoryDialog } from '@/components/memories/DeleteMemoryDialog';
 
 export default function MemoriesPage() {
   const { user } = useAuth();
-  const [memories, setMemories] = useState<Memory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Filters
+  // Active tab
+  const [activeTab, setActiveTab] = useState<'memories' | 'sessions'>('memories');
+
+  // Memories state
+  const [memories, setMemories] = useState<Memory[]>([]);
+  const [memoriesLoading, setMemoriesLoading] = useState(true);
+  const [memoriesError, setMemoriesError] = useState<string | null>(null);
+
+  // Sessions state
+  const [sessions, setSessions] = useState<SessionSummary[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionsError, setSessionsError] = useState<string | null>(null);
+
+  // Memory Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [scopeFilter, setScopeFilter] = useState<MemoryScope | 'all'>('all');
   const [agentFilter, setAgentFilter] = useState<string>('all');
 
-  // Pagination
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const pageSize = 20;
+  // Session Filters
+  const [projectFilter, setProjectFilter] = useState<string>('all');
+
+  // Memories Pagination
+  const [memoriesPage, setMemoriesPage] = useState(1);
+  const [memoriesTotal, setMemoriesTotal] = useState(0);
+  const memoriesPageSize = 20;
+
+  // Sessions Pagination
+  const [sessionsPage, setSessionsPage] = useState(1);
+  const [sessionsTotal, setSessionsTotal] = useState(0);
+  const sessionsPageSize = 20;
+
+  // Bulk delete (Issue #666)
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   // Dialogs
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [detailMemory, setDetailMemory] = useState<Memory | null>(null);
   const [editMemory, setEditMemory] = useState<Memory | null>(null);
   const [deleteMemory, setDeleteMemory] = useState<Memory | null>(null);
+  const [detailSessionId, setDetailSessionId] = useState<string | null>(null);
 
   // Fetch memories
   const fetchMemories = async () => {
     if (!user) return;
 
     try {
-      setLoading(true);
-      setError(null);
+      setMemoriesLoading(true);
+      setMemoriesError(null);
 
       const params = {
         query: searchQuery || undefined,
         scope: scopeFilter !== 'all' ? scopeFilter : undefined,
         agent_name: agentFilter !== 'all' ? agentFilter : undefined,
-        limit: pageSize,
-        offset: (page - 1) * pageSize,
+        limit: memoriesPageSize,
+        offset: (memoriesPage - 1) * memoriesPageSize,
       };
 
       const response = await getMemories(params);
       setMemories(response.memories || []);
-      setTotal(response.total || 0);
+      setMemoriesTotal(response.total || 0);
     } catch (err) {
       console.error('Failed to fetch memories:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load memories');
+      setMemoriesError(err instanceof Error ? err.message : 'Failed to load memories');
     } finally {
-      setLoading(false);
+      setMemoriesLoading(false);
+    }
+  };
+
+  // Fetch sessions
+  const fetchSessions = async () => {
+    if (!user) return;
+
+    try {
+      setSessionsLoading(true);
+      setSessionsError(null);
+
+      const params = {
+        project_id: projectFilter !== 'all' ? projectFilter : undefined,
+        limit: sessionsPageSize,
+        offset: (sessionsPage - 1) * sessionsPageSize,
+      };
+
+      const response = await listCodingSessions(params);
+      setSessions(response.sessions || []);
+      setSessionsTotal(response.total || 0);
+    } catch (err) {
+      console.error('Failed to fetch sessions:', err);
+      setSessionsError(err instanceof Error ? err.message : 'Failed to load sessions');
+    } finally {
+      setSessionsLoading(false);
     }
   };
 
   // Load memories on mount and filter changes
   useEffect(() => {
-    fetchMemories();
-  }, [user, page, scopeFilter, agentFilter]);
+    if (activeTab === 'memories') {
+      fetchMemories();
+    }
+  }, [user, memoriesPage, scopeFilter, agentFilter, activeTab]);
 
-  // Search with debounce
+  // Load sessions when tab changes or filters change
   useEffect(() => {
+    if (activeTab === 'sessions') {
+      fetchSessions();
+    }
+  }, [user, sessionsPage, projectFilter, activeTab]);
+
+  // Search with debounce (for memories only)
+  useEffect(() => {
+    if (activeTab !== 'memories') return;
+
     const timer = setTimeout(() => {
-      if (page === 1) {
+      if (memoriesPage === 1) {
         fetchMemories();
       } else {
-        setPage(1); // Reset to page 1, which will trigger fetchMemories
+        setMemoriesPage(1); // Reset to page 1, which will trigger fetchMemories
       }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, activeTab]);
 
   const handleRefresh = () => {
-    fetchMemories();
+    if (activeTab === 'memories') {
+      fetchMemories();
+    } else {
+      fetchSessions();
+    }
   };
 
   const handleMemoryCreated = () => {
@@ -112,6 +182,47 @@ export default function MemoriesPage() {
     fetchMemories();
   };
 
+  // Handle bulk delete (Issue #666)
+  const handleBulkDelete = async () => {
+    if (selectedKeys.length === 0) return;
+
+    // Confirm deletion
+    if (!confirm(`Delete ${selectedKeys.length} selected memories? This action cannot be undone.`)) {
+      return;
+    }
+
+    setBulkDeleting(true);
+    try {
+      // Parse selected keys to get actual memory keys and metadata
+      // Format: "key:scope:agent_name"
+      const keysToDelete = selectedKeys.map(uniqueKey => uniqueKey.split(':')[0]);
+
+      // Group by scope (assuming all selected are from same scope for simplicity)
+      // In production, you might want to handle mixed scopes
+      const firstKey = selectedKeys[0];
+      const scope = firstKey.split(':')[1] as 'working' | 'persistent';
+
+      const result = await bulkDeleteMemories(keysToDelete, scope);
+
+      if (result.deleted_count > 0) {
+        toast.success(`Successfully deleted ${result.deleted_count} memories`);
+      }
+
+      if (result.failed_keys.length > 0) {
+        toast.warning(`${result.failed_keys.length} memories could not be deleted`);
+      }
+
+      // Clear selection and refresh
+      setSelectedKeys([]);
+      fetchMemories();
+    } catch (error) {
+      console.error('Bulk delete failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to delete memories');
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -119,77 +230,157 @@ export default function MemoriesPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Memories</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2">
-            Manage your memory cloud storage
+            Manage your memory cloud storage and coding sessions
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Memory
-        </Button>
+        {activeTab === 'memories' && (
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Memory
+          </Button>
+        )}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            placeholder="Search memories..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'memories' | 'sessions')}>
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="memories">Normal Memories</TabsTrigger>
+          <TabsTrigger value="sessions">Coding Sessions</TabsTrigger>
+        </TabsList>
 
-        {/* Scope Filter */}
-        <Select value={scopeFilter} onValueChange={(value) => setScopeFilter(value as MemoryScope | 'all')}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Scopes" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Scopes</SelectItem>
-            <SelectItem value="working">Working</SelectItem>
-            <SelectItem value="persistent">Persistent</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Normal Memories Tab */}
+        <TabsContent value="memories" className="space-y-4 mt-6">
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Search */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search memories..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
 
-        {/* Agent Filter */}
-        <Select value={agentFilter} onValueChange={setAgentFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Agents" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Agents</SelectItem>
-            <SelectItem value="global">Global</SelectItem>
-            <SelectItem value="chatbot">Chatbot</SelectItem>
-            <SelectItem value="translator">Translator</SelectItem>
-          </SelectContent>
-        </Select>
+            {/* Scope Filter */}
+            <Select value={scopeFilter} onValueChange={(value) => setScopeFilter(value as MemoryScope | 'all')}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Scopes" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Scopes</SelectItem>
+                <SelectItem value="working">Working</SelectItem>
+                <SelectItem value="persistent">Persistent</SelectItem>
+              </SelectContent>
+            </Select>
 
-        {/* Refresh */}
-        <Button variant="outline" size="icon" onClick={handleRefresh}>
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-        </Button>
-      </div>
+            {/* Agent Filter */}
+            <Select value={agentFilter} onValueChange={setAgentFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Agents" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Agents</SelectItem>
+                <SelectItem value="global">Global</SelectItem>
+                <SelectItem value="chatbot">Chatbot</SelectItem>
+                <SelectItem value="translator">Translator</SelectItem>
+              </SelectContent>
+            </Select>
 
-      {/* Table */}
-      {error ? (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
-          {error}
-        </div>
-      ) : (
-        <MemoriesTable
-          memories={memories}
-          loading={loading}
-          onView={(memory) => setDetailMemory(memory)}
-          onEdit={(memory) => setEditMemory(memory)}
-          onDelete={(memory) => setDeleteMemory(memory)}
-          page={page}
-          pageSize={pageSize}
-          total={total}
-          onPageChange={setPage}
-        />
-      )}
+            {/* Refresh */}
+            <Button variant="outline" size="icon" onClick={handleRefresh}>
+              <RefreshCw className={`h-4 w-4 ${memoriesLoading ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
+
+          {/* Bulk Delete Button (Issue #666) */}
+          {selectedKeys.length > 0 && (
+            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+              <span className="text-sm text-slate-700 dark:text-slate-300">
+                {selectedKeys.length} {selectedKeys.length === 1 ? 'memory' : 'memories'} selected
+              </span>
+              <Button
+                variant="destructive"
+                onClick={handleBulkDelete}
+                disabled={bulkDeleting}
+              >
+                {bulkDeleting ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Selected
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Table */}
+          {memoriesError ? (
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
+              {memoriesError}
+            </div>
+          ) : (
+            <MemoriesTable
+              memories={memories}
+              loading={memoriesLoading}
+              onView={(memory) => setDetailMemory(memory)}
+              onEdit={(memory) => setEditMemory(memory)}
+              onDelete={(memory) => setDeleteMemory(memory)}
+              page={memoriesPage}
+              pageSize={memoriesPageSize}
+              total={memoriesTotal}
+              onPageChange={setMemoriesPage}
+              selectedKeys={selectedKeys}
+              onSelectionChange={setSelectedKeys}
+            />
+          )}
+        </TabsContent>
+
+        {/* Coding Sessions Tab */}
+        <TabsContent value="sessions" className="space-y-4 mt-6">
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Project Filter */}
+            <Select value={projectFilter} onValueChange={setProjectFilter}>
+              <SelectTrigger className="w-[240px]">
+                <SelectValue placeholder="All Projects" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Projects</SelectItem>
+                <SelectItem value="kagura-ai">kagura-ai</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Refresh */}
+            <Button variant="outline" size="icon" onClick={handleRefresh}>
+              <RefreshCw className={`h-4 w-4 ${sessionsLoading ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
+
+          {/* Table */}
+          {sessionsError ? (
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
+              {sessionsError}
+            </div>
+          ) : (
+            <SessionsTable
+              sessions={sessions}
+              loading={sessionsLoading}
+              onViewDetail={(session) => setDetailSessionId(session.id)}
+              page={sessionsPage}
+              pageSize={sessionsPageSize}
+              total={sessionsTotal}
+              onPageChange={setSessionsPage}
+            />
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Dialogs */}
       <CreateMemoryDialog
@@ -229,6 +420,14 @@ export default function MemoriesPage() {
           open={!!deleteMemory}
           onOpenChange={(open) => !open && setDeleteMemory(null)}
           onSuccess={handleMemoryDeleted}
+        />
+      )}
+
+      {detailSessionId && (
+        <SessionDetailDialog
+          sessionId={detailSessionId}
+          open={!!detailSessionId}
+          onOpenChange={(open) => !open && setDetailSessionId(null)}
         />
       )}
     </div>
