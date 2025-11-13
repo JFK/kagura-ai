@@ -253,7 +253,7 @@ async def get_current_user_info(request: Request):
         request: FastAPI request (session injected by SessionMiddleware)
 
     Returns:
-        User information from session
+        User information from session (wrapped in "user" object for frontend compatibility)
 
     Raises:
         HTTPException(401): Not authenticated
@@ -262,24 +262,33 @@ async def get_current_user_info(request: Request):
         GET /api/v1/auth/me
         Cookie: session_id=...
         Response: {
-            "user_id": "google_123",
-            "email": "user@example.com",
-            "name": "Example User",
-            "role": "admin"
+            "user": {
+                "id": "google_123",
+                "email": "user@example.com",
+                "name": "Example User",
+                "role": "admin"
+            }
         }
+
+    Note:
+        Frontend expects {user: {...}} format (Issue #664).
+        Response wrapped in "user" object for compatibility.
     """
     # Get user from request.state (injected by SessionMiddleware)
     if not hasattr(request.state, "user") or not request.state.user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    user = request.state.user
+    user_data = request.state.user
 
+    # Return wrapped in "user" object for frontend compatibility
     return {
-        "user_id": user.get("sub"),
-        "email": user.get("email"),
-        "name": user.get("name"),
-        "picture": user.get("picture"),
-        "role": user.get("role", "user"),
+        "user": {
+            "id": user_data.get("sub"),
+            "email": user_data.get("email"),
+            "name": user_data.get("name"),
+            "picture": user_data.get("picture"),
+            "role": user_data.get("role", "user"),
+        }
     }
 
 
