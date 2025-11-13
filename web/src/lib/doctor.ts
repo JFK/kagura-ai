@@ -69,23 +69,29 @@ export interface CodingDoctorResponse {
 
 /**
  * Get system health check
+ *
+ * Note: Uses relative path because NEXT_PUBLIC_API_URL may include /api/v1 prefix
  */
 export async function getSystemDoctor(): Promise<SystemDoctorResponse> {
-  return apiClient.get<SystemDoctorResponse>('/api/v1/system/doctor');
+  return apiClient.get<SystemDoctorResponse>('/system/doctor');
 }
 
 /**
  * Get memory system health check
+ *
+ * Note: Uses relative path because NEXT_PUBLIC_API_URL may include /api/v1 prefix
  */
 export async function getMemoryDoctor(): Promise<MemoryDoctorResponse> {
-  return apiClient.get<MemoryDoctorResponse>('/api/v1/memory/doctor');
+  return apiClient.get<MemoryDoctorResponse>('/memory/doctor');
 }
 
 /**
  * Get coding memory health check
+ *
+ * Note: Uses relative path because NEXT_PUBLIC_API_URL may include /api/v1 prefix
  */
 export async function getCodingDoctor(): Promise<CodingDoctorResponse> {
-  return apiClient.get<CodingDoctorResponse>('/api/v1/coding/doctor');
+  return apiClient.get<CodingDoctorResponse>('/coding/doctor');
 }
 
 /**

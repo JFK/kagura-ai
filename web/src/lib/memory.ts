@@ -50,7 +50,7 @@ export async function getMemory(
     agent_name: agentName,
   });
 
-  return apiClient.get<Memory>(`/api/v1/memory/${encodeURIComponent(key)}?${searchParams.toString()}`);
+  return apiClient.get<Memory>(`/memory/${encodeURIComponent(key)}?${searchParams.toString()}`);
 }
 
 /**
@@ -60,7 +60,7 @@ export async function createMemory(
   userId: string,
   data: CreateMemoryRequest
 ): Promise<Memory> {
-  return apiClient.post<Memory>('/api/v1/memory', {
+  return apiClient.post<Memory>('/memory', {
     user_id: userId,
     ...data,
   });
@@ -76,7 +76,7 @@ export async function updateMemory(
   scope: string = 'persistent',
   agentName: string = 'global'
 ): Promise<Memory> {
-  return apiClient.put<Memory>(`/api/v1/memory/${encodeURIComponent(key)}`, {
+  return apiClient.put<Memory>(`/memory/${encodeURIComponent(key)}`, {
     user_id: userId,
     scope,
     agent_name: agentName,
@@ -99,14 +99,14 @@ export async function deleteMemory(
     agent_name: agentName,
   });
 
-  return apiClient.delete<void>(`/api/v1/memory/${encodeURIComponent(key)}?${searchParams.toString()}`);
+  return apiClient.delete<void>(`/memory/${encodeURIComponent(key)}?${searchParams.toString()}`);
 }
 
 /**
  * Get memory statistics
  */
 export async function getMemoryStats(userId: string): Promise<MemoryStatsResponse> {
-  return apiClient.get<MemoryStatsResponse>(`/api/v1/memory/stats?user_id=${userId}`);
+  return apiClient.get<MemoryStatsResponse>(`/memory/stats?user_id=${userId}`);
 }
 
 /**
