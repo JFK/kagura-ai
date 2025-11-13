@@ -7,13 +7,17 @@ Memory management API routes:
 - DELETE /api/v1/memory/{key} - Delete memory
 - GET /api/v1/memory - List memories
 - GET /api/v1/memory/doctor - Memory system health check (Issue #664)
+- POST /api/v1/memory/bulk-delete - Bulk delete memories (Issue #666)
 """
 
+import logging
 from datetime import datetime
 from pathlib import Path as FilePath
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
+
+logger = logging.getLogger(__name__)
 
 from kagura.api import models
 from kagura.api.dependencies import MemoryManagerDep, get_current_user
@@ -495,3 +499,80 @@ async def list_memories(
         "page": page,
         "page_size": page_size,
     }
+
+
+# ============================================================================
+# Bulk Operations (Issue #666 - Phase 2)
+# ============================================================================
+
+
+@router.post("/bulk-delete", response_model=models.BulkDeleteResponse)
+async def bulk_delete_memories(
+    request: models.BulkDeleteRequest,
+    memory: MemoryManagerDep,
+    user: dict[str, Any] = Depends(get_current_user),
+) -> models.BulkDeleteResponse:
+    """Delete multiple memories at once.
+
+    Performs bulk deletion of memories. Returns count of successful
+    deletions and list of failed keys with error messages.
+
+    Args:
+        request: Bulk delete request with keys list
+        memory: MemoryManager dependency
+        user: Authenticated user (dependency)
+
+    Returns:
+        Deletion results
+
+    Example:
+        POST /api/v1/memory/bulk-delete
+        Body: {
+            "keys": ["key1", "key2", "key3"],
+            "scope": "persistent",
+            "agent_name": "global"
+        }
+        Response: {
+            "deleted_count": 2,
+            "failed_keys": ["key3"],
+            "errors": {
+                "key3": "Memory not found"
+            }
+        }
+    """
+    deleted_count = 0
+    failed_keys = []
+    errors = {}
+
+    for key in request.keys:
+        try:
+            if request.scope == "working":
+                # Delete from working memory
+                if memory.has_temp(key):
+                    memory.delete_temp(key)
+                    # Also delete metadata
+                    memory.delete_temp(f"_meta_{key}")
+                    deleted_count += 1
+                else:
+                    failed_keys.append(key)
+                    errors[key] = "Memory not found in working scope"
+            else:
+                # Delete from persistent memory
+                existing = memory.recall(key)
+                if existing is not None:
+                    memory.forget(key)
+                    deleted_count += 1
+                else:
+                    failed_keys.append(key)
+                    errors[key] = "Memory not found in persistent scope"
+
+        except Exception as e:
+            logger.error(f"Failed to delete memory {key}: {e}")
+            failed_keys.append(key)
+            errors[key] = str(e)
+
+    return models.BulkDeleteResponse(
+        deleted_count=deleted_count,
+        failed_keys=failed_keys,
+        errors=errors,
+    )
