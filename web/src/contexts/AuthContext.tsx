@@ -43,8 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           name: 'Developer (Mock)',
           picture: '',
           role: 'admin',
-          created_at: new Date().toISOString(),
-          last_login_at: new Date().toISOString(),
         });
         setIsLoading(false);
         return;
