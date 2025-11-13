@@ -1,16 +1,17 @@
 /**
- * Next.js Middleware
+ * Next.js Proxy
  *
- * Issue #651 - Minimal middleware for Next.js
+ * Issue #651 - Minimal proxy for Next.js 16
+ * Migrated from middleware.ts per Next.js 16 deprecation
  *
  * Note: Authentication guards are handled in (dashboard)/layout.tsx
- * This middleware only handles static file serving optimization.
+ * This proxy only handles static file serving optimization.
  */
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export default async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   // All requests pass through (no special handling needed)
   // Authentication is handled in (dashboard)/layout.tsx
   return NextResponse.next();
