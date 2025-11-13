@@ -29,7 +29,7 @@ export function GradientCard({
       onClick={onClick}
     >
       {/* Gradient overlay on hover */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 transition-opacity group-hover:opacity-5`} />
+      <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 transition-opacity group-hover:opacity-5`} />
 
       <CardContent className="relative p-6">
         {Icon && (

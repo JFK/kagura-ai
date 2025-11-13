@@ -39,7 +39,7 @@ export function SessionCard({ session, onView }: SessionCardProps) {
   return (
     <Card className="group relative overflow-hidden border-gray-200 bg-white transition-all hover:border-brand-green-300 hover:shadow-xl hover:-translate-y-1">
       {/* Gradient overlay on hover */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${statusGradient} opacity-0 transition-opacity group-hover:opacity-5`} />
+      <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${statusGradient} opacity-0 transition-opacity group-hover:opacity-5`} />
 
       <CardContent className="relative p-6">
         {/* Header */}

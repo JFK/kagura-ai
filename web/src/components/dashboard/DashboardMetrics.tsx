@@ -190,7 +190,7 @@ export function DashboardMetrics() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {/* PostgreSQL */}
           <Card className="group overflow-hidden border-gray-200 bg-white transition-all hover:border-brand-green-300 hover:shadow-lg">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
             <CardContent className="relative p-6">
               <div className="mb-3 flex items-center justify-between">
                 <div className="inline-flex rounded-lg bg-blue-100 p-2 text-blue-600">
@@ -205,7 +205,7 @@ export function DashboardMetrics() {
 
           {/* Redis */}
           <Card className="group overflow-hidden border-gray-200 bg-white transition-all hover:border-brand-green-300 hover:shadow-lg">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-red-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
             <CardContent className="relative p-6">
               <div className="mb-3 flex items-center justify-between">
                 <div className="inline-flex rounded-lg bg-red-100 p-2 text-red-600">
@@ -220,7 +220,7 @@ export function DashboardMetrics() {
 
           {/* Qdrant */}
           <Card className="group overflow-hidden border-gray-200 bg-white transition-all hover:border-brand-green-300 hover:shadow-lg">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
             <CardContent className="relative p-6">
               <div className="mb-3 flex items-center justify-between">
                 <div className="inline-flex rounded-lg bg-purple-100 p-2 text-purple-600">
@@ -235,7 +235,7 @@ export function DashboardMetrics() {
 
           {/* Remote MCP */}
           <Card className="group overflow-hidden border-gray-200 bg-white transition-all hover:border-brand-green-300 hover:shadow-lg">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
             <CardContent className="relative p-6">
               <div className="mb-3 flex items-center justify-between">
                 <div className="inline-flex rounded-lg bg-brand-green-100 p-2 text-brand-green-600">

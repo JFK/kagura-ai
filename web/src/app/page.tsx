@@ -105,21 +105,21 @@ export default function LandingPage() {
               </div>
               
               <div className="flex items-center gap-3">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => router.push('/login')}
                   className="relative overflow-hidden transition-all hover:scale-105"
                 >
                   Sign in
                 </Button>
-                <Button 
-                  size="sm" 
-                  onClick={() => router.push('/login')} 
+                <Button
+                  size="sm"
+                  onClick={() => router.push('/login')}
                   className="group relative overflow-hidden bg-gradient-to-r from-brand-green-600 to-emerald-600 transition-all hover:scale-105 hover:shadow-lg hover:shadow-brand-green-500/50"
                 >
                   <span className="relative z-10">Get Started</span>
-                  <div className="absolute inset-0 -z-0 bg-gradient-to-r from-brand-green-700 to-emerald-700 opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-green-700 to-emerald-700 opacity-0 transition-opacity group-hover:opacity-100" />
                 </Button>
               </div>
             </div>
@@ -172,7 +172,7 @@ export default function LandingPage() {
                 onClick={() => router.push('/login')}
                 className="group relative h-14 overflow-hidden bg-gradient-to-r from-brand-green-600 to-emerald-600 px-8 text-base font-semibold text-white shadow-2xl shadow-brand-green-500/50 transition-all hover:scale-105 hover:shadow-3xl hover:shadow-brand-green-500/60"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-green-700 to-emerald-700 opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-green-700 to-emerald-700 opacity-0 transition-opacity group-hover:opacity-100" />
                 <span className="relative z-10 flex items-center">
                   <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -243,7 +243,7 @@ export default function LandingPage() {
                   className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white/80 p-8 backdrop-blur-sm transition-all hover:scale-105 hover:border-transparent hover:shadow-2xl"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${platform.gradient} opacity-0 transition-opacity group-hover:opacity-10`} />
+                  <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${platform.gradient} opacity-0 transition-opacity group-hover:opacity-10`} />
                   <div className="relative flex flex-col items-center justify-center">
                     <span className="mb-3 text-4xl transition-transform group-hover:scale-110">{platform.icon}</span>
                     <span className="text-sm font-semibold text-gray-700">{platform.name}</span>
@@ -301,10 +301,10 @@ export default function LandingPage() {
                     style={{ animationDelay: `${index * 150}ms` }}
                   >
                     {/* Gradient overlay on hover */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${demo.gradient} opacity-0 transition-opacity duration-500 group-hover:opacity-5`} />
-                    
+                    <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${demo.gradient} opacity-0 transition-opacity duration-500 group-hover:opacity-5`} />
+
                     {/* Shine effect */}
-                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+                    <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
 
                     <div className="relative">
                       <div className={`mb-6 inline-flex rounded-2xl bg-gradient-to-br ${demo.gradient} p-4 text-white shadow-lg transition-transform group-hover:scale-110 group-hover:rotate-3`}>
@@ -415,7 +415,7 @@ export default function LandingPage() {
                     className="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-8 transition-all duration-500 hover:-translate-y-1 hover:border-transparent hover:shadow-2xl"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 transition-opacity duration-500 group-hover:opacity-5`} />
+                    <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 transition-opacity duration-500 group-hover:opacity-5`} />
                     
                     <div className="relative">
                       <div className="mb-6 flex items-center justify-between">

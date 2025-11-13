@@ -100,7 +100,7 @@ function LoginContent() {
               size="lg"
               className="group relative h-14 w-full overflow-hidden bg-gradient-to-r from-brand-green-600 to-emerald-600 text-base font-semibold text-white shadow-xl shadow-brand-green-500/30 transition-all hover:scale-[1.02] hover:from-brand-green-700 hover:to-emerald-700 hover:shadow-2xl"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-brand-green-700 to-emerald-700 opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-green-700 to-emerald-700 opacity-0 transition-opacity group-hover:opacity-100" />
 
               {isLoading ? (
                 <span className="relative z-10 flex items-center justify-center gap-2">
