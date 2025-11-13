@@ -8,6 +8,7 @@
  */
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -107,11 +108,16 @@ export function Sidebar() {
     <aside className="flex flex-col w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
       {/* Logo */}
       <div className="flex items-center h-16 px-6 border-b border-slate-200 dark:border-slate-800">
-        <Link href="/dashboard" className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <span className="text-white font-bold text-lg">K</span>
-          </div>
-          <span className="font-semibold text-lg">Kagura</span>
+        <Link href="/dashboard" className="flex items-center space-x-3">
+          <Image
+            src="/kagura-icon.svg"
+            alt="Kagura AI"
+            width={40}
+            height={40}
+            className="h-10 w-10"
+            priority
+          />
+          <span className="font-semibold text-lg">Kagura AI</span>
         </Link>
       </div>
 

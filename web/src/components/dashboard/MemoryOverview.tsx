@@ -28,6 +28,7 @@ import {
   type MemoryDoctorResponse,
   type CodingDoctorResponse,
 } from '@/lib/doctor';
+import { MemoryStatsChart } from './MemoryStatsChart';
 
 function getStatusIcon(status: string) {
   switch (status) {
@@ -228,6 +229,12 @@ export function MemoryOverview() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Memory & Coding Statistics Charts */}
+      <MemoryStatsChart
+        memoryData={memoryData.stats}
+        codingData={codingData.stats}
+      />
 
       {/* Recommendations */}
       {memoryData.recommendations.length > 0 && (

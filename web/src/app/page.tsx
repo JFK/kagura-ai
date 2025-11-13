@@ -11,6 +11,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 
@@ -43,9 +44,14 @@ export default function LandingPage() {
       <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800">
         <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
           <div className="text-center mb-12">
-            <div className="h-16 w-16 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-3xl">K</span>
-            </div>
+            <Image
+              src="/kagura-logo.svg"
+              alt="Kagura AI Logo"
+              width={80}
+              height={80}
+              className="mx-auto mb-4"
+              priority
+            />
             <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Kagura Memory Cloud
             </h1>
