@@ -6,16 +6,22 @@ Memory management API routes:
 - PUT /api/v1/memory/{key} - Update memory
 - DELETE /api/v1/memory/{key} - Delete memory
 - GET /api/v1/memory - List memories
+- GET /api/v1/memory/doctor - Memory system health check (Issue #664)
 """
 
 from datetime import datetime
+from pathlib import Path as FilePath
 from typing import Annotated, Any
 
-from fastapi import APIRouter, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 from kagura.api import models
-from kagura.api.dependencies import MemoryManagerDep
+from kagura.api.dependencies import MemoryManagerDep, get_current_user
+from kagura.api.models_doctor import MemoryDoctorResponse, MemoryStats
+from kagura.config.paths import get_cache_dir, get_data_dir
+from kagura.config.project import get_reranking_enabled
 from kagura.utils import (
+    MemoryDatabaseQuery,
     build_full_metadata,
     decode_chromadb_metadata,
     extract_memory_fields,
@@ -324,3 +330,167 @@ async def list_memories(
         "page": page,
         "page_size": page_size,
     }
+
+
+# ============================================================================
+# Memory Doctor (Issue #664)
+# ============================================================================
+
+
+def _check_memory_system() -> tuple[MemoryStats, list[str]]:
+    """Check memory system status.
+
+    Returns:
+        Tuple of (stats, recommendations)
+    """
+    recommendations = []
+
+    # Check database
+    db_path = get_data_dir() / "memory.db"
+    database_exists = db_path.exists()
+    database_size_mb = db_path.stat().st_size / (1024**2) if database_exists else None
+
+    if not database_exists:
+        recommendations.append(
+            "Database not initialized (will be created on first use)"
+        )
+
+    # Check memory counts
+    persistent_count = 0
+    rag_count = 0
+    rag_enabled = False
+
+    try:
+        persistent_count = MemoryDatabaseQuery.count_memories()
+    except Exception:
+        pass
+
+    # Check RAG
+    try:
+        import chromadb
+
+        rag_count = 0
+        vector_db_paths = [
+            get_cache_dir() / "chromadb",  # Default CLI location
+            get_data_dir() / "chromadb",  # Alternative location
+        ]
+
+        for vdb_path in vector_db_paths:
+            if vdb_path.exists():
+                try:
+                    client = chromadb.PersistentClient(path=str(vdb_path))
+                    for col in client.list_collections():
+                        rag_count += col.count()
+                except Exception:
+                    pass
+
+        rag_enabled = True
+
+        if rag_count == 0 and persistent_count > 0:
+            recommendations.append(
+                "RAG index is empty but memories exist. "
+                "Run 'kagura memory index' to build index"
+            )
+
+    except ImportError:
+        recommendations.append(
+            "RAG not available. Install: pip install chromadb sentence-transformers"
+        )
+
+    # Check reranking
+    reranking_enabled = get_reranking_enabled()
+    reranking_model_installed = False
+
+    if not reranking_enabled:
+        try:
+            import sentence_transformers  # type: ignore # noqa: F401
+
+            cache_dir = get_data_dir() / "models"
+            model_path = cache_dir / "cross-encoder_ms-marco-MiniLM-L-6-v2"
+
+            if model_path.exists():
+                reranking_model_installed = True
+                recommendations.append(
+                    "Reranking model installed but not enabled. "
+                    "Set: export KAGURA_ENABLE_RERANKING=true"
+                )
+            else:
+                recommendations.append(
+                    "Reranking not available. Install: kagura memory setup --reranking"
+                )
+        except ImportError:
+            recommendations.append(
+                "sentence-transformers not installed (required for reranking)"
+            )
+        except RuntimeError as e:
+            error_msg = str(e).split("\n")[0]
+            recommendations.append(
+                f"sentence-transformers load failed: {error_msg}. "
+                "Check torchvision compatibility or reinstall dependencies."
+            )
+    else:
+        reranking_model_installed = True
+
+    stats = MemoryStats(
+        database_exists=database_exists,
+        database_size_mb=database_size_mb,
+        persistent_count=persistent_count,
+        rag_enabled=rag_enabled,
+        rag_count=rag_count,
+        reranking_enabled=reranking_enabled,
+        reranking_model_installed=reranking_model_installed,
+    )
+
+    return stats, recommendations
+
+
+@router.get("/doctor", response_model=MemoryDoctorResponse)
+async def get_memory_doctor(user: dict[str, Any] = Depends(get_current_user)) -> MemoryDoctorResponse:
+    """Get memory system health check.
+
+    Returns comprehensive memory system diagnostics including:
+    - Database status and size
+    - Persistent memory count
+    - RAG (vector database) status and count
+    - Reranking model status
+
+    Args:
+        user: Authenticated user (dependency)
+
+    Returns:
+        Memory system health check results with recommendations
+
+    Example:
+        GET /api/v1/memory/doctor
+        Response: {
+            "stats": {
+                "database_exists": true,
+                "database_size_mb": 15.2,
+                "persistent_count": 1250,
+                "rag_enabled": true,
+                "rag_count": 1250,
+                "reranking_enabled": false,
+                "reranking_model_installed": true
+            },
+            "status": "warning",
+            "recommendations": [
+                "Reranking model installed but not enabled. Set: export KAGURA_ENABLE_RERANKING=true"
+            ]
+        }
+    """
+    stats, recommendations = _check_memory_system()
+
+    # Determine overall status
+    status = "ok"
+    if not stats.rag_enabled:
+        status = "warning"
+    elif stats.rag_count == 0 and stats.persistent_count > 0:
+        status = "warning"
+    elif not stats.database_exists:
+        status = "info"
+
+    return MemoryDoctorResponse(
+        stats=stats,
+        status=status,
+        recommendations=recommendations,
+    )
