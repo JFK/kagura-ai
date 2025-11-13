@@ -55,6 +55,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Debug middleware to log all requests
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
+class RequestLoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        logger.info(f">>> Incoming request: {request.method} {request.url.path}")
+        logger.info(f">>> Headers: {dict(request.headers)}")
+        try:
+            response = await call_next(request)
+            logger.info(f"<<< Response status: {response.status_code}")
+            return response
+        except Exception as e:
+            logger.error(f"<<< Request failed: {e}", exc_info=True)
+            raise
+
+app.add_middleware(RequestLoggingMiddleware)
+
 # Issue #650: Session middleware for OAuth2 authentication
 # Issue #653: Auto-run migrations on startup
 if AUTH_AVAILABLE:
