@@ -197,6 +197,69 @@ export default function APIKeysPage() {
         </Alert>
       )}
 
+      {/* Remote MCP Setup Guide */}
+      <div className="rounded-2xl border-2 border-brand-green-200 bg-gradient-to-br from-brand-green-50 to-emerald-50 p-6">
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0 rounded-lg bg-brand-green-600 p-3 text-white">
+            <AlertCircle className="h-6 w-6" />
+          </div>
+          <div className="flex-1">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              Remote MCP Setup Guide
+            </h3>
+            <p className="mb-4 text-sm text-gray-700">
+              Connect Claude Code to your Kagura Memory Cloud via Remote MCP protocol over HTTPS.
+            </p>
+
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="mb-1 font-semibold text-gray-900">1. Copy your MCP endpoint:</p>
+                <code className="block rounded-lg bg-gray-900 px-3 py-2 font-mono text-xs text-green-400">
+                  https://memory.kagura-ai.com/mcp/sse
+                </code>
+              </div>
+
+              <div>
+                <p className="mb-1 font-semibold text-gray-900">2. Add to Claude Code config:</p>
+                <code className="block rounded-lg bg-gray-900 px-3 py-2 font-mono text-xs text-green-400">
+                  {`{
+  "mcpServers": {
+    "kagura": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-everything@latest"],
+      "env": {
+        "KAGURA_MCP_URL": "https://memory.kagura-ai.com/mcp/sse",
+        "KAGURA_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}`}
+                </code>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open('https://docs.kagura-ai.com/mcp-setup', '_blank')}
+                  className="border-brand-green-300 text-brand-green-700 hover:bg-brand-green-100"
+                >
+                  📚 Full Documentation
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open('https://docs.kagura-ai.com/troubleshooting', '_blank')}
+                  className="border-gray-300"
+                >
+                  🔧 Troubleshooting
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Table */}
       <APIKeysTable
         apiKeys={filteredKeys}
