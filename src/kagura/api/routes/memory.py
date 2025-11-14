@@ -505,6 +505,17 @@ async def list_memories(
             persistent_list = memory.search_memory("%", limit=1000)
 
         for mem in persistent_list:
+            key = mem.get("key", "")
+
+            # Skip coding sessions (they have their own endpoint)
+            # Coding session keys: "project:xxx:session:yyy"
+            if ":session:" in key:
+                continue
+
+            # Skip other coding-related keys
+            if key.startswith("project:") and any(x in key for x in [":error:", ":file_change:", ":decision:"]):
+                continue
+
             metadata_dict = mem.get("metadata", {})
 
             # Handle None metadata (can occur with coding sessions)

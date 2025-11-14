@@ -217,15 +217,20 @@ async def list_coding_sessions(
         sessions: list[models.SessionSummary] = []
         for sess_raw in all_sessions_raw:
             try:
+                # Extract session ID from key (format: "project:xxx:session:yyy")
+                key = sess_raw.get("key", "")
+
+                # Filter: only process keys that contain ":session:"
+                if ":session:" not in key:
+                    continue
+
+                session_id = key.split(":")[-1] if ":" in key else key
+
                 # Parse session data
                 value_str = sess_raw.get("value", "{}")
                 sess_data = (
                     json.loads(value_str) if isinstance(value_str, str) else value_str
                 )
-
-                # Extract session ID from key (format: "project:xxx:session:yyy")
-                key = sess_raw.get("key", "")
-                session_id = key.split(":")[-1] if ":" in key else key
 
                 # Parse timestamps
                 start_time = sess_data.get("start_time")
