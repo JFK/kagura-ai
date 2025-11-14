@@ -60,6 +60,8 @@ class MemoryResponse(BaseModel):
     metadata: dict[str, Any]
     created_at: datetime
     updated_at: datetime
+    user_id: str | None = None
+    agent_name: str | None = None
 
 
 class MemoryListResponse(BaseModel):

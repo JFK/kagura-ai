@@ -502,6 +502,8 @@ async def list_memories(
                     "updated_at": datetime.fromisoformat(mem_fields["updated_at"])
                     if mem_fields["updated_at"]
                     else datetime.now(),
+                    "user_id": mem.get("user_id"),
+                    "agent_name": mem.get("agent_name"),
                 }
             )
 

@@ -339,7 +339,7 @@ class PersistentMemory:
             cursor = conn.execute(
                 """
                 SELECT key, value, created_at, updated_at, metadata,
-                       access_count, last_accessed_at
+                       access_count, last_accessed_at, user_id, agent_name
                 FROM memories
                 WHERE key LIKE ? AND user_id = ?
                   AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))
@@ -360,6 +360,8 @@ class PersistentMemory:
                         "metadata": json.loads(row[4]) if row[4] else None,
                         "access_count": row[5] if row[5] is not None else 0,
                         "last_accessed_at": row[6],
+                        "user_id": row[7],
+                        "agent_name": row[8],
                     }
                 )
 

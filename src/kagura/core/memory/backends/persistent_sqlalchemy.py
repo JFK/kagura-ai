@@ -482,6 +482,8 @@ class SQLAlchemyPersistentBackend:
                         "metadata": json.loads(row.memory_metadata) if row.memory_metadata else None,
                         "access_count": row.access_count if row.access_count is not None else 0,
                         "last_accessed_at": row.last_accessed_at,
+                        "user_id": row.user_id,
+                        "agent_name": row.agent_name,
                     }
                 )
 
