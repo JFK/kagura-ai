@@ -440,9 +440,12 @@ class SQLAlchemyPersistentBackend:
         try:
             # Build query with LIKE pattern
             db_query = session.query(MemoryModel).filter(
-                MemoryModel.key.like(f"%{query}%"),
-                MemoryModel.user_id == user_id
+                MemoryModel.key.like(f"%{query}%")
             )
+
+            # Filter by user_id if provided (empty string means all users)
+            if user_id:
+                db_query = db_query.filter(MemoryModel.user_id == user_id)
 
             if agent_name is not None:
                 # Include both agent-scoped AND global (agent_name IS NULL) memories

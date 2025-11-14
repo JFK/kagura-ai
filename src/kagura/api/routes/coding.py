@@ -193,7 +193,12 @@ async def list_coding_sessions(
         # Get user_id from authenticated user, or empty string for all users (admin view)
         query_user_id = get_user_id_for_query(user, allow_all_users=True)
 
-        manager = MemoryManager(user_id=query_user_id or "system", agent_name="coding-memory")
+        # MemoryManager user_id is for internal use; actual query uses query_user_id below
+        # Use "system" as manager user_id when querying all users (query_user_id="")
+        manager = MemoryManager(
+            user_id=query_user_id or "system",  # MemoryManager requires non-empty user_id
+            agent_name="coding-memory"
+        )
 
         # Use fetch_all to get sessions across all users (if query_user_id is empty)
         # or for specific user (if authenticated)
@@ -203,12 +208,12 @@ async def list_coding_sessions(
             limit=1000,  # Get all, then paginate
         ) if hasattr(manager.persistent, 'fetch_all') else []
 
-        # Fallback: use search if fetch_all not available
+        # Fallback: use search if fetch_all not available or returns empty
         if not all_sessions_raw:
             query = f"project:{project_id}:session:%" if project_id else "%session%"
             all_sessions_raw = manager.persistent.search(
                 query=query,
-                user_id=query_user_id or "system",
+                user_id=query_user_id,  # Empty string = all users (now supported)
                 agent_name="coding-memory",
                 limit=1000,
             )
