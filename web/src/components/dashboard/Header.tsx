@@ -6,7 +6,7 @@
  * Displays breadcrumbs, user menu, and logout functionality.
  */
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -20,9 +20,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LogOut, User } from 'lucide-react';
 
+// Page title mapping based on route
+const PAGE_TITLES: Record<string, string> = {
+  '/dashboard': 'System Dashboard',
+  '/api-keys': 'API Keys',
+  '/memories': 'Memory Overview',
+  '/memories/list': 'Memory List',
+  '/settings/config': 'Configuration',
+  '/settings/profile': 'Profile Settings',
+};
+
 export function Header() {
   const { user, logout, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await logout();
@@ -37,12 +48,31 @@ export function Header() {
     return user.name.substring(0, 2).toUpperCase();
   };
 
+  // Determine page title based on current route
+  const getPageTitle = () => {
+    // Direct match
+    if (PAGE_TITLES[pathname]) {
+      return PAGE_TITLES[pathname];
+    }
+
+    // Pattern match for nested routes
+    if (pathname.startsWith('/settings/')) {
+      return 'Settings';
+    }
+    if (pathname.startsWith('/memories/')) {
+      return 'Memories';
+    }
+
+    // Default fallback
+    return 'Dashboard';
+  };
+
   return (
     <header className="flex items-center justify-between h-16 px-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
-      {/* Breadcrumbs or page title can go here */}
+      {/* Dynamic page title */}
       <div className="flex items-center gap-4">
         <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
-          Dashboard
+          {getPageTitle()}
         </h1>
       </div>
 
