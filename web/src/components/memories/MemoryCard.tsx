@@ -104,12 +104,12 @@ export function MemoryCard({ memory, onView, onEdit, onDelete }: MemoryCardProps
         <div className="mb-4">
           <div className="mb-1 flex items-center justify-between text-xs">
             <span className="text-gray-600">Importance</span>
-            <span className="font-medium text-gray-900">{memory.importance}/10</span>
+            <span className="font-medium text-gray-900">{(memory.importance * 10).toFixed(1)}/10</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
             <div
               className={`h-full rounded-full bg-gradient-to-r ${scopeGradient} transition-all`}
-              style={{ width: `${(memory.importance / 10) * 100}%` }}
+              style={{ width: `${memory.importance * 100}%` }}
             />
           </div>
         </div>
