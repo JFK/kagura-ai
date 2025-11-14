@@ -14,7 +14,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 from kagura.api import models
-from kagura.api.dependencies import get_current_user, get_current_user_optional
+from kagura.api.dependencies import get_current_user_optional
 from kagura.api.models_doctor import CodingDoctorResponse, CodingStats
 from kagura.core.memory import MemoryManager
 
@@ -31,8 +31,10 @@ def _check_coding_memory() -> CodingStats:
     """
     try:
         import os
-        from kagura.core.memory.backends import SQLAlchemyPersistentBackend
+
         from sqlalchemy import text
+
+        from kagura.core.memory.backends import SQLAlchemyPersistentBackend
 
         # Count sessions across all users by querying database directly
         sessions_count = 0
@@ -64,14 +66,11 @@ def _check_coding_memory() -> CodingStats:
                 )
                 projects = {row[0] for row in result if row[0]}
         else:
-            # SQLite: Use MemoryManager search (fallback)
-            manager = MemoryManager(user_id="_doctor", agent_name=None)
-
-            # Search for all session keys across all users
-            # Note: This only works for the current user's sessions
-            # For accurate counts, we'd need to iterate all users or query DB directly
+            # SQLite: Query database directly
+            # Note: For accurate counts, we need to query DB directly
             try:
                 import sqlite3
+
                 from kagura.config.paths import get_data_dir
 
                 db_path = get_data_dir() / "memory.db"
@@ -189,8 +188,10 @@ async def list_coding_sessions(
         }
     """
     try:
+        from kagura.core.resources import get_user_id_for_query
+
         # Get user_id from authenticated user, or empty string for all users (admin view)
-        query_user_id: str = user.get("sub", "") if user else ""
+        query_user_id = get_user_id_for_query(user, allow_all_users=True)
 
         manager = MemoryManager(user_id=query_user_id or "system", agent_name="coding-memory")
 

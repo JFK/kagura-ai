@@ -297,9 +297,10 @@ def _check_qdrant() -> SystemCheck:
         return SystemCheck(status="warning", message="VECTOR_BACKEND=qdrant but QDRANT_URL not set")
 
     try:
-        from qdrant_client import QdrantClient
+        from kagura.core.resources import get_rag_client
 
-        client = QdrantClient(url=qdrant_url, timeout=5)
+        # Use centralized resource manager
+        client = get_rag_client(backend="qdrant")
         collections = client.get_collections().collections
         collection_count = len(collections)
 

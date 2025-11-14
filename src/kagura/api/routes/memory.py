@@ -12,7 +12,6 @@ Memory management API routes:
 
 import logging
 from datetime import datetime
-from pathlib import Path as FilePath
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
@@ -20,9 +19,13 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query
 logger = logging.getLogger(__name__)
 
 from kagura.api import models
-from kagura.api.dependencies import MemoryManagerDep, get_current_user, get_current_user_optional
+from kagura.api.dependencies import (
+    MemoryManagerDep,
+    get_current_user,
+    get_current_user_optional,
+)
 from kagura.api.models_doctor import MemoryDoctorResponse, MemoryStats
-from kagura.config.paths import get_cache_dir, get_data_dir
+from kagura.config.paths import get_data_dir
 from kagura.config.project import get_reranking_enabled
 from kagura.utils import (
     MemoryDatabaseQuery,
@@ -100,67 +103,33 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
     except Exception:
         pass
 
-    # Check RAG (vector database)
-    rag_backend = os.getenv("PERSISTENT_BACKEND", "").lower()
-    qdrant_url = os.getenv("QDRANT_URL", "")
+    # Check RAG (vector database) - Use centralized resource manager
+    try:
+        from kagura.core.resources import get_rag_collection_count
 
-    # Check Qdrant first if configured
-    if rag_backend == "qdrant" or qdrant_url:
-        try:
-            from qdrant_client import QdrantClient  # type: ignore
+        rag_count = get_rag_collection_count()
+        rag_enabled = True
 
-            qdrant_client = QdrantClient(url=qdrant_url, timeout=5)  # type: ignore
-            collections = qdrant_client.get_collections().collections
+        # Recommendation if RAG is empty
+        if rag_count == 0 and persistent_count > 0:
+            recommendations.append(
+                "RAG index is empty but memories exist. "
+                "Run 'kagura memory index' to build index"
+            )
 
-            for col in collections:
-                try:
-                    info = qdrant_client.get_collection(col.name)
-                    rag_count += info.points_count or 0
-                except Exception:
-                    pass
-
-            rag_enabled = True
-
-        except ImportError:
+    except ImportError as e:
+        if "qdrant" in str(e).lower():
             recommendations.append(
                 "Qdrant configured but not installed. Install: pip install qdrant-client"
             )
-        except Exception as e:
-            recommendations.append(
-                f"Qdrant connection failed: {str(e)[:100]}"
-            )
-    else:
-        # Check ChromaDB (local vector database)
-        try:
-            import chromadb
-
-            rag_count = 0
-            vector_db_paths = [
-                get_cache_dir() / "chromadb",  # Default CLI location
-                get_data_dir() / "chromadb",  # Alternative location
-            ]
-
-            for vdb_path in vector_db_paths:
-                if vdb_path.exists():
-                    try:
-                        client = chromadb.PersistentClient(path=str(vdb_path))
-                        for col in client.list_collections():
-                            rag_count += col.count()
-                    except Exception:
-                        pass
-
-            rag_enabled = True
-
-        except ImportError:
+        else:
             recommendations.append(
                 "RAG not available. Install: pip install chromadb sentence-transformers"
             )
-
-    # Recommendation if RAG is empty
-    if rag_enabled and rag_count == 0 and persistent_count > 0:
+    except Exception as e:
+        logger.warning(f"Failed to check RAG: {e}")
         recommendations.append(
-            "RAG index is empty but memories exist. "
-            "Run 'kagura memory index' to build index"
+            f"RAG connection failed: {str(e)[:100]}"
         )
 
     # Check reranking

@@ -135,8 +135,8 @@ class SQLAlchemyPersistentBackend:
     def _get_or_create_engine(database_url: str) -> Engine:
         """Get or create SQLAlchemy engine (singleton pattern).
 
-        Reuses existing engine if already created for the same database_url.
-        This shares connection pools across all backend instances.
+        Delegates to centralized ResourceManager for engine caching.
+        This ensures all components share the same connection pool.
 
         Args:
             database_url: Database connection URL
@@ -144,25 +144,10 @@ class SQLAlchemyPersistentBackend:
         Returns:
             SQLAlchemy Engine instance (cached)
         """
-        global _engine_cache
+        from kagura.core.resources import get_database_engine
 
-        if database_url not in _engine_cache:
-            logger.info(f"Creating new Engine for {database_url.split('@')[-1]}")
-
-            engine = create_engine(
-                database_url,
-                pool_pre_ping=True,  # Verify connections before using
-                pool_recycle=3600,  # Recycle connections every hour
-                pool_size=5,  # Connection pool size
-                max_overflow=10,  # Max additional connections
-                echo=False,  # Set to True for SQL debugging
-            )
-
-            _engine_cache[database_url] = engine
-        else:
-            logger.debug(f"Reusing cached Engine for {database_url.split('@')[-1]}")
-
-        return _engine_cache[database_url]
+        # Use centralized resource manager
+        return get_database_engine(database_url=database_url, create_tables=False)
 
     def _get_backend_type(self) -> str:
         """Get backend type (sqlite or postgres) from URL."""

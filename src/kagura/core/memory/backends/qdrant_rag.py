@@ -118,35 +118,23 @@ class QdrantRAG:
         """
         global _qdrant_client_cache
 
-        cache_key = f"{qdrant_url}:{api_key or 'no-key'}"
+        # Use centralized resource manager for Qdrant client
+        from kagura.core.resources import get_rag_client
 
-        if cache_key not in _qdrant_client_cache:
-            try:
-                from qdrant_client import QdrantClient
+        try:
+            logger.debug(f"Acquiring Qdrant client for {qdrant_url}")
+            client = get_rag_client(backend="qdrant")
 
-                logger.info(f"Creating new Qdrant client for {qdrant_url}")
+            # Test connection
+            client.get_collections()
 
-                client = QdrantClient(
-                    url=qdrant_url,
-                    api_key=api_key,
-                    timeout=30,
-                    prefer_grpc=True,  # Use gRPC for better performance
-                )
-
-                # Test connection
-                client.get_collections()
-
-                _qdrant_client_cache[cache_key] = client
-            except ImportError:
-                raise ImportError(
-                    "qdrant-client not installed. Install with: pip install qdrant-client"
-                )
-            except Exception as e:
-                raise ConnectionError(f"Failed to connect to Qdrant: {e}") from e
-        else:
-            logger.debug(f"Reusing cached Qdrant client for {qdrant_url}")
-
-        return _qdrant_client_cache[cache_key]
+            return client
+        except ImportError:
+            raise ImportError(
+                "qdrant-client not installed. Install with: pip install qdrant-client"
+            )
+        except Exception as e:
+            raise ConnectionError(f"Failed to connect to Qdrant: {e}") from e
 
     def _ensure_collection(self) -> None:
         """Ensure collection exists with proper configuration.

@@ -217,13 +217,13 @@ class MemoryRAG:
 
         persist_dir = persist_dir or get_cache_dir() / "chromadb"
         persist_dir.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"MemoryRAG: Creating ChromaDB client at {persist_dir}")
+        logger.debug(f"MemoryRAG: Using ChromaDB client at {persist_dir}")
 
-        self.client = chromadb.PersistentClient(
-            path=str(persist_dir),
-            settings=Settings(anonymized_telemetry=False),
-        )
-        logger.debug("MemoryRAG: ChromaDB client created")
+        # Use centralized resource manager for ChromaDB client
+        from kagura.core.resources import get_rag_client
+
+        self.client = get_rag_client(backend="chromadb", path=str(persist_dir))
+        logger.debug("MemoryRAG: ChromaDB client acquired from resource manager")
 
         # Custom embedding function (E5-large with query:/passage: prefixes)
         self._embedding_config = embedding_config
