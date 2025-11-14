@@ -322,6 +322,24 @@ async def get_api_key_stats(
         # Get key_hash from database (now available with SQLAlchemy)
         key_hash = target_key["key_hash"]
 
+        # Check if stats tracker is healthy (Redis available)
+        try:
+            if not stats_tracker.health_check():
+                logger.warning("Redis not available, returning empty stats")
+                # Return empty stats with proper structure
+                from datetime import date, timedelta
+                end_date = date.today()
+                start_date = end_date - timedelta(days=days - 1)
+
+                return APIKeyStats(
+                    total_requests=0,
+                    daily_stats=[],
+                    period_start=start_date.isoformat(),
+                    period_end=end_date.isoformat(),
+                )
+        except Exception as e:
+            logger.warning(f"Health check failed: {e}, proceeding with stats retrieval")
+
         # Retrieve statistics from Redis
         stats_data = stats_tracker.get_stats(key_hash, days=days)
 
@@ -341,8 +359,16 @@ async def get_api_key_stats(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to retrieve API key stats: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve statistics",
-        ) from e
+        logger.error(f"Failed to retrieve API key stats for key_id={key_id}: {e}")
+        # Return empty stats on error instead of 500 error
+        # This allows the UI to show "No data available" instead of error message
+        from datetime import date, timedelta
+        end_date = date.today()
+        start_date = end_date - timedelta(days=days - 1)
+
+        return APIKeyStats(
+            total_requests=0,
+            daily_stats=[],
+            period_start=start_date.isoformat(),
+            period_end=end_date.isoformat(),
+        )
