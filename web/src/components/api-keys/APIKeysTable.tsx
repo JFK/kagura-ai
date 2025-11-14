@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { BarChart3, Ban, Trash2, Copy } from 'lucide-react';
+import { BarChart3, Ban, Trash2 } from 'lucide-react';
 import type { APIKey } from '@/lib/types/api-key';
 import { formatRelativeTime, getStatusColor } from '@/lib/api-keys';
 
@@ -42,11 +42,6 @@ export function APIKeysTable({
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </Badge>
     );
-  };
-
-  const handleCopyPrefix = (prefix: string) => {
-    navigator.clipboard.writeText(prefix);
-    // TODO: Show toast notification
   };
 
   if (loading && apiKeys.length === 0) {
@@ -92,19 +87,9 @@ export function APIKeysTable({
             <TableRow key={key.id}>
               <TableCell className="font-medium">{key.name}</TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <code className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
-                    {key.key_prefix}...
-                  </code>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={() => handleCopyPrefix(key.key_prefix)}
-                  >
-                    <Copy className="h-3 w-3" />
-                  </Button>
-                </div>
+                <code className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                  {key.key_prefix}...
+                </code>
               </TableCell>
               <TableCell>{getStatusBadge(key.status)}</TableCell>
               <TableCell className="text-sm text-slate-500">
