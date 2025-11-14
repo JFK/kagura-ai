@@ -17,6 +17,7 @@ import {
 import { BarChart3, Ban, Trash2, Copy } from 'lucide-react';
 import type { APIKey } from '@/lib/types/api-key';
 import { formatRelativeTime, getStatusColor } from '@/lib/api-keys';
+import { toast } from 'sonner';
 
 interface APIKeysTableProps {
   apiKeys: APIKey[];
@@ -46,7 +47,10 @@ export function APIKeysTable({
 
   const handleCopyPrefix = (prefix: string) => {
     navigator.clipboard.writeText(prefix);
-    // TODO: Show toast notification
+    toast.success('Copied to clipboard', {
+      description: `API key prefix: ${prefix}`,
+      duration: 2000,
+    });
   };
 
   if (loading && apiKeys.length === 0) {
