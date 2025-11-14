@@ -43,6 +43,9 @@ export function RevokeAPIKeyDialog({
 
       await revokeAPIKey(keyId);
 
+      // Close dialog immediately on success (before fetchAPIKeys)
+      // This prevents double-clicks while table is refreshing
+      onClose();
       onSuccess();
     } catch (err) {
       console.error('Failed to revoke API key:', err);

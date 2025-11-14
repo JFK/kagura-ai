@@ -16,8 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-// Note: Backend doesn't have delete endpoint yet, using revoke
-import { revokeAPIKey } from '@/lib/api-keys';
+import { deleteAPIKey } from '@/lib/api-keys';
 
 interface DeleteAPIKeyDialogProps {
   isOpen: boolean;
@@ -42,10 +41,12 @@ export function DeleteAPIKeyDialog({
       setLoading(true);
       setError(null);
 
-      // TODO: Implement proper delete endpoint in backend
-      // For now, use revoke as soft delete
-      await revokeAPIKey(keyId);
+      // Hard delete - permanently removes key from database
+      await deleteAPIKey(keyId);
 
+      // Close dialog immediately on success (before fetchAPIKeys)
+      // This prevents double-clicks while table is refreshing
+      onClose();
       onSuccess();
     } catch (err) {
       console.error('Failed to delete API key:', err);
