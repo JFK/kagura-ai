@@ -32,7 +32,7 @@ export async function getMemories(
   if (params.offset) searchParams.append('offset', params.offset.toString());
 
   const queryString = searchParams.toString();
-  const endpoint = `/api/v1/memory${queryString ? `?${queryString}` : ''}`;
+  const endpoint = `/memory${queryString ? `?${queryString}` : ''}`;
 
   return apiClient.get<MemoryListResponse>(endpoint);
 }
