@@ -119,12 +119,17 @@ class MemoryManager:
 
                 collection_name = f"kagura_{agent_name}" if agent_name else "kagura_memory"
 
+                # Get embedding dimension from config (supports OpenAI, E5, etc.)
+                embedding_dim = self.config.embedding.dimension
+                logger.info(f"MemoryManager: Using embedding dimension={embedding_dim} (provider={self.config.embedding.provider})")
+
                 # Working memory RAG (Qdrant)
                 logger.debug("MemoryManager: Creating working QdrantRAG")
                 self.rag = QdrantRAG(
                     collection_name=f"{collection_name}_working",
                     qdrant_url=qdrant_url,
                     api_key=os.getenv("QDRANT_API_KEY"),
+                    embedding_dim=embedding_dim,
                 )
                 logger.info("MemoryManager: Working QdrantRAG created")
 
@@ -134,6 +139,7 @@ class MemoryManager:
                     collection_name=f"{collection_name}_persistent",
                     qdrant_url=qdrant_url,
                     api_key=os.getenv("QDRANT_API_KEY"),
+                    embedding_dim=embedding_dim,
                 )
                 logger.info("MemoryManager: Persistent QdrantRAG created")
             else:
