@@ -191,9 +191,9 @@ class QdrantRAG:
         """
         from qdrant_client.models import PointStruct
 
-        # Generate IDs if not provided
+        # Generate IDs if not provided (use UUID strings for Qdrant)
         if ids is None:
-            ids = [f"doc_{uuid.uuid4().hex[:16]}" for _ in documents]
+            ids = [str(uuid.uuid4()) for _ in documents]
 
         # Generate embeddings
         if hasattr(self, "embedder"):
@@ -209,10 +209,14 @@ class QdrantRAG:
         if metadatas is None:
             metadatas = [{} for _ in documents]
 
-        # Add text to metadata
+        # Add text to metadata and filter None values
         for i, (doc, meta) in enumerate(zip(documents, metadatas)):
             meta["text"] = doc
             meta["doc_id"] = ids[i]
+            # Remove None values (Qdrant doesn't accept None in metadata)
+            for key in list(meta.keys()):
+                if meta[key] is None:
+                    del meta[key]
 
         # Create points
         points = [
@@ -328,7 +332,7 @@ class QdrantRAG:
             agent_name: Optional agent name for scoping
 
         Returns:
-            Document ID (stable hash based on user_id and content)
+            Document ID (stable UUID based on user_id and content)
 
         Example:
             >>> rag = QdrantRAG(qdrant_url="http://localhost:6333")
@@ -339,10 +343,12 @@ class QdrantRAG:
             ...     agent_name="coding-memory"
             ... )
         """
-        # Generate stable document ID (same algorithm as MemoryRAG)
+        # Generate stable document ID as UUID (Qdrant requirement)
+        # Use hash to create deterministic UUID from content
         prefix_content = content[:100] if len(content) > 100 else content
         unique_str = f"{user_id}:{prefix_content}"
-        doc_id = hashlib.sha256(unique_str.encode()).hexdigest()[:16]
+        hash_bytes = hashlib.sha256(unique_str.encode()).digest()[:16]
+        doc_id = str(uuid.UUID(bytes=hash_bytes))
 
         # Prepare metadata
         full_metadata = metadata.copy() if metadata else {}
