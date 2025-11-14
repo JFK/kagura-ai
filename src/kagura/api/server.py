@@ -25,8 +25,9 @@ logger = logging.getLogger(__name__)
 # Issue #650: OAuth2 and Config Management
 # Issue #653: Audit logs
 # Issue #655: API Keys management
+# Issue #674: OAuth2 Server for ChatGPT integration
 try:
-    from kagura.api.routes import api_keys, audit, auth, config
+    from kagura.api.routes import api_keys, audit, auth, config, oauth
     from kagura.api.middleware.session import SessionMiddleware
     from kagura.auth.session import SessionManager
     from kagura.auth.roles import initialize_role_manager
@@ -101,10 +102,12 @@ if AUTH_AVAILABLE:
 
         # Initialize auth routes
         from kagura.api.routes.auth import initialize_auth_routes
+        from kagura.api.routes.oauth import initialize_oauth_routes
         from kagura.auth.oauth2 import OAuth2Manager
 
         oauth2_manager = OAuth2Manager()
         initialize_auth_routes(oauth2_manager, session_manager)
+        initialize_oauth_routes(session_manager)  # Issue #674
 
     except Exception as e:
         print(f"Warning: Auth initialization failed: {e}")
@@ -120,8 +123,10 @@ app.include_router(models_routes.router, prefix="/api/v1", tags=["models"])
 # Issue #650: OAuth2 and Config management routes
 # Issue #653: Audit logs
 # Issue #655: API Keys management
+# Issue #674: OAuth2 Server for ChatGPT MCP integration
 if AUTH_AVAILABLE:
     app.include_router(auth.router, prefix="/api/v1", tags=["authentication"])
+    app.include_router(oauth.router, prefix="/api/v1", tags=["oauth2-server"])  # Issue #674
     app.include_router(config.router, prefix="/api/v1", tags=["configuration"])
     app.include_router(audit.router, prefix="/api/v1", tags=["audit"])
     app.include_router(api_keys.router, prefix="/api/v1", tags=["api-keys"])

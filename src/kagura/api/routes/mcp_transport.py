@@ -258,52 +258,44 @@ async def mcp_asgi_app(scope: Scope, receive: Receive, send: Send) -> None:
     # Log all headers for debugging
     logger.info(f"Request headers: {[(k.decode() if isinstance(k, bytes) else k, v.decode()[:50] if isinstance(v, bytes) else str(v)[:50]) for k, v in headers.items()]}")
 
-    # Try to authenticate via API key (optional)
-    user_id = "default_user"  # Default if no authentication
-
-    # Check Authorization header
+    # Authenticate request (supports OAuth2 and API Key)
+    # Issue #674: Unified authentication for ChatGPT (OAuth2) and Claude Code (API Key)
     auth_header = headers.get(b"authorization")
     logger.info(f"Authorization header present: {auth_header is not None}")
-    if auth_header:
-        try:
-            from kagura.auth.api_key_manager import get_api_key_manager_sql
 
-            auth_str = auth_header.decode("utf-8")
-            logger.info(f"Auth header received: {auth_str[:20]}...")  # Log first 20 chars
-            if auth_str.startswith("Bearer "):
-                api_key = auth_str[7:]  # Remove "Bearer " prefix
-                logger.info(f"Extracted API key: {api_key[:20]}...")  # Log first 20 chars
-                manager = get_api_key_manager_sql()  # Use new PostgreSQL-compatible manager
-                validated_user_id = manager.verify_key(api_key)
+    try:
+        from kagura.auth.mcp_auth import authenticate_mcp_request
 
-                if validated_user_id:
-                    user_id = validated_user_id
-                    logger.info(f"Authenticated as user: {user_id}")
-                else:
-                    # Invalid API key - send 401 error
-                    logger.warning(f"Invalid API key provided (key starts with: {api_key[:20]}...)")
-                    error_response = b'{"error":"Invalid or expired API key"}'
-                    await send(
-                        {
-                            "type": "http.response.start",
-                            "status": 401,
-                            "headers": [
-                                [b"content-type", b"application/json"],
-                                [b"www-authenticate", b"Bearer"],
-                            ],
-                        }
-                    )
-                    await send(
-                        {
-                            "type": "http.response.body",
-                            "body": error_response,
-                        }
-                    )
-                    return
+        user_id = await authenticate_mcp_request(
+            authorization_header=auth_header,
+            allow_anonymous=True,  # Allow default_user for local development
+        )
+        logger.info(f"Authenticated as user: {user_id}")
 
-        except Exception as e:
-            logger.error(f"Authentication error: {e}", exc_info=True)
-            # Continue with default_user on auth errors
+    except Exception as auth_error:
+        # Authentication failed - send 401 error
+        logger.warning(f"Authentication failed: {auth_error}")
+        error_response = json.dumps({
+            "error": "Unauthorized",
+            "message": str(auth_error),
+        }).encode("utf-8")
+        await send(
+            {
+                "type": "http.response.start",
+                "status": 401,
+                "headers": [
+                    [b"content-type", b"application/json"],
+                    [b"www-authenticate", b"Bearer"],
+                ],
+            }
+        )
+        await send(
+            {
+                "type": "http.response.body",
+                "body": error_response,
+            }
+        )
+        return
 
     # Check if authentication is required (production mode)
     require_auth = os.getenv("KAGURA_REQUIRE_AUTH", "false").lower() == "true"
