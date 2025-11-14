@@ -189,21 +189,28 @@ async def list_coding_sessions(
         }
     """
     try:
-        manager = MemoryManager(user_id="system", agent_name="coding-memory")
+        # Get user_id from authenticated user, or empty string for all users (admin view)
+        query_user_id: str = user.get("sub", "") if user else ""
 
-        # Build search query
-        if project_id:
-            query = f"project:{project_id}:session:%"
-        else:
-            query = "%session%"
+        manager = MemoryManager(user_id=query_user_id or "system", agent_name="coding-memory")
 
-        # Search sessions in persistent storage
-        all_sessions_raw = manager.persistent.search(
-            query=query,
-            user_id="system",
+        # Use fetch_all to get sessions across all users (if query_user_id is empty)
+        # or for specific user (if authenticated)
+        all_sessions_raw = manager.persistent.fetch_all(
+            user_id=query_user_id,  # Empty string = all users
             agent_name="coding-memory",
             limit=1000,  # Get all, then paginate
-        )
+        ) if hasattr(manager.persistent, 'fetch_all') else []
+
+        # Fallback: use search if fetch_all not available
+        if not all_sessions_raw:
+            query = f"project:{project_id}:session:%" if project_id else "%session%"
+            all_sessions_raw = manager.persistent.search(
+                query=query,
+                user_id=query_user_id or "system",
+                agent_name="coding-memory",
+                limit=1000,
+            )
 
         # Parse sessions
         sessions: list[models.SessionSummary] = []
@@ -241,10 +248,17 @@ async def list_coding_sessions(
                 # Extract GitHub issue
                 github_issue = sess_data.get("github_issue")
 
+                # Get project_id from session data
+                session_project_id = sess_data.get("project_id", "unknown")
+
+                # Filter by project_id if specified
+                if project_id and session_project_id != project_id:
+                    continue
+
                 sessions.append(
                     models.SessionSummary(
                         id=session_id,
-                        project_id=sess_data.get("project_id", "unknown"),
+                        project_id=session_project_id,
                         description=sess_data.get("description", ""),
                         start_time=start_time or datetime.now(),
                         end_time=end_time,
