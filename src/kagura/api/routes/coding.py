@@ -193,6 +193,12 @@ async def list_coding_sessions(
         # Get user_id from authenticated user, or empty string for all users (admin view)
         query_user_id = get_user_id_for_query(user, allow_all_users=True)
 
+        logger.info(
+            f"[list_coding_sessions] user={user.get('sub') if user else 'None'}, "
+            f"query_user_id='{query_user_id}', project_id={project_id}, "
+            f"limit={limit}, offset={offset}"
+        )
+
         # MemoryManager user_id is for internal use; actual query uses query_user_id below
         # Use "system" as manager user_id when querying all users (query_user_id="")
         manager = MemoryManager(
@@ -208,6 +214,11 @@ async def list_coding_sessions(
             limit=1000,  # Get all, then paginate
         ) if hasattr(manager.persistent, 'fetch_all') else []
 
+        logger.info(
+            f"[list_coding_sessions] fetch_all returned {len(all_sessions_raw)} records "
+            f"(user_id='{query_user_id}', agent_name='coding-memory')"
+        )
+
         # Fallback: use search if fetch_all not available or returns empty
         if not all_sessions_raw:
             query = f"project:{project_id}:session:%" if project_id else "%session%"
@@ -217,6 +228,10 @@ async def list_coding_sessions(
                 agent_name="coding-memory",
                 limit=1000,
             )
+            logger.info(
+                f"[list_coding_sessions] search fallback returned {len(all_sessions_raw)} records "
+                f"(query='{query}', user_id='{query_user_id}')"
+            )
 
         # Parse sessions
         sessions: list[models.SessionSummary] = []
@@ -224,9 +239,22 @@ async def list_coding_sessions(
             try:
                 # Extract session ID from key (format: "project:xxx:session:yyy")
                 key = sess_raw.get("key", "")
+                agent_name = sess_raw.get("agent_name")
 
-                # Filter: only process keys that contain ":session:"
-                if ":session:" not in key:
+                # Filter: only process coding session keys
+                # Primary: Check agent_name (for data created after migration)
+                # Fallback: Check key pattern (for old data)
+                is_session = (
+                    agent_name == "coding-memory" and ":session:" in key
+                ) or (
+                    agent_name is None and ":session:" in key and key.startswith("project:")
+                )
+
+                if not is_session:
+                    logger.debug(
+                        f"[list_coding_sessions] Skipping non-session key: {key} "
+                        f"(agent_name={agent_name})"
+                    )
                     continue
 
                 session_id = key.split(":")[-1] if ":" in key else key
@@ -292,6 +320,11 @@ async def list_coding_sessions(
         total = len(sessions)
         page = (offset // limit) + 1
         sessions_page = sessions[offset : offset + limit]
+
+        logger.info(
+            f"[list_coding_sessions] Returning {len(sessions_page)}/{total} sessions "
+            f"(page={page}, page_size={limit})"
+        )
 
         return models.SessionListResponse(
             sessions=sessions_page,

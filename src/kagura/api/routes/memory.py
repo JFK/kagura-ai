@@ -500,20 +500,28 @@ async def list_memories(
             limit=1000
         ) if hasattr(memory.persistent, 'fetch_all') else []
 
+        logger.info(
+            f"[list_memories] fetch_all returned {len(persistent_list)} records "
+            f"(user_id='', agent_name=None, scope={scope})"
+        )
+
         # Fallback: if fetch_all doesn't work, use search with current user
         if not persistent_list:
             persistent_list = memory.search_memory("%", limit=1000)
+            logger.info(f"[list_memories] search fallback returned {len(persistent_list)} records")
 
         for mem in persistent_list:
             key = mem.get("key", "")
+            agent_name = mem.get("agent_name")
 
-            # Skip coding sessions (they have their own endpoint)
-            # Coding session keys: "project:xxx:session:yyy"
-            if ":session:" in key:
+            # Skip coding memories (they have their own endpoint)
+            # Filter by agent_name (primary) and key pattern (fallback for old data)
+            if agent_name == "coding-memory":
                 continue
 
-            # Skip other coding-related keys
-            if key.startswith("project:") and any(x in key for x in [":error:", ":file_change:", ":decision:"]):
+            # Fallback: Skip coding-related keys for old data without agent_name
+            if key.startswith("project:") and any(x in key for x in [":session:", ":error:", ":file_change:", ":decision:"]):
+                logger.debug(f"[list_memories] Skipping coding key (fallback): {key}")
                 continue
 
             metadata_dict = mem.get("metadata", {})
@@ -553,10 +561,19 @@ async def list_memories(
 
     total = len(all_memories)
 
+    logger.info(
+        f"[list_memories] After filtering: {total} memories "
+        f"(scope={scope}, page={page}, page_size={page_size})"
+    )
+
     # Pagination
     start = (page - 1) * page_size
     end = start + page_size
     page_memories = all_memories[start:end]
+
+    logger.info(
+        f"[list_memories] Returning {len(page_memories)}/{total} memories"
+    )
 
     return {
         "memories": page_memories,
