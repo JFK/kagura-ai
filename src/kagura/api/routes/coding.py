@@ -14,7 +14,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 from kagura.api import models
-from kagura.api.dependencies import get_current_user
+from kagura.api.dependencies import get_current_user, get_current_user_optional
 from kagura.api.models_doctor import CodingDoctorResponse, CodingStats
 from kagura.core.memory import MemoryManager
 
@@ -65,7 +65,7 @@ def _check_coding_memory() -> CodingStats:
 
 
 @router.get("/doctor", response_model=CodingDoctorResponse)
-async def get_coding_doctor(user: dict[str, Any] = Depends(get_current_user)) -> CodingDoctorResponse:
+async def get_coding_doctor(user: dict[str, Any] | None = Depends(get_current_user_optional)) -> CodingDoctorResponse:
     """Get coding memory health check.
 
     Returns coding memory diagnostics including:

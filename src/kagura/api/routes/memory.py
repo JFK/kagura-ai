@@ -20,7 +20,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query
 logger = logging.getLogger(__name__)
 
 from kagura.api import models
-from kagura.api.dependencies import MemoryManagerDep, get_current_user
+from kagura.api.dependencies import MemoryManagerDep, get_current_user, get_current_user_optional
 from kagura.api.models_doctor import MemoryDoctorResponse, MemoryStats
 from kagura.config.paths import get_cache_dir, get_data_dir
 from kagura.config.project import get_reranking_enabled
@@ -149,7 +149,7 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
 
 
 @router.get("/doctor", response_model=MemoryDoctorResponse)
-async def get_memory_doctor(user: dict[str, Any] = Depends(get_current_user)) -> MemoryDoctorResponse:
+async def get_memory_doctor(user: dict[str, Any] | None = Depends(get_current_user_optional)) -> MemoryDoctorResponse:
     """Get memory system health check.
 
     Returns comprehensive memory system diagnostics including:
