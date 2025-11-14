@@ -494,6 +494,10 @@ async def list_memories(
         for mem in persistent_list:
             metadata_dict = mem.get("metadata", {})
 
+            # Handle None metadata (can occur with coding sessions)
+            if metadata_dict is None:
+                metadata_dict = {}
+
             # Decode and extract metadata fields
             metadata_dict = decode_chromadb_metadata(metadata_dict)
             mem_fields = extract_memory_fields(metadata_dict)
