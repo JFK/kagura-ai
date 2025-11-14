@@ -311,23 +311,48 @@ def _check_qdrant() -> SystemCheck:
 
 
 def _check_remote_mcp() -> SystemCheck:
-    """Check remote MCP server status (Issue #668)."""
-    mcp_enabled = os.getenv("MCP_REMOTE_ENABLED", "false").lower() == "true"
+    """Check remote MCP server status (Issue #668, #677).
 
-    if not mcp_enabled:
-        return SystemCheck(status="info", message="Remote MCP not enabled (set MCP_REMOTE_ENABLED=true)")
-
+    Checks if MCP server is actually running by importing the MCP transport module
+    instead of relying on environment variables.
+    """
     try:
         from kagura.api.routes.mcp_transport import _mcp_server
 
         if _mcp_server is not None:
-            return SystemCheck(status="ok", message="Running (HTTP/SSE endpoint active)")
+            # MCP server is initialized and running
+            # Count available tools if possible
+            try:
+                tool_count = len(_mcp_server.list_tools())
+                return SystemCheck(
+                    status="ok",
+                    message=f"Available ({tool_count} tools, SSE endpoint: /mcp/sse)"
+                )
+            except Exception:
+                # Can't get tool count, but server is running
+                return SystemCheck(
+                    status="ok",
+                    message="Available (SSE endpoint: /mcp/sse)"
+                )
         else:
-            return SystemCheck(status="warning", message="Enabled but not started")
+            # MCP module exists but server not initialized
+            return SystemCheck(
+                status="info",
+                message="Not initialized (restart may be needed)"
+            )
     except ImportError:
-        return SystemCheck(status="warning", message="MCP module not available")
+        # MCP module not available (not included in build)
+        return SystemCheck(
+            status="info",
+            message="MCP module not installed"
+        )
     except Exception as e:
-        return SystemCheck(status="warning", message=f"Status unknown: {str(e)[:30]}")
+        # Unexpected error
+        logger.warning(f"MCP status check failed: {e}")
+        return SystemCheck(
+            status="warning",
+            message=f"Status check failed: {str(e)[:40]}"
+        )
 
 
 @router.get("/system/doctor", response_model=SystemDoctorResponse)
