@@ -350,6 +350,9 @@ class QdrantRAG:
         if agent_name:
             full_metadata["agent_name"] = agent_name
 
+        # Remove None values (Qdrant doesn't accept None in metadata)
+        full_metadata = {k: v for k, v in full_metadata.items() if v is not None}
+
         # Store via add_documents
         self.add_documents(
             documents=[content],
