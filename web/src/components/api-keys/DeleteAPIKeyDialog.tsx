@@ -44,6 +44,9 @@ export function DeleteAPIKeyDialog({
       // Hard delete - permanently removes key from database
       await deleteAPIKey(keyId);
 
+      // Close dialog immediately on success (before fetchAPIKeys)
+      // This prevents double-clicks while table is refreshing
+      onClose();
       onSuccess();
     } catch (err) {
       console.error('Failed to delete API key:', err);
