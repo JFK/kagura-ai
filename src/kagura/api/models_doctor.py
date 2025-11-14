@@ -62,6 +62,7 @@ class MemoryStats(BaseModel):
 
     database_exists: bool = Field(..., description="Whether database exists")
     database_size_mb: float | None = Field(None, description="Database size in MB")
+    working_count: int = Field(0, description="Number of working (RAM) memories")
     persistent_count: int = Field(0, description="Number of persistent memories")
     rag_enabled: bool = Field(False, description="Whether RAG is enabled")
     rag_count: int = Field(0, description="Number of RAG vectors")

@@ -80,6 +80,7 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
 
     # Check memory counts
     persistent_count = 0
+    working_count = 0
     rag_count = 0
     rag_enabled = False
 
@@ -88,36 +89,78 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
     except Exception:
         pass
 
-    # Check RAG
+    # Check working memory (RAM)
     try:
-        import chromadb
+        from kagura.core.memory import MemoryManager
 
-        rag_count = 0
-        vector_db_paths = [
-            get_cache_dir() / "chromadb",  # Default CLI location
-            get_data_dir() / "chromadb",  # Alternative location
-        ]
+        # Create temporary manager to count working memories
+        # Use system user to access all working memories
+        temp_manager = MemoryManager(user_id="system", agent_name="doctor")
+        working_count = len(temp_manager.working)
+    except Exception:
+        pass
 
-        for vdb_path in vector_db_paths:
-            if vdb_path.exists():
+    # Check RAG (vector database)
+    rag_backend = os.getenv("PERSISTENT_BACKEND", "").lower()
+    qdrant_url = os.getenv("QDRANT_URL", "")
+
+    # Check Qdrant first if configured
+    if rag_backend == "qdrant" or qdrant_url:
+        try:
+            from qdrant_client import QdrantClient  # type: ignore
+
+            qdrant_client = QdrantClient(url=qdrant_url, timeout=5)  # type: ignore
+            collections = qdrant_client.get_collections().collections
+
+            for col in collections:
                 try:
-                    client = chromadb.PersistentClient(path=str(vdb_path))
-                    for col in client.list_collections():
-                        rag_count += col.count()
+                    info = qdrant_client.get_collection(col.name)
+                    rag_count += info.points_count or 0
                 except Exception:
                     pass
 
-        rag_enabled = True
+            rag_enabled = True
 
-        if rag_count == 0 and persistent_count > 0:
+        except ImportError:
             recommendations.append(
-                "RAG index is empty but memories exist. "
-                "Run 'kagura memory index' to build index"
+                "Qdrant configured but not installed. Install: pip install qdrant-client"
+            )
+        except Exception as e:
+            recommendations.append(
+                f"Qdrant connection failed: {str(e)[:100]}"
+            )
+    else:
+        # Check ChromaDB (local vector database)
+        try:
+            import chromadb
+
+            rag_count = 0
+            vector_db_paths = [
+                get_cache_dir() / "chromadb",  # Default CLI location
+                get_data_dir() / "chromadb",  # Alternative location
+            ]
+
+            for vdb_path in vector_db_paths:
+                if vdb_path.exists():
+                    try:
+                        client = chromadb.PersistentClient(path=str(vdb_path))
+                        for col in client.list_collections():
+                            rag_count += col.count()
+                    except Exception:
+                        pass
+
+            rag_enabled = True
+
+        except ImportError:
+            recommendations.append(
+                "RAG not available. Install: pip install chromadb sentence-transformers"
             )
 
-    except ImportError:
+    # Recommendation if RAG is empty
+    if rag_enabled and rag_count == 0 and persistent_count > 0:
         recommendations.append(
-            "RAG not available. Install: pip install chromadb sentence-transformers"
+            "RAG index is empty but memories exist. "
+            "Run 'kagura memory index' to build index"
         )
 
     # Check reranking
@@ -157,6 +200,7 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
     stats = MemoryStats(
         database_exists=database_exists,
         database_size_mb=database_size_mb,
+        working_count=working_count,
         persistent_count=persistent_count,
         rag_enabled=rag_enabled,
         rag_count=rag_count,
