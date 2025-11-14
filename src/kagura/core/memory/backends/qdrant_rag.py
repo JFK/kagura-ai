@@ -309,6 +309,57 @@ class QdrantRAG:
             logger.error(f"Failed to delete collection: {e}")
             raise
 
+    def store(
+        self,
+        content: str,
+        user_id: str,
+        metadata: Optional[dict[str, Any]] = None,
+        agent_name: Optional[str] = None,
+    ) -> str:
+        """Store memory content with metadata.
+
+        Wrapper around add_documents() to match MemoryRAG interface.
+        Used by MemoryManager.remember() for unified API.
+
+        Args:
+            content: Content to store
+            user_id: User identifier (memory owner)
+            metadata: Optional metadata dict
+            agent_name: Optional agent name for scoping
+
+        Returns:
+            Document ID (stable hash based on user_id and content)
+
+        Example:
+            >>> rag = QdrantRAG(qdrant_url="http://localhost:6333")
+            >>> doc_id = rag.store(
+            ...     content="Python is great",
+            ...     user_id="jfk",
+            ...     metadata={"type": "fact"},
+            ...     agent_name="coding-memory"
+            ... )
+        """
+        # Generate stable document ID (same algorithm as MemoryRAG)
+        prefix_content = content[:100] if len(content) > 100 else content
+        unique_str = f"{user_id}:{prefix_content}"
+        doc_id = hashlib.sha256(unique_str.encode()).hexdigest()[:16]
+
+        # Prepare metadata
+        full_metadata = metadata.copy() if metadata else {}
+        full_metadata["user_id"] = user_id
+        if agent_name:
+            full_metadata["agent_name"] = agent_name
+
+        # Store via add_documents
+        self.add_documents(
+            documents=[content],
+            metadatas=[full_metadata],
+            ids=[doc_id],
+        )
+
+        logger.debug(f"Stored document {doc_id} for user {user_id}")
+        return doc_id
+
     def count(self) -> int:
         """Get number of documents in collection.
 
