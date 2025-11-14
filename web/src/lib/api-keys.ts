@@ -38,6 +38,16 @@ export async function createAPIKey(
  * Soft delete - key remains in database for audit trail but cannot be used.
  */
 export async function revokeAPIKey(keyId: number): Promise<void> {
+  return apiClient.post<void>(`/config/api-keys/${keyId}/revoke`, {});
+}
+
+/**
+ * Permanently delete an API key (Admin only)
+ *
+ * Hard delete - key and all associated data are permanently removed from database.
+ * Use revokeAPIKey() if you want to preserve audit history.
+ */
+export async function deleteAPIKey(keyId: number): Promise<void> {
   return apiClient.delete<void>(`/config/api-keys/${keyId}`);
 }
 

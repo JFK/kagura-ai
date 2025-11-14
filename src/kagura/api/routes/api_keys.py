@@ -230,16 +230,19 @@ async def create_api_key(
 
 
 @router.delete("/{key_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def revoke_api_key(
+async def delete_api_key(
     key_id: int,
     user: AdminUser,
     manager: APIKeyManagerSQL = Depends(get_api_key_manager_sql),
     stats_tracker: APIKeyStatsTracker = Depends(get_stats_tracker),
 ) -> None:
-    """Revoke an API key (Admin only).
+    """Permanently delete an API key (Admin only).
+
+    WARNING: This is a hard delete that removes the key from the database.
+    For soft delete that preserves audit history, use POST /{key_id}/revoke instead.
 
     Args:
-        key_id: Database ID of the key to revoke
+        key_id: Database ID of the key to delete
         user: Authenticated admin user
         manager: API Key manager instance
         stats_tracker: Stats tracker instance
@@ -257,7 +260,62 @@ async def revoke_api_key(
                 status_code=status.HTTP_404_NOT_FOUND, detail="API key not found"
             )
 
-        # Revoke key
+        # Hard delete key
+        success = manager.delete_key(name=target_key["name"], user_id=target_key["user_id"])
+
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="API key not found",
+            )
+
+        # Delete statistics as well (hard delete removes all traces)
+        try:
+            key_hash = target_key["key_hash"]
+            stats_tracker.delete_stats(key_hash)
+        except Exception as e:
+            logger.warning(f"Failed to delete API key stats: {e}")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to delete API key: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete API key",
+        ) from e
+
+
+@router.post("/{key_id}/revoke", status_code=status.HTTP_204_NO_CONTENT)
+async def revoke_api_key(
+    key_id: int,
+    user: AdminUser,
+    manager: APIKeyManagerSQL = Depends(get_api_key_manager_sql),
+) -> None:
+    """Revoke an API key (Admin only).
+
+    Soft delete - marks the key as revoked but keeps it in database for audit trail.
+    The key will no longer be usable but statistics and history are preserved.
+
+    Args:
+        key_id: Database ID of the key to revoke
+        user: Authenticated admin user
+        manager: API Key manager instance
+
+    Raises:
+        HTTPException: 404 if key not found, 403 if not admin
+    """
+    try:
+        # Retrieve key to get name
+        keys = manager.list_keys(user_id=None)
+        target_key = next((k for k in keys if k["id"] == key_id), None)
+
+        if not target_key:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="API key not found"
+            )
+
+        # Revoke key (soft delete)
         success = manager.revoke_key(name=target_key["name"], user_id=target_key["user_id"])
 
         if not success:
@@ -266,9 +324,7 @@ async def revoke_api_key(
                 detail="API key not found or already revoked",
             )
 
-        # Delete statistics (optional - could keep for audit)
-        # key_hash = manager._hash_key(api_key)  # We don't have plaintext key here
-        # stats_tracker.delete_stats(key_hash)
+        # Keep statistics for audit purposes (soft delete)
 
     except HTTPException:
         raise
