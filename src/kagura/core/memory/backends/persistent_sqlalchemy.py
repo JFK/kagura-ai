@@ -520,11 +520,20 @@ class SQLAlchemyPersistentBackend:
         """
         session = self._get_session()
         try:
-            query = session.query(MemoryModel).filter_by(user_id=user_id)
+            query = session.query(MemoryModel)
 
-            if agent_name is not None:
-                # Include both agent-scoped AND global (agent_name IS NULL) memories
-                # This matches the logic in recall() and search()
+            # Filter by user_id if provided (empty string means all users)
+            if user_id:
+                query = query.filter_by(user_id=user_id)
+
+                if agent_name is not None:
+                    # Include both agent-scoped AND global (agent_name IS NULL) memories
+                    query = query.filter(
+                        (MemoryModel.agent_name == agent_name)
+                        | (MemoryModel.agent_name.is_(None))
+                    )
+            elif agent_name is not None:
+                # No user_id filter, but filter by agent_name
                 query = query.filter(
                     (MemoryModel.agent_name == agent_name)
                     | (MemoryModel.agent_name.is_(None))
@@ -546,6 +555,8 @@ class SQLAlchemyPersistentBackend:
                         "metadata": json.loads(row.memory_metadata) if row.memory_metadata else None,
                         "access_count": row.access_count if row.access_count is not None else 0,
                         "last_accessed_at": row.last_accessed_at,
+                        "user_id": row.user_id,
+                        "agent_name": row.agent_name,
                     }
                 )
 

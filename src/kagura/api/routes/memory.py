@@ -479,8 +479,18 @@ async def list_memories(
 
     # Collect persistent memory
     if scope is None or scope == "persistent":
-        # Search all persistent memories (LIKE '%')
-        persistent_list = memory.search_memory("%", limit=1000)
+        # Search all persistent memories across all users (admin view)
+        # Use direct backend access to bypass user_id filtering
+        persistent_list = memory.persistent.fetch_all(
+            user_id="",  # Empty string to get all users in SQLite
+            agent_name=None,
+            limit=1000
+        ) if hasattr(memory.persistent, 'fetch_all') else []
+
+        # Fallback: if fetch_all doesn't work, use search with current user
+        if not persistent_list:
+            persistent_list = memory.search_memory("%", limit=1000)
+
         for mem in persistent_list:
             metadata_dict = mem.get("metadata", {})
 

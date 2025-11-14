@@ -390,16 +390,23 @@ class PersistentMemory:
         # Legacy sqlite3 mode
         query_parts = [
             "SELECT key, value, created_at, updated_at, metadata,",
-            "       access_count, last_accessed_at",
+            "       access_count, last_accessed_at, user_id, agent_name",
             "FROM memories",
-            "WHERE user_id = ?",
         ]
-        params: list[Any] = [user_id]
+        params: list[Any] = []
 
-        if agent_name is not None:
-            # Include both agent-scoped AND global (agent_name IS NULL) memories
-            # This matches the logic in recall() and search()
-            query_parts.append("  AND (agent_name = ? OR agent_name IS NULL)")
+        # Filter by user_id if provided (empty string means all users)
+        if user_id:
+            query_parts.append("WHERE user_id = ?")
+            params.append(user_id)
+
+            if agent_name is not None:
+                # Include both agent-scoped AND global (agent_name IS NULL) memories
+                query_parts.append("  AND (agent_name = ? OR agent_name IS NULL)")
+                params.append(agent_name)
+        elif agent_name is not None:
+            # No user_id filter, but filter by agent_name
+            query_parts.append("WHERE (agent_name = ? OR agent_name IS NULL)")
             params.append(agent_name)
 
         query_parts.append("ORDER BY updated_at DESC")
@@ -423,6 +430,8 @@ class PersistentMemory:
                         "metadata": json.loads(row[4]) if row[4] else None,
                         "access_count": row[5] if row[5] is not None else 0,
                         "last_accessed_at": row[6],
+                        "user_id": row[7],
+                        "agent_name": row[8],
                     }
                 )
 
