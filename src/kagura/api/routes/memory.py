@@ -50,14 +50,33 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
     recommendations = []
 
     # Check database
-    db_path = get_data_dir() / "memory.db"
-    database_exists = db_path.exists()
-    database_size_mb = db_path.stat().st_size / (1024**2) if database_exists else None
+    import os
 
-    if not database_exists:
-        recommendations.append(
-            "Database not initialized (will be created on first use)"
-        )
+    # Determine if using PostgreSQL or SQLite
+    using_postgres = os.getenv("PERSISTENT_BACKEND") == "postgres" or os.getenv("DATABASE_URL", "").startswith("postgresql")
+
+    if using_postgres:
+        # PostgreSQL: Check database connection and size
+        database_exists = True  # Assume exists if using PostgreSQL
+        database_size_mb = None  # TODO: Query PostgreSQL for database size
+        try:
+            # Verify connection by counting memories
+            _ = MemoryDatabaseQuery.count_memories()
+        except Exception:
+            database_exists = False
+            recommendations.append(
+                "PostgreSQL database connection failed. Check DATABASE_URL."
+            )
+    else:
+        # SQLite: Check file existence
+        db_path = get_data_dir() / "memory.db"
+        database_exists = db_path.exists()
+        database_size_mb = db_path.stat().st_size / (1024**2) if database_exists else None
+
+        if not database_exists:
+            recommendations.append(
+                "Database not initialized (will be created on first use)"
+            )
 
     # Check memory counts
     persistent_count = 0

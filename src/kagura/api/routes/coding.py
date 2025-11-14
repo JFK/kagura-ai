@@ -30,34 +30,77 @@ def _check_coding_memory() -> CodingStats:
         Coding memory statistics
     """
     try:
-        manager = MemoryManager(user_id="system", agent_name="coding-memory")
+        import os
+        from kagura.core.memory.backends import SQLAlchemyPersistentBackend
+        from sqlalchemy import text
 
-        # Count sessions - search in persistent storage
-        sessions = manager.persistent.search(
-            query="%session%",
-            user_id="system",
-            agent_name="coding-memory",
-            limit=1000,
-        )
-
-        # Try to identify unique projects
+        # Count sessions across all users by querying database directly
+        sessions_count = 0
         projects: set[str] = set()
-        for session in sessions:
-            if "metadata" in session:
-                try:
-                    import json
 
-                    metadata = json.loads(session.get("metadata", "{}"))
-                    if "project_id" in metadata:
-                        projects.add(metadata["project_id"])
-                except Exception:  # JSON parsing can fail
-                    pass
+        # Determine backend type
+        using_postgres = os.getenv("PERSISTENT_BACKEND") == "postgres" or os.getenv("DATABASE_URL", "").startswith("postgresql")
+
+        if using_postgres:
+            # PostgreSQL: Query directly
+            database_url = os.getenv("DATABASE_URL", "")
+            backend = SQLAlchemyPersistentBackend(database_url, create_tables=False)
+
+            with backend._get_session() as session:
+                # Count sessions (keys containing "session:")
+                result = session.execute(
+                    text("SELECT COUNT(*) FROM memories WHERE key LIKE '%:session:%'")
+                )
+                sessions_count = result.scalar() or 0
+
+                # Count unique projects (extract project_id from keys like "project:X:session:Y")
+                result = session.execute(
+                    text("""
+                        SELECT DISTINCT
+                            SUBSTRING(key FROM 'project:([^:]+):session:') as project_id
+                        FROM memories
+                        WHERE key LIKE 'project:%:session:%'
+                    """)
+                )
+                projects = {row[0] for row in result if row[0]}
+        else:
+            # SQLite: Use MemoryManager search (fallback)
+            manager = MemoryManager(user_id="_doctor", agent_name=None)
+
+            # Search for all session keys across all users
+            # Note: This only works for the current user's sessions
+            # For accurate counts, we'd need to iterate all users or query DB directly
+            try:
+                import sqlite3
+                from kagura.config.paths import get_data_dir
+
+                db_path = get_data_dir() / "memory.db"
+                if db_path.exists():
+                    conn = sqlite3.connect(str(db_path))
+                    cursor = conn.execute(
+                        "SELECT COUNT(*) FROM memories WHERE key LIKE '%:session:%'"
+                    )
+                    sessions_count = cursor.fetchone()[0] or 0
+
+                    cursor = conn.execute(
+                        """
+                        SELECT DISTINCT
+                            SUBSTR(key, 9, INSTR(SUBSTR(key, 9), ':') - 1) as project_id
+                        FROM memories
+                        WHERE key LIKE 'project:%:session:%'
+                        """
+                    )
+                    projects = {row[0] for row in cursor.fetchall() if row[0]}
+                    conn.close()
+            except Exception as e:
+                logger.debug(f"Failed to count sessions from SQLite: {e}")
 
         return CodingStats(
-            sessions_count=len(sessions),
+            sessions_count=sessions_count,
             projects_count=len(projects),
         )
-    except Exception:  # Ignore errors - operation is non-critical
+    except Exception as e:
+        logger.debug(f"Failed to check coding memory: {e}")
         return CodingStats(
             sessions_count=0,
             projects_count=0,
