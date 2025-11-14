@@ -107,35 +107,66 @@ class MemoryManager:
         self.persistent_rag: Optional[MemoryRAG] = None  # Persistent memory RAG
         if enable_rag:
             logger.debug("MemoryManager: Initializing RAG (enable_rag=True)")
-            # Lazy import to avoid ChromaDB initialization on module load
-            from .rag import MemoryRAG
 
-            logger.debug("MemoryManager: MemoryRAG imported successfully")
-            collection_name = f"kagura_{agent_name}" if agent_name else "kagura_memory"
-            vector_dir = persist_dir / "vector_db" if persist_dir else None
-            logger.debug(
-                f"MemoryManager: RAG collection={collection_name}, dir={vector_dir}"
-            )
+            # Check if Qdrant is configured
+            import os
+            qdrant_url = os.getenv("QDRANT_URL")
+            use_qdrant = qdrant_url is not None
 
-            # Working memory RAG (with semantic chunking and E5 embeddings support)
-            logger.debug("MemoryManager: Creating working MemoryRAG with chunking and E5 support")
-            self.rag = MemoryRAG(
-                collection_name=f"{collection_name}_working",
-                persist_dir=vector_dir,
-                chunking_config=self.config.chunking if self.config else None,
-                embedding_config=self.config.embedding if self.config else None,
-            )
-            logger.debug("MemoryManager: Working MemoryRAG created")
+            if use_qdrant:
+                logger.info(f"MemoryManager: Using QdrantRAG backend (QDRANT_URL={qdrant_url})")
+                from .backends.qdrant_rag import QdrantRAG
 
-            # Persistent memory RAG (with semantic chunking and E5 embeddings support)
-            logger.debug("MemoryManager: Creating persistent MemoryRAG with chunking and E5 support")
-            self.persistent_rag = MemoryRAG(
-                collection_name=f"{collection_name}_persistent",
-                persist_dir=vector_dir,
-                chunking_config=self.config.chunking if self.config else None,
-                embedding_config=self.config.embedding if self.config else None,
-            )
-            logger.debug("MemoryManager: Persistent MemoryRAG created")
+                collection_name = f"kagura_{agent_name}" if agent_name else "kagura_memory"
+
+                # Working memory RAG (Qdrant)
+                logger.debug("MemoryManager: Creating working QdrantRAG")
+                self.rag = QdrantRAG(
+                    collection_name=f"{collection_name}_working",
+                    qdrant_url=qdrant_url,
+                    api_key=os.getenv("QDRANT_API_KEY"),
+                )
+                logger.info("MemoryManager: Working QdrantRAG created")
+
+                # Persistent memory RAG (Qdrant)
+                logger.debug("MemoryManager: Creating persistent QdrantRAG")
+                self.persistent_rag = QdrantRAG(
+                    collection_name=f"{collection_name}_persistent",
+                    qdrant_url=qdrant_url,
+                    api_key=os.getenv("QDRANT_API_KEY"),
+                )
+                logger.info("MemoryManager: Persistent QdrantRAG created")
+            else:
+                logger.info("MemoryManager: Using ChromaDB backend (no QDRANT_URL)")
+                # Lazy import to avoid ChromaDB initialization on module load
+                from .rag import MemoryRAG
+
+                logger.debug("MemoryManager: MemoryRAG imported successfully")
+                collection_name = f"kagura_{agent_name}" if agent_name else "kagura_memory"
+                vector_dir = persist_dir / "vector_db" if persist_dir else None
+                logger.debug(
+                    f"MemoryManager: RAG collection={collection_name}, dir={vector_dir}"
+                )
+
+                # Working memory RAG (with semantic chunking and E5 embeddings support)
+                logger.debug("MemoryManager: Creating working MemoryRAG with chunking and E5 support")
+                self.rag = MemoryRAG(
+                    collection_name=f"{collection_name}_working",
+                    persist_dir=vector_dir,
+                    chunking_config=self.config.chunking if self.config else None,
+                    embedding_config=self.config.embedding if self.config else None,
+                )
+                logger.debug("MemoryManager: Working MemoryRAG created")
+
+                # Persistent memory RAG (with semantic chunking and E5 embeddings support)
+                logger.debug("MemoryManager: Creating persistent MemoryRAG with chunking and E5 support")
+                self.persistent_rag = MemoryRAG(
+                    collection_name=f"{collection_name}_persistent",
+                    persist_dir=vector_dir,
+                    chunking_config=self.config.chunking if self.config else None,
+                    embedding_config=self.config.embedding if self.config else None,
+                )
+                logger.debug("MemoryManager: Persistent MemoryRAG created")
         else:
             logger.debug("MemoryManager: RAG disabled (enable_rag=False)")
 
