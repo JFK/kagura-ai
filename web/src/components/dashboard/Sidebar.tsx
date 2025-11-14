@@ -105,15 +105,18 @@ export function Sidebar() {
 
   return (
     <aside className="flex flex-col w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
-      {/* Logo */}
-      <div className="flex items-center h-16 px-6 border-b border-slate-200 dark:border-slate-800">
-        <Link href="/dashboard" className="flex items-center space-x-3">
+      {/* Logo - Icon only */}
+      <div className="flex items-center justify-center h-16 px-6 border-b border-slate-200 dark:border-slate-800">
+        <Link
+          href="/dashboard"
+          className="flex items-center hover:opacity-80 transition-opacity"
+          title="Kagura AI - Home"
+        >
           <img
             src="/kagura-icon.svg"
             alt="Kagura AI"
-            className="h-10 w-10"
+            className="h-12 w-12"
           />
-          <span className="font-semibold text-lg">Kagura AI</span>
         </Link>
       </div>
 
