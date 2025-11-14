@@ -502,10 +502,16 @@ async def list_memories(
             metadata_dict = decode_chromadb_metadata(metadata_dict)
             mem_fields = extract_memory_fields(metadata_dict)
 
+            # Convert dict values to JSON string (coding sessions store dict)
+            value = mem["value"]
+            if isinstance(value, dict):
+                import json
+                value = json.dumps(value, ensure_ascii=False)
+
             all_memories.append(
                 {
                     "key": mem["key"],
-                    "value": mem["value"],
+                    "value": value,
                     "scope": "persistent",
                     "tags": mem_fields["tags"],
                     "importance": mem_fields["importance"],
