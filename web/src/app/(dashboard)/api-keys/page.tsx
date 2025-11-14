@@ -206,43 +206,66 @@ export default function APIKeysPage() {
             </div>
             <div className="flex-1">
               <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                Remote MCP Setup Guide
+                MCP Setup Guide
               </h3>
               <p className="mb-4 text-sm text-gray-700">
-                Connect Claude Code to your Kagura Memory Cloud via Remote MCP protocol over HTTPS.
+                Connect Claude Code to Kagura Memory via MCP protocol. Choose Local (recommended) or Remote.
               </p>
 
-              <div className="space-y-3 text-sm">
-                <div>
-                  <p className="mb-1 font-semibold text-gray-900">1. Copy your MCP endpoint:</p>
-                  <code className="block rounded-lg bg-gray-900 px-3 py-2 font-mono text-xs text-green-400">
-                    https://memory.kagura-ai.com/mcp/sse
-                  </code>
-                </div>
-
-                <div>
-                  <p className="mb-1 font-semibold text-gray-900">2. Add to Claude Code config:</p>
+              <div className="space-y-4 text-sm">
+                {/* Local MCP (Recommended) */}
+                <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-4">
+                  <p className="mb-2 font-semibold text-gray-900">
+                    🏠 Option 1: Local MCP (Recommended)
+                  </p>
+                  <p className="mb-3 text-xs text-gray-600">
+                    Run Kagura locally on your machine. Fastest and most secure.
+                  </p>
                   <pre className="overflow-x-auto rounded-lg bg-gray-900 px-3 py-2 font-mono text-xs text-green-400">
 {`{
   "mcpServers": {
     "kagura": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-everything@latest"
-      ],
+      "type": "stdio",
+      "command": "/path/to/.venv/bin/kagura",
+      "args": ["mcp", "serve"],
       "env": {
-        "KAGURA_MCP_URL": "https://memory.kagura-ai.com/mcp/sse",
-        "KAGURA_API_KEY": "${apiKeys[0].key_prefix}..."
+        "KAGURA_MCP_CATEGORIES": "memory,coding"
       }
     }
   }
 }`}
                   </pre>
                   <p className="mt-2 text-xs text-gray-600">
-                    💡 Replace <code className="rounded bg-gray-200 px-1 py-0.5">{apiKeys[0].key_prefix}...</code> with your full API key from the creation dialog
+                    💡 Replace <code className="rounded bg-gray-200 px-1 py-0.5">/path/to/.venv/bin/kagura</code> with your actual Kagura installation path
                   </p>
                 </div>
+
+                {/* Remote MCP */}
+                <div className="rounded-lg border-2 border-brand-green-200 bg-brand-green-50 p-4">
+                  <p className="mb-2 font-semibold text-gray-900">
+                    ☁️ Option 2: Remote MCP (Cloud)
+                  </p>
+                  <p className="mb-3 text-xs text-gray-600">
+                    Connect to Kagura Memory Cloud over HTTPS. Requires API key.
+                  </p>
+                  <pre className="overflow-x-auto rounded-lg bg-gray-900 px-3 py-2 font-mono text-xs text-green-400">
+{`{
+  "mcpServers": {
+    "kagura-remote": {
+      "type": "sse",
+      "url": "https://memory.kagura-ai.com/mcp/sse",
+      "headers": {
+        "Authorization": "Bearer ${apiKeys[0].key_prefix}..."
+      }
+    }
+  }
+}`}
+                  </pre>
+                  <p className="mt-2 text-xs text-gray-600">
+                    💡 Replace <code className="rounded bg-gray-200 px-1 py-0.5">{apiKeys[0].key_prefix}...</code> with your full API key from above
+                  </p>
+                </div>
+
 
                 <div className="flex gap-2 pt-2">
                   <Button
