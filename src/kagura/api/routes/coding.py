@@ -146,7 +146,7 @@ async def get_coding_doctor(user: dict[str, Any] | None = Depends(get_current_us
 
 @router.get("/sessions", response_model=models.SessionListResponse)
 async def list_coding_sessions(
-    user: dict[str, Any] = Depends(get_current_user),
+    user: dict[str, Any] | None = Depends(get_current_user_optional),
     project_id: Annotated[str | None, Query(description="Filter by project ID")] = None,
     limit: Annotated[int, Query(ge=1, le=100, description="Page size")] = 20,
     offset: Annotated[int, Query(ge=0, description="Offset")] = 0,
@@ -156,7 +156,7 @@ async def list_coding_sessions(
     Returns list of coding sessions with summary information.
 
     Args:
-        user: Authenticated user (dependency)
+        user: Optional authenticated user (dependency)
         project_id: Optional project filter
         limit: Number of sessions to return
         offset: Offset for pagination
@@ -285,7 +285,7 @@ async def list_coding_sessions(
 @router.get("/sessions/{session_id}", response_model=models.SessionDetailResponse)
 async def get_session_detail(
     session_id: Annotated[str, Path(description="Session ID")],
-    user: dict[str, Any] = Depends(get_current_user),
+    user: dict[str, Any] | None = Depends(get_current_user_optional),
 ) -> models.SessionDetailResponse:
     """Get coding session detail.
 
