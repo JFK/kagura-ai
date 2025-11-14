@@ -93,8 +93,7 @@ export default function MemoriesPage() {
 
   // Fetch memories
   const fetchMemories = async () => {
-    if (!user) return;
-
+    // Allow unauthenticated access (API handles all-users query)
     try {
       setMemoriesLoading(true);
       setMemoriesError(null);
@@ -120,8 +119,7 @@ export default function MemoriesPage() {
 
   // Fetch sessions
   const fetchSessions = async () => {
-    if (!user) return;
-
+    // Allow unauthenticated access (API handles all-users query)
     try {
       setSessionsLoading(true);
       setSessionsError(null);
