@@ -330,6 +330,11 @@ class PersistentMemory:
         Returns:
             List of memory dictionaries with access tracking info
         """
+        if self._use_sqlalchemy and self._backend:
+            # Use SQLAlchemy backend
+            return self._backend.search(query, user_id, agent_name, limit)
+
+        # Legacy sqlite3 implementation
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
                 """
