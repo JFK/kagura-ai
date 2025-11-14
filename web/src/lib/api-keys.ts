@@ -63,7 +63,7 @@ export async function getAPIKeyStats(
 ): Promise<APIKeyStats> {
   const searchParams = new URLSearchParams({ days: days.toString() });
   return apiClient.get<APIKeyStats>(
-    `/api/v1/config/api-keys/${keyId}/stats?${searchParams.toString()}`
+    `/config/api-keys/${keyId}/stats?${searchParams.toString()}`
   );
 }
 
