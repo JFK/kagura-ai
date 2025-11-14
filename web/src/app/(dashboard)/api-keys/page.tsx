@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, RefreshCw, AlertCircle } from 'lucide-react';
+import { Plus, Search, RefreshCw, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { getAPIKeys } from '@/lib/api-keys';
 import type { APIKey, APIKeyStatus } from '@/lib/types/api-key';
 import { APIKeysTable } from '@/components/api-keys/APIKeysTable';
@@ -44,6 +44,9 @@ export default function APIKeysPage() {
   const [statsKeyName, setStatsKeyName] = useState<string | null>(null);
   const [revokeKey, setRevokeKey] = useState<{ id: number; name: string } | null>(null);
   const [deleteKey, setDeleteKey] = useState<{ id: number; name: string } | null>(null);
+
+  // Setup Guide toggle (collapsed by default to save space)
+  const [setupGuideOpen, setSetupGuideOpen] = useState(false);
 
   // Check if user is admin
   const isAdmin = user?.role === 'admin';
@@ -197,68 +200,81 @@ export default function APIKeysPage() {
         </Alert>
       )}
 
-      {/* Remote MCP Setup Guide */}
-      <div className="rounded-2xl border-2 border-brand-green-200 bg-gradient-to-br from-brand-green-50 to-emerald-50 p-6">
-        <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 rounded-lg bg-brand-green-600 p-3 text-white">
-            <AlertCircle className="h-6 w-6" />
-          </div>
-          <div className="flex-1">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Remote MCP Setup Guide
-            </h3>
-            <p className="mb-4 text-sm text-gray-700">
-              Connect Claude Code to your Kagura Memory Cloud via Remote MCP protocol over HTTPS.
-            </p>
-
-            <div className="space-y-3 text-sm">
-              <div>
-                <p className="mb-1 font-semibold text-gray-900">1. Copy your MCP endpoint:</p>
-                <code className="block rounded-lg bg-gray-900 px-3 py-2 font-mono text-xs text-green-400">
-                  https://memory.kagura-ai.com/mcp/sse
-                </code>
+      {/* Remote MCP Setup Guide - Collapsible, only show after API key is created */}
+      {apiKeys.length > 0 && (
+        <div className="rounded-2xl border-2 border-brand-green-200 bg-gradient-to-br from-brand-green-50 to-emerald-50">
+          {/* Collapsible Header */}
+          <button
+            onClick={() => setSetupGuideOpen(!setupGuideOpen)}
+            className="w-full p-6 flex items-start gap-4 hover:bg-brand-green-100/50 transition-colors rounded-t-2xl text-left"
+          >
+            <div className="flex-shrink-0 rounded-lg bg-brand-green-600 p-3 text-white">
+              <AlertCircle className="h-6 w-6" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Remote MCP Setup Guide
+                </h3>
+                {setupGuideOpen ? (
+                  <ChevronUp className="h-5 w-5 text-gray-600" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-gray-600" />
+                )}
               </div>
+              <p className="mt-1 text-sm text-gray-700">
+                Connect Claude Code to Kagura Memory Cloud via Remote MCP over HTTPS
+              </p>
+            </div>
+          </button>
 
-              <div>
-                <p className="mb-1 font-semibold text-gray-900">2. Add to Claude Code config:</p>
-                <code className="block rounded-lg bg-gray-900 px-3 py-2 font-mono text-xs text-green-400">
-                  {`{
+          {/* Collapsible Content */}
+          {setupGuideOpen && (
+            <div className="px-6 pb-6 border-t border-brand-green-200">
+              <div className="pt-4 space-y-3 text-sm">
+                <div>
+                  <p className="mb-1 font-semibold text-gray-900">Add to Claude Code MCP settings:</p>
+                  <pre className="overflow-x-auto rounded-lg bg-gray-900 px-3 py-2 font-mono text-xs text-green-400">
+{`{
   "mcpServers": {
-    "kagura": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-everything@latest"],
-      "env": {
-        "KAGURA_MCP_URL": "https://memory.kagura-ai.com/mcp/sse",
-        "KAGURA_API_KEY": "your-api-key-here"
+    "kagura-remote": {
+      "type": "sse",
+      "url": "https://memory.kagura-ai.com/mcp/sse",
+      "headers": {
+        "Authorization": "Bearer ${apiKeys[0].key_prefix}..."
       }
     }
   }
 }`}
-                </code>
-              </div>
+                  </pre>
+                  <p className="mt-2 text-xs text-gray-600">
+                    💡 Replace <code className="rounded bg-gray-200 px-1 py-0.5">{apiKeys[0].key_prefix}...</code> with your full API key shown when you created it
+                  </p>
+                </div>
 
-              <div className="flex gap-2 pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open('https://docs.kagura-ai.com/mcp-setup', '_blank')}
-                  className="border-brand-green-300 text-brand-green-700 hover:bg-brand-green-100"
-                >
-                  📚 Full Documentation
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open('https://docs.kagura-ai.com/troubleshooting', '_blank')}
-                  className="border-gray-300"
-                >
-                  🔧 Troubleshooting
-                </Button>
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open('https://docs.kagura-ai.com/mcp-setup', '_blank')}
+                    className="border-brand-green-300 text-brand-green-700 hover:bg-brand-green-100"
+                  >
+                    📚 Full Documentation
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open('https://docs.kagura-ai.com/troubleshooting', '_blank')}
+                    className="border-gray-300"
+                  >
+                    🔧 Troubleshooting
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
-      </div>
+      )}
 
       {/* Table */}
       <APIKeysTable
