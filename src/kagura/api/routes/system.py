@@ -446,6 +446,120 @@ async def get_system_doctor() -> SystemDoctorResponse:
     )
 
 
+# ============================================================================
+# Backend Configuration (Issue #694)
+# ============================================================================
+
+
+class BackendInfo(BaseModel):
+    """Backend service information."""
+
+    type: str
+    url: str | None
+    connected: bool
+    status: str
+    message: str
+    stats: dict[str, Any] | None = None
+
+
+class BackendStatusResponse(BaseModel):
+    """All backend statuses."""
+
+    database: BackendInfo
+    vector_db: BackendInfo
+    cache: BackendInfo
+
+
+@router.get("/system/backends", response_model=BackendStatusResponse)
+async def get_backend_status() -> BackendStatusResponse:
+    """Get current backend configuration and status.
+
+    Returns comprehensive information about all configured backends:
+    - Database: SQLite or PostgreSQL
+    - Vector DB: ChromaDB or Qdrant
+    - Cache: In-memory or Redis
+
+    Returns:
+        Backend configuration and connectivity status
+
+    Example:
+        GET /api/v1/system/backends
+        Response: {
+            "database": {
+                "type": "postgres",
+                "url": "postgresql://...@34.84.179.196:5432/kagura",
+                "connected": true,
+                "status": "ok",
+                "message": "Connected (PostgreSQL 14.x)",
+                "stats": {"tables": 5, "rows": 1234}
+            },
+            "vector_db": {
+                "type": "qdrant",
+                "url": "http://qdrant:6333",
+                "connected": true,
+                "status": "ok",
+                "message": "Connected (5 collections)",
+                "stats": {"collections": 5, "vectors": 1234}
+            },
+            "cache": {
+                "type": "redis",
+                "url": "redis://10.71.69.43:6379",
+                "connected": true,
+                "status": "ok",
+                "message": "Connected (10,000 ops)",
+                "stats": {"entries": 50, "hit_rate": 85.5}
+            }
+        }
+    """
+    # Database
+    db_url = os.getenv("DATABASE_URL", "")
+    db_type = "postgres" if "postgresql" in db_url else "sqlite"
+    db_check = _check_postgres()
+
+    database = BackendInfo(
+        type=db_type,
+        url=db_url if db_type == "postgres" else f"{get_data_dir()}/api_keys.db",
+        connected=db_check.status == "ok",
+        status=db_check.status,
+        message=db_check.message,
+        stats=None,  # TODO: Add table/row counts
+    )
+
+    # Vector DB
+    qdrant_url = os.getenv("QDRANT_URL")
+    vector_type = "qdrant" if qdrant_url else "chromadb"
+    vector_check = _check_qdrant() if vector_type == "qdrant" else SystemCheck(status="ok", message="ChromaDB (local)")
+
+    vector_db = BackendInfo(
+        type=vector_type,
+        url=qdrant_url if vector_type == "qdrant" else f"{get_data_dir()}/chroma",
+        connected=vector_check.status == "ok",
+        status=vector_check.status,
+        message=vector_check.message,
+        stats=None,  # TODO: Add collection/vector counts
+    )
+
+    # Cache
+    redis_url = os.getenv("REDIS_URL")
+    cache_type = "redis" if redis_url and os.getenv("CACHE_BACKEND") == "redis" else "memory"
+    cache_check = _check_redis() if cache_type == "redis" else SystemCheck(status="ok", message="In-memory cache")
+
+    cache = BackendInfo(
+        type=cache_type,
+        url=redis_url if cache_type == "redis" else None,
+        connected=cache_check.status == "ok",
+        status=cache_check.status,
+        message=cache_check.message,
+        stats=None,  # TODO: Add cache stats
+    )
+
+    return BackendStatusResponse(
+        database=database,
+        vector_db=vector_db,
+        cache=cache,
+    )
+
+
 @router.post("/system/restart", response_model=RestartResponse)
 async def restart_application(admin_user: AdminUser):
     """Restart application container.
