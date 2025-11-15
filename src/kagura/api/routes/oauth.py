@@ -204,8 +204,8 @@ async def authorize(
         oauth_request = OAuth2Request(
             request.method,
             str(request.url),
-            data=dict(request.query_params),
-            headers=dict(request.headers),
+            dict(request.query_params),  # Use positional argument instead of 'data='
+            dict(request.headers),
         )
 
         # Validate authorization request
@@ -342,8 +342,8 @@ async def authorize_post(
         oauth_request = OAuth2Request(
             "POST",
             str(request.url),
-            data=form_data,
-            headers=dict(request.headers),
+            form_data,  # Use positional argument instead of 'data='
+            dict(request.headers),
         )
 
         # Generate authorization code
@@ -476,8 +476,8 @@ async def token(
         oauth_request = OAuth2Request(
             "POST",
             str(request.url),
-            data=form_data,
-            headers=dict(request.headers),
+            form_data,  # Use positional argument instead of 'data='
+            dict(request.headers),
         )
 
         # Issue token
