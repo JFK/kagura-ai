@@ -216,9 +216,9 @@ async def authorize(
             dict(request.headers),
         )
 
-        # Validate authorization request
+        # Validate authorization request (Authlib v1.3+: renamed from validate_consent_request)
         try:
-            grant = server.validate_consent_request(oauth_request)
+            grant = server.get_consent_grant(request=oauth_request)
         except Exception as e:
             logger.error(f"Authorization request validation failed: {e}")
             raise HTTPException(
