@@ -95,7 +95,7 @@ async def get_current_user_from_session(request: Request) -> User:
         )
 
     # Validate session
-    session_data = await _session_manager.get_session(session_id)
+    session_data = _session_manager.get_session(session_id)  # Not async
     if not session_data:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
