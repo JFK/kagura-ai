@@ -406,6 +406,18 @@ class OAuth2AuthorizationServer:
             "pkce=optional"
         )
 
+    def get_consent_grant(self, request: Any, end_user: Any = None) -> Any:
+        """Get consent grant for authorization page.
+
+        Args:
+            request: OAuth2 request
+            end_user: End user object (optional)
+
+        Returns:
+            Grant object for consent page
+        """
+        return self.server.get_consent_grant(request=request, end_user=end_user)
+
     def create_authorization_response(self, request: Any, grant_user: Any) -> Any:
         """Create authorization response.
 
