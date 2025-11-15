@@ -372,6 +372,16 @@ class OAuth2AuthorizationServer:
         # Import here to avoid circular dependency
         from authlib.oauth2 import AuthorizationServer
 
+        # Create custom AuthorizationServer that implements create_oauth2_request
+        class CustomAuthorizationServer(AuthorizationServer):
+            def create_oauth2_request(self, request):
+                """Convert request to OAuth2Request if needed."""
+                # If already OAuth2Request, return as-is
+                if isinstance(request, OAuth2Request):
+                    return request
+                # Otherwise raise NotImplementedError (framework-specific)
+                raise NotImplementedError("Request must be OAuth2Request")
+
         # Create query_client function
         def query_client_func(client_id: str) -> OAuth2Client | None:
             return query_client(session, client_id)
@@ -380,8 +390,8 @@ class OAuth2AuthorizationServer:
         def save_token_func(token: dict, request: OAuth2Request) -> None:
             save_token(token, request, session)
 
-        # Create Authlib server (v1.3+ only accepts scopes_supported)
-        self.server = AuthorizationServer()
+        # Create Authlib server using custom subclass (v1.3+ only accepts scopes_supported)
+        self.server = CustomAuthorizationServer()
 
         # Set query_client and save_token as attributes (Authlib v1.3+ style)
         self.server.query_client = query_client_func
