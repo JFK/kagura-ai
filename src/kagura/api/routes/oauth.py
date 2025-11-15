@@ -105,9 +105,17 @@ async def get_current_user_from_session(request: Request) -> User:
     # Get user from database
     db_session = get_session()
     try:
+        # Session data has 'email' or 'sub' key, not 'user_id'
+        user_identifier = session_data.get("email") or session_data.get("sub")
+        if not user_identifier:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Session data missing user identifier",
+            )
+
         user = (
             db_session.query(User)
-            .filter_by(user_id=session_data["user_id"])
+            .filter_by(email=user_identifier)
             .first()
         )
         if not user:
