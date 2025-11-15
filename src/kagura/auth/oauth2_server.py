@@ -380,11 +380,12 @@ class OAuth2AuthorizationServer:
         def save_token_func(token: dict, request: OAuth2Request) -> None:
             save_token(token, request, session)
 
-        # Create Authlib server
-        self.server = AuthorizationServer(
-            query_client=query_client_func,
-            save_token=save_token_func,
-        )
+        # Create Authlib server (v1.3+ only accepts scopes_supported)
+        self.server = AuthorizationServer()
+
+        # Set query_client and save_token as attributes (Authlib v1.3+ style)
+        self.server.query_client = query_client_func
+        self.server.save_token = save_token_func
 
         # Register grants
         self._register_grants()
