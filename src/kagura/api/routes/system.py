@@ -9,14 +9,12 @@ Issue #650: Application restart endpoint:
 - POST /api/v1/system/restart - Restart application (Admin only, auto after config update)
 """
 
-import asyncio
 import logging
 import os
 import shutil
 import sys
 import time
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -140,6 +138,21 @@ class RestartResponse(BaseModel):
     status: str
     message: str
     container_name: str
+
+
+class VectorCollectionInfo(BaseModel):
+    """Vector collection information."""
+
+    name: str
+    vector_count: int
+    embedding_dimension: int | None = None
+
+
+class VectorCollectionsResponse(BaseModel):
+    """Vector collections response."""
+
+    backend: str  # "qdrant" or "chromadb"
+    collections: list[VectorCollectionInfo]
 
 
 # ============================================================================
@@ -641,4 +654,121 @@ async def restart_application(admin_user: AdminUser):
             status_code=500,
             detail=f"Restart failed: {str(e)}. "
             "Ensure Docker socket is mounted and permissions are correct.",
+        )
+
+
+# ============================================================================
+# Vector Collections (Issue #684)
+# ============================================================================
+
+
+@router.get("/system/vector/collections", response_model=VectorCollectionsResponse)
+async def get_vector_collections() -> VectorCollectionsResponse:
+    """Get vector database collections information.
+
+    Returns:
+        List of vector collections with metadata
+
+    Example:
+        GET /api/v1/system/vector/collections
+        Response: {
+            "backend": "qdrant",
+            "collections": [
+                {
+                    "name": "kagura_global_persistent",
+                    "vector_count": 1234,
+                    "embedding_dimension": 384
+                }
+            ]
+        }
+
+    Raises:
+        HTTPException(503): If vector database is not accessible
+    """
+    vector_backend = os.getenv("VECTOR_BACKEND", "chromadb")
+    collections: list[VectorCollectionInfo] = []
+
+    try:
+        if vector_backend == "qdrant":
+            # Qdrant backend
+            qdrant_url = os.getenv("QDRANT_URL")
+
+            if not qdrant_url:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Qdrant not configured (QDRANT_URL not set)",
+                )
+
+            try:
+                from kagura.core.resources import get_rag_client
+
+                client = get_rag_client(backend="qdrant")
+
+                # Get collections from Qdrant client
+                if hasattr(client, "client") and hasattr(client.client, "get_collections"):
+                    qdrant_collections = client.client.get_collections()
+
+                    for col in qdrant_collections.collections:
+                        # Get collection info
+                        col_info = client.client.get_collection(col.name)
+
+                        collections.append(
+                            VectorCollectionInfo(
+                                name=col.name,
+                                vector_count=col_info.points_count,
+                                embedding_dimension=col_info.config.params.vectors.size
+                                if hasattr(col_info.config.params, "vectors")
+                                else None,
+                            )
+                        )
+                else:
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Qdrant client not properly initialized",
+                    )
+
+            except ImportError:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Qdrant client not installed. Install with: pip install qdrant-client",
+                )
+
+        else:
+            # ChromaDB backend
+            try:
+                import chromadb  # type: ignore
+
+                chroma_path = get_data_dir() / "chroma"
+                client = chromadb.PersistentClient(path=str(chroma_path))
+
+                chroma_collections = client.list_collections()
+
+                for col in chroma_collections:
+                    collections.append(
+                        VectorCollectionInfo(
+                            name=col.name,
+                            vector_count=col.count(),
+                            embedding_dimension=None,  # ChromaDB doesn't expose this easily
+                        )
+                    )
+
+            except ImportError:
+                raise HTTPException(
+                    status_code=503,
+                    detail="ChromaDB not installed. Install with: pip install chromadb",
+                )
+
+        return VectorCollectionsResponse(
+            backend=vector_backend,
+            collections=collections,
+        )
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Failed to get vector collections: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail=f"Vector database error: {str(e)}",
         )

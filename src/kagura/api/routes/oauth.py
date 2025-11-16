@@ -21,6 +21,7 @@ Security:
 """
 
 import logging
+import os
 import secrets
 from datetime import datetime
 from typing import Annotated
@@ -36,9 +37,10 @@ from fastapi import (
     status,
 )
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from kagura.auth.models import User, get_session
+from kagura.auth.oauth2_models import OAuth2Client
 from kagura.auth.oauth2_server import create_authorization_server
 from kagura.auth.session import SessionManager
 
@@ -156,6 +158,74 @@ class TokenResponse(BaseModel):
     expires_in: int
     refresh_token: str | None = None
     scope: str | None = None
+
+
+# ============================================================================
+# OAuth2 Client Management Models
+# ============================================================================
+
+
+class OAuth2ClientResponse(BaseModel):
+    """OAuth2 Client response (without secret)."""
+
+    id: int
+    client_id: str
+    client_name: str
+    redirect_uris: list[str]
+    grant_types: list[str]
+    response_types: list[str]
+    scope: str
+    token_endpoint_auth_method: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class OAuth2ClientWithSecretResponse(OAuth2ClientResponse):
+    """OAuth2 Client response with client secret (only on creation)."""
+
+    client_secret: str
+
+
+class OAuth2ClientCreateRequest(BaseModel):
+    """OAuth2 Client creation request."""
+
+    client_name: str = Field(..., min_length=1, max_length=100, description="Human-readable client name")
+    redirect_uris: list[str] = Field(..., min_items=1, description="Allowed redirect URIs")
+    grant_types: list[str] = Field(
+        default=["authorization_code", "refresh_token"],
+        description="Allowed grant types"
+    )
+    response_types: list[str] = Field(default=["code"], description="Allowed response types")
+    scope: str = Field(
+        default="mcp:tools mcp:memory mcp:coding",
+        description="Space-separated scopes"
+    )
+    token_endpoint_auth_method: str = Field(
+        default="client_secret_post",
+        description="Client authentication method"
+    )
+
+
+class OAuth2ClientUpdateRequest(BaseModel):
+    """OAuth2 Client update request."""
+
+    client_name: str | None = Field(None, min_length=1, max_length=100)
+    redirect_uris: list[str] | None = Field(None, min_items=1)
+    scope: str | None = None
+
+
+class OAuth2ProviderResponse(BaseModel):
+    """OAuth2 Provider response."""
+
+    name: str
+    display_name: str
+    client_id: str | None
+    authorization_url: str
+    token_url: str
+    scopes: list[str]
+    enabled: bool
 
 
 # ============================================================================
@@ -613,3 +683,298 @@ async def revoke(
 
     finally:
         db_session.close()
+
+
+# ============================================================================
+# OAuth2 Client Management Endpoints
+# ============================================================================
+
+
+@router.get("/clients", response_model=list[OAuth2ClientResponse])
+async def list_oauth2_clients(
+    request: Request,
+) -> list[OAuth2ClientResponse]:
+    """List all registered OAuth2 clients.
+
+    Returns:
+        List of OAuth2 clients (without secrets)
+
+    Example:
+        GET /api/v1/oauth/clients
+    """
+    db_session = get_session()
+
+    try:
+        clients = db_session.query(OAuth2Client).order_by(OAuth2Client.created_at.desc()).all()
+
+        return [OAuth2ClientResponse.model_validate(client) for client in clients]
+
+    finally:
+        db_session.close()
+
+
+@router.post("/clients", response_model=OAuth2ClientWithSecretResponse, status_code=status.HTTP_201_CREATED)
+async def create_oauth2_client(
+    request: Request,
+    data: OAuth2ClientCreateRequest,
+) -> OAuth2ClientWithSecretResponse:
+    """Register a new OAuth2 client.
+
+    Args:
+        data: Client registration data
+
+    Returns:
+        Created client with client_secret (only shown once)
+
+    Example:
+        POST /api/v1/oauth/clients
+        {
+          "client_name": "My App",
+          "redirect_uris": ["https://example.com/callback"]
+        }
+    """
+    import hashlib
+
+    db_session = get_session()
+
+    try:
+        # Generate client_id and client_secret
+        client_id = f"oauth_{secrets.token_urlsafe(16)}"
+        client_secret = secrets.token_urlsafe(32)
+        client_secret_hash = hashlib.sha256(client_secret.encode()).hexdigest()
+
+        # Create OAuth2Client
+        client = OAuth2Client(
+            client_id=client_id,
+            client_secret_hash=client_secret_hash,
+            client_name=data.client_name,
+            redirect_uris=data.redirect_uris,
+            grant_types=data.grant_types,
+            response_types=data.response_types,
+            scope=data.scope,
+            token_endpoint_auth_method=data.token_endpoint_auth_method,
+        )
+
+        db_session.add(client)
+        db_session.commit()
+        db_session.refresh(client)
+
+        logger.info(f"OAuth2 client created: {client_id} ({data.client_name})")
+
+        # Return response with client_secret (only shown once)
+        response_data = OAuth2ClientResponse.model_validate(client).model_dump()
+        response_data["client_secret"] = client_secret
+
+        return OAuth2ClientWithSecretResponse(**response_data)
+
+    except Exception as e:
+        db_session.rollback()
+        logger.error(f"Failed to create OAuth2 client: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create OAuth2 client: {str(e)}",
+        )
+
+    finally:
+        db_session.close()
+
+
+@router.get("/clients/{client_id}", response_model=OAuth2ClientResponse)
+async def get_oauth2_client(
+    request: Request,
+    client_id: str,
+) -> OAuth2ClientResponse:
+    """Get OAuth2 client details.
+
+    Args:
+        client_id: OAuth2 client ID
+
+    Returns:
+        Client details (without secret)
+
+    Example:
+        GET /api/v1/oauth/clients/oauth_abc123
+    """
+    db_session = get_session()
+
+    try:
+        client = db_session.query(OAuth2Client).filter_by(client_id=client_id).first()
+
+        if not client:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"OAuth2 client not found: {client_id}",
+            )
+
+        return OAuth2ClientResponse.model_validate(client)
+
+    finally:
+        db_session.close()
+
+
+@router.put("/clients/{client_id}", response_model=OAuth2ClientResponse)
+async def update_oauth2_client(
+    request: Request,
+    client_id: str,
+    data: OAuth2ClientUpdateRequest,
+) -> OAuth2ClientResponse:
+    """Update OAuth2 client.
+
+    Args:
+        client_id: OAuth2 client ID
+        data: Update data
+
+    Returns:
+        Updated client
+
+    Example:
+        PUT /api/v1/oauth/clients/oauth_abc123
+        {
+          "client_name": "My App (Updated)",
+          "redirect_uris": ["https://example.com/callback", "https://example.com/callback2"]
+        }
+    """
+    db_session = get_session()
+
+    try:
+        client = db_session.query(OAuth2Client).filter_by(client_id=client_id).first()
+
+        if not client:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"OAuth2 client not found: {client_id}",
+            )
+
+        # Update fields
+        if data.client_name is not None:
+            client.client_name = data.client_name
+
+        if data.redirect_uris is not None:
+            client.redirect_uris = data.redirect_uris
+
+        if data.scope is not None:
+            client.scope = data.scope
+
+        db_session.commit()
+        db_session.refresh(client)
+
+        logger.info(f"OAuth2 client updated: {client_id}")
+
+        return OAuth2ClientResponse.model_validate(client)
+
+    except HTTPException:
+        db_session.rollback()
+        raise
+
+    except Exception as e:
+        db_session.rollback()
+        logger.error(f"Failed to update OAuth2 client {client_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update OAuth2 client: {str(e)}",
+        )
+
+    finally:
+        db_session.close()
+
+
+@router.delete("/clients/{client_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_oauth2_client(
+    request: Request,
+    client_id: str,
+) -> None:
+    """Delete OAuth2 client.
+
+    Args:
+        client_id: OAuth2 client ID
+
+    Returns:
+        No content
+
+    Example:
+        DELETE /api/v1/oauth/clients/oauth_abc123
+    """
+    db_session = get_session()
+
+    try:
+        client = db_session.query(OAuth2Client).filter_by(client_id=client_id).first()
+
+        if not client:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"OAuth2 client not found: {client_id}",
+            )
+
+        db_session.delete(client)
+        db_session.commit()
+
+        logger.info(f"OAuth2 client deleted: {client_id}")
+
+    except HTTPException:
+        db_session.rollback()
+        raise
+
+    except Exception as e:
+        db_session.rollback()
+        logger.error(f"Failed to delete OAuth2 client {client_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete OAuth2 client: {str(e)}",
+        )
+
+    finally:
+        db_session.close()
+
+
+# ============================================================================
+# OAuth2 Provider Management Endpoints
+# ============================================================================
+
+
+@router.get("/providers", response_model=list[OAuth2ProviderResponse])
+async def list_oauth2_providers(
+    request: Request,
+) -> list[OAuth2ProviderResponse]:
+    """List configured OAuth2 providers.
+
+    Returns:
+        List of OAuth2 providers (Google, GitHub, etc.)
+
+    Example:
+        GET /api/v1/oauth/providers
+    """
+    providers: list[OAuth2ProviderResponse] = []
+
+    # Google OAuth2 Provider
+    google_client_id = os.getenv("GOOGLE_CLIENT_ID")
+    google_client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+
+    providers.append(
+        OAuth2ProviderResponse(
+            name="google",
+            display_name="Google",
+            client_id=google_client_id if google_client_id else None,
+            authorization_url="https://accounts.google.com/o/oauth2/v2/auth",
+            token_url="https://oauth2.googleapis.com/token",
+            scopes=["openid", "email", "profile"],
+            enabled=bool(google_client_id and google_client_secret),
+        )
+    )
+
+    # GitHub OAuth2 Provider (placeholder for future support)
+    github_client_id = os.getenv("GITHUB_CLIENT_ID")
+    github_client_secret = os.getenv("GITHUB_CLIENT_SECRET")
+
+    providers.append(
+        OAuth2ProviderResponse(
+            name="github",
+            display_name="GitHub",
+            client_id=github_client_id if github_client_id else None,
+            authorization_url="https://github.com/login/oauth/authorize",
+            token_url="https://github.com/login/oauth/access_token",
+            scopes=["read:user", "user:email"],
+            enabled=bool(github_client_id and github_client_secret),
+        )
+    )
+
+    return providers
