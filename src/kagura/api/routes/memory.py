@@ -12,7 +12,6 @@ Memory management API routes:
 
 import logging
 from datetime import datetime
-from pathlib import Path as FilePath
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
@@ -20,9 +19,13 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query
 logger = logging.getLogger(__name__)
 
 from kagura.api import models
-from kagura.api.dependencies import MemoryManagerDep, get_current_user, get_current_user_optional
+from kagura.api.dependencies import (
+    MemoryManagerDep,
+    get_current_user,
+    get_current_user_optional,
+)
 from kagura.api.models_doctor import MemoryDoctorResponse, MemoryStats
-from kagura.config.paths import get_cache_dir, get_data_dir
+from kagura.config.paths import get_data_dir
 from kagura.config.project import get_reranking_enabled
 from kagura.utils import (
     MemoryDatabaseQuery,
@@ -50,17 +53,37 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
     recommendations = []
 
     # Check database
-    db_path = get_data_dir() / "memory.db"
-    database_exists = db_path.exists()
-    database_size_mb = db_path.stat().st_size / (1024**2) if database_exists else None
+    import os
 
-    if not database_exists:
-        recommendations.append(
-            "Database not initialized (will be created on first use)"
-        )
+    # Determine if using PostgreSQL or SQLite
+    using_postgres = os.getenv("PERSISTENT_BACKEND") == "postgres" or os.getenv("DATABASE_URL", "").startswith("postgresql")
+
+    if using_postgres:
+        # PostgreSQL: Check database connection and size
+        database_exists = True  # Assume exists if using PostgreSQL
+        database_size_mb = None  # TODO: Query PostgreSQL for database size
+        try:
+            # Verify connection by counting memories
+            _ = MemoryDatabaseQuery.count_memories()
+        except Exception:
+            database_exists = False
+            recommendations.append(
+                "PostgreSQL database connection failed. Check DATABASE_URL."
+            )
+    else:
+        # SQLite: Check file existence
+        db_path = get_data_dir() / "memory.db"
+        database_exists = db_path.exists()
+        database_size_mb = db_path.stat().st_size / (1024**2) if database_exists else None
+
+        if not database_exists:
+            recommendations.append(
+                "Database not initialized (will be created on first use)"
+            )
 
     # Check memory counts
     persistent_count = 0
+    working_count = 0
     rag_count = 0
     rag_enabled = False
 
@@ -69,36 +92,44 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
     except Exception:
         pass
 
-    # Check RAG
+    # Check working memory (RAM)
     try:
-        import chromadb
+        from kagura.core.memory import MemoryManager
 
-        rag_count = 0
-        vector_db_paths = [
-            get_cache_dir() / "chromadb",  # Default CLI location
-            get_data_dir() / "chromadb",  # Alternative location
-        ]
+        # Create temporary manager to count working memories
+        # Use system user to access all working memories
+        temp_manager = MemoryManager(user_id="system", agent_name="doctor")
+        working_count = len(temp_manager.working)
+    except Exception:
+        pass
 
-        for vdb_path in vector_db_paths:
-            if vdb_path.exists():
-                try:
-                    client = chromadb.PersistentClient(path=str(vdb_path))
-                    for col in client.list_collections():
-                        rag_count += col.count()
-                except Exception:
-                    pass
+    # Check RAG (vector database) - Use centralized resource manager
+    try:
+        from kagura.core.resources import get_rag_collection_count
 
+        rag_count = get_rag_collection_count()
         rag_enabled = True
 
+        # Recommendation if RAG is empty
         if rag_count == 0 and persistent_count > 0:
             recommendations.append(
                 "RAG index is empty but memories exist. "
                 "Run 'kagura memory index' to build index"
             )
 
-    except ImportError:
+    except ImportError as e:
+        if "qdrant" in str(e).lower():
+            recommendations.append(
+                "Qdrant configured but not installed. Install: pip install qdrant-client"
+            )
+        else:
+            recommendations.append(
+                "RAG not available. Install: pip install chromadb sentence-transformers"
+            )
+    except Exception as e:
+        logger.warning(f"Failed to check RAG: {e}")
         recommendations.append(
-            "RAG not available. Install: pip install chromadb sentence-transformers"
+            f"RAG connection failed: {str(e)[:100]}"
         )
 
     # Check reranking
@@ -138,6 +169,7 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
     stats = MemoryStats(
         database_exists=database_exists,
         database_size_mb=database_size_mb,
+        working_count=working_count,
         persistent_count=persistent_count,
         rag_enabled=rag_enabled,
         rag_count=rag_count,
@@ -460,19 +492,58 @@ async def list_memories(
 
     # Collect persistent memory
     if scope is None or scope == "persistent":
-        # Search all persistent memories (LIKE '%')
-        persistent_list = memory.search_memory("%", limit=1000)
+        # Search all persistent memories across all users (admin view)
+        # Use direct backend access to bypass user_id filtering
+        persistent_list = memory.persistent.fetch_all(
+            user_id="",  # Empty string to get all users in SQLite
+            agent_name=None,
+            limit=1000
+        ) if hasattr(memory.persistent, 'fetch_all') else []
+
+        logger.info(
+            f"[list_memories] fetch_all returned {len(persistent_list)} records "
+            f"(user_id='', agent_name=None, scope={scope})"
+        )
+
+        # Fallback: if fetch_all doesn't work, use search with current user
+        if not persistent_list:
+            persistent_list = memory.search_memory("%", limit=1000)
+            logger.info(f"[list_memories] search fallback returned {len(persistent_list)} records")
+
         for mem in persistent_list:
+            key = mem.get("key", "")
+            agent_name = mem.get("agent_name")
+
+            # Skip coding memories (they have their own endpoint)
+            # Filter by agent_name (primary) and key pattern (fallback for old data)
+            if agent_name == "coding-memory":
+                continue
+
+            # Fallback: Skip coding-related keys for old data without agent_name
+            if key.startswith("project:") and any(x in key for x in [":session:", ":error:", ":file_change:", ":decision:"]):
+                logger.debug(f"[list_memories] Skipping coding key (fallback): {key}")
+                continue
+
             metadata_dict = mem.get("metadata", {})
+
+            # Handle None metadata (can occur with coding sessions)
+            if metadata_dict is None:
+                metadata_dict = {}
 
             # Decode and extract metadata fields
             metadata_dict = decode_chromadb_metadata(metadata_dict)
             mem_fields = extract_memory_fields(metadata_dict)
 
+            # Convert dict values to JSON string (coding sessions store dict)
+            value = mem["value"]
+            if isinstance(value, dict):
+                import json
+                value = json.dumps(value, ensure_ascii=False)
+
             all_memories.append(
                 {
                     "key": mem["key"],
-                    "value": mem["value"],
+                    "value": value,
                     "scope": "persistent",
                     "tags": mem_fields["tags"],
                     "importance": mem_fields["importance"],
@@ -483,15 +554,26 @@ async def list_memories(
                     "updated_at": datetime.fromisoformat(mem_fields["updated_at"])
                     if mem_fields["updated_at"]
                     else datetime.now(),
+                    "user_id": mem.get("user_id"),
+                    "agent_name": mem.get("agent_name"),
                 }
             )
 
     total = len(all_memories)
 
+    logger.info(
+        f"[list_memories] After filtering: {total} memories "
+        f"(scope={scope}, page={page}, page_size={page_size})"
+    )
+
     # Pagination
     start = (page - 1) * page_size
     end = start + page_size
     page_memories = all_memories[start:end]
+
+    logger.info(
+        f"[list_memories] Returning {len(page_memories)}/{total} memories"
+    )
 
     return {
         "memories": page_memories,

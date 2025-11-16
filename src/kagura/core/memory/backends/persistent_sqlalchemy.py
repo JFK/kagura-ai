@@ -133,8 +133,8 @@ class SQLAlchemyPersistentBackend:
     def _get_or_create_engine(database_url: str) -> Engine:
         """Get or create SQLAlchemy engine (singleton pattern).
 
-        Reuses existing engine if already created for the same database_url.
-        This shares connection pools across all backend instances.
+        Delegates to centralized ResourceManager for engine caching.
+        This ensures all components share the same connection pool.
 
         Args:
             database_url: Database connection URL
@@ -142,25 +142,10 @@ class SQLAlchemyPersistentBackend:
         Returns:
             SQLAlchemy Engine instance (cached)
         """
-        global _engine_cache
+        from kagura.core.resources import get_database_engine
 
-        if database_url not in _engine_cache:
-            logger.info(f"Creating new Engine for {database_url.split('@')[-1]}")
-
-            engine = create_engine(
-                database_url,
-                pool_pre_ping=True,  # Verify connections before using
-                pool_recycle=3600,  # Recycle connections every hour
-                pool_size=5,  # Connection pool size
-                max_overflow=10,  # Max additional connections
-                echo=False,  # Set to True for SQL debugging
-            )
-
-            _engine_cache[database_url] = engine
-        else:
-            logger.debug(f"Reusing cached Engine for {database_url.split('@')[-1]}")
-
-        return _engine_cache[database_url]
+        # Use centralized resource manager
+        return get_database_engine(database_url=database_url, create_tables=False)
 
     def _get_backend_type(self) -> str:
         """Get backend type (sqlite or postgres) from URL."""
@@ -431,6 +416,72 @@ class SQLAlchemyPersistentBackend:
         finally:
             session.close()
 
+    def search(
+        self,
+        query: str,
+        user_id: str,
+        agent_name: Optional[str] = None,
+        limit: int = 10,
+    ) -> list[dict[str, Any]]:
+        """Search memories by key pattern.
+
+        Args:
+            query: Search pattern (SQL LIKE pattern)
+            user_id: User identifier (filter by owner)
+            agent_name: Optional agent name filter
+            limit: Maximum results
+
+        Returns:
+            List of memory dictionaries with access tracking info
+        """
+        session = self._get_session()
+        try:
+            # Build query with LIKE pattern
+            db_query = session.query(MemoryModel).filter(
+                MemoryModel.key.like(f"%{query}%")
+            )
+
+            # Filter by user_id if provided (empty string means all users)
+            if user_id:
+                db_query = db_query.filter(MemoryModel.user_id == user_id)
+
+            if agent_name is not None:
+                # Include both agent-scoped AND global (agent_name IS NULL) memories
+                db_query = db_query.filter(
+                    (MemoryModel.agent_name == agent_name)
+                    | (MemoryModel.agent_name.is_(None))
+                )
+            else:
+                # Only global memories
+                db_query = db_query.filter(MemoryModel.agent_name.is_(None))
+
+            db_query = db_query.order_by(MemoryModel.updated_at.desc()).limit(limit)
+
+            results: list[dict[str, Any]] = []
+            for row in db_query.all():
+                results.append(
+                    {
+                        "key": row.key,
+                        "value": json.loads(row.value),
+                        "created_at": row.created_at,
+                        "updated_at": row.updated_at,
+                        "metadata": json.loads(row.memory_metadata) if row.memory_metadata else None,
+                        "access_count": row.access_count if row.access_count is not None else 0,
+                        "last_accessed_at": row.last_accessed_at,
+                        "user_id": row.user_id,
+                        "agent_name": row.agent_name,
+                    }
+                )
+
+            logger.debug(f"Search found {len(results)} memories for pattern '{query}'")
+            return results
+
+        except Exception as e:
+            logger.error(f"Failed to search memories (query={query}, user_id={user_id}): {e}")
+            raise
+        finally:
+            session.close()
+
     def fetch_all(
         self,
         user_id: str,
@@ -455,11 +506,20 @@ class SQLAlchemyPersistentBackend:
         """
         session = self._get_session()
         try:
-            query = session.query(MemoryModel).filter_by(user_id=user_id)
+            query = session.query(MemoryModel)
 
-            if agent_name is not None:
-                # Include both agent-scoped AND global (agent_name IS NULL) memories
-                # This matches the logic in recall() and search()
+            # Filter by user_id if provided (empty string means all users)
+            if user_id:
+                query = query.filter_by(user_id=user_id)
+
+                if agent_name is not None:
+                    # Include both agent-scoped AND global (agent_name IS NULL) memories
+                    query = query.filter(
+                        (MemoryModel.agent_name == agent_name)
+                        | (MemoryModel.agent_name.is_(None))
+                    )
+            elif agent_name is not None:
+                # No user_id filter, but filter by agent_name
                 query = query.filter(
                     (MemoryModel.agent_name == agent_name)
                     | (MemoryModel.agent_name.is_(None))
@@ -481,6 +541,8 @@ class SQLAlchemyPersistentBackend:
                         "metadata": json.loads(row.memory_metadata) if row.memory_metadata else None,
                         "access_count": row.access_count if row.access_count is not None else 0,
                         "last_accessed_at": row.last_accessed_at,
+                        "user_id": row.user_id,
+                        "agent_name": row.agent_name,
                     }
                 )
 

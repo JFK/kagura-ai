@@ -42,6 +42,25 @@ if TYPE_CHECKING:
     from chromadb.types import Where  # type: ignore
 
 
+def _sanitize_metadata(metadata: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Remove None values from metadata dict for ChromaDB compatibility.
+
+    ChromaDB's Rust bindings do not accept None values in metadata.
+    This function recursively removes all None values.
+
+    Args:
+        metadata: Original metadata dictionary
+
+    Returns:
+        Sanitized metadata with None values removed, or None if empty
+    """
+    if not metadata:
+        return None
+
+    sanitized = {k: v for k, v in metadata.items() if v is not None}
+    return sanitized if sanitized else None
+
+
 class ChromaDBEmbeddingFunction:
     """ChromaDB-compatible embedding function using Kagura's Embedder.
 
@@ -198,13 +217,13 @@ class MemoryRAG:
 
         persist_dir = persist_dir or get_cache_dir() / "chromadb"
         persist_dir.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"MemoryRAG: Creating ChromaDB client at {persist_dir}")
+        logger.debug(f"MemoryRAG: Using ChromaDB client at {persist_dir}")
 
-        self.client = chromadb.PersistentClient(
-            path=str(persist_dir),
-            settings=Settings(anonymized_telemetry=False),
-        )
-        logger.debug("MemoryRAG: ChromaDB client created")
+        # Use centralized resource manager for ChromaDB client
+        from kagura.core.resources import get_rag_client
+
+        self.client = get_rag_client(backend="chromadb", path=str(persist_dir))
+        logger.debug("MemoryRAG: ChromaDB client acquired from resource manager")
 
         # Custom embedding function (E5-large with query:/passage: prefixes)
         self._embedding_config = embedding_config
@@ -552,10 +571,12 @@ class MemoryRAG:
         logger.debug(
             "Storing as single document (chunking disabled or content too short)"
         )
+        # Sanitize metadata to remove None values (ChromaDB Rust bindings requirement)
+        sanitized_metadata = _sanitize_metadata(metadata)
         self.collection.add(
             ids=[doc_id],
             documents=[content],
-            metadatas=[metadata] if metadata else None,
+            metadatas=[sanitized_metadata] if sanitized_metadata else None,
         )
         return doc_id
 
@@ -648,7 +669,10 @@ class MemoryRAG:
                     "end_char": chunk_meta.end_char,
                 }
             )
-            chunk_metadatas.append(chunk_metadata)
+            # Sanitize metadata to remove None values (ChromaDB Rust bindings requirement)
+            sanitized_chunk_metadata = _sanitize_metadata(chunk_metadata)
+            if sanitized_chunk_metadata:  # Only add if not empty after sanitization
+                chunk_metadatas.append(sanitized_chunk_metadata)
 
         return {"ids": chunk_ids, "documents": chunk_docs, "metadatas": chunk_metadatas}
 

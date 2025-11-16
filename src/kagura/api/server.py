@@ -77,7 +77,7 @@ app.add_middleware(RequestLoggingMiddleware)
 # Issue #650: Session middleware for OAuth2 authentication
 # Issue #653: Auto-run migrations on startup
 if AUTH_AVAILABLE:
-    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+    redis_url = os.getenv("REDIS_URL")  # None if not explicitly set
     db_url = os.getenv("DATABASE_URL")
 
     try:
@@ -92,7 +92,11 @@ if AUTH_AVAILABLE:
             except Exception as e:
                 logger.warning(f"Migration failed (may already be applied): {e}")
 
-        # Initialize session manager
+        # Initialize session manager (requires Redis)
+        if not redis_url:
+            logger.warning("REDIS_URL not set - OAuth2 authentication disabled")
+            raise ValueError("REDIS_URL required for OAuth2 authentication")
+
         session_manager = SessionManager(redis_url=redis_url)
         app.add_middleware(SessionMiddleware, session_manager=session_manager)
 

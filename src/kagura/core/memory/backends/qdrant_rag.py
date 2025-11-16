@@ -118,35 +118,23 @@ class QdrantRAG:
         """
         global _qdrant_client_cache
 
-        cache_key = f"{qdrant_url}:{api_key or 'no-key'}"
+        # Use centralized resource manager for Qdrant client
+        from kagura.core.resources import get_rag_client
 
-        if cache_key not in _qdrant_client_cache:
-            try:
-                from qdrant_client import QdrantClient
+        try:
+            logger.debug(f"Acquiring Qdrant client for {qdrant_url}")
+            client = get_rag_client(backend="qdrant")
 
-                logger.info(f"Creating new Qdrant client for {qdrant_url}")
+            # Test connection
+            client.get_collections()
 
-                client = QdrantClient(
-                    url=qdrant_url,
-                    api_key=api_key,
-                    timeout=30,
-                    prefer_grpc=True,  # Use gRPC for better performance
-                )
-
-                # Test connection
-                client.get_collections()
-
-                _qdrant_client_cache[cache_key] = client
-            except ImportError:
-                raise ImportError(
-                    "qdrant-client not installed. Install with: pip install qdrant-client"
-                )
-            except Exception as e:
-                raise ConnectionError(f"Failed to connect to Qdrant: {e}") from e
-        else:
-            logger.debug(f"Reusing cached Qdrant client for {qdrant_url}")
-
-        return _qdrant_client_cache[cache_key]
+            return client
+        except ImportError:
+            raise ImportError(
+                "qdrant-client not installed. Install with: pip install qdrant-client"
+            )
+        except Exception as e:
+            raise ConnectionError(f"Failed to connect to Qdrant: {e}") from e
 
     def _ensure_collection(self) -> None:
         """Ensure collection exists with proper configuration.
@@ -203,9 +191,9 @@ class QdrantRAG:
         """
         from qdrant_client.models import PointStruct
 
-        # Generate IDs if not provided
+        # Generate IDs if not provided (use UUID strings for Qdrant)
         if ids is None:
-            ids = [f"doc_{uuid.uuid4().hex[:16]}" for _ in documents]
+            ids = [str(uuid.uuid4()) for _ in documents]
 
         # Generate embeddings
         if hasattr(self, "embedder"):
@@ -221,10 +209,14 @@ class QdrantRAG:
         if metadatas is None:
             metadatas = [{} for _ in documents]
 
-        # Add text to metadata
+        # Add text to metadata and filter None values
         for i, (doc, meta) in enumerate(zip(documents, metadatas)):
             meta["text"] = doc
             meta["doc_id"] = ids[i]
+            # Remove None values (Qdrant doesn't accept None in metadata)
+            for key in list(meta.keys()):
+                if meta[key] is None:
+                    del meta[key]
 
         # Create points
         points = [
@@ -320,6 +312,62 @@ class QdrantRAG:
         except Exception as e:
             logger.error(f"Failed to delete collection: {e}")
             raise
+
+    def store(
+        self,
+        content: str,
+        user_id: str,
+        metadata: Optional[dict[str, Any]] = None,
+        agent_name: Optional[str] = None,
+    ) -> str:
+        """Store memory content with metadata.
+
+        Wrapper around add_documents() to match MemoryRAG interface.
+        Used by MemoryManager.remember() for unified API.
+
+        Args:
+            content: Content to store
+            user_id: User identifier (memory owner)
+            metadata: Optional metadata dict
+            agent_name: Optional agent name for scoping
+
+        Returns:
+            Document ID (stable UUID based on user_id and content)
+
+        Example:
+            >>> rag = QdrantRAG(qdrant_url="http://localhost:6333")
+            >>> doc_id = rag.store(
+            ...     content="Python is great",
+            ...     user_id="jfk",
+            ...     metadata={"type": "fact"},
+            ...     agent_name="coding-memory"
+            ... )
+        """
+        # Generate stable document ID as UUID (Qdrant requirement)
+        # Use hash to create deterministic UUID from content
+        prefix_content = content[:100] if len(content) > 100 else content
+        unique_str = f"{user_id}:{prefix_content}"
+        hash_bytes = hashlib.sha256(unique_str.encode()).digest()[:16]
+        doc_id = str(uuid.UUID(bytes=hash_bytes))
+
+        # Prepare metadata
+        full_metadata = metadata.copy() if metadata else {}
+        full_metadata["user_id"] = user_id
+        if agent_name:
+            full_metadata["agent_name"] = agent_name
+
+        # Remove None values (Qdrant doesn't accept None in metadata)
+        full_metadata = {k: v for k, v in full_metadata.items() if v is not None}
+
+        # Store via add_documents
+        self.add_documents(
+            documents=[content],
+            metadatas=[full_metadata],
+            ids=[doc_id],
+        )
+
+        logger.debug(f"Stored document {doc_id} for user {user_id}")
+        return doc_id
 
     def count(self) -> int:
         """Get number of documents in collection.

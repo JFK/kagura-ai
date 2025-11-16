@@ -144,20 +144,10 @@ def _check_memory_system() -> tuple[dict[str, Any], list[str]]:
 
             from kagura.config.paths import get_cache_dir
 
-            rag_count = 0
-            vector_db_paths = [
-                get_cache_dir() / "chromadb",  # Default CLI location
-                get_data_dir() / "chromadb",  # Alternative location
-            ]
+            # Use centralized resource manager for RAG count
+            from kagura.core.resources import get_rag_collection_count
 
-            for vdb_path in vector_db_paths:
-                if vdb_path.exists():
-                    try:
-                        client = chromadb.PersistentClient(path=str(vdb_path))
-                        for col in client.list_collections():
-                            rag_count += col.count()
-                    except Exception:
-                        pass
+            rag_count = get_rag_collection_count()
 
             status["rag_enabled"] = True
             status["rag_count"] = rag_count
@@ -258,9 +248,10 @@ def _check_qdrant() -> tuple[str, str]:
         )
 
     try:
-        from qdrant_client import QdrantClient
+        from kagura.core.resources import get_rag_client
 
-        client = QdrantClient(url=qdrant_url, timeout=5)
+        # Use centralized resource manager
+        client = get_rag_client(backend="qdrant")
         collections = client.get_collections().collections
         collection_count = len(collections)
 

@@ -139,9 +139,17 @@ export function Sidebar() {
               </h3>
               <div className="space-y-1">
                 {visibleItems.map((item) => {
+                  // Check if a more specific route matches (to prevent parent route highlighting)
+                  const allHrefs = visibleItems.map(i => i.href);
+                  const hasMoreSpecificMatch = allHrefs.some(
+                    href => href !== item.href && href.startsWith(item.href) && pathname.startsWith(href)
+                  );
+
                   const isActive =
                     pathname === item.href ||
-                    (item.href !== '/dashboard' && pathname.startsWith(item.href));
+                    (item.href !== '/dashboard' &&
+                     pathname.startsWith(item.href + '/') &&
+                     !hasMoreSpecificMatch);
                   const Icon = item.icon;
 
                   return (

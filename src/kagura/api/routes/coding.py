@@ -14,7 +14,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 from kagura.api import models
-from kagura.api.dependencies import get_current_user, get_current_user_optional
+from kagura.api.dependencies import get_current_user_optional
 from kagura.api.models_doctor import CodingDoctorResponse, CodingStats
 from kagura.core.memory import MemoryManager
 
@@ -30,34 +30,76 @@ def _check_coding_memory() -> CodingStats:
         Coding memory statistics
     """
     try:
-        manager = MemoryManager(user_id="system", agent_name="coding-memory")
+        import os
 
-        # Count sessions - search in persistent storage
-        sessions = manager.persistent.search(
-            query="%session%",
-            user_id="system",
-            agent_name="coding-memory",
-            limit=1000,
-        )
+        from sqlalchemy import text
 
-        # Try to identify unique projects
+        from kagura.core.memory.backends import SQLAlchemyPersistentBackend
+
+        # Count sessions across all users by querying database directly
+        sessions_count = 0
         projects: set[str] = set()
-        for session in sessions:
-            if "metadata" in session:
-                try:
-                    import json
 
-                    metadata = json.loads(session.get("metadata", "{}"))
-                    if "project_id" in metadata:
-                        projects.add(metadata["project_id"])
-                except Exception:  # JSON parsing can fail
-                    pass
+        # Determine backend type
+        using_postgres = os.getenv("PERSISTENT_BACKEND") == "postgres" or os.getenv("DATABASE_URL", "").startswith("postgresql")
+
+        if using_postgres:
+            # PostgreSQL: Query directly
+            database_url = os.getenv("DATABASE_URL", "")
+            backend = SQLAlchemyPersistentBackend(database_url, create_tables=False)
+
+            with backend._get_session() as session:
+                # Count sessions (keys containing "session:")
+                result = session.execute(
+                    text("SELECT COUNT(*) FROM memories WHERE key LIKE '%:session:%'")
+                )
+                sessions_count = result.scalar() or 0
+
+                # Count unique projects (extract project_id from keys like "project:X:session:Y")
+                result = session.execute(
+                    text("""
+                        SELECT DISTINCT
+                            SUBSTRING(key FROM 'project:([^:]+):session:') as project_id
+                        FROM memories
+                        WHERE key LIKE 'project:%:session:%'
+                    """)
+                )
+                projects = {row[0] for row in result if row[0]}
+        else:
+            # SQLite: Query database directly
+            # Note: For accurate counts, we need to query DB directly
+            try:
+                import sqlite3
+
+                from kagura.config.paths import get_data_dir
+
+                db_path = get_data_dir() / "memory.db"
+                if db_path.exists():
+                    conn = sqlite3.connect(str(db_path))
+                    cursor = conn.execute(
+                        "SELECT COUNT(*) FROM memories WHERE key LIKE '%:session:%'"
+                    )
+                    sessions_count = cursor.fetchone()[0] or 0
+
+                    cursor = conn.execute(
+                        """
+                        SELECT DISTINCT
+                            SUBSTR(key, 9, INSTR(SUBSTR(key, 9), ':') - 1) as project_id
+                        FROM memories
+                        WHERE key LIKE 'project:%:session:%'
+                        """
+                    )
+                    projects = {row[0] for row in cursor.fetchall() if row[0]}
+                    conn.close()
+            except Exception as e:
+                logger.debug(f"Failed to count sessions from SQLite: {e}")
 
         return CodingStats(
-            sessions_count=len(sessions),
+            sessions_count=sessions_count,
             projects_count=len(projects),
         )
-    except Exception:  # Ignore errors - operation is non-critical
+    except Exception as e:
+        logger.debug(f"Failed to check coding memory: {e}")
         return CodingStats(
             sessions_count=0,
             projects_count=0,
@@ -103,7 +145,7 @@ async def get_coding_doctor(user: dict[str, Any] | None = Depends(get_current_us
 
 @router.get("/sessions", response_model=models.SessionListResponse)
 async def list_coding_sessions(
-    user: dict[str, Any] = Depends(get_current_user),
+    user: dict[str, Any] | None = Depends(get_current_user_optional),
     project_id: Annotated[str | None, Query(description="Filter by project ID")] = None,
     limit: Annotated[int, Query(ge=1, le=100, description="Page size")] = 20,
     offset: Annotated[int, Query(ge=0, description="Offset")] = 0,
@@ -113,7 +155,7 @@ async def list_coding_sessions(
     Returns list of coding sessions with summary information.
 
     Args:
-        user: Authenticated user (dependency)
+        user: Optional authenticated user (dependency)
         project_id: Optional project filter
         limit: Number of sessions to return
         offset: Offset for pagination
@@ -146,35 +188,82 @@ async def list_coding_sessions(
         }
     """
     try:
-        manager = MemoryManager(user_id="system", agent_name="coding-memory")
+        from kagura.core.resources import get_user_id_for_query
 
-        # Build search query
-        if project_id:
-            query = f"project:{project_id}:session:%"
-        else:
-            query = "%session%"
+        # Get user_id from authenticated user, or empty string for all users (admin view)
+        query_user_id = get_user_id_for_query(user, allow_all_users=True)
 
-        # Search sessions in persistent storage
-        all_sessions_raw = manager.persistent.search(
-            query=query,
-            user_id="system",
+        logger.info(
+            f"[list_coding_sessions] user={user.get('sub') if user else 'None'}, "
+            f"query_user_id='{query_user_id}', project_id={project_id}, "
+            f"limit={limit}, offset={offset}"
+        )
+
+        # MemoryManager user_id is for internal use; actual query uses query_user_id below
+        # Use "system" as manager user_id when querying all users (query_user_id="")
+        manager = MemoryManager(
+            user_id=query_user_id or "system",  # MemoryManager requires non-empty user_id
+            agent_name="coding-memory"
+        )
+
+        # Use fetch_all to get sessions across all users (if query_user_id is empty)
+        # or for specific user (if authenticated)
+        all_sessions_raw = manager.persistent.fetch_all(
+            user_id=query_user_id,  # Empty string = all users
             agent_name="coding-memory",
             limit=1000,  # Get all, then paginate
+        ) if hasattr(manager.persistent, 'fetch_all') else []
+
+        logger.info(
+            f"[list_coding_sessions] fetch_all returned {len(all_sessions_raw)} records "
+            f"(user_id='{query_user_id}', agent_name='coding-memory')"
         )
+
+        # Fallback: use search if fetch_all not available or returns empty
+        if not all_sessions_raw:
+            query = f"project:{project_id}:session:%" if project_id else "%session%"
+            all_sessions_raw = manager.persistent.search(
+                query=query,
+                user_id=query_user_id,  # Empty string = all users (now supported)
+                agent_name="coding-memory",
+                limit=1000,
+            )
+            logger.info(
+                f"[list_coding_sessions] search fallback returned {len(all_sessions_raw)} records "
+                f"(query='{query}', user_id='{query_user_id}')"
+            )
 
         # Parse sessions
         sessions: list[models.SessionSummary] = []
         for sess_raw in all_sessions_raw:
             try:
+                # Extract session ID from key (format: "project:xxx:session:yyy")
+                key = sess_raw.get("key", "")
+                agent_name = sess_raw.get("agent_name")
+
+                # Filter: only process coding session keys
+                # Primary: Check agent_name (for data created after migration)
+                # Fallback: Check key pattern (for old data)
+                is_session = (
+                    agent_name == "coding-memory" and ":session:" in key
+                ) or (
+                    agent_name is None and ":session:" in key and key.startswith("project:")
+                )
+
+                if not is_session:
+                    logger.debug(
+                        f"[list_coding_sessions] Skipping non-session key: {key} "
+                        f"(agent_name={agent_name})"
+                    )
+                    continue
+
+                session_id = key.split(":")[-1] if ":" in key else key
+
                 # Parse session data
                 value_str = sess_raw.get("value", "{}")
                 sess_data = (
                     json.loads(value_str) if isinstance(value_str, str) else value_str
                 )
-
-                # Extract session ID from key (format: "project:xxx:session:yyy")
-                key = sess_raw.get("key", "")
-                session_id = key.split(":")[-1] if ":" in key else key
 
                 # Parse timestamps
                 start_time = sess_data.get("start_time")
@@ -198,10 +287,17 @@ async def list_coding_sessions(
                 # Extract GitHub issue
                 github_issue = sess_data.get("github_issue")
 
+                # Get project_id from session data
+                session_project_id = sess_data.get("project_id", "unknown")
+
+                # Filter by project_id if specified
+                if project_id and session_project_id != project_id:
+                    continue
+
                 sessions.append(
                     models.SessionSummary(
                         id=session_id,
-                        project_id=sess_data.get("project_id", "unknown"),
+                        project_id=session_project_id,
                         description=sess_data.get("description", ""),
                         start_time=start_time or datetime.now(),
                         end_time=end_time,
@@ -225,6 +321,11 @@ async def list_coding_sessions(
         page = (offset // limit) + 1
         sessions_page = sessions[offset : offset + limit]
 
+        logger.info(
+            f"[list_coding_sessions] Returning {len(sessions_page)}/{total} sessions "
+            f"(page={page}, page_size={limit})"
+        )
+
         return models.SessionListResponse(
             sessions=sessions_page,
             total=total,
@@ -242,7 +343,7 @@ async def list_coding_sessions(
 @router.get("/sessions/{session_id}", response_model=models.SessionDetailResponse)
 async def get_session_detail(
     session_id: Annotated[str, Path(description="Session ID")],
-    user: dict[str, Any] = Depends(get_current_user),
+    user: dict[str, Any] | None = Depends(get_current_user_optional),
 ) -> models.SessionDetailResponse:
     """Get coding session detail.
 
