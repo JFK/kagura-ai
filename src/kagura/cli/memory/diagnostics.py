@@ -136,6 +136,11 @@ def index(
         console.print()
 
     try:
+        # Load memory config to ensure correct embedding dimensions
+        from kagura.config.memory_config import MemorySystemConfig
+
+        memory_config = MemorySystemConfig()
+
         # Get all user_ids if not specified
         if user_id is None:
             from kagura.utils import MemoryDatabaseQuery
@@ -149,12 +154,15 @@ def index(
             user_ids = [user_id]
 
         # Collect memories from all users
+        # IMPORTANT: Disable RAG in this loop to avoid creating collections
+        # with wrong embedding dimensions. We'll create proper RAG collections later.
         all_memories = []
         for uid in user_ids:
             manager = MemoryManager(
                 user_id=uid,
                 agent_name=agent_name or "indexer",
-                enable_rag=True,
+                enable_rag=False,  # Disable RAG for memory fetching only
+                memory_config=memory_config,
             )
 
             memories = manager.persistent.fetch_all(
@@ -178,7 +186,9 @@ def index(
             user_id=user_ids[0],
             agent_name=agent_name or "indexer",
             enable_rag=True,
+            memory_config=memory_config,
         )
+
         console.print()
 
         if rebuild and manager.persistent_rag:
@@ -213,7 +223,7 @@ def index(
                         manager.persistent_rag.store(
                             content=content,
                             metadata=metadata or {},
-                            user_id=user_id or "system",
+                            user_id=uid,
                         )
                         indexed_count += 1
                     else:

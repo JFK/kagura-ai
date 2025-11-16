@@ -1,0 +1,46 @@
+# Kagura Memory Cloud - GCP Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in your values
+
+# GCP Project Configuration
+project_id = "your-gcp-project-id"
+region     = "asia-northeast1"  # Tokyo (change if needed)
+zone       = "asia-northeast1-a"
+
+# Environment
+environment = "production"  # or "dev", "staging"
+
+# Compute Resources
+machine_type = "e2-medium"  # 2 vCPU, 4 GB RAM (~$24/month)
+
+# Database Configuration
+db_tier     = "db-f1-micro"  # 0.6 GB RAM (~$7.50/month)
+db_password = "CHANGE_ME_TO_STRONG_PASSWORD"  # IMPORTANT: Use a strong password!
+
+# Redis Configuration
+redis_tier      = "BASIC"  # or "STANDARD_HA" for high availability
+redis_memory_gb = 1        # 1 GB (~$26/month)
+
+# SSH Configuration
+ssh_user             = "ubuntu"
+ssh_public_key_path  = "~/.ssh/id_rsa.pub"
+ssh_source_ranges    = ["0.0.0.0/0"]  # IMPORTANT: Restrict to your IP for security
+
+# =============================================================================
+# Application Configuration (NOT managed by Terraform)
+# =============================================================================
+# Terraform manages infrastructure only (VM, DB, Redis).
+# Application secrets are managed separately in .env.cloud file on VM.
+#
+# After terraform apply, configure on VM:
+#   1. SSH: gcloud compute ssh kagura-memory-cloud --zone=asia-northeast1-a
+#   2. Create: /opt/kagura/.env.cloud (from .env.cloud.example)
+#   3. Required secrets:
+#      - OPENAI_API_KEY (from https://platform.openai.com/api-keys)
+#      - GOOGLE_CLIENT_ID (from Google Cloud Console OAuth2)
+#      - GOOGLE_CLIENT_SECRET
+#      - API_KEY_SECRET=$(openssl rand -hex 32)
+#      - JWT_SECRET=$(openssl rand -hex 32)
+#   4. Domain: memory.kagura-ai.com (DNS already configured)
+#
+# See: .env.cloud.example for full configuration
+# =============================================================================

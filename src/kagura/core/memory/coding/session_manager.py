@@ -196,7 +196,16 @@ async def start_coding_session(
         # Store in persistent memory
         key = self._make_key(f"session:{session_id}")
         self.persistent.store(
-            key=key, value=session.model_dump(mode="json"), user_id=self.user_id
+            key=key,
+            value=session.model_dump(mode="json"),
+            user_id=self.user_id,
+            agent_name=self.agent_name,
+            metadata={
+                "type": "coding_session",
+                "session_id": session_id,
+                "project_id": self.project_id,
+                "status": "active",
+            },
         )
 
         # Add to graph
@@ -274,7 +283,15 @@ async def resume_coding_session(self: CodingMemoryManager, session_id: str) -> s
             key=key,
             value=session.model_dump(mode="json"),
             user_id=self.user_id,
-            metadata={"resumed": True, "resumed_at": datetime.utcnow().isoformat()},
+            agent_name=self.agent_name,
+            metadata={
+                "type": "coding_session",
+                "session_id": session_id,
+                "project_id": self.project_id,
+                "status": "resumed",
+                "resumed": True,
+                "resumed_at": datetime.utcnow().isoformat(),
+            },
         )
 
         # Update graph (mark as active again)
@@ -401,7 +418,17 @@ async def end_coding_session(
     # Update stored session
     key = self._make_key(f"session:{session_id}")
     self.persistent.store(
-        key=key, value=session.model_dump(mode="json"), user_id=self.user_id
+        key=key,
+        value=session.model_dump(mode="json"),
+        user_id=self.user_id,
+        agent_name=self.agent_name,
+        metadata={
+            "type": "coding_session",
+            "session_id": session_id,
+            "project_id": self.project_id,
+            "status": "completed",
+            "success": success,
+        },
     )
 
     # Remove from working memory

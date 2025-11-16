@@ -38,13 +38,24 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - INSTALL_PROFILE=api-cloud
     container_name: kagura-api
     environment:
-      # Database
+      # Database (local docker postgres)
       DATABASE_URL: postgresql://kagura:${DB_PASSWORD:-kagura_dev_password}@postgres:5432/kagura
 
-      # Redis
+      # Redis (local docker redis)
       REDIS_URL: redis://redis:6379
+
+      # Backend configuration (lightweight for Docker)
+      GRAPH_BACKEND: json
+      PERSISTENT_BACKEND: sqlite
+      CACHE_BACKEND: memory
+      VECTOR_BACKEND: chromadb
+
+      # Disable RAG for local dev (no torch/openai needed)
+      ENABLE_RAG: "false"
 
       # API settings
       API_HOST: 0.0.0.0
@@ -52,11 +63,19 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-info}
 
       # CORS origins (comma-separated)
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:8000,http://10.255.255.254:8000}
 
       # ChromaDB settings (optional, for RAG)
       CHROMA_HOST: ${CHROMA_HOST:-}
       CHROMA_PORT: ${CHROMA_PORT:-8000}
+
+      # Google OAuth2 (required for login)
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:8000/auth/callback}
+
+      # OpenAI API (optional, for embeddings if RAG enabled)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:
       - "8080:8080"
     depends_on:
@@ -67,8 +86,32 @@ services:
     volumes:
       - ./src:/app/src
       - ./data:/app/data  # For local file storage
-    command: uvicorn kagura.api.server:app --host 0.0.0.0 --port 8080 --reload
+    command: uv run uvicorn kagura.api.server:app --host 0.0.0.0 --port 8080 --reload
+
+  # Next.js Web Dashboard
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      target: deps
+      args:
+        - NEXT_PUBLIC_API_URL=http://api:8080/api/v1
+    container_name: kagura-web-dev
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+    ports:
+      - "8000:3000"  # Map host port 8000 to container port 3000
+    depends_on:
+      - api
+    working_dir: /app
+    volumes:
+      - ./web:/app
+      - web_node_modules:/app/node_modules
+      - /app/.next
+    command: npm run dev
 
 volumes:
   postgres_data:
   redis_data:
+  web_node_modules:

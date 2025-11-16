@@ -1,7 +1,7 @@
 """Memory system configuration.
 
 Centralized configuration for memory components:
-- Embedding models (E5-series multilingual)
+- Embedding models (E5-series multilingual, OpenAI API)
 - Reranking (Cross-Encoder)
 - Recall scoring weights
 - Overall memory system settings
@@ -14,7 +14,8 @@ Example:
     True
 """
 
-from typing import Optional
+import os
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -23,16 +24,21 @@ class EmbeddingConfig(BaseModel):
     """Embedding model configuration.
 
     Attributes:
-        model: HuggingFace model identifier
-        dimension: Embedding dimension (1024 for E5-large, 768 for E5-base)
+        provider: Embedding provider (openai or sentence-transformers)
+        model: Model identifier (HuggingFace model or OpenAI model name)
+        dimension: Embedding dimension (auto-detected for OpenAI models)
         use_prefix: Use query:/passage: prefixes (required for E5-series)
         max_tokens: Maximum sequence length
         normalize: Normalize embeddings to unit vectors
     """
 
+    provider: Literal["openai", "sentence-transformers"] = Field(
+        default="sentence-transformers",
+        description="Embedding provider (openai for API, sentence-transformers for local)",
+    )
     model: str = Field(
         default="intfloat/multilingual-e5-large",
-        description="HuggingFace model identifier",
+        description="Model identifier (e.g., 'text-embedding-3-small' for OpenAI, 'intfloat/multilingual-e5-large' for local)",
     )
     dimension: int = Field(default=1024, description="Embedding dimension", ge=1)
     use_prefix: bool = Field(
@@ -43,6 +49,29 @@ class EmbeddingConfig(BaseModel):
     normalize: bool = Field(
         default=True, description="Normalize embeddings to unit vectors"
     )
+
+    def model_post_init(self, __context) -> None:
+        """Post-initialization: read from environment variables."""
+        # Read EMBEDDING_PROVIDER
+        env_provider = os.getenv("EMBEDDING_PROVIDER")
+        if env_provider and env_provider in ["openai", "sentence-transformers"]:
+            self.provider = env_provider  # type: ignore
+
+        # Read EMBEDDING_MODEL
+        env_model = os.getenv("EMBEDDING_MODEL")
+        if env_model:
+            self.model = env_model
+
+        # Auto-configure dimension for OpenAI models
+        if self.provider == "openai":
+            if "text-embedding-3-small" in self.model:
+                self.dimension = 1536
+            elif "text-embedding-3-large" in self.model:
+                self.dimension = 3072
+            elif "text-embedding-ada-002" in self.model:
+                self.dimension = 1536
+            # Disable E5-style prefixes for OpenAI
+            self.use_prefix = False
 
 
 class RerankConfig(BaseModel):

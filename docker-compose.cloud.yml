@@ -1,0 +1,135 @@
+# Kagura Memory Cloud - GCP Production Deployment
+# https://github.com/JFK/kagura-ai/issues/649
+#
+# Usage:
+#   docker-compose -f docker-compose.cloud.yml up -d
+#
+# Prerequisites:
+#   - GCP infrastructure deployed via Terraform (terraform/gcp/)
+#   - Environment variables set in .env file
+#   - Domain configured with DNS pointing to VM IP
+
+version: '3.8'
+
+services:
+  # Kagura API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - INSTALL_PROFILE=api-cloud  # Cloud-optimized (no torch, -66% image size)
+    image: kagura-ai:cloud
+    container_name: kagura-api
+    restart: unless-stopped
+    # Load environment variables from .env.cloud
+    env_file:
+      - .env.cloud
+    volumes:
+      # Docker socket for auto-restart (Issue #650)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # .env.cloud for config management (Issue #650)
+      - ./.env.cloud:/app/.env.cloud:rw
+    environment:
+      # NOTE: Most env vars loaded from .env.cloud via env_file above
+      # Only override specific values here if needed
+
+      # Self-management (Issue #650)
+      - DOCKER_CONTAINER_NAME=kagura-api  # For auto-restart
+
+    networks:
+      - kagura-network
+    depends_on:
+      - qdrant
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Qdrant Vector Database (local container with wget for healthcheck)
+  # Note: Cloud SQL and Memorystore are managed by GCP (not in docker-compose)
+  qdrant:
+    build:
+      context: .
+      dockerfile: docker/qdrant/Dockerfile
+    image: kagura-qdrant:cloud
+    container_name: kagura-qdrant
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+      # Optional: Local backup directory (sync to GCS with cron/systemd timer)
+      # - ./backups/qdrant:/backups:ro
+    networks:
+      - kagura-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 -O /dev/null http://localhost:6333/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Resource limits (prevent OOM on small VMs)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Caddy Reverse Proxy (HTTPS termination)
+  caddy:
+    image: caddy:2-alpine
+    container_name: kagura-caddy
+    restart: unless-stopped
+    # Load environment variables from .env.cloud
+    env_file:
+      - .env.cloud
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - ./Caddyfile.cloud:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - kagura-network
+    depends_on:
+      - api
+    # NOTE: DOMAIN loaded from .env.cloud via env_file above
+
+  # Web Dashboard (Next.js)
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        # Use relative path for API (Caddy will proxy /api/* to api:8080)
+        # This works both locally and in production
+        - NEXT_PUBLIC_API_URL=/api/v1
+    image: kagura-web:cloud
+    container_name: kagura-web
+    restart: unless-stopped
+    networks:
+      - kagura-network
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  kagura-network:
+    driver: bridge
+
+volumes:
+  qdrant_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local

@@ -238,7 +238,11 @@ Everything you need:
 ### Deployment
 - **Local**: Docker Compose (dev)
 - **Self-hosted**: Production Docker + Caddy (HTTPS)
-- **Cloud**: Managed SaaS (coming in v5.0)
+- **GCP**: Terraform + Cloud SQL + Memorystore ([terraform/gcp/](terraform/gcp/))
+  - e2-medium VM (2 vCPU, 4GB) - ~$57/month
+  - PostgreSQL + Redis + Qdrant (Docker)
+  - OpenAI embeddings recommended (RAM efficient)
+- **Cloud SaaS**: Managed service (coming in v5.0)
 
 **Data Location** (XDG-compliant):
 ```
