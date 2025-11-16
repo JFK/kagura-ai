@@ -8,19 +8,17 @@ Uses singleton pattern for Engine (connection pool shared across instances).
 
 import json
 import logging
-import os
 from datetime import datetime
 from typing import Any, Optional
 
 from sqlalchemy import (
-    JSON,
     Column,
     DateTime,
+    Engine,
     Index,
     Integer,
     String,
     Text,
-    Engine,
     create_engine,
     func,
 )
@@ -120,7 +118,7 @@ class SQLAlchemyPersistentBackend:
         # Create tables if needed
         if create_tables:
             Base.metadata.create_all(self.engine)
-            logger.debug(f"Created memories table (if not exists)")
+            logger.debug("Created memories table (if not exists)")
 
         # Create session factory
         self.SessionLocal = sessionmaker(
@@ -491,6 +489,75 @@ class SQLAlchemyPersistentBackend:
 
         except Exception as e:
             logger.error(f"Failed to fetch_all for user_id={user_id}: {e}")
+            raise
+        finally:
+            session.close()
+
+    def search(
+        self,
+        query: str,
+        user_id: str,
+        agent_name: Optional[str] = None,
+        limit: int = 10,
+    ) -> list[dict[str, Any]]:
+        """Search memories by key pattern (SQL LIKE).
+
+        Args:
+            query: Search pattern (will be wrapped with % for LIKE query)
+            user_id: User identifier (memory owner)
+            agent_name: Optional agent name filter
+            limit: Maximum number of results to return
+
+        Returns:
+            List of memory dictionaries matching the pattern
+
+        Example:
+            >>> backend = SQLAlchemyPersistentBackend(db_url="sqlite:///test.db")
+            >>> results = backend.search("session", "user1", "agent1", limit=5)
+            >>> len(results) <= 5
+            True
+        """
+        session = self._get_session()
+        try:
+            # SQL LIKE pattern matching (case-insensitive on PostgreSQL via ILIKE)
+            pattern = f"%{query}%"
+
+            query_obj = session.query(MemoryModel).filter(
+                MemoryModel.user_id == user_id,
+                MemoryModel.key.ilike(pattern)  # Case-insensitive LIKE
+            )
+
+            # Agent name filtering with global fallback
+            if agent_name is not None:
+                query_obj = query_obj.filter(
+                    (MemoryModel.agent_name == agent_name)
+                    | (MemoryModel.agent_name.is_(None))
+                )
+
+            query_obj = query_obj.order_by(MemoryModel.updated_at.desc()).limit(limit)
+
+            results: list[dict[str, Any]] = []
+            for row in query_obj.all():
+                results.append(
+                    {
+                        "key": row.key,
+                        "value": json.loads(row.value),
+                        "created_at": row.created_at,
+                        "updated_at": row.updated_at,
+                        "metadata": json.loads(row.memory_metadata) if row.memory_metadata else None,
+                        "access_count": row.access_count if row.access_count is not None else 0,
+                        "last_accessed_at": row.last_accessed_at,
+                    }
+                )
+
+            logger.debug(
+                f"Search found {len(results)} results for query='{query}', "
+                f"user_id={user_id}, agent_name={agent_name}"
+            )
+            return results
+
+        except Exception as e:
+            logger.error(f"Failed to search memories: {e}")
             raise
         finally:
             session.close()

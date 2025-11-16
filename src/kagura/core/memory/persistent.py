@@ -9,7 +9,7 @@ import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Literal, Optional
+from typing import Any, Optional
 
 from kagura.config.paths import get_data_dir
 
@@ -330,6 +330,11 @@ class PersistentMemory:
         Returns:
             List of memory dictionaries with access tracking info
         """
+        # Use SQLAlchemy backend if enabled
+        if self._use_sqlalchemy and self._backend:
+            return self._backend.search(query, user_id, agent_name, limit)
+
+        # Legacy sqlite3 implementation
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
                 """
