@@ -700,31 +700,37 @@ async def get_vector_collections() -> VectorCollectionsResponse:
                 )
 
             try:
-                from kagura.core.resources import get_rag_client
+                from qdrant_client import QdrantClient
 
-                client = get_rag_client(backend="qdrant")
+                # Create Qdrant client directly
+                client = QdrantClient(url=qdrant_url)
 
-                # Get collections from Qdrant client
-                if hasattr(client, "client") and hasattr(client.client, "get_collections"):
-                    qdrant_collections = client.client.get_collections()
+                # Get collections from Qdrant
+                qdrant_collections = client.get_collections()
 
-                    for col in qdrant_collections.collections:
-                        # Get collection info
-                        col_info = client.client.get_collection(col.name)
+                for col in qdrant_collections.collections:
+                    # Get collection info for vector count
+                    col_info = client.get_collection(col.name)
 
-                        collections.append(
-                            VectorCollectionInfo(
-                                name=col.name,
-                                vector_count=col_info.points_count,
-                                embedding_dimension=col_info.config.params.vectors.size
-                                if hasattr(col_info.config.params, "vectors")
-                                else None,
-                            )
+                    # Get embedding dimension
+                    dimension = None
+                    if hasattr(col_info.config.params, "vectors"):
+                        # Handle both named and default vectors
+                        vectors_config = col_info.config.params.vectors
+                        if hasattr(vectors_config, "size"):
+                            dimension = vectors_config.size
+                        elif isinstance(vectors_config, dict):
+                            # Named vectors case
+                            first_vector = next(iter(vectors_config.values()), None)
+                            if first_vector and hasattr(first_vector, "size"):
+                                dimension = first_vector.size
+
+                    collections.append(
+                        VectorCollectionInfo(
+                            name=col.name,
+                            vector_count=col_info.points_count,
+                            embedding_dimension=dimension,
                         )
-                else:
-                    raise HTTPException(
-                        status_code=503,
-                        detail="Qdrant client not properly initialized",
                     )
 
             except ImportError:

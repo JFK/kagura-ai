@@ -46,7 +46,7 @@ from kagura.auth.session import SessionManager
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/oauth", tags=["oauth2-server"])
+router = APIRouter(prefix="/oauth2", tags=["oauth2-server"])
 
 # Global session manager (initialized on server startup)
 _session_manager: SessionManager | None = None
