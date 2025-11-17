@@ -147,16 +147,16 @@ Kagura AI v4.0 is a **Universal AI Memory Platform** - MCP-native memory infrast
        ┌────────────▼──────────────────────────────┐
        │         Memory Manager                    │
        │   (src/kagura/core/memory/manager.py)     │
+       │   (v4.4.0: All memory is persistent)      │
        │                                           │
-       │  ┌───────────┬────────────┬────────────┐ │
-       │  │  Working  │  Context   │ Persistent │ │
-       │  │  Memory   │  Memory    │  Memory    │ │
-       │  │ (In-Mem)  │ (Messages) │  (SQLite)  │ │
-       │  └───────────┴────────────┴────────────┘ │
+       │  ┌───────────────────────────────────┐   │
+       │  │  Persistent Memory (SQLite)       │   │
+       │  │  • All memory persisted           │   │
+       │  │  • user_id scoped                 │   │
+       │  └───────────────────────────────────┘   │
        │                                           │
        │  ┌───────────────────────────────────┐   │
        │  │  RAG (ChromaDB)                   │   │
-       │  │  • Working RAG                    │   │
        │  │  • Persistent RAG                 │   │
        │  │  • Semantic search                │   │
        │  └───────────────────────────────────┘   │
@@ -289,8 +289,7 @@ src/kagura/
 ├── core/                    # Core logic
 │   ├── memory/              # Memory system (Phase A)
 │   │   ├── manager.py       # MemoryManager coordinator
-│   │   ├── working.py       # Working memory (in-memory)
-│   │   ├── persistent.py    # Persistent memory (SQLite)
+│   │   ├── persistent.py    # Persistent memory (SQLite) - All memory is persistent (v4.4.0)
 │   │   ├── context.py       # Context memory (messages)
 │   │   ├── rag.py           # RAG with ChromaDB
 │   │   └── export.py        # Export/Import (Phase C)
@@ -398,24 +397,22 @@ TOOL_PERMISSIONS = {
 MemoryManager(user_id="jfk", agent_name="global")
 ```
 
-**4-Tier Memory System**:
+**3-Tier Memory System** (v4.4.0):
 
-1. **Working Memory** (`working.py`)
-   - In-memory dict
-   - Session-scoped
-   - Fast access
+**Breaking Change**: Working Memory removed. All memory is now persistent.
 
-2. **Context Memory** (`context.py`)
+1. **Context Memory** (`context.py`)
    - Conversation messages
    - In-memory
    - Automatic summarization
 
-3. **Persistent Memory** (`persistent.py`)
+2. **Persistent Memory** (`persistent.py`)
    - SQLite database
+   - All memory persisted by default
    - Survives restart
    - User-scoped (`user_id` column)
 
-4. **RAG** (`rag.py`)
+3. **RAG** (`rag.py`)
    - ChromaDB vector search
    - Semantic similarity
    - User-scoped collections
@@ -542,14 +539,12 @@ def get_memory_manager(user_id: str) -> MemoryManager:
    └─► MemoryManager.store(user_id, key, value, scope, ...)
 
 5. Memory Manager
-   ├─► persistent.store() if scope="persistent"
-   ├─► working.set() if scope="working"
-   └─► RAG indexing (both scopes)
+   ├─► persistent.store() - All memory is persistent (v4.4.0)
+   └─► RAG indexing
 
 6. Storage
    ├─► SQLite write (persistent)
-   ├─► ChromaDB vector index (RAG)
-   └─► In-memory dict (working)
+   └─► ChromaDB vector index (RAG)
 
 7. Response
    └─► JSON-RPC response → ChatGPT
@@ -653,8 +648,10 @@ backup/
 
 **Memory Record**:
 ```jsonl
-{"type":"memory","scope":"persistent","key":"pref","value":"Python","user_id":"jfk","agent_name":"global","tags":["config"],"importance":0.8,"created_at":"2025-10-26T12:00:00Z","exported_at":"2025-10-27T10:00:00Z"}
+{"type":"memory","key":"pref","value":"Python","user_id":"jfk","agent_name":"global","tags":["config"],"importance":0.8,"created_at":"2025-10-26T12:00:00Z","exported_at":"2025-10-27T10:00:00Z"}
 ```
+
+**Note (v4.4.0)**: `scope` field removed. All memory is persistent.
 
 **Graph Record**:
 ```jsonl

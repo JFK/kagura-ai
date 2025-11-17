@@ -1,24 +1,24 @@
 """Memory management system for Kagura AI.
 
-Provides four types of memory:
-- Working Memory: Temporary data during agent execution
+Provides three types of memory:
 - Context Memory: Conversation history and session management
-- Persistent Memory: Long-term storage using SQLite
-- Memory RAG: Vector-based semantic search (requires chromadb)
+- Persistent Memory: Long-term storage using SQLite/PostgreSQL
+- Memory RAG: Vector-based semantic search (requires chromadb/qdrant)
 - Multimodal RAG: RAG with directory scanning (requires chromadb + gemini)
 
 The MemoryManager provides a unified interface to all memory types.
+
+Note: Working Memory was removed in v4.4.0 (Issue #683).
+Client-side context management is now the recommended approach for ephemeral data.
 """
 
 from .context import ContextMemory, Message
 from .manager import MemoryManager
 from .persistent import PersistentMemory
 from .rag import MemoryRAG
-from .working import WorkingMemory
 
 __all__ = [
     "MemoryManager",
-    "WorkingMemory",
     "ContextMemory",
     "PersistentMemory",
     "MemoryRAG",

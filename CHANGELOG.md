@@ -576,6 +576,82 @@ QDRANT_URL=http://qdrant:6333
 
 ### 🗑️ Removed
 
+#### BREAKING: Working Memory Removal (#683)
+
+**Rationale**: Working memory management is now a client-side responsibility. Server-side ephemeral memory adds unnecessary complexity.
+
+**Removed Components**:
+- ✂️ `WorkingMemory` class (`src/kagura/core/memory/working.py`)
+- ✂️ `MemoryManager.set_temp()`, `get_temp()`, `has_temp()`, `delete_temp()` methods
+- ✂️ `scope="working"` parameter from all MCP tools and API endpoints
+- ✂️ Working memory export/import functionality
+- ✂️ RAG working scope collections (`_working` suffix removed)
+- ✂️ `working_count` field from Memory Doctor API
+- ✂️ Tests: `tests/memory/test_working.py`
+- ✂️ Examples: `examples/02_memory/working_memory.py`
+
+**Breaking Changes**:
+
+1. **MCP Tools** - `scope` parameter removed from:
+   - `memory_store()` - All memory is now persistent
+   - `memory_recall()` - Always recalls from persistent storage
+   - `memory_search()` - Searches only persistent memory
+   - `memory_delete()` - Deletes from persistent storage only
+   - All other memory tools
+
+2. **REST API** - `scope` parameter removed from:
+   - `POST /api/v1/memory` (create memory)
+   - `GET /api/v1/memory/{key}` (get memory)
+   - `PUT /api/v1/memory/{key}` (update memory)
+   - `DELETE /api/v1/memory/{key}` (delete memory)
+   - `GET /api/v1/memory` (list memories)
+   - Request models: `MemoryCreate`, `SearchRequest`, `RecallRequest`
+
+3. **MemoryManager API** - Methods removed:
+   ```python
+   # ❌ REMOVED (no replacement)
+   manager.set_temp(key, value)
+   manager.get_temp(key)
+   manager.has_temp(key)
+   manager.delete_temp(key)
+   ```
+
+4. **RAG Collections** - Simplified naming:
+   ```python
+   # Before (v4.3.x)
+   kagura_{user}_{agent}_working
+   kagura_{user}_{agent}_persistent
+
+   # After (v4.4.0)
+   kagura_{user}_{agent}  # Single unified collection
+   ```
+
+**Migration Guide**:
+
+```python
+# Before (v4.3.x) - Server-side temporary storage
+manager.set_temp("api_response", data)
+response = manager.get_temp("api_response")
+
+# After (v4.4.0) - Client-side variables
+api_response = data  # Just use local variables
+response = api_response
+
+# OR use persistent memory with session metadata
+manager.remember("api_response", data, metadata={"session_id": session_id})
+response = manager.recall("api_response")
+manager.forget("api_response")  # Clean up when done
+```
+
+**Data Migration**:
+- Existing `_working` and `_persistent` RAG collections will become orphaned
+- No automatic migration provided (working memory was ephemeral by design)
+- Users should re-index important data if needed
+
+**Impact**: ~325 lines of code removed, significant API simplification
+
+---
+
 #### Cleanup: Deprecated MCP list command (#593)
 - **Removed**: `kagura mcp list` (v3.0 legacy, listed @agent functions)
 - **Replacement**: Use `kagura mcp tools` to list MCP tools

@@ -22,6 +22,8 @@ async def search_memories(
 ) -> dict[str, Any]:
     """Search memories with full-text + semantic search.
 
+    Note: All searches are performed in persistent storage (v4.4.0 removed working memory).
+
     Args:
         request: Search request
         memory: MemoryManager dependency
@@ -33,13 +35,6 @@ async def search_memories(
     # TODO: Add full-text search support or use RAG
     search_pattern = f"%{request.query}%"
     results_list = memory.search_memory(search_pattern, limit=request.limit)
-
-    # Filter by scope if specified
-    if request.scope != "all":
-        # Note: search_memory only searches persistent memory
-        # For working memory, would need to implement search
-        if request.scope != "persistent":
-            results_list = []
 
     # Filter by tags if specified
     if request.filter_tags:
@@ -94,6 +89,8 @@ async def recall_memories(
 
     Uses vector embeddings to find semantically similar memories.
 
+    Note: All searches are performed in persistent storage (v4.4.0 removed working memory).
+
     Args:
         request: Recall request
         memory: MemoryManager dependency
@@ -101,10 +98,10 @@ async def recall_memories(
     Returns:
         Recall results with similarity scores
     """
-    # Use semantic search (RAG)
+    # Use semantic search (RAG) - only searches persistent storage
     try:
         rag_results = memory.recall_semantic(
-            query=request.query, top_k=request.k, scope=request.scope
+            query=request.query, top_k=request.k, scope="persistent"
         )
     except ValueError:
         # RAG not enabled

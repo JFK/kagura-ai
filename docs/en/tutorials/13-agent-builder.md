@@ -96,7 +96,6 @@ agent = (
     AgentBuilder("assistant")
     .with_model("gpt-4o-mini")
     .with_memory(
-        type="working",
         max_messages=50,
         enable_rag=False
     )
@@ -111,11 +110,10 @@ result = await agent("What's my name?")
 print(result)  # "Your name is Alice."
 ```
 
-**Memory Types:**
-- `"working"` - In-memory storage (fast, temporary)
-- `"context"` - Conversation context (for LLM context window)
-- `"persistent"` - SQLite storage (survives restarts)
-- `"rag"` - Vector-based semantic search (requires ChromaDB)
+**Memory Configuration:**
+- All memory is persistent (stored in SQLite)
+- `max_messages` - Number of recent messages to keep in context
+- `enable_rag` - Enable semantic search with ChromaDB
 
 ## Step 3: RAG (Semantic Memory)
 
@@ -126,7 +124,6 @@ agent = (
     AgentBuilder("smart_assistant")
     .with_model("gpt-4o-mini")
     .with_memory(
-        type="rag",
         enable_rag=True,
         max_messages=100
     )
@@ -344,18 +341,17 @@ AgentBuilder("agent1")
 AgentBuilder("my_agent")
 ```
 
-### 2. Choose Appropriate Memory Type
+### 2. Choose Appropriate Memory Configuration
 
 ```python
-# Short conversations - working memory
-AgentBuilder("quick_qa").with_memory(type="working")
+# Short conversations - basic memory
+AgentBuilder("quick_qa").with_memory(max_messages=20)
 
-# Long-term knowledge - RAG
-AgentBuilder("knowledge_base").with_memory(type="rag", enable_rag=True)
+# Long-term knowledge - RAG enabled
+AgentBuilder("knowledge_base").with_memory(enable_rag=True)
 
-# Persistent storage - persistent memory
+# Custom persistence directory
 AgentBuilder("assistant").with_memory(
-    type="persistent",
     persist_dir=Path.home() / ".kagura"
 )
 ```
@@ -398,7 +394,7 @@ agent = AgentBuilder("name").with_model("gpt-4o-mini").with_memory(type="rag").w
 chatbot = (
     AgentBuilder("chatbot")
     .with_model("gpt-4o-mini")
-    .with_memory(type="context", max_messages=20)
+    .with_memory(max_messages=20)
     .with_context(temperature=0.8)
     .build()
 )
@@ -456,22 +452,18 @@ agent = (
 # pip install chromadb
 ```
 
-### 3. Incompatible Memory and RAG
+### 3. Not Cleaning Up Persistent Memory
 
 ```python
-# RAG should use "rag" or "persistent" memory type
+# Be aware: all memory persists
 agent = (
     AgentBuilder("agent")
-    .with_memory(type="working", enable_rag=True)  # Conflict!
+    .with_memory(enable_rag=True)
     .build()
 )
 
-# Better
-agent = (
-    AgentBuilder("agent")
-    .with_memory(type="rag", enable_rag=True)
-    .build()
-)
+# Good practice: Clean up when done
+await agent.memory_manager.forget("temporary_key")
 ```
 
 ## Practice Exercises

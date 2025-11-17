@@ -1,6 +1,6 @@
 """Memory manager for unified memory access.
 
-Provides a unified interface to all memory types (working, context, persistent).
+Provides a unified interface to all memory types (context, persistent).
 """
 
 from __future__ import annotations
@@ -20,7 +20,6 @@ from .lexical_search import BM25Searcher
 from .persistent import PersistentMemory
 from .recall_scorer import RecallScorer
 from .reranker import MemoryReranker
-from .working import WorkingMemory
 
 if TYPE_CHECKING:
     from .rag import MemoryRAG
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
 class MemoryManager:
     """Unified memory management interface.
 
-    Combines working, context, and persistent memory into a single API.
+    Combines context and persistent memory into a single API.
     """
 
     def __init__(
@@ -80,8 +79,6 @@ class MemoryManager:
         self.config = memory_config or MemorySystemConfig()
 
         # Initialize memory types
-        logger.debug("MemoryManager: Creating WorkingMemory")
-        self.working = WorkingMemory()
         logger.debug("MemoryManager: Creating ContextMemory")
         self.context = ContextMemory(max_messages=max_messages)
 
@@ -102,9 +99,8 @@ class MemoryManager:
             except ImportError:
                 enable_rag = False
 
-        # Optional: RAG (Working and Persistent)
-        self.rag: Optional[MemoryRAG] = None  # Working memory RAG
-        self.persistent_rag: Optional[MemoryRAG] = None  # Persistent memory RAG
+        # Optional: RAG (Unified)
+        self.rag: Optional[MemoryRAG] = None  # Unified RAG (no scope distinction)
         if enable_rag:
             logger.debug("MemoryManager: Initializing RAG (enable_rag=True)")
 
@@ -123,25 +119,15 @@ class MemoryManager:
                 embedding_dim = self.config.embedding.dimension
                 logger.info(f"MemoryManager: Using embedding dimension={embedding_dim} (provider={self.config.embedding.provider})")
 
-                # Working memory RAG (Qdrant)
-                logger.debug("MemoryManager: Creating working QdrantRAG")
+                # Unified RAG (Qdrant) - no scope distinction
+                logger.debug("MemoryManager: Creating unified QdrantRAG")
                 self.rag = QdrantRAG(
-                    collection_name=f"{collection_name}_working",
+                    collection_name=collection_name,
                     qdrant_url=qdrant_url,
                     api_key=os.getenv("QDRANT_API_KEY"),
                     embedding_dim=embedding_dim,
                 )
-                logger.info("MemoryManager: Working QdrantRAG created")
-
-                # Persistent memory RAG (Qdrant)
-                logger.debug("MemoryManager: Creating persistent QdrantRAG")
-                self.persistent_rag = QdrantRAG(
-                    collection_name=f"{collection_name}_persistent",
-                    qdrant_url=qdrant_url,
-                    api_key=os.getenv("QDRANT_API_KEY"),
-                    embedding_dim=embedding_dim,
-                )
-                logger.info("MemoryManager: Persistent QdrantRAG created")
+                logger.info("MemoryManager: Unified QdrantRAG created")
             else:
                 logger.info("MemoryManager: Using ChromaDB backend (no QDRANT_URL)")
                 # Lazy import to avoid ChromaDB initialization on module load
@@ -154,25 +140,15 @@ class MemoryManager:
                     f"MemoryManager: RAG collection={collection_name}, dir={vector_dir}"
                 )
 
-                # Working memory RAG (with semantic chunking and E5 embeddings support)
-                logger.debug("MemoryManager: Creating working MemoryRAG with chunking and E5 support")
+                # Unified RAG (with semantic chunking and E5 embeddings support) - no scope distinction
+                logger.debug("MemoryManager: Creating unified MemoryRAG with chunking and E5 support")
                 self.rag = MemoryRAG(
-                    collection_name=f"{collection_name}_working",
+                    collection_name=collection_name,
                     persist_dir=vector_dir,
                     chunking_config=self.config.chunking if self.config else None,
                     embedding_config=self.config.embedding if self.config else None,
                 )
-                logger.debug("MemoryManager: Working MemoryRAG created")
-
-                # Persistent memory RAG (with semantic chunking and E5 embeddings support)
-                logger.debug("MemoryManager: Creating persistent MemoryRAG with chunking and E5 support")
-                self.persistent_rag = MemoryRAG(
-                    collection_name=f"{collection_name}_persistent",
-                    persist_dir=vector_dir,
-                    chunking_config=self.config.chunking if self.config else None,
-                    embedding_config=self.config.embedding if self.config else None,
-                )
-                logger.debug("MemoryManager: Persistent MemoryRAG created")
+                logger.debug("MemoryManager: Unified MemoryRAG created")
         else:
             logger.debug("MemoryManager: RAG disabled (enable_rag=False)")
 
@@ -235,47 +211,6 @@ class MemoryManager:
                 self.lexical_searcher = None
 
         logger.debug("MemoryManager: Initialization complete")
-
-    # Working Memory
-    def set_temp(self, key: str, value: Any) -> None:
-        """Store temporary data.
-
-        Args:
-            key: Key to store data under
-            value: Value to store
-        """
-        self.working.set(key, value)
-
-    def get_temp(self, key: str, default: Any = None) -> Any:
-        """Get temporary data.
-
-        Args:
-            key: Key to retrieve
-            default: Default value if key not found
-
-        Returns:
-            Stored value or default
-        """
-        return self.working.get(key, default)
-
-    def has_temp(self, key: str) -> bool:
-        """Check if temporary key exists.
-
-        Args:
-            key: Key to check
-
-        Returns:
-            True if key exists
-        """
-        return self.working.has(key)
-
-    def delete_temp(self, key: str) -> None:
-        """Delete temporary data.
-
-        Args:
-            key: Key to delete
-        """
-        self.working.delete(key)
 
     # Context Memory
     def add_message(
@@ -447,8 +382,8 @@ class MemoryManager:
         # Store in SQLite
         self.persistent.store(key, value, self.user_id, self.agent_name, metadata)
 
-        # Also index in persistent RAG for semantic search
-        if self.persistent_rag:
+        # Also index in RAG for semantic search
+        if self.rag:
             # Create a copy to avoid modifying the original metadata dict
             full_metadata = metadata.copy() if metadata else {}
             value_str = self._stringify_value(value)
@@ -460,7 +395,7 @@ class MemoryManager:
                 }
             )
             content = f"{key}: {value_str}"
-            self.persistent_rag.store(
+            self.rag.store(
                 content, self.user_id, full_metadata, self.agent_name
             )
 
@@ -551,17 +486,17 @@ class MemoryManager:
         # Delete from SQLite
         self.persistent.forget(key, self.user_id, self.agent_name)
 
-        # Also delete from persistent RAG
-        if self.persistent_rag:
+        # Also delete from RAG
+        if self.rag:
             # Find and delete RAG entries with matching key in metadata
             where: dict[str, Any] = {"key": key}
             if self.agent_name:
                 where["agent_name"] = self.agent_name
 
             try:
-                results = self.persistent_rag.collection.get(where=where)  # type: ignore
+                results = self.rag.collection.get(where=where)  # type: ignore
                 if results["ids"]:
-                    self.persistent_rag.collection.delete(ids=results["ids"])
+                    self.rag.collection.delete(ids=results["ids"])
             except Exception:
                 # Silently fail if RAG deletion fails
                 pass
@@ -596,7 +531,6 @@ class MemoryManager:
             session_name: Name to save session under
         """
         session_data = {
-            "working": self.working.to_dict(),
             "context": self.context.to_dict(),
         }
         self.persistent.store(
@@ -673,15 +607,15 @@ class MemoryManager:
         Args:
             query: Search query
             top_k: Number of results to return
-            scope: Memory scope to search ("working", "persistent", or "all")
+            scope: Deprecated. Memory scope distinction has been removed.
 
         Returns:
-            List of memory dictionaries with content, distance, metadata, and scope
+            List of memory dictionaries with content, distance, and metadata
 
         Raises:
             ValueError: If RAG is not enabled
         """
-        if not self.rag and not self.persistent_rag:
+        if not self.rag:
             raise ValueError(
                 "RAG (semantic search) is not enabled.\n\n"
                 "To enable RAG:\n"
@@ -690,29 +624,10 @@ class MemoryManager:
                 "💡 Semantic search finds memories by meaning, not exact keywords"
             )
 
-        results = []
+        # Search unified RAG
+        results = self.rag.recall(query, self.user_id, top_k, self.agent_name)
 
-        # Search working memory RAG
-        if scope in ("all", "working") and self.rag:
-            working_results = self.rag.recall(
-                query, self.user_id, top_k, self.agent_name
-            )
-            for r in working_results:
-                r["scope"] = "working"
-            results.extend(working_results)
-
-        # Search persistent memory RAG
-        if scope in ("all", "persistent") and self.persistent_rag:
-            persistent_results = self.persistent_rag.recall(
-                query, self.user_id, top_k, self.agent_name
-            )
-            for r in persistent_results:
-                r["scope"] = "persistent"
-            results.extend(persistent_results)
-
-        # Sort by distance (lower is better) and limit to top_k
-        results.sort(key=lambda x: x["distance"])
-        return results[:top_k]
+        return results
 
     def recall_semantic_with_rerank(
         self,
@@ -1012,7 +927,7 @@ class MemoryManager:
         Raises:
             ValueError: If RAG or lexical searcher not available
         """
-        if not self.rag and not self.persistent_rag:
+        if not self.rag:
             raise ValueError(
                 "RAG (semantic search) is not enabled.\n\n"
                 "To enable RAG:\n"
@@ -1031,11 +946,10 @@ class MemoryManager:
             )
 
     def clear_all(self) -> None:
-        """Clear all memory (working and context).
+        """Clear all memory (context only).
 
         Note: Does not clear persistent memory or RAG memory.
         """
-        self.working.clear()
         self.context.clear()
 
     def get_storage_size(self) -> dict[str, float]:
@@ -1064,9 +978,9 @@ class MemoryManager:
                 sizes["sqlite_mb"] = os.path.getsize(db_path) / (1024 * 1024)
 
         # Calculate ChromaDB storage size (if RAG enabled)
-        if self.persistent_rag:
+        if self.rag:
             # Use getattr to safely access private attribute
-            chroma_dir = getattr(self.persistent_rag, "_persist_directory", None)
+            chroma_dir = getattr(self.rag, "_persist_directory", None)
             if chroma_dir and os.path.exists(chroma_dir):
                 total_size = 0
                 for dirpath, dirnames, filenames in os.walk(chroma_dir):
@@ -1104,31 +1018,15 @@ class MemoryManager:
             >>> chunks = manager.get_chunk_context("doc123", chunk_index=5, context_size=1)
             >>> print(len(chunks))  # Returns chunks 4, 5, 6
         """
-        if not self.rag and not self.persistent_rag:
+        if not self.rag:
             raise ValueError("RAG not enabled. Cannot retrieve chunk context.")
 
-        # Try working RAG first
-        if self.rag:
-            result = self.rag.get_chunk_context(
-                parent_id=parent_id,
-                chunk_index=chunk_index,
-                context_size=context_size,
-                user_id=self.user_id,
-            )
-            if result:  # Non-empty list
-                return result
-
-        # Try persistent RAG if working RAG had no results
-        if self.persistent_rag:
-            return self.persistent_rag.get_chunk_context(
-                parent_id=parent_id,
-                chunk_index=chunk_index,
-                context_size=context_size,
-                user_id=self.user_id,
-            )
-
-        # Both RAGs returned empty
-        return []
+        return self.rag.get_chunk_context(
+            parent_id=parent_id,
+            chunk_index=chunk_index,
+            context_size=context_size,
+            user_id=self.user_id,
+        )
 
     def get_full_document(self, parent_id: str) -> dict[str, Any]:
         """Reconstruct complete document from chunks.
@@ -1147,28 +1045,10 @@ class MemoryManager:
             >>> print(doc["full_content"])
             >>> print(doc["total_chunks"])
         """
-        if not self.rag and not self.persistent_rag:
+        if not self.rag:
             raise ValueError("RAG not enabled. Cannot retrieve full document.")
 
-        # Try working RAG first
-        if self.rag:
-            result = self.rag.get_full_document(parent_id=parent_id, user_id=self.user_id)
-            # Check if document was found (no error)
-            if "error" not in result or result["total_chunks"] > 0:
-                return result
-
-        # Try persistent RAG if working RAG had no results
-        if self.persistent_rag:
-            return self.persistent_rag.get_full_document(parent_id=parent_id, user_id=self.user_id)
-
-        # Both RAGs returned empty/error
-        return {
-            "full_content": "",
-            "chunks": [],
-            "parent_id": parent_id,
-            "total_chunks": 0,
-            "error": "Document not found",
-        }
+        return self.rag.get_full_document(parent_id=parent_id, user_id=self.user_id)
 
     def get_chunk_metadata(
         self, parent_id: str, chunk_index: Optional[int] = None
@@ -1189,39 +1069,20 @@ class MemoryManager:
             >>> meta = manager.get_chunk_metadata("doc123", chunk_index=5)
             >>> all_meta = manager.get_chunk_metadata("doc123")
         """
-        if not self.rag and not self.persistent_rag:
+        if not self.rag:
             raise ValueError("RAG not enabled. Cannot retrieve chunk metadata.")
 
-        # Try working RAG first
-        if self.rag:
-            result = self.rag.get_chunk_metadata(
-                parent_id=parent_id, chunk_index=chunk_index, user_id=self.user_id
-            )
-            # If found (non-empty), return it
-            if result:  # Non-empty dict or non-empty list
-                return result
-
-        # Try persistent RAG if working RAG had no results
-        if self.persistent_rag:
-            return self.persistent_rag.get_chunk_metadata(
-                parent_id=parent_id, chunk_index=chunk_index, user_id=self.user_id
-            )
-
-        # Both RAGs returned empty
-        return {} if chunk_index is not None else []
+        return self.rag.get_chunk_metadata(
+            parent_id=parent_id, chunk_index=chunk_index, user_id=self.user_id
+        )
 
     def __repr__(self) -> str:
         """String representation."""
-        working_rag_count = self.rag.count(self.agent_name) if self.rag else 0
-        persistent_rag_count = (
-            self.persistent_rag.count(self.agent_name) if self.persistent_rag else 0
-        )
+        rag_count = self.rag.count(self.agent_name) if self.rag else 0
         return (
             f"MemoryManager("
             f"agent={self.agent_name}, "
-            f"working={len(self.working)}, "
             f"context={len(self.context)}, "
             f"persistent={self.persistent.count(self.user_id, self.agent_name)}, "
-            f"working_rag={working_rag_count}, "
-            f"persistent_rag={persistent_rag_count})"
+            f"rag={rag_count})"
         )

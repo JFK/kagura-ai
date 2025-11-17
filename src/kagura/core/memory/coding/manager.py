@@ -337,8 +337,8 @@ class CodingMemoryManager(MemoryManager):
             List of recent file changes, sorted by timestamp (newest first)
         """
         # Method 1: Use RAG if available
-        if self.persistent_rag:
-            results = self.persistent_rag.recall(
+        if self.rag:
+            results = self.rag.recall(
                 query="recent file changes in project",
                 user_id=self.user_id,
                 top_k=limit * 2,  # Get more candidates
@@ -378,8 +378,8 @@ class CodingMemoryManager(MemoryManager):
             List of recent decisions, sorted by timestamp (newest first)
         """
         # Use RAG if available
-        if self.persistent_rag:
-            results = self.persistent_rag.recall(
+        if self.rag:
+            results = self.rag.recall(
                 query="design decisions",
                 user_id=self.user_id,
                 top_k=limit * 2,

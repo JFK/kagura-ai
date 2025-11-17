@@ -24,41 +24,6 @@ class TestMemoryExport:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)
 
-    @pytest.mark.asyncio
-    async def test_export_working_memory(self, manager, temp_output_dir):
-        """Test exporting working memory."""
-        # Add some working memory
-        manager.working.set("key1", "value1")
-        manager.working.set("key2", "value2")
-
-        # Export
-        exporter = MemoryExporter(manager)
-        stats = await exporter.export_all(
-            temp_output_dir,
-            include_working=True,
-            include_persistent=False,
-            include_graph=False,
-        )
-
-        # Check stats
-        assert stats["memories"] == 2
-
-        # Check output file
-        memories_file = temp_output_dir / "memories.jsonl"
-        assert memories_file.exists()
-
-        # Read and verify content
-        with open(memories_file) as f:
-            lines = f.readlines()
-
-        assert len(lines) == 2
-
-        # Parse first record
-        record = json.loads(lines[0])
-        assert record["type"] == "memory"
-        assert record["scope"] == "working"
-        assert record["key"] in ["key1", "key2"]
-        assert record["user_id"] == "test_user"
 
     @pytest.mark.skip(reason="Persistent memory export needs database cleanup")
     @pytest.mark.asyncio
@@ -70,9 +35,6 @@ class TestMemoryExport:
     @pytest.mark.asyncio
     async def test_export_creates_metadata(self, manager, temp_output_dir):
         """Test that export creates metadata file."""
-        # Add some data
-        manager.working.set("key", "value")
-
         # Export
         exporter = MemoryExporter(manager)
         await exporter.export_all(temp_output_dir)
@@ -119,19 +81,6 @@ class TestMemoryImport:
                     json.dumps(
                         {
                             "type": "memory",
-                            "scope": "working",
-                            "key": "import_key1",
-                            "value": "import_value1",
-                            "user_id": "test_user",
-                            "agent_name": "test_agent",
-                        }
-                    )
-                    + "\n"
-                )
-                f.write(
-                    json.dumps(
-                        {
-                            "type": "memory",
                             "scope": "persistent",
                             "key": "import_key2",
                             "value": "import_value2",
@@ -152,10 +101,7 @@ class TestMemoryImport:
         stats = await importer.import_all(temp_import_dir)
 
         # Check stats
-        assert stats["memories"] == 2
-
-        # Verify working memory
-        assert manager.working.get("import_key1") == "import_value1"
+        assert stats["memories"] == 1
 
         # Note: Persistent memory import verification skipped
         # (requires database cleanup between tests)
@@ -188,37 +134,3 @@ class TestExportImportRoundtrip:
         """Create test MemoryManager."""
         return MemoryManager(user_id="roundtrip_user", agent_name="roundtrip_agent")
 
-    @pytest.mark.asyncio
-    async def test_roundtrip_preserves_working_memory(self, manager):
-        """Test that export → import preserves working memory."""
-        # Add test data (working memory only for simpler test)
-        manager.working.set("work_key1", "work_value1")
-        manager.working.set("work_key2", "work_value2")
-
-        # Export
-        with tempfile.TemporaryDirectory() as tmpdir:
-            exporter = MemoryExporter(manager)
-            export_stats = await exporter.export_all(
-                tmpdir,
-                include_working=True,
-                include_persistent=False,
-                include_graph=False,
-            )
-
-            # Create new manager (fresh state)
-            manager2 = MemoryManager(
-                user_id="roundtrip_user",
-                agent_name="roundtrip_agent",
-            )
-
-            # Import
-            importer = MemoryImporter(manager2)
-            import_stats = await importer.import_all(tmpdir)
-
-            # Verify counts match
-            assert import_stats["memories"] == export_stats["memories"]
-            assert export_stats["memories"] == 2
-
-            # Verify data matches
-            assert manager2.working.get("work_key1") == "work_value1"
-            assert manager2.working.get("work_key2") == "work_value2"

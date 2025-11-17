@@ -178,26 +178,27 @@ ls -lh ~/.local/share/kagura/memory.db
 
 **解決策**:
 
-#### 解決策A: 永続的なスコープを使用
+#### 解決策A: メモリーストレージの確認
 
-**問題**: デフォルトの`scope="working"`（一時的）を使用している
+**問題**: メモリーが正しく保存されていない
 
-**修正**: 明示的に永続ストレージをリクエスト
+**修正**: メモリー操作が成功することを確認
 
 ```
-❌ "Remember that I prefer Python"
-✅ "Remember PERMANENTLY: I prefer Python"
-✅ "Save this with scope='persistent': I prefer Python"
+❌ "Remember that I prefer Python"  # 曖昧な指示
+✅ "メモリーに保存: I prefer Python"  # 明確な指示
+✅ memory_store(key="python_preference", value="Python")
 ```
 
 **プロンプト内で**:
 ```python
 memory_store(
     key="python_preference",
-    value="FastAPI over Django",
-    scope="persistent"  # ← 重要!
+    value="FastAPI over Django"
 )
 ```
+
+**注意**: v4.4.0 から、すべてのメモリーはデフォルトで永続化されます。`scope` パラメーターは不要です。
 
 #### 解決策B: user_idを確認
 

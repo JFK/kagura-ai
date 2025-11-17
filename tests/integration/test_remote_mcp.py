@@ -83,7 +83,6 @@ class TestExportImportIntegration:
             exporter = MemoryExporter(manager1)
             export_stats = await exporter.export_all(
                 tmpdir,
-                include_working=True,
                 include_persistent=True,
                 include_graph=False,
             )

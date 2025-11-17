@@ -84,23 +84,11 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
 
     # Check memory counts
     persistent_count = 0
-    working_count = 0
     rag_count = 0
     rag_enabled = False
 
     try:
         persistent_count = MemoryDatabaseQuery.count_memories()
-    except Exception:
-        pass
-
-    # Check working memory (RAM)
-    try:
-        from kagura.core.memory import MemoryManager
-
-        # Create temporary manager to count working memories
-        # Use system user to access all working memories
-        temp_manager = MemoryManager(user_id="system", agent_name="doctor")
-        working_count = len(temp_manager.working)
     except Exception:
         pass
 
@@ -170,7 +158,6 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
     stats = MemoryStats(
         database_exists=database_exists,
         database_size_mb=database_size_mb,
-        working_count=working_count,
         persistent_count=persistent_count,
         rag_enabled=rag_enabled,
         rag_count=rag_count,
@@ -190,6 +177,8 @@ async def get_memory_doctor(user: dict[str, Any] | None = Depends(get_current_us
     - Persistent memory count
     - RAG (vector database) status and count
     - Reranking model status
+
+    Note: Working memory (RAM) has been removed in v4.4.0.
 
     Args:
         user: Authenticated user (dependency)
@@ -239,6 +228,8 @@ async def create_memory(
 ) -> dict[str, Any]:
     """Create a new memory.
 
+    Note: All memories are stored in persistent storage (v4.4.0 removed working memory).
+
     Args:
         request: Memory creation request
         memory: MemoryManager dependency
@@ -249,18 +240,12 @@ async def create_memory(
     Raises:
         HTTPException: If memory key already exists
     """
-    # Check if memory already exists
-    if request.scope == "working":
-        if memory.has_temp(request.key):
-            raise HTTPException(
-                status_code=409, detail=f"Memory '{request.key}' already exists"
-            )
-    else:  # persistent
-        existing = memory.recall(request.key)
-        if existing is not None:
-            raise HTTPException(
-                status_code=409, detail=f"Memory '{request.key}' already exists"
-            )
+    # Check if memory already exists in persistent storage
+    existing = memory.recall(request.key)
+    if existing is not None:
+        raise HTTPException(
+            status_code=409, detail=f"Memory '{request.key}' already exists"
+        )
 
     # Build metadata with standard fields
     full_metadata = build_full_metadata(
@@ -269,22 +254,15 @@ async def create_memory(
         user_metadata=request.metadata,
     )
 
-    # Store memory based on scope
-    if request.scope == "working":
-        # Working memory: store value directly
-        memory.set_temp(request.key, request.value)
-        # Store metadata separately
-        memory.set_temp(f"_meta_{request.key}", full_metadata)
-    else:  # persistent
-        # Prepare metadata for ChromaDB storage
-        chromadb_metadata = prepare_for_chromadb(full_metadata)
-        # Persistent memory: use remember() with ChromaDB-compatible metadata
-        memory.remember(request.key, request.value, chromadb_metadata)
+    # Prepare metadata for ChromaDB storage
+    chromadb_metadata = prepare_for_chromadb(full_metadata)
+    # Persistent memory: use remember() with ChromaDB-compatible metadata
+    memory.remember(request.key, request.value, chromadb_metadata)
 
     return {
         "key": request.key,
         "value": request.value,
-        "scope": request.scope,
+        "scope": "persistent",
         "tags": request.tags,
         "importance": request.importance,
         "metadata": request.metadata or {},
@@ -297,14 +275,14 @@ async def create_memory(
 async def get_memory(
     key: Annotated[str, Path(description="Memory key")],
     memory: MemoryManagerDep,
-    scope: Annotated[str | None, Query(description="Memory scope")] = None,
 ) -> dict[str, Any]:
     """Get memory by key.
+
+    Note: All memories are retrieved from persistent storage (v4.4.0 removed working memory).
 
     Args:
         key: Memory key
         memory: MemoryManager dependency
-        scope: Optional scope hint (working/persistent)
 
     Returns:
         Memory details
@@ -312,31 +290,17 @@ async def get_memory(
     Raises:
         HTTPException: If memory not found
     """
-    # Try to find memory in both scopes if not specified
-    value = None
-    found_scope = None
-    metadata_dict = {}
-
-    if scope is None or scope == "working":
-        # Try working memory first
-        value = memory.get_temp(key)
-        if value is not None:
-            found_scope = "working"
-            metadata_dict = memory.get_temp(f"_meta_{key}", {})
-
-    if value is None and (scope is None or scope == "persistent"):
-        # Try persistent memory
-        value = memory.recall(key)
-        if value is not None:
-            found_scope = "persistent"
-            # Get full memory data from persistent storage
-            mem_list = memory.search_memory(f"%{key}%", limit=1)
-            if mem_list:
-                mem_data = mem_list[0]
-                metadata_dict = mem_data.get("metadata", {})
-
+    # Retrieve from persistent memory
+    value = memory.recall(key)
     if value is None:
         raise HTTPException(status_code=404, detail=f"Memory '{key}' not found")
+
+    # Get full memory data from persistent storage
+    metadata_dict = {}
+    mem_list = memory.search_memory(f"%{key}%", limit=1)
+    if mem_list:
+        mem_data = mem_list[0]
+        metadata_dict = mem_data.get("metadata", {})
 
     # Decode and extract metadata fields
     metadata_dict = decode_chromadb_metadata(metadata_dict)
@@ -345,7 +309,7 @@ async def get_memory(
     return {
         "key": key,
         "value": value,
-        "scope": found_scope or "working",
+        "scope": "persistent",
         "tags": mem_fields["tags"],
         "importance": mem_fields["importance"],
         "metadata": mem_fields.get("user_metadata", {}),
@@ -363,15 +327,15 @@ async def update_memory(
     key: Annotated[str, Path(description="Memory key")],
     request: models.MemoryUpdate,
     memory: MemoryManagerDep,
-    scope: Annotated[str | None, Query(description="Memory scope")] = None,
 ) -> dict[str, Any]:
     """Update memory.
+
+    Note: All memories are updated in persistent storage (v4.4.0 removed working memory).
 
     Args:
         key: Memory key
         request: Memory update request
         memory: MemoryManager dependency
-        scope: Optional scope hint (working/persistent)
 
     Returns:
         Updated memory details
@@ -381,11 +345,9 @@ async def update_memory(
     """
     # Get existing memory
     try:
-        existing = await get_memory(key, memory, scope)
+        existing = await get_memory(key, memory)
     except HTTPException as e:
         raise e
-
-    found_scope = existing["scope"]
 
     # Update fields
     updated_value = request.value if request.value is not None else existing["value"]
@@ -406,21 +368,16 @@ async def update_memory(
         updated_at=datetime.now(),
     )
 
-    # Update memory based on scope
-    if found_scope == "working":
-        memory.set_temp(key, updated_value)
-        memory.set_temp(f"_meta_{key}", full_metadata)
-    else:  # persistent
-        # Prepare metadata for ChromaDB storage
-        chromadb_metadata = prepare_for_chromadb(full_metadata)
-        # Delete and recreate (no update method in MemoryManager)
-        memory.forget(key)
-        memory.remember(key, updated_value, chromadb_metadata)
+    # Prepare metadata for ChromaDB storage
+    chromadb_metadata = prepare_for_chromadb(full_metadata)
+    # Delete and recreate (no update method in MemoryManager)
+    memory.forget(key)
+    memory.remember(key, updated_value, chromadb_metadata)
 
     return {
         "key": key,
         "value": updated_value,
-        "scope": found_scope,
+        "scope": "persistent",
         "tags": updated_tags,
         "importance": updated_importance,
         "metadata": updated_metadata,
@@ -433,50 +390,38 @@ async def update_memory(
 async def delete_memory(
     key: Annotated[str, Path(description="Memory key")],
     memory: MemoryManagerDep,
-    scope: Annotated[str | None, Query(description="Memory scope")] = None,
 ) -> None:
     """Delete memory.
+
+    Note: All memories are deleted from persistent storage (v4.4.0 removed working memory).
 
     Args:
         key: Memory key
         memory: MemoryManager dependency
-        scope: Optional scope hint (working/persistent)
 
     Raises:
         HTTPException: If memory not found
     """
-    deleted = False
-
-    if scope is None or scope == "working":
-        # Try working memory
-        if memory.has_temp(key):
-            memory.delete_temp(key)
-            memory.delete_temp(f"_meta_{key}")  # Delete metadata
-            deleted = True
-
-    if not deleted and (scope is None or scope == "persistent"):
-        # Try persistent memory
-        existing = memory.recall(key)
-        if existing is not None:
-            memory.forget(key)
-            deleted = True
-
-    if not deleted:
+    # Delete from persistent memory
+    existing = memory.recall(key)
+    if existing is None:
         raise HTTPException(status_code=404, detail=f"Memory '{key}' not found")
+
+    memory.forget(key)
 
 
 @router.get("", response_model=models.MemoryListResponse)
 async def list_memories(
     memory: MemoryManagerDep,
-    scope: Annotated[str | None, Query(description="Filter by scope")] = None,
     page: Annotated[int, Query(ge=1, description="Page number")] = 1,
     page_size: Annotated[int, Query(ge=1, le=100, description="Page size")] = 20,
 ) -> dict[str, Any]:
     """List memories with pagination.
 
+    Note: All memories are retrieved from persistent storage (v4.4.0 removed working memory).
+
     Args:
         memory: MemoryManager dependency
-        scope: Optional scope filter
         page: Page number (1-indexed)
         page_size: Number of items per page
 
@@ -485,86 +430,79 @@ async def list_memories(
     """
     all_memories: list[dict[str, Any]] = []
 
-    # Collect working memory
-    if scope is None or scope == "working":
-        # Working memory doesn't have list API, skip for now
-        # TODO: Add list capability to WorkingMemory
-        pass
-
     # Collect persistent memory
-    if scope is None or scope == "persistent":
-        # Search all persistent memories across all users (admin view)
-        # Use direct backend access to bypass user_id filtering
-        persistent_list = memory.persistent.fetch_all(
-            user_id="",  # Empty string to get all users in SQLite
-            agent_name=None,
-            limit=1000
-        ) if hasattr(memory.persistent, 'fetch_all') else []
+    # Search all persistent memories across all users (admin view)
+    # Use direct backend access to bypass user_id filtering
+    persistent_list = memory.persistent.fetch_all(
+        user_id="",  # Empty string to get all users in SQLite
+        agent_name=None,
+        limit=1000
+    ) if hasattr(memory.persistent, 'fetch_all') else []
 
-        logger.info(
-            f"[list_memories] fetch_all returned {len(persistent_list)} records "
-            f"(user_id='', agent_name=None, scope={scope})"
+    logger.info(
+        f"[list_memories] fetch_all returned {len(persistent_list)} records "
+        f"(user_id='', agent_name=None)"
+    )
+
+    # Fallback: if fetch_all doesn't work, use search with current user
+    if not persistent_list:
+        persistent_list = memory.search_memory("%", limit=1000)
+        logger.info(f"[list_memories] search fallback returned {len(persistent_list)} records")
+
+    for mem in persistent_list:
+        key = mem.get("key", "")
+        agent_name = mem.get("agent_name")
+
+        # Skip coding memories (they have their own endpoint)
+        # Filter by agent_name (primary) and key pattern (fallback for old data)
+        if agent_name == "coding-memory":
+            continue
+
+        # Fallback: Skip coding-related keys for old data without agent_name
+        if key.startswith("project:") and any(x in key for x in [":session:", ":error:", ":file_change:", ":decision:"]):
+            logger.debug(f"[list_memories] Skipping coding key (fallback): {key}")
+            continue
+
+        metadata_dict = mem.get("metadata", {})
+
+        # Handle None metadata (can occur with coding sessions)
+        if metadata_dict is None:
+            metadata_dict = {}
+
+        # Decode and extract metadata fields
+        metadata_dict = decode_chromadb_metadata(metadata_dict)
+        mem_fields = extract_memory_fields(metadata_dict)
+
+        # Convert dict values to JSON string (coding sessions store dict)
+        value = mem["value"]
+        if isinstance(value, dict):
+            import json
+            value = json.dumps(value, ensure_ascii=False)
+
+        all_memories.append(
+            {
+                "key": mem["key"],
+                "value": value,
+                "scope": "persistent",
+                "tags": mem_fields["tags"],
+                "importance": mem_fields["importance"],
+                "metadata": mem_fields.get("user_metadata", {}),
+                "created_at": datetime.fromisoformat(mem_fields["created_at"])
+                if mem_fields["created_at"]
+                else datetime.now(),
+                "updated_at": datetime.fromisoformat(mem_fields["updated_at"])
+                if mem_fields["updated_at"]
+                else datetime.now(),
+                "user_id": mem.get("user_id"),
+                "agent_name": mem.get("agent_name"),
+            }
         )
-
-        # Fallback: if fetch_all doesn't work, use search with current user
-        if not persistent_list:
-            persistent_list = memory.search_memory("%", limit=1000)
-            logger.info(f"[list_memories] search fallback returned {len(persistent_list)} records")
-
-        for mem in persistent_list:
-            key = mem.get("key", "")
-            agent_name = mem.get("agent_name")
-
-            # Skip coding memories (they have their own endpoint)
-            # Filter by agent_name (primary) and key pattern (fallback for old data)
-            if agent_name == "coding-memory":
-                continue
-
-            # Fallback: Skip coding-related keys for old data without agent_name
-            if key.startswith("project:") and any(x in key for x in [":session:", ":error:", ":file_change:", ":decision:"]):
-                logger.debug(f"[list_memories] Skipping coding key (fallback): {key}")
-                continue
-
-            metadata_dict = mem.get("metadata", {})
-
-            # Handle None metadata (can occur with coding sessions)
-            if metadata_dict is None:
-                metadata_dict = {}
-
-            # Decode and extract metadata fields
-            metadata_dict = decode_chromadb_metadata(metadata_dict)
-            mem_fields = extract_memory_fields(metadata_dict)
-
-            # Convert dict values to JSON string (coding sessions store dict)
-            value = mem["value"]
-            if isinstance(value, dict):
-                import json
-                value = json.dumps(value, ensure_ascii=False)
-
-            all_memories.append(
-                {
-                    "key": mem["key"],
-                    "value": value,
-                    "scope": "persistent",
-                    "tags": mem_fields["tags"],
-                    "importance": mem_fields["importance"],
-                    "metadata": mem_fields.get("user_metadata", {}),
-                    "created_at": datetime.fromisoformat(mem_fields["created_at"])
-                    if mem_fields["created_at"]
-                    else datetime.now(),
-                    "updated_at": datetime.fromisoformat(mem_fields["updated_at"])
-                    if mem_fields["updated_at"]
-                    else datetime.now(),
-                    "user_id": mem.get("user_id"),
-                    "agent_name": mem.get("agent_name"),
-                }
-            )
 
     total = len(all_memories)
 
     logger.info(
         f"[list_memories] After filtering: {total} memories "
-        f"(scope={scope}, page={page}, page_size={page_size})"
+        f"(page={page}, page_size={page_size})"
     )
 
     # Pagination
@@ -600,6 +538,8 @@ async def bulk_delete_memories(
     Performs bulk deletion of memories. Returns count of successful
     deletions and list of failed keys with error messages.
 
+    Note: All memories are deleted from persistent storage (v4.4.0 removed working memory).
+
     Args:
         request: Bulk delete request with keys list
         memory: MemoryManager dependency
@@ -612,7 +552,6 @@ async def bulk_delete_memories(
         POST /api/v1/memory/bulk-delete
         Body: {
             "keys": ["key1", "key2", "key3"],
-            "scope": "persistent",
             "agent_name": "global"
         }
         Response: {
@@ -629,25 +568,14 @@ async def bulk_delete_memories(
 
     for key in request.keys:
         try:
-            if request.scope == "working":
-                # Delete from working memory
-                if memory.has_temp(key):
-                    memory.delete_temp(key)
-                    # Also delete metadata
-                    memory.delete_temp(f"_meta_{key}")
-                    deleted_count += 1
-                else:
-                    failed_keys.append(key)
-                    errors[key] = "Memory not found in working scope"
+            # Delete from persistent memory
+            existing = memory.recall(key)
+            if existing is not None:
+                memory.forget(key)
+                deleted_count += 1
             else:
-                # Delete from persistent memory
-                existing = memory.recall(key)
-                if existing is not None:
-                    memory.forget(key)
-                    deleted_count += 1
-                else:
-                    failed_keys.append(key)
-                    errors[key] = "Memory not found in persistent scope"
+                failed_keys.append(key)
+                errors[key] = "Memory not found in persistent storage"
 
         except Exception as e:
             logger.error(f"Failed to delete memory {key}: {e}")

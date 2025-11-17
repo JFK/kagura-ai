@@ -23,7 +23,6 @@ async def memory_store(
     key: str,
     value: str,
     agent_name: str = "global",
-    scope: str = "persistent",
     tags: str = "[]",
     importance: float = 0.5,
     metadata: str = "{}",
@@ -31,21 +30,20 @@ async def memory_store(
     """Store information in agent memory.
 
     When: User asks to remember/save something.
-    Defaults: agent_name="global", scope="persistent" (v4.0.10)
+    Defaults: agent_name="global" (v4.0.10)
 
     Args:
         user_id: Memory owner ID
         key: Memory key
         value: Info to store
         agent_name: "global" (all conversations) or "thread_{id}" (this conversation only)
-        scope: "persistent" (disk) or "working" (RAM, cleared on restart)
         tags: JSON array '["tag1"]' (optional)
         importance: 0.0-1.0 (default: 0.5)
         metadata: JSON object (optional)
 
     Returns: Confirmation with storage scope
 
-    💡 TIP: Use defaults for user preferences. Override for temporary data.
+    💡 Note: All memory is now persistent (stored to disk).
     🌐 Cross-platform: Memories shared across Claude, ChatGPT, Gemini via user_id.
     """
     # Always enable RAG for both working and persistent memory
@@ -105,55 +103,32 @@ async def memory_store(
             if meta_key not in full_metadata:
                 full_metadata[meta_key] = meta_value
 
-    if scope == "persistent":
-        # Convert to ChromaDB-compatible format
-        chromadb_metadata = {}
-        for k, v in full_metadata.items():
-            if isinstance(v, list):
-                chromadb_metadata[k] = json.dumps(v)
-            elif isinstance(v, dict):
-                chromadb_metadata[k] = json.dumps(v)
-            else:
-                chromadb_metadata[k] = v
+    # Convert to ChromaDB-compatible format
+    chromadb_metadata = {}
+    for k, v in full_metadata.items():
+        if isinstance(v, list):
+            chromadb_metadata[k] = json.dumps(v)
+        elif isinstance(v, dict):
+            chromadb_metadata[k] = json.dumps(v)
+        else:
+            chromadb_metadata[k] = v
 
-        # Store in persistent memory (also indexes in persistent_rag if available)
-        memory.remember(key, value, chromadb_metadata)
-    else:
-        # Store in working memory
-        memory.set_temp(key, value)
-        memory.set_temp(f"_meta_{key}", full_metadata)
+    # Store in persistent memory (also indexes in persistent_rag if available)
+    memory.remember(key, value, chromadb_metadata)
 
-        # Also index in working RAG for semantic search (if available)
-        if memory.rag:
-            try:
-                rag_metadata = {
-                    "type": "working_memory",
-                    "key": key,
-                    "tags": json.dumps(tags_list),  # ChromaDB compatibility
-                    "importance": importance,
-                }
-                memory.store_semantic(content=f"{key}: {value}", metadata=rag_metadata)
-            except Exception:
-                # Silently fail if RAG indexing fails
-                pass
-
-    # Check RAG availability based on scope
-    rag_available = (scope == "working" and memory.rag is not None) or (
-        scope == "persistent" and memory.persistent_rag is not None
-    )
+    # Check RAG availability
+    rag_available = memory.persistent_rag is not None
 
     # Compact output (token-efficient)
     scope_badge = "global" if agent_name == "global" else "local"
     rag_badge = "RAG:OK" if rag_available else "RAG:NO"
 
-    result = f"[OK] Stored: {key} ({scope}, {scope_badge}, {rag_badge})"
+    result = f"[OK] Stored: {key} (persistent, {scope_badge}, {rag_badge})"
     return result + initialization_note
 
 
 @tool
-async def memory_recall(
-    user_id: str, agent_name: str, key: str, scope: str = "persistent"
-) -> str:
+async def memory_recall(user_id: str, agent_name: str, key: str) -> str:
     """Recall information from agent memory
 
     Retrieve previously stored information. Use this tool when:
@@ -179,13 +154,14 @@ async def memory_recall(
         user_id: User identifier (memory owner)
         agent_name: Agent identifier (must match the one used in memory_store)
         key: Memory key to retrieve
-        scope: Memory scope (working/persistent)
 
     Returns:
         JSON object with value and metadata if metadata exists,
         otherwise just the value.
         Format: {"key": "...", "value": "...", "metadata": {...}}
         Returns "No value found" message if key doesn't exist.
+
+    💡 Note: All memory is now persistent (stored to disk).
     """
     # Always enable RAG to match memory_store behavior
     enable_rag = True
@@ -203,22 +179,17 @@ async def memory_recall(
             )
         memory = _memory_cache[cache_key]
 
-    if scope == "persistent":
-        # Track access for usage analytics (Issue #411)
-        recall_result = memory.recall(key, include_metadata=True, track_access=True)
-        if recall_result is None:
-            value = None
-            metadata = None
-        else:
-            value, metadata = recall_result
+    # Track access for usage analytics (Issue #411)
+    recall_result = memory.recall(key, include_metadata=True, track_access=True)
+    if recall_result is None:
+        value = None
+        metadata = None
     else:
-        value = memory.get_temp(key)
-        # Get metadata from working memory
-        metadata = memory.get_temp(f"_meta_{key}")
+        value, metadata = recall_result
 
     # Return helpful message if value not found
     if value is None:
-        return f"No value found for key '{key}' in {scope} memory"
+        return f"No value found for key '{key}' in persistent memory"
 
     # Always return structured JSON so callers can rely on consistent fields
     payload = {
@@ -231,15 +202,13 @@ async def memory_recall(
 
 
 @tool
-async def memory_delete(
-    user_id: str, agent_name: str, key: str, scope: str = "persistent"
-) -> str:
+async def memory_delete(user_id: str, agent_name: str, key: str) -> str:
     """Delete a memory with audit logging
 
     Permanently delete a memory from storage. Use this tool when:
     - User explicitly asks to forget something
     - Memory is outdated and should be removed
-    - Cleaning up temporary data
+    - Cleaning up data
 
     💡 IMPORTANT: Memory ownership model (v4.0)
     - user_id: WHO owns this memory (deletion scoped to user)
@@ -248,19 +217,16 @@ async def memory_delete(
     💡 IMPORTANT: Deletion is permanent and logged for audit.
 
     Examples:
-        # Delete persistent memory for user
-        user_id="user_jfk", agent_name="global", key="old_preference",
-        scope="persistent"
+        # Delete memory for user
+        user_id="user_jfk", agent_name="global", key="old_preference"
 
-        # Delete working memory
-        user_id="user_jfk", agent_name="thread_chat_123", key="temp_data",
-        scope="working"
+        # Delete thread-specific memory
+        user_id="user_jfk", agent_name="thread_chat_123", key="temp_data"
 
     Args:
         user_id: User identifier (memory owner)
         agent_name: Agent identifier
         key: Memory key to delete
-        scope: Memory scope (working/persistent)
 
     Returns:
         Confirmation message with deletion details
@@ -269,6 +235,7 @@ async def memory_delete(
         - Deletion is logged with timestamp and user_id
         - Both key-value memory and RAG entries are deleted
         - For GDPR compliance: Complete deletion guaranteed
+        - All memory is now persistent (stored to disk)
     """
     enable_rag = True
     try:
@@ -284,55 +251,24 @@ async def memory_delete(
         memory = _memory_cache[cache_key]
 
     # Check if memory exists
-    if scope == "persistent":
-        value = memory.recall(key)
-        if value is None:
-            return json.dumps({"error": f"Memory '{key}' not found in {scope} memory"})
+    value = memory.recall(key)
+    if value is None:
+        return json.dumps({"error": f"Memory '{key}' not found in persistent memory"})
 
-        # Delete from persistent storage (includes RAG)
-        memory.forget(key)
+    # Delete from persistent storage (includes RAG)
+    memory.forget(key)
 
-        # TODO: Log deletion for audit (Phase B or later)
-        # audit_log.record_deletion(agent_name, key, scope, timestamp)
+    # TODO: Log deletion for audit (Phase B or later)
+    # audit_log.record_deletion(agent_name, key, timestamp)
 
-        return json.dumps(
-            {
-                "status": "deleted",
-                "key": key,
-                "scope": scope,
-                "agent_name": agent_name,
-                "message": f"Memory '{key}' deleted from {scope} memory",
-                "audit": "Deletion logged",  # TODO: Implement actual audit logging
-            },
-            indent=2,
-        )
-    else:  # working
-        if not memory.has_temp(key):
-            return json.dumps({"error": f"Memory '{key}' not found in {scope} memory"})
-
-        # Delete from working memory
-        memory.delete_temp(key)
-        memory.delete_temp(f"_meta_{key}")  # Delete metadata if exists
-
-        # Delete from working RAG if indexed
-        if memory.rag:
-            try:
-                where_filter: dict[str, str] = {"key": key}
-                if agent_name:
-                    where_filter["agent_name"] = agent_name
-                results = memory.rag.collection.get(where=where_filter)  # type: ignore[arg-type]
-                if results["ids"]:
-                    memory.rag.collection.delete(ids=results["ids"])
-            except Exception:
-                pass  # Silently fail
-
-        return json.dumps(
-            {
-                "status": "deleted",
-                "key": key,
-                "scope": scope,
-                "agent_name": agent_name,
-                "message": f"Memory '{key}' deleted from {scope} memory",
-            },
-            indent=2,
-        )
+    return json.dumps(
+        {
+            "status": "deleted",
+            "key": key,
+            "scope": "persistent",
+            "agent_name": agent_name,
+            "message": f"Memory '{key}' deleted from persistent memory",
+            "audit": "Deletion logged",  # TODO: Implement actual audit logging
+        },
+        indent=2,
+    )

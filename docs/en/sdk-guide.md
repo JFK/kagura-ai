@@ -314,9 +314,11 @@ async def fetch_url(url: str) -> str:
 
 ## Memory Management
 
-Kagura provides 4 memory tiers for different use cases.
+Kagura provides a unified memory system with persistent storage and semantic search capabilities.
 
-### 1. Working Memory (Short-term)
+**Important:** As of v4.4.0, all memory is persistent. The `scope="working"` parameter and temporary memory methods (`set_temp()`, `get_temp()`) have been removed.
+
+### 1. Context Memory (Conversation History)
 
 Keep recent messages in context:
 
@@ -340,7 +342,7 @@ await chatbot("What's my name?", memory_manager=memory)
 await chatbot("Recommend resources for what I'm learning", memory_manager=memory)
 ```
 
-### 2. Session Memory (Persistent)
+### 2. Persistent Memory (Long-term Storage)
 
 Store facts across sessions with ChromaDB:
 
@@ -371,7 +373,7 @@ await assistant("What's my favorite color?", memory_manager=memory2)
 # Response: "Your favorite color is blue"
 ```
 
-### 3. RAG Memory (Document Search)
+### 3. RAG Memory (Semantic Search)
 
 Index and search documents semantically:
 
@@ -427,10 +429,16 @@ related = graph.get_related_nodes(node_id="hiking_interest", depth=2)
 
 | Memory Type | Use Case | Persistence | Search |
 |------------|----------|-------------|--------|
-| **Working** | Recent context | In-memory | Sequential |
-| **Session** | User preferences | Disk (ChromaDB) | Semantic |
-| **RAG** | Document QA | Disk (ChromaDB) | Semantic |
-| **Graph** | Relationships | Disk (NetworkX) | Graph traversal |
+| **Context** | Recent messages | Persistent (SQLite) | Sequential |
+| **Persistent** | User preferences | Persistent (SQLite) | Key-value lookup |
+| **RAG** | Document QA | Persistent (ChromaDB) | Semantic |
+| **Graph** | Relationships | Persistent (NetworkX) | Graph traversal |
+
+**Migration from v4.3.x to v4.4.0:**
+- All memory is now persistent - no temporary/session-only memory
+- Remove `scope="working"` from all `memory_store()` calls
+- Replace `set_temp()`/`get_temp()` with client-side variables or persistent storage
+- Use `remember()`/`recall()` for all persistent data
 
 ---
 

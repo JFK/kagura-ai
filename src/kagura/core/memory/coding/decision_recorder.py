@@ -73,13 +73,13 @@ async def record_decision(
     )
 
     # Add to RAG
-    if self.persistent_rag:
+    if self.rag:
         content_text = (
             f"Decision: {decision}\n"
             f"Rationale: {rationale}\n"
             f"Alternatives: {', '.join(alternatives or [])}"
         )
-        self.persistent_rag.store(
+        self.rag.store(
             content=content_text,
             user_id=self.user_id,
             metadata={

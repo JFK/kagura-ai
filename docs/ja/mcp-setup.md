@@ -202,12 +202,15 @@ which kagura
 
 ### メモリーが会話をまたいで保持されない
 
-**原因**: `scope="working"` (デフォルト)を使用
+**原因**: メモリーが正しく保存されていない可能性があります
 
-**解決方法**: 明示的に`scope="persistent"`を使用
+**解決方法**: 明確な保存指示を使用
 
-またはClaudeに伝えます:
-> "Remember this **permanently**: I prefer Python"
+Claudeに伝えます:
+> "メモリーに保存: I prefer Python"
+> "これを覚えておいて: Python が好きです"
+
+**注意**: v4.4.0 から、すべてのメモリーはデフォルトで永続化されます
 
 ---
 

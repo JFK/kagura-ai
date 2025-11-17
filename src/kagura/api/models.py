@@ -22,13 +22,13 @@ class RootResponse(BaseModel):
 
 # Memory
 class MemoryCreate(BaseModel):
-    """Create memory request."""
+    """Create memory request.
+
+    Note: v4.4.0 removed working memory - all memories are now persistent.
+    """
 
     key: str = Field(..., description="Unique memory key")
     value: str = Field(..., description="Memory content")
-    scope: Literal["working", "persistent"] = Field(
-        default="working", description="Memory scope"
-    )
     type: Literal["normal", "coding"] = Field(
         default="normal", description="Memory type: normal or coding session"
     )
@@ -54,11 +54,14 @@ class MemoryUpdate(BaseModel):
 
 
 class MemoryResponse(BaseModel):
-    """Memory response."""
+    """Memory response.
+
+    Note: v4.4.0 removed working memory - scope is always "persistent".
+    """
 
     key: str
     value: str
-    scope: str
+    scope: str = "persistent"  # Always persistent in v4.4.0+
     type: str = "normal"
     tags: list[str]
     importance: float
@@ -80,12 +83,12 @@ class MemoryListResponse(BaseModel):
 
 # Search
 class SearchRequest(BaseModel):
-    """Search memories request."""
+    """Search memories request.
+
+    Note: v4.4.0 removed working memory - all searches are in persistent storage.
+    """
 
     query: str = Field(..., description="Search query")
-    scope: Literal["working", "persistent", "all"] = Field(
-        default="all", description="Search scope"
-    )
     limit: int = Field(default=10, ge=1, le=100, description="Max results")
     filter_tags: list[str] | None = Field(
         None, description="Filter by tags (AND logic)"
@@ -93,11 +96,14 @@ class SearchRequest(BaseModel):
 
 
 class SearchResult(BaseModel):
-    """Single search result."""
+    """Single search result.
+
+    Note: v4.4.0 removed working memory - scope is always "persistent".
+    """
 
     key: str
     value: str
-    scope: str
+    scope: str = "persistent"  # Always persistent in v4.4.0+
     tags: list[str]
     score: float = Field(..., description="Relevance score")
     metadata: dict[str, Any]
@@ -113,24 +119,27 @@ class SearchResponse(BaseModel):
 
 # Recall
 class RecallRequest(BaseModel):
-    """Recall memories request (semantic similarity)."""
+    """Recall memories request (semantic similarity).
+
+    Note: v4.4.0 removed working memory - all searches are in persistent storage.
+    """
 
     query: str = Field(..., description="Query text for semantic search")
     k: int = Field(default=5, ge=1, le=50, description="Number of results")
-    scope: Literal["working", "persistent", "all"] = Field(
-        default="all", description="Search scope"
-    )
     include_graph: bool = Field(
         default=False, description="Include graph-related memories (v4.0.0+)"
     )
 
 
 class RecallResult(BaseModel):
-    """Single recall result."""
+    """Single recall result.
+
+    Note: v4.4.0 removed working memory - scope is always "persistent".
+    """
 
     key: str
     value: str
-    scope: str
+    scope: str = "persistent"  # Always persistent in v4.4.0+
     similarity: float = Field(..., description="Semantic similarity score (0-1)")
     tags: list[str]
     metadata: dict[str, Any]
@@ -304,12 +313,12 @@ class SessionListResponse(BaseModel):
 
 # Bulk Operations (Issue #666 - Phase 2)
 class BulkDeleteRequest(BaseModel):
-    """Bulk delete memories request."""
+    """Bulk delete memories request.
+
+    Note: v4.4.0 removed working memory - all deletions are from persistent storage.
+    """
 
     keys: list[str] = Field(..., description="List of memory keys to delete")
-    scope: Literal["working", "persistent"] = Field(
-        default="persistent", description="Memory scope"
-    )
     agent_name: str = Field(default="global", description="Agent name")
 
 

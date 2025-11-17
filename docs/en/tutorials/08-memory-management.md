@@ -4,13 +4,16 @@ Learn how to build agents with memory capabilities using Kagura AI's memory mana
 
 ## Introduction
 
-Kagura AI provides a three-tier memory system:
+Kagura AI provides a unified memory system with persistent storage:
 
-1. **Working Memory**: Temporary data during execution
-2. **Context Memory**: Conversation history
-3. **Persistent Memory**: Long-term storage
+1. **Context Memory**: Conversation history
+2. **Persistent Memory**: Long-term key-value storage
+3. **RAG Memory**: Semantic search over documents
+4. **Graph Memory**: Relationship tracking
 
-All three are accessed through the unified `MemoryManager` interface.
+**Important:** As of v4.4.0, all memory is persistent. Temporary/working memory has been removed.
+
+All memory is accessed through the unified `MemoryManager` interface.
 
 ## Quick Start
 
@@ -60,40 +63,6 @@ result = await greeter("Alice")  # "Nice to meet you, Alice!"
 
 # Second time
 result = await greeter("Alice")  # "Welcome back, Alice!"
-```
-
-## Working Memory
-
-Temporary storage that's cleared after execution.
-
-### Use Cases
-
-- Tracking loop iterations
-- Storing intermediate results
-- Temporary configuration
-
-### Example
-
-```python
-from kagura.core.memory import MemoryManager
-
-memory = MemoryManager()
-
-# Store temporary data
-memory.set_temp("retry_count", 0)
-memory.set_temp("current_task", "data_processing")
-
-# Retrieve
-count = memory.get_temp("retry_count")  # 0
-task = memory.get_temp("current_task")  # "data_processing"
-
-# Check existence
-if memory.has_temp("retry_count"):
-    count = memory.get_temp("retry_count")
-    memory.set_temp("retry_count", count + 1)
-
-# Delete
-memory.delete_temp("current_task")
 ```
 
 ## Context Memory
@@ -331,6 +300,39 @@ async def my_agent(query: str, memory: MemoryManager) -> str:
     pass
 ```
 
+## Migration from v4.3.x to v4.4.0
+
+**Breaking Changes:**
+
+1. **Removed `scope="working"` parameter:**
+   ```python
+   # ❌ Old (v4.3.x)
+   manager.remember("key", "value", scope="working")
+
+   # ✅ New (v4.4.0+)
+   manager.remember("key", "value")  # Always persistent
+   ```
+
+2. **Removed temporary memory methods:**
+   ```python
+   # ❌ Old (v4.3.x)
+   memory.set_temp("retry_count", 0)
+   count = memory.get_temp("retry_count")
+   memory.delete_temp("retry_count")
+
+   # ✅ New (v4.4.0+) - Use client-side variables
+   retry_count = 0  # Simple variable
+   # OR use persistent storage
+   memory.remember("retry_count", 0)
+   count = memory.recall("retry_count")
+   memory.forget("retry_count")
+   ```
+
+3. **All memory is now persistent:**
+   - No more session-only memory
+   - All `remember()` calls persist to SQLite
+   - Use `forget()` to explicitly delete when done
+
 ## Practical Examples
 
 ### Personal Assistant
@@ -436,9 +438,10 @@ await task_tracker("done Write documentation")
 
 ### 1. Use Appropriate Memory Types
 
-- **Working Memory**: Temporary state, loop counters, intermediate results
 - **Context Memory**: Conversation history, user interactions
 - **Persistent Memory**: User preferences, learned facts, configuration
+- **RAG Memory**: Semantic search over documents
+- **Client Variables**: For truly temporary data (loop counters, intermediate results)
 
 ### 2. Set Reasonable Limits
 

@@ -214,13 +214,15 @@ await memory_store(..., key="python_3.13_perf", value="Confirmed: 40% faster..."
 
 ## Anti-Patterns (What NOT to Do)
 
-### ❌ Don't Use Working Scope for Important Data
+### ❌ Don't Forget to Clean Up Unused Memory
 ```python
 # BAD
-memory_store(..., scope="working")  # Lost on restart!
+memory_store(..., key="temp_result")  # Never deleted, accumulates over time
 
 # GOOD
-memory_store(...)  # Uses persistent by default
+memory_store(..., key="temp_result")
+# ... use the data ...
+memory_delete(..., key="temp_result")  # Clean up when done
 ```
 
 ### ❌ Don't Forget to End Sessions

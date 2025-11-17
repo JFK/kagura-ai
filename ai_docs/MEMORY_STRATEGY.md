@@ -40,24 +40,22 @@ User ←→ AI Agent ←→ Memory Management Agent ←→ 3-Tier Memory
 
 ## 📐 Architecture Overview
 
-### 4-Tier Memory System (v4.0)
+### 3-Tier Memory System (v4.4.0+)
+
+**Breaking Change (v4.4.0)**: Working Memory removed. All memory is now persistent by default.
 
 ```
-MemoryManager (v4.0+)
-├─ Tier 1: Working Memory (In-Memory)
-│   └─ Session-scoped temporary storage
-│
-├─ Tier 2: Persistent Memory (SQLite)
+MemoryManager (v4.4.0+)
+├─ Tier 1: Persistent Memory (SQLite)
 │   ├─ Key-value storage with metadata
 │   ├─ user_id scoped (Phase C - Issue #382)
 │   └─ Indexed queries
 │
-├─ Tier 3: Semantic Search (ChromaDB)
-│   ├─ Working RAG: 一時的なセマンティック検索
+├─ Tier 2: Semantic Search (ChromaDB)
 │   ├─ Persistent RAG: 永続的なセマンティック検索
 │   └─ User-scoped collections (Phase C)
 │
-├─ Tier 4: Relationship Graph (NetworkX)
+├─ Tier 3: Relationship Graph (NetworkX)
 │   ├─ GraphMemory: ノード・エッジ管理 (Phase B)
 │   ├─ Interaction tracking: AI-User履歴
 │   ├─ Pattern analysis: ユーザーパターン分析
@@ -67,6 +65,8 @@ MemoryManager (v4.0+)
     ├─ MemoryExporter: 完全なデータエクスポート
     └─ MemoryImporter: バックアップからの復元
 ```
+
+**Migration Note**: Client applications should manage ephemeral state locally. Use Context Memory for session-scoped data.
 
 ### Memory Management Agent 🔜
 
@@ -110,10 +110,9 @@ async def memory_curator(
 **Status**: ✅ Completed
 
 **Implemented**:
-- ✅ Working Memory (in-memory dict)
 - ✅ Context Memory (conversation history)
-- ✅ Persistent Memory (SQLite)
-- ✅ Memory RAG (working + persistent - ChromaDB)
+- ✅ Persistent Memory (SQLite) - All memory is now persistent (v4.4.0)
+- ✅ Memory RAG (ChromaDB)
 - ✅ REST API (FastAPI)
 - ✅ MCP Tools (31 tools)
 
@@ -156,9 +155,9 @@ async def memory_curator(
 
 **Features**:
 - `persistent_rag: MemoryRAG` 追加
-- `memory_search(scope="persistent"|"working"|"all")`
+- `memory_search()` - All searches now query persistent memory
 - 永続メモリーのセマンティック検索
-- 後方互換性維持 (`enable_persistent_rag=False` デフォルト)
+- **Breaking Change (v4.4.0)**: `scope` parameter removed. All memory is persistent.
 
 **Implementation**:
 
@@ -857,19 +856,17 @@ async def test_memory_curator_auto_retention():
 ### Available MCP Tools (Current)
 
 ```python
-# 1. memory_store
+# 1. memory_store (v4.4.0+: scope removed)
 kagura_memory_store(
     agent_name: str,
     key: str,
-    value: str,
-    scope: Literal["working", "persistent"] = "working"
+    value: str
 ) -> str
 
-# 2. memory_recall
+# 2. memory_recall (v4.4.0+: scope removed)
 kagura_memory_recall(
     agent_name: str,
-    key: str,
-    scope: Literal["working", "persistent"] = "working"
+    key: str
 ) -> str
 
 # 3. memory_search
@@ -922,14 +919,13 @@ Claude: *uses kagura_memory_store*
 {
   "agent_name": "claude_assistant",
   "key": "user.preferences.color",
-  "value": "blue",
-  "scope": "persistent"
+  "value": "blue"
 }
 ```
 
 User: "What color do I like?" (30 days later)
 
-Claude: *uses kagura_memory_search_persistent*
+Claude: *uses kagura_memory_search*
 ```json
 {
   "agent_name": "claude_assistant",
@@ -944,7 +940,6 @@ Result:
   {
     "key": "user.preferences.color",
     "value": "blue",
-    "source": "persistent_rag",
     "score": 0.95
   }
 ]

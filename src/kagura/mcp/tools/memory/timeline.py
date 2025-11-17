@@ -20,7 +20,6 @@ async def memory_timeline(
     agent_name: str,
     time_range: str,
     event_type: str | None = None,
-    scope: str = "persistent",
     k: str | int = 20,
 ) -> str:
     """Retrieve memories from specific time range.
@@ -38,7 +37,6 @@ async def memory_timeline(
             - "YYYY-MM-DD": Specific date
             - "YYYY-MM-DD:YYYY-MM-DD": Date range
         event_type: Optional event type filter (e.g., "meeting", "decision", "error")
-        scope: Memory scope ("working", "persistent", or "all")
         k: Maximum number of results (default: 20)
 
     Returns:
@@ -72,6 +70,7 @@ async def memory_timeline(
         - Memories must have "timestamp" in metadata for time filtering
         - Results are sorted by timestamp (newest first)
         - Event type matching is case-insensitive substring match
+        - All memory is now persistent (stored to disk)
     """
     # Convert k to int using common helper
     k_int = to_int(k, default=20, min_val=1, max_val=1000, param_name="k")
@@ -113,19 +112,11 @@ async def memory_timeline(
                 }
             )
 
-    # Collect memories
+    # Collect memories from persistent storage
     all_memories = []
-    if scope in ["working", "all"]:
-        # Get all working memory keys
-        for key in memory.working.keys():
-            if not key.startswith("_meta_"):
-                value = memory.working.get(key)
-                all_memories.append({"key": key, "value": str(value), "metadata": {}})
-
-    if scope in ["persistent", "all"]:
-        # Search all persistent memories
-        persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
-        all_memories.extend(persistent_mems)
+    # Search all persistent memories
+    persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
+    all_memories.extend(persistent_mems)
 
     # Filter by time and event type
     filtered_results = []
@@ -190,7 +181,6 @@ async def memory_fuzzy_recall(
     agent_name: str,
     key_pattern: str,
     similarity_threshold: str | float = 0.6,
-    scope: str = "persistent",
     k: str | int = 10,
 ) -> str:
     """Recall memories using fuzzy key matching.
@@ -203,7 +193,6 @@ async def memory_fuzzy_recall(
         agent_name: Agent identifier
         key_pattern: Partial key or pattern to search for
         similarity_threshold: Minimum similarity score (0.0-1.0, default: 0.6)
-        scope: Memory scope ("working", "persistent", or "all")
         k: Maximum number of results (default: 10)
 
     Returns:
@@ -229,6 +218,7 @@ async def memory_fuzzy_recall(
         - Uses Ratcliff-Obershelp algorithm for similarity
         - Case-insensitive matching
         - Returns results sorted by similarity score
+        - All memory is now persistent (stored to disk)
     """
     # Convert parameters using common helpers
     similarity_threshold_f = to_float_clamped(
@@ -242,23 +232,15 @@ async def memory_fuzzy_recall(
 
     memory = get_memory_manager(user_id, agent_name, enable_rag=False)
 
-    # Collect all keys
+    # Collect all keys from persistent storage
     all_memories = []
-    if scope in ["working", "all"]:
-        # Get all working memory keys
-        for key in memory.working.keys():
-            if not key.startswith("_meta_"):
-                value = memory.working.get(key)
-                all_memories.append({"key": key, "value": str(value), "metadata": {}})
-
-    if scope in ["persistent", "all"]:
-        # Search all persistent memories
-        persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
-        all_memories.extend(persistent_mems)
+    # Search all persistent memories
+    persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
+    all_memories.extend(persistent_mems)
 
     if not all_memories:
         return json.dumps(
-            {"found": 0, "results": [], "message": "No memories in specified scope"}
+            {"found": 0, "results": [], "message": "No memories in persistent storage"}
         )
 
     # Calculate similarity scores

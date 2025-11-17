@@ -32,9 +32,7 @@ def _datetime_handler(obj: Any) -> str:
 
 
 @tool
-async def memory_list(
-    user_id: str, agent_name: str, scope: str = "persistent", limit: int = 10
-) -> str:
+async def memory_list(user_id: str, agent_name: str, limit: int = 10) -> str:
     """List all stored memories for debugging and exploration
 
     List all memories stored for the specified user and agent. Use this tool when:
@@ -51,20 +49,21 @@ async def memory_list(
 
     Examples:
         # List global memories for user
-        user_id="user_jfk", agent_name="global", scope="persistent"
+        user_id="user_jfk", agent_name="global"
 
-        # List thread-specific working memory
-        user_id="user_jfk", agent_name="thread_chat_123", scope="working"
+        # List thread-specific memory
+        user_id="user_jfk", agent_name="thread_chat_123"
 
     Args:
         user_id: User identifier (memory owner)
         agent_name: Agent identifier
-        scope: Memory scope (working/persistent)
         limit: Maximum number of entries to return
             (default: 10, reduced from 50 for token efficiency)
 
     Returns:
         JSON list of stored memories with keys, values, and metadata
+
+    💡 Note: All memory is now persistent (stored to disk).
     """
     # Convert limit to int using common helper
     limit = to_int(limit, default=50, min_val=1, max_val=1000, param_name="limit")
@@ -88,44 +87,24 @@ async def memory_list(
     try:
         results = []
 
-        if scope == "persistent":
-            # Get all persistent memories for this user and agent
-            memories = memory.persistent.search("%", user_id, agent_name, limit=limit)
-            for mem in memories:
-                results.append(
-                    {
-                        "key": mem["key"],
-                        "value": mem["value"],
-                        "scope": "persistent",
-                        "created_at": mem.get("created_at"),
-                        "updated_at": mem.get("updated_at"),
-                        "metadata": mem.get("metadata"),
-                    }
-                )
-        else:  # working
-            # Get all working memory keys (exclude internal _meta_ keys)
-            for key in memory.working.keys():
-                # Skip internal metadata keys
-                if key.startswith("_meta_"):
-                    continue
-
-                value = memory.working.get(key)
-                results.append(
-                    {
-                        "key": key,
-                        "value": str(value),
-                        "scope": "working",
-                        "metadata": None,
-                    }
-                )
-
-            # Limit results
-            results = results[:limit]
+        # Get all persistent memories for this user and agent
+        memories = memory.persistent.search("%", user_id, agent_name, limit=limit)
+        for mem in memories:
+            results.append(
+                {
+                    "key": mem["key"],
+                    "value": mem["value"],
+                    "scope": "persistent",
+                    "created_at": mem.get("created_at"),
+                    "updated_at": mem.get("updated_at"),
+                    "metadata": mem.get("metadata"),
+                }
+            )
 
         return json.dumps(
             {
                 "agent_name": agent_name,
-                "scope": scope,
+                "scope": "persistent",
                 "count": len(results),
                 "memories": results,
             },
@@ -144,7 +123,6 @@ async def memory_feedback(
     key: str,
     label: str,
     weight: float = 1.0,
-    scope: str = "persistent",
 ) -> str:
     """Provide feedback on memory usefulness
 
@@ -178,7 +156,6 @@ async def memory_feedback(
         key: Memory key to provide feedback on
         label: Feedback type ("useful", "irrelevant", "outdated")
         weight: Feedback strength (0.0-1.0, default 1.0)
-        scope: Memory scope (working/persistent)
 
     Returns:
         Confirmation message with updated importance score
@@ -188,6 +165,7 @@ async def memory_feedback(
         - Useful memories: importance increases
         - Irrelevant/outdated: importance decreases
         - Future: Will influence recall ranking
+        - All memory is now persistent (stored to disk)
     """
     # Validate inputs
     if label not in ("useful", "irrelevant", "outdated"):
@@ -214,101 +192,68 @@ async def memory_feedback(
             )
         memory = _memory_cache[cache_key]
 
-    # Get current memory
-    if scope == "persistent":
-        value = memory.recall(key)
-        if value is None:
-            return json.dumps({"error": f"Memory '{key}' not found in {scope} memory"})
+    # Get current memory from persistent storage
+    value = memory.recall(key)
+    if value is None:
+        return json.dumps({"error": f"Memory '{key}' not found in persistent memory"})
 
-        # Get metadata from persistent storage
-        mem_list = memory.search_memory(f"%{key}%", limit=1)
-        if not mem_list:
-            return json.dumps({"error": f"Metadata for '{key}' not found"})
+    # Get metadata from persistent storage
+    mem_list = memory.search_memory(f"%{key}%", limit=1)
+    if not mem_list:
+        return json.dumps({"error": f"Metadata for '{key}' not found"})
 
-        mem_data = mem_list[0]
-        metadata_dict = mem_data.get("metadata", {})
+    mem_data = mem_list[0]
+    metadata_dict = mem_data.get("metadata", {})
 
-        # Decode metadata if JSON strings
-        import json as json_lib
+    # Decode metadata if JSON strings
+    import json as json_lib
 
-        if isinstance(metadata_dict.get("tags"), str):
-            try:
-                metadata_dict["tags"] = json_lib.loads(metadata_dict["tags"])
-            except json_lib.JSONDecodeError:
-                pass
-        if isinstance(metadata_dict.get("importance"), str):
-            try:
-                metadata_dict["importance"] = float(metadata_dict["importance"])
-            except (ValueError, TypeError):
-                metadata_dict["importance"] = 0.5
+    if isinstance(metadata_dict.get("tags"), str):
+        try:
+            metadata_dict["tags"] = json_lib.loads(metadata_dict["tags"])
+        except json_lib.JSONDecodeError:
+            pass
+    if isinstance(metadata_dict.get("importance"), str):
+        try:
+            metadata_dict["importance"] = float(metadata_dict["importance"])
+        except (ValueError, TypeError):
+            metadata_dict["importance"] = 0.5
 
-        current_importance = metadata_dict.get("importance", 0.5)
+    current_importance = metadata_dict.get("importance", 0.5)
 
-        # Update importance based on feedback
-        if label == "useful":
-            new_importance = min(1.0, current_importance + weight * 0.1)
-        else:  # irrelevant or outdated
-            new_importance = max(0.0, current_importance - weight * 0.1)
+    # Update importance based on feedback
+    if label == "useful":
+        new_importance = min(1.0, current_importance + weight * 0.1)
+    else:  # irrelevant or outdated
+        new_importance = max(0.0, current_importance - weight * 0.1)
 
-        metadata_dict["importance"] = new_importance
+    metadata_dict["importance"] = new_importance
 
-        # Convert back to ChromaDB-compatible format
-        chromadb_metadata = {}
-        for k, v in metadata_dict.items():
-            if isinstance(v, list):
-                chromadb_metadata[k] = json_lib.dumps(v)
-            elif isinstance(v, dict):
-                chromadb_metadata[k] = json_lib.dumps(v)
-            else:
-                chromadb_metadata[k] = v
-
-        # Update memory (delete and recreate)
-        memory.forget(key)
-        memory.remember(key, value, chromadb_metadata)
-
-        return json.dumps(
-            {
-                "status": "success",
-                "key": key,
-                "label": label,
-                "weight": weight,
-                "importance": {
-                    "previous": current_importance,
-                    "current": new_importance,
-                    "delta": new_importance - current_importance,
-                },
-            },
-            indent=2,
-        )
-    else:
-        # Working memory feedback - update metadata
-        value = memory.get_temp(key)
-        if value is None:
-            return json.dumps({"error": f"Memory '{key}' not found in {scope} memory"})
-
-        metadata_dict = memory.get_temp(f"_meta_{key}", {})
-        current_importance = metadata_dict.get("importance", 0.5)
-
-        # Update importance
-        if label == "useful":
-            new_importance = min(1.0, current_importance + weight * 0.1)
+    # Convert back to ChromaDB-compatible format
+    chromadb_metadata = {}
+    for k, v in metadata_dict.items():
+        if isinstance(v, list):
+            chromadb_metadata[k] = json_lib.dumps(v)
+        elif isinstance(v, dict):
+            chromadb_metadata[k] = json_lib.dumps(v)
         else:
-            new_importance = max(0.0, current_importance - weight * 0.1)
+            chromadb_metadata[k] = v
 
-        metadata_dict["importance"] = new_importance
-        memory.set_temp(f"_meta_{key}", metadata_dict)
+    # Update memory (delete and recreate)
+    memory.forget(key)
+    memory.remember(key, value, chromadb_metadata)
 
-        return json.dumps(
-            {
-                "status": "success",
-                "key": key,
-                "label": label,
-                "weight": weight,
-                "importance": {
-                    "previous": current_importance,
-                    "current": new_importance,
-                    "delta": new_importance - current_importance,
-                },
+    return json.dumps(
+        {
+            "status": "success",
+            "key": key,
+            "label": label,
+            "weight": weight,
+            "importance": {
+                "previous": current_importance,
+                "current": new_importance,
+                "delta": new_importance - current_importance,
             },
-            indent=2,
-        )
+        },
+        indent=2,
+    )

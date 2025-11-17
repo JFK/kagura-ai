@@ -202,12 +202,15 @@ which kagura
 
 ### Memory not persisting across conversations
 
-**Cause**: Using `scope="working"` (default)
+**Cause**: Memory may not be saved correctly
 
-**Solution**: Explicitly use `scope="persistent"`
+**Solution**: Use clear save instructions
 
-Or tell Claude:
-> "Remember this **permanently**: I prefer Python"
+Tell Claude:
+> "Store in memory: I prefer Python"
+> "Remember: I prefer Python"
+
+**Note**: As of v4.4.0, all memory is persistent by default
 
 ---
 

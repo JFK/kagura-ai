@@ -19,7 +19,6 @@ async def memory_search(
     agent_name: str,
     query: str,
     k: int = 3,
-    scope: str = "all",
     mode: str = "full",
 ) -> str:
     """Search memories by concept/keyword match.
@@ -31,13 +30,13 @@ async def memory_search(
         user_id: Memory owner ID
         agent_name: "global" or "thread_{id}"
         query: Search query (natural language)
-        k: Results per scope (default: 3)
-        scope: "all"|"working"|"persistent" (default: "all")
+        k: Results to return (default: 3)
         mode: "summary" (compact) or "full" (JSON, default)
 
     Returns: Search results (RAG + key-value)
 
     💡 TIP: Searches by meaning, not exact words.
+    💡 Note: All memory is now persistent (stored to disk).
     🌐 Cross-platform: Searches user's data across all AI tools.
     """
     # Convert k to int using common helper
@@ -58,35 +57,15 @@ async def memory_search(
         memory = _memory_cache[cache_key]
 
     try:
-        # Get RAG results (semantic search) across specified scope
+        # Get RAG results (semantic search) from persistent memory
         rag_results = []
-        if memory.rag or memory.persistent_rag:
-            rag_results = memory.recall_semantic(query, top_k=k, scope=scope)
+        if memory.persistent_rag:
+            rag_results = memory.recall_semantic(query, top_k=k, scope="persistent")
             # Add source indicator to RAG results
             for result in rag_results:
                 result["source"] = "rag"
 
-        # Search working memory for matching keys (only if scope includes working)
-        working_results = []
-        if scope in ("all", "working"):
-            query_lower = query.lower()
-            for key in memory.working.keys():
-                # Match if query is in key name
-                if query_lower in key.lower():
-                    value = memory.get_temp(key)
-                    working_results.append(
-                        {
-                            "content": f"{key}: {value}",
-                            "source": "working_memory",
-                            "scope": "working",
-                            "key": key,
-                            "value": str(value),
-                            "match_type": "key_match",
-                        }
-                    )
-
-        # Combine results (working memory first for exact matches, then RAG)
-        combined_results = working_results + rag_results
+        combined_results = rag_results
 
         # Format output based on mode
         if mode == "summary":
@@ -130,7 +109,6 @@ async def memory_search_ids(
     agent_name: str,
     query: str,
     k: int = 10,
-    scope: str = "all",
 ) -> str:
     """Search memory and return IDs with previews only (low-token)
 
@@ -150,7 +128,6 @@ async def memory_search_ids(
         agent_name: Agent identifier
         query: Search query
         k: Number of results to return (default: 10)
-        scope: Memory scope to search ("working", "persistent", or "all")
 
     Returns:
         JSON array of result objects with id, key, preview (50 chars), and score
@@ -162,6 +139,7 @@ async def memory_search_ids(
     Note:
         Use memory_fetch(key="project_plan") to get full content.
         The "id" field is for display only; use "key" for fetching.
+        All memory is now persistent (stored to disk).
     """
     # Convert k to int using common helper
     k = to_int(k, default=10, min_val=1, max_val=100, param_name="k")
@@ -179,30 +157,13 @@ async def memory_search_ids(
         memory = _memory_cache[cache_key]
 
     try:
-        # Get search results
+        # Get search results from persistent memory
         rag_results = []
-        if memory.rag or memory.persistent_rag:
-            rag_results = memory.recall_semantic(query, top_k=k, scope=scope)
+        if memory.persistent_rag:
+            rag_results = memory.recall_semantic(query, top_k=k, scope="persistent")
 
-        working_results = []
-        if scope in ("all", "working"):
-            query_lower = query.lower()
-            for key in memory.working.keys():
-                if key.startswith("_meta_"):
-                    continue
-                if query_lower in key.lower():
-                    value = memory.get_temp(key)
-                    working_results.append(
-                        {
-                            "key": key,
-                            "value": str(value),
-                            "scope": "working",
-                            "source": "working_memory",
-                        }
-                    )
-
-        # Combine results
-        combined = working_results + rag_results
+        # Use RAG results directly
+        combined = rag_results
 
         # Format as compact ID-based results
         compact_results = []
@@ -239,7 +200,6 @@ async def memory_fetch(
     user_id: str,
     agent_name: str,
     key: str,
-    scope: str = "persistent",
 ) -> str:
     """Fetch full content of a specific memory by key
 
@@ -253,7 +213,6 @@ async def memory_fetch(
         user_id: User identifier (memory owner)
         agent_name: Agent identifier
         key: Memory key to fetch (from search_ids results)
-        scope: Memory scope ("working" or "persistent")
 
     Returns:
         Full memory value as string, or error message if not found
@@ -261,6 +220,7 @@ async def memory_fetch(
     Note:
         This is essentially an alias for memory_recall() but with clearer
         purpose in the two-step search workflow.
+        All memory is now persistent (stored to disk).
     """
     # Delegate to memory_recall
-    return await memory_recall(user_id, agent_name, key, scope)
+    return await memory_recall(user_id, agent_name, key)

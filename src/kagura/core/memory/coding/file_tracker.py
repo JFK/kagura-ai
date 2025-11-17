@@ -74,14 +74,14 @@ async def track_file_change(
     )
 
     # Add to RAG if available for semantic search
-    if self.persistent_rag:
+    if self.rag:
         content_text = (
             f"File: {file_path}\n"
             f"Action: {action}\n"
             f"Reason: {reason}\n"
             f"Diff: {diff[:500]}"
         )
-        self.persistent_rag.store(
+        self.rag.store(
             content=content_text,
             user_id=self.user_id,
             metadata={

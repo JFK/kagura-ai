@@ -106,14 +106,14 @@ async def record_error(
     )
 
     # Add to RAG for semantic search
-    if self.persistent_rag:
+    if self.rag:
         content_text = (
             f"Error: {error_type}\n"
             f"Message: {message}\n"
             f"File: {file_path}:{line_number}\n"
             f"Solution: {solution or 'Not yet resolved'}"
         )
-        self.persistent_rag.store(
+        self.rag.store(
             content=content_text,
             user_id=self.user_id,
             metadata={
@@ -207,11 +207,11 @@ async def search_similar_errors(
         >>> for error in similar:
         ...     print(f"{error.error_type}: {error.solution}")
     """
-    if not self.persistent_rag:
+    if not self.rag:
         logger.warning("RAG not available, returning empty results")
         return []
 
-    results = self.persistent_rag.recall(
+    results = self.rag.recall(
         query=query,
         user_id=self.user_id,
         top_k=k * 2,  # Get more candidates for filtering

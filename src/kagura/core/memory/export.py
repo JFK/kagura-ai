@@ -27,7 +27,6 @@ class MemoryExporter:
     async def export_all(
         self,
         output_dir: str | Path,
-        include_working: bool = True,
         include_persistent: bool = True,
         include_graph: bool = True,
     ) -> dict[str, int]:
@@ -35,7 +34,6 @@ class MemoryExporter:
 
         Args:
             output_dir: Output directory path
-            include_working: Export working memory
             include_persistent: Export persistent memory
             include_graph: Export graph data
 
@@ -61,13 +59,9 @@ class MemoryExporter:
         }
 
         # Export memories
-        if include_working or include_persistent:
+        if include_persistent:
             memories_file = output_path / "memories.jsonl"
-            count = await self._export_memories(
-                memories_file,
-                include_working=include_working,
-                include_persistent=include_persistent,
-            )
+            count = await self._export_memories(memories_file)
             stats["memories"] = count
 
         # Export graph
@@ -86,15 +80,11 @@ class MemoryExporter:
     async def _export_memories(
         self,
         output_file: Path,
-        include_working: bool = True,
-        include_persistent: bool = True,
     ) -> int:
         """Export memories to JSONL.
 
         Args:
             output_file: Output JSONL file path
-            include_working: Include working memory
-            include_persistent: Include persistent memory
 
         Returns:
             Number of memories exported
@@ -102,25 +92,8 @@ class MemoryExporter:
         count = 0
 
         with open(output_file, "w") as f:
-            # Export working memory
-            if include_working:
-                working_keys = self.manager.working.keys()
-                for key in working_keys:
-                    value = self.manager.working.get(key)
-                    memory_record = {
-                        "type": "memory",
-                        "scope": "working",
-                        "key": key,
-                        "value": value,
-                        "user_id": self.manager.user_id,
-                        "agent_name": self.manager.agent_name,
-                        "exported_at": datetime.now().isoformat(),
-                    }
-                    f.write(json.dumps(memory_record) + "\n")
-                    count += 1
-
             # Export persistent memory
-            if include_persistent and self.manager.persistent:
+            if self.manager.persistent:
                 # Query SQLite database
                 db_path = self.manager.persistent.db_path
 
@@ -279,8 +252,8 @@ class MemoryImporter:
 
         # Clear existing data if requested
         if clear_existing:
-            self.manager.working.clear()
             # TODO: Clear persistent memory (need clear method)
+            pass
 
         # Import memories
         memories_file = input_path / "memories.jsonl"
@@ -326,9 +299,7 @@ class MemoryImporter:
                 metadata = record.get("metadata")
 
                 # Import to appropriate scope
-                if scope == "working":
-                    self.manager.working.set(key, value)
-                elif scope == "persistent" and self.manager.persistent:
+                if scope == "persistent" and self.manager.persistent:
                     self.manager.persistent.store(
                         key=key,
                         value=value,
