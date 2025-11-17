@@ -79,13 +79,13 @@ class MemoryDatabaseQuery:
             # PostgreSQL backend
             try:
                 from kagura.auth.models import get_session
+                from sqlalchemy import text
 
                 session = get_session()
                 try:
                     if user_id is None:
-                        result = session.execute("SELECT COUNT(*) FROM memories").fetchone()
+                        result = session.execute(text("SELECT COUNT(*) FROM memories")).fetchone()
                     else:
-                        from sqlalchemy import text
                         result = session.execute(
                             text("SELECT COUNT(*) FROM memories WHERE user_id = :user_id"),
                             {"user_id": user_id}
@@ -93,7 +93,9 @@ class MemoryDatabaseQuery:
                     return result[0] if result else 0
                 finally:
                     session.close()
-            except Exception:
+            except Exception as e:
+                import logging
+                logging.error(f"PostgreSQL count_memories failed: {e}")
                 return 0
         else:
             # SQLite backend
