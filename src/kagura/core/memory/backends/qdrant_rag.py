@@ -245,14 +245,14 @@ class QdrantRAG:
         self,
         query: str,
         k: int = 5,
-        filter: Optional[dict[str, Any]] = None,
+        filter: Optional[dict[str, Any] | Any] = None,
     ) -> list[dict[str, Any]]:
         """Search for similar documents.
 
         Args:
             query: Search query text
             k: Number of results to return
-            filter: Optional metadata filter
+            filter: Optional metadata filter (dict or qdrant_client.models.Filter)
 
         Returns:
             List of dicts with 'text', 'score', 'metadata'
@@ -329,13 +329,19 @@ class QdrantRAG:
             >>> results = rag.recall("Python programming", user_id="jfk", top_k=5)
             >>> print(results[0]["content"])
         """
-        # Build metadata filter
-        filter_dict: dict[str, Any] = {"user_id": user_id}
-        if agent_name:
-            filter_dict["agent_name"] = agent_name
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
 
-        # Use existing search() method
-        search_results = self.search(query, k=top_k, filter=filter_dict)
+        # Build Qdrant Filter object (proper structure)
+        conditions: list[Any] = [FieldCondition(key="user_id", match=MatchValue(value=user_id))]
+        if agent_name:
+            conditions.append(
+                FieldCondition(key="agent_name", match=MatchValue(value=agent_name))
+            )
+
+        qdrant_filter: Any = Filter(must=conditions)
+
+        # Use existing search() method with proper Filter
+        search_results = self.search(query, k=top_k, filter=qdrant_filter)
 
         # Convert to MemoryRAG-compatible format
         memories = []
