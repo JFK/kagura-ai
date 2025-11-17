@@ -369,18 +369,61 @@ def _check_remote_mcp() -> SystemCheck:
         )
 
 
+def _check_graph_db(memory: MemoryManagerDep) -> SystemCheck:
+    """Check GraphDB status and statistics (Issue #707).
+
+    Checks if GraphDB is enabled and returns basic statistics including
+    node/edge counts and backend type.
+
+    Args:
+        memory: MemoryManager instance (injected dependency)
+
+    Returns:
+        SystemCheck with GraphDB status and stats
+    """
+    if not memory.graph:
+        # GraphDB not enabled (NetworkX not installed or disabled)
+        return SystemCheck(
+            status="info",
+            message="GraphDB not enabled (NetworkX not installed or enable_graph=False)"
+        )
+
+    try:
+        # Get graph statistics
+        stats = memory.graph.stats()
+        total_nodes = stats.get("total_nodes", 0)
+        total_edges = stats.get("total_edges", 0)
+
+        # Determine backend type
+        backend_class = memory.graph.backend.__class__.__name__ if memory.graph.backend else "Unknown"
+        backend_type = "PostgreSQL" if "Postgres" in backend_class else "JSON"
+
+        # Build status message
+        message = f"Connected ({total_nodes} nodes, {total_edges} edges, Backend: {backend_type})"
+
+        return SystemCheck(status="ok", message=message)
+    except Exception as e:
+        # Unexpected error getting stats
+        logger.warning(f"GraphDB stats check failed: {e}")
+        return SystemCheck(
+            status="warning",
+            message=f"Stats unavailable: {str(e)[:40]}"
+        )
+
+
 @router.get("/system/doctor", response_model=SystemDoctorResponse)
-async def get_system_doctor() -> SystemDoctorResponse:
+async def get_system_doctor(memory: MemoryManagerDep) -> SystemDoctorResponse:
     """Get system health check information.
 
     Returns comprehensive system diagnostics including:
     - Python version and disk space
-    - Backend services (PostgreSQL, Redis, Qdrant)
+    - Backend services (PostgreSQL, Redis, Qdrant, GraphDB)
     - Optional dependencies (ChromaDB, sentence-transformers)
     - API configuration and connectivity
     - Remote MCP server status
 
     Issue #668: Enhanced with backend health checks
+    Issue #707: Added GraphDB statistics
 
     Returns:
         System health check results with recommendations
@@ -393,6 +436,7 @@ async def get_system_doctor() -> SystemDoctorResponse:
             "postgres": {"status": "ok", "message": "Connected (PostgreSQL 14.x)"},
             "redis": {"status": "ok", "message": "Connected (1,234 ops processed)"},
             "qdrant": {"status": "ok", "message": "Connected (5 collections)"},
+            "graph_db": {"status": "ok", "message": "Connected (50 nodes, 120 edges, Backend: JSON)"},
             "dependencies": [...],
             "api_configuration": [...],
             "remote_mcp": {"status": "info", "message": "Not enabled"},
@@ -405,11 +449,12 @@ async def get_system_doctor() -> SystemDoctorResponse:
     dependencies = _check_dependencies()
     api_configuration = await _check_api_configuration()
 
-    # Backend services (Issue #668)
+    # Backend services (Issue #668, #707)
     postgres = _check_postgres()
     redis = _check_redis()
     qdrant = _check_qdrant()
     remote_mcp = _check_remote_mcp()
+    graph_db = _check_graph_db(memory)
 
     # Determine overall status
     overall_status = "ok"
@@ -452,6 +497,7 @@ async def get_system_doctor() -> SystemDoctorResponse:
         postgres=postgres,
         redis=redis,
         qdrant=qdrant,
+        graph_db=graph_db,
         api_configuration=api_configuration,
         remote_mcp=remote_mcp,
         overall_status=overall_status,

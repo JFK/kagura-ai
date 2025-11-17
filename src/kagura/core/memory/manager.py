@@ -473,6 +473,38 @@ class MemoryManager:
             )
             self.lexical_searcher.add_document(document)
 
+        # Add to graph memory for relationship tracking (Issue #707)
+        if self.graph:
+            node_id = f"memory_{key}"
+            node_data = {
+                "key": key,
+                "user_id": self.user_id,
+                "agent_name": self.agent_name,
+                "created_at": datetime.now().isoformat(),
+            }
+
+            # Add memory node
+            self.graph.add_node(node_id, "memory", node_data)
+
+            # Create user node if it doesn't exist
+            user_node_id = f"user_{self.user_id}"
+            if not self.graph.graph.has_node(user_node_id):
+                self.graph.add_node(user_node_id, "user", {"user_id": self.user_id})
+
+            # Link memory to user
+            self.graph.add_edge(node_id, user_node_id, "learned_from", weight=1.0)
+
+            # Add topic nodes from tags
+            if metadata and "tags" in metadata:
+                for tag in metadata["tags"]:
+                    topic_id = f"topic_{tag}"
+                    if not self.graph.graph.has_node(topic_id):
+                        self.graph.add_node(topic_id, "topic", {"name": tag})
+                    self.graph.add_edge(node_id, topic_id, "related_to", weight=1.0)
+
+            # Persist to PostgreSQL/JSON backend
+            self.graph.persist()
+
     def recall(
         self,
         key: str,
@@ -537,6 +569,13 @@ class MemoryManager:
         # Delete from lexical search index
         if self.lexical_searcher:
             self.lexical_searcher.remove_document(key)
+
+        # Delete from graph memory (Issue #707)
+        if self.graph:
+            node_id = f"memory_{key}"
+            if self.graph.graph.has_node(node_id):
+                self.graph.graph.remove_node(node_id)
+                self.graph.persist()
 
     def prune_old(self, older_than_days: int = 90) -> int:
         """Remove old memories.
