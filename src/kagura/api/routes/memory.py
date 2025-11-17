@@ -61,12 +61,13 @@ def _check_memory_system() -> tuple[MemoryStats, list[str]]:
     if using_postgres:
         # PostgreSQL: Check database connection and size
         database_exists = True  # Assume exists if using PostgreSQL
-        database_size_mb = None  # TODO: Query PostgreSQL for database size
         try:
-            # Verify connection by counting memories
+            # Query database size and verify connection
+            database_size_mb = MemoryDatabaseQuery.get_db_size_mb()
             _ = MemoryDatabaseQuery.count_memories()
-        except Exception:
+        except Exception as e:
             database_exists = False
+            database_size_mb = None
             recommendations.append(
                 "PostgreSQL database connection failed. Check DATABASE_URL."
             )

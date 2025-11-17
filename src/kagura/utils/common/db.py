@@ -1,14 +1,27 @@
 """Database query helpers for consistent memory database access.
 
-Shared database utilities for querying the Kagura AI memory database (SQLite).
+Shared database utilities for querying the Kagura AI memory database (SQLite/PostgreSQL).
 These helpers eliminate duplicate SQL queries across CLI, API, and MCP layers.
 """
 
+import os
 import sqlite3
 from pathlib import Path
 from typing import Any
 
 from kagura.config.paths import get_data_dir
+
+
+def is_using_postgresql() -> bool:
+    """Check if using PostgreSQL backend.
+
+    Returns:
+        True if PostgreSQL is configured, False for SQLite
+    """
+    return (
+        os.getenv("PERSISTENT_BACKEND") == "postgres"
+        or os.getenv("DATABASE_URL", "").startswith("postgresql")
+    )
 
 
 def get_db_path() -> Path:
@@ -47,13 +60,13 @@ class MemoryDatabaseQuery:
 
     @staticmethod
     def count_memories(user_id: str | None = None) -> int:
-        """Count memories in the database.
+        """Count memories in the database (SQLite or PostgreSQL).
 
         Args:
             user_id: Optional user ID filter. If None, counts all memories.
 
         Returns:
-            Number of memories (0 if database doesn't exist)
+            Number of memories (0 if database doesn't exist or on error)
 
         Examples:
             >>> MemoryDatabaseQuery.count_memories()
@@ -62,22 +75,44 @@ class MemoryDatabaseQuery:
             >>> MemoryDatabaseQuery.count_memories(user_id="alice")
             42
         """
-        if not db_exists():
-            return 0
+        if is_using_postgresql():
+            # PostgreSQL backend
+            try:
+                from kagura.auth.models import get_session
 
-        db_path = get_db_path()
-        try:
-            with sqlite3.connect(db_path) as conn:
-                if user_id is None:
-                    cursor = conn.execute("SELECT COUNT(*) FROM memories")
-                else:
-                    cursor = conn.execute(
-                        "SELECT COUNT(*) FROM memories WHERE user_id = ?", (user_id,)
-                    )
-                result = cursor.fetchone()
-                return result[0] if result else 0
-        except (sqlite3.Error, Exception):
-            return 0
+                session = get_session()
+                try:
+                    if user_id is None:
+                        result = session.execute("SELECT COUNT(*) FROM memories").fetchone()
+                    else:
+                        from sqlalchemy import text
+                        result = session.execute(
+                            text("SELECT COUNT(*) FROM memories WHERE user_id = :user_id"),
+                            {"user_id": user_id}
+                        ).fetchone()
+                    return result[0] if result else 0
+                finally:
+                    session.close()
+            except Exception:
+                return 0
+        else:
+            # SQLite backend
+            if not db_exists():
+                return 0
+
+            db_path = get_db_path()
+            try:
+                with sqlite3.connect(db_path) as conn:
+                    if user_id is None:
+                        cursor = conn.execute("SELECT COUNT(*) FROM memories")
+                    else:
+                        cursor = conn.execute(
+                            "SELECT COUNT(*) FROM memories WHERE user_id = ?", (user_id,)
+                        )
+                    result = cursor.fetchone()
+                    return result[0] if result else 0
+            except (sqlite3.Error, Exception):
+                return 0
 
     @staticmethod
     def list_users() -> list[str]:
@@ -132,24 +167,43 @@ class MemoryDatabaseQuery:
 
     @staticmethod
     def get_db_size_mb() -> float:
-        """Get database file size in megabytes.
+        """Get database size in megabytes (SQLite or PostgreSQL).
 
         Returns:
-            Database size in MB (0.0 if database doesn't exist)
+            Database size in MB (0.0 if database doesn't exist or on error)
 
         Examples:
             >>> MemoryDatabaseQuery.get_db_size_mb()
             12.5
         """
-        if not db_exists():
-            return 0.0
+        if is_using_postgresql():
+            # PostgreSQL: Query database size
+            try:
+                from kagura.auth.models import get_session
+                from sqlalchemy import text
 
-        db_path = get_db_path()
-        try:
-            size_bytes = db_path.stat().st_size
-            return size_bytes / (1024 * 1024)  # Convert to MB
-        except (OSError, Exception):
-            return 0.0
+                session = get_session()
+                try:
+                    # Query database size from PostgreSQL system catalogs
+                    result = session.execute(
+                        text("SELECT pg_database_size(current_database()) / (1024.0 * 1024.0)")
+                    ).fetchone()
+                    return float(result[0]) if result else 0.0
+                finally:
+                    session.close()
+            except Exception:
+                return 0.0
+        else:
+            # SQLite: Check file size
+            if not db_exists():
+                return 0.0
+
+            db_path = get_db_path()
+            try:
+                size_bytes = db_path.stat().st_size
+                return size_bytes / (1024 * 1024)  # Convert to MB
+            except (OSError, Exception):
+                return 0.0
 
     @staticmethod
     def list_projects(user_id: str) -> list[dict[str, Any]]:
