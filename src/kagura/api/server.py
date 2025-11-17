@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 # Issue #655: API Keys management
 # Issue #674: OAuth2 Server for ChatGPT integration
 try:
-    from kagura.api.routes import api_keys, audit, auth, config, oauth
+    from kagura.api.routes import api_keys, audit, auth, config, external_keys, oauth
     from kagura.api.middleware.session import SessionMiddleware
     from kagura.auth.session import SessionManager
     from kagura.auth.roles import initialize_role_manager
@@ -134,6 +134,7 @@ if AUTH_AVAILABLE:
     app.include_router(config.router, prefix="/api/v1", tags=["configuration"])
     app.include_router(audit.router, prefix="/api/v1", tags=["audit"])
     app.include_router(api_keys.router, prefix="/api/v1", tags=["api-keys"])
+    app.include_router(external_keys.router, prefix="/api/v1", tags=["external-api-keys"])
 
 # MCP over HTTP/SSE (Phase C - ChatGPT Connector)
 # Use Starlette Mount to avoid trailing slash redirect (Issue #668)

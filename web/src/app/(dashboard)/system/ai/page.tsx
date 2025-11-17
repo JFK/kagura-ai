@@ -1,10 +1,10 @@
 'use client';
 
 /**
- * Configuration Settings Page
+ * AI Configuration Settings Page
  *
- * External service configuration, API keys, and backend settings
- * Issue #672: UI Polish & Design Enhancement - Phase 2
+ * External API Keys, Embedding Model Configuration, and Model Settings
+ * Issues #690, #692: Provider selection and model configuration
  */
 
 import { useState, useEffect } from 'react';
@@ -13,6 +13,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import {
   Settings,
@@ -22,109 +38,300 @@ import {
   Trash2,
   Eye,
   EyeOff,
+  Upload,
+  ExternalLink,
+  AlertCircle,
+  Loader2,
+  Edit,
+  RefreshCw,
 } from 'lucide-react';
 
-interface ApiKey {
-  id: string;
-  name: string;
-  provider: string;
-  masked_key: string;
-  created_at: string;
-}
+// API clients
+import {
+  listExternalAPIKeys,
+  createExternalAPIKey,
+  updateExternalAPIKey,
+  deleteExternalAPIKey,
+  importExternalAPIKeys,
+  type ExternalAPIKey,
+} from '@/lib/external-keys';
+import { PROVIDERS, getProviderConfig, getProviderIds } from '@/lib/provider-config';
+import {
+  EMBEDDING_MODELS,
+  getEmbeddingModels,
+  getEmbeddingModel,
+  type EmbeddingModel,
+} from '@/lib/embedding-models';
+import { apiClient } from '@/lib/api';
 
-export default function ConfigPage() {
+export default function AIConfigPage() {
   const { toast } = useToast();
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showAddForm, setShowAddForm] = useState(false);
 
-  // Add API Key form state
-  const [newKeyName, setNewKeyName] = useState('');
-  const [newKeyProvider, setNewKeyProvider] = useState('');
-  const [newKeyValue, setNewKeyValue] = useState('');
-  const [showNewKey, setShowNewKey] = useState(false);
+  // External API Keys state
+  const [externalKeys, setExternalKeys] = useState<ExternalAPIKey[]>([]);
+  const [isLoadingKeys, setIsLoadingKeys] = useState(true);
+  const [showAddKeyDialog, setShowAddKeyDialog] = useState(false);
+  const [showEditKeyDialog, setShowEditKeyDialog] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
-  // Load API keys
+  // Add/Edit key form state
+  const [selectedProvider, setSelectedProvider] = useState('openai');
+  const [selectedKeyName, setSelectedKeyName] = useState('');
+  const [keyValue, setKeyValue] = useState('');
+  const [showKeyValue, setShowKeyValue] = useState(false);
+  const [editingKeyName, setEditingKeyName] = useState<string | null>(null);
+
+  // Embedding configuration state
+  const [embeddingProvider, setEmbeddingProvider] = useState<'openai' | 'local'>('openai');
+  const [embeddingModel, setEmbeddingModel] = useState('text-embedding-3-large');
+  const [currentEmbeddingProvider, setCurrentEmbeddingProvider] = useState<string>('');
+  const [currentEmbeddingModel, setCurrentEmbeddingModel] = useState<string>('');
+  const [isSavingEmbedding, setIsSavingEmbedding] = useState(false);
+
+  // Model configuration state
+  const [defaultModel, setDefaultModel] = useState('');
+  const [codingModel, setCodingModel] = useState('');
+
+  // Load external API keys
   useEffect(() => {
-    loadApiKeys();
+    loadExternalKeys();
   }, []);
 
-  const loadApiKeys = async () => {
+  // Load current configuration
+  useEffect(() => {
+    loadCurrentConfig();
+  }, []);
+
+  const loadExternalKeys = async () => {
     try {
-      // TODO: Replace with actual API call
-      // Mock data for now
-      setApiKeys([
-        {
-          id: '1',
-          name: 'OpenAI Production',
-          provider: 'OpenAI',
-          masked_key: 'sk-...abc123',
-          created_at: '2025-01-15',
-        },
-        {
-          id: '2',
-          name: 'Anthropic Claude',
-          provider: 'Anthropic',
-          masked_key: 'sk-ant-...xyz789',
-          created_at: '2025-01-20',
-        },
-      ]);
+      setIsLoadingKeys(true);
+      const keys = await listExternalAPIKeys();
+      setExternalKeys(keys);
     } catch (error) {
-      console.error('Failed to load API keys:', error);
+      console.error('Failed to load external API keys:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load external API keys',
+        variant: 'destructive',
+      });
     } finally {
-      setIsLoading(false);
+      setIsLoadingKeys(false);
     }
   };
 
-  const handleAddApiKey = () => {
-    if (!newKeyName || !newKeyProvider || !newKeyValue) {
+  const loadCurrentConfig = async () => {
+    try {
+      // Load embedding configuration
+      const embProviderRes = await apiClient.get<{ value: string }>('/config/EMBEDDING_PROVIDER');
+      const embModelRes = await apiClient.get<{ value: string }>('/config/EMBEDDING_MODEL');
+
+      setCurrentEmbeddingProvider(embProviderRes.value || 'openai');
+      setCurrentEmbeddingModel(embModelRes.value || 'text-embedding-3-large');
+
+      setEmbeddingProvider(embProviderRes.value === 'local' ? 'local' : 'openai');
+      setEmbeddingModel(embModelRes.value || 'text-embedding-3-large');
+
+      // Load default models
+      const defaultModelRes = await apiClient.get<{ value: string }>('/config/DEFAULT_MODEL');
+      const codingModelRes = await apiClient.get<{ value: string }>('/config/CODING_MODEL');
+
+      setDefaultModel(defaultModelRes.value || 'gpt-4-turbo');
+      setCodingModel(codingModelRes.value || 'claude-3-5-sonnet-20250128');
+    } catch (error) {
+      console.error('Failed to load configuration:', error);
+    }
+  };
+
+  const handleAddKey = async () => {
+    if (!selectedKeyName || !keyValue) {
       toast({
         title: 'Error',
-        description: 'Please fill in all fields',
+        description: 'Please select a key name and enter a value',
         variant: 'destructive',
       });
       return;
     }
 
-    // TODO: Implement API call to add key
-    const newKey: ApiKey = {
-      id: Date.now().toString(),
-      name: newKeyName,
-      provider: newKeyProvider,
-      masked_key: `${newKeyValue.slice(0, 6)}...${newKeyValue.slice(-6)}`,
-      created_at: new Date().toISOString().split('T')[0],
-    };
+    try {
+      await createExternalAPIKey({
+        key_name: selectedKeyName,
+        provider: selectedProvider,
+        value: keyValue,
+      });
 
-    setApiKeys([...apiKeys, newKey]);
-    setShowAddForm(false);
-    setNewKeyName('');
-    setNewKeyProvider('');
-    setNewKeyValue('');
-    setShowNewKey(false);
+      toast({
+        title: 'API Key added',
+        description: `${selectedKeyName} has been saved successfully`,
+      });
 
-    toast({
-      title: 'API Key added',
-      description: 'Your API key has been saved successfully.',
-    });
+      setShowAddKeyDialog(false);
+      setSelectedProvider('openai');
+      setSelectedKeyName('');
+      setKeyValue('');
+      setShowKeyValue(false);
+      loadExternalKeys();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to add API key',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleDeleteApiKey = (id: string) => {
-    // TODO: Implement API call to delete key
-    setApiKeys(apiKeys.filter((key) => key.id !== id));
+  const handleEditKey = async () => {
+    if (!editingKeyName || !keyValue) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a new value',
+        variant: 'destructive',
+      });
+      return;
+    }
 
-    toast({
-      title: 'API Key deleted',
-      description: 'The API key has been removed.',
-    });
+    try {
+      await updateExternalAPIKey(editingKeyName, keyValue);
+
+      toast({
+        title: 'API Key updated',
+        description: `${editingKeyName} has been updated successfully`,
+      });
+
+      setShowEditKeyDialog(false);
+      setEditingKeyName(null);
+      setKeyValue('');
+      setShowKeyValue(false);
+      loadExternalKeys();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update API key',
+        variant: 'destructive',
+      });
+    }
   };
+
+  const handleDeleteKey = async (keyName: string) => {
+    if (!confirm(`Are you sure you want to delete ${keyName}?`)) {
+      return;
+    }
+
+    try {
+      await deleteExternalAPIKey(keyName);
+
+      toast({
+        title: 'API Key deleted',
+        description: `${keyName} has been removed`,
+      });
+
+      loadExternalKeys();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete API key',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleImportKeys = async () => {
+    try {
+      setIsImporting(true);
+      const result = await importExternalAPIKeys();
+
+      const messages = [];
+      if (result.created.length > 0) {
+        messages.push(`Created: ${result.created.join(', ')}`);
+      }
+      if (result.skipped.length > 0) {
+        messages.push(`Skipped (already exist): ${result.skipped.join(', ')}`);
+      }
+      if (result.failed.length > 0) {
+        messages.push(`Failed: ${result.failed.map(([k, e]) => `${k} (${e})`).join(', ')}`);
+      }
+
+      toast({
+        title: 'Import completed',
+        description: messages.join('\n'),
+      });
+
+      loadExternalKeys();
+    } catch (error: any) {
+      toast({
+        title: 'Import failed',
+        description: error.message || 'Failed to import API keys',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleSaveEmbeddingConfig = async () => {
+    try {
+      setIsSavingEmbedding(true);
+
+      // Save embedding provider
+      await apiClient.put('/config/EMBEDDING_PROVIDER', {
+        value: embeddingProvider,
+      });
+
+      // Save embedding model
+      await apiClient.put('/config/EMBEDDING_MODEL', {
+        value: embeddingModel,
+      });
+
+      setCurrentEmbeddingProvider(embeddingProvider);
+      setCurrentEmbeddingModel(embeddingModel);
+
+      toast({
+        title: 'Configuration saved',
+        description: 'Embedding configuration has been updated. Restart the API server to apply changes.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save configuration',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSavingEmbedding(false);
+    }
+  };
+
+  const openAddKeyDialog = () => {
+    setSelectedProvider('openai');
+    setSelectedKeyName('');
+    setKeyValue('');
+    setShowKeyValue(false);
+    setShowAddKeyDialog(true);
+  };
+
+  const openEditKeyDialog = (key: ExternalAPIKey) => {
+    setEditingKeyName(key.key_name);
+    setKeyValue('');
+    setShowKeyValue(false);
+    setShowEditKeyDialog(true);
+  };
+
+  // Get available key names for selected provider
+  const availableKeyNames = getProviderConfig(selectedProvider)?.keyNames || [];
+
+  // Get available embedding models for selected provider
+  const availableEmbeddingModels = getEmbeddingModels(embeddingProvider);
+  const currentModelInfo = getEmbeddingModel(embeddingProvider, embeddingModel);
+
+  // Check if embedding config has changed
+  const embeddingConfigChanged =
+    embeddingProvider !== currentEmbeddingProvider || embeddingModel !== currentEmbeddingModel;
 
   return (
     <div className="space-y-6 max-w-5xl">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Configuration</h1>
+        <h1 className="text-3xl font-bold tracking-tight">AI Configuration</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-2">
-          Manage external service configurations, API keys, and backend settings.
+          Manage external API keys, embedding models, and AI model settings.
         </p>
       </div>
 
@@ -136,117 +343,199 @@ export default function ConfigPage() {
               <Key className="h-5 w-5" />
               External API Keys
             </div>
-            {!showAddForm && (
-              <Button size="sm" onClick={() => setShowAddForm(true)}>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleImportKeys}
+                disabled={isImporting}
+              >
+                {isImporting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4 mr-2" />
+                )}
+                Import from .env.cloud
+              </Button>
+              <Button size="sm" onClick={openAddKeyDialog}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Key
               </Button>
-            )}
+            </div>
           </CardTitle>
           <CardDescription>
-            Manage API keys for external AI providers (OpenAI, Anthropic, Brave, etc.)
+            Manage API keys for external AI providers (OpenAI, Anthropic, Google, Brave, etc.)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {showAddForm && (
-            <Card className="border-2 border-blue-200 dark:border-blue-800">
-              <CardHeader>
-                <CardTitle className="text-base">Add New API Key</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="key-name">Key Name</Label>
-                  <Input
-                    id="key-name"
-                    value={newKeyName}
-                    onChange={(e) => setNewKeyName(e.target.value)}
-                    placeholder="e.g., OpenAI Production"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="key-provider">Provider</Label>
-                  <Input
-                    id="key-provider"
-                    value={newKeyProvider}
-                    onChange={(e) => setNewKeyProvider(e.target.value)}
-                    placeholder="e.g., OpenAI, Anthropic, Brave"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="key-value">API Key</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="key-value"
-                      type={showNewKey ? 'text' : 'password'}
-                      value={newKeyValue}
-                      onChange={(e) => setNewKeyValue(e.target.value)}
-                      placeholder="Enter your API key"
-                      className="font-mono"
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setShowNewKey(!showNewKey)}
-                    >
-                      {showNewKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <Button onClick={handleAddApiKey}>Add API Key</Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setShowAddForm(false);
-                      setNewKeyName('');
-                      setNewKeyProvider('');
-                      setNewKeyValue('');
-                      setShowNewKey(false);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {isLoading ? (
-            <p className="text-sm text-slate-500">Loading API keys...</p>
-          ) : apiKeys.length === 0 ? (
-            <p className="text-sm text-slate-500">
-              No API keys configured. Add one to get started.
-            </p>
+          {isLoadingKeys ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+              <span className="ml-2 text-sm text-slate-500">Loading API keys...</span>
+            </div>
+          ) : externalKeys.length === 0 ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                No API keys configured. Add one to enable external AI services.
+              </AlertDescription>
+            </Alert>
           ) : (
             <div className="space-y-3">
-              {apiKeys.map((key) => (
-                <div
-                  key={key.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">{key.name}</p>
-                      <Badge variant="secondary">{key.provider}</Badge>
-                    </div>
-                    <p className="text-sm text-slate-500 font-mono mt-1">{key.masked_key}</p>
-                    <p className="text-xs text-slate-400 mt-1">Added: {key.created_at}</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteApiKey(key.id)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+              {externalKeys.map((key) => {
+                const providerConfig = getProviderConfig(key.provider);
+                return (
+                  <div
+                    key={key.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{key.key_name}</p>
+                        <Badge variant="secondary">{providerConfig?.name || key.provider}</Badge>
+                        {providerConfig?.docsUrl && (
+                          <a
+                            href={providerConfig.docsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                      <p className="text-sm text-slate-500 font-mono mt-1">{key.masked_value}</p>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Updated: {new Date(key.updated_at).toLocaleDateString()}
+                        {key.updated_by && ` by ${key.updated_by}`}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openEditKeyDialog(key)}
+                        className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteKey(key.key_name)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Embedding Model Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="h-5 w-5" />
+            Embedding Configuration
+          </CardTitle>
+          <CardDescription>
+            Configure embedding model for semantic search and memory indexing
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            {/* Provider Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="embedding-provider">Embedding Provider</Label>
+              <Select
+                value={embeddingProvider}
+                onValueChange={(value: 'openai' | 'local') => {
+                  setEmbeddingProvider(value);
+                  // Set default model for provider
+                  const models = getEmbeddingModels(value);
+                  if (models.length > 0) {
+                    setEmbeddingModel(models[0].id);
+                  }
+                }}
+              >
+                <SelectTrigger id="embedding-provider">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="openai">OpenAI API</SelectItem>
+                  <SelectItem value="local">Local (Sentence Transformers)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-slate-500">
+                {embeddingProvider === 'openai'
+                  ? 'Requires OPENAI_API_KEY'
+                  : 'Runs locally, no API key required'}
+              </p>
+            </div>
+
+            {/* Model Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="embedding-model">Embedding Model</Label>
+              <Select value={embeddingModel} onValueChange={setEmbeddingModel}>
+                <SelectTrigger id="embedding-model">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableEmbeddingModels.map((model) => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {currentModelInfo && (
+                <p className="text-xs text-slate-500">
+                  {currentModelInfo.dimensions} dimensions
+                  {currentModelInfo.cost && ` • ${currentModelInfo.cost}`}
+                  {currentModelInfo.ram && ` • ${currentModelInfo.ram}`}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {embeddingConfigChanged && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Configuration has changed. Save and restart the API server to apply.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              onClick={handleSaveEmbeddingConfig}
+              disabled={!embeddingConfigChanged || isSavingEmbedding}
+            >
+              {isSavingEmbedding ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Settings className="h-4 w-4 mr-2" />
+              )}
+              Save Configuration
+            </Button>
+            {embeddingConfigChanged && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setEmbeddingProvider(currentEmbeddingProvider as 'openai' | 'local');
+                  setEmbeddingModel(currentEmbeddingModel);
+                }}
+              >
+                Reset
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -254,57 +543,187 @@ export default function ConfigPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Database className="h-5 w-5" />
+            <Settings className="h-5 w-5" />
             Model Configuration
           </CardTitle>
-          <CardDescription>Configure default models for different tasks</CardDescription>
+          <CardDescription>Default models for different tasks</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="default-model">Default Chat Model</Label>
             <Input
               id="default-model"
-              value="gpt-4-turbo"
+              value={defaultModel}
               disabled
               className="bg-slate-50 dark:bg-slate-900"
             />
-            <p className="text-xs text-slate-500">
-              Used for general conversational tasks
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="embedding-model">Embedding Model</Label>
-            <Input
-              id="embedding-model"
-              value="text-embedding-3-large"
-              disabled
-              className="bg-slate-50 dark:bg-slate-900"
-            />
-            <p className="text-xs text-slate-500">
-              Used for semantic search and memory indexing
-            </p>
+            <p className="text-xs text-slate-500">Used for general conversational tasks</p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="coding-model">Coding Model</Label>
             <Input
               id="coding-model"
-              value="claude-3-5-sonnet-20250128"
+              value={codingModel}
               disabled
               className="bg-slate-50 dark:bg-slate-900"
             />
-            <p className="text-xs text-slate-500">
-              Used for code generation and analysis
-            </p>
+            <p className="text-xs text-slate-500">Used for code generation and analysis</p>
           </div>
 
-          <Button variant="outline" disabled>
-            <Settings className="h-4 w-4 mr-2" />
-            Configure Models (Coming Soon)
-          </Button>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Model configuration is currently read-only. Contact your administrator to change these
+              settings.
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
+
+      {/* Reranker Configuration (Placeholder) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <RefreshCw className="h-5 w-5" />
+            Reranker Configuration
+          </CardTitle>
+          <CardDescription>Configure reranking models for improved search results</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Reranker configuration coming soon. This feature will allow you to configure Cohere,
+              Jina, or local reranking models for enhanced search accuracy.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+
+      {/* Add Key Dialog */}
+      <Dialog open={showAddKeyDialog} onOpenChange={setShowAddKeyDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add External API Key</DialogTitle>
+            <DialogDescription>
+              Add a new API key for external AI services. Keys are encrypted at rest.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="provider">Provider</Label>
+              <Select value={selectedProvider} onValueChange={setSelectedProvider}>
+                <SelectTrigger id="provider">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {getProviderIds().map((providerId) => (
+                    <SelectItem key={providerId} value={providerId}>
+                      {PROVIDERS[providerId].name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="key-name">Key Name</Label>
+              <Select value={selectedKeyName} onValueChange={setSelectedKeyName}>
+                <SelectTrigger id="key-name">
+                  <SelectValue placeholder="Select key name" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableKeyNames.map((keyName) => (
+                    <SelectItem key={keyName} value={keyName}>
+                      {keyName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="key-value">API Key Value</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="key-value"
+                  type={showKeyValue ? 'text' : 'password'}
+                  value={keyValue}
+                  onChange={(e) => setKeyValue(e.target.value)}
+                  placeholder={getProviderConfig(selectedProvider)?.placeholder}
+                  className="font-mono"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowKeyValue(!showKeyValue)}
+                  type="button"
+                >
+                  {showKeyValue ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+              {getProviderConfig(selectedProvider)?.docsUrl && (
+                <a
+                  href={getProviderConfig(selectedProvider)?.docsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1"
+                >
+                  Get API key <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddKeyDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddKey}>Add Key</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Key Dialog */}
+      <Dialog open={showEditKeyDialog} onOpenChange={setShowEditKeyDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update API Key</DialogTitle>
+            <DialogDescription>
+              Update the value for {editingKeyName}. The new value will be encrypted at rest.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-key-value">New API Key Value</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="edit-key-value"
+                  type={showKeyValue ? 'text' : 'password'}
+                  value={keyValue}
+                  onChange={(e) => setKeyValue(e.target.value)}
+                  placeholder="Enter new API key value"
+                  className="font-mono"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowKeyValue(!showKeyValue)}
+                  type="button"
+                >
+                  {showKeyValue ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditKeyDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditKey}>Update Key</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
