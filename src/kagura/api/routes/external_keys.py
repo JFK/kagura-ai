@@ -22,7 +22,7 @@ Endpoints:
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
 from kagura.auth.models import User
@@ -39,18 +39,21 @@ router = APIRouter(prefix="/external-api-keys", tags=["external-api-keys"])
 # ============================================================================
 
 
-async def get_current_admin_user() -> User:
+async def get_current_admin_user(request: Request) -> dict:
     """Get current user and verify admin role.
 
+    Args:
+        request: FastAPI request
+
     Returns:
-        User object with admin role
+        User session data dict
 
     Raises:
         HTTPException: If not authenticated or not admin
     """
     from kagura.api.dependencies import get_current_user
 
-    user = await get_current_user()
+    user = get_current_user(request)
 
     if user.get("role") != "admin":
         raise HTTPException(
