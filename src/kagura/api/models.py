@@ -29,6 +29,9 @@ class MemoryCreate(BaseModel):
     scope: Literal["working", "persistent"] = Field(
         default="working", description="Memory scope"
     )
+    type: Literal["normal", "coding"] = Field(
+        default="normal", description="Memory type: normal or coding session"
+    )
     tags: list[str] = Field(default_factory=list, description="Tags for categorization")
     importance: float = Field(
         default=0.5, ge=0.0, le=1.0, description="Importance score (0-1)"
@@ -42,6 +45,7 @@ class MemoryUpdate(BaseModel):
     """Update memory request."""
 
     value: str | None = Field(None, description="Updated memory content")
+    type: Literal["normal", "coding"] | None = Field(None, description="Updated memory type")
     tags: list[str] | None = Field(None, description="Updated tags")
     importance: float | None = Field(
         None, ge=0.0, le=1.0, description="Updated importance"
@@ -55,6 +59,7 @@ class MemoryResponse(BaseModel):
     key: str
     value: str
     scope: str
+    type: str = "normal"
     tags: list[str]
     importance: float
     metadata: dict[str, Any]
