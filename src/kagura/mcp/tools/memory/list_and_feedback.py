@@ -6,10 +6,29 @@ List memories and provide feedback for importance scoring.
 from __future__ import annotations
 
 import json
+from datetime import datetime
+from typing import Any
 
 from kagura import tool
 from kagura.mcp.builtin.common import format_error, to_float_clamped, to_int
 from kagura.mcp.tools.memory.common import _memory_cache, get_memory_manager
+
+
+def _datetime_handler(obj: Any) -> str:
+    """JSON serialization handler for datetime objects.
+
+    Args:
+        obj: Object to serialize
+
+    Returns:
+        ISO format string for datetime objects
+
+    Raises:
+        TypeError: For unsupported types
+    """
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 
 @tool
@@ -111,6 +130,7 @@ async def memory_list(
                 "memories": results,
             },
             indent=2,
+            default=_datetime_handler,
         )
 
     except Exception as e:

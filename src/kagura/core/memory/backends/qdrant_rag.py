@@ -300,6 +300,55 @@ class QdrantRAG:
             logger.error(f"Qdrant search failed: {e}")
             raise
 
+    def recall(
+        self,
+        query: str,
+        user_id: str,
+        top_k: int = 5,
+        agent_name: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
+        """Semantic search for memories (MemoryRAG-compatible interface).
+
+        Wraps search() method to provide MemoryRAG-compatible interface
+        for use with MemoryManager.recall_semantic().
+
+        Args:
+            query: Search query text
+            user_id: User identifier (filter by memory owner)
+            top_k: Number of results to return
+            agent_name: Optional agent name filter
+
+        Returns:
+            List of memory dictionaries with:
+            - content: Original memory text
+            - distance: Similarity distance (lower = more similar)
+            - metadata: Memory metadata dict
+
+        Example:
+            >>> rag = QdrantRAG(qdrant_url="http://localhost:6333")
+            >>> results = rag.recall("Python programming", user_id="jfk", top_k=5)
+            >>> print(results[0]["content"])
+        """
+        # Build metadata filter
+        filter_dict: dict[str, Any] = {"user_id": user_id}
+        if agent_name:
+            filter_dict["agent_name"] = agent_name
+
+        # Use existing search() method
+        search_results = self.search(query, k=top_k, filter=filter_dict)
+
+        # Convert to MemoryRAG-compatible format
+        memories = []
+        for result in search_results:
+            memories.append({
+                "id": str(result["id"]),
+                "content": result["text"],
+                "distance": 1.0 - result["score"],  # Convert score to distance
+                "metadata": result["metadata"],
+            })
+
+        return memories
+
     def delete_collection(self) -> None:
         """Delete entire collection.
 

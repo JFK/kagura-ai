@@ -78,7 +78,7 @@ async def memory_get_tool_history(
                 )
                 continue
 
-        history.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+        history.sort(key=lambda x: x.get("timestamp") or "", reverse=True)
         return json.dumps(history[:limit_int], indent=2, ensure_ascii=False)
 
     except Exception as e:

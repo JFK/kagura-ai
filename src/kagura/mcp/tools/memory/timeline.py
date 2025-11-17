@@ -130,7 +130,7 @@ async def memory_timeline(
     # Filter by time and event type
     filtered_results = []
     for mem in all_memories:
-        metadata = mem.get("metadata", {})
+        metadata = mem.get("metadata") or {}
 
         # Check timestamp
         timestamp_str = metadata.get("timestamp")
