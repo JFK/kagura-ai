@@ -43,12 +43,12 @@ const navigationGroups: NavGroup[] = [
     items: [
       {
         name: 'Overview',
-        href: '/memories',
+        href: '/memory/overview',
         icon: Brain,
       },
       {
         name: 'Recalling',
-        href: '/memories/list',
+        href: '/memory/recalling',
         icon: List,
       },
     ],
@@ -69,7 +69,7 @@ const navigationGroups: NavGroup[] = [
       },
       {
         name: 'App Credentials',
-        href: '/integrations/kagura-apps',
+        href: '/integrations/app-credentials',
         icon: Puzzle,
       },
     ],
