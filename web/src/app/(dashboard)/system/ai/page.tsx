@@ -18,13 +18,10 @@ import {
   Settings,
   Database,
   Key,
-  Server,
   Plus,
   Trash2,
   Eye,
   EyeOff,
-  CheckCircle,
-  XCircle,
 } from 'lucide-react';
 
 interface ApiKey {
@@ -35,19 +32,11 @@ interface ApiKey {
   created_at: string;
 }
 
-interface BackendConfig {
-  postgresql_url: string;
-  redis_url: string;
-  qdrant_url: string;
-  api_url: string;
-}
-
 export default function ConfigPage() {
   const { toast } = useToast();
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [backendConfig, setBackendConfig] = useState<BackendConfig | null>(null);
 
   // Add API Key form state
   const [newKeyName, setNewKeyName] = useState('');
@@ -55,26 +44,10 @@ export default function ConfigPage() {
   const [newKeyValue, setNewKeyValue] = useState('');
   const [showNewKey, setShowNewKey] = useState(false);
 
-  // Load backend configuration
+  // Load API keys
   useEffect(() => {
-    loadBackendConfig();
     loadApiKeys();
   }, []);
-
-  const loadBackendConfig = async () => {
-    try {
-      // TODO: Replace with actual API call
-      // Mock data for now
-      setBackendConfig({
-        postgresql_url: 'postgresql://kagura:***@localhost:5432/kagura',
-        redis_url: 'redis://localhost:6379/0',
-        qdrant_url: 'http://localhost:6333',
-        api_url: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
-      });
-    } catch (error) {
-      console.error('Failed to load backend config:', error);
-    }
-  };
 
   const loadApiKeys = async () => {
     try {
@@ -154,82 +127,6 @@ export default function ConfigPage() {
           Manage external service configurations, API keys, and backend settings.
         </p>
       </div>
-
-      {/* Backend Configuration */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Server className="h-5 w-5" />
-            Backend Services
-          </CardTitle>
-          <CardDescription>Current backend service endpoints (read-only)</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {backendConfig ? (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="postgresql">PostgreSQL Database</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="postgresql"
-                    value={backendConfig.postgresql_url}
-                    disabled
-                    className="bg-slate-50 dark:bg-slate-900 font-mono text-sm"
-                  />
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <CheckCircle className="h-3 w-3 text-green-500" />
-                    Connected
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="redis">Redis Cache</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="redis"
-                    value={backendConfig.redis_url}
-                    disabled
-                    className="bg-slate-50 dark:bg-slate-900 font-mono text-sm"
-                  />
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <CheckCircle className="h-3 w-3 text-green-500" />
-                    Connected
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="qdrant">Qdrant Vector Database</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="qdrant"
-                    value={backendConfig.qdrant_url}
-                    disabled
-                    className="bg-slate-50 dark:bg-slate-900 font-mono text-sm"
-                  />
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <CheckCircle className="h-3 w-3 text-green-500" />
-                    Connected
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="api">API Base URL</Label>
-                <Input
-                  id="api"
-                  value={backendConfig.api_url}
-                  disabled
-                  className="bg-slate-50 dark:bg-slate-900 font-mono text-sm"
-                />
-              </div>
-            </>
-          ) : (
-            <p className="text-sm text-slate-500">Loading backend configuration...</p>
-          )}
-        </CardContent>
-      </Card>
 
       {/* External API Keys */}
       <Card>

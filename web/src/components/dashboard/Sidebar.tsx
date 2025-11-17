@@ -68,7 +68,7 @@ const navigationGroups: NavGroup[] = [
         requiredRole: Role.ADMIN,
       },
       {
-        name: 'Kagura Apps',
+        name: 'App Credentials',
         href: '/integrations/kagura-apps',
         icon: Puzzle,
       },
