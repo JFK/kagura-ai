@@ -60,8 +60,7 @@ export interface OAuth2ClientUpdateRequest {
  * List configured OAuth2 providers
  */
 export async function getOAuth2Providers(): Promise<OAuth2Provider[]> {
-  const response = await apiClient.get<OAuth2Provider[]>('/auth/oauth2/providers');
-  return response.data;
+  return await apiClient.get<OAuth2Provider[]>('/auth/oauth2/providers');
 }
 
 // ============================================================================
@@ -72,8 +71,7 @@ export async function getOAuth2Providers(): Promise<OAuth2Provider[]> {
  * List all registered OAuth2 clients
  */
 export async function getOAuth2Clients(): Promise<OAuth2Client[]> {
-  const response = await apiClient.get<OAuth2Client[]>('/auth/oauth2/clients');
-  return response.data;
+  return await apiClient.get<OAuth2Client[]>('/auth/oauth2/clients');
 }
 
 /**
@@ -82,19 +80,17 @@ export async function getOAuth2Clients(): Promise<OAuth2Client[]> {
 export async function createOAuth2Client(
   data: OAuth2ClientCreateRequest
 ): Promise<OAuth2ClientWithSecret> {
-  const response = await apiClient.post<OAuth2ClientWithSecret>(
+  return await apiClient.post<OAuth2ClientWithSecret>(
     '/auth/oauth2/clients',
     data
   );
-  return response.data;
 }
 
 /**
  * Get OAuth2 client details
  */
 export async function getOAuth2Client(clientId: string): Promise<OAuth2Client> {
-  const response = await apiClient.get<OAuth2Client>(`/auth/oauth2/clients/${clientId}`);
-  return response.data;
+  return await apiClient.get<OAuth2Client>(`/auth/oauth2/clients/${clientId}`);
 }
 
 /**
@@ -104,11 +100,10 @@ export async function updateOAuth2Client(
   clientId: string,
   data: OAuth2ClientUpdateRequest
 ): Promise<OAuth2Client> {
-  const response = await apiClient.put<OAuth2Client>(
+  return await apiClient.put<OAuth2Client>(
     `/auth/oauth2/clients/${clientId}`,
     data
   );
-  return response.data;
 }
 
 /**

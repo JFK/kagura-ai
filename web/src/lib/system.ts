@@ -44,14 +44,12 @@ export interface VectorCollectionsResponse {
  * Get backend status (Database, Vector DB, Cache)
  */
 export async function getBackendStatus(): Promise<BackendStatusResponse> {
-  const response = await apiClient.get<BackendStatusResponse>('/system/backends');
-  return response.data;
+  return await apiClient.get<BackendStatusResponse>('/system/backends');
 }
 
 /**
  * Get vector database collections
  */
 export async function getVectorCollections(): Promise<VectorCollectionsResponse> {
-  const response = await apiClient.get<VectorCollectionsResponse>('/system/vector/collections');
-  return response.data;
+  return await apiClient.get<VectorCollectionsResponse>('/system/vector/collections');
 }
