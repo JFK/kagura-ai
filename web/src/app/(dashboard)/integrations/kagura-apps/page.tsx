@@ -27,24 +27,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 
 export default function KaguraAppsPage() {
   const { user } = useAuth();
   const [clients, setClients] = useState<OAuth2Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [deleteClient, setDeleteClient] = useState<OAuth2Client | null>(null);
-  const [deleting, setDeleting] = useState(false);
 
   // Fetch OAuth2 clients
   const fetchClients = async () => {
@@ -67,21 +55,19 @@ export default function KaguraAppsPage() {
   }, []);
 
   // Handle delete
-  const handleDelete = async () => {
-    if (!deleteClient) return;
+  const handleDelete = async (client: OAuth2Client) => {
+    if (!confirm(`Delete ${client.client_name}? This action cannot be undone.`)) {
+      return;
+    }
 
     try {
-      setDeleting(true);
-      await deleteOAuth2Client(deleteClient.client_id);
+      await deleteOAuth2Client(client.client_id);
 
       // Refresh list
       await fetchClients();
-      setDeleteClient(null);
     } catch (err) {
       console.error('Failed to delete client:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete client');
-    } finally {
-      setDeleting(false);
     }
   };
 
@@ -196,7 +182,7 @@ export default function KaguraAppsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setDeleteClient(client)}
+                        onClick={() => handleDelete(client)}
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
@@ -229,36 +215,6 @@ export default function KaguraAppsPage() {
           </div>
         </AlertDescription>
       </Alert>
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteClient} onOpenChange={(open) => !open && setDeleteClient(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete OAuth2 Client</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete <strong>{deleteClient?.client_name}</strong>?
-              This action cannot be undone. All associated tokens will be revoked.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              {deleting ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete'
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
