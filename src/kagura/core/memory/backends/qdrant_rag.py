@@ -355,6 +355,70 @@ class QdrantRAG:
 
         return memories
 
+    def get_chunk_metadata(
+        self, parent_id: str, chunk_index: Optional[int] = None, user_id: Optional[str] = None
+    ) -> dict[str, Any] | list[dict[str, Any]]:
+        """Get metadata for chunk(s) (stub implementation).
+
+        Args:
+            parent_id: Parent document ID
+            chunk_index: Optional specific chunk index
+            user_id: Optional user filter
+
+        Returns:
+            Chunk metadata dict or list of metadata dicts
+
+        Note:
+            Full implementation pending. For now, returns empty result.
+            See MemoryRAG.get_chunk_metadata() for reference implementation.
+        """
+        logger.warning("QdrantRAG.get_chunk_metadata() not fully implemented yet")
+        return {} if chunk_index is not None else []
+
+    def get_chunk_context(
+        self,
+        parent_id: str,
+        chunk_index: int,
+        context_size: int = 1,
+        user_id: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
+        """Get neighboring chunks (stub implementation).
+
+        Args:
+            parent_id: Parent document ID
+            chunk_index: Target chunk index
+            context_size: Number of chunks before/after
+            user_id: Optional user filter
+
+        Returns:
+            List of chunk dicts
+
+        Note:
+            Full implementation pending. For now, returns empty list.
+            See MemoryRAG.get_chunk_context() for reference implementation.
+        """
+        logger.warning("QdrantRAG.get_chunk_context() not fully implemented yet")
+        return []
+
+    def get_full_document(
+        self, parent_id: str, user_id: Optional[str] = None
+    ) -> dict[str, Any]:
+        """Reconstruct complete document from chunks (stub implementation).
+
+        Args:
+            parent_id: Parent document ID
+            user_id: Optional user filter
+
+        Returns:
+            Dict with full_text and metadata
+
+        Note:
+            Full implementation pending. For now, returns empty result.
+            See MemoryRAG.get_full_document() for reference implementation.
+        """
+        logger.warning("QdrantRAG.get_full_document() not fully implemented yet")
+        return {"full_text": "", "metadata": {}, "chunks": []}
+
     def delete_collection(self) -> None:
         """Delete entire collection.
 

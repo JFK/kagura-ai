@@ -5,11 +5,13 @@
  */
 
 export type MemoryScope = 'working' | 'persistent';
+export type MemoryType = 'normal' | 'coding';
 
 export interface Memory {
   key: string;
   value: string;
   scope: MemoryScope;
+  type?: MemoryType;
   agent_name: string;
   user_id: string;
   importance: number;
@@ -25,6 +27,7 @@ export interface CreateMemoryRequest {
   key: string;
   value: string;
   scope?: MemoryScope;
+  type?: MemoryType;
   agent_name?: string;
   importance?: number;
   metadata?: Record<string, unknown>;
@@ -33,6 +36,7 @@ export interface CreateMemoryRequest {
 
 export interface UpdateMemoryRequest {
   value?: string;
+  type?: MemoryType;
   importance?: number;
   metadata?: Record<string, unknown>;
   tags?: string[];
