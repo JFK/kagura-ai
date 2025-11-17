@@ -232,6 +232,51 @@ def get_session() -> Session:
     return _SessionLocal()
 
 
+class ExternalAPIKey(Base):
+    """External API Key model for third-party services.
+
+    Issues #690, #692 - External API Keys management with encryption.
+
+    Stores API keys for external services (OpenAI, Anthropic, Google, etc.) with:
+    - Fernet symmetric encryption (can decrypt for usage)
+    - Provider categorization
+    - Admin-only access
+    - Audit trail
+
+    Attributes:
+        id: Primary key
+        key_name: Unique identifier (e.g., "OPENAI_API_KEY")
+        provider: Service provider (e.g., "openai", "anthropic")
+        encrypted_value: Fernet-encrypted API key value
+        created_at: Creation timestamp
+        updated_at: Last modification timestamp
+        updated_by: Email of admin who last modified
+    """
+
+    __tablename__ = "external_api_keys"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # API Key Identity
+    key_name = Column(String(100), nullable=False, unique=True, index=True)
+    provider = Column(String(50), nullable=False, index=True)
+
+    # Encrypted Value (Fernet)
+    encrypted_value = Column(String, nullable=False)  # TEXT in PostgreSQL, TEXT in SQLite
+
+    # Audit Trail
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+    updated_by = Column(String(255), nullable=True)  # Email of admin
+
+    # Indexes
+    __table_args__ = (Index("idx_external_api_keys_updated", "updated_at"),)
+
+    def __repr__(self) -> str:
+        """String representation."""
+        return f"<ExternalAPIKey(key_name='{self.key_name}', provider='{self.provider}')>"
+
+
 def create_tables(database_url: str) -> None:
     """Create all tables in database.
 
