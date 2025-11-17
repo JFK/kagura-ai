@@ -719,6 +719,7 @@ async def list_oauth2_clients(
                 response_types=client.response_types,
                 scope=client.scope,
                 token_endpoint_auth_method=client.token_endpoint_auth_method,
+                owner_id=client.owner_id,
                 created_at=client.created_at,
             )
             for client in clients
@@ -770,7 +771,7 @@ async def create_oauth2_client(
             response_types=data.response_types,
             scope=data.scope,
             token_endpoint_auth_method=data.token_endpoint_auth_method,
-            owner_id=user["user_id"],
+            owner_id=user.user_id,
         )
 
         db_session.add(client)
@@ -790,6 +791,7 @@ async def create_oauth2_client(
             response_types=client.response_types,
             scope=client.scope,
             token_endpoint_auth_method=client.token_endpoint_auth_method,
+            owner_id=client.owner_id,
             created_at=client.created_at,
             client_secret=client_secret,
         )
@@ -844,6 +846,7 @@ async def get_oauth2_client(
             response_types=client.response_types,
             scope=client.scope,
             token_endpoint_auth_method=client.token_endpoint_auth_method,
+            owner_id=client.owner_id,
             created_at=client.created_at,
         )
 
@@ -908,6 +911,7 @@ async def update_oauth2_client(
             response_types=client.response_types,
             scope=client.scope,
             token_endpoint_auth_method=client.token_endpoint_auth_method,
+            owner_id=client.owner_id,
             created_at=client.created_at,
         )
 
