@@ -31,10 +31,11 @@ export interface SystemDoctorResponse {
   disk_space: SystemCheck;
   dependencies: DependencyCheck[];
 
-  // Backend Services (Issue #668)
+  // Backend Services (Issue #668, #707)
   postgres: SystemCheck;
   redis: SystemCheck;
   qdrant: SystemCheck;
+  graph_db?: SystemCheck;
 
   api_configuration: APICheck[];
 

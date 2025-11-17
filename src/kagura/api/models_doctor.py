@@ -5,8 +5,6 @@ Models for system health check responses from doctor endpoints.
 
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import BaseModel, Field
 
 
@@ -35,16 +33,17 @@ class APICheck(BaseModel):
 
 
 class SystemDoctorResponse(BaseModel):
-    """System doctor API response (Issue #668: Enhanced with backend checks)."""
+    """System doctor API response (Issue #668: Enhanced with backend checks, #707: GraphDB stats)."""
 
     python_version: SystemCheck = Field(..., description="Python version check")
     disk_space: SystemCheck = Field(..., description="Disk space check")
     dependencies: list[DependencyCheck] = Field(..., description="Dependency checks")
 
-    # Backend Services (Issue #668)
+    # Backend Services (Issue #668, #707)
     postgres: SystemCheck = Field(..., description="PostgreSQL database connectivity")
     redis: SystemCheck = Field(..., description="Redis cache connectivity")
     qdrant: SystemCheck = Field(..., description="Qdrant vector database connectivity")
+    graph_db: SystemCheck | None = Field(None, description="GraphDB status and statistics (Issue #707)")
 
     # API Configuration
     api_configuration: list[APICheck] = Field(..., description="API configuration checks")
