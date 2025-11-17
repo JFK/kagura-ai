@@ -20,6 +20,9 @@ import {
   Settings,
   User,
   Users,
+  Shield,
+  Puzzle,
+  Database,
 } from 'lucide-react';
 
 interface NavItem {
@@ -36,52 +39,60 @@ interface NavGroup {
 
 const navigationGroups: NavGroup[] = [
   {
-    title: 'Main',
-    items: [
-      {
-        name: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutDashboard,
-      },
-    ],
-  },
-  {
     title: 'Memory',
     items: [
       {
-        name: 'Memory Overview',
+        name: 'Overview',
         href: '/memories',
         icon: Brain,
       },
       {
-        name: 'Memory List',
+        name: 'Recalling',
         href: '/memories/list',
         icon: List,
       },
     ],
   },
   {
-    title: 'Integration',
+    title: 'Integrations',
     items: [
       {
         name: 'API Keys',
         href: '/api-keys',
         icon: Key,
       },
+      {
+        name: 'OAuth Providers',
+        href: '/integrations/oauth-providers',
+        icon: Shield,
+        requiredRole: Role.ADMIN,
+      },
+      {
+        name: 'Kagura Apps',
+        href: '/integrations/kagura-apps',
+        icon: Puzzle,
+      },
     ],
   },
   {
-    title: 'Settings',
+    title: 'System',
     items: [
       {
-        name: 'Config',
-        href: '/settings/config',
-        icon: Settings,
+        name: 'Overview',
+        href: '/system/overview',
+        icon: LayoutDashboard,
       },
       {
-        name: 'Profile',
-        href: '/settings/profile',
-        icon: User,
+        name: 'AI Configuration',
+        href: '/system/ai',
+        icon: Settings,
+        requiredRole: Role.ADMIN,
+      },
+      {
+        name: 'Backends',
+        href: '/system/backends',
+        icon: Database,
+        requiredRole: Role.ADMIN,
       },
     ],
   },
