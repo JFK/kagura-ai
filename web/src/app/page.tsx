@@ -46,7 +46,7 @@ export default function LandingPage() {
   useEffect(() => {
     setMounted(true);
     if (!isLoading && user) {
-      router.push('/dashboard');
+      router.push('/memory/overview');
     }
   }, [user, isLoading, router]);
 

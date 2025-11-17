@@ -49,6 +49,11 @@ import { EmptyState } from '@/components/ui/empty-state';
 export default function MemoriesPage() {
   const { user } = useAuth();
 
+  // Set browser tab title
+  useEffect(() => {
+    document.title = 'Memory > Recalling - Kagura Memory Cloud';
+  }, []);
+
   // View mode
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
