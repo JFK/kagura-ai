@@ -21,12 +21,15 @@ import {
   Code2,
   FolderGit2,
   FileText,
+  Network,
 } from 'lucide-react';
 import {
   getMemoryDoctor,
   getCodingDoctor,
+  getSystemDoctor,
   type MemoryDoctorResponse,
-  type CodingDoctorResponse,
+  CodingDoctorResponse,
+  type SystemDoctorResponse,
 } from '@/lib/doctor';
 import { MemoryStatsChart } from './MemoryStatsChart';
 
@@ -56,9 +59,30 @@ function getStatusBadge(status: string) {
   }
 }
 
+/**
+ * Parse Graph Memory statistics from System Doctor message
+ * Example: "Connected (22 nodes, 21 edges, Backend: PostgreSQL)"
+ */
+function parseGraphStats(message: string | undefined): { nodes: number; edges: number } | null {
+  if (!message) return null;
+
+  const nodeMatch = message.match(/(\d+)\s+nodes/);
+  const edgeMatch = message.match(/(\d+)\s+edges/);
+
+  if (nodeMatch && edgeMatch) {
+    return {
+      nodes: parseInt(nodeMatch[1], 10),
+      edges: parseInt(edgeMatch[1], 10),
+    };
+  }
+
+  return null;
+}
+
 export function MemoryOverview() {
   const [memoryData, setMemoryData] = useState<MemoryDoctorResponse | null>(null);
   const [codingData, setCodingData] = useState<CodingDoctorResponse | null>(null);
+  const [systemData, setSystemData] = useState<SystemDoctorResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,9 +90,14 @@ export function MemoryOverview() {
     async function fetchData() {
       try {
         setIsLoading(true);
-        const [memory, coding] = await Promise.all([getMemoryDoctor(), getCodingDoctor()]);
+        const [memory, coding, system] = await Promise.all([
+          getMemoryDoctor(),
+          getCodingDoctor(),
+          getSystemDoctor(),
+        ]);
         setMemoryData(memory);
         setCodingData(coding);
+        setSystemData(system);
         setError(null);
       } catch (err) {
         console.error('Failed to fetch memory doctor:', err);
@@ -200,6 +229,27 @@ export function MemoryOverview() {
             </p>
           </CardContent>
         </Card>
+
+        {/* Graph Memory */}
+        {systemData?.graph_db && (() => {
+          const graphStats = parseGraphStats(systemData.graph_db.message);
+          return graphStats ? (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Graph Memory</CardTitle>
+                <Network className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {graphStats.nodes.toLocaleString()}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {graphStats.edges.toLocaleString()} relationships
+                </p>
+              </CardContent>
+            </Card>
+          ) : null;
+        })()}
       </div>
 
       {/* Coding Memory Details */}

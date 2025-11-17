@@ -251,20 +251,22 @@ export function DashboardMetrics() {
             </CardContent>
           </Card>
 
-          {/* Remote MCP */}
-          <Card className="group overflow-hidden border-gray-200 bg-white transition-all hover:-translate-y-1 hover:border-brand-green-300 hover:shadow-xl">
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-            <CardContent className="relative p-6">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="inline-flex rounded-lg bg-brand-green-100 p-2 text-brand-green-600">
-                  <Puzzle className="h-5 w-5" />
+          {/* Remote MCP - Only show when actually available */}
+          {data.remote_mcp.status === 'ok' && (
+            <Card className="group overflow-hidden border-gray-200 bg-white transition-all hover:-translate-y-1 hover:border-brand-green-300 hover:shadow-xl">
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+              <CardContent className="relative p-6">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="inline-flex rounded-lg bg-brand-green-100 p-2 text-brand-green-600">
+                    <Puzzle className="h-5 w-5" />
+                  </div>
+                  {getStatusIcon(data.remote_mcp.status)}
                 </div>
-                {getStatusIcon(data.remote_mcp.status)}
-              </div>
-              <h4 className="mb-1 font-semibold text-gray-900">Remote MCP</h4>
-              <p className="text-sm text-gray-600">{data.remote_mcp.message}</p>
-            </CardContent>
-          </Card>
+                <h4 className="mb-1 font-semibold text-gray-900">Remote MCP</h4>
+                <p className="text-sm text-gray-600">{data.remote_mcp.message}</p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* GraphDB (Issue #707) */}
           {data.graph_db && (
