@@ -176,6 +176,7 @@ class OAuth2ClientResponse(BaseModel):
     response_types: list[str]
     scope: str
     token_endpoint_auth_method: str
+    owner_id: str
     created_at: datetime
 
     class Config:
@@ -718,11 +719,13 @@ async def list_oauth2_clients(
 async def create_oauth2_client(
     request: Request,
     data: OAuth2ClientCreateRequest,
+    user: CurrentUser,
 ) -> OAuth2ClientWithSecretResponse:
     """Register a new OAuth2 client.
 
     Args:
         data: Client registration data
+        user: Current authenticated user (injected)
 
     Returns:
         Created client with client_secret (only shown once)
@@ -754,6 +757,7 @@ async def create_oauth2_client(
             response_types=data.response_types,
             scope=data.scope,
             token_endpoint_auth_method=data.token_endpoint_auth_method,
+            owner_id=user["user_id"],
         )
 
         db_session.add(client)

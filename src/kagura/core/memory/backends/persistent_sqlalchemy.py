@@ -64,6 +64,7 @@ class MemoryModel(Base):
     # Note: 'metadata' is SQLAlchemy reserved word, use 'memory_metadata' for Python attribute
     # but keep DB column name as 'metadata' for SQLite compatibility
     memory_metadata = Column('metadata', Text, nullable=True)
+    type = Column(String(20), nullable=False, default="normal", index=True)
     access_count = Column(Integer, default=0)
     last_accessed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
@@ -77,6 +78,7 @@ class MemoryModel(Base):
         Index("idx_user_agent", "user_id", "agent_name"),
         Index("idx_user_key", "user_id", "key"),
         Index("idx_key_agent", "key", "agent_name"),
+        Index("idx_type", "type"),
     )
 
 

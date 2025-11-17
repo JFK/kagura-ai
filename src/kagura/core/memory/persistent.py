@@ -111,6 +111,7 @@ class PersistentMemory:
                     value TEXT NOT NULL,
                     user_id TEXT NOT NULL DEFAULT 'default_user',
                     agent_name TEXT,
+                    type TEXT NOT NULL DEFAULT 'normal',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     metadata TEXT
@@ -144,6 +145,15 @@ class PersistentMemory:
                 # Column already exists
                 pass
 
+            # Migration: Add type column
+            try:
+                conn.execute(
+                    "ALTER TABLE memories ADD COLUMN type TEXT NOT NULL DEFAULT 'normal'"
+                )
+            except sqlite3.OperationalError:
+                # Column already exists
+                pass
+
             # Create indexes (after ensuring all columns exist)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_key ON memories(key)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_agent ON memories(agent_name)")
@@ -158,6 +168,7 @@ class PersistentMemory:
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_user_key ON memories(user_id, key)"
             )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_type ON memories(type)")
 
     def store(
         self,

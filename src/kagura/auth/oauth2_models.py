@@ -101,6 +101,9 @@ class OAuth2Client(Base):
     # Timestamps
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
+    # Owner
+    owner_id = Column(String(255), nullable=False, index=True)
+
     # Relationships
     tokens = relationship("OAuth2Token", back_populates="client", cascade="all, delete")
 
