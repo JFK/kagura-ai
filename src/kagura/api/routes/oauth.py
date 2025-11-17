@@ -709,7 +709,20 @@ async def list_oauth2_clients(
     try:
         clients = db_session.query(OAuth2Client).order_by(OAuth2Client.created_at.desc()).all()
 
-        return [OAuth2ClientResponse.model_validate(client) for client in clients]
+        return [
+            OAuth2ClientResponse(
+                id=client.id,
+                client_id=client.client_id,
+                client_name=client.client_name,
+                redirect_uris=client.redirect_uris,
+                grant_types=client.grant_types,
+                response_types=client.response_types,
+                scope=client.scope,
+                token_endpoint_auth_method=client.token_endpoint_auth_method,
+                created_at=client.created_at,
+            )
+            for client in clients
+        ]
 
     finally:
         db_session.close()
@@ -767,14 +780,25 @@ async def create_oauth2_client(
         logger.info(f"OAuth2 client created: {client_id} ({data.client_name})")
 
         # Return response with client_secret (only shown once)
-        response_data = OAuth2ClientResponse.model_validate(client).model_dump()
-        response_data["client_secret"] = client_secret
-
-        return OAuth2ClientWithSecretResponse(**response_data)
+        # Manually construct response to avoid Pydantic validation issues
+        return OAuth2ClientWithSecretResponse(
+            id=client.id,
+            client_id=client.client_id,
+            client_name=client.client_name,
+            redirect_uris=client.redirect_uris,
+            grant_types=client.grant_types,
+            response_types=client.response_types,
+            scope=client.scope,
+            token_endpoint_auth_method=client.token_endpoint_auth_method,
+            created_at=client.created_at,
+            client_secret=client_secret,
+        )
 
     except Exception as e:
+        import traceback
         db_session.rollback()
         logger.error(f"Failed to create OAuth2 client: {e}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create OAuth2 client: {str(e)}",
@@ -811,7 +835,17 @@ async def get_oauth2_client(
                 detail=f"OAuth2 client not found: {client_id}",
             )
 
-        return OAuth2ClientResponse.model_validate(client)
+        return OAuth2ClientResponse(
+            id=client.id,
+            client_id=client.client_id,
+            client_name=client.client_name,
+            redirect_uris=client.redirect_uris,
+            grant_types=client.grant_types,
+            response_types=client.response_types,
+            scope=client.scope,
+            token_endpoint_auth_method=client.token_endpoint_auth_method,
+            created_at=client.created_at,
+        )
 
     finally:
         db_session.close()
@@ -865,7 +899,17 @@ async def update_oauth2_client(
 
         logger.info(f"OAuth2 client updated: {client_id}")
 
-        return OAuth2ClientResponse.model_validate(client)
+        return OAuth2ClientResponse(
+            id=client.id,
+            client_id=client.client_id,
+            client_name=client.client_name,
+            redirect_uris=client.redirect_uris,
+            grant_types=client.grant_types,
+            response_types=client.response_types,
+            scope=client.scope,
+            token_endpoint_auth_method=client.token_endpoint_auth_method,
+            created_at=client.created_at,
+        )
 
     except HTTPException:
         db_session.rollback()
