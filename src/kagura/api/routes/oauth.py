@@ -226,6 +226,7 @@ class OAuth2ProviderResponse(BaseModel):
     token_url: str
     scopes: list[str]
     enabled: bool
+    configured: bool  # Alias for enabled (frontend compatibility)
 
 
 # ============================================================================
@@ -949,6 +950,7 @@ async def list_oauth2_providers(
     google_client_id = os.getenv("GOOGLE_CLIENT_ID")
     google_client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
 
+    google_configured = bool(google_client_id and google_client_secret)
     providers.append(
         OAuth2ProviderResponse(
             name="google",
@@ -957,7 +959,8 @@ async def list_oauth2_providers(
             authorization_url="https://accounts.google.com/o/oauth2/v2/auth",
             token_url="https://oauth2.googleapis.com/token",
             scopes=["openid", "email", "profile"],
-            enabled=bool(google_client_id and google_client_secret),
+            enabled=google_configured,
+            configured=google_configured,
         )
     )
 
@@ -965,6 +968,7 @@ async def list_oauth2_providers(
     github_client_id = os.getenv("GITHUB_CLIENT_ID")
     github_client_secret = os.getenv("GITHUB_CLIENT_SECRET")
 
+    github_configured = bool(github_client_id and github_client_secret)
     providers.append(
         OAuth2ProviderResponse(
             name="github",
@@ -973,7 +977,8 @@ async def list_oauth2_providers(
             authorization_url="https://github.com/login/oauth/authorize",
             token_url="https://github.com/login/oauth/access_token",
             scopes=["read:user", "user:email"],
-            enabled=bool(github_client_id and github_client_secret),
+            enabled=github_configured,
+            configured=github_configured,
         )
     )
 
