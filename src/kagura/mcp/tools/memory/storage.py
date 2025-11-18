@@ -46,26 +46,16 @@ async def memory_store(
     💡 Note: All memory is now persistent (stored to disk).
     🌐 Cross-platform: Memories shared across Claude, ChatGPT, Gemini via user_id.
     """
-    # Always enable RAG for both working and persistent memory
+    # Get MemoryManager (with caching for performance)
     enable_rag = True
-
     try:
         cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
         is_first_init = cache_key not in _memory_cache
-
-        # If first initialization, this may download embeddings model (~500MB)
-        # which can take 30-60 seconds
-        if is_first_init:
-            # Note: We can't send intermediate progress via MCP tool return value,
-            # but we can include a notice in the final response
-            pass
 
         memory = get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
         initialization_note = " (initialized embeddings)" if is_first_init else ""
 
     except ImportError:
-        # If RAG dependencies not available, create without RAG
-        # But keep enable_rag=True for cache key consistency
         from kagura.core.memory import MemoryManager
 
         cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
@@ -76,55 +66,38 @@ async def memory_store(
         memory = _memory_cache[cache_key]
         initialization_note = ""
     except Exception as e:
-        # Catch any initialization errors (timeouts, download failures, etc.)
         return f"[ERROR] Failed to initialize memory: {str(e)[:200]}"
 
-    # Parse tags and metadata using common helpers (already imported at top)
+    # Parse parameters
     tags_list = parse_json_list(tags, param_name="tags")
     metadata_dict = parse_json_dict(metadata, param_name="metadata")
     importance_val = to_float_clamped(importance, param_name="importance")
 
-    # Prepare full metadata
-    now = datetime.now()
-    base_metadata = {
-        "metadata": metadata_dict if isinstance(metadata_dict, dict) else metadata_dict,
-        "tags": tags_list,
-        "importance": importance_val,
-        "created_at": now.isoformat(),
-        "updated_at": now.isoformat(),
-    }
+    # Use MemoryService for business logic (v4.4.0+)
+    try:
+        from kagura.services import MemoryService
 
-    # Preserve top-level access to user-supplied metadata fields
-    # for backwards compatibility
-    full_metadata = dict(base_metadata)
-    if isinstance(metadata_dict, dict):
-        for meta_key, meta_value in metadata_dict.items():
-            # Avoid overwriting base keys such as "metadata" or timestamps
-            if meta_key not in full_metadata:
-                full_metadata[meta_key] = meta_value
+        service = MemoryService(memory)
+        result = service.store_memory(
+            key=key,
+            value=value,
+            tags=tags_list,
+            importance=importance_val,
+            metadata=metadata_dict,
+        )
 
-    # Convert to ChromaDB-compatible format
-    chromadb_metadata = {}
-    for k, v in full_metadata.items():
-        if isinstance(v, list):
-            chromadb_metadata[k] = json.dumps(v)
-        elif isinstance(v, dict):
-            chromadb_metadata[k] = json.dumps(v)
-        else:
-            chromadb_metadata[k] = v
+        if not result.success:
+            return f"[ERROR] {result.message}"
 
-    # Store in persistent memory (also indexes in persistent_rag if available)
-    memory.remember(key, value, chromadb_metadata)
+        # Check RAG availability
+        rag_available = getattr(memory, "persistent_rag", None) is not None
+        scope_badge = "global" if agent_name == "global" else "local"
+        rag_badge = "RAG:OK" if rag_available else "RAG:NO"
 
-    # Check RAG availability (graceful fallback for missing attributes)
-    rag_available = getattr(memory, "persistent_rag", None) is not None
+        return f"[OK] Stored: {key} (persistent, {scope_badge}, {rag_badge}){initialization_note}"
 
-    # Compact output (token-efficient)
-    scope_badge = "global" if agent_name == "global" else "local"
-    rag_badge = "RAG:OK" if rag_available else "RAG:NO"
-
-    result = f"[OK] Stored: {key} (persistent, {scope_badge}, {rag_badge})"
-    return result + initialization_note
+    except Exception as e:
+        return f"[ERROR] Storage failed: {str(e)[:200]}"
 
 
 @tool
@@ -143,33 +116,22 @@ async def memory_recall(user_id: str, agent_name: str, key: str) -> str:
     🌐 CROSS-PLATFORM: All memories are tied to user_id, enabling
         true Universal Memory across Claude, ChatGPT, Gemini, etc.
 
-    Examples:
-        # Retrieve global memory for user
-        user_id="user_jfk", agent_name="global", key="user_language"
-
-        # Retrieve thread-specific memory
-        user_id="user_jfk", agent_name="thread_chat_123", key="current_topic"
-
     Args:
         user_id: User identifier (memory owner)
         agent_name: Agent identifier (must match the one used in memory_store)
         key: Memory key to retrieve
 
     Returns:
-        JSON object with value and metadata if metadata exists,
-        otherwise just the value.
+        JSON object with value and metadata
         Format: {"key": "...", "value": "...", "metadata": {...}}
-        Returns "No value found" message if key doesn't exist.
 
     💡 Note: All memory is now persistent (stored to disk).
     """
-    # Always enable RAG to match memory_store behavior
+    # Get MemoryManager
     enable_rag = True
-
     try:
         memory = get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
     except ImportError:
-        # If RAG dependencies not available, get from cache with consistent key
         from kagura.core.memory import MemoryManager
 
         cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
@@ -179,26 +141,27 @@ async def memory_recall(user_id: str, agent_name: str, key: str) -> str:
             )
         memory = _memory_cache[cache_key]
 
-    # Track access for usage analytics (Issue #411)
-    recall_result = memory.recall(key, include_metadata=True, track_access=True)
-    if recall_result is None:
-        value = None
-        metadata = None
-    else:
-        value, metadata = recall_result
+    # Use MemoryService for business logic (v4.4.0+)
+    try:
+        from kagura.services import MemoryService
 
-    # Return helpful message if value not found
-    if value is None:
-        return f"No value found for key '{key}' in persistent memory"
+        service = MemoryService(memory)
+        result = service.recall_memory(key)
 
-    # Always return structured JSON so callers can rely on consistent fields
-    payload = {
-        "key": key,
-        "value": str(value),
-        "metadata": metadata,
-    }
+        if not result.success:
+            return f"No value found for key '{key}' in persistent memory"
 
-    return json.dumps(payload, ensure_ascii=False, indent=2, default=str)
+        # Return structured JSON
+        payload = {
+            "key": key,
+            "value": result.metadata.get("value", ""),
+            "metadata": result.metadata,
+        }
+
+        return json.dumps(payload, ensure_ascii=False, indent=2, default=str)
+
+    except Exception as e:
+        return f"[ERROR] Recall failed: {str(e)[:200]}"
 
 
 @tool
@@ -216,13 +179,6 @@ async def memory_delete(user_id: str, agent_name: str, key: str) -> str:
 
     💡 IMPORTANT: Deletion is permanent and logged for audit.
 
-    Examples:
-        # Delete memory for user
-        user_id="user_jfk", agent_name="global", key="old_preference"
-
-        # Delete thread-specific memory
-        user_id="user_jfk", agent_name="thread_chat_123", key="temp_data"
-
     Args:
         user_id: User identifier (memory owner)
         agent_name: Agent identifier
@@ -235,8 +191,8 @@ async def memory_delete(user_id: str, agent_name: str, key: str) -> str:
         - Deletion is logged with timestamp and user_id
         - Both key-value memory and RAG entries are deleted
         - For GDPR compliance: Complete deletion guaranteed
-        - All memory is now persistent (stored to disk)
     """
+    # Get MemoryManager
     enable_rag = True
     try:
         memory = get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
@@ -250,25 +206,26 @@ async def memory_delete(user_id: str, agent_name: str, key: str) -> str:
             )
         memory = _memory_cache[cache_key]
 
-    # Check if memory exists
-    value = memory.recall(key)
-    if value is None:
-        return json.dumps({"error": f"Memory '{key}' not found in persistent memory"})
+    # Use MemoryService for business logic (v4.4.0+)
+    try:
+        from kagura.services import MemoryService
 
-    # Delete from persistent storage (includes RAG)
-    memory.forget(key)
+        service = MemoryService(memory)
+        result = service.delete_memory(key)
 
-    # TODO: Log deletion for audit (Phase B or later)
-    # audit_log.record_deletion(agent_name, key, timestamp)
+        if not result.success:
+            return json.dumps({"error": result.message})
 
-    return json.dumps(
-        {
-            "status": "deleted",
-            "key": key,
-            "scope": "persistent",
-            "agent_name": agent_name,
-            "message": f"Memory '{key}' deleted from persistent memory",
-            "audit": "Deletion logged",  # TODO: Implement actual audit logging
-        },
-        indent=2,
-    )
+        return json.dumps(
+            {
+                "status": "deleted",
+                "key": key,
+                "scope": "persistent",
+                "agent_name": agent_name,
+                "message": result.message,
+            },
+            indent=2,
+        )
+
+    except Exception as e:
+        return json.dumps({"error": f"Deletion failed: {str(e)[:200]}"})
