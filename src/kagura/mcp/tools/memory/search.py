@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 
 from kagura import tool
-from kagura.mcp.builtin.common import to_int
+from kagura.utils.common.mcp_helpers import to_int
 from kagura.mcp.tools.memory.common import _memory_cache, get_memory_manager
 from kagura.mcp.tools.memory.storage import memory_recall
 

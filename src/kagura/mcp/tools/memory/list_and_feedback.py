@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Any
 
 from kagura import tool
-from kagura.mcp.builtin.common import format_error, to_float_clamped, to_int
+from kagura.utils.common.mcp_helpers import format_error, to_float_clamped, to_int
 from kagura.mcp.tools.memory.common import _memory_cache, get_memory_manager
 
 

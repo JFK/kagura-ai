@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timezone
 
 from kagura import tool
-from kagura.mcp.builtin.common import to_bool
+from kagura.utils.common.mcp_helpers import to_bool
 from kagura.mcp.tools.coding.common import get_coding_memory
 
 

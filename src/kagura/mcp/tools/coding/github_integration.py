@@ -6,7 +6,7 @@ Links coding sessions to GitHub issues and generates PR descriptions.
 from __future__ import annotations
 
 from kagura import tool
-from kagura.mcp.builtin.common import to_int
+from kagura.utils.common.mcp_helpers import to_int
 from kagura.mcp.tools.coding.common import get_coding_memory
 
 

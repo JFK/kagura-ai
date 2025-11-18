@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 
 from kagura import tool
-from kagura.mcp.builtin.common import (
+from kagura.utils.common.mcp_helpers import (
     parse_json_dict,
     parse_json_list,
     to_float_clamped,

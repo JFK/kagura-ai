@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 
 from kagura import tool
-from kagura.mcp.builtin.common import parse_json_dict
+from kagura.utils.common.mcp_helpers import parse_json_dict
 from kagura.mcp.tools.coding.common import get_coding_memory
 
 logger = logging.getLogger(__name__)

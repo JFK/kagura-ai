@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Literal
 
 from kagura import tool
-from kagura.mcp.builtin.common import parse_json_list
+from kagura.utils.common.mcp_helpers import parse_json_list
 from kagura.mcp.tools.coding.common import get_coding_memory
 
 

@@ -6,7 +6,7 @@ Records design and architectural decisions with rationale.
 from __future__ import annotations
 
 from kagura import tool
-from kagura.mcp.builtin.common import parse_json_list, to_float_clamped
+from kagura.utils.common.mcp_helpers import parse_json_list, to_float_clamped
 from kagura.mcp.tools.coding.common import get_coding_memory
 
 

@@ -9,7 +9,7 @@ import json
 from typing import Optional
 
 from kagura import tool
-from kagura.mcp.builtin.common import format_error
+from kagura.utils.common.mcp_helpers import format_error
 from kagura.mcp.tools.memory.common import get_memory_manager
 
 
