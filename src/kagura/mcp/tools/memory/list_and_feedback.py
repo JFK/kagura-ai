@@ -68,13 +68,12 @@ async def memory_list(user_id: str, agent_name: str, limit: int = 10) -> str:
     # Convert limit to int using common helper
     limit = to_int(limit, default=50, min_val=1, max_val=1000, param_name="limit")
 
-    # Always enable RAG to match other memory tools
+    # Get MemoryManager
     enable_rag = True
 
     try:
         memory = get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
     except ImportError:
-        # If RAG dependencies not available, get from cache with consistent key
         from kagura.core.memory import MemoryManager
 
         cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
@@ -84,29 +83,20 @@ async def memory_list(user_id: str, agent_name: str, limit: int = 10) -> str:
             )
         memory = _memory_cache[cache_key]
 
+    # Use MemoryService for list operation (v4.4.0+)
     try:
-        results = []
+        from kagura.services import MemoryService
 
-        # Get all persistent memories for this user and agent
-        memories = memory.persistent.search("%", user_id, agent_name, limit=limit)
-        for mem in memories:
-            results.append(
-                {
-                    "key": mem["key"],
-                    "value": mem["value"],
-                    "scope": "persistent",
-                    "created_at": mem.get("created_at"),
-                    "updated_at": mem.get("updated_at"),
-                    "metadata": mem.get("metadata"),
-                }
-            )
+        service = MemoryService(memory)
+        result = service.list_memories(limit=limit)
 
         return json.dumps(
             {
                 "agent_name": agent_name,
                 "scope": "persistent",
-                "count": len(results),
-                "memories": results,
+                "count": result.count,
+                "memories": result.results,
+                "total": result.metadata.get("total", result.count),
             },
             indent=2,
             default=_datetime_handler,
