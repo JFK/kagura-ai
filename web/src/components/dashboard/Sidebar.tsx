@@ -24,7 +24,6 @@ import {
   Puzzle,
   Database,
   Wrench,
-  Wrench,
 } from 'lucide-react';
 
 interface NavItem {
