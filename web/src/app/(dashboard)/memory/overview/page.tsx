@@ -28,11 +28,6 @@ export default function MemoriesPage() {
             Monitor your memory system health and coding session statistics.
           </p>
         </div>
-        <Button asChild>
-          <a href="/dashboard/memory/recalling">
-            View All Memories
-          </a>
-        </Button>
       </div>
 
       {/* Memory Overview Metrics */}
