@@ -130,7 +130,7 @@ app.include_router(models_routes.router, prefix="/api/v1", tags=["models"])
 # Issue #674: OAuth2 Server for ChatGPT MCP integration
 if AUTH_AVAILABLE:
     app.include_router(auth.router, prefix="/api/v1", tags=["authentication"])
-    app.include_router(oauth.router, prefix="/api/v1/auth", tags=["oauth2-server"])  # Issue #674, #684
+    app.include_router(oauth.router, prefix="/api/v1", tags=["oauth2-server"])  # Issue #674, #684
     app.include_router(config.router, prefix="/api/v1", tags=["configuration"])
     app.include_router(audit.router, prefix="/api/v1", tags=["audit"])
     app.include_router(api_keys.router, prefix="/api/v1", tags=["api-keys"])
