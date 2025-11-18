@@ -44,13 +44,17 @@ async def coding_start_session(
     except json.JSONDecodeError:
         tags_list = []
 
-    session_id = await memory.start_coding_session(
-        description=description,
-        tags=tags_list,
-    )
+    # Use CodingService (v4.4.0+)
+    from kagura.services import CodingService
+
+    service = CodingService(memory)
+    result = await service.start_session(description=description, tags=tags_list)
+
+    if not result.success:
+        return f"❌ Failed to start session: {result.message}"
 
     return (
-        f"✅ Coding session started: {session_id}\n"
+        f"✅ Coding session started: {result.session_id}\n"
         f"Project: {project_id}\n"
         f"Description: {description}\n"
         f"Tags: {', '.join(tags_list) if tags_list else 'None'}\n\n"
