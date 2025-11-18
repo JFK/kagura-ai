@@ -101,7 +101,7 @@ class MemoryService(BaseService):
             f"agent_name={memory_manager.agent_name})"
         )
 
-    async def store_memory(
+    def store_memory(
         self,
         key: str,
         value: str,
@@ -161,17 +161,21 @@ class MemoryService(BaseService):
 
         # Store in appropriate scope
         try:
-            if scope == "persistent":
-                await self.memory.store(key, value, full_metadata)
-            else:  # working
-                if hasattr(self.memory, "working"):
-                    await self.memory.working.store(key, value, full_metadata)
-                else:
-                    # Fallback to persistent if working memory not available
-                    self.logger.warning(
-                        "Working memory not available, storing in persistent"
-                    )
-                    await self.memory.store(key, value, full_metadata)
+            # PersistentMemory.store() is synchronous and requires user_id
+            self.memory.persistent.store(
+                key=key,
+                value=value,
+                user_id=self.memory.user_id,
+                agent_name=self.memory.agent_name,
+                metadata=full_metadata,
+            )
+
+            # Note: Working memory was removed in v4.4.0
+            # All memories are now persistent
+            if scope == "working":
+                self.logger.warning(
+                    "Working memory scope requested but not available, using persistent"
+                )
 
             self.logger.info(f"Stored memory: key={key}, scope={scope}")
 
@@ -194,7 +198,7 @@ class MemoryService(BaseService):
                 message=f"Storage failed: {str(e)}",
             )
 
-    async def recall_memory(self, key: str) -> MemoryResult:
+    def recall_memory(self, key: str) -> MemoryResult:
         """Recall memory by key.
 
         Args:
@@ -210,8 +214,8 @@ class MemoryService(BaseService):
         self.validate_required(key, "key")
 
         try:
-            # Try persistent memory first
-            value = await self.memory.recall(key)
+            # Recall from persistent memory (synchronous)
+            value = self.memory.recall(key)
 
             if value:
                 return MemoryResult(
@@ -221,18 +225,7 @@ class MemoryService(BaseService):
                     metadata={"value": value, "scope": "persistent"},
                 )
 
-            # Try working memory if persistent not found
-            if hasattr(self.memory, "working"):
-                value = await self.memory.working.recall(key)
-                if value:
-                    return MemoryResult(
-                        key=key,
-                        success=True,
-                        message="Memory recalled successfully",
-                        metadata={"value": value, "scope": "working"},
-                    )
-
-            # Not found in either scope
+            # Not found
             return MemoryResult(
                 key=key,
                 success=False,
@@ -247,7 +240,7 @@ class MemoryService(BaseService):
                 message=f"Recall failed: {str(e)}",
             )
 
-    async def delete_memory(self, key: str) -> MemoryResult:
+    def delete_memory(self, key: str) -> MemoryResult:
         """Delete memory by key.
 
         Args:
@@ -263,13 +256,11 @@ class MemoryService(BaseService):
         self.validate_required(key, "key")
 
         try:
-            # Delete from persistent memory
-            deleted = await self.memory.delete(key)
+            # Delete from persistent memory (MemoryManager uses forget())
+            self.memory.forget(key)
 
-            # Also try to delete from working memory if available
-            if hasattr(self.memory, "working"):
-                working_deleted = await self.memory.working.delete(key)
-                deleted = deleted or working_deleted
+            # forget() doesn't return boolean, so we assume success
+            deleted = True
 
             if deleted:
                 self.logger.info(f"Deleted memory: key={key}")
@@ -293,7 +284,7 @@ class MemoryService(BaseService):
                 message=f"Deletion failed: {str(e)}",
             )
 
-    async def search_memory(
+    def search_memory(
         self,
         query: str,
         limit: int = 10,
@@ -329,8 +320,8 @@ class MemoryService(BaseService):
             )
 
         try:
-            # Search using MemoryManager's search method
-            results = await self.memory.search(query, k=limit)
+            # Search using MemoryManager's search_memory method (synchronous)
+            results = self.memory.search_memory(query, limit=limit)
 
             # Filter by importance if specified
             if min_importance is not None:
@@ -371,7 +362,7 @@ class MemoryService(BaseService):
                 metadata={"error": str(e)},
             )
 
-    async def list_memories(
+    def list_memories(
         self,
         limit: int = 100,
         offset: int = 0,
@@ -393,8 +384,10 @@ class MemoryService(BaseService):
         self.validate_range(offset, "offset", min_val=0)
 
         try:
-            # List from persistent memory
-            all_memories = await self.memory.list_all()
+            # List from persistent memory (synchronous)
+            all_memories = self.memory.persistent.fetch_all(
+                self.memory.user_id, self.memory.agent_name
+            )
 
             # Apply pagination
             paginated = all_memories[offset : offset + limit]
