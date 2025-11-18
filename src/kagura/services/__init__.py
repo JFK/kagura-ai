@@ -22,6 +22,8 @@ Benefits:
 """
 
 from kagura.services.base import BaseService
+from kagura.services.coding_service import CodingService, SessionResult
+from kagura.services.health_service import HealthCheckResult, HealthService
 from kagura.services.memory_service import (
     MemoryResult,
     MemoryService,
@@ -35,4 +37,10 @@ __all__ = [
     "MemoryService",
     "MemoryResult",
     "SearchResult",
+    # Coding Service
+    "CodingService",
+    "SessionResult",
+    # Health Service
+    "HealthService",
+    "HealthCheckResult",
 ]
