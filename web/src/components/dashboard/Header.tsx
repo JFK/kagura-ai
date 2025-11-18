@@ -23,11 +23,21 @@ import { LogOut, User, UserCircle } from 'lucide-react';
 // Page title mapping based on route
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'System Dashboard',
+  // Memory
+  '/memory/overview': 'Memory',
+  '/memory/recalling': 'Recalling',
+  // Integrations
   '/api-keys': 'API Keys',
-  '/memories': 'Memory Overview',
-  '/memories/list': 'Memory List',
+  '/integrations/oauth-providers': 'Integrations',
+  '/integrations/app-credentials': 'Integrations',
+  '/integrations/mcp-tools': 'Integrations',
+  // System
+  '/system/overview': 'System',
+  '/system/ai': 'System',
+  '/system/backends': 'System',
+  // Settings
   '/settings/config': 'Configuration',
-  '/settings/profile': 'Profile Settings',
+  '/profile': 'Profile',
 };
 
 export function Header() {
