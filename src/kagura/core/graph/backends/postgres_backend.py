@@ -7,10 +7,9 @@ Supports multi-instance deployments and cloud environments.
 Uses singleton pattern for Engine (connection pool shared across instances).
 """
 
-import json
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import JSON, Column, DateTime, Engine, Integer, String, create_engine, func
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker

@@ -6,7 +6,6 @@ Core CRUD operations for memory management.
 from __future__ import annotations
 
 import json
-from datetime import datetime
 
 from kagura import tool
 from kagura.mcp.builtin.common import (

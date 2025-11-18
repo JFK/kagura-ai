@@ -21,7 +21,6 @@ from fastapi import HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from kagura.auth.api_key_manager import (
-    APIKeyManagerSQL,
     get_api_key_manager_sql,
 )
 from kagura.config.paths import get_data_dir

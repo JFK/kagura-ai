@@ -8,7 +8,7 @@ Provides secure session storage using Redis with singleton pattern.
 import json
 import logging
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Optional
 
 logger = logging.getLogger(__name__)

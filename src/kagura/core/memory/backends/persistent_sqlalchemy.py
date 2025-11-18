@@ -19,7 +19,6 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    create_engine,
     func,
 )
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker

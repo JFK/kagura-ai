@@ -15,7 +15,7 @@ import logging
 from typing import Optional
 
 from fastapi import APIRouter, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from kagura.api.dependencies import AdminUser
 

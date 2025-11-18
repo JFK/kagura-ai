@@ -40,7 +40,6 @@ class HealthService(BaseService):
         """
         try:
             # Basic check: try to import core modules
-            from kagura.core.memory import MemoryManager
 
             return {
                 "status": "healthy",
@@ -63,7 +62,6 @@ class HealthService(BaseService):
             Health check result
         """
         try:
-            from kagura.core.memory.coding_memory import CodingMemoryManager
 
             return {
                 "status": "healthy",

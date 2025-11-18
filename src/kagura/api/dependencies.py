@@ -13,7 +13,7 @@ from typing import Annotated, Optional
 
 from fastapi import Depends, Header, HTTPException, Request
 
-from kagura.auth.roles import Role, get_role_manager
+from kagura.auth.roles import Role
 from kagura.config.paths import get_data_dir
 from kagura.core.memory import MemoryManager
 
