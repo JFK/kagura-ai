@@ -269,7 +269,7 @@ export default function AppCredentialsPage() {
           </div>
           <h1 className="text-4xl font-bold text-gray-900">App Credentials</h1>
           <p className="mt-2 text-lg text-gray-600">
-            OAuth2クライアントアプリケーション管理（ChatGPT Apps、Claude Connectorsなど）
+            Manage OAuth2 client applications (ChatGPT Apps, Claude Connectors, etc.)
           </p>
         </div>
 
