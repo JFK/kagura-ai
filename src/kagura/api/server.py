@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from kagura.api import models
-from kagura.api.routes import coding, graph, memory, search, system
+from kagura.api.routes import coding, graph, mcp_info, memory, search, system
 from kagura.api.routes import models as models_routes
 from kagura.api.routes.mcp_transport import mcp_asgi_app
 
@@ -123,6 +123,7 @@ app.include_router(graph.router, prefix="/api/v1/graph", tags=["graph"])
 app.include_router(search.router, prefix="/api/v1", tags=["search"])
 app.include_router(system.router, prefix="/api/v1", tags=["system"])
 app.include_router(models_routes.router, prefix="/api/v1", tags=["models"])
+app.include_router(mcp_info.router, prefix="/api/v1/mcp", tags=["mcp-info"])
 
 # Issue #650: OAuth2 and Config management routes
 # Issue #653: Audit logs
