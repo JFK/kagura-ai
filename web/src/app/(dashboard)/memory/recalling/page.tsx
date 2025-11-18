@@ -204,7 +204,7 @@ export default function MemoriesPage() {
             <Sparkles className="h-4 w-4" />
             <span>Memory Management</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900">Memory</h1>
+          <h1 className="text-4xl font-bold text-gray-900">Recalling</h1>
           <p className="mt-2 text-lg text-gray-600">
             Manage your memory cloud storage and coding sessions
           </p>
