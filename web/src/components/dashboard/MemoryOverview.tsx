@@ -112,17 +112,31 @@ export function MemoryOverview() {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Loading...</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-20 animate-pulse bg-gray-200 rounded" />
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-6">
+        {/* Loading Message */}
+        <div className="flex items-center justify-center rounded-2xl border-2 border-brand-green-200 bg-gradient-to-r from-brand-green-50 to-emerald-50 p-8">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-green-200 border-t-brand-green-600" />
+              <div className="absolute inset-0 h-12 w-12 animate-ping rounded-full border-4 border-brand-green-600 opacity-20" />
+            </div>
+            <div>
+              <p className="text-lg font-semibold text-gray-900">Loading memory metrics...</p>
+              <p className="text-sm text-gray-600">Gathering health information</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Cards */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <CardContent className="p-6">
+                <div className="h-32 animate-pulse rounded-lg bg-gradient-to-br from-brand-green-100 to-emerald-100" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -252,33 +266,6 @@ export function MemoryOverview() {
         })()}
       </div>
 
-      {/* Coding Memory Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <FolderGit2 className="h-4 w-4" />
-            Coding Memory
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-2">
-                <FolderGit2 className="h-5 w-5 text-muted-foreground" />
-                <span className="font-semibold">Tracked Projects</span>
-              </div>
-              <span className="text-2xl font-bold">{codingData.stats.projects_count}</span>
-            </div>
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-muted-foreground" />
-                <span className="font-semibold">Coding Sessions</span>
-              </div>
-              <span className="text-2xl font-bold">{codingData.stats.sessions_count}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Memory & Coding Statistics Charts */}
       <MemoryStatsChart
