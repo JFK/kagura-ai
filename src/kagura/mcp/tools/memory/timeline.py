@@ -160,50 +160,25 @@ async def memory_fuzzy_recall(
 
     memory = get_memory_manager(user_id, agent_name, enable_rag=False)
 
-    # Collect all keys from persistent storage
-    all_memories = []
-    # Search all persistent memories
-    persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
-    all_memories.extend(persistent_mems)
+    # Use MemoryService for fuzzy recall (v4.4.0+)
+    try:
+        from kagura.services import MemoryService
 
-    if not all_memories:
-        return json.dumps(
-            {"found": 0, "results": [], "message": "No memories in persistent storage"}
+        service = MemoryService(memory)
+        result = service.fuzzy_recall(
+            key_pattern=key_pattern,
+            similarity_threshold=similarity_threshold_f,
+            limit=k_int,
         )
 
-    # Calculate similarity scores
-    matches = []
-    key_pattern_lower = key_pattern.lower()
-
-    for mem in all_memories:
-        mem_key = mem.get("key", "")
-        mem_key_lower = mem_key.lower()
-
-        # Calculate similarity
-        similarity = SequenceMatcher(None, key_pattern_lower, mem_key_lower).ratio()
-
-        if similarity >= similarity_threshold_f:
-            matches.append(
-                {
-                    "key": mem_key,
-                    "value": mem.get("value", ""),
-                    "similarity": similarity,
-                    "metadata": mem.get("metadata", {}),
-                }
-            )
-
-    # Sort by similarity (descending)
-    matches.sort(key=lambda x: x["similarity"], reverse=True)
-
-    # Limit to k_int results
-    final_results = matches[:k_int]
-
-    return json.dumps(
-        {
-            "found": len(final_results),
-            "key_pattern": key_pattern,
-            "similarity_threshold": similarity_threshold_f,
-            "results": final_results,
-        },
-        indent=2,
-    )
+        return json.dumps(
+            {
+                "found": result.count,
+                "key_pattern": key_pattern,
+                "similarity_threshold": similarity_threshold_f,
+                "results": result.results,
+            },
+            indent=2,
+        )
+    except Exception as e:
+        return json.dumps({"error": str(e)})

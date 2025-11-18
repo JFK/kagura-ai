@@ -516,3 +516,64 @@ class MemoryService(BaseService):
                 count=0,
                 metadata={"error": str(e)},
             )
+
+    def fuzzy_recall(
+        self,
+        key_pattern: str,
+        similarity_threshold: float = 0.6,
+        limit: int = 10,
+    ) -> SearchResult:
+        """Recall memories using fuzzy key matching.
+
+        Args:
+            key_pattern: Partial key or pattern
+            similarity_threshold: Minimum similarity (0.0-1.0)
+            limit: Maximum results
+
+        Returns:
+            SearchResult with fuzzy-matched memories
+        """
+        self.validate_required(key_pattern, "key_pattern")
+        self.validate_range(similarity_threshold, "similarity_threshold", 0.0, 1.0)
+        self.validate_range(limit, "limit", 1, 1000)
+
+        try:
+            from difflib import SequenceMatcher
+
+            all_memories = self.memory.persistent.fetch_all(
+                self.memory.user_id, self.memory.agent_name
+            )
+
+            matches = []
+            key_pattern_lower = key_pattern.lower()
+
+            for mem in all_memories:
+                mem_key = mem.get("key", "")
+                similarity = SequenceMatcher(
+                    None, key_pattern_lower, mem_key.lower()
+                ).ratio()
+
+                if similarity >= similarity_threshold:
+                    mem_result = dict(mem)
+                    mem_result["similarity"] = similarity
+                    matches.append(mem_result)
+
+            matches.sort(key=lambda x: x["similarity"], reverse=True)
+            results = matches[:limit]
+
+            return SearchResult(
+                results=results,
+                count=len(results),
+                metadata={
+                    "key_pattern": key_pattern,
+                    "similarity_threshold": similarity_threshold,
+                },
+            )
+
+        except Exception as e:
+            self.logger.error(f"Fuzzy recall failed: {e}")
+            return SearchResult(
+                results=[],
+                count=0,
+                metadata={"error": str(e)},
+            )
