@@ -48,7 +48,7 @@ def get_mcp_server() -> Server:
     if _mcp_server is None:
         # Auto-register built-in MCP tools
         try:
-            import kagura.mcp.builtin  # noqa: F401
+            import kagura.mcp.tools  # noqa: F401  # Auto-register tools
 
             logger.info("Loaded built-in MCP tools for HTTP transport")
         except ImportError:

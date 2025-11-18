@@ -188,3 +188,19 @@ docs/api/*.js
 *.bak
 *.tmp
 *~
+
+# Web build artifacts
+web/.next/
+web/node_modules/
+web/.env.local
+
+# Terraform state
+terraform/**/.terraform/
+terraform/**/*.tfstate
+terraform/**/*.tfstate.backup
+terraform/**/tfplan
+terraform/**/*.tfvars
+
+# Environment files
+.env.cloud
+.env.local
