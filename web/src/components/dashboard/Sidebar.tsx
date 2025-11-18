@@ -23,6 +23,8 @@ import {
   Shield,
   Puzzle,
   Database,
+  Wrench,
+  Wrench,
 } from 'lucide-react';
 
 interface NavItem {
@@ -71,6 +73,11 @@ const navigationGroups: NavGroup[] = [
         name: 'App Credentials',
         href: '/integrations/app-credentials',
         icon: Puzzle,
+      },
+      {
+        name: 'MCP Tools',
+        href: '/integrations/mcp-tools',
+        icon: Wrench,
       },
     ],
   },
