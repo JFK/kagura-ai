@@ -72,107 +72,35 @@ async def memory_timeline(
         - Event type matching is case-insensitive substring match
         - All memory is now persistent (stored to disk)
     """
-    # Convert k to int using common helper
+    # Convert k to int
     k_int = to_int(k, default=20, min_val=1, max_val=1000, param_name="k")
 
     memory = get_memory_manager(user_id, agent_name, enable_rag=True)
 
-    # Parse time range
-    now = datetime.utcnow()
-    start_time: datetime | None = None
-    end_time: datetime | None = None
+    # Use MemoryService for timeline search (v4.4.0+)
+    try:
+        from kagura.services import MemoryService
 
-    if time_range == "last_24h" or time_range == "last_day":
-        start_time = now - timedelta(days=1)
-        end_time = now
-    elif time_range == "last_week":
-        start_time = now - timedelta(days=7)
-        end_time = now
-    elif time_range == "last_month":
-        start_time = now - timedelta(days=30)
-        end_time = now
-    elif ":" in time_range:
-        # Date range: "YYYY-MM-DD:YYYY-MM-DD"
-        start_str, end_str = time_range.split(":")
-        start_time = datetime.fromisoformat(start_str)
-        end_time = datetime.fromisoformat(end_str)
-    else:
-        # Single date: "YYYY-MM-DD"
-        try:
-            start_time = datetime.fromisoformat(time_range)
-            end_time = start_time + timedelta(days=1)
-        except ValueError:
-            return json.dumps(
-                {
-                    "error": f"Invalid time_range format: {time_range}",
-                    "expected": (
-                        "last_24h, last_week, last_month, YYYY-MM-DD, "
-                        "or YYYY-MM-DD:YYYY-MM-DD"
-                    ),
-                }
-            )
-
-    # Collect memories from persistent storage
-    all_memories = []
-    # Search all persistent memories
-    persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
-    all_memories.extend(persistent_mems)
-
-    # Filter by time and event type
-    filtered_results = []
-    for mem in all_memories:
-        metadata = mem.get("metadata") or {}
-
-        # Check timestamp
-        timestamp_str = metadata.get("timestamp")
-        if not timestamp_str:
-            continue
-
-        try:
-            timestamp = datetime.fromisoformat(timestamp_str)
-        except (ValueError, TypeError):
-            continue
-
-        if start_time and timestamp < start_time:
-            continue
-        if end_time and timestamp > end_time:
-            continue
-
-        # Check event type
-        if event_type:
-            mem_type = metadata.get("type", "").lower()
-            if event_type.lower() not in mem_type:
-                continue
-
-        filtered_results.append(
-            {
-                "key": mem.get("key", ""),
-                "value": mem.get("value", ""),
-                "timestamp": timestamp_str,
-                "type": metadata.get("type", ""),
-                "metadata": metadata,
-            }
+        service = MemoryService(memory)
+        result = service.search_by_time_range(
+            time_range=time_range,
+            limit=k_int,
+            event_type=event_type,
         )
 
-    # Sort by timestamp (newest first)
-    filtered_results.sort(key=lambda x: x["timestamp"], reverse=True)
-
-    # Limit to k_int results
-    final_results = filtered_results[:k_int]
-
-    return json.dumps(
-        {
-            "found": len(final_results),
-            "time_range": {
-                "start": start_time.isoformat() if start_time else None,
-                "end": end_time.isoformat() if end_time else None,
-                "query": time_range,
+        return json.dumps(
+            {
+                "time_range": time_range,
+                "event_type": event_type,
+                "count": result.count,
+                "memories": result.results,
+                "metadata": result.metadata,
             },
-            "event_type": event_type,
-            "results": final_results,
-        },
-        indent=2,
-    )
+            indent=2,
+            default=str,
+        )
+    except Exception as e:
+        return json.dumps({"error": str(e)})
 
 
 @tool

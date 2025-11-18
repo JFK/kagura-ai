@@ -409,3 +409,110 @@ class MemoryService(BaseService):
                 count=0,
                 metadata={"error": str(e)},
             )
+
+    def search_by_time_range(
+        self,
+        time_range: str,
+        limit: int = 20,
+        event_type: str | None = None,
+    ) -> SearchResult:
+        """Search memories by time range.
+
+        Args:
+            time_range: Time specification:
+                - "last_24h" or "last_day": Last 24 hours
+                - "last_week": Last 7 days
+                - "last_month": Last 30 days
+                - "YYYY-MM-DD": Specific date
+                - "YYYY-MM-DD:YYYY-MM-DD": Date range
+            limit: Maximum results (default: 20)
+            event_type: Optional event type filter
+
+        Returns:
+            SearchResult with time-filtered memories
+        """
+        self.validate_required(time_range, "time_range")
+        self.validate_range(limit, "limit", min_val=1, max_val=1000)
+
+        # Parse time range
+        now = datetime.utcnow()
+        start_time: datetime | None = None
+        end_time: datetime | None = None
+
+        if time_range in ("last_24h", "last_day"):
+            start_time = now - timedelta(days=1)
+            end_time = now
+        elif time_range == "last_week":
+            start_time = now - timedelta(days=7)
+            end_time = now
+        elif time_range == "last_month":
+            start_time = now - timedelta(days=30)
+            end_time = now
+        elif ":" in time_range:
+            start_str, end_str = time_range.split(":")
+            start_time = datetime.fromisoformat(start_str)
+            end_time = datetime.fromisoformat(end_str)
+        else:
+            try:
+                date = datetime.fromisoformat(time_range)
+                start_time = date.replace(hour=0, minute=0, second=0)
+                end_time = date.replace(hour=23, minute=59, second=59)
+            except ValueError:
+                raise ValueError(f"Invalid time_range format: {time_range}")
+
+        try:
+            # Get all memories and filter by time
+            all_memories = self.memory.persistent.fetch_all(
+                self.memory.user_id, self.memory.agent_name
+            )
+
+            filtered = []
+            for mem in all_memories:
+                # Check timestamp
+                created_at = mem.get("created_at")
+                if created_at:
+                    try:
+                        ts_str = created_at.replace("Z", "+00:00")
+                        ts = datetime.fromisoformat(str(ts_str))
+
+                        if start_time and ts < start_time:
+                            continue
+                        if end_time and ts > end_time:
+                            continue
+
+                        # Filter by event type if specified
+                        if event_type:
+                            meta = mem.get("metadata", {})
+                            if isinstance(meta, dict):
+                                mem_event_type = meta.get("event_type", "")
+                                if event_type.lower() not in str(mem_event_type).lower():
+                                    continue
+
+                        filtered.append(mem)
+                    except (ValueError, AttributeError):
+                        pass
+
+            # Sort by timestamp (newest first) and limit
+            filtered.sort(
+                key=lambda m: m.get("created_at", ""), reverse=True
+            )
+            results = filtered[:limit]
+
+            return SearchResult(
+                results=results,
+                count=len(results),
+                metadata={
+                    "time_range": time_range,
+                    "start_time": start_time.isoformat() if start_time else None,
+                    "end_time": end_time.isoformat() if end_time else None,
+                    "event_type": event_type,
+                },
+            )
+
+        except Exception as e:
+            self.logger.error(f"Timeline search failed: {e}")
+            return SearchResult(
+                results=[],
+                count=0,
+                metadata={"error": str(e)},
+            )
