@@ -60,7 +60,7 @@ export interface OAuth2ClientUpdateRequest {
  * List configured OAuth2 providers
  */
 export async function getOAuth2Providers(): Promise<OAuth2Provider[]> {
-  return await apiClient.get<OAuth2Provider[]>('/auth/oauth2/providers');
+  return await apiClient.get<OAuth2Provider[]>('/oauth/providers');
 }
 
 // ============================================================================
@@ -71,7 +71,7 @@ export async function getOAuth2Providers(): Promise<OAuth2Provider[]> {
  * List all registered OAuth2 clients
  */
 export async function getOAuth2Clients(): Promise<OAuth2Client[]> {
-  return await apiClient.get<OAuth2Client[]>('/auth/oauth2/clients');
+  return await apiClient.get<OAuth2Client[]>('/oauth/clients');
 }
 
 /**
@@ -81,7 +81,7 @@ export async function createOAuth2Client(
   data: OAuth2ClientCreateRequest
 ): Promise<OAuth2ClientWithSecret> {
   return await apiClient.post<OAuth2ClientWithSecret>(
-    '/auth/oauth2/clients',
+    '/oauth/clients',
     data
   );
 }
@@ -90,7 +90,7 @@ export async function createOAuth2Client(
  * Get OAuth2 client details
  */
 export async function getOAuth2Client(clientId: string): Promise<OAuth2Client> {
-  return await apiClient.get<OAuth2Client>(`/auth/oauth2/clients/${clientId}`);
+  return await apiClient.get<OAuth2Client>(`/oauth/clients/${clientId}`);
 }
 
 /**
@@ -101,7 +101,7 @@ export async function updateOAuth2Client(
   data: OAuth2ClientUpdateRequest
 ): Promise<OAuth2Client> {
   return await apiClient.put<OAuth2Client>(
-    `/auth/oauth2/clients/${clientId}`,
+    `/oauth/clients/${clientId}`,
     data
   );
 }
@@ -110,5 +110,5 @@ export async function updateOAuth2Client(
  * Delete OAuth2 client
  */
 export async function deleteOAuth2Client(clientId: string): Promise<void> {
-  await apiClient.delete(`/auth/oauth2/clients/${clientId}`);
+  await apiClient.delete(`/oauth/clients/${clientId}`);
 }
