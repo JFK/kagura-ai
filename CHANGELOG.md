@@ -13,11 +13,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.4.0] - TBD
 
+### 🎯 Release Focus
+
+1. **Cloud Infrastructure** - Enable cloud-native deployments ([#554](https://github.com/JFK/kagura-ai/issues/554), [#649](https://github.com/JFK/kagura-ai/issues/649))
+2. **Service Layer Architecture** - Eliminate code duplication ([#714](https://github.com/JFK/kagura-ai/issues/714))
+
+---
+
+### 🏗️ Service Layer Architecture (#714)
+
+**Phase 1+2 Complete:** Unified authentication + Service layer extraction + MCP/API integration
+
+#### ✨ Added
+
+##### UnifiedAuthManager (`src/kagura/auth/unified_auth.py`)
+- **Consolidates 6 authentication patterns into 1 unified system**
+- Priority-based authentication: API Key > OAuth2 > Session > Anonymous
+- Lazy initialization to avoid circular dependencies
+- 12 comprehensive tests (100% passing)
+
+##### Service Layer (`src/kagura/services/`)
+- **BaseService**: Common validation utilities, logging, metadata builder
+- **MemoryService** (418 lines): Memory CRUD with validation
+  - `store_memory()`, `recall_memory()`, `delete_memory()`
+  - `search_memory()`, `list_memories()`
+  - Input validation, metadata construction, error handling
+- **CodingService** (158 lines): Coding session management
+  - `start_session()`, `end_session()`, `track_file_change()`
+- **HealthService** (108 lines): System diagnostics
+  - `check_memory_system()`, `check_coding_system()`, `run_diagnostics()`
+- 13 service layer tests (100% passing)
+
+##### MCP Tools Integration
+- **Refactored memory storage tools** to use MemoryService:
+  - `memory_store`, `memory_recall`, `memory_delete`
+  - **Code reduction: 274 → 231 lines (15.7% reduction)**
+  - Eliminated duplicate metadata construction, ChromaDB conversion, error handling
+
+##### API Routes Integration
+- **Refactored memory API routes** to use MemoryService:
+  - `POST /memory`, `GET /memory/{key}`, `DELETE /memory/{key}`
+  - Consistent validation and behavior with MCP tools
+
+#### 🔧 Fixed
+
+- **URL duplication bug**: Fixed `/api/v1/api/v1/config` → `/api/v1/config`
+  - Updated router prefixes in `config.py` and `audit.py`
+- **MemoryService API**: Fixed to match MemoryManager synchronous interface
+  - Corrected method signatures (async → sync)
+  - Updated to use `self.memory.persistent.store()` instead of `await self.memory.store()`
+
+#### 📚 Documentation
+
+- `ai_docs/REFACTORING_PLAN_V4.3.0.md`: Comprehensive refactoring plan (881 lines)
+- `ai_docs/ARCHITECTURE.md`: Added Service Layer Architecture section
+- `ai_docs/MIGRATION_GUIDE_v4.4.0.md`: Migration guide for v4.4.0
+
+#### ⚠️ Deprecated
+
+- `api/auth.py::APIKeyManager` - Use `UnifiedAuthManager` instead (removal in v4.5.0)
+
+---
+
 ### 🎯 Cloud Infrastructure & Multi-Backend Support
 
-**Goal**: Enable cloud-native deployments with pluggable storage backends.
-
-**Tracking**: [Issue #554](https://github.com/JFK/kagura-ai/issues/554), [Issue #649](https://github.com/JFK/kagura-ai/issues/649)
+**Tracking**: [Issue #554](https://github.com/JFK/kagura-ai/issues/554), [#649](https://github.com/JFK/kagura-ai/issues/649)
 
 #### ✨ Added
 
