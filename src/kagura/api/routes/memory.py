@@ -240,30 +240,33 @@ async def create_memory(
     Raises:
         HTTPException: If memory key already exists
     """
-    # Check if memory already exists in persistent storage
+    # Check if memory already exists
     existing = memory.recall(request.key)
     if existing is not None:
         raise HTTPException(
             status_code=409, detail=f"Memory '{request.key}' already exists"
         )
 
-    # Build metadata with standard fields
-    full_metadata = build_full_metadata(
-        tags=request.tags,
+    # Use MemoryService for business logic (v4.4.0+)
+    from kagura.services import MemoryService
+
+    service = MemoryService(memory)
+    result = service.store_memory(
+        key=request.key,
+        value=request.value,
+        tags=request.tags or [],
         importance=request.importance,
-        user_metadata=request.metadata,
+        metadata=request.metadata,
     )
 
-    # Prepare metadata for ChromaDB storage
-    chromadb_metadata = prepare_for_chromadb(full_metadata)
-    # Persistent memory: use remember() with ChromaDB-compatible metadata
-    memory.remember(request.key, request.value, chromadb_metadata)
+    if not result.success:
+        raise HTTPException(status_code=500, detail=result.message)
 
     return {
         "key": request.key,
         "value": request.value,
         "scope": "persistent",
-        "tags": request.tags,
+        "tags": request.tags or [],
         "importance": request.importance,
         "metadata": request.metadata or {},
         "created_at": datetime.now(),
@@ -402,12 +405,19 @@ async def delete_memory(
     Raises:
         HTTPException: If memory not found
     """
-    # Delete from persistent memory
+    # Check if exists
     existing = memory.recall(key)
     if existing is None:
         raise HTTPException(status_code=404, detail=f"Memory '{key}' not found")
 
-    memory.forget(key)
+    # Use MemoryService for business logic (v4.4.0+)
+    from kagura.services import MemoryService
+
+    service = MemoryService(memory)
+    result = service.delete_memory(key)
+
+    if not result.success:
+        raise HTTPException(status_code=500, detail=result.message)
 
 
 @router.get("", response_model=models.MemoryListResponse)
