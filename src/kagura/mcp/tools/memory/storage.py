@@ -116,8 +116,8 @@ async def memory_store(
     # Store in persistent memory (also indexes in persistent_rag if available)
     memory.remember(key, value, chromadb_metadata)
 
-    # Check RAG availability
-    rag_available = memory.persistent_rag is not None
+    # Check RAG availability (graceful fallback for missing attributes)
+    rag_available = getattr(memory, "persistent_rag", None) is not None
 
     # Compact output (token-efficient)
     scope_badge = "global" if agent_name == "global" else "local"
