@@ -21,7 +21,7 @@ from kagura.api.dependencies import AdminUser
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/audit", tags=["audit"])
+router = APIRouter(prefix="/audit", tags=["audit"])
 
 
 # ============================================================================

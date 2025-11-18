@@ -23,7 +23,7 @@ from kagura.config.env_manager import get_env_manager
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/config", tags=["configuration"])
+router = APIRouter(prefix="/config", tags=["configuration"])
 
 
 # ============================================================================
