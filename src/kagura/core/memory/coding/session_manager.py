@@ -49,8 +49,13 @@ def _detect_active_session(self: CodingMemoryManager) -> str | None:
                     session_id = sess["key"].split(":")[-1]
                     logger.info(f"Auto-detected active session: {session_id}")
 
-                    # Load session into working memory for fast access
-                    self.working.set(f"session:{session_id}", data)
+                    # Cache session in persistent memory (working memory removed in v4.4.0)
+                    self.persistent.store(
+                        f"session:{session_id}",
+                        json.dumps(data),
+                        self.user_id,
+                        agent_name="coding_sessions"
+                    )
 
                     # Ensure graph node exists for this session
                     if self.graph:
@@ -87,9 +92,17 @@ async def _auto_save_session_progress(self: CodingMemoryManager) -> None:
     if not self.current_session_id:
         return
 
-    # Get current session data
-    session_data = self.working.get(f"session:{self.current_session_id}")
-    if not session_data:
+    # Get current session data from persistent storage
+    session_data_str = self.persistent.recall(
+        f"session:{self.current_session_id}", self.user_id, agent_name="coding_sessions"
+    )
+    if not session_data_str:
+        return
+
+    try:
+        session_data = json.loads(session_data_str) if isinstance(session_data_str, str) else session_data_str
+    except json.JSONDecodeError:
+        logger.error(f"Failed to parse session data for {self.current_session_id}")
         return
 
     # Get current activities
@@ -190,8 +203,13 @@ async def start_coding_session(
             success=None,
         )
 
-        # Store in working memory (active session)
-        self.working.set(f"session:{session_id}", session.model_dump(mode="json"))
+        # Cache session in persistent memory (working memory removed in v4.4.0)
+        self.persistent.store(
+            f"session:{session_id}",
+            json.dumps(session.model_dump(mode="json")),
+            self.user_id,
+            agent_name="coding_sessions"
+        )
 
         # Store in persistent memory
         key = self._make_key(f"session:{session_id}")
@@ -275,8 +293,13 @@ async def resume_coding_session(self: CodingMemoryManager, session_id: str) -> s
         session.end_time = None
         session.success = None
 
-        # Store resumed session in working memory
-        self.working.set(f"session:{session_id}", session.model_dump(mode="json"))
+        # Cache resumed session in persistent memory
+        self.persistent.store(
+            f"session:{session_id}",
+            json.dumps(session.model_dump(mode="json")),
+            self.user_id,
+            agent_name="coding_sessions"
+        )
 
         # Update persistent storage
         self.persistent.store(
@@ -345,10 +368,17 @@ async def end_coding_session(
 
     session_id = self.current_session_id
 
-    # Retrieve session from working memory
-    session_data = self.working.get(f"session:{session_id}")
-    if not session_data:
+    # Retrieve session from persistent storage
+    session_data_str = self.persistent.recall(
+        f"session:{session_id}", self.user_id, agent_name="coding_sessions"
+    )
+    if not session_data_str:
         raise RuntimeError(f"Session data not found: {session_id}")
+
+    try:
+        session_data = json.loads(session_data_str) if isinstance(session_data_str, str) else session_data_str
+    except json.JSONDecodeError:
+        raise RuntimeError(f"Invalid session data format: {session_id}")
 
     session = CodingSession(**session_data)
     session.end_time = datetime.utcnow()
@@ -431,8 +461,8 @@ async def end_coding_session(
         },
     )
 
-    # Remove from working memory
-    self.working.delete(f"session:{session_id}")
+    # Remove from persistent storage
+    self.persistent.forget(f"session:{session_id}", self.user_id, agent_name="coding_sessions")
 
     # Update graph (delete and re-add with updated data)
     if self.graph:
