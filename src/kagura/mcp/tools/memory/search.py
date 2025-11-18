@@ -19,35 +19,32 @@ async def memory_search(
     agent_name: str,
     query: str,
     k: int = 3,
-    scope: str = "all",
     mode: str = "full",
 ) -> str:
     """Search memories by concept/keyword match.
 
     When: User recalls topic but not exact key.
-    Combines: Semantic (RAG) + keyword matching across all memory.
+    Uses: Semantic (RAG) + keyword matching.
 
     Args:
         user_id: Memory owner ID
         agent_name: "global" or "thread_{id}"
         query: Search query (natural language)
-        k: Results per scope (default: 3)
-        scope: "all"|"working"|"persistent" (default: "all")
+        k: Number of results (default: 3)
         mode: "summary" (compact) or "full" (JSON, default)
 
-    Returns: Search results (RAG + key-value)
+    Returns: Search results
 
     💡 TIP: Searches by meaning, not exact words.
     🌐 Cross-platform: Searches user's data across all AI tools.
     """
-    # Convert k to int using common helper
+    # Convert k to int
     k = to_int(k, default=5, min_val=1, max_val=100, param_name="k")
 
+    # Get MemoryManager
     try:
-        # Use cached MemoryManager with RAG enabled
         memory = get_memory_manager(user_id, agent_name, enable_rag=True)
     except ImportError:
-        # If RAG dependencies not available, get from cache with consistent key
         from kagura.core.memory import MemoryManager
 
         cache_key = f"{user_id}:{agent_name}:rag=True"
@@ -57,67 +54,29 @@ async def memory_search(
             )
         memory = _memory_cache[cache_key]
 
+    # Use MemoryService for search (v4.4.0+)
     try:
-        # Get RAG results (semantic search) across specified scope
-        rag_results = []
-        if memory.rag or memory.persistent_rag:
-            rag_results = memory.recall_semantic(query, top_k=k, scope=scope)
-            # Add source indicator to RAG results
-            for result in rag_results:
-                result["source"] = "rag"
+        from kagura.services import MemoryService
 
-        # Search working memory for matching keys (only if scope includes working)
-        working_results = []
-        if scope in ("all", "working"):
-            query_lower = query.lower()
-            for key in memory.working.keys():
-                # Match if query is in key name
-                if query_lower in key.lower():
-                    value = memory.get_temp(key)
-                    working_results.append(
-                        {
-                            "content": f"{key}: {value}",
-                            "source": "working_memory",
-                            "scope": "working",
-                            "key": key,
-                            "value": str(value),
-                            "match_type": "key_match",
-                        }
-                    )
+        service = MemoryService(memory)
+        result = service.search_memory(query=query, limit=k)
 
-        # Combine results (working memory first for exact matches, then RAG)
-        combined_results = working_results + rag_results
+        combined_results = result.results
 
         # Format output based on mode
         if mode == "summary":
-            # Compact summary format (token-efficient)
             if not combined_results:
                 return "No results found."
 
             lines = []
-            for i, result in enumerate(combined_results[:k], 1):
-                content = result.get("content", result.get("value", ""))
-                # Truncate long content
+            for i, res in enumerate(combined_results[:k], 1):
+                content = res.get("content", res.get("value", ""))
                 preview = content[:100] + "..." if len(content) > 100 else content
-
-                # Add source indicator
-                source = result.get("source", "unknown")
-                scope_str = result.get("scope", "")
-                source_badge = f"[{source}:{scope_str}]" if scope_str else f"[{source}]"
-
-                # Distance/score (if available)
-                distance = result.get("distance")
-                if distance is not None:
-                    score = max(0.0, min(1.0, 1 - distance))
-                    score_str = f" (score: {score:.2f})"
-                else:
-                    score_str = ""
-
-                lines.append(f"{i}. {source_badge} {preview}{score_str}")
+                lines.append(f"{i}. {preview}")
 
             return "\n".join(lines)
         else:
-            # Full JSON format (backward compatibility)
+            # Full JSON format
             return json.dumps(combined_results, indent=2)
 
     except Exception as e:
