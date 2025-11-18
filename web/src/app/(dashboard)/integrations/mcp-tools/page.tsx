@@ -100,11 +100,13 @@ export default function MCPToolsPage() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <CardTitle className="text-base font-mono">{tool.name}</CardTitle>
-                {tool.remote_capable ? (
-                  <CheckCircle className="h-4 w-4 text-green-600" title="Remote-capable" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-gray-400" title="Local-only" />
-                )}
+                <div title={tool.remote_capable ? "Remote-capable" : "Local-only"}>
+                  {tool.remote_capable ? (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-gray-400" />
+                  )}
+                </div>
               </div>
               <Badge variant="outline" className="w-fit">
                 {tool.category}
