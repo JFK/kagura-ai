@@ -25,9 +25,9 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'System Dashboard',
   // Memory
   '/memory/overview': 'Memory',
-  '/memory/recalling': 'Recalling',
+  '/memory/recalling': 'Memory',
   // Integrations
-  '/api-keys': 'API Keys',
+  '/api-keys': 'Integrations',
   '/integrations/oauth-providers': 'Integrations',
   '/integrations/app-credentials': 'Integrations',
   '/integrations/mcp-tools': 'Integrations',
