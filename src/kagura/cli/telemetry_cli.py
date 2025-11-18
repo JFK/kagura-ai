@@ -4,7 +4,7 @@ import sqlite3
 from datetime import datetime, timedelta
 from typing import Any
 
-from kagura.cli.utils import create_console, create_table
+from kagura.utils.cli import create_console, create_table
 
 console = create_console()
 

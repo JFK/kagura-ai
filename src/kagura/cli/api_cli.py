@@ -8,7 +8,7 @@ from __future__ import annotations
 import click
 
 from kagura.api.auth import get_api_key_manager
-from kagura.cli.utils import create_console, create_table
+from kagura.utils.cli import create_console, create_table
 
 console = create_console()
 

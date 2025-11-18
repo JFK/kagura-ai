@@ -11,7 +11,7 @@ from typing import Any
 
 import click
 
-from kagura.cli.utils import (
+from kagura.utils.cli import (
     create_console,
     create_success_panel,
     create_table,

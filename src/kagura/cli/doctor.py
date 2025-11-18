@@ -17,7 +17,7 @@ from typing import Any
 
 import click
 
-from kagura.cli.utils import create_console, create_info_panel
+from kagura.utils.cli import create_console, create_info_panel
 from kagura.config.paths import get_data_dir
 
 console = create_console()
