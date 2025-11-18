@@ -91,7 +91,7 @@ class MCPSessionManager:
 
             # Load built-in MCP tools
             try:
-                import kagura.mcp.builtin  # noqa: F401
+                import kagura.mcp.tools  # noqa: F401  # Auto-register tools
                 logger.debug("Loaded built-in MCP tools")
             except ImportError:
                 logger.warning("Could not load built-in MCP tools")
