@@ -159,7 +159,7 @@ async def coding_resume_session(
         return f"❌ Invalid session: {e}"
 
 
-
+@tool
 async def coding_end_session(
     user_id: str,
     project_id: str,

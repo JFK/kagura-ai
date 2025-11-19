@@ -45,6 +45,7 @@ def extract_video_id(url: str) -> str:
 
 
 
+@tool
 async def youtube_transcript(video_url: str, lang: str = "en") -> str:
     """Get YouTube video transcript (renamed from get_youtube_transcript).
 
