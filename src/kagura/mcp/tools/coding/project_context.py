@@ -5,6 +5,8 @@ Retrieves comprehensive project context and overview.
 
 from __future__ import annotations
 
+import json
+
 from kagura import tool
 from kagura.mcp.tools.coding.common import get_coding_memory
 

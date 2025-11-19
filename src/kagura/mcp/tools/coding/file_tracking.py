@@ -5,6 +5,7 @@ Tracks file modifications during coding sessions with reasons and context.
 
 from __future__ import annotations
 
+import json
 from typing import Literal
 
 from kagura import tool
