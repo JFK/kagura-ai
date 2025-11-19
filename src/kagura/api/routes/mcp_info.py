@@ -31,7 +31,6 @@ async def list_mcp_tools() -> dict[str, Any]:
 
     # Import all tools to ensure registration
     try:
-        import kagura.mcp.builtin  # noqa: F401
         import kagura.mcp.tools  # noqa: F401
     except ImportError:
         pass
@@ -86,7 +85,6 @@ async def get_mcp_tool_details(tool_name: str) -> dict[str, Any]:
 
     # Import all tools
     try:
-        import kagura.mcp.builtin  # noqa: F401
         import kagura.mcp.tools  # noqa: F401
     except ImportError:
         pass
@@ -159,7 +157,6 @@ async def list_mcp_categories() -> dict[str, Any]:
 
     # Import all tools
     try:
-        import kagura.mcp.builtin  # noqa: F401
         import kagura.mcp.tools  # noqa: F401
     except ImportError:
         pass
