@@ -47,7 +47,7 @@ def get_memory_manager(
         cached = _memory_cache[cache_key]
 
         # Validate required attributes (防止: stale cache from old code versions)
-        required_attrs = ["persistent_rag", "rag", "graph", "persistent"]
+        required_attrs = ["rag", "graph", "persistent"]  # persistent_rag removed in v4.4.0
         missing_attrs = [attr for attr in required_attrs if not hasattr(cached, attr)]
 
         if missing_attrs:
