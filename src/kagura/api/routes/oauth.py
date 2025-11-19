@@ -133,6 +133,27 @@ async def get_current_user_from_session(request: Request) -> User:
 CurrentUser = Annotated[User, Depends(get_current_user_from_session)]
 
 
+async def get_current_user_optional(request: Request) -> User | None:
+    """Get current user without raising exception (for OAuth authorize flow).
+
+    Returns None instead of raising HTTPException when user is not authenticated.
+    Used by /oauth/authorize to redirect unauthenticated users to login.
+
+    Args:
+        request: FastAPI request
+
+    Returns:
+        User object if authenticated, None otherwise
+    """
+    try:
+        return await get_current_user_from_session(request)
+    except HTTPException:
+        return None
+
+
+OptionalUser = Annotated[User | None, Depends(get_current_user_optional)]
+
+
 # ============================================================================
 # Models
 # ============================================================================
@@ -245,8 +266,8 @@ async def authorize(
     state: str | None = Query(None, description="CSRF state token"),
     code_challenge: str | None = Query(None, description="PKCE code challenge"),
     code_challenge_method: str | None = Query(None, description="PKCE method (S256/plain)"),
-    user: CurrentUser = None,
-) -> HTMLResponse:
+    user: OptionalUser = None,
+) -> HTMLResponse | RedirectResponse:
     """OAuth2 authorization endpoint (user consent screen).
 
     Flow:
@@ -275,6 +296,16 @@ async def authorize(
         → User approves
         → Redirects to: https://...?code=ABC123&state=xyz
     """
+    # Check if user is authenticated
+    if not user:
+        # Redirect to Google login with return_to parameter
+        # Preserve all original authorize parameters
+        return_to_url = str(request.url)
+        login_url = f"/api/v1/auth/google/login?return_to={return_to_url}"
+
+        logger.info(f"Unauthenticated user accessing /oauth/authorize, redirecting to login")
+        return RedirectResponse(url=login_url, status_code=302)
+
     db_session = get_session()
     try:
         # Create OAuth2 server
@@ -379,7 +410,7 @@ async def authorize_post(
     code_challenge: str | None = Form(None),
     code_challenge_method: str | None = Form(None),
     confirm: str = Form(...),
-    user: CurrentUser = None,
+    user: OptionalUser = None,
 ) -> RedirectResponse:
     """Process authorization consent (approve/deny).
 
@@ -398,6 +429,13 @@ async def authorize_post(
     Returns:
         Redirect to redirect_uri with code (approved) or error (denied)
     """
+    # Check authentication (should not happen if GET worked, but defensive)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required to approve authorization",
+        )
+
     db_session = get_session()
     try:
         # User denied

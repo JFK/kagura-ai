@@ -75,19 +75,23 @@ class CallbackResponse(BaseModel):
 
 
 @google_router.get("/login", response_model=LoginResponse)
-async def google_login(redirect_uri: Optional[str] = None):
+async def google_login(
+    redirect_uri: Optional[str] = None,
+    return_to: Optional[str] = Query(None, description="URL to return to after login"),
+):
     """Initiate Google OAuth2 login flow.
 
     Generates OAuth2 authorization URL with CSRF state token.
 
     Args:
         redirect_uri: Optional custom redirect URI (defaults to configured URI)
+        return_to: Optional URL to redirect to after successful login (for OAuth2 authorize flow)
 
     Returns:
         OAuth2 authorization URL and state token
 
     Example:
-        GET /api/v1/auth/google/login
+        GET /api/v1/auth/google/login?return_to=/api/v1/oauth/authorize?client_id=...
         Response: {
             "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth?...",
             "state": "random_csrf_token"
@@ -96,6 +100,7 @@ async def google_login(redirect_uri: Optional[str] = None):
     Note:
         Frontend should redirect user to authorization_url.
         State token is stored in Redis for CSRF validation.
+        If return_to is provided, user will be redirected there after login instead of default page.
     """
     if not _oauth2_manager:
         raise HTTPException(status_code=500, detail="OAuth2 manager not initialized")
@@ -103,9 +108,17 @@ async def google_login(redirect_uri: Optional[str] = None):
     # Generate CSRF state token
     state = secrets.token_urlsafe(32)
 
-    # Store state in Redis (5 minute TTL)
+    # Store state + return_to in Redis (5 minute TTL)
     if _session_manager:
-        _session_manager._redis.setex(f"oauth2_state:{state}", 300, "pending")
+        import json
+
+        state_data = {"status": "pending"}
+        if return_to:
+            state_data["return_to"] = return_to
+
+        _session_manager._redis.setex(
+            f"oauth2_state:{state}", 300, json.dumps(state_data)
+        )
 
     # Get authorization URL
     redirect = redirect_uri or os.getenv("GOOGLE_REDIRECT_URI")
@@ -157,12 +170,23 @@ async def google_callback(
         )
 
     # 1. Validate CSRF state
-    stored_state = _session_manager._redis.get(f"oauth2_state:{state}")
-    if not stored_state:
+    import json
+
+    stored_state_raw = _session_manager._redis.get(f"oauth2_state:{state}")
+    if not stored_state_raw:
         raise HTTPException(
             status_code=400,
             detail="Invalid or expired state token (CSRF protection)",
         )
+
+    # Parse state data (may be JSON or plain string for backward compatibility)
+    try:
+        stored_state = json.loads(stored_state_raw)
+        return_to = stored_state.get("return_to")
+    except (json.JSONDecodeError, AttributeError):
+        # Backward compatibility: old states were plain strings
+        stored_state = {"status": "pending"}
+        return_to = None
 
     # Delete state (one-time use)
     _session_manager._redis.delete(f"oauth2_state:{state}")
@@ -196,8 +220,10 @@ async def google_callback(
         }
         session_id = _session_manager.create_session(session_data)
 
-        # 6. Set HttpOnly cookie and redirect to memory overview (Issue #670)
-        redirect = RedirectResponse(url="/memory/overview", status_code=303)
+        # 6. Set HttpOnly cookie and redirect
+        # Use return_to if provided (OAuth2 authorize flow), otherwise default to memory overview
+        redirect_url = return_to if return_to else "/memory/overview"
+        redirect = RedirectResponse(url=redirect_url, status_code=303)
         redirect.set_cookie(
             key="session_id",
             value=session_id,
