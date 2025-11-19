@@ -76,7 +76,6 @@ class CallbackResponse(BaseModel):
 
 @google_router.get("/login", response_model=LoginResponse)
 async def google_login(
-    redirect_uri: Optional[str] = None,
     return_to: Optional[str] = Query(None, description="URL to return to after login"),
 ):
     """Initiate Google OAuth2 login flow.
@@ -84,7 +83,6 @@ async def google_login(
     Generates OAuth2 authorization URL with CSRF state token.
 
     Args:
-        redirect_uri: Optional custom redirect URI (defaults to configured URI)
         return_to: Optional URL to redirect to after successful login (for OAuth2 authorize flow)
 
     Returns:
@@ -120,8 +118,9 @@ async def google_login(
             f"oauth2_state:{state}", 300, json.dumps(state_data)
         )
 
-    # Get authorization URL
-    redirect = redirect_uri or os.getenv("GOOGLE_REDIRECT_URI")
+    # Get authorization URL (always use configured GOOGLE_REDIRECT_URI)
+    # IMPORTANT: This is Kagura's callback URL, NOT the client's redirect_uri
+    redirect = os.getenv("GOOGLE_REDIRECT_URI")
     if not redirect:
         raise HTTPException(status_code=500, detail="GOOGLE_REDIRECT_URI not configured")
 
