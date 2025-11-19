@@ -145,7 +145,7 @@ async def memory_search_keyword(
                 {
                     "key": result["key"],
                     "content": result["content"],
-                    "score": result["score"],
+                    "score": result.get("bm25_score", 0.0),  # BM25 uses 'bm25_score' key
                     "agent_name": result.get("agent_name", agent_name),
                 }
             )
