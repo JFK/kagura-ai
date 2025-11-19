@@ -259,7 +259,7 @@ export default function AppCredentialsPage() {
   };
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="space-y-6">
       {/* Premium Header (Matching api-keys style) */}
       <div className="flex items-start justify-between">
         <div>

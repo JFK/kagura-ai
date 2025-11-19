@@ -27,7 +27,7 @@ export const PROVIDERS: Record<string, ProviderConfig> = {
   google: {
     id: 'google',
     name: 'Google (Gemini)',
-    keyNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY'],
+    keyNames: ['GOOGLE_API_KEY'],
     placeholder: 'AIza...',
     docsUrl: 'https://aistudio.google.com/app/apikey',
     validation: /^AIza/
@@ -46,27 +46,6 @@ export const PROVIDERS: Record<string, ProviderConfig> = {
     keyNames: ['COHERE_API_KEY'],
     placeholder: 'co-...',
     docsUrl: 'https://dashboard.cohere.com/api-keys'
-  },
-  voyage: {
-    id: 'voyage',
-    name: 'Voyage AI',
-    keyNames: ['VOYAGE_API_KEY'],
-    placeholder: 'pa-...',
-    docsUrl: 'https://dash.voyageai.com/'
-  },
-  jina: {
-    id: 'jina',
-    name: 'Jina AI',
-    keyNames: ['JINA_API_KEY'],
-    placeholder: 'jina_...',
-    docsUrl: 'https://jina.ai/reranker/'
-  },
-  custom: {
-    id: 'custom',
-    name: 'Custom',
-    keyNames: ['CUSTOM_API_KEY'],
-    placeholder: 'Enter custom key name...',
-    docsUrl: ''
   }
 };
 
