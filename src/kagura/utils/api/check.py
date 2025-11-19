@@ -43,7 +43,7 @@ async def check_llm_api(
             model=model,
             messages=[{"role": "user", "content": "hi"}],
             api_key=api_key,
-            max_tokens=10,
+            max_tokens=16,  # Minimum allowed by OpenAI API
             timeout=timeout,
         )
         return True, "Connection successful"
