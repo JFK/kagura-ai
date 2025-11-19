@@ -88,8 +88,8 @@ async def memory_store(
         if not result.success:
             return f"[ERROR] {result.message}"
 
-        # Check RAG availability
-        rag_available = getattr(memory, "persistent_rag", None) is not None
+        # Check RAG availability (v4.4.0: persistent_rag removed, use rag attribute)
+        rag_available = getattr(memory, "rag", None) is not None
         scope_badge = "global" if agent_name == "global" else "local"
         rag_badge = "RAG:OK" if rag_available else "RAG:NO"
 
