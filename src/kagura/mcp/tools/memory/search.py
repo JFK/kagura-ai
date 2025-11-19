@@ -116,12 +116,16 @@ async def memory_search_keyword(
         # Build corpus from persistent memory
         corpus = []
         if hasattr(memory, "persistent") and memory.persistent:
-            all_memories = memory.persistent.get_all()
-            for key, value in all_memories.items():
+            # Use fetch_all() with required parameters (not get_all())
+            all_memories_list = memory.persistent.fetch_all(
+                user_id=user_id,
+                agent_name=agent_name
+            )
+            for mem in all_memories_list:
                 corpus.append(
                     {
-                        "key": key,
-                        "content": str(value),
+                        "key": mem.get("key", ""),
+                        "content": str(mem.get("value", mem.get("content", ""))),
                         "agent_name": agent_name,
                     }
                 )

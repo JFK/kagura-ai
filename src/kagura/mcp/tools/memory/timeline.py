@@ -51,6 +51,22 @@ async def memory_search_timeline(
     💡 TIP: Use for "what happened when" queries.
     🌐 Cross-platform: Works across all AI assistants.
     """
+    # Validate time_range is a string
+    if not isinstance(time_range, str):
+        return json.dumps(
+            {
+                "error": f"time_range must be a string, got {type(time_range).__name__}",
+                "valid_formats": [
+                    "last_24h",
+                    "last_day",
+                    "last_week",
+                    "last_month",
+                    "YYYY-MM-DD",
+                    "YYYY-MM-DD:YYYY-MM-DD",
+                ],
+            }
+        )
+
     k = to_int(k, default=20, min_val=1, max_val=1000, param_name="k")
 
     memory = get_memory_manager(user_id, agent_name, enable_rag=True)
@@ -74,6 +90,22 @@ async def memory_search_timeline(
             },
             indent=2,
             ensure_ascii=False,
+        )
+    except ValueError as e:
+        # Invalid time_range format
+        return json.dumps(
+            {
+                "error": str(e),
+                "time_range": time_range,
+                "valid_formats": [
+                    "last_24h",
+                    "last_day",
+                    "last_week",
+                    "last_month",
+                    "YYYY-MM-DD",
+                    "YYYY-MM-DD:YYYY-MM-DD",
+                ],
+            }
         )
     except Exception as e:
         return json.dumps({"error": str(e), "time_range": time_range})

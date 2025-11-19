@@ -69,8 +69,8 @@ class CodingService(BaseService):
         self.validate_required(description, "description")
 
         try:
-            # Delegate to CodingMemoryManager
-            session_id = await self.coding_memory.start_session(
+            # Delegate to CodingMemoryManager (method: start_coding_session)
+            session_id = await self.coding_memory.start_coding_session(
                 description=description, tags=tags or []
             )
 

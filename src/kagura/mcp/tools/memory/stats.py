@@ -43,6 +43,12 @@ async def memory_stats(
     """
     logger = logging.getLogger(__name__)
 
+    # Validate parameters
+    if not isinstance(user_id, str) or not user_id.strip():
+        return json.dumps({"error": "user_id must be a non-empty string"})
+    if not isinstance(agent_name, str):
+        return json.dumps({"error": "agent_name must be a string"})
+
     logger.debug(f"memory_stats: Starting for user={user_id}, agent={agent_name}")
     enable_rag = True
     memory = get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
