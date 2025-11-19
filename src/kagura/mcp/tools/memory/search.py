@@ -136,7 +136,7 @@ async def memory_search_keyword(
         # Initialize BM25 and search
         bm25 = BM25Search(k1=1.2, b=0.4)
         bm25.build_index(corpus)  # Correct method name: build_index, not fit
-        results = bm25.search(query, top_k=k)
+        results = bm25.search(query, k=k)  # Correct parameter name: k, not top_k
 
         # Format results
         formatted_results = []
