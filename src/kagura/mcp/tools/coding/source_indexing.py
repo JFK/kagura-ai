@@ -396,14 +396,14 @@ async def coding_search_source_code(
     k_int = to_int(k, default=5, min_val=1, max_val=50, param_name="k")
 
     # Perform semantic search using appropriate method
-    if memory.persistent_rag and memory.lexical_searcher:
+    if memory.rag and memory.lexical_searcher:
         # Use hybrid search if available
         results = memory.recall_hybrid(
             query=query,
             top_k=k_int,
             scope="persistent",
         )
-    elif memory.persistent_rag:
+    elif memory.rag:
         # Fallback to RAG-only search
         results = memory.search_memory(
             query=query,

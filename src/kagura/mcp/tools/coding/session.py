@@ -410,8 +410,8 @@ Statistics:
             )
 
             # Store in RAG for semantic search
-            if memory.persistent_rag:
-                memory.persistent_rag.store(
+            if memory.rag:
+                memory.rag.store(
                     content=session_doc,
                     metadata=metadata,
                     user_id=user_id,
