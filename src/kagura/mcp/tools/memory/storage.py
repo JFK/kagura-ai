@@ -99,69 +99,6 @@ async def memory_store(
         return f"[ERROR] Storage failed: {str(e)[:200]}"
 
 
-@tool
-async def memory_recall(user_id: str, agent_name: str, key: str) -> str:
-    """Recall information from agent memory
-
-    Retrieve previously stored information. Use this tool when:
-    - User asks 'do you remember...'
-    - Need to access previously saved context or preferences
-    - Continuing a previous conversation or task
-
-    💡 IMPORTANT: Memory ownership model (v4.0)
-    - user_id: WHO owns this memory (e.g., "user_jfk", email, username)
-    - agent_name: WHERE to retrieve from ("global" = all threads, "thread_X" = specific)
-
-    🌐 CROSS-PLATFORM: All memories are tied to user_id, enabling
-        true Universal Memory across Claude, ChatGPT, Gemini, etc.
-
-    Args:
-        user_id: User identifier (memory owner)
-        agent_name: Agent identifier (must match the one used in memory_store)
-        key: Memory key to retrieve
-
-    Returns:
-        JSON object with value and metadata
-        Format: {"key": "...", "value": "...", "metadata": {...}}
-
-    💡 Note: All memory is now persistent (stored to disk).
-    """
-    # Get MemoryManager
-    enable_rag = True
-    try:
-        memory = get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
-    except ImportError:
-        from kagura.core.memory import MemoryManager
-
-        cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
-        if cache_key not in _memory_cache:
-            _memory_cache[cache_key] = MemoryManager(
-                user_id=user_id, agent_name=agent_name, enable_rag=False
-            )
-        memory = _memory_cache[cache_key]
-
-    # Use MemoryService for business logic (v4.4.0+)
-    try:
-        from kagura.services import MemoryService
-
-        service = MemoryService(memory)
-        result = service.recall_memory(key)
-
-        if not result.success:
-            return f"No value found for key '{key}' in persistent memory"
-
-        # Return structured JSON
-        payload = {
-            "key": key,
-            "value": result.metadata.get("value", ""),
-            "metadata": result.metadata,
-        }
-
-        return json.dumps(payload, ensure_ascii=False, indent=2, default=str)
-
-    except Exception as e:
-        return f"[ERROR] Recall failed: {str(e)[:200]}"
-
 
 @tool
 async def memory_delete(user_id: str, agent_name: str, key: str) -> str:

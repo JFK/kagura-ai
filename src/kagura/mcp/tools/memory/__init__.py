@@ -1,115 +1,53 @@
-"""Memory MCP tools - modular implementation.
+"""Memory MCP tools - Issue #720 final configuration.
 
-This package provides 18 MCP tools for memory management, organized by functionality:
+Provides 8 memory management tools with clear responsibility separation:
+- MCP Server: Pure tool provider (no decision-making)
+- LLM Client: Decision maker (chooses which tools to use, when, and how)
 
 Storage Operations (3 tools):
 - memory_store: Store information in agent memory
-- memory_recall: Recall information from agent memory
 - memory_delete: Delete a memory with audit logging
+- memory_stats: Get memory health report and statistics
 
 Search Operations (3 tools):
-- memory_search: Search memories by concept/keyword match
-- memory_search_ids: Search and return IDs with previews only (low-token)
-- memory_fetch: Fetch full content of a specific memory by key
+- memory_search_semantic: Semantic similarity search (RAG/vector)
+- memory_search_keyword: Keyword matching (BM25 algorithm)
+- memory_search_timeline: Time-range filtering
 
-List and Feedback (2 tools):
-- memory_list: List all stored memories for debugging and exploration
-- memory_feedback: Provide feedback on memory usefulness
+RAG Extensions (2 tools):
+- memory_get_document: Reconstruct complete document from chunks
+- memory_get_neighbors: Graph traversal for related nodes
 
-Graph Operations (2 tools):
-- memory_get_related: Get related nodes from graph memory
-- memory_record_interaction: Record AI-User interaction in graph memory
-
-User Pattern (1 tool):
-- memory_get_user_pattern: Analyze user's interaction patterns and interests
-
-Stats (1 tool):
-- memory_stats: Get memory health report and statistics (read-only)
-
-Timeline (2 tools):
-- memory_timeline: Retrieve memories from specific time range
-- memory_fuzzy_recall: Recall memories using fuzzy key matching
-
-Tool History (1 tool):
-- memory_get_tool_history: Get MCP tool usage history
-
-Chunk Operations (3 tools):
-- memory_get_chunk_context: Get neighboring chunks around a specific chunk
-- memory_get_full_document: Reconstruct complete document from all chunks
-- memory_get_chunk_metadata: Get metadata for chunk(s)
-
-Total: 18 tools
+Total: 8 tools (reduced from 18+ in v4.3.0)
 """
 
 from __future__ import annotations
 
-from kagura.mcp.tools.memory.chunks import (
-    memory_get_chunk_context,
-    memory_get_chunk_metadata,
-    memory_get_document,  # Issue #720: New
-    memory_get_full_document,
-)
-from kagura.mcp.tools.memory.graph import (
-    memory_get_neighbors,  # Issue #720: New
-    memory_get_related,
-    memory_record_interaction,
-)
-from kagura.mcp.tools.memory.list_and_feedback import (
-    memory_feedback,
-    memory_list,
-)
+# Final 8 memory tools (Issue #720)
+from kagura.mcp.tools.memory.chunks import memory_get_document
+from kagura.mcp.tools.memory.graph import memory_get_neighbors
 from kagura.mcp.tools.memory.search import (
-    memory_fetch,
-    memory_search,
-    memory_search_ids,
-    memory_search_keyword,  # Issue #720: New
-    memory_search_semantic,  # Issue #720: New
+    memory_search_keyword,
+    memory_search_semantic,
 )
 from kagura.mcp.tools.memory.stats import memory_stats
 from kagura.mcp.tools.memory.storage import (
     memory_delete,
-    memory_recall,
     memory_store,
 )
-from kagura.mcp.tools.memory.timeline import (
-    memory_fuzzy_recall,
-    memory_search_timeline,  # Issue #720: New
-    memory_timeline,
-)
-from kagura.mcp.tools.memory.tool_history import memory_get_tool_history
-from kagura.mcp.tools.memory.user_pattern import memory_get_user_pattern
+from kagura.mcp.tools.memory.timeline import memory_search_timeline
 
 __all__ = [
     # Storage (3)
     "memory_store",
-    "memory_recall",
     "memory_delete",
-    # Search (3 + 2 new = 5)
-    "memory_search",
-    "memory_search_ids",
-    "memory_fetch",
-    "memory_search_semantic",  # Issue #720: New
-    "memory_search_keyword",  # Issue #720: New
-    # List and Feedback (2)
-    "memory_list",
-    "memory_feedback",
-    # Graph (2 + 1 new = 3)
-    "memory_get_related",
-    "memory_get_neighbors",  # Issue #720: New
-    "memory_record_interaction",
-    # User Pattern (1)
-    "memory_get_user_pattern",
     # Stats (1)
     "memory_stats",
-    # Timeline (2 + 1 new = 3)
-    "memory_timeline",
-    "memory_search_timeline",  # Issue #720: New
-    "memory_fuzzy_recall",
-    # Tool History (1)
-    "memory_get_tool_history",
-    # Chunks (3 + 1 new = 4)
-    "memory_get_chunk_context",
-    "memory_get_full_document",
-    "memory_get_document",  # Issue #720: New
-    "memory_get_chunk_metadata",
+    # Search (3)
+    "memory_search_semantic",
+    "memory_search_keyword",
+    "memory_search_timeline",
+    # RAG Extensions (2)
+    "memory_get_document",
+    "memory_get_neighbors",
 ]

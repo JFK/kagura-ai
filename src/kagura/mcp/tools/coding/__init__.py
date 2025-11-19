@@ -1,90 +1,54 @@
-"""Coding MCP tools - modular organization.
+"""Coding MCP tools - Issue #720 final configuration.
 
-Reorganized in v4.3.0 from monolithic mcp/builtin/coding.py into focused modules:
-- session.py: Session lifecycle (start, resume, status, end)
-- file_tracking.py: File change tracking
-- error_tracking.py: Error recording and search
-- decision.py: Design decision recording
-- project_context.py: Project context retrieval
-- patterns.py: Pattern analysis
-- dependencies.py: Dependency analysis and refactoring
-- github_integration.py: GitHub issue/PR integration
-- interaction.py: AI-User interaction tracking
-- source_indexing.py: Source code RAG indexing and search
+Provides 7 coding session management tools with clear responsibility separation:
+- MCP Server: Pure tool provider (no decision-making)
+- LLM Client: Decision maker (chooses strategies, analyzes patterns, generates descriptions)
 
-All tools are re-exported from this module for convenience.
+Session Management (4 tools):
+- coding_start_session: Start tracked coding session
+- coding_resume_session: Resume previous session
+- coding_get_status: Get current session status
+- coding_end_session: End session with AI summary
+
+Recording Operations (2 tools):
+- coding_track_change: Track file changes with rationale
+- coding_record_item: Record errors, decisions, or notes (type-based)
+
+Search Operations (1 tool):
+- coding_search_context: Search project coding context
+
+Total: 7 tools (reduced from 19+ in v4.3.0)
+
+Removed tools (now LLM responsibilities):
+- coding_analyze_patterns → LLM analyzes from search results
+- coding_generate_pr_description → LLM generates from session data
+- coding_suggest_refactor_order → LLM decides from dependency analysis
 """
 
-# Re-export all tools for easy importing
-from kagura.mcp.tools.coding.decision import coding_record_decision
-from kagura.mcp.tools.coding.dependencies import (
-    coding_analyze_file_dependencies,
-    coding_analyze_refactor_impact,
-    coding_suggest_refactor_order,
-)
 from kagura.mcp.tools.coding.error_tracking import (
-    coding_record_error,
-    coding_record_item,  # Issue #720: New (unified error+decision)
+    coding_record_item,
     coding_search_errors,
 )
-from kagura.mcp.tools.coding.file_tracking import (
-    coding_track_change,  # Issue #720: New (renamed)
-    coding_track_file_change,
-)
-from kagura.mcp.tools.coding.github_integration import (
-    coding_generate_pr_description,
-    coding_get_issue_context,
-    coding_link_github_issue,
-)
-from kagura.mcp.tools.coding.interaction import coding_track_interaction
-from kagura.mcp.tools.coding.patterns import coding_analyze_patterns
-from kagura.mcp.tools.coding.project_context import (
-    coding_get_project_context,
-    coding_search_context,  # Issue #720: New (renamed)
-)
+from kagura.mcp.tools.coding.file_tracking import coding_track_change
+from kagura.mcp.tools.coding.project_context import coding_search_context
 from kagura.mcp.tools.coding.session import (
     coding_end_session,
-    coding_get_current_session_status,
-    coding_get_status,  # Issue #720: New (renamed)
+    coding_get_status,
     coding_resume_session,
     coding_start_session,
 )
-from kagura.mcp.tools.coding.source_indexing import (
-    coding_index_source_code,
-    coding_search_source_code,
-)
 
 __all__ = [
-    # Session management (4 + 1 new = 5)
+    # Session management (4)
     "coding_start_session",
     "coding_resume_session",
-    "coding_get_current_session_status",
-    "coding_get_status",  # Issue #720: New
+    "coding_get_status",
     "coding_end_session",
-    # File tracking (1 + 1 new = 2)
-    "coding_track_file_change",
-    "coding_track_change",  # Issue #720: New
-    # Error tracking (2 + 1 new = 3)
-    "coding_record_error",
-    "coding_record_item",  # Issue #720: New (unified)
+    # Recording (2)
+    "coding_track_change",
+    "coding_record_item",
+    # Search (1)
+    "coding_search_context",
+    # Utility (kept for compatibility)
     "coding_search_errors",
-    # Decision recording (1)
-    "coding_record_decision",
-    # Context & patterns (2 + 1 new = 3)
-    "coding_get_project_context",
-    "coding_search_context",  # Issue #720: New
-    "coding_analyze_patterns",
-    # Dependencies (3)
-    "coding_analyze_file_dependencies",
-    "coding_analyze_refactor_impact",
-    "coding_suggest_refactor_order",
-    # GitHub integration (3)
-    "coding_link_github_issue",
-    "coding_generate_pr_description",
-    "coding_get_issue_context",
-    # Interaction (1)
-    "coding_track_interaction",
-    # Source indexing (2)
-    "coding_index_source_code",
-    "coding_search_source_code",
 ]
