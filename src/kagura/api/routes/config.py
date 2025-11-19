@@ -148,6 +148,47 @@ async def get_config_categories(admin_user: AdminUser):
     return env_manager.get_categories()
 
 
+@router.get("/{key}")
+async def get_config_value(
+    key: str,
+    admin_user: AdminUser,
+):
+    """Get single configuration value.
+
+    Requires ADMIN role. Sensitive values are masked.
+
+    Args:
+        key: Environment variable name
+        admin_user: Authenticated admin user
+
+    Returns:
+        Configuration value (masked if sensitive)
+
+    Example:
+        GET /api/v1/config/EMBEDDING_PROVIDER
+        Response: {"value": "openai", "is_sensitive": false}
+    """
+    env_manager = get_env_manager()
+
+    # Get all config with masking
+    all_config = env_manager.get_config()
+
+    if key not in all_config:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Configuration key '{key}' not found"
+        )
+
+    value = all_config[key]
+    is_sensitive = env_manager.is_sensitive_key(key)
+
+    return {
+        "key": key,
+        "value": value,
+        "is_sensitive": is_sensitive
+    }
+
+
 @router.put("/{key}", response_model=RestartRequiredResponse)
 async def update_config(
     key: str,
