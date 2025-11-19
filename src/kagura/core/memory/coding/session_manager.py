@@ -186,7 +186,7 @@ async def start_coding_session(
                 "You can only have one active session at a time.\n\n"
                 "Options:\n"
                 "  1. End current session: coding_end_session()\n"
-                "  2. Check session status: coding_get_current_session_status()\n\n"
+                "  2. Check session status: coding_get_status()\n\n"
                 "💡 TIP: Always end sessions when done to preserve your work history"
             )
 
@@ -363,7 +363,7 @@ async def end_coding_session(
             "❌ No active coding session to end.\n\n"
             "You need to start a session first:\n"
             "  coding_start_session(description='...', project_id='...')\n\n"
-            "💡 TIP: Check if a session exists with coding_get_current_session_status()"
+            "💡 TIP: Check if a session exists with coding_get_status()"
         )
 
     session_id = self.current_session_id
