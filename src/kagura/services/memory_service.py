@@ -320,8 +320,12 @@ class MemoryService(BaseService):
             )
 
         try:
-            # Search using MemoryManager's search_memory method (synchronous)
-            results = self.memory.search_memory(query, limit=limit)
+            # Search using RAG (semantic search) if available
+            if self.memory.rag:
+                results = self.memory.recall_semantic(query, top_k=limit)
+            else:
+                # Fallback to SQL LIKE search if RAG not available
+                results = self.memory.search_memory(query, limit=limit)
 
             # Filter by importance if specified
             if min_importance is not None:
