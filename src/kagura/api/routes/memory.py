@@ -597,3 +597,211 @@ async def bulk_delete_memories(
         failed_keys=failed_keys,
         errors=errors,
     )
+
+
+# ============================================================================
+# Issue #720: New MCP Tools Integration - Search Endpoints
+# ============================================================================
+
+
+@router.post("/search-semantic", response_model=models.SearchResultsResponse)
+async def search_semantic(
+    request: models.SemanticSearchRequest,
+    memory: MemoryManagerDep,
+    user: dict[str, Any] = Depends(get_current_user_optional),
+):
+    """Search memories using semantic similarity (RAG/vector search).
+
+    Leverages memory_search_semantic MCP tool for conceptual queries.
+    Best for: "authentication issues", "recent bugs", "API problems"
+
+    Args:
+        request: Semantic search parameters
+        memory: Memory manager dependency
+        user: Current user (optional)
+
+    Returns:
+        Search results with similarity scores
+
+    Example:
+        POST /api/v1/memory/search-semantic
+        {"query": "authentication problems", "k": 5}
+    """
+    try:
+        from kagura.services import MemoryService
+
+        service = MemoryService(memory)
+        result = service.search_memory(query=request.query, limit=request.k)
+
+        # Format results
+        memories = []
+        for mem in result.results:
+            memories.append(
+                models.SearchResultMemory(
+                    key=mem.get("key", ""),
+                    content=mem.get("content", mem.get("value", "")),
+                    score=1.0 - mem.get("distance", 0.0),  # Convert distance to similarity
+                    agent_name=mem.get("agent_name", request.agent_name),
+                    metadata=mem.get("metadata"),
+                )
+            )
+
+        return models.SearchResultsResponse(
+            memories=memories,
+            total=len(memories),
+            search_mode="semantic",
+            query_info={"query": request.query, "k": request.k},
+        )
+
+    except Exception as e:
+        logger.error(f"Semantic search failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/search-keyword", response_model=models.SearchResultsResponse)
+async def search_keyword(
+    request: models.KeywordSearchRequest,
+    memory: MemoryManagerDep,
+    user: dict[str, Any] = Depends(get_current_user_optional),
+):
+    """Search memories using keyword matching (BM25 algorithm).
+
+    Leverages memory_search_keyword MCP tool for exact term matching.
+    Best for: "PostgreSQL", "Issue #123", specific tech names
+
+    Args:
+        request: Keyword search parameters
+        memory: Memory manager dependency
+        user: Current user (optional)
+
+    Returns:
+        Search results with BM25 scores
+
+    Example:
+        POST /api/v1/memory/search-keyword
+        {"query": "PostgreSQL connection", "k": 5}
+    """
+    try:
+        from kagura.core.memory.bm25_search import BM25Search
+
+        # Build corpus from persistent memory
+        corpus = []
+        if hasattr(memory, "persistent") and memory.persistent:
+            all_memories_list = memory.persistent.fetch_all(
+                user_id=memory.user_id,
+                agent_name=request.agent_name
+            )
+            for mem in all_memories_list:
+                corpus.append(
+                    {
+                        "key": mem.get("key", ""),
+                        "content": str(mem.get("value", mem.get("content", ""))),
+                        "agent_name": request.agent_name,
+                        "metadata": mem.get("metadata"),
+                    }
+                )
+
+        if not corpus:
+            return models.SearchResultsResponse(
+                memories=[],
+                total=0,
+                search_mode="keyword",
+                query_info={"query": request.query, "k": request.k},
+            )
+
+        # BM25 search
+        bm25 = BM25Search(k1=1.2, b=0.4)
+        bm25.build_index(corpus)
+        results = bm25.search(request.query, k=request.k)
+
+        # Format results
+        memories = []
+        for result in results:
+            memories.append(
+                models.SearchResultMemory(
+                    key=result["key"],
+                    content=result["content"],
+                    score=result.get("bm25_score", 0.0),
+                    agent_name=result.get("agent_name", request.agent_name),
+                    metadata=result.get("metadata"),
+                )
+            )
+
+        return models.SearchResultsResponse(
+            memories=memories,
+            total=len(memories),
+            search_mode="keyword",
+            query_info={"query": request.query, "k": request.k},
+        )
+
+    except Exception as e:
+        logger.error(f"Keyword search failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/search-timeline", response_model=models.SearchResultsResponse)
+async def search_timeline(
+    request: models.TimelineSearchRequest,
+    memory: MemoryManagerDep,
+    user: dict[str, Any] = Depends(get_current_user_optional),
+):
+    """Search memories by time range with optional event type filtering.
+
+    Leverages memory_search_timeline MCP tool for temporal queries.
+    Supports: "last_24h", "last_week", "YYYY-MM-DD", "YYYY-MM-DD:YYYY-MM-DD"
+
+    Args:
+        request: Timeline search parameters
+        memory: Memory manager dependency
+        user: Current user (optional)
+
+    Returns:
+        Memories from time range, sorted by newest first
+
+    Example:
+        POST /api/v1/memory/search-timeline
+        {"time_range": "last_week", "event_type": "meeting"}
+    """
+    try:
+        from kagura.services import MemoryService
+
+        service = MemoryService(memory)
+        result = service.search_by_time_range(
+            time_range=request.time_range,
+            limit=request.k,
+            event_type=request.event_type,
+        )
+
+        # Format results
+        memories = []
+        for mem in result.results:
+            memories.append(
+                models.SearchResultMemory(
+                    key=mem.get("key", ""),
+                    content=mem.get("content", mem.get("value", "")),
+                    score=1.0,  # Timeline results don't have relevance scores
+                    agent_name=mem.get("agent_name", request.agent_name),
+                    metadata=mem.get("metadata"),
+                )
+            )
+
+        return models.SearchResultsResponse(
+            memories=memories,
+            total=result.count,
+            search_mode="timeline",
+            query_info={
+                "time_range": request.time_range,
+                "event_type": request.event_type,
+                "count": result.count,
+            },
+        )
+
+    except ValueError as e:
+        # Invalid time_range format
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid time_range: {e}. Valid formats: last_24h, last_week, YYYY-MM-DD",
+        )
+    except Exception as e:
+        logger.error(f"Timeline search failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

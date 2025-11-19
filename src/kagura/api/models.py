@@ -339,3 +339,52 @@ class ErrorResponse(BaseModel):
     error: str
     status_code: int
     detail: str | None = None
+
+
+# ============================================================================
+# Issue #720: New search models for MCP tools integration
+# ============================================================================
+
+
+class SemanticSearchRequest(BaseModel):
+    """Request for semantic (RAG/vector) search."""
+
+    query: str = Field(..., min_length=1, description="Search query (natural language)")
+    k: int = Field(5, ge=1, le=100, description="Number of results")
+    agent_name: str = Field("global", description="Agent identifier")
+
+
+class KeywordSearchRequest(BaseModel):
+    """Request for keyword (BM25) search."""
+
+    query: str = Field(..., min_length=1, description="Search keywords")
+    k: int = Field(5, ge=1, le=100, description="Number of results")
+    agent_name: str = Field("global", description="Agent identifier")
+
+
+class TimelineSearchRequest(BaseModel):
+    """Request for timeline search."""
+
+    time_range: str = Field(..., description="Time range: last_24h, last_week, YYYY-MM-DD, etc.")
+    event_type: str | None = Field(None, description="Optional event type filter")
+    k: int = Field(20, ge=1, le=1000, description="Number of results")
+    agent_name: str = Field("global", description="Agent identifier")
+
+
+class SearchResultMemory(BaseModel):
+    """Memory with search score."""
+
+    key: str
+    content: str
+    score: float = Field(..., description="Relevance score (RAG similarity or BM25 score)")
+    agent_name: str
+    metadata: dict[str, Any] | None = None
+
+
+class SearchResultsResponse(BaseModel):
+    """Response for all search types."""
+
+    memories: list[SearchResultMemory]
+    total: int
+    search_mode: str = Field(..., description="semantic, keyword, or timeline")
+    query_info: dict[str, Any] | None = Field(None, description="Query metadata")
