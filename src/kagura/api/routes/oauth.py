@@ -300,8 +300,12 @@ async def authorize(
     if not user:
         # Redirect to Google login with return_to parameter
         # Preserve all original authorize parameters
+        from urllib.parse import quote
+
         return_to_url = str(request.url)
-        login_url = f"/api/v1/auth/google/login?return_to={return_to_url}"
+        # URL-encode return_to to preserve all query parameters
+        encoded_return_to = quote(return_to_url, safe='')
+        login_url = f"/api/v1/auth/google/login?return_to={encoded_return_to}"
 
         logger.info(f"Unauthenticated user accessing /oauth/authorize, redirecting to login")
         return RedirectResponse(url=login_url, status_code=302)
