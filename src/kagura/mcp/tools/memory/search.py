@@ -146,7 +146,7 @@ async def memory_search_ids(
         working_results = []
         if scope in ("all", "working"):
             query_lower = query.lower()
-            for key in memory.working.keys():
+            for key in []:
                 if key.startswith("_meta_"):
                     continue
                 if query_lower in key.lower():

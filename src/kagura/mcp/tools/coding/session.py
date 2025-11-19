@@ -119,7 +119,7 @@ async def coding_resume_session(
         session_id_returned = await memory.resume_coding_session(session_id)
 
         # Get session details from working memory
-        session_data = memory.working.get(f"session:{session_id_returned}")
+        session_data = memory.recall(f"session:{session_id_returned}")
         if not session_data:
             return f"❌ Failed to load resumed session: {session_id}"
 
@@ -203,7 +203,7 @@ async def coding_get_current_session_status(
         return "❌ No active coding session.\n\nStart one with: coding_start_session()"
 
     # Load current session from working memory
-    session_data = memory.working.get(f"session:{memory.current_session_id}")
+    session_data = memory.recall(f"session:{memory.current_session_id}")
     if not session_data:
         return "❌ Session data not found in working memory."
 
