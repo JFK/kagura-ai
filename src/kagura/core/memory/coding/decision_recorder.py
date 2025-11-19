@@ -113,7 +113,7 @@ async def record_decision(
             self.graph.add_edge(
                 src_id=self.current_session_id,
                 dst_id=decision_id,
-                rel_type="decided",
+                rel_type="made",
                 weight=1.0,
             )
 
