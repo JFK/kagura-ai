@@ -256,7 +256,7 @@ class OAuth2ProviderResponse(BaseModel):
 # ============================================================================
 
 
-@router.get("/authorize", response_class=HTMLResponse)
+@router.get("/authorize", response_class=HTMLResponse, response_model=None)
 async def authorize(
     request: Request,
     client_id: str = Query(..., description="OAuth2 client ID"),
@@ -267,7 +267,7 @@ async def authorize(
     code_challenge: str | None = Query(None, description="PKCE code challenge"),
     code_challenge_method: str | None = Query(None, description="PKCE method (S256/plain)"),
     user: OptionalUser = None,
-) -> HTMLResponse | RedirectResponse:
+):
     """OAuth2 authorization endpoint (user consent screen).
 
     Flow:
