@@ -46,9 +46,11 @@ from __future__ import annotations
 from kagura.mcp.tools.memory.chunks import (
     memory_get_chunk_context,
     memory_get_chunk_metadata,
+    memory_get_document,  # Issue #720: New
     memory_get_full_document,
 )
 from kagura.mcp.tools.memory.graph import (
+    memory_get_neighbors,  # Issue #720: New
     memory_get_related,
     memory_record_interaction,
 )
@@ -60,6 +62,8 @@ from kagura.mcp.tools.memory.search import (
     memory_fetch,
     memory_search,
     memory_search_ids,
+    memory_search_keyword,  # Issue #720: New
+    memory_search_semantic,  # Issue #720: New
 )
 from kagura.mcp.tools.memory.stats import memory_stats
 from kagura.mcp.tools.memory.storage import (
@@ -69,6 +73,7 @@ from kagura.mcp.tools.memory.storage import (
 )
 from kagura.mcp.tools.memory.timeline import (
     memory_fuzzy_recall,
+    memory_search_timeline,  # Issue #720: New
     memory_timeline,
 )
 from kagura.mcp.tools.memory.tool_history import memory_get_tool_history
@@ -79,27 +84,32 @@ __all__ = [
     "memory_store",
     "memory_recall",
     "memory_delete",
-    # Search (3)
+    # Search (3 + 2 new = 5)
     "memory_search",
     "memory_search_ids",
     "memory_fetch",
+    "memory_search_semantic",  # Issue #720: New
+    "memory_search_keyword",  # Issue #720: New
     # List and Feedback (2)
     "memory_list",
     "memory_feedback",
-    # Graph (2)
+    # Graph (2 + 1 new = 3)
     "memory_get_related",
+    "memory_get_neighbors",  # Issue #720: New
     "memory_record_interaction",
     # User Pattern (1)
     "memory_get_user_pattern",
     # Stats (1)
     "memory_stats",
-    # Timeline (2)
+    # Timeline (2 + 1 new = 3)
     "memory_timeline",
+    "memory_search_timeline",  # Issue #720: New
     "memory_fuzzy_recall",
     # Tool History (1)
     "memory_get_tool_history",
-    # Chunks (3)
+    # Chunks (3 + 1 new = 4)
     "memory_get_chunk_context",
     "memory_get_full_document",
+    "memory_get_document",  # Issue #720: New
     "memory_get_chunk_metadata",
 ]
