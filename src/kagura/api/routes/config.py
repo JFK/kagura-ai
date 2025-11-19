@@ -170,8 +170,8 @@ async def get_config_value(
     """
     env_manager = get_env_manager()
 
-    # Get all config with masking
-    all_config = env_manager.get_config()
+    # Get all config with masking (correct method: read_config, not get_config)
+    all_config = env_manager.read_config()
 
     if key not in all_config:
         raise HTTPException(
