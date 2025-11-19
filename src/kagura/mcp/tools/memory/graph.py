@@ -69,11 +69,11 @@ async def memory_get_neighbors(
                 }
             )
 
-        # Get related nodes (correct method name: get_related, not get_related_nodes)
+        # Get related nodes (correct method: get_related with depth and rel_type params)
         related = memory.graph.get_related(
             node_id=node_id,
-            max_depth=depth,
-            relationship_type=rel_type,
+            depth=depth,
+            rel_type=rel_type,
         )
 
         return json.dumps(
