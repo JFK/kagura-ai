@@ -24,9 +24,13 @@ from kagura.mcp.tools.coding.dependencies import (
 )
 from kagura.mcp.tools.coding.error_tracking import (
     coding_record_error,
+    coding_record_item,  # Issue #720: New (unified error+decision)
     coding_search_errors,
 )
-from kagura.mcp.tools.coding.file_tracking import coding_track_file_change
+from kagura.mcp.tools.coding.file_tracking import (
+    coding_track_change,  # Issue #720: New (renamed)
+    coding_track_file_change,
+)
 from kagura.mcp.tools.coding.github_integration import (
     coding_generate_pr_description,
     coding_get_issue_context,
@@ -34,10 +38,14 @@ from kagura.mcp.tools.coding.github_integration import (
 )
 from kagura.mcp.tools.coding.interaction import coding_track_interaction
 from kagura.mcp.tools.coding.patterns import coding_analyze_patterns
-from kagura.mcp.tools.coding.project_context import coding_get_project_context
+from kagura.mcp.tools.coding.project_context import (
+    coding_get_project_context,
+    coding_search_context,  # Issue #720: New (renamed)
+)
 from kagura.mcp.tools.coding.session import (
     coding_end_session,
     coding_get_current_session_status,
+    coding_get_status,  # Issue #720: New (renamed)
     coding_resume_session,
     coding_start_session,
 )
@@ -47,20 +55,24 @@ from kagura.mcp.tools.coding.source_indexing import (
 )
 
 __all__ = [
-    # Session management (4)
+    # Session management (4 + 1 new = 5)
     "coding_start_session",
     "coding_resume_session",
     "coding_get_current_session_status",
+    "coding_get_status",  # Issue #720: New
     "coding_end_session",
-    # File tracking (1)
+    # File tracking (1 + 1 new = 2)
     "coding_track_file_change",
-    # Error tracking (2)
+    "coding_track_change",  # Issue #720: New
+    # Error tracking (2 + 1 new = 3)
     "coding_record_error",
+    "coding_record_item",  # Issue #720: New (unified)
     "coding_search_errors",
     # Decision recording (1)
     "coding_record_decision",
-    # Context & patterns (2)
+    # Context & patterns (2 + 1 new = 3)
     "coding_get_project_context",
+    "coding_search_context",  # Issue #720: New
     "coding_analyze_patterns",
     # Dependencies (3)
     "coding_analyze_file_dependencies",

@@ -436,3 +436,50 @@ Statistics:
         f"{github_status}"
         f"{claude_code_status}"
     )
+
+
+# ==============================================================================
+# Issue #720: Renamed session status tool
+# ==============================================================================
+
+
+@tool
+async def coding_get_status(
+    user_id: str,
+    project_id: str,
+) -> str:
+    """Get current coding session status (renamed from coding_get_current_session_status).
+
+    Returns active session info including tracked changes, errors, and decisions.
+
+    Args:
+        user_id: Developer ID
+        project_id: Project identifier
+
+    Returns:
+        JSON with session details, tracked activities, and statistics
+
+    Example:
+        status = coding_get_status(user_id="kiyota", project_id="kagura-ai")
+        # Returns: {"session_id": "...", "duration": "45m", "changes": 5, ...}
+
+    💡 TIP: Use to check session progress and tracked activities.
+    🌐 Cross-platform: Works across all AI assistants.
+    """
+    try:
+        coding_memory = get_coding_memory(user_id, project_id)
+        status = coding_memory.get_current_session_status()
+
+        if not status:
+            return json.dumps(
+                {
+                    "active": False,
+                    "message": "No active session",
+                },
+                indent=2,
+            )
+
+        return json.dumps(status, indent=2, default=str, ensure_ascii=False)
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
