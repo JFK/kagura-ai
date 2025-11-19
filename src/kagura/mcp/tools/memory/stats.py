@@ -51,9 +51,10 @@ async def memory_stats(
     try:
         # Count memories
         logger.debug("memory_stats: Counting working memories")
-        working_keys_all = memory.working.keys()
-        working_count = len([k for k in working_keys_all if not k.startswith("_meta_")])
-        logger.debug(f"memory_stats: Working count = {working_count}")
+        # Working memory removed in v4.4.0 - all memory is persistent
+        working_keys_all = []
+        working_count = 0
+        logger.debug(f"memory_stats: Working count = {working_count} (v4.4.0: working memory removed)")
 
         logger.debug("memory_stats: Searching persistent memories")
         persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
