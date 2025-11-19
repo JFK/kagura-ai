@@ -9,7 +9,7 @@ Eliminates code duplication between MCP tools, API routes, and CLI commands.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from kagura.core.memory import MemoryManager

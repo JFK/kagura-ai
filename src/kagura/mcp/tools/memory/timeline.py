@@ -177,6 +177,7 @@ async def memory_fuzzy_recall(
                 "results": result.results,
             },
             indent=2,
+            default=str,
         )
     except Exception as e:
         return json.dumps({"error": str(e)})
