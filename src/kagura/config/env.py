@@ -291,7 +291,7 @@ def get_openai_default_model() -> str:
 
     See: https://platform.openai.com/docs/models
     """
-    return os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
+    return os.getenv("OPENAI_DEFAULT_MODEL", "gpt-5-mini")
 
 
 def get_anthropic_default_model() -> str:

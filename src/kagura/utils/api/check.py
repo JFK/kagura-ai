@@ -43,7 +43,7 @@ async def check_llm_api(
             model=model,
             messages=[{"role": "user", "content": "hi"}],
             api_key=api_key,
-            max_tokens=16,  # Minimum allowed by OpenAI API
+            max_tokens=100,  # Sufficient for API connectivity test (GPT-5 compatible)
             timeout=timeout,
         )
         return True, "Connection successful"
