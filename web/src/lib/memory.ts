@@ -137,3 +137,70 @@ export async function bulkDeleteMemories(
     agent_name: agentName,
   });
 }
+
+
+// ============================================================================
+// Issue #720: New MCP Tools Integration - Search Functions
+// ============================================================================
+
+export interface SemanticSearchParams {
+  query: string;
+  k?: number;
+  agent_name?: string;
+}
+
+export interface KeywordSearchParams {
+  query: string;
+  k?: number;
+  agent_name?: string;
+}
+
+export interface TimelineSearchParams {
+  time_range: string;
+  event_type?: string;
+  k?: number;
+  agent_name?: string;
+}
+
+export async function searchMemoriesSemantic(
+  params: SemanticSearchParams
+): Promise<MemoryListResponse> {
+  const response = await apiClient.post<MemoryListResponse>(
+    '/memory/search-semantic',
+    {
+      query: params.query,
+      k: params.k ?? 20,
+      agent_name: params.agent_name ?? 'global',
+    }
+  );
+  return response;
+}
+
+export async function searchMemoriesKeyword(
+  params: KeywordSearchParams
+): Promise<MemoryListResponse> {
+  const response = await apiClient.post<MemoryListResponse>(
+    '/memory/search-keyword',
+    {
+      query: params.query,
+      k: params.k ?? 20,
+      agent_name: params.agent_name ?? 'global',
+    }
+  );
+  return response;
+}
+
+export async function searchMemoriesTimeline(
+  params: TimelineSearchParams
+): Promise<MemoryListResponse> {
+  const response = await apiClient.post<MemoryListResponse>(
+    '/memory/search-timeline',
+    {
+      time_range: params.time_range,
+      event_type: params.event_type,
+      k: params.k ?? 20,
+      agent_name: params.agent_name ?? 'global',
+    }
+  );
+  return response;
+}

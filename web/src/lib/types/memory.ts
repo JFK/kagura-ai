@@ -69,3 +69,15 @@ export interface MemoryStatsResponse {
   agents: string[];
   tags: string[];
 }
+
+
+// ============================================================================
+// Issue #720: Search result types
+// ============================================================================
+
+export interface SearchResultMemory extends Memory {
+  score: number;  // Relevance score (RAG similarity or BM25 score)
+  search_mode?: 'semantic' | 'keyword' | 'timeline';
+}
+
+export type SearchMode = 'simple' | 'semantic' | 'keyword' | 'timeline';

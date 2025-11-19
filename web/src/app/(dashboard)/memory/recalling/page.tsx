@@ -24,10 +24,17 @@ import {
   Code,
   Sparkles,
 } from 'lucide-react';
-import { getMemories, bulkDeleteMemories } from '@/lib/memory';
+import {
+  getMemories,
+  bulkDeleteMemories,
+  searchMemoriesSemantic,
+  searchMemoriesKeyword,
+  searchMemoriesTimeline,
+} from '@/lib/memory';
 import { listCodingSessions } from '@/lib/coding-sessions';
-import type { Memory, MemoryScope } from '@/lib/types/memory';
+import type { Memory, MemoryScope, SearchMode } from '@/lib/types/memory';
 import type { SessionSummary } from '@/lib/coding-sessions';
+import { SearchModeToggle } from '@/components/memories/SearchModeToggle';
 import { toast } from 'sonner';
 
 // Existing components
@@ -75,6 +82,11 @@ export default function MemoriesPage() {
   const [scopeFilter, setScopeFilter] = useState<MemoryScope | 'all'>('all');
   const [agentFilter, setAgentFilter] = useState<string>('all');
 
+  // Search Mode (Issue #720 new MCP tools)
+  const [searchMode, setSearchMode] = useState<SearchMode>('simple');
+  const [timeRange, setTimeRange] = useState<string>('');
+  const [eventType, setEventType] = useState<string | null>(null);
+
   // Session Filters
   const [projectFilter, setProjectFilter] = useState<string>('all');
 
@@ -96,22 +108,58 @@ export default function MemoriesPage() {
   const [deleteMemory, setDeleteMemory] = useState<Memory | null>(null);
   const [detailSessionId, setDetailSessionId] = useState<string | null>(null);
 
-  // Fetch memories
+  // Fetch memories with multi-mode search (Issue #720)
   const fetchMemories = async () => {
     // Allow unauthenticated access (API handles all-users query)
     try {
       setMemoriesLoading(true);
       setMemoriesError(null);
 
-      const params = {
-        query: searchQuery || undefined,
-        scope: scopeFilter !== 'all' ? scopeFilter : undefined,
-        agent_name: agentFilter !== 'all' ? agentFilter : undefined,
-        limit: pageSize,
-        offset: (memoriesPage - 1) * pageSize,
-      };
+      let response;
 
-      const response = await getMemories(params);
+      // Multi-mode search support
+      switch (searchMode) {
+        case 'semantic':
+          response = await searchMemoriesSemantic({
+            query: searchQuery,
+            k: pageSize,
+            agent_name: agentFilter !== 'all' ? agentFilter : 'global',
+          });
+          break;
+
+        case 'keyword':
+          response = await searchMemoriesKeyword({
+            query: searchQuery,
+            k: pageSize,
+            agent_name: agentFilter !== 'all' ? agentFilter : 'global',
+          });
+          break;
+
+        case 'timeline':
+          if (!timeRange) {
+            setMemoriesError('Please select a time range for timeline search');
+            setMemoriesLoading(false);
+            return;
+          }
+          response = await searchMemoriesTimeline({
+            time_range: timeRange,
+            event_type: eventType || undefined,
+            k: pageSize,
+            agent_name: agentFilter !== 'all' ? agentFilter : 'global',
+          });
+          break;
+
+        default:  // simple
+          const params = {
+            query: searchQuery || undefined,
+            scope: scopeFilter !== 'all' ? scopeFilter : undefined,
+            agent_name: agentFilter !== 'all' ? agentFilter : undefined,
+            limit: pageSize,
+            offset: (memoriesPage - 1) * pageSize,
+          };
+          response = await getMemories(params);
+      }
+
       setMemories(response.memories || []);
       setMemoriesTotal(response.total || 0);
     } catch (err) {
@@ -149,7 +197,7 @@ export default function MemoriesPage() {
   // Effects
   useEffect(() => {
     if (activeTab === 'memories') fetchMemories();
-  }, [user, memoriesPage, scopeFilter, agentFilter, activeTab]);
+  }, [user, memoriesPage, scopeFilter, agentFilter, searchMode, timeRange, eventType, activeTab]);
 
   useEffect(() => {
     if (activeTab === 'sessions') fetchSessions();
@@ -165,7 +213,7 @@ export default function MemoriesPage() {
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchQuery, activeTab]);
+  }, [searchQuery, searchMode, timeRange, activeTab]);
 
   // Handlers
   const handleRefresh = () => {
@@ -274,10 +322,43 @@ export default function MemoriesPage() {
 
         {/* Memories Tab */}
         <TabsContent value="memories" className="space-y-6">
-          {/* Filters */}
-          <FilterBar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
+          {/* Search Mode Toggle (Issue #720) */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <SearchModeToggle value={searchMode} onChange={setSearchMode} />
+
+              {/* Timeline quick select buttons */}
+              {searchMode === 'timeline' && (
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant={timeRange === 'last_24h' ? 'default' : 'outline'}
+                    onClick={() => setTimeRange('last_24h')}
+                  >
+                    Last 24h
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={timeRange === 'last_week' ? 'default' : 'outline'}
+                    onClick={() => setTimeRange('last_week')}
+                  >
+                    Last Week
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={timeRange === 'last_month' ? 'default' : 'outline'}
+                    onClick={() => setTimeRange('last_month')}
+                  >
+                    Last Month
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Filters */}
+            <FilterBar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
             searchPlaceholder="Search memories by key or value..."
             filters={[
               {
@@ -301,6 +382,7 @@ export default function MemoriesPage() {
               },
             ]}
           />
+          </div>
 
           {/* Bulk Actions */}
           {selectedKeys.length > 0 && (
