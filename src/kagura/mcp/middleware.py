@@ -144,7 +144,7 @@ async def log_tool_call_to_memory(
         import asyncio
 
         # Import here to avoid circular dependency
-        from kagura.mcp.builtin.memory import memory_store
+        from kagura.mcp.tools.memory.storage import memory_store
 
         timestamp = datetime.now().isoformat()
 

@@ -10,7 +10,7 @@ import re
 from typing import Any
 
 from kagura import tool
-from kagura.mcp.builtin.common import get_library_cache_dir
+from kagura.mcp.utils.common import get_library_cache_dir
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -312,7 +312,7 @@ async def youtube_fact_check(video_url: str, claim: str, lang: str = "en") -> st
     # Use web search to fact-check
     try:
         from kagura.core.llm import LLMConfig, call_llm
-        from kagura.mcp.builtin.brave_search import brave_web_search
+        from kagura.mcp.tools.web.brave_search import brave_web_search
 
         # Search for evidence
         search_results = await brave_web_search(claim, count=5)

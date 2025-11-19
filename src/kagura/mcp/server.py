@@ -161,7 +161,7 @@ def create_mcp_server(
 
         # 4. Filter tools by categories (if specified)
         if categories:
-            from kagura.mcp.builtin.common import infer_category
+            from kagura.mcp.utils.common import infer_category
 
             # Filter by category
             category_filtered_tools = [

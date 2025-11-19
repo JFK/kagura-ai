@@ -13,8 +13,8 @@ from kagura.config.env import (
     get_search_cache_enabled,
     get_search_cache_ttl,
 )
-from kagura.mcp.builtin.cache import SearchCache
-from kagura.mcp.builtin.common import setup_external_library_logging, to_int
+from kagura.mcp.utils.cache import SearchCache
+from kagura.mcp.utils.common import setup_external_library_logging, to_int
 
 # Setup logger
 logger = logging.getLogger(__name__)

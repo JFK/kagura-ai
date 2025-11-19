@@ -174,7 +174,7 @@ async def test_memory_tools_with_telemetry():
     parameter, which was causing a conflict with track_execution's agent_name parameter.
     This test verifies the fix works correctly.
     """
-    from kagura.mcp.builtin.memory import _memory_cache, memory_recall, memory_store
+    from kagura.mcp.tools.memory.storage import _memory_cache, memory_recall, memory_store
     from kagura.observability import get_global_telemetry
 
     # Clear memory cache
@@ -191,7 +191,6 @@ async def test_memory_tools_with_telemetry():
         "agent_name": "test_agent",
         "key": "test_key",
         "value": "test_value",
-        "scope": "working",
     }
 
     # Remove agent_name and user_id from args (the fix from Issue #344)
@@ -214,7 +213,6 @@ async def test_memory_tools_with_telemetry():
             user_id="test_user",
             agent_name="test_agent",
             key="test_key",
-            scope="working",
         )
         # Parse JSON response (new format includes metadata)
         import json
@@ -230,7 +228,7 @@ async def test_memory_tools_with_telemetry():
 @pytest.mark.asyncio
 async def test_telemetry_tracks_memory_operations():
     """Test that telemetry correctly records memory operations (Issue #344)"""
-    from kagura.mcp.builtin.memory import _memory_cache, memory_store
+    from kagura.mcp.tools.memory.storage import _memory_cache, memory_store
     from kagura.observability import EventStore, Telemetry
 
     # Clear memory cache

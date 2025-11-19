@@ -50,7 +50,7 @@ async def fact_check_claim(claim: str, sources: list[str] | None = None) -> str:
     """
     try:
         from kagura.core.llm import LLMConfig, call_llm
-        from kagura.mcp.builtin.brave_search import brave_web_search
+        from kagura.mcp.tools.web.brave_search import brave_web_search
     except ImportError as e:
         return json.dumps(
             {
