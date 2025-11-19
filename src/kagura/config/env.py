@@ -122,9 +122,11 @@ def get_github_token() -> Optional[str]:
 
 def get_brave_search_api_key() -> Optional[str]:
     """
-    Get Brave Search API key from environment.
+    Get Brave Search API key from environment or database.
 
-    Environment variable: BRAVE_SEARCH_API_KEY
+    Attempts to retrieve API key in order:
+    1. Environment variable BRAVE_SEARCH_API_KEY (priority)
+    2. Database external_api_keys table (fallback)
 
     Returns:
         API key if set, None otherwise
@@ -136,8 +138,21 @@ def get_brave_search_api_key() -> Optional[str]:
         ...     pass
 
     See: https://brave.com/search/api/
+    Configuration: https://memory.kagura-ai.com/system/ai
     """
-    return os.getenv("BRAVE_SEARCH_API_KEY")
+    # Try environment variable first
+    env_key = os.getenv("BRAVE_SEARCH_API_KEY")
+    if env_key:
+        return env_key
+
+    # Fallback to database
+    try:
+        from kagura.config.external_api_key_manager import ExternalAPIKeyManager
+
+        manager = ExternalAPIKeyManager()
+        return manager.get_decrypted_value("BRAVE_SEARCH_API_KEY")
+    except Exception:
+        return None
 
 
 # ============================================
