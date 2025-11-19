@@ -127,7 +127,13 @@ async def google_login(
 
     auth_url = _oauth2_manager.get_authorization_url_web(redirect, state)
 
-    return LoginResponse(authorization_url=auth_url, state=state)
+    # If return_to is provided (OAuth2 authorize flow), redirect directly to Google
+    # Otherwise, return JSON for API clients (backward compatibility)
+    if return_to:
+        logger.info(f"OAuth authorize flow: Redirecting to Google (return_to={return_to})")
+        return RedirectResponse(url=auth_url, status_code=302)
+    else:
+        return LoginResponse(authorization_url=auth_url, state=state)
 
 
 @google_router.get("/callback")
