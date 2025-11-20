@@ -553,3 +553,75 @@ async def end_coding_session(
         "summary": summary,
         "success": success,
     }
+
+
+async def get_current_session_status(self: CodingMemoryManager) -> dict[str, Any]:
+    """Get current session status without ending it.
+
+    Returns current session information including activities and progress.
+    Use this to check if a session is active and see what's been done so far.
+
+    Returns:
+        Dictionary with session status:
+        - active: bool - Whether session is active
+        - session_id: str | None - Session ID if active
+        - description: str | None - Session description
+        - start_time: datetime | None - When session started
+        - duration_minutes: float | None - How long session has been running
+        - files_touched: int - Number of files modified
+        - errors_encountered: int - Total errors recorded
+        - errors_fixed: int - Errors that have been resolved
+        - decisions_made: int - Design decisions recorded
+        - tags: list[str] - Session tags
+
+    Example:
+        >>> status = await coding_mem.get_current_session_status()
+        >>> if status["active"]:
+        ...     print(f"Active session: {status['description']}")
+        ...     print(f"Duration: {status['duration_minutes']} minutes")
+    """
+    # Check if there's an active session
+    if not self.current_session_id:
+        return {
+            "active": False,
+            "session_id": None,
+            "message": "No active coding session",
+        }
+
+    session_id = self.current_session_id
+
+    # Get session data
+    session_data = self.working.get(f"session:{session_id}")
+    if not session_data:
+        return {
+            "active": False,
+            "session_id": session_id,
+            "message": f"Session data not found: {session_id}",
+        }
+
+    session = CodingSession(**session_data)
+
+    # Get session activities
+    file_changes = await self._get_session_file_changes(session_id)
+    errors = await self._get_session_errors(session_id)
+    decisions = await self._get_session_decisions(session_id)
+
+    # Calculate duration
+    duration_minutes = (
+        (datetime.utcnow() - session.start_time).total_seconds() / 60
+        if session.start_time
+        else 0.0
+    )
+
+    return {
+        "active": True,
+        "session_id": session_id,
+        "description": session.description,
+        "start_time": session.start_time.isoformat() if session.start_time else None,
+        "duration_minutes": round(duration_minutes, 1),
+        "files_touched": len(list({fc.file_path for fc in file_changes})),
+        "errors_encountered": len(errors),
+        "errors_fixed": sum(1 for e in errors if e.resolved),
+        "decisions_made": len(decisions),
+        "tags": session.tags,
+    }
