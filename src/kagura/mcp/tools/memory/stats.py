@@ -180,7 +180,7 @@ async def memory_stats(
         logger.debug("memory_stats: Calculating storage size")
         try:
             storage_info = memory.get_storage_size()
-            storage_mb = round(storage_info["total_mb"], 2)
+            storage_mb = round(float(storage_info["total_mb"]), 2)
             logger.debug(f"memory_stats: Storage = {storage_mb} MB")
         except Exception as e:
             logger.warning(f"Failed to calculate storage size: {e}")
