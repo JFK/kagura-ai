@@ -343,7 +343,7 @@ async def coding_get_status(
     """
     try:
         coding_memory = get_coding_memory(user_id, project_id)
-        status = coding_memory.get_current_session_status()
+        status = await coding_memory.get_current_session_status()
 
         if not status:
             return json.dumps(
