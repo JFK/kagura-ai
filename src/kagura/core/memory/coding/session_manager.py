@@ -590,13 +590,28 @@ async def get_current_session_status(self: CodingMemoryManager) -> dict[str, Any
 
     session_id = self.current_session_id
 
-    # Get session data
-    session_data = self.working.get(f"session:{session_id}")
-    if not session_data:
+    # Get session data from persistent storage (working memory removed in v4.4.0)
+    session_data_str = self.persistent.recall(
+        f"session:{session_id}", self.user_id, agent_name="coding_sessions"
+    )
+    if not session_data_str:
         return {
             "active": False,
             "session_id": session_id,
             "message": f"Session data not found: {session_id}",
+        }
+
+    try:
+        session_data = (
+            json.loads(session_data_str)
+            if isinstance(session_data_str, str)
+            else session_data_str
+        )
+    except json.JSONDecodeError:
+        return {
+            "active": False,
+            "session_id": session_id,
+            "message": f"Invalid session data format: {session_id}",
         }
 
     session = CodingSession(**session_data)
