@@ -715,7 +715,7 @@ kagura-ai/
 │   │   ├── llm.py                 # LLM abstraction (LiteLLM)
 │   │   ├── llm_gemini.py          # Gemini-specific
 │   │   ├── llm_openai.py          # OpenAI-specific
-│   │   ├── memory/                # 4-tier memory system
+│   │   ├── memory/                # 3-tier memory system (v4.4.0: Working Memory removed)
 │   │   │   ├── README.md
 │   │   │   ├── bm25_search.py     # BM25 keyword search
 │   │   │   ├── coding/            # 🆕 Coding memory (Phase 3: 2,116行 → 8モジュール)

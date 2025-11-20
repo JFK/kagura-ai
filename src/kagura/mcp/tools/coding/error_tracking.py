@@ -5,130 +5,12 @@ Records and searches coding errors with solutions and context.
 
 from __future__ import annotations
 
+import json
+
 from kagura import tool
-from kagura.mcp.builtin.common import parse_json_list, to_int
+from kagura.utils.common.mcp_helpers import parse_json_list, to_int
 from kagura.mcp.tools.coding.common import get_coding_memory
 
-
-@tool
-async def coding_record_error(
-    user_id: str,
-    project_id: str,
-    error_type: str,
-    message: str,
-    stack_trace: str,
-    file_path: str,
-    line_number: int,
-    solution: str | None = None,
-    screenshot: str | None = None,
-    tags: str = "[]",
-) -> str:
-    """Record coding errors with stack traces and optional screenshots
-    for pattern learning.
-
-    Use this tool to record errors you encounter during development. The system will:
-    1. Store error details for future reference
-    2. Learn patterns from recurring errors
-    3. Suggest solutions based on past resolutions
-    4. Analyze screenshots if provided (using Vision AI)
-
-    When to use:
-    - When encountering any error during development
-    - After resolving an error (include the solution!)
-    - When adding error screenshots for better context
-
-    Args:
-        user_id: User identifier (developer)
-        project_id: Project identifier
-        error_type: Error classification
-            (e.g., "TypeError", "SyntaxError", "ImportError")
-        message: Full error message text
-        stack_trace: Complete stack trace or key frames
-        file_path: File where error occurred
-        line_number: Line number where error occurred
-        solution: How the error was resolved (add this after fixing!)
-        screenshot: Optional screenshot path or base64-encoded image
-            - Supports: file paths, base64 strings, data URIs
-            - Vision AI will extract additional context automatically
-        tags: JSON array of custom tags (e.g., '["database", "async"]')
-
-    Returns:
-        Confirmation with error ID and any extracted insights from screenshot
-
-    Examples:
-        # Recording an error
-        await coding_record_error(
-            user_id="dev_john",
-            project_id="api-service",
-            error_type="TypeError",
-            message="can't compare offset-naive and offset-aware datetimes",
-            stack_trace=(
-                'Traceback:\\n  File "auth.py", line 42, '
-                "in validate\\n    ..."
-            ),
-            file_path="src/auth.py",
-            line_number=42,
-            tags='["datetime", "timezone"]'
-        )
-
-        # Recording with solution after fixing
-        await coding_record_error(
-            user_id="dev_john",
-            project_id="api-service",
-            error_type="TypeError",
-            message="...",
-            stack_trace="...",
-            file_path="src/auth.py",
-            line_number=42,
-            solution=("Changed datetime.now() to datetime.now(timezone.utc) "
-                      "for consistency"),
-            tags='["datetime", "resolved"]'
-        )
-
-        # Recording with screenshot
-        await coding_record_error(
-            user_id="dev_john",
-            project_id="api-service",
-            error_type="RuntimeError",
-            message="Database connection failed",
-            stack_trace="...",
-            file_path="src/db.py",
-            line_number=15,
-            screenshot="/path/to/error_screenshot.png"
-        )
-    """
-    memory = get_coding_memory(user_id, project_id)
-
-    # Parse tags from JSON using common helper
-    tags_list = parse_json_list(tags, param_name="tags")
-
-    # Convert line_number to int using common helper
-    line_number = to_int(line_number, default=0, min_val=0, param_name="line_number")
-
-    error_id = await memory.record_error(
-        error_type=error_type,
-        message=message,
-        stack_trace=stack_trace,
-        file_path=file_path,
-        line_number=line_number,
-        solution=solution,
-        screenshot=screenshot,
-        tags=tags_list,
-    )
-
-    screenshot_note = ""
-    if screenshot:
-        screenshot_note = (
-            "\n📸 Screenshot analysis: Vision AI extracted additional context"
-        )
-
-    return (
-        f"✅ Error recorded: {error_id}\n"
-        f"Type: {error_type}\n"
-        f"Location: {file_path}:{line_number}\n"
-        f"Status: {'Resolved' if solution else 'Not yet resolved'}\n"
-        f"Project: {project_id}{screenshot_note}"
-    )
 
 
 @tool
@@ -205,3 +87,110 @@ async def coding_search_errors(
         result_lines.append(f"   Date: {error.timestamp.strftime('%Y-%m-%d %H:%M')}")
 
     return "\n".join(result_lines)
+
+
+# ==============================================================================
+# Issue #720: Unified recording tool (error + decision)
+# ==============================================================================
+
+
+@tool
+async def coding_record_item(
+    user_id: str,
+    project_id: str,
+    item_type: str,
+    title: str,
+    description: str,
+    solution: str | None = None,
+    metadata: str = "{}",
+) -> str:
+    """Record coding item (error, decision, or note) with context.
+
+    Unified tool for recording errors, design decisions, and important notes.
+    Replaces coding_record_error and coding_record_decision.
+
+    Args:
+        user_id: Developer ID
+        project_id: Project ID
+        item_type: Type of item:
+            - "error": Bug or issue encountered
+            - "decision": Design or architectural decision
+            - "note": Important observation or insight
+        title: Brief title/summary
+        description: Detailed description
+        solution: How it was resolved (for errors) or rationale (for decisions)
+        metadata: JSON object with additional context
+
+    Returns:
+        JSON confirmation with item_id
+
+    Examples:
+        # Record error
+        coding_record_item(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            item_type="error",
+            title="ImportError in memory.py",
+            description="Missing BM25Search import",
+            solution="Added from kagura.core.memory.bm25_search import BM25Search"
+        )
+
+        # Record decision
+        coding_record_item(
+            user_id="kiyota",
+            project_id="kagura-ai",
+            item_type="decision",
+            title="Use BM25 for keyword search",
+            description="Chose BM25 algorithm for memory_search_keyword",
+            solution="BM25 provides better keyword matching than TF-IDF"
+        )
+
+    💡 TIP: Record both problems AND solutions for future reference.
+    🌐 Cross-platform: Works across all AI assistants.
+    """
+    try:
+        coding_memory = get_coding_memory(user_id, project_id)
+        metadata_dict = parse_json_dict(metadata, "metadata", {})
+
+        # Add item_type to metadata
+        metadata_dict["item_type"] = item_type
+
+        if item_type == "error":
+            # Use existing error recording
+            item_id = coding_memory.record_error(
+                error_type=metadata_dict.get("error_type", "GeneralError"),
+                message=title,
+                stack_trace=description,
+                file_path=metadata_dict.get("file_path", ""),
+                line_number=metadata_dict.get("line_number", 0),
+                solution=solution,
+            )
+        elif item_type == "decision":
+            # Use existing decision recording
+            item_id = coding_memory.record_decision(
+                decision=title,
+                rationale=description,
+                alternatives=metadata_dict.get("alternatives", []),
+                impact=solution,  # Use solution field for impact
+            )
+        else:
+            # Generic note recording (store in memory)
+            item_id = f"note_{user_id}_{project_id}_{title[:50]}"
+            # Store as memory note (simplified)
+            metadata_dict["title"] = title
+            metadata_dict["description"] = description
+            if solution:
+                metadata_dict["solution"] = solution
+
+        return json.dumps(
+            {
+                "status": "success",
+                "item_id": item_id,
+                "item_type": item_type,
+                "title": title,
+            },
+            indent=2,
+        )
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})

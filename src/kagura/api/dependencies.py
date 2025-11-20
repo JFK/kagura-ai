@@ -1,13 +1,19 @@
 """FastAPI dependencies.
 
 Dependency injection for MemoryManager and other shared resources.
+
+Issue #650: Added OAuth2 session-based authentication dependencies:
+- get_current_user(): Get authenticated user from session (raises 401 if not logged in)
+- get_current_user_optional(): Get user or None
+- require_admin(): Require ADMIN role (raises 403 if not admin)
 """
 
 import warnings
-from typing import Annotated
+from typing import Annotated, Optional
 
-from fastapi import Depends, Header
+from fastapi import Depends, Header, HTTPException, Request
 
+from kagura.auth.roles import Role
 from kagura.config.paths import get_data_dir
 from kagura.core.memory import MemoryManager
 
@@ -78,3 +84,98 @@ def get_memory_manager(user_id: str = Depends(get_user_id)) -> MemoryManager:
 
 # Type alias for dependency injection
 MemoryManagerDep = Annotated[MemoryManager, Depends(get_memory_manager)]
+
+
+# ============================================================================
+# OAuth2 Session-based Authentication (Issue #650)
+# ============================================================================
+
+
+def get_current_user(request: Request) -> dict:
+    """Get current authenticated user from session.
+
+    Dependency that extracts user from request.state (injected by SessionMiddleware).
+
+    Args:
+        request: FastAPI request (with SessionMiddleware applied)
+
+    Returns:
+        User session data: {"sub": ..., "email": ..., "role": ...}
+
+    Raises:
+        HTTPException(401): If not authenticated
+
+    Example:
+        @router.get("/protected")
+        async def protected(user: dict = Depends(get_current_user)):
+            return {"user_email": user["email"]}
+    """
+    user = getattr(request.state, "user", None)
+
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated. Please log in via /auth/login",
+        )
+
+    return user
+
+
+def get_current_user_optional(request: Request) -> Optional[dict]:
+    """Get current user or None if not authenticated.
+
+    Args:
+        request: FastAPI request
+
+    Returns:
+        User session data or None
+
+    Example:
+        @router.get("/optional-auth")
+        async def optional_auth(user: dict | None = Depends(get_current_user_optional)):
+            if user:
+                return {"message": f"Hello {user['email']}"}
+            return {"message": "Hello anonymous"}
+    """
+    return getattr(request.state, "user", None)
+
+
+def require_admin(user: dict = Depends(get_current_user)) -> dict:
+    """Require ADMIN role for endpoint access.
+
+    Dependency that checks if authenticated user has ADMIN role.
+
+    Args:
+        user: Current authenticated user (from get_current_user)
+
+    Returns:
+        User data (if admin)
+
+    Raises:
+        HTTPException(403): If user is not ADMIN
+
+    Example:
+        @router.put("/api/v1/config/{key}")
+        async def update_config(
+            key: str,
+            value: str,
+            admin_user: dict = Depends(require_admin)
+        ):
+            # Only admins can reach here
+            return {"updated": key}
+    """
+    user_role = user.get("role", "user")
+
+    if user_role != Role.ADMIN.value:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Admin role required. Your role: {user_role}",
+        )
+
+    return user
+
+
+# Type aliases
+CurrentUser = Annotated[dict, Depends(get_current_user)]
+CurrentUserOptional = Annotated[Optional[dict], Depends(get_current_user_optional)]
+AdminUser = Annotated[dict, Depends(require_admin)]

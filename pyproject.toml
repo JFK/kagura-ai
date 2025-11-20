@@ -52,7 +52,8 @@ kagura_testing = "kagura.testing.plugin"
 # ============================================
 ai = [
     # Core AI features: Memory, Routing, Context Compression
-    "chromadb>=0.4.0",           # Vector storage for memory & RAG
+    "chromadb>=1.3.0",           # Vector storage for memory & RAG (v1.3+ for schema compatibility)
+    "qdrant-client>=1.7.0",      # Qdrant vector database (Issue #554, optional backend)
     "torch>=2.0.0,<2.3",         # PyTorch <2.3 for Intel Mac x86_64 compatibility & no mandatory CUDA deps. See #533
     "torchvision>=0.15.0,<0.18", # torchvision 0.17.x for torch 2.2.x compatibility. Fixes #645
     "sentence-transformers>=2.2.0,<5.2",  # Embeddings (E5) & reranking. See #533
@@ -68,8 +69,28 @@ api = [
     "uvicorn[standard]>=0.32.0", # ASGI server
     "psycopg2-binary>=2.9.9",    # PostgreSQL adapter
     "asyncpg>=0.29.0",           # Async PostgreSQL driver
+    "sqlalchemy>=2.0.0",         # ORM for PostgreSQL backend (Issue #554)
     "redis>=5.0.0",              # Redis client for caching/queue
     "python-multipart>=0.0.9",   # For file uploads (multimodal)
+    "docker>=7.0.0",             # Docker SDK for container management (Issue #650)
+]
+api-cloud = [
+    # Cloud-optimized API (WITHOUT torch/sentence-transformers)
+    # Use when EMBEDDING_PROVIDER=openai (no local models needed)
+    # Reduces Docker image: 3GB → 1GB, RAM: 2-3GB → 500MB
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "psycopg2-binary>=2.9.9",
+    "asyncpg>=0.29.0",
+    "sqlalchemy>=2.0.0",
+    "redis>=5.0.0",
+    "python-multipart>=0.0.9",
+    "docker>=7.0.0",
+    "chromadb>=1.3.0",           # Vector storage (default, no local embedding generation)
+    "qdrant-client>=1.7.0",      # Qdrant vector storage (alternative)
+    "networkx>=3.0",             # Graph memory
+    "rank-bm25>=0.2.2",          # BM25 lexical search
+    "tiktoken>=0.7.0",           # Token counting
 ]
 graph = [
     # v4.0 Knowledge Graph (Phase B - Issue #345)
@@ -87,11 +108,12 @@ web = [
     "yt-dlp>=2023.0.0",             # YouTube metadata extraction
 ]
 auth = [
-    # OAuth2 authentication
+    # OAuth2 authentication (client & server)
     "google-auth>=2.25.0",
     "google-auth-oauthlib>=1.2.0",
     "google-auth-httplib2>=0.2.0",
     "cryptography>=41.0.0",
+    "authlib>=1.3.0",  # OAuth2/OIDC server implementation (Issue #674)
 ]
 mcp = [
     # MCP (Model Context Protocol) integration

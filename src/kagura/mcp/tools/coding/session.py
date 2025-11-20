@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timezone
 
 from kagura import tool
-from kagura.mcp.builtin.common import to_bool
+from kagura.utils.common.mcp_helpers import to_bool
 from kagura.mcp.tools.coding.common import get_coding_memory
 
 
@@ -44,13 +44,17 @@ async def coding_start_session(
     except json.JSONDecodeError:
         tags_list = []
 
-    session_id = await memory.start_coding_session(
-        description=description,
-        tags=tags_list,
-    )
+    # Use CodingService (v4.4.0+)
+    from kagura.services import CodingService
+
+    service = CodingService(memory)
+    result = await service.start_session(description=description, tags=tags_list)
+
+    if not result.success:
+        return f"❌ Failed to start session: {result.message}"
 
     return (
-        f"✅ Coding session started: {session_id}\n"
+        f"✅ Coding session started: {result.session_id}\n"
         f"Project: {project_id}\n"
         f"Description: {description}\n"
         f"Tags: {', '.join(tags_list) if tags_list else 'None'}\n\n"
@@ -115,7 +119,7 @@ async def coding_resume_session(
         session_id_returned = await memory.resume_coding_session(session_id)
 
         # Get session details from working memory
-        session_data = memory.working.get(f"session:{session_id_returned}")
+        session_data = memory.recall(f"session:{session_id_returned}")
         if not session_data:
             return f"❌ Failed to load resumed session: {session_id}"
 
@@ -153,131 +157,6 @@ async def coding_resume_session(
         return f"❌ Cannot resume session: {e}"
     except ValueError as e:
         return f"❌ Invalid session: {e}"
-
-
-@tool
-async def coding_get_current_session_status(
-    user_id: str,
-    project_id: str,
-) -> str:
-    """Get current coding session status and tracked activities.
-
-    Use this tool to check what has been recorded in the current session
-    before ending it. Helps you:
-    - See what will be included in the session summary
-    - Verify important items are tracked
-    - Decide if ready to end session
-
-    Returns current session information including:
-    - Session metadata (ID, description, duration, tags)
-    - Tracked activities count (files, errors, decisions, interactions)
-    - Recent activity summary
-    - Next steps recommendation
-
-    Args:
-        user_id: User identifier
-        project_id: Project identifier
-
-    Returns:
-        Current session status summary
-
-    Raises:
-        Error if no active session
-
-    Examples:
-        # Check status before ending
-        status = await coding_get_current_session_status(
-            user_id="kiyota",
-            project_id="kagura-ai"
-        )
-        # Review the output, then decide:
-        # await coding_end_session(...)
-    """
-    memory = get_coding_memory(user_id, project_id)
-
-    if not memory.current_session_id:
-        return "❌ No active coding session.\n\nStart one with: coding_start_session()"
-
-    # Load current session from working memory
-    session_data = memory.working.get(f"session:{memory.current_session_id}")
-    if not session_data:
-        return "❌ Session data not found in working memory."
-
-    from kagura.core.memory.coding_memory import CodingSession
-
-    session = CodingSession.model_validate(session_data)
-
-    # Calculate duration
-
-    # Handle both datetime and string formats
-    if isinstance(session.start_time, str):
-        start = datetime.fromisoformat(session.start_time)
-    else:
-        start = session.start_time
-
-    # Ensure timezone-aware comparison
-    now = datetime.now(timezone.utc)
-    if start.tzinfo is None:
-        # Assume UTC if naive
-        start = start.replace(tzinfo=timezone.utc)
-
-    duration = (now - start).total_seconds() / 60
-
-    # Count activities (CodingSession doesn't store these, need to fetch from memory)
-    # For now, fetch from persistent storage
-    file_changes_records = await memory._get_session_file_changes(session.session_id)
-    errors_records = await memory._get_session_errors(session.session_id)
-    decisions_records = await memory._get_session_decisions(session.session_id)
-
-    file_changes = len(file_changes_records)
-    errors = len([e for e in errors_records if not e.solution])
-    errors_fixed = len([e for e in errors_records if e.solution])
-    decisions = len(decisions_records)
-    interactions = 0  # Not yet tracked separately
-
-    # Build status report
-    result = "📊 Current Session Status\n\n"
-    result += f"**Session ID:** {session.session_id}\n"
-    result += f"**Project:** {project_id}\n"
-    result += f"**Description:** {session.description}\n"
-    result += f"**Duration:** {duration:.1f} minutes (started {session.start_time})\n"
-    result += f"**Tags:** {', '.join(session.tags)}\n\n"
-
-    result += "**Tracked Activities:**\n"
-    result += f"  • File changes: {file_changes}\n"
-    result += f"  • Errors encountered: {errors + errors_fixed}\n"
-    result += f"  • Errors fixed: {errors_fixed}\n"
-    result += f"  • Decisions recorded: {decisions}\n"
-    result += f"  • Interactions tracked: {interactions}\n\n"
-
-    # Recent activity
-    if file_changes_records:
-        result += "**Recent File Changes (last 3):**\n"
-        for change in file_changes_records[-3:]:
-            result += f"  • {change.action}: {change.file_path}\n"
-        result += "\n"
-
-    if decisions_records:
-        result += "**Recent Decisions (last 2):**\n"
-        for decision in decisions_records[-2:]:
-            result += f"  • {decision.decision[:80]}...\n"
-        result += "\n"
-
-    # Recommendations
-    result += "**Next Steps:**\n"
-
-    if file_changes == 0:
-        result += "  ⚠️  No file changes tracked yet. Use coding_track_file_change()\n"
-
-    if errors > 0:
-        result += f"  ⚠️  {errors} unresolved errors. Add solutions before ending.\n"
-
-    result += "  ✅ Ready to end? Confirm with user, then: coding_end_session()\n"
-
-    if file_changes > 0 or decisions > 0:
-        result += "  💡 Consider: save_to_github='true' to record to GitHub Issue\n"
-
-    return result
 
 
 @tool
@@ -406,8 +285,8 @@ Statistics:
             )
 
             # Store in RAG for semantic search
-            if memory.persistent_rag:
-                memory.persistent_rag.store(
+            if memory.rag:
+                memory.rag.store(
                     content=session_doc,
                     metadata=metadata,
                     user_id=user_id,
@@ -432,3 +311,50 @@ Statistics:
         f"{github_status}"
         f"{claude_code_status}"
     )
+
+
+# ==============================================================================
+# Issue #720: Renamed session status tool
+# ==============================================================================
+
+
+@tool
+async def coding_get_status(
+    user_id: str,
+    project_id: str,
+) -> str:
+    """Get current coding session status (renamed from coding_get_current_session_status).
+
+    Returns active session info including tracked changes, errors, and decisions.
+
+    Args:
+        user_id: Developer ID
+        project_id: Project identifier
+
+    Returns:
+        JSON with session details, tracked activities, and statistics
+
+    Example:
+        status = coding_get_status(user_id="kiyota", project_id="kagura-ai")
+        # Returns: {"session_id": "...", "duration": "45m", "changes": 5, ...}
+
+    💡 TIP: Use to check session progress and tracked activities.
+    🌐 Cross-platform: Works across all AI assistants.
+    """
+    try:
+        coding_memory = get_coding_memory(user_id, project_id)
+        status = await coding_memory.get_current_session_status()
+
+        if not status:
+            return json.dumps(
+                {
+                    "active": False,
+                    "message": "No active session",
+                },
+                indent=2,
+            )
+
+        return json.dumps(status, indent=2, default=str, ensure_ascii=False)
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})

@@ -89,11 +89,6 @@ def _get_lightweight_memory_manager(
     help="Agent name to export (default: global)",
 )
 @click.option(
-    "--working/--no-working",
-    default=True,
-    help="Include working memory (default: yes)",
-)
-@click.option(
     "--persistent/--no-persistent",
     default=True,
     help="Include persistent memory (default: yes)",
@@ -107,7 +102,6 @@ def export_memory(
     output: str,
     user_id: str,
     agent_name: str,
-    working: bool,
     persistent: bool,
     graph: bool,
 ) -> None:
@@ -121,7 +115,7 @@ def export_memory(
         kagura memory export --output ./backup
 
         # Export only persistent memory
-        kagura memory export --output ./backup --no-working
+        kagura memory export --output ./backup --no-persistent
 
         # Export for specific user
         kagura memory export --output ./backup --user-id user_alice
@@ -150,7 +144,6 @@ def export_memory(
             stats = asyncio.run(
                 exporter.export_all(
                     output_dir=output,
-                    include_working=working,
                     include_persistent=persistent,
                     include_graph=graph,
                 )

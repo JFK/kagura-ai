@@ -43,6 +43,12 @@ async def memory_stats(
     """
     logger = logging.getLogger(__name__)
 
+    # Validate parameters
+    if not isinstance(user_id, str) or not user_id.strip():
+        return json.dumps({"error": "user_id must be a non-empty string"})
+    if not isinstance(agent_name, str):
+        return json.dumps({"error": "agent_name must be a string"})
+
     logger.debug(f"memory_stats: Starting for user={user_id}, agent={agent_name}")
     enable_rag = True
     memory = get_memory_manager(user_id, agent_name, enable_rag=enable_rag)
@@ -51,9 +57,10 @@ async def memory_stats(
     try:
         # Count memories
         logger.debug("memory_stats: Counting working memories")
-        working_keys_all = memory.working.keys()
-        working_count = len([k for k in working_keys_all if not k.startswith("_meta_")])
-        logger.debug(f"memory_stats: Working count = {working_count}")
+        # Working memory removed in v4.4.0 - all memory is persistent
+        working_keys_all = []
+        working_count = 0
+        logger.debug(f"memory_stats: Working count = {working_count} (v4.4.0: working memory removed)")
 
         logger.debug("memory_stats: Searching persistent memories")
         persistent_mems = memory.persistent.search("%", user_id, agent_name, limit=1000)
@@ -180,7 +187,7 @@ async def memory_stats(
         logger.debug("memory_stats: Calculating storage size")
         try:
             storage_info = memory.get_storage_size()
-            storage_mb = round(storage_info["total_mb"], 2)
+            storage_mb = round(float(storage_info["total_mb"]), 2)
             logger.debug(f"memory_stats: Storage = {storage_mb} MB")
         except Exception as e:
             logger.warning(f"Failed to calculate storage size: {e}")

@@ -29,7 +29,6 @@
 │  Scope: user_id + project_id                                │
 │                                                              │
 │  Storage:                                                    │
-│  ├─ Working Memory (active session)                        │
 │  ├─ Persistent Memory (SQLite/PostgreSQL)                  │
 │  ├─ RAG (ChromaDB) - Semantic search                       │
 │  └─ Graph (NetworkX) - Relationships                       │

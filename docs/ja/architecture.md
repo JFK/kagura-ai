@@ -212,14 +212,12 @@ ChatGPT                         あなたのサーバー
    └─► MemoryManager.store()を呼び出し
 
 4. メモリーマネージャー
-   ├─► Workingメモリー（scope="working"の場合）
-   ├─► Persistentメモリー（scope="persistent"の場合）
-   └─► RAGインデックス（両方のスコープ）
+   ├─► Persistent メモリー（SQLite）
+   └─► RAG インデックス（ChromaDB）
 
 5. ストレージ
    ├─► SQLite（persistent）
-   ├─► ChromaDB（ベクトル）
-   └─► インメモリーdict（working）
+   └─► ChromaDB（ベクトル）
 ```
 
 ### メモリー呼び出しフロー

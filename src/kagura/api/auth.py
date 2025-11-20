@@ -1,6 +1,10 @@
 """API Key authentication for Kagura Memory API.
 
 Provides API Key generation, validation, and management for remote access.
+
+IMPORTANT: This module now uses the new SQLAlchemy-based APIKeyManagerSQL
+from auth/api_key_manager.py for PostgreSQL/SQLite compatibility.
+The old SQLite-only APIKeyManager is deprecated (Issue #655).
 """
 
 from __future__ import annotations
@@ -8,6 +12,7 @@ from __future__ import annotations
 import hashlib
 import secrets
 import sqlite3
+import warnings
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
@@ -15,6 +20,9 @@ from typing import Optional
 from fastapi import HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from kagura.auth.api_key_manager import (
+    get_api_key_manager_sql,
+)
 from kagura.config.paths import get_data_dir
 
 # API Key prefix for easy identification
@@ -25,7 +33,11 @@ security = HTTPBearer(auto_error=False)
 
 
 class APIKeyManager:
-    """Manages API keys for authentication.
+    """Manages API keys for authentication (DEPRECATED).
+
+    .. deprecated:: v4.4.0
+        Use :class:`kagura.auth.api_key_manager.APIKeyManagerSQL` instead.
+        This class is SQLite-only and does not support PostgreSQL.
 
     Stores API keys securely in SQLite database with hashing.
     """
@@ -155,6 +167,7 @@ class APIKeyManager:
 
         Side effects:
             Updates last_used_at timestamp on successful verification
+            Records usage statistics (if stats tracker is available)
         """
         key_hash = self._hash_key(api_key)
 
@@ -193,6 +206,16 @@ class APIKeyManager:
                 (datetime.now(), key_hash),
             )
 
+            # Record usage statistics (best-effort, don't fail on error)
+            try:
+                from kagura.core.memory.api_key_stats import get_stats_tracker
+
+                stats_tracker = get_stats_tracker()
+                stats_tracker.record_request(key_hash)
+            except Exception:
+                # Silently ignore stats recording errors
+                pass
+
             return user_id
 
     def list_keys(self, user_id: Optional[str] = None) -> list[dict]:
@@ -202,7 +225,7 @@ class APIKeyManager:
             user_id: Optional user_id filter
 
         Returns:
-            List of API key metadata dicts
+            List of API key metadata dicts (includes key_hash for stats lookup)
         """
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
@@ -210,7 +233,7 @@ class APIKeyManager:
             if user_id:
                 cursor = conn.execute(
                     """
-                    SELECT id, key_prefix, name, user_id, created_at,
+                    SELECT id, key_hash, key_prefix, name, user_id, created_at,
                            last_used_at, revoked_at, expires_at
                     FROM api_keys
                     WHERE user_id = ?
@@ -221,7 +244,7 @@ class APIKeyManager:
             else:
                 cursor = conn.execute(
                     """
-                    SELECT id, key_prefix, name, user_id, created_at,
+                    SELECT id, key_hash, key_prefix, name, user_id, created_at,
                            last_used_at, revoked_at, expires_at
                     FROM api_keys
                     ORDER BY created_at DESC
@@ -272,16 +295,27 @@ class APIKeyManager:
             return cursor.rowcount > 0
 
 
-# Global API Key manager instance
+# Global API Key manager instance (DEPRECATED)
 _api_key_manager: Optional[APIKeyManager] = None
 
 
 def get_api_key_manager() -> APIKeyManager:
-    """Get or create global API Key manager instance.
+    """Get or create global API Key manager instance (DEPRECATED).
+
+    .. deprecated:: v4.4.0
+        Use :func:`kagura.auth.api_key_manager.get_api_key_manager_sql` instead.
+        This function returns the SQLite-only manager.
 
     Returns:
         APIKeyManager instance
     """
+    warnings.warn(
+        "get_api_key_manager() is deprecated. "
+        "Use kagura.auth.api_key_manager.get_api_key_manager_sql() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     global _api_key_manager
 
     if _api_key_manager is None:
@@ -294,6 +328,8 @@ async def verify_api_key(
     credentials: Optional[HTTPAuthorizationCredentials] = Security(security),
 ) -> Optional[str]:
     """Verify API key from Authorization header (optional).
+
+    Uses the new SQLAlchemy-based APIKeyManagerSQL for PostgreSQL/SQLite support.
 
     Args:
         credentials: Authorization credentials from header
@@ -309,7 +345,7 @@ async def verify_api_key(
         return None
 
     api_key = credentials.credentials
-    manager = get_api_key_manager()
+    manager = get_api_key_manager_sql()  # Use new PostgreSQL-compatible manager
 
     user_id = manager.verify_key(api_key)
 

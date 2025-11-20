@@ -12,13 +12,14 @@ Kagura AI v4.0+ provides a **Temperature-based Memory Hierarchy** for high-conte
 
 ## Architecture (Quick Reference)
 
-### 4-Tier System
+### 3-Tier System
+
+**Breaking Change (v4.4.0)**: Working Memory removed. All memory is now persistent.
 
 ```
-Tier 1: Working Memory    - Python dict       - <1ms   - Session
-Tier 2: Context Memory    - In-memory list    - <1ms   - Session
-Tier 3: Persistent Memory - SQLite            - <10ms  - User-scoped
-Tier 4: Semantic Search   - ChromaDB/Qdrant   - <100ms - Vector search
+Tier 1: Context Memory    - In-memory list    - <1ms   - Session
+Tier 2: Persistent Memory - SQLite            - <10ms  - User-scoped
+Tier 3: Semantic Search   - ChromaDB/Qdrant   - <100ms - Vector search
 Bonus:  Graph Memory      - NetworkX          - <10ms  - Relationships
 ```
 
@@ -42,10 +43,9 @@ Bonus:  Graph Memory      - NetworkX          - <10ms  - Relationships
 |--------|------|---------|
 | MemoryManager | `manager.py` | Main interface |
 | RecallScorer | `recall_scorer.py` | Multi-dimensional scoring (246 lines) |
-| PersistentMemory | `persistent.py` | SQLite backend (Tier 3) |
-| MemoryRAG | `rag.py` | ChromaDB/Qdrant integration (Tier 4) |
-| ContextMemory | `context.py` | Session memory (Tier 2) |
-| WorkingMemory | `working.py` | Immediate context (Tier 1) |
+| PersistentMemory | `persistent.py` | SQLite backend (Tier 2) |
+| MemoryRAG | `rag.py` | ChromaDB/Qdrant integration (Tier 3) |
+| ContextMemory | `context.py` | Session memory (Tier 1) |
 
 ### Temperature Implementation (v4.0.1+)
 

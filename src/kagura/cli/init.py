@@ -7,7 +7,7 @@ import click
 from prompt_toolkit import PromptSession
 from rich.panel import Panel
 
-from kagura.cli.utils import create_console, create_info_panel, create_spinner_progress
+from kagura.utils.cli import create_console, create_info_panel, create_spinner_progress
 from kagura.config import ConfigManager, UserConfig
 
 

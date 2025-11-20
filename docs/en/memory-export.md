@@ -297,7 +297,6 @@ manager = MemoryManager(user_id="user_jfk", agent_name="global")
 exporter = MemoryExporter(manager)
 stats = await exporter.export_all(
     output_dir="./backup",
-    include_working=True,
     include_persistent=True,
     include_graph=True,
 )

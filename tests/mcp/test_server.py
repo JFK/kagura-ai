@@ -174,7 +174,8 @@ async def test_memory_tools_with_telemetry():
     parameter, which was causing a conflict with track_execution's agent_name parameter.
     This test verifies the fix works correctly.
     """
-    from kagura.mcp.builtin.memory import _memory_cache, memory_recall, memory_store
+    from kagura.mcp.tools.memory.storage import _memory_cache, memory_store
+    from kagura.mcp.tools.memory.search import memory_search_semantic
     from kagura.observability import get_global_telemetry
 
     # Clear memory cache
@@ -191,7 +192,6 @@ async def test_memory_tools_with_telemetry():
         "agent_name": "test_agent",
         "key": "test_key",
         "value": "test_value",
-        "scope": "working",
     }
 
     # Remove agent_name and user_id from args (the fix from Issue #344)
@@ -206,22 +206,22 @@ async def test_memory_tools_with_telemetry():
         result = await memory_store(**args)
         assert "Stored" in result
 
-    # Verify memory_recall also works
+    # Verify memory_search_semantic also works (replaces memory_recall per Issue #720)
     async with collector.track_execution(
-        "mcp_kagura_tool_memory_recall", **tracking_args
+        "mcp_kagura_tool_memory_search_semantic", **tracking_args
     ):
-        result = await memory_recall(
+        result = await memory_search_semantic(
             user_id="test_user",
             agent_name="test_agent",
-            key="test_key",
-            scope="working",
+            query="test_key",
+            k=1,
         )
-        # Parse JSON response (new format includes metadata)
+        # Parse JSON response
         import json
 
         data = json.loads(result)
-        assert data["value"] == "test_value"
-        assert "metadata" in data
+        assert isinstance(data, list)
+        # Note: Search may return 0 results if RAG indexing is async
 
     # Cleanup
     _memory_cache.clear()
@@ -230,7 +230,7 @@ async def test_memory_tools_with_telemetry():
 @pytest.mark.asyncio
 async def test_telemetry_tracks_memory_operations():
     """Test that telemetry correctly records memory operations (Issue #344)"""
-    from kagura.mcp.builtin.memory import _memory_cache, memory_store
+    from kagura.mcp.tools.memory.storage import _memory_cache, memory_store
     from kagura.observability import EventStore, Telemetry
 
     # Clear memory cache

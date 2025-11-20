@@ -3,15 +3,20 @@
 NetworkX-based knowledge graph for memories, users, topics, and interactions.
 
 Issue #345: GraphDB integration for AI-User relationship memory
+Issue #554: Cloud-Native Infrastructure Migration (backend abstraction)
 """
 
 import json
+import os
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Literal, Optional, TYPE_CHECKING
 
 import networkx as nx
+
+if TYPE_CHECKING:
+    from .backends.base import GraphBackend
 
 
 class GraphMemory:
@@ -83,18 +88,76 @@ class GraphMemory:
         "mentioned_in",  # Referenced in issue/PR
     ]
 
-    def __init__(self, persist_path: Optional[Path] = None):
+    def __init__(
+        self,
+        persist_path: Optional[Path] = None,
+        backend: Optional["GraphBackend"] = None,
+        backend_type: Optional[Literal["json", "postgres"]] = None,
+        user_id: str = "global",
+    ):
         """Initialize graph memory.
 
         Args:
-            persist_path: Path to save/load graph (JSON format)
+            persist_path: Path to save/load graph (JSON format, legacy)
+            backend: Explicit backend instance (overrides backend_type and persist_path)
+            backend_type: Backend type selection ("json" or "postgres")
+                Defaults to GRAPH_BACKEND environment variable or "json"
+            user_id: User/agent identifier for multi-user support (default: "global")
+
+        Example:
+            >>> # Legacy (JSON file)
+            >>> graph = GraphMemory(persist_path=Path("graph.json"))
+            >>>
+            >>> # Environment-based (recommended)
+            >>> # Set GRAPH_BACKEND=postgres, DATABASE_URL=postgresql://...
+            >>> graph = GraphMemory()
+            >>>
+            >>> # Explicit backend
+            >>> from .backends import PostgresBackend
+            >>> backend = PostgresBackend(database_url="postgresql://...")
+            >>> graph = GraphMemory(backend=backend)
         """
         self.graph: nx.DiGraph = nx.DiGraph()
         self.persist_path = persist_path
+        self.user_id = user_id
 
-        # Load existing graph if path exists
-        if persist_path and persist_path.exists():
-            self.load()
+        # Backend selection logic
+        if backend:
+            # Explicit backend provided
+            self.backend: Optional["GraphBackend"] = backend
+        else:
+            # Auto-select backend based on configuration
+            env_backend = os.getenv("GRAPH_BACKEND", "json")
+            if not backend_type:
+                backend_type = env_backend if env_backend in ("json", "postgres") else "json"  # type: ignore[assignment]
+
+            if backend_type == "postgres":
+                database_url = os.getenv("DATABASE_URL")
+                if not database_url:
+                    raise ValueError(
+                        "DATABASE_URL environment variable required for postgres backend"
+                    )
+
+                from .backends import PostgresBackend
+
+                self.backend = PostgresBackend(
+                    database_url=database_url, user_id=user_id
+                )
+            else:
+                # Default to JSON backend
+                if not persist_path:
+                    # Default path if not specified
+                    from kagura.config.paths import get_data_dir
+
+                    persist_path = get_data_dir() / "graph.json"
+
+                from .backends import JSONBackend
+
+                self.backend = JSONBackend(persist_path=persist_path)
+
+        # Load existing graph if it exists
+        if self.backend.exists():
+            self.graph = self.backend.load()
 
     def add_node(
         self, node_id: str, node_type: str, data: Optional[dict[str, Any]] = None
@@ -397,46 +460,56 @@ class GraphMemory:
         return data
 
     def persist(self) -> None:
-        """Save graph to disk (JSON format).
+        """Save graph to backend storage.
+
+        Supports both legacy (persist_path) and new backend architecture.
 
         Raises:
-            ValueError: If persist_path is not set
+            ValueError: If neither persist_path nor backend is set
+            IOError: If save operation fails
         """
-        if not self.persist_path:
-            raise ValueError("persist_path not set. Cannot save graph.")
-
-        # Ensure parent directory exists
-        self.persist_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Convert NetworkX graph to JSON-serializable format
-        # edges="links" ensures forward compatibility with NetworkX 3.6+
-        data = nx.node_link_data(self.graph, edges="links")
-
-        # Save graph using JSON
-        with open(self.persist_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, default=str)
+        if self.backend:
+            # Use backend (new architecture)
+            self.backend.save(self.graph)
+        elif self.persist_path:
+            # Legacy path (backward compatibility)
+            self.persist_path.parent.mkdir(parents=True, exist_ok=True)
+            data = nx.node_link_data(self.graph, edges="links")
+            with open(self.persist_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, default=str)
+        else:
+            raise ValueError(
+                "Neither backend nor persist_path is set. Cannot save graph."
+            )
 
     def load(self) -> None:
-        """Load graph from disk (JSON format).
+        """Load graph from backend storage.
+
+        Supports both legacy (persist_path) and new backend architecture.
 
         Raises:
-            ValueError: If persist_path is not set
-            FileNotFoundError: If file doesn't exist
+            ValueError: If neither persist_path nor backend is set
+            FileNotFoundError: If file doesn't exist (legacy mode)
+            IOError: If load operation fails
         """
-        if not self.persist_path:
-            raise ValueError("persist_path not set. Cannot load graph.")
+        if self.backend:
+            # Use backend (new architecture)
+            self.graph = self.backend.load()
+        elif self.persist_path:
+            # Legacy path (backward compatibility)
+            if not self.persist_path.exists():
+                raise FileNotFoundError(f"Graph file not found: {self.persist_path}")
 
-        if not self.persist_path.exists():
-            raise FileNotFoundError(f"Graph file not found: {self.persist_path}")
+            with open(self.persist_path, encoding="utf-8") as f:
+                data = json.load(f)
 
-        # Load graph using JSON
-        with open(self.persist_path, encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Convert JSON data back to NetworkX graph
-        # edges="links" ensures forward compatibility with NetworkX 3.6+
-        # edges="links" ensures forward compatibility with NetworkX 3.6+
-        self.graph: nx.DiGraph = nx.node_link_graph(data, edges="links")  # type: ignore[assignment]
+            # Convert JSON data back to NetworkX graph
+            # edges="links" ensures forward compatibility with NetworkX 3.6+
+            self.graph: nx.DiGraph = nx.node_link_graph(data, edges="links")  # type: ignore[assignment]
+        else:
+            raise ValueError(
+                "Neither backend nor persist_path is set. Cannot load graph."
+            )
 
     def stats(self) -> dict[str, Any]:
         """Get graph statistics.

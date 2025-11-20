@@ -142,7 +142,7 @@ def serve(ctx: click.Context, name: str, remote: bool, categories: str | None):
 
     # Auto-register built-in tools
     try:
-        import kagura.mcp.builtin  # noqa: F401
+        import kagura.mcp.tools  # noqa: F401  # Auto-register tools
 
         logger.info("Loaded built-in MCP tools")
         if verbose:

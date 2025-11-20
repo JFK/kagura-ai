@@ -178,26 +178,27 @@ ls -lh ~/.local/share/kagura/memory.db
 
 **Solutions**:
 
-#### Solution A: Use Persistent Scope
+#### Solution A: Verify Memory Storage
 
-**Problem**: Using default `scope="working"` (temporary)
+**Problem**: Memory not being stored correctly
 
-**Fix**: Explicitly request persistent storage
+**Fix**: Ensure memory operations are successful
 
 ```
-❌ "Remember that I prefer Python"
-✅ "Remember PERMANENTLY: I prefer Python"
-✅ "Save this with scope='persistent': I prefer Python"
+❌ "Remember that I prefer Python"  # Vague instruction
+✅ "Store in memory: I prefer Python"  # Clear instruction
+✅ memory_store(key="python_preference", value="Python")
 ```
 
 **In prompts**:
 ```python
 memory_store(
     key="python_preference",
-    value="FastAPI over Django",
-    scope="persistent"  # ← Important!
+    value="FastAPI over Django"
 )
 ```
+
+**Note**: As of v4.4.0, all memory is persistent by default. No need for `scope` parameter.
 
 #### Solution B: Check user_id
 

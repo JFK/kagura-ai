@@ -31,17 +31,16 @@ This document describes the architecture of Kagura v4.0 after Phase C completion
           │         Memory Manager                   │
           │   (src/kagura/core/memory/manager.py)    │
           │                                          │
-          │  ┌──────────┬───────────┬─────────────┐ │
-          │  │ Working  │ Context   │ Persistent  │ │
-          │  │ Memory   │ Memory    │ Memory      │ │
-          │  │(In-Mem)  │(Messages) │(SQLite)     │ │
-          │  └──────────┴───────────┴─────────────┘ │
+          │  ┌───────────────┬───────────────────┐  │
+          │  │   Context     │    Persistent     │  │
+          │  │   Memory      │    Memory         │  │
+          │  │ (Messages)    │   (SQLite)        │  │
+          │  └───────────────┴───────────────────┘  │
           │                                          │
           │  ┌────────────────────────────────────┐ │
           │  │  RAG (ChromaDB)                    │ │
-          │  │  • Working RAG                     │ │
-          │  │  • Persistent RAG                  │ │
           │  │  • Semantic search                 │ │
+          │  │  • Document indexing               │ │
           │  └────────────────────────────────────┘ │
           │                                          │
           │  ┌────────────────────────────────────┐ │
@@ -144,15 +143,13 @@ ChatGPT                         Your Server
 
 **Components**:
 - `manager.py` - Main coordinator
-- `working.py` - In-memory temporary storage
-- `persistent.py` - SQLite-based long-term storage
+- `persistent.py` - SQLite-based persistent storage
 - `rag.py` - ChromaDB vector search
 - `export.py` - JSONL export/import
 
-**Storage Scopes**:
-- **Working**: Session-only, cleared after use
-- **Persistent**: Survives restarts, SQLite storage
-- **Both**: Indexed in RAG for semantic search
+**Storage**:
+- **Persistent**: All memory is persistent (survives restarts, SQLite storage)
+- **RAG**: Indexed in ChromaDB for semantic search
 
 ---
 
@@ -212,14 +209,12 @@ ChatGPT                         Your Server
    └─► Call MemoryManager.store()
 
 4. Memory Manager
-   ├─► Working memory (if scope="working")
-   ├─► Persistent memory (if scope="persistent")
-   └─► RAG indexing (both scopes)
+   ├─► Persistent memory (SQLite)
+   └─► RAG indexing (ChromaDB)
 
 5. Storage
    ├─► SQLite (persistent)
-   ├─► ChromaDB (vectors)
-   └─► In-memory dict (working)
+   └─► ChromaDB (vectors)
 ```
 
 ### Memory Recall Flow
@@ -291,7 +286,6 @@ ChatGPT                         Your Server
     "value": Any,                # Stored data (JSON serializable)
     "user_id": str,              # Owner (v4.0+)
     "agent_name": str,           # Agent scope
-    "scope": "working|persistent",
     "tags": List[str],           # Categorization
     "importance": float,         # 0.0-1.0
     "created_at": datetime,
@@ -377,7 +371,7 @@ backup/
 
 **Example record**:
 ```jsonl
-{"type":"memory","scope":"persistent","key":"python_tips","value":"Use type hints","user_id":"jfk","agent_name":"global","tags":["python"],"importance":0.8,"exported_at":"2025-10-27T10:00:00Z"}
+{"type":"memory","key":"python_tips","value":"Use type hints","user_id":"jfk","agent_name":"global","tags":["python"],"importance":0.8,"exported_at":"2025-10-27T10:00:00Z"}
 ```
 
 ---

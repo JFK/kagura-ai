@@ -110,7 +110,7 @@ class TestLogToolCallToMemory:
         await asyncio.sleep(0.5)
 
         # Verify stored in memory
-        from kagura.mcp.builtin.memory import memory_get_tool_history
+        from kagura.mcp.tools.memory.storage import memory_get_tool_history
 
         history = await memory_get_tool_history(
             user_id, tool_filter=tool_name, limit="1"
@@ -146,7 +146,7 @@ class TestLogToolCallToMemory:
         await asyncio.sleep(0.5)
 
         # Verify truncated in storage
-        from kagura.mcp.builtin.memory import memory_get_tool_history
+        from kagura.mcp.tools.memory.storage import memory_get_tool_history
 
         history = await memory_get_tool_history(
             user_id, tool_filter="test_tool", limit="1"
@@ -177,7 +177,7 @@ class TestLogToolCallToMemory:
         )
 
         # Verify NOT stored
-        from kagura.mcp.builtin.memory import memory_get_tool_history
+        from kagura.mcp.tools.memory.storage import memory_get_tool_history
 
         history = await memory_get_tool_history(
             user_id, tool_filter="memory_store", limit="10"

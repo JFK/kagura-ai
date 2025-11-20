@@ -60,7 +60,7 @@ def list_tools(
 
     # Auto-load built-in tools
     try:
-        import kagura.mcp.builtin  # noqa: F401
+        import kagura.mcp.tools  # noqa: F401  # Auto-register tools
     except ImportError:
         console.print("[yellow]Warning: Could not load built-in tools[/yellow]\n")
 
@@ -69,7 +69,7 @@ def list_tools(
     if not all_tools:
         console.print("[yellow]No MCP tools registered.[/yellow]")
         console.print("\n[dim]Tools are auto-registered when you import modules.[/dim]")
-        console.print("[dim]Example: from kagura.mcp.builtin import memory[/dim]\n")
+        console.print("[dim]Example: from kagura.mcp.tools.memory import storage[/dim]\n")
         return
 
     def infer_category(tool_name: str) -> str:

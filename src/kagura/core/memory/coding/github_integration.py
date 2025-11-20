@@ -6,6 +6,7 @@ Extracted from manager.py as part of Phase 3.5.
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import TYPE_CHECKING
 
@@ -83,9 +84,14 @@ async def link_session_to_github_issue(
             user_id=self.user_id,
         )
 
-        # Also update working memory if active
+        # Also update persistent cache if active session
         if session_id == self.current_session_id:
-            self.working.set(f"session:{session_id}", session_data)
+            self.persistent.store(
+                f"session:{session_id}",
+                json.dumps(session_data),
+                self.user_id,
+                agent_name="coding_sessions"
+            )
 
     # Add to graph if available
     if self.graph:
@@ -173,10 +179,17 @@ async def generate_pr_description(self: CodingMemoryManager) -> str:
             "No active session. Start a session to generate PR description."
         )
 
-    # Gather session data
-    session_data = self.working.get(f"session:{self.current_session_id}")
-    if not session_data:
+    # Gather session data from persistent storage
+    session_data_str = self.persistent.recall(
+        f"session:{self.current_session_id}", self.user_id, agent_name="coding_sessions"
+    )
+    if not session_data_str:
         raise RuntimeError(f"Session data not found: {self.current_session_id}")
+
+    try:
+        session_data = json.loads(session_data_str) if isinstance(session_data_str, str) else session_data_str
+    except json.JSONDecodeError:
+        raise RuntimeError(f"Invalid session data format: {self.current_session_id}")
 
     file_changes = await self._get_session_file_changes(self.current_session_id)
     decisions = await self._get_session_decisions(self.current_session_id)

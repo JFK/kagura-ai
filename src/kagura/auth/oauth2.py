@@ -2,11 +2,13 @@
 
 import json
 import logging
+import os
+from typing import Any
 
 from cryptography.fernet import Fernet
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google_auth_oauthlib.flow import Flow, InstalledAppFlow
 
 from kagura.auth.config import AuthConfig
 from kagura.auth.exceptions import (
@@ -42,8 +44,17 @@ class OAuth2Manager:
 
     SCOPES = {
         "google": [
-            "https://www.googleapis.com/auth/generative-language",
+            "https://www.googleapis.com/auth/generative-language",  # For Gemini API (CLI only)
             "openid",
+        ]
+    }
+
+    # Web-specific scopes (for web dashboard login)
+    WEB_SCOPES = {
+        "google": [
+            "openid",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
         ]
     }
 
@@ -276,3 +287,111 @@ class OAuth2Manager:
         except Exception as e:
             logger.error(f"Failed to load credentials: {e}")
             raise InvalidCredentialsError(f"Failed to decrypt credentials: {e}") from e
+
+    # ========================================================================
+    # Web OAuth2 Flow (Issue #650)
+    # ========================================================================
+
+    def get_authorization_url_web(self, redirect_uri: str, state: str) -> str:
+        """Get OAuth2 authorization URL for Web flow.
+
+        Args:
+            redirect_uri: Callback URL (e.g., https://memory.kagura-ai.com/auth/callback)
+            state: CSRF state token
+
+        Returns:
+            Authorization URL to redirect user to
+
+        Example:
+            >>> manager = OAuth2Manager()
+            >>> url = manager.get_authorization_url_web(
+            ...     redirect_uri="https://memory.kagura-ai.com/auth/callback",
+            ...     state="random_csrf_token"
+            ... )
+        """
+        client_id = os.getenv("GOOGLE_CLIENT_ID")
+        if not client_id:
+            raise ValueError("GOOGLE_CLIENT_ID environment variable not set")
+
+        # Use web-specific scopes (openid, email, profile)
+        scopes = self.WEB_SCOPES[self.provider]
+        scope_str = " ".join(scopes)
+
+        auth_url = (
+            f"https://accounts.google.com/o/oauth2/v2/auth?"
+            f"client_id={client_id}&"
+            f"redirect_uri={redirect_uri}&"
+            f"response_type=code&"
+            f"scope={scope_str}&"
+            f"state={state}&"
+            f"access_type=offline&"
+            f"prompt=consent"
+        )
+
+        return auth_url
+
+    def exchange_code_web(self, code: str, redirect_uri: str) -> Credentials:
+        """Exchange authorization code for credentials (Web flow).
+
+        Args:
+            code: Authorization code from Google
+            redirect_uri: Same redirect_uri used in authorization
+
+        Returns:
+            Google OAuth2 credentials
+
+        Raises:
+            InvalidCredentialsError: If code exchange fails
+        """
+        client_id = os.getenv("GOOGLE_CLIENT_ID")
+        client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+
+        if not client_id or not client_secret:
+            raise ValueError(
+                "GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET required"
+            )
+
+        try:
+            client_config = {
+                "web": {
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                    "token_uri": "https://oauth2.googleapis.com/token",
+                    "redirect_uris": [redirect_uri],
+                }
+            }
+
+            flow = Flow.from_client_config(
+                client_config,
+                scopes=self.WEB_SCOPES[self.provider],
+                redirect_uri=redirect_uri,
+            )
+
+            flow.fetch_token(code=code)
+            logger.info("Code exchange successful")
+            return flow.credentials
+
+        except Exception as e:
+            logger.error(f"Code exchange failed: {e}")
+            raise InvalidCredentialsError(f"Code exchange failed: {e}") from e
+
+    def get_user_info_web(self, credentials: Credentials) -> dict[str, Any]:
+        """Get user info from Google.
+
+        Args:
+            credentials: Google OAuth2 credentials
+
+        Returns:
+            User info dict with sub, email, name, picture
+        """
+        import requests
+
+        headers = {"Authorization": f"Bearer {credentials.token}"}
+        response = requests.get(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            headers=headers,
+        )
+        response.raise_for_status()
+
+        return response.json()

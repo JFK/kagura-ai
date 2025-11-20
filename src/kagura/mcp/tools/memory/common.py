@@ -42,19 +42,35 @@ def get_memory_manager(
     cache_key = f"{user_id}:{agent_name}:rag={enable_rag}"
     logger.debug(f"get_memory_manager: cache_key={cache_key}")
 
-    if cache_key not in _memory_cache:
-        logger.debug(f"get_memory_manager: Creating MemoryManager rag={enable_rag}")
-        if enable_rag:
-            logger.info(
-                f"First-time RAG initialization for {agent_name}. "
-                "Downloading embeddings model (~500MB, may take 30-60s)..."
+    # Check if cached object exists and is valid
+    if cache_key in _memory_cache:
+        cached = _memory_cache[cache_key]
+
+        # Validate required attributes (防止: stale cache from old code versions)
+        required_attrs = ["rag", "graph", "persistent"]  # persistent_rag removed in v4.4.0
+        missing_attrs = [attr for attr in required_attrs if not hasattr(cached, attr)]
+
+        if missing_attrs:
+            logger.warning(
+                f"Cached MemoryManager missing attributes {missing_attrs}, recreating. "
+                "This can happen after code updates. Cache will be refreshed."
             )
-        _memory_cache[cache_key] = MemoryManager(
-            user_id=user_id, agent_name=agent_name, enable_rag=enable_rag
+            del _memory_cache[cache_key]
+        else:
+            logger.debug("get_memory_manager: Using cached MemoryManager")
+            return cached
+
+    # Create new MemoryManager
+    logger.debug(f"get_memory_manager: Creating MemoryManager rag={enable_rag}")
+    if enable_rag:
+        logger.info(
+            f"First-time RAG initialization for {agent_name}. "
+            "Downloading embeddings model (~500MB, may take 30-60s)..."
         )
-        logger.debug("get_memory_manager: MemoryManager created successfully")
-    else:
-        logger.debug("get_memory_manager: Using cached MemoryManager")
+    _memory_cache[cache_key] = MemoryManager(
+        user_id=user_id, agent_name=agent_name, enable_rag=enable_rag
+    )
+    logger.debug("get_memory_manager: MemoryManager created successfully")
 
     return _memory_cache[cache_key]
 

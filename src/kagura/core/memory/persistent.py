@@ -1,6 +1,11 @@
-"""Persistent memory for long-term storage."""
+"""Persistent memory for long-term storage.
+
+Issue #554: Added PostgreSQL support via SQLAlchemy backend.
+"""
 
 import json
+import logging
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -8,23 +13,93 @@ from typing import Any, Optional
 
 from kagura.config.paths import get_data_dir
 
+logger = logging.getLogger(__name__)
+
 
 class PersistentMemory:
-    """Long-term persistent memory using SQLite.
+    """Long-term persistent memory using SQLite or PostgreSQL.
 
     Stores key-value pairs with optional agent scoping and metadata.
+
+    Backends:
+        - SQLite (default): File-based, single-instance
+        - PostgreSQL (production): Cloud-native, multi-instance
+
+    Args:
+        db_path: Path to SQLite database (legacy, SQLite only)
+        database_url: Database connection URL (SQLite or PostgreSQL)
+            - SQLite: sqlite:///path/to/memory.db
+            - PostgreSQL: postgresql://user:pass@host:5432/db
+        use_sqlalchemy: Use SQLAlchemy backend (supports PostgreSQL)
+            Auto-detected from DATABASE_URL or PERSISTENT_BACKEND env var
+
+    Example:
+        >>> # Legacy SQLite (sqlite3 module)
+        >>> mem = PersistentMemory(db_path=Path("memory.db"))
+        >>>
+        >>> # SQLite with SQLAlchemy
+        >>> mem = PersistentMemory(database_url="sqlite:///memory.db")
+        >>>
+        >>> # PostgreSQL (production)
+        >>> mem = PersistentMemory(database_url="postgresql://localhost:5432/kagura")
+        >>>
+        >>> # Environment-based (recommended)
+        >>> # Set PERSISTENT_BACKEND=postgres, DATABASE_URL=postgresql://...
+        >>> mem = PersistentMemory()
     """
 
-    def __init__(self, db_path: Optional[Path] = None) -> None:
+    def __init__(
+        self,
+        db_path: Optional[Path] = None,
+        database_url: Optional[str] = None,
+        use_sqlalchemy: Optional[bool] = None,
+    ) -> None:
         """Initialize persistent memory.
 
         Args:
-            db_path: Path to SQLite database
-                (default: XDG data dir or ~/.local/share/kagura/memory.db)
+            db_path: Path to SQLite database (legacy mode)
+            database_url: Database connection URL (SQLAlchemy mode)
+            use_sqlalchemy: Force SQLAlchemy backend (auto-detect if None)
         """
-        self.db_path = db_path or get_data_dir() / "memory.db"
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._init_db()
+        # Determine backend mode
+        if use_sqlalchemy is None:
+            # Auto-detect from environment or database_url
+            env_backend = os.getenv("PERSISTENT_BACKEND", "sqlite")
+            use_sqlalchemy = (
+                env_backend == "postgres"
+                or (database_url is not None)
+                # Note: Don't auto-enable SQLAlchemy just because DATABASE_URL exists
+                # Only use it if explicitly requested via PERSISTENT_BACKEND=postgres
+            )
+
+        if use_sqlalchemy:
+            # SQLAlchemy backend (supports PostgreSQL)
+            from .backends import SQLAlchemyPersistentBackend
+
+            # Determine database URL
+            if database_url:
+                self._database_url = database_url
+            else:
+                env_db_url = os.getenv("DATABASE_URL")
+                if env_db_url:
+                    self._database_url = env_db_url
+                else:
+                    # Default to SQLite via SQLAlchemy
+                    db_path = db_path or get_data_dir() / "memory.db"
+                    self._database_url = f"sqlite:///{db_path}"
+
+            self._backend = SQLAlchemyPersistentBackend(self._database_url)
+            self._use_sqlalchemy = True
+            logger.info(f"Using SQLAlchemy backend: {self._backend._get_backend_type()}")
+
+        else:
+            # Legacy sqlite3 backend
+            self.db_path = db_path or get_data_dir() / "memory.db"
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+            self._init_db()
+            self._backend = None
+            self._use_sqlalchemy = False
+            logger.info("Using legacy sqlite3 backend")
 
     def _init_db(self) -> None:
         """Initialize database schema."""
@@ -36,6 +111,7 @@ class PersistentMemory:
                     value TEXT NOT NULL,
                     user_id TEXT NOT NULL DEFAULT 'default_user',
                     agent_name TEXT,
+                    type TEXT NOT NULL DEFAULT 'normal',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     metadata TEXT
@@ -69,6 +145,15 @@ class PersistentMemory:
                 # Column already exists
                 pass
 
+            # Migration: Add type column
+            try:
+                conn.execute(
+                    "ALTER TABLE memories ADD COLUMN type TEXT NOT NULL DEFAULT 'normal'"
+                )
+            except sqlite3.OperationalError:
+                # Column already exists
+                pass
+
             # Create indexes (after ensuring all columns exist)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_key ON memories(key)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_agent ON memories(agent_name)")
@@ -83,6 +168,7 @@ class PersistentMemory:
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_user_key ON memories(user_id, key)"
             )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_type ON memories(type)")
 
     def store(
         self,
@@ -101,6 +187,12 @@ class PersistentMemory:
             agent_name: Optional agent name for scoping
             metadata: Optional metadata
         """
+        if self._use_sqlalchemy and self._backend:
+            # Use SQLAlchemy backend (PostgreSQL or SQLite)
+            self._backend.store(key, value, user_id, agent_name, metadata)
+            return
+
+        # Legacy sqlite3 implementation
         value_json = json.dumps(value)
         metadata_json = json.dumps(metadata) if metadata else None
 
@@ -156,6 +248,11 @@ class PersistentMemory:
         Returns:
             Stored value or tuple of (value, metadata) if include_metadata is True.
         """
+        if self._use_sqlalchemy and self._backend:
+            # Use SQLAlchemy backend
+            return self._backend.recall(key, user_id, agent_name, track_access, include_metadata)
+
+        # Legacy sqlite3 implementation
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
                 """
@@ -208,6 +305,12 @@ class PersistentMemory:
         Note:
             This is called automatically by recall() when track_access=True.
         """
+        if self._use_sqlalchemy and self._backend:
+            # Use SQLAlchemy backend
+            self._backend.record_access(key, user_id, agent_name)
+            return
+
+        # Legacy sqlite3 implementation
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """
@@ -238,11 +341,16 @@ class PersistentMemory:
         Returns:
             List of memory dictionaries with access tracking info
         """
+        # Use SQLAlchemy backend if enabled
+        if self._use_sqlalchemy and self._backend:
+            return self._backend.search(query, user_id, agent_name, limit)
+
+        # Legacy sqlite3 implementation
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
                 """
                 SELECT key, value, created_at, updated_at, metadata,
-                       access_count, last_accessed_at
+                       access_count, last_accessed_at, user_id, agent_name
                 FROM memories
                 WHERE key LIKE ? AND user_id = ?
                   AND (agent_name = ? OR (agent_name IS NULL AND ? IS NULL))
@@ -263,6 +371,8 @@ class PersistentMemory:
                         "metadata": json.loads(row[4]) if row[4] else None,
                         "access_count": row[5] if row[5] is not None else 0,
                         "last_accessed_at": row[6],
+                        "user_id": row[7],
+                        "agent_name": row[8],
                     }
                 )
 
@@ -284,18 +394,30 @@ class PersistentMemory:
         Returns:
             List of memory dictionaries ordered by updated_at descending
         """
+        # Use backend if available (SQLAlchemy mode)
+        if self._use_sqlalchemy and self._backend:
+            return self._backend.fetch_all(user_id, agent_name, limit)
+
+        # Legacy sqlite3 mode
         query_parts = [
             "SELECT key, value, created_at, updated_at, metadata,",
-            "       access_count, last_accessed_at",
+            "       access_count, last_accessed_at, user_id, agent_name",
             "FROM memories",
-            "WHERE user_id = ?",
         ]
-        params: list[Any] = [user_id]
+        params: list[Any] = []
 
-        if agent_name is not None:
-            # Include both agent-scoped AND global (agent_name IS NULL) memories
-            # This matches the logic in recall() and search()
-            query_parts.append("  AND (agent_name = ? OR agent_name IS NULL)")
+        # Filter by user_id if provided (empty string means all users)
+        if user_id:
+            query_parts.append("WHERE user_id = ?")
+            params.append(user_id)
+
+            if agent_name is not None:
+                # Include both agent-scoped AND global (agent_name IS NULL) memories
+                query_parts.append("  AND (agent_name = ? OR agent_name IS NULL)")
+                params.append(agent_name)
+        elif agent_name is not None:
+            # No user_id filter, but filter by agent_name
+            query_parts.append("WHERE (agent_name = ? OR agent_name IS NULL)")
             params.append(agent_name)
 
         query_parts.append("ORDER BY updated_at DESC")
@@ -319,6 +441,8 @@ class PersistentMemory:
                         "metadata": json.loads(row[4]) if row[4] else None,
                         "access_count": row[5] if row[5] is not None else 0,
                         "last_accessed_at": row[6],
+                        "user_id": row[7],
+                        "agent_name": row[8],
                     }
                 )
 
@@ -332,6 +456,12 @@ class PersistentMemory:
             user_id: User identifier (memory owner)
             agent_name: Optional agent name for scoping
         """
+        if self._use_sqlalchemy and self._backend:
+            # Use SQLAlchemy backend
+            self._backend.delete(key, user_id, agent_name)
+            return
+
+        # Legacy sqlite3 implementation
         with sqlite3.connect(self.db_path) as conn:
             if agent_name:
                 conn.execute(
@@ -411,6 +541,11 @@ class PersistentMemory:
         Returns:
             Number of memories
         """
+        # Use SQLAlchemy backend if available
+        if self._use_sqlalchemy and self._backend:
+            return self._backend.count(user_id, agent_name)
+
+        # Fallback to direct SQLite access
         with sqlite3.connect(self.db_path) as conn:
             if user_id and agent_name:
                 cursor = conn.execute(

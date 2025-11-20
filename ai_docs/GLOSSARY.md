@@ -48,19 +48,15 @@ v4.0で導入されたユーザー識別子。全てのメモリー操作で必�
 - `"global"` - 全スレッド共有（ユーザー設定等）
 - `"thread_xxx"` - スレッド固有（会話コンテキスト等）
 
-### Working Memory
-セッション中のみ有効な一時メモリー。In-memory辞書。
-
 ### Persistent Memory
 SQLiteに保存される永続メモリー。再起動後も保持。
+
+**Breaking Change (v4.4.0)**: すべてのメモリーがデフォルトで永続化されるようになりました。Working Memoryは削除されました。
 
 ### Graph Memory
 NetworkXベースの知識グラフ。メモリー間の関係性、AIとユーザーのインタラクション履歴を記録。
 
 **Phase B** (Oct 2025) で実装。
-
-### Memory Scope
-メモリーの保存先：`"working"` (一時) or `"persistent"` (永続)
 
 ---
 
